@@ -107,3 +107,13 @@ sympy-plots-for-*.tex/
 
 # xindy
 *.xdy
+
+# for Coq auxiliary files
+*.glob
+*.v.d
+*.vo
+
+# swap files
+*~
+*.swp
+
