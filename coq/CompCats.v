@@ -46,21 +46,21 @@ Coercion ty_comp_cat1 : comp_precat1 >-> Funclass.
 Definition ext_comp_cat1 {C : comp_precat1}
   (c : C) (a : C c) : C
    := pr1 (pr2 (pr2 C)) c a.
-Local Notation "c ; a" := (ext_comp_cat1 c a) (at level 40, left associativity).
+Local Notation "c ; a" := (ext_comp_cat1 c a) (at level 45, left associativity).
 
 (* NOTE: not sure what levels we want,
-  but the level of this should be below the level of reindexing "A[f]",
-  which should in turn be below the level of composition "f∙g",
+  but the level of this should be above the level of reindexing "A[f]",
+  which should in turn be above the level of composition "f∙g",
   to allow expressions like "c;a[f∙g]". *)
 
 Definition reind_comp_cat1 {C : comp_precat1}
   {c } (a : C c) {c'} (f : c' ⇒ c) : C c'
   := pr2 (pr2 (pr2 C)) c a c' f.
-Local Notation "a [ f ]" := (reind_comp_cat1 a f) (at level 45, left associativity).
+Local Notation "a [ f ]" := (reind_comp_cat1 a f) (at level 40).
 
 Definition comp_precat_structure2 (C : comp_precat1) :=
   Σ (dpr : ∀ c (a : C c), c;a ⇒ c)
-    (q : ∀ c (a : C c) c' (f : c' ⇒ c), (c';(a[f])) ⇒ c;a )
+    (q : ∀ c (a : C c) c' (f : c' ⇒ c), (c';a[f]) ⇒ c;a )
     (dpr_q : ∀ c (a : C c) c' (f : c' ⇒ c), 
       (dpr _ a) ∙ (q _ a _ f) = f ∙ dpr _ (a [f])),
     ∀ c (a : C c) c' (f : c' ⇒ c),
@@ -70,6 +70,9 @@ Definition comp_precat := Σ C : comp_precat1, comp_precat_structure2 C.
 
 Definition comp_precat1_from_comp_precat (C : comp_precat) : comp_precat1 := pr1 C.
 Coercion comp_precat1_from_comp_precat : comp_precat >-> comp_precat1.
+
+(* Since the following functions may eventually apply to comprehension categories
+just as well as comprehension precategories, we drop the [pre] in their names. *)
 
 Definition dpr_comp_cat  {C : comp_precat}
   {c : C} (a : C c) : (c;a) ⇒ c
@@ -91,9 +94,23 @@ Definition reind_pb_cat {C : comp_precat} {c } (a : C c) {c'} (f : c' ⇒ c)
 :=
   pr2 (pr2 (pr2 (pr2 C))) _ a _ f.
 
+Definition is_split_comp_precat (C : comp_precat)
+  := (∀ c:C, isaset (C c))
+     × (Σ (reind_id : ∀ c (a : C c), a [identity c] = a),
+         ∀ c (a : C c), q_comp_cat a (identity c)
+                        = idtoiso (maponpaths (fun b => c;b) (reind_id c a)))
+     × (Σ (reind_comp : ∀ c (a : C c) c' (f : c' ⇒ c) c'' (g : c'' ⇒ c'),
+                         a [f∙g] = a[f][g]),
+          ∀ c (a : C c) c' (f : c' ⇒ c) c'' (g : c'' ⇒ c'),
+            q_comp_cat a (f ∙ g)
+            = q_comp_cat a f ∙ q_comp_cat (a[f]) g
+               ∙ idtoiso (maponpaths (fun b => c'';b) (reind_comp _ a _ f _ g))).
+
+Definition split_comp_precat := Σ C, (is_split_comp_precat C).
+
+Definition comp_precat_of_split (C : split_comp_precat) := pr1 C.
+
+(* TODO: define access functions for other components of [is_split_…]. *)
+ 
 End Comp_Precats.
-
-(* Since the following functions may eventually apply to comprehension categories
-just as well as precategories, we drop the [pre] in their names. *)
-
 
