@@ -130,26 +130,20 @@ Definition pairing (C : comp_2_precat) (Γ : C) (A : C⟨Γ⟩) Γ' (γ : Γ' �
     Γ' ⇒ Γ∙A := pr2 (pr2 C Γ A) Γ' γ a.
 Notation "γ ♯ a" := (pairing _ _ _ _ γ a) (at level 25).
 
-Definition comp_3_precat := Σ C : comp_2_precat, reindx_laws C.
-
-Definition comp_2_precat_from_comp_3_precat (C : comp_3_precat) : comp_2_precat := pr1 C.
-Coercion comp_2_precat_from_comp_3_precat : comp_3_precat >-> comp_2_precat.
-
-
 (** Laws satisfied by the comprehension structure *)
-Definition comp_law_1 {C : comp_3_precat} (T : reindx_laws C) := 
+Definition comp_law_1 {C : comp_2_precat} (T : reindx_laws C) := 
    ∀ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' ⇒ Γ) (a : C⟨Γ'⊢ A[γ]⟩),
         Σ h : γ ♯ a □ π _ = γ,
            transportf (λ ι, C⟨Γ'⊢ A [ι]⟩) h   
              (transportf (λ B, C⟨Γ'⊢ B⟩) (!reindx_type_comp T (π _ )(γ ♯ a) _ ) 
                 (ν _ ⟦γ ♯ a⟧)) = a.
 
-Definition comp_law_2 {C : comp_3_precat} (T : reindx_laws C) := 
+Definition comp_law_2 {C : comp_2_precat} (T : reindx_laws C) := 
    ∀ Γ (A : C ⟨Γ⟩) Γ' Γ'' (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') (a : C⟨Γ'⊢ A[γ]⟩),
     γ' □ γ ♯ a = (γ' □ γ) ♯ 
           (transportf (λ B, C⟨Γ''⊢ B⟩) (!reindx_type_comp T γ γ' _ ) (a⟦γ'⟧)).
 
-Definition comp_law_3 {C : comp_3_precat} (T : reindx_laws C) :=
+Definition comp_law_3 {C : comp_2_precat} (T : reindx_laws C) :=
    ∀ Γ (A : C⟨Γ⟩), π A ♯ ν A = identity _ . 
 
 (** ** Definition of precategory with families *)
@@ -161,7 +155,7 @@ Definition comp_law_3 {C : comp_3_precat} (T : reindx_laws C) :=
   - where types and terms are hsets
 *)
 
-Definition pre_cwf := Σ C : comp_3_precat,
+Definition pre_cwf := Σ C : comp_2_precat,
     (Σ T : reindx_laws C,
        (comp_law_1 T × comp_law_2 T × comp_law_3 T)) ×
     (∀ Γ, isaset (C⟨Γ⟩) × ∀ Γ (A : C⟨Γ⟩), isaset (C⟨Γ⊢ A⟩)). 
