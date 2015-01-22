@@ -112,6 +112,7 @@ sympy-plots-for-*.tex/
 *.glob
 *.v.d
 *.vo
+Makefile*.coq
 
 # swap files
 *~
