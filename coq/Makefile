@@ -26,10 +26,10 @@ all: Makefile_all.coq
 	$(MAKE) -f Makefile_all.coq 
 
 Makefile.coq: Makefile $(VS-CORE)
-	coq_makefile -R . "Systems" $(VS-CORE) -o Makefile.coq COQC = hoqc COQDEP = hoqdep
+	coq_makefile -R . "Systems" $(VS-CORE) -o Makefile.coq
 
 Makefile_all.coq: Makefile $(VS-CORE) $(VS-EXTRA)
-	coq_makefile -R . "Systems" $(VS-CORE) $(VS-EXTRA) -o Makefile_all.coq COQC = hoqc COQDEP = hoqdep
+	coq_makefile -R . "Systems" $(VS-CORE) $(VS-EXTRA) -o Makefile_all.coq
 
 clean:: Makefile_all.coq
 	$(MAKE) -f Makefile_all.coq clean
