@@ -22,10 +22,13 @@ End Prelims.
 an elementary definition of a structure analogous to (full) comprehension categories, without
 any saturatedness/univalence assumptions.
 
-  This form of the definition is due to VV, and is very close to the *type-categories*
+  This form of the definition is very close to the *type-categories*
 of Andy Pitts, *Categorical Logic*, 2000, Def. 
 https://synrc.com/publications/cat/Category%20Theory/Categorical%20Logic/Pitts%20A.M.%20Categorical%20Logic.pdf
-which are just the split form of the structure. 
+As given there, those are the split version; but we follow van den Berg and Garner, *Topological and simplicial models…*,
+http://arxiv.org/abs/1007.4638, in separating the splitness axioms out from the rest of the definition.
+
+  NOTE: maybe we should be calling these type-pre-cats throughout, since our form of the definition is really closer to existing definitions of type-categories than of comprehension categories, though we believe it is also equivalent to the latter?
 
   In order to avoid the nested sigma-types getting too deep, we split up the structure into two stages: [comp_precat_structure1] and [comp_precate_structure2]. *)
 Section Comp_Precats.
