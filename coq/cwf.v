@@ -30,10 +30,12 @@ Coercion precat_from_tt_precat : tt_precat >-> precategory.
 Definition type (C : tt_precat) : C → UU := pr1 (pr2 C).
 
 Notation "C ⟨ Γ ⟩" := (type C Γ) (at level 60).
+  (* \< and \> in Agda input method *)
 
 Definition term (C : tt_precat) : ∀ Γ : C, C⟨Γ⟩ → UU := pr2 (pr2 C).
 
 Notation "C ⟨ Γ ⊢ A ⟩" := (term C Γ A) (at level 60).
+  (* \<, \>, and \|- or \vdash *)
 
 (** ** Reindexing of types [A[γ]] and terms [a⟦γ⟧] along a morphism [γ : Γ' ⇒ Γ] *)
 
@@ -158,5 +160,34 @@ Definition comp_law_3 {C : comp_2_precat} (T : reindx_laws C) :=
 Definition pre_cwf := Σ C : comp_2_precat,
     (Σ T : reindx_laws C,
        (comp_law_1 T × comp_law_2 T × comp_law_3 T)) ×
-    (∀ Γ, isaset (C⟨Γ⟩) × ∀ Γ (A : C⟨Γ⟩), isaset (C⟨Γ⊢ A⟩)). 
+    ((∀ Γ, isaset (C⟨Γ⟩)) × ∀ Γ (A : C⟨Γ⟩), isaset (C⟨Γ⊢ A⟩)). 
+
+Definition comp_2_precat_from_pre_cwf (C : pre_cwf) : comp_2_precat
+  := pr1 C.
+Coercion comp_2_precat_from_pre_cwf : pre_cwf >-> comp_2_precat.
+(* There is now a chain of coercions from [pre_cwf] to [precategory]. *)
+
+Definition reindx_laws_from_pre_cwf (C : pre_cwf) : reindx_laws C
+  := pr1 (pr1 (pr2 C)).
+Coercion reindx_laws_from_pre_cwf : pre_cwf >-> reindx_laws.
+(* This coercion allows us to write things like [reindx_type_id C]. *)
+
+Definition pre_cwf_laws (C : pre_cwf) : (comp_law_1 C × comp_law_2 C × comp_law_3 C)
+  := pr2 (pr1 (pr2 C)).
+
+Definition pre_cwf_law_1 (C : pre_cwf) : comp_law_1 C
+  := pr1 (pr1 (pre_cwf_laws C)).
+
+Definition pre_cwf_law_2 (C : pre_cwf) : comp_law_2 C
+  := pr2 (pr1 (pre_cwf_laws C)).
+
+Definition pre_cwf_law_3 (C : pre_cwf) : comp_law_3 C
+  := pr2 (pre_cwf_laws C).
+
+Definition pre_cwf_types_isaset (C : pre_cwf) : ∀ Γ, isaset (C⟨Γ⟩)
+  := pr1 (pr2 (pr2 C)).
+
+Definition pre_cwf_terms_isaset (C : pre_cwf) : ∀ Γ A, isaset (C⟨Γ ⊢ A⟩)
+  := pr2 (pr2 (pr2 C)).
+
 
