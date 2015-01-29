@@ -81,9 +81,8 @@ Proof.
   repeat apply isapropdirprod.
   - apply invproofirrelevance.
     intros i i'.
-    destruct i as [i x]. (* [i [[[oi pi] qi] ri]]. *)
-    destruct i' as [i' x']. (* [[[oi' pi'] qi'] ri']].*)
-    Search ( isaprop _ -> tpair _ _ _ = tpair _ _ _ ).
+    destruct i as [i x]. 
+    destruct i' as [i' x']. 
     apply total2_paths2_second_isaprop.
     + apply funextfun.
       intro a.
