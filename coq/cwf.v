@@ -5,16 +5,18 @@
 
     - Definition of a precategory with families
 
+  The definition is based on Pitts, *Nominal Presentations of the Cubical Sets
+  Model of Type Theory*, Def. 3.1: 
+  http://www.cl.cam.ac.uk/~amp12/papers/nompcs/nompcs.pdf#page=9
 *)
-
-
 
 Require Export Systems.UnicodeNotations.
 Require Export UniMath.Foundations.hlevel2.hSet.
 Require Export UniMath.RezkCompletion.precategories.
 
-Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
-Local Notation "f □ g" := (compose f g)(at level 50).
+Local Notation "a ⇒ b" := (precategory_morphisms a b) (at level 50).
+Local Notation "g ∘ f" := (compose f g) (at level 50).
+  (* \circ or \o in Agda input method *)
 
 
 (** ** A [tt_precategory] comes with a types, written [C⟨Γ⟩], 
@@ -64,14 +66,14 @@ Notation "a ⟦ γ ⟧" := (rterm a γ) (at level 50).
 (** Reindexing for types *)
 Definition reindx_laws_type (C : reindx_precat) : UU :=
     (∀ Γ (A : C⟨Γ⟩), A[identity Γ] = A) ×
-    (∀ Γ Γ' Γ'' (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') (A : C⟨Γ⟩), A [γ' □ γ] = A[γ][γ']). 
+    (∀ Γ Γ' Γ'' (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') (A : C⟨Γ⟩), A [γ ∘ γ'] = A[γ][γ']). 
 
 (** Reindexing for terms needs transport along reindexing for types *) 
 Definition reindx_laws_terms {C : reindx_precat} (T : reindx_laws_type C) :=
     (∀ Γ (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩), a⟦identity Γ⟧ = 
           transportf (λ B, C⟨Γ ⊢ B⟩) (!pr1 T _ _) a) ×
     (∀ Γ Γ' Γ'' (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩),
-            a⟦γ' □ γ⟧ = 
+            a⟦γ ∘ γ'⟧ = 
           transportf (λ B, C⟨Γ'' ⊢ B⟩) (!pr2 T _ _ _ _ _ _ )  (a⟦γ⟧⟦γ'⟧)).
           
 (** Package of reindexing for types and terms *)
@@ -82,7 +84,7 @@ Definition reindx_type_id {C : reindx_precat} (T : reindx_laws C) :
    ∀ Γ (A : C⟨Γ⟩), A [identity Γ] = A := pr1 (pr1 T).
 
 Definition reindx_type_comp {C : reindx_precat} (T : reindx_laws C) 
-   {Γ Γ' Γ''} (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') (A : C⟨Γ⟩) : A [γ' □ γ] = A[γ][γ'] :=
+   {Γ Γ' Γ''} (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') (A : C⟨Γ⟩) : A [γ ∘ γ'] = A[γ][γ'] :=
    pr2 (pr1 T) _ _ _ _ _ _ .
 
 Definition reindx_term_id {C : reindx_precat} (T : reindx_laws C) : 
@@ -91,7 +93,7 @@ Definition reindx_term_id {C : reindx_precat} (T : reindx_laws C) :
 
 Definition reindx_term_comp {C : reindx_precat} (T : reindx_laws C) : 
    ∀ {Γ Γ' Γ''} (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') {A : C⟨Γ⟩} (a : C⟨Γ⊢A⟩),
-            a⟦γ' □ γ⟧ = 
+            a⟦γ ∘ γ'⟧ = 
           transportf (λ B, C⟨Γ'' ⊢ B⟩) (!pr2 (pr1 T) _ _ _ _ _ _ )  (a⟦γ⟧⟦γ'⟧) := 
    pr2 (pr2 T).
     
@@ -135,14 +137,14 @@ Notation "γ ♯ a" := (pairing _ _ _ _ γ a) (at level 25).
 (** Laws satisfied by the comprehension structure *)
 Definition comp_law_1 {C : comp_2_precat} (T : reindx_laws C) := 
    ∀ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' ⇒ Γ) (a : C⟨Γ'⊢ A[γ]⟩),
-        Σ h : γ ♯ a □ π _ = γ,
+        Σ h : (π _) ∘ (γ ♯ a) = γ,
            transportf (λ ι, C⟨Γ'⊢ A [ι]⟩) h   
              (transportf (λ B, C⟨Γ'⊢ B⟩) (!reindx_type_comp T (π _ )(γ ♯ a) _ ) 
                 (ν _ ⟦γ ♯ a⟧)) = a.
 
 Definition comp_law_2 {C : comp_2_precat} (T : reindx_laws C) := 
    ∀ Γ (A : C ⟨Γ⟩) Γ' Γ'' (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') (a : C⟨Γ'⊢ A[γ]⟩),
-    γ' □ γ ♯ a = (γ' □ γ) ♯ 
+    (γ ♯ a) ∘ γ' = (γ ∘ γ') ♯ 
           (transportf (λ B, C⟨Γ''⊢ B⟩) (!reindx_type_comp T γ γ' _ ) (a⟦γ'⟧)).
 
 Definition comp_law_3 {C : comp_2_precat} (T : reindx_laws C) :=

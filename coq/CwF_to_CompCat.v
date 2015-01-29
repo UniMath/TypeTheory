@@ -5,8 +5,9 @@ Require Import Systems.cwf.
 
 Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
   (* \=> in Agda input method *)
-Local Notation "g ∙ f" := (compose f g)(at level 20).
-  (* \. in Agda input method *)
+
+Local Notation "g ∘ f" := (compose f g)(at level 50).
+  (* \circ or \o in Agda input method *)
 
 Local Notation "Γ ; a" := (comp_obj _ Γ a) (at level 45, left associativity).
 
@@ -27,11 +28,11 @@ Defined.
 Definition q_precwf Γ (a : type C Γ) Γ' (f : Γ' ⇒ Γ)
   : (comp_obj _ Γ' (rtype a f)) ⇒ (comp_obj _ Γ a).
 Proof.
-  apply (pairing C Γ a (comp_obj _ Γ' (rtype a f)) (f ∙ proj_mor _ Γ' _)).
+  apply (pairing C Γ a (comp_obj _ Γ' (rtype a f)) (f ∘ proj_mor _ Γ' _)).
   refine (transportb (term C (Γ' ; (a [f])) ) (reindx_type_comp C _ _ a) _).
   apply gen_elem.
 Defined.
-
+ 
 Definition comp_precat_of_precwf : comp_precat.
 Proof.
   exists comp_precat1_of_precwf.
@@ -39,6 +40,5 @@ Proof.
   exists (proj_mor C).
   exists q_precwf.
 Abort.
-
 
 End CompPreCat_of_PreCwF.
