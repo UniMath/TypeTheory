@@ -1,4 +1,6 @@
 
+Require Import total2_paths.
+
 Require Import Systems.UnicodeNotations.
 Require Import Systems.CompCats.
 Require Import Systems.cwf.
@@ -67,14 +69,14 @@ Proof.
   destruct e. apply idpath.
 Qed.
 
-Lemma rtype_typeeq {c} {a a': C ⟨ c ⟩} (e : a = a') {c'} (f : c' ⇒ c) (x : C ⟨ c ⊢ a ⟩)
+Lemma rterm_typeeq {c} {a a': C ⟨ c ⟩} (e : a = a') {c'} (f : c' ⇒ c) (x : C ⟨ c ⊢ a ⟩)
   : transportf _ (maponpaths (fun b => b[f]) e) (x⟦f⟧)
     = (transportf _ e x) ⟦f⟧.
 Proof.
   destruct e. apply idpath.
 Qed.
 
-Lemma rterm_mapeq {c} {a : C ⟨ c ⟩} {c'} (f f' : c' ⇒ c) (e : f = f')
+Lemma transportf_rtype_mapeq {c} {a : C ⟨ c ⟩} {c'} (f f' : c' ⇒ c) (e : f = f')
                      (t : C ⟨ c' ⊢ a[f] ⟩)
   : transportf (fun g => C ⟨ c' ⊢ a[g] ⟩) e t
   = transportf _ (maponpaths (fun g => a[g]) e) t.
@@ -82,12 +84,51 @@ Proof.
   destruct e. apply idpath.
 Qed.
 
+Lemma rterm_mapeq {c} {a : C ⟨ c ⟩} {c'} {f f' : c' ⇒ c} (e : f = f') (t : C ⟨ c ⊢ a ⟩)
+  : t ⟦ f ⟧
+  = transportb _ (maponpaths (fun g => a[g]) e) (t ⟦ f' ⟧ ).
+Proof.
+  destruct e. apply idpath.
+Qed.
+
+
+
 (* TODO: surely there’s a library function for this? *)
 Lemma transportf_pathscomp0 {A} {B} {a a' a'' : A} (e : a = a') (e' : a' = a'') (b : B a)
   : transportf B e' (transportf B e b) = transportf B (e @ e') b.
 Proof.
   destruct e; apply idpath.
 Defined.
+
+(* A slightly odd statement, but very often useful.
+   
+   TODO: consider naming!
+   TODO: try to use in proofs, instead of [transportf_pathscomp0] *)
+Lemma term_typeeq_transport_lemma {c} {a a' a'': C ⟨ c ⟩} (e : a = a'') (e' : a' = a'')
+  (x : C ⟨ c ⊢ a ⟩) (x' : C ⟨ c ⊢ a' ⟩)
+  : transportf _ (e @ !e') x = x'
+  -> transportf _ e x = transportf _ e' x'.
+Proof.
+  intro H.
+  eapply pathscomp0. Focus 2.
+    apply maponpaths. exact H.
+  eapply pathscomp0. Focus 2.
+    symmetry. apply transportf_pathscomp0.
+  apply (maponpaths (fun p => transportf _ p x)).
+  apply pre_cwf_types_isaset.
+Qed.
+
+Lemma term_typeeq_transport_lemma_2 {c} {a : C ⟨ c ⟩} (e : a = a)
+  {x x' : C ⟨ c ⊢ a ⟩}
+  : x = x'
+  -> transportf _ e x = x'.
+Proof.
+  intros ex.
+  apply @pathscomp0 with (transportf _ (idpath a) x).
+    apply (maponpaths (fun p => transportf _ p x)).
+    apply pre_cwf_types_isaset.
+  exact ex.
+Qed.
 
 (* TODO: consider giving this instead of current [pre_cwf_law_2] ? *)
 Definition pre_cwf_law_2' Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' ⇒ Γ) (a : C⟨Γ'⊢ A[γ]⟩)
@@ -99,22 +140,37 @@ Proof.
   eapply pathscomp0. Focus 2.
     apply maponpaths, maponpaths. exact (pre_cwf_law_2 _ _ _ _ γ a).
   symmetry.
+  (* TODO: try simplyfying with [term_typeeq_transport_lemma] *)
   eapply pathscomp0. apply transportf_pathscomp0.
-  eapply pathscomp0. apply maponpaths, rterm_mapeq.
+  eapply pathscomp0. apply maponpaths, transportf_rtype_mapeq.
   eapply pathscomp0. apply transportf_pathscomp0.
   eapply pathscomp0. apply transportf_pathscomp0.
   refine (@maponpaths _ _ (fun e => transportf _ e _) _ (idpath _) _).
   apply pre_cwf_types_isaset.
 Qed.
 
-Definition pre_cwf_law_2 (C : pre_cwf) Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' ⇒ Γ) (a : C⟨Γ'⊢ A[γ]⟩)
-  : transportf (λ ι, C⟨Γ'⊢ A [ι]⟩) (pre_cwf_law_1 C Γ A Γ' γ a)
-    (transportf (λ B, C⟨Γ'⊢ B⟩) (!reindx_type_comp C (π _ )(γ ♯ a) _ ) 
-      ((ν A) ⟦γ ♯ a⟧))
-    = a
-  := pr2 (pr1 (pr1 (pre_cwf_laws C)) Γ A Γ' γ a).
+Lemma rterm_univ {c} {a : C ⟨ c ⟩} {c'} (f : c' ⇒ c)
+  : ν (a[f])
+   = transportf _ (reindx_type_comp C _ _ _)
+       (transportf _ (maponpaths (fun g => a[g]) (dpr_q_precwf a f))
+         (transportb _ (reindx_type_comp C _ _ _)
+            ((ν a)⟦q_precwf a f⟧))).
+Proof.
+  symmetry.
+  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0.
+    apply maponpaths.
+    apply pre_cwf_law_2'.
+  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0. apply transportf_pathscomp0.
+  apply (term_typeeq_transport_lemma _ (idpath _)).
+  apply term_typeeq_transport_lemma_2.
+  apply idpath.
+Qed.
 
-Definition dpr_q_pullback_exists_precwf
+Definition dpr_q_pbpairing_precwf
   {c} (a : comp_precat1_of_precwf c)
   {c'} (f : c' ⇒ c)
   {X} (h : X ⇒ c ∙ a) (k : X ⇒ c') (H : π a ∘ h = f ∘ k)
@@ -129,6 +185,7 @@ Proof.
           ((ν a)⟦h⟧))))
     : C ⟨ X ⊢ (a [f]) [k] ⟩).
   exists (pairing C c' (a[f]) X k νah'). simpl; split.
+  (* TODO: try simplyfying with [term_typeeq_transport_lemma] *)
     unfold q_precwf.
     eapply pathscomp0. Focus 2.
       apply map_to_comp_as_pair_precwf.
@@ -149,7 +206,7 @@ Proof.
     apply @pathscomp0
       with (transportf _ e3 ((ν (a [f])) ⟦ k # νah' ⟧)).
       eapply pathscomp0. apply transportf_pathscomp0.
-      eapply pathscomp0. apply maponpaths. refine (! rtype_typeeq _ _ _).
+      eapply pathscomp0. apply maponpaths. refine (! rterm_typeeq _ _ _).
       eapply pathscomp0. apply transportf_pathscomp0.
       apply (maponpaths (fun e => transportf (term C X) e _)).
       apply pre_cwf_types_isaset.
@@ -159,13 +216,24 @@ Proof.
     eapply pathscomp0. apply transportf_pathscomp0.
     eapply pathscomp0. apply transportf_pathscomp0.
     eapply pathscomp0. apply transportf_pathscomp0.
-    eapply pathscomp0. apply maponpaths, rterm_mapeq.
+    eapply pathscomp0. apply maponpaths, transportf_rtype_mapeq.
     eapply pathscomp0. apply transportf_pathscomp0.
     eapply pathscomp0. apply transportf_pathscomp0.
     refine (maponpaths (fun e => transportf _ e _) _).
     apply pre_cwf_types_isaset.
   apply pre_cwf_law_1.
 Defined.
+
+(* TODO: move *)
+Lemma reindx_term_comp' {Γ Γ' Γ''} (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') {A} (a : C ⟨ Γ ⊢ A ⟩)
+  : transportf _ (reindx_type_comp C _ _ _) (a ⟦ γ ∘ γ' ⟧)
+  = ((a ⟦ γ ⟧) ⟦ γ' ⟧).
+Proof.
+  eapply pathscomp0.
+    apply maponpaths, (reindx_term_comp C).
+  eapply pathscomp0. apply transportf_pathscomp0.
+  apply term_typeeq_transport_lemma_2. apply idpath.
+Qed.
 
 Definition comp_precat_of_precwf : comp_precat.
 Proof.
@@ -175,10 +243,50 @@ Proof.
   exists @q_precwf.
   exists @dpr_q_precwf.
   unfold isPullback; intros. simpl in *.
-  exists (dpr_q_pullback_exists_precwf _ _ h k H).
-  intros [hk [e1 e2]].
-  (* Should only need to show first components equal;
-     rest will follow by morphisms being a set. *) 
+  exists (dpr_q_pbpairing_precwf _ _ h k H).
+
+  intros [hk [e2 e1]].
+  assert (hk = pr1 (dpr_q_pbpairing_precwf a f h k H)). simpl.
+    eapply pathscomp0.
+      symmetry. apply map_to_comp_as_pair_precwf.
+    eapply pathscomp0.
+      apply (pairing_mapeq _ _ e1 _).
+    apply maponpaths.
+    eapply pathscomp0.
+      apply maponpaths, maponpaths. 
+      apply (@maponpaths (C ⟨ c'; (a[f]) ⊢ a[f][π (a[f])] ⟩) _ (fun t => t ⟦hk⟧)).
+      apply rterm_univ.
+    eapply pathscomp0.
+      apply maponpaths, maponpaths. 
+      eapply pathscomp0.
+        symmetry. apply rterm_typeeq.
+      apply maponpaths.
+      eapply pathscomp0.
+        symmetry. apply rterm_typeeq.
+      apply maponpaths.
+      eapply pathscomp0.
+        symmetry. apply rterm_typeeq.
+      apply maponpaths.
+      symmetry. apply reindx_term_comp'.
+    eapply pathscomp0.
+      apply maponpaths, maponpaths, maponpaths, maponpaths, maponpaths, maponpaths.
+      apply (rterm_mapeq e2).
+    apply term_typeeq_transport_lemma.
+    symmetry. eapply pathscomp0.
+      apply transportf_rtype_mapeq.
+    eapply pathscomp0.
+      apply transportf_pathscomp0.
+    apply term_typeeq_transport_lemma.
+    apply term_typeeq_transport_lemma.
+    apply term_typeeq_transport_lemma.
+    apply term_typeeq_transport_lemma.
+    apply term_typeeq_transport_lemma.
+    apply term_typeeq_transport_lemma.
+    apply term_typeeq_transport_lemma.
+    apply term_typeeq_transport_lemma_2.
+    apply idpath.
+  refine (@total2_paths _ _ (tpair _ hk (tpair _ e2 e1)) _ X _).
+  (* Should follow now by precategory hom-sets being sets. *)
 Abort.
 
 End CompPreCat_of_PreCwF.
