@@ -20,7 +20,7 @@ Local Notation "γ # a" := (pairing _ _ _ _ γ a) (at level 75).
 
 Section CompPreCat_of_PreCwF.
 
-Context (C : pre_cwf).
+Context (C : pre_cwf) (homs_sets : has_homsets C).
 
 Definition comp_precat1_of_precwf : comp_precat1.
 Proof.
@@ -286,7 +286,9 @@ Proof.
     apply term_typeeq_transport_lemma_2.
     apply idpath.
   refine (@total2_paths _ _ (tpair _ hk (tpair _ e2 e1)) _ X _).
-  (* Should follow now by precategory hom-sets being sets. *)
-Abort.
+  refine (total2_paths _ _).
+  apply homs_sets.
+  apply homs_sets.
+Defined.
 
 End CompPreCat_of_PreCwF.
