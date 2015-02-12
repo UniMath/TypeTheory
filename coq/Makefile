@@ -9,7 +9,8 @@
 # Modules to be compiled by default, in plain “make”.
 # Includes everything that compiles in reasonable time, and all dependencies.
 MODULES-CORE := Auxiliary UnicodeNotations \
-	CompCats cwf CwF_to_CompCat
+	CompCats cwf CwF_to_CompCat \
+	ess_alg_categories ess_and_gen_alg_cats
 
 # Remaining modules, included only in “make all”.
 # Useful for leaves that are slow to recompile.
@@ -17,6 +18,8 @@ MODULES-EXTRA :=
 
 VS-CORE  := $(MODULES-CORE:%=%.v)
 VS-EXTRA := $(MODULES-EXTRA:%=%.v)
+
+COQDOC := coqdoc
 
 .PHONY: core all clean
 
@@ -35,6 +38,11 @@ Makefile_all.coq: Makefile $(VS-CORE) $(VS-EXTRA)
 clean:: Makefile_all.coq
 	$(MAKE) -f Makefile_all.coq clean
 	rm -f Makefile_all.coq
+	rm -f html
 
+html: all
+	mkdir -p html
+	$(COQDOC) -toc $(COQDOCFLAGS) -utf8 -html $(COQDOCLIBS) -d html $(VS-CORE) $(VS-EXTRA)
+	
 # Makefile based on example from Adam Chlipala, “Theorem Proving in the Large”,
 # section “Build Patterns”. http://adam.chlipala.net/cpdt/html/Large.html

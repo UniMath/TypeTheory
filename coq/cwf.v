@@ -7,7 +7,7 @@
 
   The definition is based on Pitts, *Nominal Presentations of the Cubical Sets
   Model of Type Theory*, Def. 3.1: 
-  http://www.cl.cam.ac.uk/~amp12/papers/nompcs/nompcs.pdf#page=9
+  http://www.cl.cam.ac.uk/~amp12/papers/nompcs/nompcs.pdf (page=9)
 *)
 
 Require Export Systems.Auxiliary.
