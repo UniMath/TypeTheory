@@ -17,6 +17,8 @@ MODULES-EXTRA :=
 VS-CORE  := $(MODULES-CORE:%=%.v)
 VS-EXTRA := $(MODULES-EXTRA:%=%.v)
 
+COQDOC := coqdoc
+
 .PHONY: core all clean
 
 core: Makefile.coq
@@ -34,6 +36,11 @@ Makefile_all.coq: Makefile $(VS-CORE) $(VS-EXTRA)
 clean:: Makefile_all.coq
 	$(MAKE) -f Makefile_all.coq clean
 	rm -f Makefile_all.coq
+	rm -f html
 
+html: all
+	mkdir -p html
+	$(COQDOC) -toc $(COQDOCFLAGS) -utf8 -html $(COQDOCLIBS) -d html $(VS-CORE) $(VS-EXTRA)
+	
 # Makefile based on example from Adam Chlipala, “Theorem Proving in the Large”,
 # section “Build Patterns”. http://adam.chlipala.net/cpdt/html/Large.html
