@@ -8,7 +8,8 @@
 
 # Modules to be compiled by default, in plain “make”.
 # Includes everything that compiles in reasonable time, and all dependencies.
-MODULES-CORE := UnicodeNotations CompCats cwf CwF_to_CompCat
+MODULES-CORE := Auxiliary UnicodeNotations \
+	CompCats cwf CwF_to_CompCat
 
 # Remaining modules, included only in “make all”.
 # Useful for leaves that are slow to recompile.

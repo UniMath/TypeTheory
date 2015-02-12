@@ -10,6 +10,7 @@
   http://www.cl.cam.ac.uk/~amp12/papers/nompcs/nompcs.pdf#page=9
 *)
 
+Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
 Require Export UniMath.Foundations.hlevel2.hSet.
 Require Export UniMath.RezkCompletion.precategories.
@@ -203,7 +204,6 @@ Definition pre_cwf_terms_isaset (C : pre_cwf) : ∀ Γ A, isaset (C⟨Γ ⊢ A�
 
 
 (** ** General lemmas *)
-(** Some lemmas about CwFs. *)
 
 Section CwF_lemmas.
 
@@ -252,14 +252,6 @@ Lemma rterm_mapeq {c} {a : C ⟨ c ⟩} {c'} {f f' : c' ⇒ c} (e : f = f') (t :
 Proof.
   destruct e. apply idpath.
 Qed.
-
-
-(* TODO: move to Auxiliary.  (Surprised there’s no library function for this!) *)
-Lemma transportf_pathscomp0 {A} {B} {a a' a'' : A} (e : a = a') (e' : a' = a'') (b : B a)
-  : transportf B e' (transportf B e b) = transportf B (e @ e') b.
-Proof.
-  destruct e; apply idpath.
-Defined.
 
 (* A slightly odd statement, but very often useful.
    

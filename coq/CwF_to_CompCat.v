@@ -1,6 +1,7 @@
 
 Require Import total2_paths.
 
+Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
 Require Import Systems.CompCats.
 Require Import Systems.cwf.
