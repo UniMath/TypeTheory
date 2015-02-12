@@ -84,49 +84,34 @@ Definition dpr_q_pbpairing_commutes
   {c'} (f : c' ⇒ c)
   {X} (h : X ⇒ c ∙ a) (k : X ⇒ c') (H : π a ∘ h = f ∘ k)
   (hk := pairing C c' (a[f]) X k (dpr_q_pbpairing_precwf_aux a f h k H))
-: ( q_precwf a f ∘ hk = h
-  × π (a[f]) ∘ hk = k).
+: (q_precwf a f ∘ hk = h) × (π (a[f]) ∘ hk = k).
 Proof.
-  simpl; split.
-  (* TODO: try simplyfying with [term_typeeq_transport_lemma] *)
-    unfold q_precwf.
-    eapply pathscomp0. Focus 2.
-      apply map_to_comp_as_pair_precwf.
-    eapply pathscomp0.
-      apply pre_cwf_law_3.
-    assert ((f ∘ π (a [f])) ∘ (k # (dpr_q_pbpairing_precwf_aux a f h k H))
-            = π a ∘ h) as e1.
-      eapply pathscomp0. apply assoc.
-      refine (_ @ !H).
-      apply (maponpaths (fun g => f ∘ g)).
-      apply pre_cwf_law_1.
-    eapply pathscomp0.
-      apply (pairing_mapeq _ _ e1).
-    apply maponpaths.
-    assert (a[f][π (a[f])][k # (dpr_q_pbpairing_precwf_aux a f h k H)]
-            = a[π a ∘ h]) as e3.
-      refine (!reindx_type_comp C _ _ _ @ _).
-      refine (!reindx_type_comp C _ _ _ @ _).
-      apply maponpaths. refine (! _ @ e1). apply assoc.
-    apply @pathscomp0
-      with (transportf _ e3 
-             ((ν (a [f])) ⟦ k # (dpr_q_pbpairing_precwf_aux a f h k H) ⟧)).
-      eapply pathscomp0. apply transportf_pathscomp0.
-      eapply pathscomp0. apply maponpaths. refine (! rterm_typeeq _ _ _).
-      eapply pathscomp0. apply transportf_pathscomp0.
-      apply (maponpaths (fun e => transportf (term C X) e _)).
-      apply pre_cwf_types_isaset.
-    eapply pathscomp0.
-      apply maponpaths. apply pre_cwf_law_2'.
-    eapply pathscomp0. apply transportf_pathscomp0.
-    eapply pathscomp0. apply transportf_pathscomp0.
-    eapply pathscomp0. apply transportf_pathscomp0.
-    eapply pathscomp0. apply maponpaths, transportf_rtype_mapeq.
-    eapply pathscomp0. apply transportf_pathscomp0.
-    eapply pathscomp0. apply transportf_pathscomp0.
-    refine (maponpaths (fun e => transportf _ e _) _).
-    apply pre_cwf_types_isaset.
-  apply pre_cwf_law_1.
+  split. Focus 2. apply pre_cwf_law_1.
+  unfold q_precwf.
+  eapply pathscomp0. Focus 2.
+    apply map_to_comp_as_pair_precwf.
+  eapply pathscomp0.
+    apply pre_cwf_law_3.
+  assert ((f ∘ π (a [f])) ∘ (k # (dpr_q_pbpairing_precwf_aux a f h k H))
+          = π a ∘ h) as e1.
+    eapply pathscomp0. apply assoc.
+    refine (_ @ !H).
+    apply (maponpaths (fun g => f ∘ g)).
+    apply pre_cwf_law_1.
+  eapply pathscomp0. apply (pairing_mapeq _ _ e1).
+  apply maponpaths.
+  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0. apply maponpaths. refine (! rterm_typeeq _ _ _).
+  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0. apply maponpaths, pre_cwf_law_2'.
+  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0. apply maponpaths, transportf_rtype_mapeq.
+  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0. apply transportf_pathscomp0.
+  refine (maponpaths (fun e => transportf _ e _) _).
+  apply pre_cwf_types_isaset.
 Qed.
 
 Definition dpr_q_pbpairing_precwf
@@ -142,6 +127,52 @@ Proof.
 Defined.
 
 
+Definition dpr_q_pbpairing_precwf_mapunique
+  {c} (a : comp_precat1_of_precwf c)
+  {c'} (f : c' ⇒ c)
+  {X} {h : X ⇒ c ∙ a} {k : X ⇒ c'} (H : π a ∘ h = f ∘ k)
+  (hk : X ⇒ ext_comp_cat1 c' (reind_comp_cat1 a f))
+  (e2 : q_precwf a f ∘ hk = h)
+  (e1 : π reind_comp_cat1 a f ∘ hk = k)
+: hk = pr1 (dpr_q_pbpairing_precwf a f h k H).
+Proof.
+  eapply pathscomp0.
+    symmetry. apply map_to_comp_as_pair_precwf.
+  eapply pathscomp0.
+    apply (pairing_mapeq _ _ e1 _).
+  simpl. apply maponpaths.
+  eapply pathscomp0.
+    apply maponpaths, maponpaths. 
+    apply (@maponpaths (C ⟨ c'; (a[f]) ⊢ a[f][π (a[f])] ⟩) _ (fun t => t ⟦hk⟧)).
+    apply rterm_univ.
+  eapply pathscomp0.
+    apply maponpaths, maponpaths. 
+    eapply pathscomp0.
+      symmetry. apply rterm_typeeq.
+    apply maponpaths.
+    eapply pathscomp0.
+      symmetry. apply rterm_typeeq.
+    apply maponpaths.
+    eapply pathscomp0.
+      symmetry. apply rterm_typeeq.
+    apply maponpaths.
+    symmetry. apply reindx_term_comp'.
+  apply term_typeeq_transport_lemma.
+  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0.
+    apply maponpaths, (rterm_mapeq e2).
+  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0.
+    Focus 2. symmetry. apply transportf_rtype_mapeq.
+  repeat apply term_typeeq_transport_lemma. 
+  apply term_typeeq_transport_lemma_2.
+  apply idpath.
+Qed.
+
 Definition dpr_q_pbpairing_precwf_unique
   {c} (a : comp_precat1_of_precwf c)
   {c'} (f : c' ⇒ c)
@@ -151,49 +182,9 @@ Definition dpr_q_pbpairing_precwf_unique
 : t = dpr_q_pbpairing_precwf a f h k H.
 Proof.
   destruct t as [hk [e2 e1]].
-  assert (hk = pr1 (dpr_q_pbpairing_precwf a f h k H)) as mapeq. simpl.
-    eapply pathscomp0.
-      symmetry. apply map_to_comp_as_pair_precwf.
-    eapply pathscomp0.
-      apply (pairing_mapeq _ _ e1 _).
-    apply maponpaths.
-    eapply pathscomp0.
-      apply maponpaths, maponpaths. 
-      apply (@maponpaths (C ⟨ c'; (a[f]) ⊢ a[f][π (a[f])] ⟩) _ (fun t => t ⟦hk⟧)).
-      apply rterm_univ.
-    eapply pathscomp0.
-      apply maponpaths, maponpaths. 
-      eapply pathscomp0.
-        symmetry. apply rterm_typeeq.
-      apply maponpaths.
-      eapply pathscomp0.
-        symmetry. apply rterm_typeeq.
-      apply maponpaths.
-      eapply pathscomp0.
-        symmetry. apply rterm_typeeq.
-      apply maponpaths.
-      symmetry. apply reindx_term_comp'.
-    eapply pathscomp0.
-      apply maponpaths, maponpaths, maponpaths, maponpaths, maponpaths, maponpaths.
-      apply (rterm_mapeq e2).
-    apply term_typeeq_transport_lemma.
-    symmetry. eapply pathscomp0.
-      apply transportf_rtype_mapeq.
-    eapply pathscomp0.
-      apply transportf_pathscomp0.
-    apply term_typeeq_transport_lemma.
-    apply term_typeeq_transport_lemma.
-    apply term_typeeq_transport_lemma.
-    apply term_typeeq_transport_lemma.
-    apply term_typeeq_transport_lemma.
-    apply term_typeeq_transport_lemma.
-    apply term_typeeq_transport_lemma.
-    apply term_typeeq_transport_lemma_2.
-    apply idpath.
-  refine (@total2_paths _ _ (tpair _ hk (tpair _ e2 e1)) _ mapeq _).
-  refine (total2_paths _ _).
-  apply homs_sets.
-  apply homs_sets.
+  refine (@total2_paths _ _ (tpair _ hk (tpair _ e2 e1)) _ 
+    (dpr_q_pbpairing_precwf_mapunique a f H hk e2 e1) _).
+  refine (total2_paths _ _); apply homs_sets.
 Qed.
 
 Definition comp_precat_of_precwf : comp_precat.
@@ -203,7 +194,7 @@ Proof.
   exists (proj_mor C).
   exists @q_precwf.
   exists @dpr_q_precwf.
-  unfold isPullback; intros. simpl in *.
+  unfold isPullback; intros.
   exists (dpr_q_pbpairing_precwf _ _ h k H).
   apply dpr_q_pbpairing_precwf_unique.
 Defined.
