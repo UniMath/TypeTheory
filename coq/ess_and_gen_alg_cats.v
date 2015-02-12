@@ -1,3 +1,20 @@
+(** * Categories in essentially algebraic and generalized algebraic style *)
+
+(** 
+    Essentially algebraic categories:
+    - a type of objects
+    - a type of morphisms
+    - composition is partially defined 
+
+    Generalized algebraic categories:
+    - a type of objects
+    - a family of types of morphisms, parametrized by pairs of objects
+    - composition is a dependent function
+
+In this file, we define functions back and forth and show that 
+    the two variants are equivalent
+*)
+
 
 Require Import UniMath.Foundations.hlevel2.hSet.
 Require Import UniMath.RezkCompletion.precategories.
@@ -6,6 +23,10 @@ Require Import Systems.UnicodeNotations.
 
 Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
 Local Notation "g ∘ f" := (compose f g)(at level 50).
+
+(** * From generalized algebraic precategories to essentially algebraic ones.*)
+
+(** We need extra assumption that the gen. alg. precategory has hom-sets *)
 
 Section ess_alg_from_gen_alg.
 
@@ -55,6 +76,7 @@ Definition graph_w_comp_from_gen_alg : graph_w_comp :=
 Definition id_op1 : @id_op graph_w_comp_from_gen_alg := 
   λ c : C, tpair _ (dirprodpair c c) (identity c).
 
+(** This proof should probably be transparent, since otherwise identity does not compute *)
 
 Lemma ess_alg_cat_axioms_from_gen_alg : ess_alg_cat_axioms graph_w_comp_from_gen_alg.
 Proof.
@@ -62,7 +84,7 @@ Proof.
   - repeat split.
     + exists id_op1.
       repeat split.
-      { unfold id_comp_l. simpl. intros f p.
+      { unfold id_comp_l_ax. simpl. intros f p.
         destruct f as [[a b] f].
         simpl in *.
         unfold target, source in p. simpl in *.
@@ -103,3 +125,82 @@ Proof.
 Qed.
 
 End ess_alg_from_gen_alg.
+
+(** * From ess. alg. categories to gen. alg. ones *)
+
+Section gen_alg_from_ess_alg.
+
+Variable C : ess_alg_cat.
+
+Definition hom (a b : C) : UU := Σ f : mor C, source f = a × target f = b.
+
+Lemma hom_eq (a b : C) (f f' : hom a b) : pr1 f = pr1 f' → f = f'.
+Proof.
+  intro H.  
+  apply total2_paths_second_isaprop.
+  - apply isapropdirprod; apply (pr2 (pr1 (pr2 C))).
+  - assumption.
+Qed.
+
+Definition composition {a b c : C} (f : hom a b) (g : hom b c) : hom a c.
+Proof.
+  assert (H : target (pr1 f) = source (pr1 g)).
+  { etransitivity.
+    - apply (pr2 (pr2 f)).
+    - apply (!pr1 (pr2 g)). }
+  exists (comp (pr1 f) (pr1 g) H).
+  destruct f as [f [fs ft]].
+  destruct g as [g [gs gt]]. simpl in *.
+  split. 
+  - etransitivity. 
+    + apply comp_source.
+    + assumption.
+  - etransitivity.
+    + apply comp_target.
+    + assumption.
+Defined.
+
+
+
+Definition composition_assoc (a b c d : C) (f : hom a b) (g : hom b c) (h : hom c d):
+  composition f (composition g h) = composition (composition f g) h.
+Proof.
+  apply hom_eq, assoc.
+Qed.
+
+Definition identity (a : C) : hom a a.
+Proof.
+  exists (id C a).
+  split.
+  + apply id_source.
+  + apply id_target. 
+Defined.
+
+Definition precategory_ob_mor_from_ess_alg_cat : precategory_ob_mor.
+Proof.
+  exists C.
+  exact (λ a b, hom a b).
+Defined.
+
+Definition precategory_data_from_ess_alg_cat : precategory_data.
+Proof.
+  exists precategory_ob_mor_from_ess_alg_cat.
+  repeat split.
+  - apply identity.
+  - apply @composition.
+Defined.
+
+Lemma is_precategory_precategory_data_from_ess_alg_cat : 
+  is_precategory (precategory_data_from_ess_alg_cat).
+Proof.
+  repeat split; intros.
+  - apply hom_eq. simpl. apply id_comp_l. 
+    apply (pr1 (pr2 f)).
+  - apply hom_eq, id_comp_r, (pr2 (pr2 f)).
+  - apply composition_assoc.
+Qed.
+
+Definition precategory_from_ess_alg_cat : precategory := 
+  tpair _ _ is_precategory_precategory_data_from_ess_alg_cat.
+
+End gen_alg_from_ess_alg.
