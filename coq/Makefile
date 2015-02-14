@@ -35,6 +35,12 @@ Makefile.coq: Makefile $(VS-CORE)
 Makefile_all.coq: Makefile $(VS-CORE) $(VS-EXTRA)
 	coq_makefile -R . "Systems" $(VS-CORE) $(VS-EXTRA) -o Makefile_all.coq
 
+install: all
+	$(MAKE) -f Makefile_all.coq install
+
+install_core: core
+	$(MAKE) -f Makefile.coq install
+
 clean:: Makefile_all.coq
 	$(MAKE) -f Makefile_all.coq clean
 	rm -f Makefile_all.coq
