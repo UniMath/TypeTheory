@@ -6,12 +6,6 @@ Require Import Systems.UnicodeNotations.
 Require Import Systems.CompCats.
 Require Import Systems.cwf.
 
-Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
-  (* \=> in Agda input method *)
-
-Local Notation "g ∘ f" := (compose f g)(at level 50).
-  (* \circ or \o in Agda input method *)
-
 Local Notation "Γ ; a" := (comp_obj _ Γ a) (at level 45, left associativity).
 
 (* Locally override the notation [ γ ♯ a ], at a higher level,

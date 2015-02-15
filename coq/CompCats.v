@@ -4,10 +4,7 @@ Require Export UniMath.Foundations.hlevel2.hSet.
 Require Export UniMath.RezkCompletion.precategories.
 Require Export UniMath.RezkCompletion.limits.pullbacks.
 
-Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
-  (* \=> in Agda input method *)
-Local Notation "g ∙ f" := (compose f g)(at level 50).
-  (* \. in Agda input method *)
+
 
 Section Prelims.
 
@@ -65,7 +62,7 @@ Definition comp_precat_structure2 (C : comp_precat1) :=
   Σ (dpr : ∀ c (a : C c), c;a ⇒ c)
     (q : ∀ c (a : C c) c' (f : c' ⇒ c), (c';a[f]) ⇒ c;a )
     (dpr_q : ∀ c (a : C c) c' (f : c' ⇒ c), 
-      (dpr _ a) ∙ (q _ a _ f) = f ∙ dpr _ (a [f])),
+      (dpr _ a) ∘ (q _ a _ f) = f ∘ dpr _ (a [f])),
     ∀ c (a : C c) c' (f : c' ⇒ c),
       isPullback (dpr _ a) f (q _ a _ f) (dpr _ (a [f])) (dpr_q _ a _ f).
 
@@ -87,7 +84,7 @@ Definition q_comp_cat {C : comp_precat} {c } (a : C c) {c'} (f : c' ⇒ c)
   pr1 (pr2 (pr2 C)) _ a _ f.
 
 Definition dpr_q_comp_cat {C : comp_precat} {c } (a : C c) {c'} (f : c' ⇒ c)
-  : (dpr_comp_cat a) ∙ (q_comp_cat a f) = f ∙ dpr_comp_cat (a [f])
+  : (dpr_comp_cat a) ∘ (q_comp_cat a f) = f ∘ dpr_comp_cat (a [f])
 :=
   pr1 (pr2 (pr2 (pr2 C))) _ a _ f.
 
@@ -103,11 +100,11 @@ Definition is_split_comp_precat (C : comp_precat)
          ∀ c (a : C c), q_comp_cat a (identity c)
                         = idtoiso (maponpaths (fun b => c;b) (reind_id c a)))
      × (Σ (reind_comp : ∀ c (a : C c) c' (f : c' ⇒ c) c'' (g : c'' ⇒ c'),
-                         a [f∙g] = a[f][g]),
+                         a [f∘g] = a[f][g]),
           ∀ c (a : C c) c' (f : c' ⇒ c) c'' (g : c'' ⇒ c'),
-            q_comp_cat a (f ∙ g)
-            = q_comp_cat a f ∙ q_comp_cat (a[f]) g
-               ∙ idtoiso (maponpaths (fun b => c'';b) (reind_comp _ a _ f _ g))).
+            q_comp_cat a (f ∘ g)
+            = q_comp_cat a f ∘ q_comp_cat (a[f]) g
+               ∘ idtoiso (maponpaths (fun b => c'';b) (reind_comp _ a _ f _ g))).
 
 Definition split_comp_precat := Σ C, (is_split_comp_precat C).
 

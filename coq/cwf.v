@@ -13,12 +13,6 @@
 Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
 Require Export UniMath.Foundations.hlevel2.hSet.
-Require Export UniMath.RezkCompletion.precategories.
-
-Local Notation "a ⇒ b" := (precategory_morphisms a b) (at level 50).
-Local Notation "g ∘ f" := (compose f g) (at level 50).
-  (* \circ or \o in Agda input method *)
-
 
 (** ** A [tt_precategory] comes with a types, written [C⟨Γ⟩], 
    and terms [C⟨Γ ⊢ A⟩] *)

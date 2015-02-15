@@ -17,12 +17,9 @@ In this file, we define functions back and forth and show that
 
 
 Require Import UniMath.Foundations.hlevel2.hSet.
-Require Import UniMath.RezkCompletion.precategories.
-Require Import Systems.ess_alg_categories.
 Require Import Systems.UnicodeNotations.
+Require Import Systems.ess_alg_categories.
 
-Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
-Local Notation "g ∘ f" := (compose f g)(at level 50).
 
 (** * From generalized algebraic precategories to essentially algebraic ones.*)
 
