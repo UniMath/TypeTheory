@@ -48,13 +48,13 @@ Coercion tt_precat_from_reindx_precat : reindx_precat >-> tt_precat.
 Definition rtype {C : reindx_precat} : ∀ {Γ Γ' : C} (A : C⟨Γ⟩) (γ : Γ' ⇒ Γ), C⟨Γ'⟩ := 
    pr1 (pr2 C).
 
-Notation "A [ γ ]" := (rtype A γ) (at level 50).
+Notation "A [ γ ]" := (rtype A γ) (at level 40).
 
 Definition rterm {C : reindx_precat} : ∀ {Γ Γ' : C} {A : C⟨Γ⟩} 
     (a : C⟨Γ⊢A⟩) (γ : Γ' ⇒ Γ), C⟨Γ'⊢ A[γ]⟩ := 
     pr2 (pr2 C).
 
-Notation "a ⟦ γ ⟧" := (rterm a γ) (at level 50).
+Notation "a ⟦ γ ⟧" := (rterm a γ) (at level 40).
 
 (** **  Reindexing laws *)
 

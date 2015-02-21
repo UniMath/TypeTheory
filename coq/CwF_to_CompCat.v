@@ -122,9 +122,9 @@ Definition dpr_q_pbpairing_precwf_mapunique
   {c} (a : comp_precat1_of_precwf c)
   {c'} (f : c' ⇒ c)
   {X} {h : X ⇒ c ∙ a} {k : X ⇒ c'} (H : h ;; π a = k ;; f)
-  (hk : X ⇒ ext_comp_cat1 c' (reind_comp_cat1 a f))
+  (hk : X ⇒ c' ◂ a[f])
   (e2 : hk ;; q_precwf a f = h)
-  (e1 : hk ;; π reind_comp_cat1 a f = k)
+  (e1 : hk ;; π (a[f]) = k)
 : hk = pr1 (dpr_q_pbpairing_precwf a f h k H).
 Proof.
   eapply pathscomp0.
@@ -168,8 +168,8 @@ Definition dpr_q_pbpairing_precwf_unique
   {c} (a : comp_precat1_of_precwf c)
   {c'} (f : c' ⇒ c)
   {X} (h : X ⇒ c ∙ a) (k : X ⇒ c') (H : h ;; π a = k ;; f)
-  (t : Σ hk : X ⇒ ext_comp_cat1 c' (reind_comp_cat1 a f),
-       (hk ;; q_precwf a f = h) × (hk ;; π reind_comp_cat1 a f = k))
+  (t : Σ hk : X ⇒ c' ◂ a[f],
+       (hk ;; q_precwf a f = h) × (hk ;; π (a[f]) = k))
 : t = dpr_q_pbpairing_precwf a f h k H.
 Proof.
   destruct t as [hk [e2 e1]].
