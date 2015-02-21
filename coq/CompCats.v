@@ -50,8 +50,8 @@ Local Notation "c ◂ a" := (ext_comp_cat1 c a) (at level 45, left associativity
   (* \tb in Agda input method *)
 (* NOTE: not sure what levels we want,
   but the level of this should be above the level of reindexing "A[f]",
-  which should in turn be above the level of composition "g;f",
-  to allow expressions like "c◂a[g;f]". *)
+  which should in turn be above the level of composition "g;;f",
+  to allow expressions like "c◂a[g;;f]". *)
 
 Definition reind_comp_cat1 {C : comp_precat1}
   {c } (a : C c) {c'} (f : c' ⇒ c) : C c'
@@ -62,7 +62,7 @@ Definition comp_precat_structure2 (C : comp_precat1) :=
   Σ (dpr : ∀ c (a : C c), c◂a ⇒ c)
     (q : ∀ c (a : C c) c' (f : c' ⇒ c), (c'◂a[f]) ⇒ c◂a )
     (dpr_q : ∀ c (a : C c) c' (f : c' ⇒ c), 
-      (q _ a _ f) ; (dpr _ a) = (dpr _ (a [f])) ; f),
+      (q _ a _ f) ;; (dpr _ a) = (dpr _ (a [f])) ;; f),
     ∀ c (a : C c) c' (f : c' ⇒ c),
       isPullback (dpr _ a) f (q _ a _ f) (dpr _ (a [f])) (dpr_q _ a _ f).
 (* TODO: change name [dpr_q] to [q_dpr] throughout, now that composition is diagrammatic order. *)
@@ -85,7 +85,7 @@ Definition q_comp_cat {C : comp_precat} {c } (a : C c) {c'} (f : c' ⇒ c)
   pr1 (pr2 (pr2 C)) _ a _ f.
 
 Definition dpr_q_comp_cat {C : comp_precat} {c } (a : C c) {c'} (f : c' ⇒ c)
-  : (q_comp_cat a f) ; (dpr_comp_cat a) = (dpr_comp_cat (a [f])) ; f
+  : (q_comp_cat a f) ;; (dpr_comp_cat a) = (dpr_comp_cat (a [f])) ;; f
 :=
   pr1 (pr2 (pr2 (pr2 C))) _ a _ f.
 
@@ -101,12 +101,12 @@ Definition is_split_comp_precat (C : comp_precat)
          ∀ c (a : C c), q_comp_cat a (identity c)
                         = idtoiso (maponpaths (fun b => c◂b) (reind_id c a)))
      × (Σ (reind_comp : ∀ c (a : C c) c' (f : c' ⇒ c) c'' (g : c'' ⇒ c'),
-                         a [g;f] = a[f][g]),
+                         a [g;;f] = a[f][g]),
           ∀ c (a : C c) c' (f : c' ⇒ c) c'' (g : c'' ⇒ c'),
-            q_comp_cat a (g ; f)
+            q_comp_cat a (g ;; f)
             =  idtoiso (maponpaths (fun b => c''◂b) (reind_comp _ a _ f _ g))
-               ; q_comp_cat (a[f]) g
-               ; q_comp_cat a f).
+               ;; q_comp_cat (a[f]) g
+               ;; q_comp_cat a f).
 
 Definition split_comp_precat := Σ C, (is_split_comp_precat C).
 

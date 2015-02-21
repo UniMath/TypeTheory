@@ -61,14 +61,14 @@ Notation "a ⟦ γ ⟧" := (rterm a γ) (at level 50).
 (** Reindexing for types *)
 Definition reindx_laws_type (C : reindx_precat) : UU :=
     (∀ Γ (A : C⟨Γ⟩), A[identity Γ] = A) ×
-    (∀ Γ Γ' Γ'' (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') (A : C⟨Γ⟩), A [γ';γ] = A[γ][γ']). 
+    (∀ Γ Γ' Γ'' (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') (A : C⟨Γ⟩), A [γ';;γ] = A[γ][γ']). 
 
 (** Reindexing for terms needs transport along reindexing for types *) 
 Definition reindx_laws_terms {C : reindx_precat} (T : reindx_laws_type C) :=
     (∀ Γ (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩), a⟦identity Γ⟧ = 
           transportf (λ B, C⟨Γ ⊢ B⟩) (!pr1 T _ _) a) ×
     (∀ Γ Γ' Γ'' (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩),
-            a⟦γ';γ⟧ = 
+            a⟦γ';;γ⟧ = 
           transportf (λ B, C⟨Γ'' ⊢ B⟩) (!pr2 T _ _ _ _ _ _ )  (a⟦γ⟧⟦γ'⟧)).
           
 (** Package of reindexing for types and terms *)
@@ -79,7 +79,7 @@ Definition reindx_type_id {C : reindx_precat} (T : reindx_laws C) :
    ∀ Γ (A : C⟨Γ⟩), A [identity Γ] = A := pr1 (pr1 T).
 
 Definition reindx_type_comp {C : reindx_precat} (T : reindx_laws C) 
-   {Γ Γ' Γ''} (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') (A : C⟨Γ⟩) : A [γ';γ] = A[γ][γ'] :=
+   {Γ Γ' Γ''} (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') (A : C⟨Γ⟩) : A [γ';;γ] = A[γ][γ'] :=
    pr2 (pr1 T) _ _ _ _ _ _ .
 
 Definition reindx_term_id {C : reindx_precat} (T : reindx_laws C) : 
@@ -88,7 +88,7 @@ Definition reindx_term_id {C : reindx_precat} (T : reindx_laws C) :
 
 Definition reindx_term_comp {C : reindx_precat} (T : reindx_laws C) : 
    ∀ {Γ Γ' Γ''} (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') {A : C⟨Γ⟩} (a : C⟨Γ⊢A⟩),
-            a⟦γ';γ⟧ = 
+            a⟦γ';;γ⟧ = 
           transportf (λ B, C⟨Γ'' ⊢ B⟩) (!pr2 (pr1 T) _ _ _ _ _ _ )  (a⟦γ⟧⟦γ'⟧) := 
    pr2 (pr2 T).
     
@@ -134,14 +134,14 @@ Notation "γ ♯ a" := (pairing _ _ _ _ γ a) (at level 25).
 (** Laws satisfied by the comprehension structure *)
 Definition comp_laws_1_2 {C : comp_2_precat} (T : reindx_laws C) := 
    ∀ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' ⇒ Γ) (a : C⟨Γ'⊢ A[γ]⟩),
-        Σ h : (γ ♯ a) ; (π _) = γ,
+        Σ h : (γ ♯ a) ;; (π _) = γ,
            transportf (λ ι, C⟨Γ'⊢ A [ι]⟩) h   
              (transportf (λ B, C⟨Γ'⊢ B⟩) (!reindx_type_comp T (π _ )(γ ♯ a) _ ) 
                 (ν _ ⟦γ ♯ a⟧)) = a.
 
 Definition comp_law_3 {C : comp_2_precat} (T : reindx_laws C) := 
    ∀ Γ (A : C ⟨Γ⟩) Γ' Γ'' (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') (a : C⟨Γ'⊢ A[γ]⟩),
-    γ' ; (γ ♯ a) = (γ' ; γ) ♯ 
+    γ' ;; (γ ♯ a) = (γ' ;; γ) ♯ 
           (transportf (λ B, C⟨Γ''⊢ B⟩) (!reindx_type_comp T γ γ' _ ) (a⟦γ'⟧)).
 
 Definition comp_law_4 {C : comp_2_precat} (T : reindx_laws C) :=
@@ -176,7 +176,7 @@ Definition pre_cwf_laws (C : pre_cwf)
   := pr2 (pr1 (pr2 C)).
 
 Definition pre_cwf_law_1 (C : pre_cwf) Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' ⇒ Γ) (a : C⟨Γ'⊢ A[γ]⟩)
-  : (γ ♯ a) ; (π _) = γ
+  : (γ ♯ a) ;; (π _) = γ
   := pr1 (pr1 (pr1 (pre_cwf_laws C)) Γ A Γ' γ a).
 
 Definition pre_cwf_law_2 (C : pre_cwf) Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' ⇒ Γ) (a : C⟨Γ'⊢ A[γ]⟩)
@@ -207,7 +207,7 @@ Context {C : pre_cwf}.
 
 Lemma map_to_comp_as_pair_precwf {c} {a : C⟨c⟩} {c'} (f : c' ⇒ c∙a)
   : pairing _ _ _ _ 
-      (f ; π a)
+      (f ;; π a)
       (transportb _ (reindx_type_comp C _ _ _) ((ν a)⟦f⟧))
   = f.
 Proof.
@@ -215,7 +215,7 @@ Proof.
   eapply pathscomp0.
     refine (!id_right _ _ _ _).
   eapply pathscomp0.
-    refine (maponpaths (fun g => f ; g) (!pre_cwf_law_4 _ _ _)).
+    refine (maponpaths (fun g => f ;; g) (!pre_cwf_law_4 _ _ _)).
   apply pre_cwf_law_3.
 Qed.
 
@@ -280,7 +280,7 @@ Proof.
 Qed.
 
 Lemma reindx_term_comp' {Γ Γ' Γ''} (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') {A} (a : C ⟨ Γ ⊢ A ⟩)
-  : transportf _ (reindx_type_comp C _ _ _) (a ⟦ γ' ; γ ⟧)
+  : transportf _ (reindx_type_comp C _ _ _) (a ⟦ γ' ;; γ ⟧)
   = ((a ⟦ γ ⟧) ⟦ γ' ⟧).
 Proof.
   eapply pathscomp0.
