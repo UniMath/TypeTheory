@@ -31,8 +31,11 @@ Variable C : precategory.
 Variable hs : has_homsets C.
 Variable H : isaset C.
 
+(* TODO: now we are writing compositional in diagrammatic order,
+should we switch the names of [idtomor_left] and [idtomor_right]
+(and similar lemmas? *) 
 Lemma idtomor_left (a b : C) (f : a ⇒ b) (e : b = b) : 
-   idtomor _ _ e ∘ f = f.
+   f ; idtomor _ _ e = f.
 Proof.
   set (H1 := H b b).
   set (H2:=proofirrelevance _ H1 e (idpath _ )).
@@ -42,7 +45,7 @@ Proof.
 Qed.
 
 Lemma idtomor_right (a b : C) (f : a ⇒ b) (e : a = a) : 
-   f ∘ idtomor _ _ e = f.
+   idtomor _ _ e ; f = f.
 Proof.
   set (H1 := H a a).
   set (H2:=proofirrelevance _ H1 e (idpath _ )).
@@ -64,7 +67,7 @@ Definition graph_from_gen_alg_comp : @comp_op graph_from_gen_alg.
 Proof.
   intros f g e.
   exists (dirprodpair (pr1 (pr1 f)) (pr2 (pr1 g))).
-  exact (pr2 g ∘ (idtomor _ _ e ∘ pr2 f)).
+  exact ((pr2 f ; idtomor _ _ e) ; pr2 g).
 Defined.
 
 Definition graph_w_comp_from_gen_alg : graph_w_comp := 
