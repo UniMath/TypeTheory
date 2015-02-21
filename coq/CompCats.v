@@ -18,9 +18,9 @@ End Prelims.
 
 We give here an elementary definition “comprehension pre-categories”: a structure analogous to (full) comprehension categories, without any saturatedness/univalence assumptions on the underlying category.
 
-  This form of the definition is close to the _type-categories_ of Andy Pitts, _Categorical Logic_, 2000, Def. 6.3.3:
-https://synrc.com/publications/cat/Category%20Theory/Categorical%20Logic/Pitts%20A.M.%20Categorical%20Logic.pdf#page=73
-That definition includes two _strictness conditions_; we follow van den Berg and Garner, _Topological and simplicial models…_ http://arxiv.org/abs/1007.4638, Def 2.2.1, in separating these out from the rest of the definition.
+  This form of the definition is close to the _type-categories_ of Andy Pitts, _Categorical Logic_, 2000, Def. 6.3.3
+#(<a href="https://synrc.com/publications/cat/Category%%20Theory/Categorical%%20Logic/Pitts%%20A.M.%%20Categorical%%20Logic.pdf##page=73">link</a>).#
+However, that definition includes two _strictness conditions_; we follow van den Berg and Garner, _Topological and simplicial models_, Def 2.2.1 #(<a href="http://arxiv.org/abs/1007.4638">arXiv</a>)# in separating these out from the rest of the definition.
 
   An element [comp_precat], as we define it below, is thus exactly a type-category according to the definition of van den Berg and Garner; and an element of [split_comp_precat] is a split type-category according to van den Berg and Garner, or a plain type-category in the sense of Pitts (modulo, in either case, the question of equality on objects of the category).
  
