@@ -114,6 +114,9 @@ sympy-plots-for-*.tex/
 *.vo
 Makefile*.coq
 
+# for Coq generated documentation
+coq/html/*
+
 # swap files
 *~
 *.swp
