@@ -61,7 +61,7 @@ Proof.
 Qed.
 
 Definition dpr_q_pbpairing_precwf_aux
-  {Γ} (a : comp_precat1_of_precwf Γ)
+  {Γ} (a : C ⟨ Γ ⟩)
   {Γ'} (f : Γ' ⇒ Γ)
   {X} (h : X ⇒ Γ ∙ a) (k : X ⇒ Γ') (H : h ;; π a = k ;; f)
 : C ⟨ X ⊢ (a [f]) [k] ⟩
@@ -71,7 +71,7 @@ Definition dpr_q_pbpairing_precwf_aux
           ((ν a)⟦h⟧)))).
 
 Definition dpr_q_pbpairing_commutes
-  {Γ} (a : comp_precat1_of_precwf Γ)
+  {Γ} (a : C ⟨ Γ ⟩)
   {Γ'} (f : Γ' ⇒ Γ)
   {X} (h : X ⇒ Γ ∙ a) (k : X ⇒ Γ') (H : h ;; π a = k ;; f)
   (hk := pairing C Γ' (a[f]) X k (dpr_q_pbpairing_precwf_aux a f h k H))
@@ -106,7 +106,7 @@ Proof.
 Qed.
 
 Definition dpr_q_pbpairing_precwf
-  {Γ} (a : comp_precat1_of_precwf Γ)
+  {Γ} (a : C ⟨ Γ ⟩)
   {Γ'} (f : Γ' ⇒ Γ)
   {X} (h : X ⇒ Γ ∙ a) (k : X ⇒ Γ') (H : h ;; π a = k ;; f)
 : Σ (hk : X ⇒ Γ' ∙ (a[f])),
