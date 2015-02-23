@@ -11,6 +11,29 @@ Require Import Systems.cwf.
 (* Locally override the notation [ γ ♯ a ], at a higher level,
   to get more informative bracketing when pairing meets composition. *) 
 Local Notation "γ # a" := (pairing _ _ _ _ γ a) (at level 75).
+
+Section Prelims.
+
+(* TODO: move to [cwf] *)
+Definition pairing_transport {C : pre_cwf} {Γ} {A A' : C⟨Γ⟩} (e : A = A')
+  {Γ'} (γ : Γ' ⇒ Γ) (a : C ⟨Γ'⊢A[γ]⟩)
+: (γ # a) ;; idtoiso (maponpaths (fun (B : C⟨Γ⟩) => Γ∙B) e)
+= (γ # (transportf (fun B => C ⟨ Γ' ⊢ B [γ] ⟩) e a)).
+Proof.
+  destruct e; simpl.
+  apply id_right.
+Defined.
+
+(* TODO: generalise; really it’s about any [transportf] along any [maponpaths]. *)
+Lemma transportf_maponpaths {C : pre_cwf} {Γ} {B B' : C⟨Γ⟩} (e : B = B')
+  {Γ'} (f : Γ' ⇒ Γ) (b : C ⟨ Γ' ⊢ B[f] ⟩)
+: transportf (term C Γ') (maponpaths (fun D => D[f]) e) b
+  = transportf (fun D => term C Γ' (D[f])) e b.
+Proof.
+  destruct e. reflexivity.
+Defined.
+
+End Prelims.
 (* end hide *)
 
 
@@ -208,5 +231,41 @@ Proof.
   exists (dpr_q_pbpairing_precwf _ _ h k H).
   apply dpr_q_pbpairing_precwf_unique.
 Defined.
+
+(** Moreover, the comprehension precat of a pre-CwF is always split. *)
+
+Definition issplit_comp_precat_of_precwf
+  : is_split_comp_cat comp_precat_of_precwf.
+Proof.
+  unfold is_split_comp_cat.
+  split. split.
+  (* Types over each object form a set *)
+  apply pre_cwf_types_isaset.
+  (* Reindexing along identities *)
+  exists (reindx_type_id C).
+  intros Γ A. unfold q_comp_cat; simpl. unfold q_precwf.
+  eapply pathscomp0. Focus 2. apply id_left.
+  eapply pathscomp0. Focus 2.
+    refine (maponpaths (fun q => q ;; _) _).
+    Unfocus.
+  eapply pathscomp0. Focus 2.
+    symmetry. apply pairing_transport.
+    Focus 2. apply pre_cwf_law_4.
+  eapply pathscomp0.
+    apply (pairing_mapeq _ _ (id_right _ _ _ _)).
+  apply maponpaths. simpl.
+  eapply pathscomp0. apply transportf_pathscomp0.
+  refine (_ @ _).
+      exact (transportf (term C (Γ ◂ A [identity Γ]))
+        (maponpaths (fun B => B [π (A [identity Γ])]) (reindx_type_id C Γ A))
+        (ν (A [identity Γ]))).
+    apply term_typeeq_transport_lemma.
+    apply term_typeeq_transport_lemma_2.
+    reflexivity.
+  apply transportf_maponpaths.
+  (* Reindexing along composites *)
+  exists (fun Γ A Γ' f Γ'' g => reindx_type_comp C f g A).
+  admit.
+Qed.
 
 End CompPreCat_of_PreCwF.
