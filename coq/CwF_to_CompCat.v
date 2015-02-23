@@ -23,28 +23,28 @@ Proof.
   exact (fun Γ a Γ' f => a[f]).
 Defined.
 
-Definition q_precwf {Γ} (a : type C Γ) {Γ'} (f : Γ' ⇒ Γ)
-  : (comp_obj _ Γ' (a[f])) ⇒ (Γ ∙ a).
+Definition q_precwf {Γ} (A : C ⟨ Γ ⟩ ) {Γ'} (f : Γ' ⇒ Γ)
+  : (comp_obj _ Γ' (A[f])) ⇒ (Γ ∙ A).
 Proof.
-  apply (pairing _ _ _ (Γ' ∙ (a[f])) (π _ ;; f)).
-  refine (transportb (term C (Γ' ∙ (a [f])) ) (reindx_type_comp C _ _ a) _).
+  apply (pairing _ _ _ (Γ' ∙ (A[f])) (π _ ;; f)).
+  refine (transportb (term C (Γ' ∙ (A [f])) ) (reindx_type_comp C _ _ A) _).
   apply gen_elem.
 Defined.
 
 Definition dpr_q_precwf 
-  {Γ} (a : comp_precat1_of_precwf Γ)
+  {Γ} (A : C ⟨ Γ ⟩)
   {Γ'} (f : Γ' ⇒ Γ)
-: (q_precwf a f) ;; (π a) = (π (a[f])) ;; f.
+: (q_precwf A f) ;; (π A) = (π (A[f])) ;; f.
 Proof.
   apply pre_cwf_law_1.
 Qed.
 
-Lemma rterm_univ {Γ} {a : C ⟨ Γ ⟩} {Γ'} (f : Γ' ⇒ Γ)
-  : ν (a[f])
+Lemma rterm_univ {Γ} {A : C ⟨ Γ ⟩} {Γ'} (f : Γ' ⇒ Γ)
+  : ν (A[f])
    = transportf _ (reindx_type_comp C _ _ _)
-       (transportf _ (maponpaths (fun g => a[g]) (dpr_q_precwf a f))
+       (transportf _ (maponpaths (fun g => A[g]) (dpr_q_precwf A f))
          (transportb _ (reindx_type_comp C _ _ _)
-            ((ν a)⟦q_precwf a f⟧))).
+            ((ν A)⟦q_precwf A f⟧))).
 Proof.
   symmetry.
   eapply pathscomp0. apply transportf_pathscomp0.
@@ -61,21 +61,21 @@ Proof.
 Qed.
 
 Definition dpr_q_pbpairing_precwf_aux
-  {Γ} (a : C ⟨ Γ ⟩)
+  {Γ} (A : C ⟨ Γ ⟩)
   {Γ'} (f : Γ' ⇒ Γ)
-  {X} (h : X ⇒ Γ ∙ a) (k : X ⇒ Γ') (H : h ;; π a = k ;; f)
-: C ⟨ X ⊢ (a [f]) [k] ⟩
+  {X} (h : X ⇒ Γ ∙ A) (k : X ⇒ Γ') (H : h ;; π A = k ;; f)
+: C ⟨ X ⊢ (A [f]) [k] ⟩
 := (transportf _ (reindx_type_comp C _ _ _)
-      (transportf (fun g => C ⟨ X ⊢ a[g] ⟩) H
+      (transportf (fun g => C ⟨ X ⊢ A[g] ⟩) H
         (transportf _ (!reindx_type_comp C _ _ _)
-          ((ν a)⟦h⟧)))).
+          ((ν A)⟦h⟧)))).
 
 Definition dpr_q_pbpairing_commutes
-  {Γ} (a : C ⟨ Γ ⟩)
+  {Γ} (A : C ⟨ Γ ⟩)
   {Γ'} (f : Γ' ⇒ Γ)
-  {X} (h : X ⇒ Γ ∙ a) (k : X ⇒ Γ') (H : h ;; π a = k ;; f)
-  (hk := pairing C Γ' (a[f]) X k (dpr_q_pbpairing_precwf_aux a f h k H))
-: (hk ;; q_precwf a f = h) × (hk ;; π (a[f]) = k).
+  {X} (h : X ⇒ Γ ∙ A) (k : X ⇒ Γ') (H : h ;; π A = k ;; f)
+  (hk := pairing C Γ' (A[f]) X k (dpr_q_pbpairing_precwf_aux A f h k H))
+: (hk ;; q_precwf A f = h) × (hk ;; π (A[f]) = k).
 Proof.
   split. Focus 2. apply pre_cwf_law_1.
   unfold q_precwf.
@@ -83,8 +83,8 @@ Proof.
     apply map_to_comp_as_pair_precwf.
   eapply pathscomp0.
     apply pre_cwf_law_3.
-  assert ((k # (dpr_q_pbpairing_precwf_aux a f h k H)) ;; (π (a [f]) ;; f) 
-          = h ;; π a) as e1.
+  assert ((k # (dpr_q_pbpairing_precwf_aux A f h k H)) ;; (π (A [f]) ;; f) 
+          = h ;; π A) as e1.
     eapply pathscomp0. apply assoc.
     refine (_ @ !H).
     apply (maponpaths (fun g => g ;; f)).
@@ -106,26 +106,26 @@ Proof.
 Qed.
 
 Definition dpr_q_pbpairing_precwf
-  {Γ} (a : C ⟨ Γ ⟩)
+  {Γ} (A : C ⟨ Γ ⟩)
   {Γ'} (f : Γ' ⇒ Γ)
-  {X} (h : X ⇒ Γ ∙ a) (k : X ⇒ Γ') (H : h ;; π a = k ;; f)
-: Σ (hk : X ⇒ Γ' ∙ (a[f])),
-    ( hk ;; q_precwf a f = h
-    × hk ;; π (a[f]) = k).
+  {X} (h : X ⇒ Γ ∙ A) (k : X ⇒ Γ') (H : h ;; π A = k ;; f)
+: Σ (hk : X ⇒ Γ' ∙ (A[f])),
+    ( hk ;; q_precwf A f = h
+    × hk ;; π (A[f]) = k).
 Proof.
-  exists (pairing C Γ' (a[f]) X k (dpr_q_pbpairing_precwf_aux a f h k H)).
+  exists (pairing C Γ' (A[f]) X k (dpr_q_pbpairing_precwf_aux A f h k H)).
   apply dpr_q_pbpairing_commutes.
 Defined.
 
 
 Definition dpr_q_pbpairing_precwf_mapunique
-  {Γ} (a : comp_precat1_of_precwf Γ)
+  {Γ} (A : comp_precat1_of_precwf Γ)
   {Γ'} (f : Γ' ⇒ Γ)
-  {X} {h : X ⇒ Γ ∙ a} {k : X ⇒ Γ'} (H : h ;; π a = k ;; f)
-  (hk : X ⇒ Γ' ◂ a[f])
-  (e2 : hk ;; q_precwf a f = h)
-  (e1 : hk ;; π (a[f]) = k)
-: hk = pr1 (dpr_q_pbpairing_precwf a f h k H).
+  {X} {h : X ⇒ Γ ∙ A} {k : X ⇒ Γ'} (H : h ;; π A = k ;; f)
+  (hk : X ⇒ Γ' ◂ A[f])
+  (e2 : hk ;; q_precwf A f = h)
+  (e1 : hk ;; π (A[f]) = k)
+: hk = pr1 (dpr_q_pbpairing_precwf A f h k H).
 Proof.
   eapply pathscomp0.
     symmetry. apply map_to_comp_as_pair_precwf.
@@ -134,7 +134,7 @@ Proof.
   simpl. apply maponpaths.
   eapply pathscomp0.
     apply maponpaths, maponpaths. 
-    apply (@maponpaths (C ⟨ Γ' ∙ (a[f]) ⊢ a[f][π (a[f])] ⟩) _ (fun t => t ⟦hk⟧)).
+    apply (@maponpaths (C ⟨ Γ' ∙ (A[f]) ⊢ A[f][π (A[f])] ⟩) _ (fun t => t ⟦hk⟧)).
     apply rterm_univ.
   eapply pathscomp0.
     apply maponpaths, maponpaths. 
@@ -165,16 +165,16 @@ Proof.
 Qed.
 
 Definition dpr_q_pbpairing_precwf_unique
-  {Γ} (a : comp_precat1_of_precwf Γ)
+  {Γ} (A : comp_precat1_of_precwf Γ)
   {Γ'} (f : Γ' ⇒ Γ)
-  {X} (h : X ⇒ Γ ∙ a) (k : X ⇒ Γ') (H : h ;; π a = k ;; f)
-  (t : Σ hk : X ⇒ Γ' ◂ a[f],
-       (hk ;; q_precwf a f = h) × (hk ;; π (a[f]) = k))
-: t = dpr_q_pbpairing_precwf a f h k H.
+  {X} (h : X ⇒ Γ ∙ A) (k : X ⇒ Γ') (H : h ;; π A = k ;; f)
+  (t : Σ hk : X ⇒ Γ' ◂ A[f],
+       (hk ;; q_precwf A f = h) × (hk ;; π (A[f]) = k))
+: t = dpr_q_pbpairing_precwf A f h k H.
 Proof.
   destruct t as [hk [e2 e1]].
   refine (@total2_paths _ _ (tpair _ hk (tpair _ e2 e1)) _ 
-    (dpr_q_pbpairing_precwf_mapunique a f H hk e2 e1) _).
+    (dpr_q_pbpairing_precwf_mapunique A f H hk e2 e1) _).
   refine (total2_paths _ _); apply homs_sets.
 Qed.
 

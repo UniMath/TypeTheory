@@ -36,14 +36,14 @@ Record comp_precat_record : Type := {
   C : precategory ;
   ty : C -> Type ;
   ext : ∀ Γ, ty Γ -> C ;
-  dpr : ∀ Γ (a : ty Γ), (ext Γ a) ⇒ Γ ;
-  reind : ∀ Γ (a : ty Γ) Γ' (f : Γ' ⇒ Γ), ty Γ';
-  q : ∀ Γ (a : ty Γ) Γ' (f : Γ' ⇒ Γ),
-          (ext Γ' (reind _ a _ f) ⇒ ext Γ a) ;
-  dpr_q : ∀ Γ (a : ty Γ) Γ' (f : Γ' ⇒ Γ), 
-          (q _ a _ f) ;; (dpr _ a) = (dpr _ (reind _ a _ f)) ;; f ;
-  reind_pb : ∀ Γ (a : ty Γ) Γ' (f : Γ' ⇒ Γ),
-      isPullback _ _ _ _ (dpr_q _ a _ f)
+  dpr : ∀ Γ (A : ty Γ), (ext Γ A) ⇒ Γ ;
+  reind : ∀ Γ (A : ty Γ) Γ' (f : Γ' ⇒ Γ), ty Γ';
+  q : ∀ Γ (A : ty Γ) Γ' (f : Γ' ⇒ Γ),
+          (ext Γ' (reind _ A _ f) ⇒ ext Γ A) ;
+  dpr_q : ∀ Γ (A : ty Γ) Γ' (f : Γ' ⇒ Γ), 
+          (q _ A _ f) ;; (dpr _ A) = (dpr _ (reind _ A _ f)) ;; f ;
+  reind_pb : ∀ Γ (A : ty Γ) Γ' (f : Γ' ⇒ Γ),
+      isPullback _ _ _ _ (dpr_q _ A _ f)
 }.
 
 (** Here we see the components of the definition of a [comp_precat].  Under the names of their actual versions below, they are:
@@ -53,7 +53,7 @@ Record comp_precat_record : Type := {
 - [ext_comp_cat]: a context extension operation, written [Γ ◂ A];
 - [dpr_comp_cat]: dependent projections from context extensions; 
 - [reind_comp_cat]: a reindexing operation on types, written [A[f]] or [f^*A];
-- [q_comp_cat]: for [f : Γ' → Γ], and [a : C Γ], a map [ (Γ' ◂ f^* A) ⇒ (Γ ◂ A) ]; can be seen as the extension of a context morphism by a variable of a new type;
+- [q_comp_cat]: for [f : Γ' → Γ], and [A : C Γ], a map [ (Γ' ◂ f^* A) ⇒ (Γ ◂ A) ]; can be seen as the extension of a context morphism by a variable of a new type;
 - [dpr_q_comp_cat]: reindexing commutes with dependent projections;
 - [reind_pb_comp_cat]: the commutative square thus formed is a pullback. *)
 
@@ -66,7 +66,7 @@ Section Comp_Precats.
 Definition comp_precat_structure1 (C : precategory) :=
   Σ (ty : C -> Type)
     (ext : ∀ Γ, ty Γ -> C),
-      ∀ Γ (a : ty Γ) Γ' (f : Γ' ⇒ Γ), ty Γ'.
+      ∀ Γ (A : ty Γ) Γ' (f : Γ' ⇒ Γ), ty Γ'.
 
 Definition comp_precat1 := Σ (C : precategory), comp_precat_structure1 C.
 
@@ -79,9 +79,9 @@ Definition ty_comp_cat (C : comp_precat1) : C -> Type := pr1 (pr2 C).
 Coercion ty_comp_cat : comp_precat1 >-> Funclass.
 
 Definition ext_comp_cat {C : comp_precat1}
-  (Γ : C) (a : C Γ) : C
-   := pr1 (pr2 (pr2 C)) Γ a.
-Notation "Γ ◂ a" := (ext_comp_cat Γ a) (at level 45, left associativity).
+  (Γ : C) (A : C Γ) : C
+   := pr1 (pr2 (pr2 C)) Γ A.
+Notation "Γ ◂ A" := (ext_comp_cat Γ A) (at level 45, left associativity).
   (* \tb in Agda input method *)
 (* NOTE: not sure what levels we want here,
   but the level of this should be above the level of reindexing "A[f]",
@@ -89,17 +89,17 @@ Notation "Γ ◂ a" := (ext_comp_cat Γ a) (at level 45, left associativity).
   to allow expressions like "c◂a[g;;f]". *)
 
 Definition reind_comp_cat {C : comp_precat1}
-  {Γ : C} (a : C Γ) {Γ'} (f : Γ' ⇒ Γ) : C Γ'
-  := pr2 (pr2 (pr2 C)) Γ a Γ' f.
-Notation "a [ f ]" := (reind_comp_cat a f) (at level 40).
+  {Γ : C} (A : C Γ) {Γ'} (f : Γ' ⇒ Γ) : C Γ'
+  := pr2 (pr2 (pr2 C)) Γ A Γ' f.
+Notation "A [ f ]" := (reind_comp_cat A f) (at level 40).
 
 Definition comp_precat_structure2 (C : comp_precat1) :=
-  Σ (dpr : ∀ Γ (a : C Γ), Γ◂a ⇒ Γ)
-    (q : ∀ Γ (a : C Γ) Γ' (f : Γ' ⇒ Γ), (Γ'◂a[f]) ⇒ Γ◂a )
-    (dpr_q : ∀ Γ (a : C Γ) Γ' (f : Γ' ⇒ Γ), 
-      (q _ a _ f) ;; (dpr _ a) = (dpr _ (a [f])) ;; f),
-    ∀ Γ (a : C Γ) Γ' (f : Γ' ⇒ Γ),
-      isPullback (dpr _ a) f (q _ a _ f) (dpr _ (a [f])) (dpr_q _ a _ f).
+  Σ (dpr : ∀ Γ (A : C Γ), Γ◂A ⇒ Γ)
+    (q : ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ), (Γ'◂A[f]) ⇒ Γ◂A )
+    (dpr_q : ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ), 
+      (q _ A _ f) ;; (dpr _ A) = (dpr _ (A[f])) ;; f),
+    ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ),
+      isPullback (dpr _ A) f (q _ A _ f) (dpr _ (A[f])) (dpr_q _ A _ f).
 (* TODO: change name [dpr_q] to [q_dpr] throughout, now that composition is diagrammatic order? *)
 
 Definition comp_precat := Σ C : comp_precat1, comp_precat_structure2 C.
@@ -107,39 +107,39 @@ Definition comp_precat := Σ C : comp_precat1, comp_precat_structure2 C.
 Definition comp_precat1_from_comp_precat (C : comp_precat) : comp_precat1 := pr1 C.
 Coercion comp_precat1_from_comp_precat : comp_precat >-> comp_precat1.
 
-Definition dpr_comp_cat  {C : comp_precat} {Γ} (a : C Γ)
-  : (Γ◂a) ⇒ Γ
-:= pr1 (pr2 C) Γ a.
+Definition dpr_comp_cat  {C : comp_precat} {Γ} (A : C Γ)
+  : (Γ◂A) ⇒ Γ
+:= pr1 (pr2 C) Γ A.
 
-Definition q_comp_cat {C : comp_precat} {Γ} (a : C Γ) {Γ'} (f : Γ' ⇒ Γ)
-  : (Γ' ◂ a[f]) ⇒ (Γ ◂ a) 
+Definition q_comp_cat {C : comp_precat} {Γ} (A : C Γ) {Γ'} (f : Γ' ⇒ Γ)
+  : (Γ' ◂ A[f]) ⇒ (Γ ◂ A) 
 :=
-  pr1 (pr2 (pr2 C)) _ a _ f.
+  pr1 (pr2 (pr2 C)) _ A _ f.
 
-Definition dpr_q_comp_cat {C : comp_precat} {Γ} (a : C Γ) {Γ'} (f : Γ' ⇒ Γ)
-  : (q_comp_cat a f) ;; (dpr_comp_cat a) = (dpr_comp_cat (a[f])) ;; f
+Definition dpr_q_comp_cat {C : comp_precat} {Γ} (A : C Γ) {Γ'} (f : Γ' ⇒ Γ)
+  : (q_comp_cat A f) ;; (dpr_comp_cat A) = (dpr_comp_cat (A[f])) ;; f
 :=
-  pr1 (pr2 (pr2 (pr2 C))) _ a _ f.
+  pr1 (pr2 (pr2 (pr2 C))) _ A _ f.
 
-Definition reind_pb_comp_cat {C : comp_precat} {Γ} (a : C Γ) {Γ'} (f : Γ' ⇒ Γ)
-  : isPullback (dpr_comp_cat a) f (q_comp_cat a f) (dpr_comp_cat (a [f]))
-      (dpr_q_comp_cat a f)
+Definition reind_pb_comp_cat {C : comp_precat} {Γ} (A : C Γ) {Γ'} (f : Γ' ⇒ Γ)
+  : isPullback (dpr_comp_cat A) f (q_comp_cat A f) (dpr_comp_cat (A[f]))
+      (dpr_q_comp_cat A f)
 :=
-  pr2 (pr2 (pr2 (pr2 C))) _ a _ f.
+  pr2 (pr2 (pr2 (pr2 C))) _ A _ f.
 
 (** A comprehension precategory [C] is _split_ if each collection of types [C Γ] is a set, reindexing is strictly functorial, and the [q] maps satisfy the evident functoriality axioms *) 
 Definition is_split_comp_cat (C : comp_precat)
   := (∀ Γ:C, isaset (C Γ))
-     × (Σ (reind_id : ∀ Γ (a : C Γ), a [identity Γ] = a),
-         ∀ Γ (a : C Γ), q_comp_cat a (identity Γ)
-                        = idtoiso (maponpaths (fun b => Γ◂b) (reind_id Γ a)))
-     × (Σ (reind_comp : ∀ Γ (a : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'),
-                         a [g;;f] = a[f][g]),
-          ∀ Γ (a : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'),
-            q_comp_cat a (g ;; f)
-            =  idtoiso (maponpaths (fun b => Γ''◂b) (reind_comp _ a _ f _ g))
-               ;; q_comp_cat (a[f]) g
-               ;; q_comp_cat a f).
+     × (Σ (reind_id : ∀ Γ (A : C Γ), A [identity Γ] = A),
+         ∀ Γ (A : C Γ), q_comp_cat A (identity Γ)
+                        = idtoiso (maponpaths (fun b => Γ◂b) (reind_id Γ A)))
+     × (Σ (reind_comp : ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'),
+                         A [g;;f] = A[f][g]),
+          ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'),
+            q_comp_cat A (g ;; f)
+            =  idtoiso (maponpaths (fun b => Γ''◂b) (reind_comp _ A _ f _ g))
+               ;; q_comp_cat (A[f]) g
+               ;; q_comp_cat A f).
 
 Definition split_comp_precat := Σ C, (is_split_comp_cat C).
 
@@ -150,6 +150,6 @@ Definition comp_precat_of_split (C : split_comp_precat) := pr1 C.
 End Comp_Precats.
 
 (* Globalising notations defined within section above: *)
-Notation "Γ ◂ a" := (ext_comp_cat Γ a) (at level 45, left associativity).
+Notation "Γ ◂ A" := (ext_comp_cat Γ A) (at level 45, left associativity).
 (* Temporarily suppressed due to levels clash with [cwf]. TODO: fix clash! *)
-Notation "a [ f ]" := (reind_comp_cat a f) (at level 40).
+Notation "A [ f ]" := (reind_comp_cat A f) (at level 40).

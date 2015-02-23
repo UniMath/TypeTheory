@@ -205,10 +205,10 @@ Section CwF_lemmas.
 
 Context {C : pre_cwf}.
 
-Lemma map_to_comp_as_pair_precwf {Γ} {a : C⟨Γ⟩} {Γ'} (f : Γ' ⇒ Γ∙a)
+Lemma map_to_comp_as_pair_precwf {Γ} {A : C⟨Γ⟩} {Γ'} (f : Γ' ⇒ Γ∙A)
   : pairing _ _ _ _ 
-      (f ;; π a)
-      (transportb _ (reindx_type_comp C _ _ _) ((ν a)⟦f⟧))
+      (f ;; π A)
+      (transportb _ (reindx_type_comp C _ _ _) ((ν A)⟦f⟧))
   = f.
 Proof.
   apply pathsinv0.
@@ -219,32 +219,32 @@ Proof.
   apply pre_cwf_law_3.
 Qed.
 
-Lemma pairing_mapeq {Γ} {a : C⟨Γ⟩} {Γ'} (f f' : Γ' ⇒ Γ) (e : f = f')
-                     (t : C ⟨ Γ' ⊢ a [f] ⟩)
+Lemma pairing_mapeq {Γ} {A : C⟨Γ⟩} {Γ'} (f f' : Γ' ⇒ Γ) (e : f = f')
+                     (t : C ⟨ Γ' ⊢ A [f] ⟩)
   : pairing _ _ _ _ f t
     = pairing _ _ _ _ f' (transportf (fun B => C⟨Γ' ⊢ B⟩ ) (maponpaths _ e) t).
 Proof.
   destruct e. apply idpath.
 Qed.
 
-Lemma rterm_typeeq {Γ} {a a': C⟨Γ⟩} (e : a = a') {Γ'} (f : Γ' ⇒ Γ) (x : C ⟨ Γ ⊢ a ⟩)
+Lemma rterm_typeeq {Γ} {A A': C⟨Γ⟩} (e : A = A') {Γ'} (f : Γ' ⇒ Γ) (x : C ⟨ Γ ⊢ A ⟩)
   : transportf _ (maponpaths (fun b => b[f]) e) (x⟦f⟧)
     = (transportf _ e x) ⟦f⟧.
 Proof.
   destruct e. apply idpath.
 Qed.
 
-Lemma transportf_rtype_mapeq {Γ} {a : C⟨Γ⟩} {Γ'} (f f' : Γ' ⇒ Γ) (e : f = f')
-                     (t : C ⟨ Γ' ⊢ a[f] ⟩)
-  : transportf (fun g => C ⟨ Γ' ⊢ a[g] ⟩) e t
-  = transportf _ (maponpaths (fun g => a[g]) e) t.
+Lemma transportf_rtype_mapeq {Γ} {A : C⟨Γ⟩} {Γ'} (f f' : Γ' ⇒ Γ) (e : f = f')
+                     (t : C ⟨ Γ' ⊢ A[f] ⟩)
+  : transportf (fun g => C ⟨ Γ' ⊢ A[g] ⟩) e t
+  = transportf _ (maponpaths (fun g => A[g]) e) t.
 Proof.
   destruct e. apply idpath.
 Qed.
 
-Lemma rterm_mapeq {Γ} {a : C⟨Γ⟩} {Γ'} {f f' : Γ' ⇒ Γ} (e : f = f') (t : C ⟨ Γ ⊢ a ⟩)
+Lemma rterm_mapeq {Γ} {A : C⟨Γ⟩} {Γ'} {f f' : Γ' ⇒ Γ} (e : f = f') (t : C ⟨ Γ ⊢ A ⟩)
   : t ⟦ f ⟧
-  = transportb _ (maponpaths (fun g => a[g]) e) (t ⟦ f' ⟧ ).
+  = transportb _ (maponpaths (fun g => A[g]) e) (t ⟦ f' ⟧ ).
 Proof.
   destruct e. apply idpath.
 Qed.
@@ -253,8 +253,8 @@ Qed.
    
    TODO: consider naming!
    TODO: try to use in proofs, instead of [transportf_pathscomp0] *)
-Lemma term_typeeq_transport_lemma {Γ} {a a' a'': C ⟨ Γ ⟩} (e : a = a'') (e' : a' = a'')
-  (x : C ⟨ Γ ⊢ a ⟩) (x' : C ⟨ Γ ⊢ a' ⟩)
+Lemma term_typeeq_transport_lemma {Γ} {A A' A'': C ⟨ Γ ⟩} (e : A = A'') (e' : A' = A'')
+  (x : C ⟨ Γ ⊢ A ⟩) (x' : C ⟨ Γ ⊢ A' ⟩)
   : transportf _ (e @ !e') x = x'
   -> transportf _ e x = transportf _ e' x'.
 Proof.
@@ -267,13 +267,13 @@ Proof.
   apply pre_cwf_types_isaset.
 Qed.
 
-Lemma term_typeeq_transport_lemma_2 {Γ} {a : C ⟨ Γ ⟩} (e : a = a)
-  {x x' : C ⟨ Γ ⊢ a ⟩}
+Lemma term_typeeq_transport_lemma_2 {Γ} {A : C ⟨ Γ ⟩} (e : A = A)
+  {x x' : C ⟨ Γ ⊢ A ⟩}
   : x = x'
   -> transportf _ e x = x'.
 Proof.
   intros ex.
-  apply @pathscomp0 with (transportf _ (idpath a) x).
+  apply @pathscomp0 with (transportf _ (idpath _) x).
     apply (maponpaths (fun p => transportf _ p x)).
     apply pre_cwf_types_isaset.
   exact ex.
