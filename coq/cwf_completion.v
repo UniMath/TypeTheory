@@ -16,11 +16,11 @@ Require Export RezkCompletion.yoneda.
 Require Export RezkCompletion.rezk_completion.
 
 Require Export Systems.cwf.
+Require Export Systems.category_of_elements.
 
+Implicit Arguments iso.
 
-Print iso.
-
-Implicit Arguments iso  .
+(** How to get a functor from RC(C) to D when having one from C to D **)
 
 Definition Rezk_functor (C : precategory) (hs : has_homsets C) (D : category) 
     (F : functor C D) 
@@ -31,9 +31,9 @@ Proof.
   apply F.
 Defined.
 
+(** The opposite precategory of a saturated category is saturated. **)
 
-
-Definition opp_iso2 (C : precategory) (a b : C) : iso (opp_precat C) a b → iso C b a.
+Definition opp_iso_inv {C : precategory} {a b : C} : iso (opp_precat C) a b → iso C b a.
 Proof.
   intro f.
   set (H:= is_z_iso_from_is_iso f (pr2 f)).
@@ -45,15 +45,15 @@ Proof.
   - apply (pr1 (pr2 H)).
 Defined.
 
-Lemma opp_iso_opp_iso2 (C : precategory) (a b : C) (f : iso (opp_precat C) a b) : 
-   opp_iso (opp_iso2 _ _ _ f) = f.
+Lemma opp_iso_opp_iso_inv (C : precategory) (a b : C) (f : iso (opp_precat C) a b) : 
+   opp_iso (opp_iso_inv f) = f.
 Proof.
   apply eq_iso.
   apply idpath.
 Qed.
 
-Lemma opp_iso2_opp_iso (C : precategory) (a b : C) (f : iso C a b) : 
-   opp_iso2 _ _ _  (opp_iso f) = f.
+Lemma opp_iso_inv_opp_iso (C : precategory) (a b : C) (f : iso C a b) : 
+   opp_iso_inv (opp_iso f) = f.
 Proof.
   apply eq_iso.
   apply idpath.
@@ -63,9 +63,9 @@ Definition weq_opp_iso (C : precategory) (a b : C) :
   iso C a b ≃ iso (opp_precat C) b a.
 Proof.
   exists (opp_iso).
-  apply (gradth (@opp_iso _ _ _  ) (opp_iso2 _ _ _ )).
-  - apply opp_iso2_opp_iso.
-  - apply opp_iso_opp_iso2.
+  apply (gradth (@opp_iso _ _ _  ) (@opp_iso_inv _ _ _ )).
+  - apply opp_iso_inv_opp_iso.
+  - apply opp_iso_opp_iso_inv.
 Defined.
 
 Definition isotoid_opp (C : precategory) (H : is_category C) (a b : opp_precat C) : 
@@ -79,8 +79,6 @@ Proof.
 Defined.
 
 
-
-
 Definition is_category_opp (C : precategory) (H : is_category C) : is_category (opp_precat C).
 Proof.
   split; intros; simpl in *.
@@ -88,12 +86,10 @@ Proof.
    - set (H1:=@isweqhomot).
      set (H2 := H1 _ _ (isotoid_opp C H a b)).
      apply H2.
-     intro t.
-     induction t.
-     simpl.
-     apply eq_iso. apply idpath.
+     intro t; induction t.
+     apply eq_iso; apply idpath.
      apply (pr2 (isotoid_opp C H a b)).
-  - intros a b. simpl. apply (pr2 H).
+  - intros a b. apply (pr2 H).
 Qed.
  
 Definition opp_cat (C : category) : category.
@@ -104,12 +100,18 @@ Proof.
 Defined.
 
 
+(** * Saturating a CwF *)
+
 Section bla.
 
 Variable C : pre_cwf.
 Hypothesis hs : has_homsets C.
 
-(** The "type" part of a CwF is a functor into HSET **)
+(** ** The "type" part of a CwF **)
+
+(** The "type" part is a functor into the opposite of HSET.
+    We thus obtain a "type" functor on RC(C) by univ property
+**)
 
 Definition type_hSet (Γ : C) : hSet := hSetpair (C⟨Γ⟩) (pr1 (pr2 (pr2 C)) _ ). 
 
@@ -137,7 +139,10 @@ Proof.
   apply type_functor.
 Defined.
   
-
+(** ** The "term" part of a CwF **)
+(** The "term" part is a functor from the category of elements of "type"
+    into (the opposite of) sets.
+**)
 
 
 
