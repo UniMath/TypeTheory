@@ -6,12 +6,27 @@ Require Import Systems.UnicodeNotations.
 Require Import Systems.CompCats.
 Require Import Systems.cwf.
 
+(* Suppress these preliminaries in the Coqdoc documentation: *)
+(* begin hide *)
 (* Locally override the notation [ γ ♯ a ], at a higher level,
   to get more informative bracketing when pairing meets composition. *) 
 Local Notation "γ # a" := (pairing _ _ _ _ γ a) (at level 75).
+(* end hide *)
+
+
+(** * Comprehension pre-precats from pre-cats with families
+
+Every pre-CwF gives rise to a comprehension pre-category.
+
+(TODO: moreover, this comprehension pre-cat should be split; and there should be a function from split comprehension pre-cats back to pre-CwFs making the two equivalent.)
+
+Since the components of the comprehension pre-cat structure are highly successively dependent, we construct most of them individually, before putting them together in [comp_precat_of_precwf].
+*)
 
 Section CompPreCat_of_PreCwF.
 
+(* TODO: move the [has_homsets] assumption to the definition of a [pre_cwf]? 
+   TODO: discuss namine of [has_homsets]: wouldn’t e.g. [homs_are_sets] be clearer? *)
 Context (C : pre_cwf) (homs_sets : has_homsets C).
 
 Definition comp_precat1_of_precwf : comp_precat1.
@@ -59,6 +74,8 @@ Proof.
   apply term_typeeq_transport_lemma_2.
   apply idpath.
 Qed.
+
+(** The biggest work is in showing that the square of dependent projections/reindexings is a pullback.  We split this up into several lemmas: construction of the pullback pairing function; proof that projections applied to the pairing recover the original maps; and proof that the pairing map is the unique such map. *)
 
 Definition dpr_q_pbpairing_precwf_aux
   {Γ} (A : C ⟨ Γ ⟩)
@@ -177,6 +194,8 @@ Proof.
     (dpr_q_pbpairing_precwf_mapunique A f H hk e2 e1) _).
   refine (total2_paths _ _); apply homs_sets.
 Qed.
+
+(** We can now assemble the components into a comprehension precategory: *)
 
 Definition comp_precat_of_precwf : comp_precat.
 Proof.
