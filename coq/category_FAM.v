@@ -27,14 +27,8 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma function_eq {A B : UU} {f g : A → B} (H : f = g) (a : A) : f a = g a.
-Proof.
-  induction H.
-  apply idpath.
-Defined.
-Print toforallpaths.
 Lemma transportf_toforallpaths (A B : UU) (f g : A → B) (P : B → UU)
-   (x : ∀ a, P (f a)) (*x' : ∀ a, P (g a)*) (H : f = g) (a : A): 
+   (x : ∀ a, P (f a)) (H : f = g) (a : A): 
   transportf (λ x0 : A → B, ∀ a0 : A, _ )
      H x a =
    transportf (λ b : B, P b) (toforallpaths _ _ _ H a) (x a).
@@ -57,7 +51,7 @@ Proof.
 Defined.
 
 Lemma transportf_toforallpaths2 (A B : UU) (f g : A → B) (P : A → B → UU)
-   (x : ∀ a, P a (f a)) (*x' : ∀ a, P (g a)*) (H : f = g) (a : A): 
+   (x : ∀ a, P a (f a)) (H : f = g) (a : A): 
   transportf (λ x0 : A → B, ∀ a0 : A, _ )
      H x a =
    transportf (λ b : B, P a b) (toforallpaths _ _ _ H a) (x a).
@@ -79,6 +73,66 @@ Proof.
   apply idpath.
 Defined.
 
+Definition path_assoc {X} {a b c d:X}
+        (f : a = b) (g : b = c) (h : c = d)
+      : f @ (g @ h) = (f @ g) @ h.
+Proof.
+  intros; destruct f; 
+  apply  idpath.
+Defined.
+
+
+
+Lemma funextsec_idpath (A : UU) (B : A → UU) (f : ∀ a : A, B a)
+  (H : ∀ x, f x = f x) (H' : ∀ x, H x = idpath _ ) 
+  : funextsec _ _ _ H = idpath f.
+Proof.
+  set (H1:= invmaponpathsweq (weqtoforallpaths B f f)).
+  apply H1.
+  simpl.
+  rewrite toforallpaths_funextsec.
+  apply funextsec.
+  intro a. simpl.
+  apply H'.
+Defined.
+
+Lemma homot_toforallpaths_weq (A B : UU) (f g f' : A → B) (H : ∀ x, f x = f' x) :
+   f = g ≃ ∀ x, f' x = g x.
+Proof.
+  exists (λ H', λ x, ! H x @ toforallpaths _ _ _ H' x).
+  apply (gradth _ (λ H' : ∀ x, f' x = g x, (funextsec _ _ _ (λ x, H x @ H' x)))).
+  - intro H'. induction H'.
+    simpl. apply funextsec_idpath.
+    intro a; rewrite path_assoc.
+    rewrite pathscomp0rid.
+    apply pathsinv0r.
+  - intros.
+    apply funextsec; intro a. simpl.
+    rewrite toforallpaths_funextsec.
+    rewrite path_assoc.
+    rewrite pathsinv0l.
+    apply idpath.
+Defined.
+
+
+Lemma homot_toforallpaths_dep_weq (A : UU) (B : A → UU) (f g f' : ∀ a, B a) (H : ∀ x, f x = f' x) :
+   f = g ≃ ∀ x, f' x = g x.
+Proof.
+  exists (λ H', λ x, ! H x @ toforallpaths _ _ _ H' x).
+  apply (gradth _ (λ H' : ∀ x, f' x = g x, (funextsec _ _ _ (λ x, H x @ H' x)))).
+  - intro H'. induction H'.
+    simpl. apply funextsec_idpath.
+    intro a. rewrite path_assoc. 
+    rewrite pathscomp0rid.
+    apply pathsinv0r.
+  - intros.
+    apply funextsec; intro a. simpl.
+    rewrite toforallpaths_funextsec.
+    rewrite path_assoc.
+    rewrite pathsinv0l.
+    apply idpath.
+Defined.
+
 
 Section FAM.
 
@@ -87,6 +141,11 @@ Variable C : precategory.
 Definition obj : UU := Σ A : hSet, A → C.
 Definition mor (A B : obj) : UU := Σ f : pr1 A → pr1 B,
       ∀ a : (pr1 A), (pr2 A) a ⇒ (pr2 B) (f a).
+
+Definition FAM_mor_eq_type {A B : obj} (f g : mor A B) : UU 
+  := 
+  Σ H : ∀ a : pr1 A, pr1 f a = pr1 g a,
+  (∀ a : pr1 A, transportf (λ b, pr2 A a ⇒ pr2 B b) (H a) (pr2 f a) = pr2 g a).
 
 Lemma FAM_mor_eq {A B : obj} {f g : mor A B} 
   (H : ∀ a : pr1 A, pr1 f a = pr1 g a) :  
@@ -203,7 +262,6 @@ Defined.
 Lemma weq_Sigmas {A A' : UU} {B : A → UU} {B' : A' → UU} (hs : isaset A') (f : A ≃ A') 
    (P : ∀ a : A, B a ≃ B' (f a)) : (Σ a, B a) ≃ Σ a', B' a'.
 Proof.
-  
   eapply weqcomp.
     Focus 2.
       set (x := @Sigma_retype_weq A A' hs B' f).
@@ -212,12 +270,31 @@ Proof.
    apply P.
 Defined.
 
-Lemma FAM_mor_equiv_FAM_mor_equiv_inv {A B : obj} {f g : mor A B} (e : f = g) :
-    FAM_mor_eq_sigma (FAM_mor_eq_inv e) = e.
+Definition FAM_mor_equiv {A B : obj} (f g : mor A B) : 
+   f = g ≃ FAM_mor_eq_type f g.
 Proof.
-  induction e.
-  simpl.
-  apply (total2_paths (idpath _ )).
+  eapply weqcomp.
+  - apply total2_paths_equiv.
+  - 
+  Print funextsec.
+  refine ( (weq_Sigmas _ (weqtoforallpaths _ _ _ ) _ )).
+   + admit.
+   + simpl.
+     intro H.
+     set (H':=homot_toforallpaths_dep_weq).
+     destruct f as [f x].
+     destruct g as [g y].
+     simpl in *.
+     refine (homot_toforallpaths_dep_weq _ _ _ _ _ _ ).
+     intro a. 
+     destruct A as [A F].
+     destruct B as [B G].
+     simpl in *.
+     set (H2 := transportf_toforallpaths2).
+     set (H3 := H2 A B f g ). 
+     set (H4:=  H3 (λ a b, F a ⇒ G b)). apply H4.
+Defined.
+  
   
 Definition FAM_ob_mor : precategory_ob_mor.
 Proof.
