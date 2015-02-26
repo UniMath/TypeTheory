@@ -180,6 +180,7 @@ Proof.
   apply idpath.
 Defined.
 
+(*
 Definition Sigma_retype {A A' : UU} (B : A' → UU) (f : A → A') : A → UU 
   := λ a, B (f a).
  
@@ -269,7 +270,7 @@ Proof.
    apply Sigma_pointwise_weq.
    apply P.
 Defined.
-
+*)
 Definition FAM_mor_equiv {A B : obj} (f g : mor A B) : 
    f = g ≃ FAM_mor_eq_type f g.
 Proof.
@@ -277,8 +278,7 @@ Proof.
   - apply total2_paths_equiv.
   - 
   Print funextsec.
-  refine ( (weq_Sigmas _ (weqtoforallpaths _ _ _ ) _ )).
-   + admit.
+  refine ( @weqbandf _ _ (weqtoforallpaths _ _ _ ) _ _ _ ).
    + simpl.
      intro H.
      set (H':=homot_toforallpaths_dep_weq).
@@ -336,17 +336,33 @@ Definition FAM : precategory := tpair _ _ is_precategory_FAM.
 
 Section isos.
 
-Variables A B : FAM.
-
-Definition weq_from_iso (f : iso A B) : pr1 A ≃ pr1 B.
+Definition isweq_from_iso {A B : FAM} (f : iso A B) : isweq (pr1 (pr1 f)). 
 Proof.
-  exists (pr1 (pr1 f)).
   apply (gradth _ (pr1 (inv_from_iso f))).
   - intro x. 
     apply (toforallpaths _ _ _ (maponpaths pr1 (iso_inv_after_iso f))).
   - intro x.
     apply (toforallpaths _ _ _ (maponpaths pr1 (iso_after_iso_inv f))).
 Defined.
+
+
+Definition FAM_iso (A B : FAM) : UU := Σ f : A ⇒ B,
+    isweq (pr1 f) × (∀ x, is_iso (pr2 f x)).
+
+Lemma weq_iso_FAM_iso (A B : FAM) : iso A B → FAM_iso A B.
+Proof.
+  intro f.
+  exists (pr1 f).
+  split. 
+  - apply isweq_from_iso.
+  - intro x.
+    set (H := inv_from_iso f).
+    apply is_iso_from_is_z_iso.
+    set (H2:= pr2 H).
+  bla.
+  admit.
+Defined.
+
 
 Definition fam_of_isos_from_iso (f : iso A B) 
   : ∀ a : pr1 A, iso (pr2 A a) (pr2 B (pr1 (pr1 f) a)) .
@@ -362,5 +378,7 @@ Proof.
   exists H.
   split.
   - set (H1:= (iso_inv_after_iso f)).
+    set (H2:= pr2 H1).
+    simpl in *.
 
 End FAM.
