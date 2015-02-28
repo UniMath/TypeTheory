@@ -11,6 +11,8 @@ Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
 Require Export UniMath.Foundations.hlevel2.hSet.
 
+Require Import UniMath.Foundations.Proof_of_Extensionality.funextfun.
+
 Require Export RezkCompletion.precategories.
 Require Export RezkCompletion.functors_transformations.
 Require Export RezkCompletion.category_hset.
@@ -26,6 +28,29 @@ Lemma transportf_idpath (A : UU) (B : A → UU) (a : A) (x : B a) :
 Proof.
   apply idpath.
 Defined.
+
+Lemma transportf_eqweqmap (A B : UU) (p : A = B) C (A' : A → C) (b : B) :
+  transportf (λ X, X → C) p A' b = A' (eqweqmap (!p) b).
+Proof.
+  induction p.
+  apply idpath.
+Defined.
+
+Lemma eqweqmap_not (A B : UU) (p : A = B) (b : B) : 
+  eqweqmap (!p) b = invweq (eqweqmap p ) b.
+Proof.
+  induction p.
+  apply idpath.
+Defined.
+
+Lemma transportf_weqtopaths (A B : UU) (f : A ≃ B) C (A' : A → C) (b : B):
+ transportf (λ x : UU, x → C) (weqtopaths f) A' b = A' (invmap f b).
+Proof.
+  rewrite transportf_eqweqmap.
+  rewrite  eqweqmap_not.
+  rewrite weqpathsweq.
+  apply idpath.
+Defined.  
 
 Lemma transportf_toforallpaths (A B : UU) (f g : A → B) (P : B → UU)
    (x : ∀ a, P (f a)) (H : f = g) (a : A): 
@@ -138,9 +163,70 @@ Section FAM.
 
 Variable C : precategory.
 
-Definition obj : UU := Σ A : hSet, A → C.
-Definition mor (A B : obj) : UU := Σ f : pr1 A → pr1 B,
-      ∀ a : (pr1 A), (pr2 A) a ⇒ (pr2 B) (f a).
+Definition obj_UU : UU := Σ A : UU, A → C.
+
+Definition obj : UU := Σ A : obj_UU, isaset (pr1 A).
+
+Definition obj_UU_from_obj (X : obj) : obj_UU := pr1 X.
+Coercion obj_UU_from_obj : obj >-> obj_UU.
+
+Notation "A ₁" := (pr1 (pr1 A))(at level 3).
+Notation "A ₂" := (pr2 (pr1 A))(at level 3).
+
+Definition mor (A B : obj_UU) : UU := Σ f : pr1 A → pr1 B,
+      ∀ a : pr1 A, pr2 A a ⇒ pr2 B (f a).
+
+Definition FAM_obj_eq_type (A B : obj_UU) : UU 
+  := 
+  Σ f : pr1 A ≃ pr1 B, ∀ a : pr1 A, pr2 A a = pr2 B (f a).
+
+Definition FAM_obj_eq_inv {A B : obj_UU} : A = B → FAM_obj_eq_type A B.
+Proof.
+  induction 1.
+  exists (idweq _ ).
+  exact (λ a, idpath _ ).
+Defined.
+
+Definition FAM_obj_UU_eq_inv {A B : obj} : A = B → FAM_obj_eq_type A B.
+Proof.
+  induction 1.
+  exists (idweq _ ).
+  exact (λ a, idpath _ ).
+Defined.
+
+
+Definition FAM_obj_UU_eq_sigma {A B : obj_UU} (f : pr1 A ≃ pr1 B) 
+   (H : ∀ a : pr1 A, pr2 A a = pr2 B (f a)) : A = B.
+Proof.
+  apply (total2_paths (weqtopaths f)).
+  apply funextsec; intro b.
+  rewrite transportf_weqtopaths.
+  rewrite H.
+  apply maponpaths.
+  apply homotweqinvweq.
+Defined.
+
+Definition FAM_obj_UU_weq (A B : obj_UU) : (A = B) ≃ FAM_obj_eq_type A B.
+Proof.
+  eapply weqcomp.
+  - apply total2_paths_equiv.
+  - apply (weqbandf (weqpair _ (univalenceaxiom _  _ ))).
+    simpl.
+    intro p.
+    destruct A as [A x].
+    destruct B as [B y].
+    simpl in *.
+    induction p.
+    apply (weqtoforallpaths _ _ _ ).
+Defined.
+
+Definition FAM_obj_weq (A B : obj) : (A = B) ≃ FAM_obj_eq_type A B.
+Proof.   
+  eapply weqcomp.
+  - apply total2_paths_isaprop_equiv.
+    intros ? ; apply isapropisaset.
+  - apply FAM_obj_UU_weq.
+Defined.
 
 Definition FAM_mor_eq_type {A B : obj} (f g : mor A B) : UU 
   := 
