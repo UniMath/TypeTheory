@@ -355,11 +355,88 @@ Proof.
   exists (pr1 f).
   split. 
   - apply isweq_from_iso.
-  - intro x.
-    set (H := inv_from_iso f).
+  - intro a.
+    set (H := iso_inv_from_iso f).
+    set (HH := iso_inv_after_iso f).
+    set (HHH := iso_after_iso_inv f).
+    set (HH':= FAM_mor_equiv _ _ HH). clearbody HH'.
+    set (HHH':= FAM_mor_equiv _ _ HHH). clearbody HHH'.
+    set (HH'':= pr1 HH'). simpl in *.
     apply is_iso_from_is_z_iso.
-    set (H2:= pr2 H).
-  bla.
+    set (H2:= pr2 (pr1 H)). simpl in *.
+    set (inv:= transportf (λ a', pr2 B _  ⇒ pr2 A a') (HH'' a) (H2 (pr1 (pr1 f) a))).
+    simpl in *.
+    exists inv.
+    split.
+    + unfold inv. simpl in *.
+      set (H1:= pr2 HH' a). simpl in *. unfold HH''. simpl in *.
+      unfold H2. Check (pr1 HH' a). 
+      admit.
+    + unfold inv. simpl in *.
+      set (H1:= pr2 HHH' (pr1 (pr1 f) a)). simpl in *.
+      unfold HH''. unfold H2. simpl in *.
+      rewrite <- H1.
+      set (H4:=homotinvweqweq (weqpair _ (isweq_from_iso f)) a). simpl in *.
+      clearbody H4.
+      assert (H3 : pr1 (inv_from_iso f) (pr1 (pr1 f) a) = a).
+      {  set (H5:= homotinvweqweq (weqpair _ (isweq_from_iso f))). 
+          apply H5. } 
+      assert (H4 : pr2 f (pr1 (inv_from_iso f) (pr1 (pr1 f) a)) = 
+                   pr2 f a).
+      rewrite H3 in H1.
+      pattern 
+      simpl in *.
+      rewrite H3.
+     in H4; simpl in H4.
+      rewrite H4.
+      Check (pr1 HH' a).
+      admit.
+Defined.
+
+      rewrite <- H1.
+      simpl in *.
+      destruct f as [f isisof].
+      simpl in *.
+      Search (transportf _ _ ( _ ;; _ )).
+      unfold HH'.
+      unfold HHH' in H1.
+    Focus 2.
+    set (inv:= H2 (pr1 (pr1 f) x)).
+    assert (H': pr1 (inv_from_iso f) (pr1 (pr1 f) x) = x).
+    { rewrite <- H8. apply idpath. }
+    rewrite H' in inv. clear H'. clear H8. clear H6.
+    exists inv.
+    set (H':=is_z_iso_from_is_iso f (pr2 f)).
+    set (H1:=pr1 (pr2 H')).
+    set (H3 := FAM_mor_equiv _ _ H1).
+    unfold FAM_mor_eq_type in H3. clearbody H3. simpl in *.
+    split.
+    + set (H3':= pr2 H3 x).
+      rewrite <- H3'. clear H3'.  unfold compose. simpl in *.
+      simpl. unfold inv.
+      clear H3' H3.
+    
+    
+    simpl in *.
+
+    rewrite H8 in inv. set (H6 := weqpair _ (isweq_from_iso f)).
+    
+    unfold H6 in H7. simpl in *.
+    rewrite (H7) in inv.
+    set (H3 := pr1 (pr1 f)). simpl in *.
+    set (H4 := H3 x).
+    set (H5:= pr1
+    exists (pr1 H ((pr1 (pr1 f)) x)).
+    
+    destruct f as [f is_iso_f].
+    simpl in *.
+    set (H2:= pr2 H). simpl in *.
+    Print mor.
+    set (H3 := pr1 (pr1 f)). simpl in *.
+    set (H4 := H3 x).
+    set (H5:= pr1
+    exists (pr1 H ((pr1 (pr1 f)) x)).
+    apply bla.
   admit.
 Defined.
 
