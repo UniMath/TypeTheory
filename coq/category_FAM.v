@@ -230,12 +230,13 @@ Defined.
 
 Definition FAM_mor_eq_type {A B : obj} (f g : mor A B) : UU 
   := 
-  Σ H : ∀ a : pr1 A, pr1 f a = pr1 g a,
-  (∀ a : pr1 A, transportf (λ b, pr2 A a ⇒ pr2 B b) (H a) (pr2 f a) = pr2 g a).
+  Σ H : ∀ a : A ₁, pr1 f a = pr1 g a,
+  (∀ a : A ₁, transportf (λ b, A ₂ a ⇒ B ₂ b) (H a) (pr2 f a) = pr2 g a).
 
+(* not needed, is integrated in FAM_mor_equiv
 Lemma FAM_mor_eq {A B : obj} {f g : mor A B} 
-  (H : ∀ a : pr1 A, pr1 f a = pr1 g a) :  
-  (∀ a : pr1 A, transportf (λ b, pr2 A a ⇒ pr2 B b) (H a) (pr2 f a) = pr2 g a) → f = g.
+  (H : ∀ a : A ₁, pr1 f a = pr1 g a) :  
+  (∀ a : A ₁, transportf (λ b, A ₂ a ⇒ B ₂ b) (H a) (pr2 f a) = pr2 g a) → f = g.
 Proof.
   intro t.
   apply (total2_paths (funextsec  _ _ _ H)).
@@ -245,28 +246,34 @@ Proof.
   simpl in *.
   rewrite <- t; clear t.
   simpl in *.
-  set (H1:= transportf_funext2 (pr1 A) (pr1 B) f g H a).
-  set (H2 := H1 (fun a b =>  pr2 A a ⇒ pr2 B b) ). simpl in *.
+  set (H1:= transportf_funext2 (A ₁) (B ₁) f g H a).
+  set (H2 := H1 (fun a b => A ₂ a ⇒ B ₂ b) ). simpl in *.
   apply H2.
 Defined.  
+*)
 
+(* not needed, is integrated in FAM_mor_equiv
 Definition FAM_mor_eq_sigma {A B : obj} {f g : mor A B} : 
-   (Σ H : ∀ a : pr1 A, pr1 f a = pr1 g a,
-     ∀ a : pr1 A, transportf (λ b, pr2 A a ⇒ pr2 B b) (H a) (pr2 f a) = pr2 g a)
+   (Σ H : ∀ a : A ₁, pr1 f a = pr1 g a,
+     ∀ a : A ₁, transportf (λ b, A ₂ a ⇒ B ₂ b) (H a) (pr2 f a) = pr2 g a)
    → f = g 
   := λ Hx, FAM_mor_eq (pr1 Hx) (pr2 Hx).
+*)
 
+(* not needed, is integrated in FAM_mor_equiv
 Lemma FAM_mor_eq_inv {A B : obj} {f g : mor A B} : f = g → 
-   Σ H : ∀ a : pr1 A, pr1 f a = pr1 g a,
-     ∀ a : pr1 A, transportf (λ b, pr2 A a ⇒ pr2 B b) (H a) (pr2 f a) = pr2 g a.
+   Σ H : ∀ a : A ₁, pr1 f a = pr1 g a,
+     ∀ a : A ₁, transportf (λ b, A ₂ a ⇒ B ₂ b) (H a) (pr2 f a) = pr2 g a.
 Proof.
   induction 1.
   exists (λ _ , idpath _ ).
   intro a.
   apply idpath.
 Defined.
+*)
 
-(*
+(*  Lemmas towards a proof of what is already done in Foundations as weqbandf
+
 Definition Sigma_retype {A A' : UU} (B : A' → UU) (f : A → A') : A → UU 
   := λ a, B (f a).
  
@@ -357,14 +364,13 @@ Proof.
    apply P.
 Defined.
 *)
+
 Definition FAM_mor_equiv {A B : obj} (f g : mor A B) : 
    f = g ≃ FAM_mor_eq_type f g.
 Proof.
   eapply weqcomp.
   - apply total2_paths_equiv.
-  - 
-  Print funextsec.
-  refine ( @weqbandf _ _ (weqtoforallpaths _ _ _ ) _ _ _ ).
+  - refine ( @weqbandf _ _ (weqtoforallpaths _ _ _ ) _ _ _ ).
    + simpl.
      intro H.
      set (H':=homot_toforallpaths_dep_weq).
@@ -373,20 +379,19 @@ Proof.
      simpl in *.
      refine (homot_toforallpaths_dep_weq _ _ _ _ _ _ ).
      intro a. 
-     destruct A as [A F].
-     destruct B as [B G].
+     destruct A as [[A F] Ahs].
+     destruct B as [[B G] Bhs].
      simpl in *.
      set (H2 := transportf_toforallpaths2).
-     set (H3 := H2 A B f g ). 
+     set (H3 := H2 _ _  f g ). 
      set (H4:=  H3 (λ a b, F a ⇒ G b)). apply H4.
 Defined.
   
-  
 Definition FAM_ob_mor : precategory_ob_mor.
 Proof.
-  exists (Σ A : hSet, A → C).  
-  exact  (λ A B, Σ f : pr1 A → pr1 B,
-      ∀ a : (pr1 A), (pr2 A) a ⇒ (pr2 B) (f a)).
+  exists obj.  
+  exact  (λ A B, Σ f : A ₁ → B ₁,
+      ∀ a : A ₁, A ₂ a ⇒ B ₂ (f a)).
 Defined.
 
 Definition FAM_precategory_data : precategory_data.
@@ -401,7 +406,7 @@ Defined.
 Lemma is_precategory_FAM : is_precategory FAM_precategory_data.
 Proof.
   repeat split; intros; simpl.
-  - refine (@FAM_mor_eq _ _ _ _ _ _ ).
+  - refine (@FAM_mor_eq _ _ _ _  _ _ ).
     + exact (fun _ => idpath _ ).
     + intros. simpl . 
       rewrite transportf_idpath.
@@ -417,6 +422,20 @@ Proof.
 Qed.
 
 Definition FAM : precategory := tpair _ _ is_precategory_FAM.
+
+Lemma has_homsets_FAM : has_homsets C → has_homsets FAM.
+Proof.
+  intro H.
+  intros A B f g.
+  apply (isofhlevelweqb 1 (FAM_mor_equiv f g)).
+  apply isofhleveltotal2.
+  - apply impred; intros ?.
+    apply (pr2 B).
+  - intros.
+    apply impred; intros ? .
+    apply H.
+Qed.
+
 
 (** Characterisation of isos in [FAM] as pairs of a bijection and a family of isos **)
 
@@ -450,7 +469,7 @@ Proof.
     set (HH'':= pr1 HH'). simpl in *.
     apply is_iso_from_is_z_iso.
     set (H2:= pr2 (pr1 H)). simpl in *.
-    set (inv:= transportf (λ a', pr2 B _  ⇒ pr2 A a') (HH'' a) (H2 (pr1 (pr1 f) a))).
+    set (inv:= transportf (λ a', B ₂ _  ⇒ A ₂ a') (HH'' a) (H2 (pr1 (pr1 f) a))).
     simpl in *.
     exists inv.
     split.
@@ -467,6 +486,7 @@ Proof.
       assert (H3 : pr1 (inv_from_iso f) (pr1 (pr1 f) a) = a).
       {  set (H5:= homotinvweqweq (weqpair _ (isweq_from_iso f))). 
           apply H5. } 
+      rewrite H3.
       assert (H4 : pr2 f (pr1 (inv_from_iso f) (pr1 (pr1 f) a)) = 
                    pr2 f a).
       rewrite H3 in H1.
