@@ -406,19 +406,15 @@ Defined.
 Lemma is_precategory_FAM : is_precategory FAM_precategory_data.
 Proof.
   repeat split; intros; simpl.
-  - refine (@FAM_mor_eq _ _ _ _  _ _ ).
-    + exact (fun _ => idpath _ ).
-    + intros. simpl . 
-      rewrite transportf_idpath.
-      apply id_left.
-  - refine (@FAM_mor_eq _ _ _ _ _ _ ).
-    + exact (fun _ => idpath _ ).
-    + intros; rewrite transportf_idpath.
-      apply id_right.
-  - refine (@FAM_mor_eq _ _ _ _ _ _ ).
-    + exact (fun _ => idpath _ ). 
-    + intros; rewrite transportf_idpath.
-      apply assoc.
+  - apply (invmap (FAM_mor_equiv _ _ )). 
+    exists (fun _ => idpath _ ).
+    intros; apply id_left.
+  - apply (invmap (FAM_mor_equiv _ _ )).
+    exists (fun _ => idpath _ ).
+    intros; apply id_right.
+  - apply (invmap (FAM_mor_equiv _ _ )).
+    exists (fun _ => idpath _ ). 
+    intros; apply assoc.
 Qed.
 
 Definition FAM : precategory := tpair _ _ is_precategory_FAM.
