@@ -496,8 +496,21 @@ Proof.
     exists (λ a, homotinvweqweq _ _ ).
     intro a.
     simpl.
-    set (H':= pr2 H a). simpl in H'.
+    set (H':= pr2 H a). 
+    set (H2 := is_z_iso_from_is_iso _ H').
+    
     set (ff := weqpair (pr1 f) (pr1 H)).
+    set (aa := tpair _ (pr2 f a) (pr2 H a)).
+    set (Hinv1:= pr1 (pr2 H2)).
+    rewrite <- Hinv1.
+    destruct f as [f x]; simpl in *.
+    destruct H2 as [xa_inv [Ha Hb]]; simpl in *.
+    rewrite transportf_comp.
+    apply maponpaths.
+    
+    apply f_equal.
+    set (Ha := is_z_iso_from_is_iso _  (pr2 aa)).
+    simpl in *.
     set (aa := tpair is_iso (pr2 f (invmap ff (pr1 f a)))
                (pr2 H (invmap ff (pr1 f a)))).
     destruct f as [f x]. simpl in *.
