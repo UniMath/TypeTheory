@@ -435,21 +435,25 @@ Qed.
 
 (** Characterisation of isos in [FAM] as pairs of a bijection and a family of isos **)
 
+Definition isopair {C : precategory} {a b : C} (f : a ⇒ b) (H : is_iso f) : iso a b 
+  := tpair _ f H.
+
 Section isos.
 
-Definition isweq_from_iso {A B : FAM} (f : iso A B) : isweq (pr1 (pr1 f)). 
+Definition isweq_from_is_iso {A B : FAM} (f : A ⇒ B) : is_iso f → isweq (pr1 f). 
 Proof.
-  apply (gradth _ (pr1 (inv_from_iso f))).
+  intro H.
+  apply (gradth _ (pr1 (inv_from_iso (isopair f H)))).
   - intro x. 
-    apply (toforallpaths _ _ _ (maponpaths pr1 (iso_inv_after_iso f))).
+    apply (toforallpaths _ _ _ (maponpaths pr1 (iso_inv_after_iso (isopair f H)))).
   - intro x.
-    apply (toforallpaths _ _ _ (maponpaths pr1 (iso_after_iso_inv f))).
+    apply (toforallpaths _ _ _ (maponpaths pr1 (iso_after_iso_inv (isopair f H)))).
 Defined.
 
 
-Definition FAM_iso (A B : FAM) : UU := Σ f : A ⇒ B,
+(*Definition FAM_iso (A B : FAM) : UU := Σ f : A ⇒ B,
     isweq (pr1 f) × (∀ x, is_iso (pr2 f x)).
-
+*)
 Definition FAM_is_iso {A B : FAM} (f : A ⇒ B) : UU := 
    isweq (pr1 f) × (∀ x, is_iso (pr2 f x)).
 
@@ -459,20 +463,12 @@ Proof.
   exists finv.
   intro b.
   set (H' := pr2 H (finv b)). simpl in H'.
-  Check (pr2 f (finv b)).
-  set (x  := tpair _ _ H': iso (A ₂ (finv b)) (B ₂ (pr1 f (finv b)))).
-  set (xinv := inv_from_iso x). simpl in xinv.
-  Search ( _ (invmap _ _ ) = _ ).
+  set (x  := isopair _ H': iso (A ₂ (finv b)) (B ₂ (pr1 f (finv b)))).
+  set (xinv := inv_from_iso x).
   set (xinvtr := transportf (λ b', B ₂ b' ⇒ A ₂ (finv b))
-         (homotweqinvweq _ _ )
-          xinv : B ₂ b ⇒ A ₂ (finv b)).
+         (homotweqinvweq _ _ ) xinv : B ₂ b ⇒ A ₂ (finv b)).
   exact xinvtr.
 Defined.
-(*
-  set (Hinv : iso (
-  simpl.
-*)
-
 
 
 Lemma transportf_comp (C' : precategory) (X : UU) (P : X → C') (a b : C') (x x' : X)
@@ -485,8 +481,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma is_iso_from_FAM_is_iso (A B : FAM) (f : A ⇒ B) : 
-  FAM_is_iso f → is_iso f.
+Lemma is_iso_from_FAM_is_iso (A B : FAM) (f : A ⇒ B) : FAM_is_iso f → is_iso f.
 Proof.
   intro H.
   apply is_iso_from_is_z_iso.
@@ -500,37 +495,15 @@ Proof.
     set (H2 := is_z_iso_from_is_iso _ H').
     
     set (ff := weqpair (pr1 f) (pr1 H)).
-    set (aa := tpair _ (pr2 f a) (pr2 H a)).
+    set (aa := isopair (pr2 f a) (pr2 H a)).
     set (Hinv1:= pr1 (pr2 H2)).
     rewrite <- Hinv1.
     destruct f as [f x]; simpl in *.
     destruct H2 as [xa_inv [Ha Hb]]; simpl in *.
     rewrite transportf_comp.
     apply maponpaths.
-    
-    apply f_equal.
-    set (Ha := is_z_iso_from_is_iso _  (pr2 aa)).
-    simpl in *.
-    set (aa := tpair is_iso (pr2 f (invmap ff (pr1 f a)))
-               (pr2 H (invmap ff (pr1 f a)))).
-    destruct f as [f x]. simpl in *.
     Check (homotweqinvweq ff (f a)). (* ff (invmap ff (f a)) = f a *)
     Check (homotinvweqweq ff a). (* invmap ff (ff a) = a *)
-    idtac.
-    rewrite transportf_comp.
-    
-    rewrite (functtransportf.
-    rewrite functtransportf.
-    rewrite functtransportf.
-    simpl.
-    Search (transportf _ _ (transportf _ _ _ ) = _ ).
-    rewrite transportf_pathscomp0.
-    Check (x a).
-    rewrite (functtransportf. 
-    Check (maponpaths A ₂ (homotinvweqweq ff a)).
-    simpl.
-    Search (transport
-    Check (pr2 f a).
     admit.
   - apply (invmap (FAM_mor_equiv _ _ )).
     exists (λ a, homotweqinvweq _ _ ).
@@ -538,25 +511,22 @@ Proof.
     admit.
 Qed.
 
-
-
-Lemma weq_iso_FAM_iso (A B : FAM) : iso A B → FAM_iso A B.
+Lemma FAM_is_iso_from_is_iso (A B : FAM) (f : A ⇒ B) : is_iso f → FAM_is_iso f.
 Proof.
-  intro f.
-  exists (pr1 f).
-  split. 
-  - apply isweq_from_iso.
+  intro H.
+  split.
+  - apply isweq_from_is_iso. assumption.
   - intro a.
-    set (H := iso_inv_from_iso f).
-    set (HH := iso_inv_after_iso f).
-    set (HHH := iso_after_iso_inv f).
+    set (ff:=isopair f H).
+    set (finv := iso_inv_from_iso ff).
+    set (HH := iso_inv_after_iso ff).
+    set (HHH := iso_after_iso_inv ff).
     set (HH':= FAM_mor_equiv _ _ HH). clearbody HH'.
     set (HHH':= FAM_mor_equiv _ _ HHH). clearbody HHH'.
     set (HH'':= pr1 HH'). simpl in *.
     apply is_iso_from_is_z_iso.
-    set (H2:= pr2 (pr1 H)). simpl in *.
-    set (inv:= transportf (λ a', B ₂ _  ⇒ A ₂ a') (HH'' a) (H2 (pr1 (pr1 f) a))).
-    simpl in *.
+    set (H2:= finv ₂ (pr1 f a)). simpl in *.
+    set (inv:= transportf (λ a', B ₂ _  ⇒ A ₂ a') (HH'' a) H2). simpl in *.
     exists inv.
     split.
     + unfold inv. simpl in *.
@@ -566,96 +536,21 @@ Proof.
       apply pathsinv0.
       apply transportf_comp.
     + unfold inv. simpl in *.
-      set (H1:= pr2 HHH' (pr1 (pr1 f) a)). simpl in *.
+      set (H1:= pr2 HHH' (pr1 f a)). simpl in *.
       unfold HH''. unfold H2. simpl in *.
       rewrite <- H1.
-      set (H4:=homotinvweqweq (weqpair _ (isweq_from_iso f)) a). simpl in *.
+      set (H4:=homotinvweqweq (weqpair _ (isweq_from_is_iso f H)) a). simpl in *.
       clearbody H4.
-      rewrite  transportf_comp.
+      clear H4.
+      rewrite  transportf_comp. 
+      clear H1. clear HH. clear HHH. 
 
-      Check (pr1 HHH'(f ₁ a)). (* (inv_from_iso f ;; f) (f ₁ a) = identity B (f ₁ a) *)
+      Check (pr1 HHH'(pr1 f a)). (* (inv_from_iso f ;; f) (f ₁ a) = identity B (f ₁ a) *)
       Check (pr1 HH' a) (* (f ;; inv_from_iso f) a = identity A a *) .
       idtac.
-      rewrite transportf_comp.
-      assert (H3 : pr1 (inv_from_iso f) (pr1 (pr1 f) a) = a).
-      {  set (H5:= homotinvweqweq (weqpair _ (isweq_from_iso f))). 
-          apply H5. } 
-      rewrite H3.
-      assert (H4 : pr2 f (pr1 (inv_from_iso f) (pr1 (pr1 f) a)) = 
-                   pr2 f a).
-      rewrite H3 in H1.
-      pattern 
-      simpl in *.
-      rewrite H3.
-     in H4; simpl in H4.
-      rewrite H4.
-      Check (pr1 HH' a).
       admit.
-Defined.
+Qed.
 
-      rewrite <- H1.
-      simpl in *.
-      destruct f as [f isisof].
-      simpl in *.
-      Search (transportf _ _ ( _ ;; _ )).
-      unfold HH'.
-      unfold HHH' in H1.
-    Focus 2.
-    set (inv:= H2 (pr1 (pr1 f) x)).
-    assert (H': pr1 (inv_from_iso f) (pr1 (pr1 f) x) = x).
-    { rewrite <- H8. apply idpath. }
-    rewrite H' in inv. clear H'. clear H8. clear H6.
-    exists inv.
-    set (H':=is_z_iso_from_is_iso f (pr2 f)).
-    set (H1:=pr1 (pr2 H')).
-    set (H3 := FAM_mor_equiv _ _ H1).
-    unfold FAM_mor_eq_type in H3. clearbody H3. simpl in *.
-    split.
-    + set (H3':= pr2 H3 x).
-      rewrite <- H3'. clear H3'.  unfold compose. simpl in *.
-      simpl. unfold inv.
-      clear H3' H3.
-    
-    
-    simpl in *.
-
-    rewrite H8 in inv. set (H6 := weqpair _ (isweq_from_iso f)).
-    
-    unfold H6 in H7. simpl in *.
-    rewrite (H7) in inv.
-    set (H3 := pr1 (pr1 f)). simpl in *.
-    set (H4 := H3 x).
-    set (H5:= pr1
-    exists (pr1 H ((pr1 (pr1 f)) x)).
-    
-    destruct f as [f is_iso_f].
-    simpl in *.
-    set (H2:= pr2 H). simpl in *.
-    Print mor.
-    set (H3 := pr1 (pr1 f)). simpl in *.
-    set (H4 := H3 x).
-    set (H5:= pr1
-    exists (pr1 H ((pr1 (pr1 f)) x)).
-    apply bla.
-  admit.
-Defined.
-
-
-Definition fam_of_isos_from_iso (f : iso A B) 
-  : ∀ a : pr1 A, iso (pr2 A a) (pr2 B (pr1 (pr1 f) a)) .
-Proof.  
-  intro a.
-  exists (pr2 (pr1 f) a).
-  set (H:= pr2 (inv_from_iso f) (pr1 (pr1 f) a)).
-  simpl in *.
-  set (H1:=toforallpaths _ _ _ (maponpaths pr1 (iso_inv_after_iso f))).
-  simpl in H1.
-  rewrite (H1) in H. clear H1.
-  apply is_iso_from_is_z_iso.
-  exists H.
-  split.
-  - set (H1:= (iso_inv_after_iso f)).
-    set (H2:= pr2 H1).
-    simpl in *.
+End isos.
 
 End FAM.
