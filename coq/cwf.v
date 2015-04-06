@@ -14,6 +14,58 @@ Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
 Require Export UniMath.Foundations.hlevel2.hSet.
 
+
+Module Record_Preview.
+
+Reserved Notation "C ⟨ Γ ⟩" (at level 60).
+Reserved Notation "C ⟨ Γ ⊢ A ⟩" (at level 60).
+Reserved Notation "A [ γ ]" (at level 40).
+Reserved Notation "a ⟦ γ ⟧" (at level 40).
+Reserved Notation "Γ ∙ A" (at level 20).
+Reserved Notation "'π' A" (at level 20).
+Reserved Notation "'ν' A" (at level 15).
+Reserved Notation "γ ♯ a" (at level 25).
+
+Record precwf_record : Type := {
+  C : precategory ;
+  type : C → UU     where "C ⟨ Γ ⟩" := (type Γ) ;
+  term : ∀ Γ : C, C⟨Γ⟩ → UU     where "C ⟨ Γ ⊢ A ⟩" := (term Γ A) ;
+  rtype : ∀ {Γ Γ' : C} (A : C⟨Γ⟩) (γ : Γ' ⇒ Γ), C⟨Γ'⟩ where "A [ γ ]" := (rtype A γ) ;
+  rterm : ∀ {Γ Γ' : C} {A : C⟨Γ⟩} (a : C⟨Γ⊢A⟩) (γ : Γ' ⇒ Γ), 
+          C⟨Γ'⊢ A[γ]⟩   where "a ⟦ γ ⟧" := (rterm a γ) ;
+  reindx_type_id : ∀ Γ (A : C⟨Γ⟩), A [identity Γ] = A ;
+  reindx_type_comp : ∀  {Γ Γ' Γ''} (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') (A : C⟨Γ⟩), 
+          A [γ';;γ] 
+          =  
+          A[γ][γ'] ;
+  reindx_term_id : ∀ Γ (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩), 
+          a⟦identity Γ⟧ 
+          =
+          transportf (λ B, C⟨Γ ⊢ B⟩) (! (reindx_type_id _ _)) a ;
+  reindx_term_comp : ∀ {Γ Γ' Γ''} (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') {A : C⟨Γ⟩} (a : C⟨Γ⊢A⟩),
+          a⟦γ';;γ⟧ 
+          =
+          transportf (λ B, C⟨Γ'' ⊢ B⟩) (!(reindx_type_comp  _ _ _ )) (a⟦γ⟧⟦γ'⟧) ;
+  comp_obj : ∀ Γ (A : C⟨Γ⟩), C where "Γ ∙ A" := (comp_obj Γ A) ;
+  proj_mor : ∀ Γ (A : C⟨Γ⟩), Γ ∙ A ⇒ Γ where "'π' A" := (proj_mor _ A) ;
+  gen_element : ∀ Γ (A : C⟨Γ⟩), C⟨Γ∙A ⊢ A[π _ ]⟩ where "'ν' A" := (gen_element _ A) ;
+  pairing : ∀ Γ (A : C⟨Γ⟩) Γ' (γ : Γ' ⇒ Γ)(a : C⟨Γ'⊢ A[γ]⟩), Γ' ⇒ Γ∙A 
+     where "γ ♯ a" := (pairing _ _ _  γ a) ;
+  pre_cwf_law_1 : ∀ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' ⇒ Γ) (a : C⟨Γ'⊢ A[γ]⟩), 
+          (γ ♯ a) ;; (π _) 
+          = 
+          γ ;
+  pre_cwf_law_2 : ∀ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' ⇒ Γ) (a : C⟨Γ'⊢ A[γ]⟩),
+          transportf (λ ι, C⟨Γ'⊢ A [ι]⟩) (pre_cwf_law_1 Γ A Γ' γ a)
+             (transportf (λ B, C⟨Γ'⊢ B⟩) (!reindx_type_comp (π _ )(γ ♯ a) _ )
+                ((ν A) ⟦γ ♯ a⟧))
+          = 
+          a
+}.
+
+End Record_Preview.
+
+
 (** ** A [tt_precategory] comes with a types, written [C⟨Γ⟩], 
    and terms [C⟨Γ ⊢ A⟩] *)
 
