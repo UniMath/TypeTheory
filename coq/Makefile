@@ -10,7 +10,9 @@
 # Includes everything that compiles in reasonable time, and all dependencies.
 MODULES-CORE := Auxiliary UnicodeNotations \
 	CompCats cwf CwF_to_CompCat \
-	ess_alg_categories ess_and_gen_alg_cats
+	ess_alg_categories ess_and_gen_alg_cats \
+	category_of_elements
+
 
 # Remaining modules, included only in “make all”.
 # Useful for leaves that are slow to recompile.
