@@ -1,5 +1,5 @@
 
-Require Import total2_paths.
+Require Import UniMath.RezkCompletion.total2_paths.
 
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
@@ -168,7 +168,7 @@ Definition dpr_q_pbpairing_precwf_mapunique
 : hk = pr1 (dpr_q_pbpairing_precwf A f h k H).
 Proof.
   eapply pathscomp0.
-    symmetry. apply map_to_comp_as_pair_precwf.
+    eapply pathsinv0. apply map_to_comp_as_pair_precwf.
   eapply pathscomp0.
     apply (pairing_mapeq _ _ e1 _).
   simpl. apply maponpaths.
@@ -266,6 +266,6 @@ Proof.
   (* Reindexing along composites *)
   exists (fun Γ A Γ' f Γ'' g => reindx_type_comp C f g A).
   admit.
-Qed.
+Admitted.
 
 End CompPreCat_of_PreCwF.

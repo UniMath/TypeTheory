@@ -110,7 +110,8 @@ Proof.
      destruct h as [[c' d] h].
      simpl in *. unfold target, source in *; simpl in *.
      unfold precategory_source, precategory_target in *; simpl in *. 
-     subst. simpl.
+     repeat (match goal with | [ H : _ = _ |- _ ] => destruct H end).
+     simpl.
      rewrite id_right.
      rewrite idtomor_left.
      rewrite id_right.
@@ -145,17 +146,17 @@ Qed.
 Definition composition {a b c : C} (f : hom a b) (g : hom b c) : hom a c.
 Proof.
   assert (H : target (pr1 f) = source (pr1 g)).
-  { etransitivity.
+  { eapply pathscomp0.
     - apply (pr2 (pr2 f)).
     - apply (!pr1 (pr2 g)). }
   exists (comp (pr1 f) (pr1 g) H).
   destruct f as [f [fs ft]].
   destruct g as [g [gs gt]]. simpl in *.
   split. 
-  - etransitivity. 
+  - eapply pathscomp0.  
     + apply comp_source.
     + assumption.
-  - etransitivity.
+  - eapply pathscomp0.
     + apply comp_target.
     + assumption.
 Defined.

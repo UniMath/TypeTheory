@@ -350,7 +350,7 @@ Definition pre_cwf_law_2' Γ (A : C ⟨ Γ ⟩) Γ' (γ : Γ' ⇒ Γ) (a : C ⟨
 Proof.
   eapply pathscomp0. Focus 2.
     apply maponpaths, maponpaths. exact (pre_cwf_law_2 _ _ _ _ γ a).
-  symmetry.
+  apply pathsinv0.
   (* TODO: try simplyfying with [term_typeeq_transport_lemma] *)
   eapply pathscomp0. apply transportf_pathscomp0.
   eapply pathscomp0. apply maponpaths, transportf_rtype_mapeq.

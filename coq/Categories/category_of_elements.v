@@ -10,9 +10,9 @@ Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
 Require Export UniMath.Foundations.hlevel2.hSet.
 
-Require Export RezkCompletion.functors_transformations.
-Require Export RezkCompletion.category_hset.
-Require Export RezkCompletion.yoneda.
+Require Export UniMath.RezkCompletion.functors_transformations.
+Require Export UniMath.RezkCompletion.category_hset.
+Require Export UniMath.RezkCompletion.opp_precat.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
@@ -34,7 +34,7 @@ Proof.
   split.
   - intro c. 
     exists (identity (pr1 c)).
-    etransitivity.
+    eapply pathscomp0. 
     + rewrite (functor_id F). apply idpath.
     + apply idpath.
   - intros a b c f g.
@@ -73,7 +73,7 @@ Defined.
 
 Lemma is_functor_proj : is_functor proj_functor_data.
 Proof.
-  split; intros;
+  split; unfold functor_idax, functor_compax; intros;
   simpl in *; apply idpath.
 Qed.
 
