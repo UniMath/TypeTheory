@@ -432,6 +432,67 @@ Proof.
     apply H.
 Qed.
 
+(** ** [FAM(C)] is saturated if C is *)
+(** we construct an equivalence between equalities between (A,f) and (B,g) and isos between them,
+   by composing many "small" equivalences
+   
+    the first equivalence is [FAM_obj_weq] from above 
+*)
+
+
+Definition FAM_obj_eq_type_2 (A B : obj_UU) : UU 
+  := 
+  Σ f : pr1 A ≃ pr1 B, ∀ a : pr1 A, iso (pr2 A a) (pr2 B (f a)).
+
+Lemma FAM_obj_weq_2 (A B : obj) (H : is_category C) :
+  FAM_obj_eq_type A B ≃ FAM_obj_eq_type_2 A B.
+Proof.
+  unfold FAM_obj_eq_type, FAM_obj_eq_type_2.
+  apply weqfibtototal.
+  intro f.
+  apply weqonsecfibers.
+  intro x.
+  assert (T:=pr1 H).
+  exists (@idtoiso _ _ _ ).
+  apply (pr1 H).
+Defined.  
+
+Lemma FAM_obj_weq_3 (A B : obj) : 
+  FAM_obj_eq_type_2 A B ≃
+          Σ f : pr1 (pr1 A) → pr1 (pr1 B), 
+             Σ i : ∀ a : pr1 (pr1 A), pr2 (pr1 A) a ⇒ pr2 (pr1 B) (f a), isweq f × ∀ a, is_iso (i a).
+Proof.
+  unfold FAM_obj_eq_type_2.
+  simpl.
+  apply (weqcomp (weqtotal2asstor _ _ )).
+  apply weqfibtototal.
+  intro f. simpl.
+  
+  eapply weqcomp.
+  - apply weqdirprodcomm.
+  - apply invweq.
+    eapply weqcomp.
+    apply weqfibtototal.
+    intro i.
+    apply weqdirprodcomm.
+    
+    eapply weqcomp. 
+      refine (weqtotal2asstol _ _ ).
+        intro H. eapply (isweq f).
+    
+    eapply weqcomp.
+       apply weqdirprodcomm.
+    apply invweq.   
+    eapply weqcomp.
+       apply weqdirprodcomm.
+     apply weqfibtototal.
+     intro T.
+
+     Search ( (∀ _ , _ ) ≃ (Σ _ , _ )).
+     
+     apply weqforalltototal.
+Defined.
+  
 
 (** Characterisation of isos in [FAM] as pairs of a bijection and a family of isos **)
 
@@ -480,6 +541,40 @@ Proof.
   induction p.
   apply idpath.
 Qed.
+
+
+Lemma inv_bla (A B : FAM) (f : A ⇒ B) (g : B ⇒ A) (H : f ;; g = identity _ ) 
+              (H' : g ;; f = identity _ ) : True.
+Proof.
+  assert (T:=(FAM_mor_equiv _ _ )  H).
+  unfold FAM_mor_eq_type in T.
+  simpl in T.
+  destruct T as [HT bla].
+  simpl in *.
+  assert (T' := FAM_mor_equiv _ _ H').
+  destruct T' as [HT' bla'].
+  simpl in *.
+  clear H H'.
+  destruct A as [[A a] pa ].
+  destruct B as [[B b] pb] .
+  simpl in *.
+  clear pa pb.
+  destruct f as [f Cf].
+  destruct g as [g Cg].
+  simpl in *.
+  assert (H : forall a, is_z_isomorphism (Cf a)).
+  { 
+    intro c.
+    assert (X:= bla c).
+    assert (X':= bla' (f c)).
+    simpl in *.
+    rewrite transportf_comp in X.
+    generalize dependent X'.
+    assert (H' := HT c).
+    rewrite H'.
+    destruct H'.
+    rewrite (HT c) in X'.d
+    
 
 Lemma is_iso_from_FAM_is_iso (A B : FAM) (f : A ⇒ B) : FAM_is_iso f → is_iso f.
 Proof.
