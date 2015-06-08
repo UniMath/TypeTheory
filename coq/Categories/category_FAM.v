@@ -13,11 +13,11 @@ Require Export UniMath.Foundations.hlevel2.hSet.
 
 Require Import UniMath.Foundations.Proof_of_Extensionality.funextfun.
 
-Require Export RezkCompletion.precategories.
-Require Export RezkCompletion.functors_transformations.
-Require Export RezkCompletion.category_hset.
-Require Export RezkCompletion.yoneda.
-Require Export RezkCompletion.rezk_completion.
+Require Export UniMath.RezkCompletion.precategories.
+Require Export UniMath.RezkCompletion.functors_transformations.
+Require Export UniMath.RezkCompletion.category_hset.
+Require Export UniMath.RezkCompletion.yoneda.
+Require Export UniMath.RezkCompletion.rezk_completion.
 
 Require Export Systems.Auxiliary.
 
@@ -509,7 +509,7 @@ Proof.
     exists (λ a, homotweqinvweq _ _ ).
     intro b.
     admit.
-Qed.
+Admitted.
 
 Lemma FAM_is_iso_from_is_iso (A B : FAM) (f : A ⇒ B) : is_iso f → FAM_is_iso f.
 Proof.
@@ -549,7 +549,7 @@ Proof.
       Check (pr1 HH' a) (* (f ;; inv_from_iso f) a = identity A a *) .
       idtac.
       admit.
-Qed.
+Admitted.
 
 End isos.
 
