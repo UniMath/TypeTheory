@@ -286,18 +286,20 @@ Proof.
   destruct e. apply idpath.
 Qed.
 
+(*    is an instance of [ functtransportf ] and is replaced by that one in the following    *)
+
 Lemma transportf_rtype_mapeq {Γ} {A : C⟨Γ⟩} {Γ'} (f f' : Γ' ⇒ Γ) (e : f = f')
                      (t : C ⟨ Γ' ⊢ A[f] ⟩)
   : transportf (fun g => C ⟨ Γ' ⊢ A[g] ⟩) e t
   = transportf _ (maponpaths (fun g => A[g]) e) t.
 Proof.
-  destruct e. apply idpath.
+  apply functtransportf. 
 Qed.
 
 Lemma rterm_mapeq {Γ} {A : C⟨Γ⟩} {Γ'} {f f' : Γ' ⇒ Γ} (e : f = f') (t : C ⟨ Γ ⊢ A ⟩)
   : t ⟦ f ⟧
   = transportb _ (maponpaths (fun g => A[g]) e) (t ⟦ f' ⟧ ).
-Proof.
+Proof.  
   destruct e. apply idpath.
 Qed.
 
@@ -305,18 +307,14 @@ Qed.
    
    TODO: consider naming!
    TODO: try to use in proofs, instead of [transportf_pathscomp0] *)
+
+
 Lemma term_typeeq_transport_lemma {Γ} {A A' A'': C ⟨ Γ ⟩} (e : A = A'') (e' : A' = A'')
   (x : C ⟨ Γ ⊢ A ⟩) (x' : C ⟨ Γ ⊢ A' ⟩)
   : transportf _ (e @ !e') x = x'
   -> transportf _ e x = transportf _ e' x'.
 Proof.
-  intro H.
-  eapply pathscomp0. Focus 2.
-    apply maponpaths. exact H.
-  eapply pathscomp0. Focus 2.
-    symmetry. apply transportf_pathscomp0.
-  apply (maponpaths (fun p => transportf _ p x)).
-  apply pre_cwf_types_isaset.
+  apply transportf_comp_lemma.
 Qed.
 
 Lemma term_typeeq_transport_lemma_2 {Γ} {A : C ⟨ Γ ⟩} (e : A = A)
@@ -324,11 +322,8 @@ Lemma term_typeeq_transport_lemma_2 {Γ} {A : C ⟨ Γ ⟩} (e : A = A)
   : x = x'
   -> transportf _ e x = x'.
 Proof.
-  intros ex.
-  apply @pathscomp0 with (transportf _ (idpath _) x).
-    apply (maponpaths (fun p => transportf _ p x)).
-    apply pre_cwf_types_isaset.
-  exact ex.
+  apply transportf_comp_lemma_hset.
+  apply pre_cwf_types_isaset.
 Qed.
 
 Lemma reindx_term_comp' {Γ Γ' Γ''} (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') {A} (a : C ⟨ Γ ⊢ A ⟩)
@@ -353,7 +348,7 @@ Proof.
   apply pathsinv0.
   (* TODO: try simplyfying with [term_typeeq_transport_lemma] *)
   eapply pathscomp0. apply transportf_pathscomp0.
-  eapply pathscomp0. apply maponpaths, transportf_rtype_mapeq.
+  eapply pathscomp0. apply maponpaths, functtransportf. 
   eapply pathscomp0. apply transportf_pathscomp0.
   eapply pathscomp0. apply transportf_pathscomp0.
   refine (@maponpaths _ _ (fun e => transportf _ e _) _ (idpath _) _).

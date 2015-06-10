@@ -138,7 +138,7 @@ Proof.
   eapply pathscomp0. apply transportf_pathscomp0.
   eapply pathscomp0. apply transportf_pathscomp0.
   eapply pathscomp0. apply transportf_pathscomp0.
-  eapply pathscomp0. apply maponpaths, transportf_rtype_mapeq.
+  eapply pathscomp0. apply maponpaths, functtransportf. (* transportf_rtype_mapeq. *)
   eapply pathscomp0. apply transportf_pathscomp0.
   eapply pathscomp0. apply transportf_pathscomp0.
   refine (maponpaths (fun e => transportf _ e _) _).
@@ -198,7 +198,7 @@ Proof.
     apply maponpaths, (rterm_mapeq e2).
   eapply pathscomp0. apply transportf_pathscomp0.
   eapply pathscomp0.
-    Focus 2. symmetry. apply transportf_rtype_mapeq.
+    Focus 2. symmetry. apply functtransportf. (* transportf_rtype_mapeq. *)
   repeat apply term_typeeq_transport_lemma. 
   apply term_typeeq_transport_lemma_2.
   apply idpath.
