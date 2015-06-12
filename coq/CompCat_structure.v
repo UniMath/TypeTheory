@@ -43,16 +43,22 @@ Module Record_Preview.
 However, a definition as a record type is much more readable — so we give that here, 
 for documentation purposes only, wrapped in a module to keep it out of the global namespace. *)
 
+
+Reserved Notation "C ⟨ Γ ⟩" (at level 60).
+Reserved Notation "Γ ◂ A" (at level 45).
+Reserved Notation "A [ f ]" (at level 40).
+Reserved Notation "'π' A" (at level 5).
+
 Record comp_precat_record : Type := {
   C : precategory ;
-  ty : C -> Type ;
-  ext : ∀ Γ, ty Γ -> C ;
-  dpr : ∀ Γ (A : ty Γ), (ext Γ A) ⇒ Γ ;
-  reind : ∀ Γ (A : ty Γ) Γ' (f : Γ' ⇒ Γ), ty Γ';
-  q : ∀ Γ (A : ty Γ) Γ' (f : Γ' ⇒ Γ),
-          (ext Γ' (reind _ A _ f) ⇒ ext Γ A) ;
-  dpr_q : ∀ Γ (A : ty Γ) Γ' (f : Γ' ⇒ Γ), 
-          (q _ A _ f) ;; (dpr _ A) = (dpr _ (reind _ A _ f)) ;; f ;
+  ty : C -> Type                                        where "C ⟨ Γ ⟩" := (ty Γ);
+  ext : ∀ Γ, C⟨Γ⟩ -> C                                  where "Γ ◂ A" := (ext Γ A);
+  dpr : ∀ Γ (A : C⟨Γ⟩), Γ ◂ A ⇒ Γ                       where "'π' A" := (dpr _ A);
+  reind : ∀ Γ (A : C⟨Γ⟩) Γ' (f : Γ' ⇒ Γ), C⟨Γ'⟩         where "A [ f ]" := (reind _ A _ f)  ;
+  q : ∀ {Γ} (A : ty Γ) {Γ'} (f : Γ' ⇒ Γ),
+          (Γ' ◂ (A [ f ]) ⇒ Γ ◂ A) ;
+  dpr_q : ∀ Γ (A : C⟨Γ⟩) Γ' (f : Γ' ⇒ Γ), 
+          (q A f) ;; (π A) = (π (A[f])) ;; f ;
   reind_pb : ∀ Γ (A : ty Γ) Γ' (f : Γ' ⇒ Γ),
       isPullback _ _ _ _ (dpr_q _ A _ f)
 }.

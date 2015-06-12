@@ -10,3 +10,6 @@ Lemma transportf_pathscomp0 {A} {B} {a a' a'' : A} (e : a = a') (e' : a' = a'') 
 Proof.
   destruct e; apply idpath.
 Defined.
+
+Tactic Notation "etrans" := eapply pathscomp0.
+Tactic Notation "rew_trans_@" := repeat (etrans ; [ apply transportf_pathscomp0 |]).

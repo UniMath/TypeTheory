@@ -30,7 +30,8 @@ Lemma transportf_maponpaths {CC : precategory} {C : cwf_struct CC} {Γ} {B B' : 
 : transportf (term C Γ') (maponpaths (fun D => D[f]) e) b
   = transportf (fun D => term C Γ' (D[f])) e b.
 Proof.
-  destruct e. reflexivity.
+  apply pathsinv0.
+  apply (@functtransportf _ _ (λ D : C ⟨Γ⟩, D [f])).
 Defined.
 
 End Prelims.
@@ -65,10 +66,6 @@ Definition q_precwf {Γ} (A : C ⟨ Γ ⟩ ) {Γ'} (f : Γ' ⇒ Γ)
 Proof.
   set (T:= @pairing _ C).
   apply T with (γ := π _ ;; f).
-(*
-  apply pairing.
-  set (H :=  (@pairing _ C _ _ _ _ _ (Γ' ∙ (A[f])) (π _ ;; f))).
-*)
   refine (transportb (term C (Γ' ∙ (A [f])) ) (reindx_type_comp C _ _ A) _).
   apply gen_elem.
 Defined.
@@ -78,8 +75,10 @@ Definition dpr_q_precwf
   {Γ'} (f : Γ' ⇒ Γ)
 : (q_precwf A f) ;; (π A) = (π (A[f])) ;; f.
 Proof.
+  unfold q_precwf.
   apply pre_cwf_law_1.
 Qed.
+
 
 Lemma rterm_univ {Γ} {A : C ⟨ Γ ⟩} {Γ'} (f : Γ' ⇒ Γ)
   : ν (A[f])
@@ -89,15 +88,11 @@ Lemma rterm_univ {Γ} {A : C ⟨ Γ ⟩} {Γ'} (f : Γ' ⇒ Γ)
             ((ν A)⟦q_precwf A f⟧))).
 Proof.
   symmetry.
-  eapply pathscomp0. apply transportf_pathscomp0.
-  eapply pathscomp0. apply transportf_pathscomp0.
-  eapply pathscomp0.
+  rew_trans_@.
+  etrans.
     apply maponpaths.
     apply pre_cwf_law_2'.
-  eapply pathscomp0. apply transportf_pathscomp0.
-  eapply pathscomp0. apply transportf_pathscomp0.
-  eapply pathscomp0. apply transportf_pathscomp0.
-  apply (term_typeeq_transport_lemma _ (idpath _)).
+  rew_trans_@.
   apply term_typeeq_transport_lemma_2.
   apply idpath.
 Qed.
@@ -123,9 +118,9 @@ Definition dpr_q_pbpairing_commutes
 Proof.
   split. Focus 2. apply pre_cwf_law_1.
   unfold q_precwf.
-  eapply pathscomp0. Focus 2.
+  etrans. Focus 2.
     apply map_to_comp_as_pair_precwf.
-  eapply pathscomp0.
+  etrans.
     apply pre_cwf_law_3.
   assert ((k # (dpr_q_pbpairing_precwf_aux A f h k H)) ;; (π (A [f]) ;; f) 
           = h ;; π A) as e1.
@@ -139,12 +134,9 @@ Proof.
   eapply pathscomp0. apply maponpaths. refine (! rterm_typeeq _ _ _).
   eapply pathscomp0. apply transportf_pathscomp0.
   eapply pathscomp0. apply maponpaths, pre_cwf_law_2'.
-  eapply pathscomp0. apply transportf_pathscomp0.
-  eapply pathscomp0. apply transportf_pathscomp0.
-  eapply pathscomp0. apply transportf_pathscomp0.
+  rew_trans_@.
   eapply pathscomp0. apply maponpaths, transportf_rtype_mapeq.
-  eapply pathscomp0. apply transportf_pathscomp0.
-  eapply pathscomp0. apply transportf_pathscomp0.
+  repeat (eapply pathscomp0; [ apply transportf_pathscomp0 | ]).
   refine (maponpaths (fun e => transportf _ e _) _).
   apply pre_cwf_types_isaset.
 Qed.
@@ -193,11 +185,7 @@ Proof.
     apply maponpaths.
     symmetry. apply reindx_term_comp'.
   apply term_typeeq_transport_lemma.
-  eapply pathscomp0. apply transportf_pathscomp0.
-  eapply pathscomp0. apply transportf_pathscomp0.
-  eapply pathscomp0. apply transportf_pathscomp0.
-  eapply pathscomp0. apply transportf_pathscomp0.
-  eapply pathscomp0. apply transportf_pathscomp0.
+  repeat (eapply pathscomp0; [ apply transportf_pathscomp0 |]).
   eapply pathscomp0.
     apply maponpaths, (rterm_mapeq e2).
   eapply pathscomp0. apply transportf_pathscomp0.
