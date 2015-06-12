@@ -50,3 +50,6 @@ Proof.
     apply hs.
   exact ex.
 Qed.
+
+Tactic Notation "etrans" := eapply pathscomp0.
+Tactic Notation "rew_trans_@" := repeat (etrans ; [ apply transportf_pathscomp0 |]).

@@ -12,7 +12,9 @@ MODULES-CORE := Auxiliary UnicodeNotations \
 	CompCats cwf CwF_to_CompCat \
 	Categories/ess_alg_categories \
 	Categories/ess_and_gen_alg_cats \
-	Categories/category_of_elements
+	Categories/category_of_elements \
+	cwf_structure \
+	CompCat_structure CwF_to_CompCat_structure
 
 
 # Remaining modules, included only in “make all”.
