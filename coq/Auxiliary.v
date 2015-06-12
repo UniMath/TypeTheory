@@ -53,3 +53,5 @@ Qed.
 
 Tactic Notation "etrans" := eapply pathscomp0.
 Tactic Notation "rew_trans_@" := repeat (etrans ; [ apply transportf_pathscomp0 |]).
+Tactic Notation "sym" := apply pathsinv0.
+Tactic Notation "assoc" := apply pathscomp0_assoc.

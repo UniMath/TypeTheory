@@ -352,15 +352,15 @@ Context `{C : cwf_struct CC}.
 
 Lemma map_to_comp_as_pair_precwf {Γ} {A : C⟨Γ⟩} {Γ'} (f : Γ' ⇒ Γ∙A)
   : pairing    
-      (f ;; proj_mor  A)
+      (f ;; π A)
       (transportb _ (reindx_type_comp C _ _ _) ((gen_elem A)⟦f⟧))
   = f.
 Proof.
-  apply pathsinv0.
-  eapply pathscomp0.
-    refine (!id_right _ _ _ _).
-  eapply pathscomp0.
-    refine (maponpaths (fun g => f ;; g) (!pre_cwf_law_4 _ _ _)).
+  sym.
+  etrans.
+  apply (!id_right _ _ _ _ ).
+  etrans.
+  refine (maponpaths (fun g => f ;; g) (!pre_cwf_law_4 _ _ _)).
   apply pre_cwf_law_3.
 Qed.
 
@@ -384,7 +384,7 @@ Lemma transportf_rtype_mapeq {Γ} {A : C⟨Γ⟩} {Γ'} (f f' : Γ' ⇒ Γ) (e :
   : transportf (fun g => C ⟨ Γ' ⊢ A[g] ⟩) e t
   = transportf _ (maponpaths (fun g => A[g]) e) t.
 Proof.
-  destruct e. apply idpath.
+  apply functtransportf.
 Qed.
 
 Lemma rterm_mapeq {Γ} {A : C⟨Γ⟩} {Γ'} {f f' : Γ' ⇒ Γ} (e : f = f') (t : C ⟨ Γ ⊢ A ⟩)
@@ -403,13 +403,7 @@ Lemma term_typeeq_transport_lemma {Γ} {A A' A'': C ⟨ Γ ⟩} (e : A = A'') (e
   : transportf _ (e @ !e') x = x'
   -> transportf _ e x = transportf _ e' x'.
 Proof.
-  intro H.
-  eapply pathscomp0. Focus 2.
-    apply maponpaths. exact H.
-  eapply pathscomp0. Focus 2.
-    symmetry. apply transportf_pathscomp0.
-  apply (maponpaths (fun p => transportf _ p x)).
-  apply pre_cwf_types_isaset.
+  apply transportf_comp_lemma.
 Qed.
 
 Lemma term_typeeq_transport_lemma_2 {Γ} {A : C ⟨ Γ ⟩} (e : A = A)
@@ -417,11 +411,8 @@ Lemma term_typeeq_transport_lemma_2 {Γ} {A : C ⟨ Γ ⟩} (e : A = A)
   : x = x'
   -> transportf _ e x = x'.
 Proof.
-  intros ex.
-  apply @pathscomp0 with (transportf _ (idpath _) x).
-    apply (maponpaths (fun p => transportf _ p x)).
-    apply pre_cwf_types_isaset.
-  exact ex.
+  apply transportf_comp_lemma_hset.
+  apply pre_cwf_types_isaset.
 Qed.
 
 Lemma reindx_term_comp' {Γ Γ' Γ''} (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') {A} (a : C ⟨ Γ ⊢ A ⟩)
@@ -430,8 +421,9 @@ Lemma reindx_term_comp' {Γ Γ' Γ''} (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') {A}
 Proof.
   eapply pathscomp0.
     apply maponpaths, (reindx_term_comp C).
-  eapply pathscomp0. apply transportf_pathscomp0.
-  apply term_typeeq_transport_lemma_2. apply idpath.
+  rew_trans_@.
+  apply term_typeeq_transport_lemma_2. 
+  apply idpath.
 Qed.
 
 (* TODO: consider giving this instead of current [pre_cwf_law_2] ? *)
@@ -444,11 +436,10 @@ Proof.
   eapply pathscomp0. Focus 2.
     apply maponpaths, maponpaths. exact (pre_cwf_law_2 _ _ _ _ γ a).
   apply pathsinv0.
+  rew_trans_@.
+  etrans. apply maponpaths, transportf_rtype_mapeq.
+  rew_trans_@.          
   (* TODO: try simplyfying with [term_typeeq_transport_lemma] *)
-  eapply pathscomp0. apply transportf_pathscomp0.
-  eapply pathscomp0. apply maponpaths, transportf_rtype_mapeq.
-  eapply pathscomp0. apply transportf_pathscomp0.
-  eapply pathscomp0. apply transportf_pathscomp0.
   refine (@maponpaths _ _ (fun e => transportf _ e _) _ (idpath _) _).
   apply pre_cwf_types_isaset.
 Qed.
