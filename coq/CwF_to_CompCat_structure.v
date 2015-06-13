@@ -76,7 +76,7 @@ Definition dpr_q_precwf
 : (q_precwf A f) ;; (π A) = (π (A[f])) ;; f.
 Proof.
   unfold q_precwf.
-  apply pre_cwf_law_1.
+  apply cwf_law_1.
 Qed.
 
 
@@ -87,14 +87,14 @@ Lemma rterm_univ {Γ} {A : C ⟨ Γ ⟩} {Γ'} (f : Γ' ⇒ Γ)
          (transportb _ (reindx_type_comp C _ _ _)
             ((ν A)⟦q_precwf A f⟧))).
 Proof.
-  symmetry.
+  sym.
   rew_trans_@.
   etrans.
-    apply maponpaths.
+  - apply maponpaths.
     apply pre_cwf_law_2'.
-  rew_trans_@.
-  apply term_typeeq_transport_lemma_2.
-  apply idpath.
+  - rew_trans_@.
+    apply term_typeeq_transport_lemma_2.
+    apply idpath.
 Qed.
 
 (** The biggest work is in showing that the square of dependent projections/reindexings is a pullback.  We split this up into several lemmas: construction of the pullback pairing function; proof that projections applied to the pairing recover the original maps; and proof that the pairing map is the unique such map. *)
@@ -116,18 +116,42 @@ Definition dpr_q_pbpairing_commutes
   (hk := @pairing _ C Γ' (A[f]) X k (dpr_q_pbpairing_precwf_aux A f h k H))
 : (hk ;; q_precwf A f = h) × (hk ;; π (A[f]) = k).
 Proof.
-  split. Focus 2. apply pre_cwf_law_1.
+  split.
+  - unfold q_precwf.
+    rewrite <- map_to_comp_as_pair_precwf.
+    rewrite cwf_law_3.
+     match goal with [ |- pairing ?e _ = pairing ?e' _ ] => assert (e1 : e = e') end.
+     { rewrite assoc.
+       rewrite H.
+       apply cancel_postcomposition.
+       apply cwf_law_1.
+     }        
+     etrans. apply (pairing_mapeq _ _ e1).
+     apply maponpaths. 
+     unfold transportb.
+     rewrite <- rterm_typeeq.
+     rew_trans_@.
+     unfold hk. rewrite pre_cwf_law_2'.
+     rew_trans_@.
+     rewrite transportf_rtype_mapeq.
+     rew_trans_@.
+     apply transportf_ext.
+     apply (cwf_types_isaset C).
+  - apply cwf_law_1.
+
+(*
+  split. Focus 2. apply cwf_law_1.
   unfold q_precwf.
   etrans. Focus 2.
     apply map_to_comp_as_pair_precwf.
   etrans.
-    apply pre_cwf_law_3.
+    apply cwf_law_3.
   assert ((k # (dpr_q_pbpairing_precwf_aux A f h k H)) ;; (π (A [f]) ;; f) 
           = h ;; π A) as e1.
     eapply pathscomp0. apply assoc.
     refine (_ @ !H).
     apply (maponpaths (fun g => g ;; f)).
-    apply pre_cwf_law_1.
+    apply cwf_law_1.
   eapply pathscomp0. apply (pairing_mapeq _ _ e1).
   apply maponpaths.
   eapply pathscomp0. apply transportf_pathscomp0.
@@ -138,7 +162,8 @@ Proof.
   eapply pathscomp0. apply maponpaths, transportf_rtype_mapeq.
   repeat (eapply pathscomp0; [ apply transportf_pathscomp0 | ]).
   refine (maponpaths (fun e => transportf _ e _) _).
-  apply pre_cwf_types_isaset.
+  apply cwf_types_isaset.
+*)
 Qed.
 
 Definition dpr_q_pbpairing_precwf
@@ -230,19 +255,51 @@ Definition issplit_comp_precat_of_precwf
   : is_split_comp_cat comp_precat_of_precwf.
 Proof.
   unfold is_split_comp_cat.
-  split. split.
-  (* Types over each object form a set *)
-  apply pre_cwf_types_isaset.
-  (* Reindexing along identities *)
+  repeat split. 
+  - (* Types over each object form a set *)
+    apply cwf_types_isaset.
+  - (* Reindexing along identities *)
+    exists (reindx_type_id C).
+    intros Γ A.
+    match goal with [|- _ = ?e ] => 
+           pathvia (identity _ ;; e); [| apply id_left] end.
+    unfold ext_comp_cat. simpl.
+    rewrite <- cwf_law_4.
+    rewrite pairing_transport.
+    unfold q_comp_cat. simpl. unfold q_precwf.
+    etrans. 
+    * apply (pairing_mapeq _ _ (id_right _ _ _ _)).
+    * apply maponpaths.
+      rew_trans_@.
+      match goal with [ |- transportf _ ( ?e) _ = transportf _ ?f _ ] =>
+                      generalize e ; generalize f end.
+      intros p p'.
+      assert ( T : p' = maponpaths (λ D, D [π (A [identity Γ])]) p).
+      { apply (cwf_types_isaset C). }
+      rewrite T; clear T.
+      apply transportf_maponpaths.
+(*      
+      rew_trans_@.      
+      pathvia (transportf (term C (Γ ◂ reind_comp_cat A (identity Γ)))
+        (maponpaths (fun B => B [π (A [identity Γ])]) (reindx_type_id C Γ A))
+        (ν (A [identity Γ]))).
+      + apply term_typeeq_transport_lemma.
+        apply term_typeeq_transport_lemma_2.
+        reflexivity.
+      + apply transportf_maponpaths.
+*)
+  
+(*  
   exists (reindx_type_id C).
-  intros Γ A. unfold q_comp_cat; simpl. unfold q_precwf.
+  intros Γ A. 
+  unfold q_comp_cat; simpl. unfold q_precwf.
   eapply pathscomp0. Focus 2. apply id_left.
   eapply pathscomp0. Focus 2.
     refine (maponpaths (fun q => q ;; _) _).
     Unfocus.
   eapply pathscomp0. Focus 2.
     symmetry. apply pairing_transport.
-    Focus 2. apply pre_cwf_law_4.
+    Focus 2. apply cwf_law_4.
   eapply pathscomp0.
     apply (pairing_mapeq _ _ (id_right _ _ _ _)).
   apply maponpaths. simpl.
@@ -255,8 +312,32 @@ Proof.
     apply term_typeeq_transport_lemma_2.
     reflexivity.
   apply transportf_maponpaths.
-  (* Reindexing along composites *)
-  exists (fun Γ A Γ' f Γ'' g => reindx_type_comp C f g A).
+*)
+
+
+  - (* bla *) 
+   (* Reindexing along composites *)
+    idtac.
+    exists (fun Γ A Γ' f Γ'' g => reindx_type_comp C f g A).
+    intros Γ A Γ' f Γ'' g.
+    unfold q_comp_cat. simpl. 
+    match goal with [|- _ = ?e ] => 
+           pathvia (identity _ ;; e); [| apply id_left] end.
+    rewrite assoc.
+    rewrite assoc.
+    unfold ext_comp_cat. simpl.
+    rewrite <- cwf_law_4.
+    rewrite pairing_transport.
+    unfold q_precwf. 
+    rewrite cwf_law_3.
+    rewrite cwf_law_3.
+    match goal with [|- pairing ?b _ = pairing ?e ?e' ] => 
+              set (X := e); set (X' := b)  end.
+    assert (X = X').
+    + unfold X; clear X.
+      unfold X'; clear X'.
+      repeat rewrite assoc.
+      apply cancel_postcomposition.
   admit.
 Admitted.
 

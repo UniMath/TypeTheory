@@ -51,6 +51,12 @@ Proof.
   exact ex.
 Qed.
 
+Lemma transportf_ext (X : UU) (B : X -> UU) (A A' : X) (e e' : A = A') p :
+  e = e' -> transportf _ e p = transportf B e' p.
+Proof.
+  intro H; induction H; apply idpath.
+Defined.
+
 Tactic Notation "etrans" := eapply pathscomp0.
 Tactic Notation "rew_trans_@" := repeat (etrans ; [ apply transportf_pathscomp0 |]).
 Tactic Notation "sym" := apply pathsinv0.

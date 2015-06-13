@@ -293,7 +293,7 @@ Definition cwf_laws {CC : precategory}(C : tt_reindx_comp_struct CC)
    :=
     (Σ T : reindx_laws C,
        (comp_laws_1_2 T × comp_law_3 T × comp_law_4 T)) ×
-    ((∀ Γ, isaset (C⟨Γ⟩)) × ∀ Γ (A : C⟨Γ⟩), isaset (C⟨Γ⊢ A⟩)). 
+    (has_homsets CC × (∀ Γ, isaset (C⟨Γ⟩)) × ∀ Γ (A : C⟨Γ⟩), isaset (C⟨Γ⊢ A⟩)). 
 
 Definition cwf_struct (CC : precategory) : UU 
   := Σ C : tt_reindx_comp_struct CC, cwf_laws C.
@@ -313,34 +313,68 @@ Coercion reindx_laws_from_cwf_struct (CC : precategory) (C : cwf_struct CC)
   := pr1 (pr1 (pr2 C)).
 (* This coercion allows us to write things like [reindx_type_id C]. *)
 
-Definition pre_cwf_laws {CC : precategory} (C : cwf_struct CC)
+Definition cwf_comp_laws {CC : precategory} (C : cwf_struct CC)
   : (comp_laws_1_2 C × comp_law_3 C × comp_law_4 C)
   := pr2 (pr1 (pr2 C)).
 
-Definition pre_cwf_law_1 {CC : precategory} (C : cwf_struct CC) 
+
+Definition has_homsets_cwf {CC : precategory} (C : cwf_struct CC) : has_homsets CC
+  := pr1 (pr1 (pr2 (pr2 C))).
+
+Definition cwf_types_isaset {CC : precategory} (C : cwf_struct CC) Γ : isaset (C⟨Γ⟩)
+  := pr2 (pr1 (pr2 (pr2 C))) Γ.
+
+Definition cwf_terms_isaset  {CC : precategory} (C : cwf_struct CC) : ∀ Γ A, isaset (C⟨Γ ⊢ A⟩)
+  := pr2 (pr2 (pr2 C)).
+
+
+Definition cwf_law_1 {CC : precategory} (C : cwf_struct CC) 
   Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' ⇒ Γ) (a : C⟨Γ'⊢ A[γ]⟩)
   : (γ ♯ a) ;; (π _) = γ
-  := pr1 (pr1 (pr1 (pre_cwf_laws C)) Γ A Γ' γ a).
+  := pr1 (pr1 (pr1 (cwf_comp_laws C)) Γ A Γ' γ a).
 
-Definition pre_cwf_law_2 {CC : precategory} (C : cwf_struct CC) 
+Definition cwf_law_2 {CC : precategory} (C : cwf_struct CC) 
   Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' ⇒ Γ) (a : C⟨Γ'⊢ A[γ]⟩)
-  : transportf (λ ι, C⟨Γ'⊢ A [ι]⟩) (pre_cwf_law_1 C Γ A Γ' γ a)
+  : transportf (λ ι, C⟨Γ'⊢ A [ι]⟩) (cwf_law_1 C Γ A Γ' γ a)
     (transportf (λ B, C⟨Γ'⊢ B⟩) (!reindx_type_comp C (π _)(γ ♯ a) _ ) 
       ((ν A) ⟦γ ♯ a⟧))
     = a
-  := pr2 (pr1 (pr1 (pre_cwf_laws C)) Γ A Γ' γ a).
+  := pr2 (pr1 (pr1 (cwf_comp_laws C)) Γ A Γ' γ a).
 
-Definition pre_cwf_law_3 {CC : precategory} (C : cwf_struct CC) : comp_law_3 C
-  := pr2 (pr1 (pre_cwf_laws C)).
+Definition cwf_law_2_gen {CC : precategory} (C : cwf_struct CC) 
+  Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' ⇒ Γ) (a : C⟨Γ'⊢ A[γ]⟩)
+  :  ∀ (p : (A [π A]) [γ ♯ a] = A [γ ♯ a;; π A]) (p0 : γ ♯ a;; π A = γ),
+   transportf (λ ι : Γ' ⇒ Γ, C ⟨ Γ' ⊢ A [ι] ⟩) p0
+     (transportf (λ B : C ⟨ Γ' ⟩, C ⟨ Γ' ⊢ B ⟩) p (ν A ⟦ γ ♯ a ⟧)) = a.
+Proof.
+  intros p p'.
+  etrans; [ | apply cwf_law_2].
+  match goal with | [ |- _ = transportf _ ?p1 _ ] => assert (T : p' = p1) end. 
+  { apply (has_homsets_cwf C). }
+  rewrite T; clear T. apply maponpaths.
+  match goal with | [ |- _ = transportf _ ?p1 _ ] => assert (T : p = p1) end.
+  { apply (cwf_types_isaset C). }
+  rewrite T; apply idpath.
+Qed.  
 
-Definition pre_cwf_law_4 {CC : precategory} (C : cwf_struct CC) : comp_law_4 C
-  := pr2 (pre_cwf_laws C).
+Definition cwf_law_3 {CC : precategory} (C : cwf_struct CC) : comp_law_3 C
+  := pr2 (pr1 (cwf_comp_laws C)).
 
-Definition pre_cwf_types_isaset {CC : precategory} (C : cwf_struct CC) : ∀ Γ, isaset (C⟨Γ⟩)
-  := pr1 (pr2 (pr2 C)).
+Definition cwf_law_3_gen {CC : precategory} (C : cwf_struct CC) 
+  (Γ : CC) (A : C ⟨ Γ ⟩) (Γ' Γ'' : CC) (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ')
+  (a : C ⟨ Γ' ⊢ A [γ] ⟩) (p : (A [γ]) [γ'] = A [γ';; γ]):
+   γ';; γ ♯ a =
+   (γ';; γ) ♯ transportf (λ B : C ⟨ Γ'' ⟩, C ⟨ Γ'' ⊢ B ⟩) p (a ⟦ γ' ⟧).
+Proof.
+  etrans. apply cwf_law_3.
+  apply maponpaths.
+  match goal with |[|- transportf _ ?e _ = _ ] => assert (T : e = p) end.
+  { apply (cwf_types_isaset C). }
+  rewrite T; apply idpath.
+Qed.
 
-Definition pre_cwf_terms_isaset  {CC : precategory} (C : cwf_struct CC) : ∀ Γ A, isaset (C⟨Γ ⊢ A⟩)
-  := pr2 (pr2 (pr2 C)).
+Definition cwf_law_4 {CC : precategory} (C : cwf_struct CC) : comp_law_4 C
+  := pr2 (cwf_comp_laws C).
 
 
 (** ** General lemmas *)
@@ -351,25 +385,37 @@ Generalizable Variable CC.
 Context `{C : cwf_struct CC}.
 
 Lemma map_to_comp_as_pair_precwf {Γ} {A : C⟨Γ⟩} {Γ'} (f : Γ' ⇒ Γ∙A)
-  : pairing    
-      (f ;; π A)
-      (transportb _ (reindx_type_comp C _ _ _) ((gen_elem A)⟦f⟧))
-  = f.
+  :   (f ;; π A) ♯ (transportb _ (reindx_type_comp C _ _ _) ((gen_elem A)⟦f⟧))
+      = 
+      f.
 Proof.
   sym.
   etrans.
   apply (!id_right _ _ _ _ ).
   etrans.
-  refine (maponpaths (fun g => f ;; g) (!pre_cwf_law_4 _ _ _)).
-  apply pre_cwf_law_3.
+  refine (maponpaths (fun g => f ;; g) (!cwf_law_4 _ _ _)).
+  apply cwf_law_3.
 Qed.
 
 Lemma pairing_mapeq {Γ} {A : C⟨Γ⟩} {Γ'} (f f' : Γ' ⇒ Γ) (e : f = f')
-                     (t : C ⟨ Γ' ⊢ A [f] ⟩)
-  : pairing f t
-    = pairing f' (transportf (fun B => C⟨Γ' ⊢ B⟩ ) (maponpaths _ e) t).
+                     (a : C ⟨ Γ' ⊢ A [f] ⟩)
+  : f ♯ a
+    = 
+    f' ♯ (transportf (fun B => C⟨Γ' ⊢ B⟩ ) (maponpaths _ e) a).
 Proof.
   destruct e. apply idpath.
+Qed.
+
+Lemma pairing_mapeq_gen {Γ} {Γ'} (f f' : Γ' ⇒ Γ) {A : C⟨Γ⟩} (a : C ⟨ Γ' ⊢ A [f] ⟩) 
+         (e : f = f') (p : A [f] = A [f'])
+  : f ♯ a
+    = 
+    f' ♯ (transportf (fun B => C⟨Γ' ⊢ B⟩ ) p a).
+Proof.
+  assert (T : p = (maponpaths _ e)).
+  { apply (cwf_types_isaset C). }
+  rewrite T.
+  apply pairing_mapeq.
 Qed.
 
 Lemma rterm_typeeq {Γ} {A A': C⟨Γ⟩} (e : A = A') {Γ'} (f : Γ' ⇒ Γ) (x : C ⟨ Γ ⊢ A ⟩)
@@ -412,7 +458,7 @@ Lemma term_typeeq_transport_lemma_2 {Γ} {A : C ⟨ Γ ⟩} (e : A = A)
   -> transportf _ e x = x'.
 Proof.
   apply transportf_comp_lemma_hset.
-  apply pre_cwf_types_isaset.
+  apply cwf_types_isaset.
 Qed.
 
 Lemma reindx_term_comp' {Γ Γ' Γ''} (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') {A} (a : C ⟨ Γ ⊢ A ⟩)
@@ -430,19 +476,27 @@ Qed.
 Definition pre_cwf_law_2' Γ (A : C ⟨ Γ ⟩) Γ' (γ : Γ' ⇒ Γ) (a : C ⟨ Γ' ⊢ A[γ] ⟩)
   : (ν A) ⟦γ ♯ a⟧
   = transportf _ (reindx_type_comp C _ _ _)
-      (transportb _ (maponpaths (fun g => A[g]) (pre_cwf_law_1 _ _ _ _ _ _))
+      (transportb _ (maponpaths (fun g => A[g]) (cwf_law_1 _ _ _ _ _ _))
         a). 
 Proof.
   eapply pathscomp0. Focus 2.
-    apply maponpaths, maponpaths. exact (pre_cwf_law_2 _ _ _ _ γ a).
+    apply maponpaths, maponpaths. exact (cwf_law_2 _ _ _ _ γ a).
   apply pathsinv0.
   rew_trans_@.
   etrans. apply maponpaths, transportf_rtype_mapeq.
   rew_trans_@.          
   (* TODO: try simplyfying with [term_typeeq_transport_lemma] *)
   refine (@maponpaths _ _ (fun e => transportf _ e _) _ (idpath _) _).
-  apply pre_cwf_types_isaset.
+  apply cwf_types_isaset.
 Qed.
 
+Definition pairing_transport  {Γ} {A A' : C⟨Γ⟩} (e : A = A')
+  {Γ'} (γ : Γ' ⇒ Γ) (a : C ⟨Γ'⊢A[γ]⟩)
+: (γ ♯ a) ;; idtoiso (maponpaths (fun (B : C⟨Γ⟩) => Γ∙B) e)
+= (γ ♯ (transportf (fun B => C ⟨ Γ' ⊢ B [γ] ⟩) e a)).
+Proof.
+  destruct e; simpl.
+  apply id_right.
+Defined.
 
 End CwF_lemmas.
