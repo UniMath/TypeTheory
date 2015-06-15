@@ -269,17 +269,26 @@ Proof.
     rewrite pairing_transport.
     unfold q_precwf. 
     rewrite cwf_law_3.
-    rewrite cwf_law_3.
-    match goal with [|- pairing ?b _ = pairing ?e ?e' ] => 
-              set (X := e); set (X' := b)  end.
-    assert (X = X').
-    { unfold X; clear X.
-      unfold X'; clear X'.
-      repeat rewrite assoc.
-      apply cancel_postcomposition.
+    match goal with [|- pairing ?b _ = pairing ?e _ ] => 
+              set (X := b); set (X' := e)  end.
+    etrans.
+    + refine (pairing_mapeq _ X' _ _ ).
+      unfold X; clear X; unfold X'; clear X'.
+      etrans. Focus 2.  eapply pathsinv0.
+            cancel_postcomposition. apply cwf_law_3.
+      etrans. Focus 2. eapply pathsinv0.  apply assoc.
+      etrans. apply assoc.
+      cancel_postcomposition.
+      etrans. Focus 2. eapply pathsinv0. apply cwf_law_1.
+      etrans; [ | eapply pathsinv0; apply assoc ].
+      cancel_postcomposition. sym. apply cwf_law_1.
+    + apply maponpaths.
+      rew_trans_@.
+      apply term_typeeq_transport_lemma.
+      etrans. Focus 2.
+      apply rterm_typeeq.
       admit.
-    }
-    admit.
+
 Admitted.
 
 End CompPreCat_of_PreCwF.

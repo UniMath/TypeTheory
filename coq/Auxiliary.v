@@ -3,6 +3,8 @@
 *)
 
 Require Import UniMath.Foundations.Generalities.uu0.
+Require Import UniMath.RezkCompletion.precategories.
+Require Import Systems.UnicodeNotations.
 
 (* (Surprised there’s no library function for this!) *)
 Lemma transportf_pathscomp0 {A} {B} {a a' a'' : A} (e : a = a') (e' : a' = a'') (b : B a)
@@ -57,7 +59,16 @@ Proof.
   intro H; induction H; apply idpath.
 Defined.
 
+
+Lemma cancel_postcomposition {C : precategory} {a b c : C} (f f' : a ⇒ b) (g : b ⇒ c)
+: f = f' -> f ;; g = f' ;; g.
+Proof.
+  intro H. apply (maponpaths (fun f => f ;; g) H).
+Defined.
+
+
 Tactic Notation "etrans" := eapply pathscomp0.
 Tactic Notation "rew_trans_@" := repeat (etrans ; [ apply transportf_pathscomp0 |]).
 Tactic Notation "sym" := apply pathsinv0.
 Tactic Notation "assoc" := apply pathscomp0_assoc.
+Tactic Notation "cancel_postcomposition" := apply cancel_postcomposition.
