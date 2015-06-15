@@ -6,8 +6,7 @@ Require Import Systems.UnicodeNotations.
 Require Import Systems.CompCat_structure.
 Require Import Systems.cwf_structure.
 
-(* Suppress these preliminaries in the Coqdoc documentation: *)
-(* begin hide *)
+
 (* Locally override the notation [ γ ♯ a ], at a higher level,
   to get more informative bracketing when pairing meets composition. *) 
 Local Notation "γ # a" := (pairing γ a) (at level 75).
@@ -35,7 +34,6 @@ Proof.
 Defined.
 
 End Prelims.
-(* end hide *)
 
 
 (** * Comprehension pre-precats from pre-cats with families
@@ -53,9 +51,9 @@ Section CompPreCat_of_PreCwF.
    TODO: discuss namine of [has_homsets]: wouldn’t e.g. [homs_are_sets] be clearer? *)
 Context (CC : precategory) (C : cwf_struct CC) (homs_sets : has_homsets CC).
 
-Definition comp_precat1_of_precwf : comp_precat_structure1 CC.
+Definition comp_cat1_of_precwf : comp_cat_struct1 CC.
 Proof.
-  unfold comp_precat_structure1.
+  unfold comp_cat_struct1.
   exists (type C).
   exists (comp_obj ).  
   exact (fun Γ a Γ' f => a[f]).
@@ -155,7 +153,7 @@ Defined.
 
 
 Definition dpr_q_pbpairing_precwf_mapunique
-  {Γ} (A : comp_precat1_of_precwf Γ)
+  {Γ} (A : comp_cat1_of_precwf Γ)
   {Γ'} (f : Γ' ⇒ Γ)
   {X} {h : X ⇒ Γ ∙ A} {k : X ⇒ Γ'} (H : h ;; π A = k ;; f)
   (hk : X ⇒ Γ' ◂ reind_comp_cat A f)
@@ -197,7 +195,7 @@ Proof.
 Qed.
 
 Definition dpr_q_pbpairing_precwf_unique
-  {Γ} (A : comp_precat1_of_precwf Γ)
+  {Γ} (A : comp_cat1_of_precwf Γ)
   {Γ'} (f : Γ' ⇒ Γ)
   {X} (h : X ⇒ Γ ∙ A) (k : X ⇒ Γ') (H : h ;; π A = k ;; f)
   (t : Σ hk : X ⇒ Γ' ◂ reind_comp_cat A f,
@@ -212,10 +210,10 @@ Qed.
 
 (** We can now assemble the components into a comprehension precategory: *)
 
-Definition comp_precat_of_precwf : comp_precat_struct CC.
+Definition comp_cat_of_precwf : comp_cat_struct CC.
 Proof.
-  exists comp_precat1_of_precwf.
-  unfold comp_precat_structure2.
+  exists comp_cat1_of_precwf.
+  unfold comp_cat_struct2.
   exists (@proj_mor CC C).
   exists @q_precwf.
   exists @dpr_q_precwf.
@@ -227,7 +225,7 @@ Defined.
 (** Moreover, the comprehension precat of a pre-CwF is always split. *)
 
 Definition issplit_comp_precat_of_precwf
-  : is_split_comp_cat comp_precat_of_precwf.
+  : is_split_comp_cat comp_cat_of_precwf.
 Proof.
   unfold is_split_comp_cat.
   repeat split. 

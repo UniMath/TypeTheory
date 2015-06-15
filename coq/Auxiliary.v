@@ -5,6 +5,44 @@
 Require Import UniMath.Foundations.Generalities.uu0.
 Require Import UniMath.RezkCompletion.precategories.
 Require Import Systems.UnicodeNotations.
+Require Import UniMath.RezkCompletion.limits.pullbacks.
+
+
+Section on_pullbacks.
+
+  Variable C : precategory.
+  Variables a b c d : C.
+  Variables (f : a ⇒ b) (g : a ⇒ c) (k : b ⇒ d) (h : c ⇒ d).
+
+(*
+      f
+   a----b
+ g |    | k
+   |    |
+   c----d
+     h 
+    
+*)
+
+  Variable sqr_comm : f ;; k = g ;; h.
+  Variable Pb : isPullback _ _ _ _ _ sqr_comm.
+
+  Definition map_into_Pb {e : C} (x : e ⇒ b) (y : e ⇒ c)
+      :  x ;; k = y ;; h → e ⇒ a
+    := fun H => pr1 (pr1 (Pb _ x y H)).
+
+  Definition Pb_map_commutes_1 {e : C} (x : e ⇒ b) (y : e ⇒ c) H
+  : map_into_Pb x y H ;; f = x
+    := (pr1 (pr2 (pr1 (Pb _ x y H)))).
+  
+
+  Definition Pb_map_commutes_2 {e : C} (x : e ⇒ b) (y : e ⇒ c) H
+  : map_into_Pb x y H ;; g = y
+    := (pr2 (pr2 (pr1 (Pb _ x y H)))).
+
+  
+
+End on_pullbacks.
 
 (* (Surprised there’s no library function for this!) *)
 Lemma transportf_pathscomp0 {A} {B} {a a' a'' : A} (e : a = a') (e' : a' = a'') (b : B a)

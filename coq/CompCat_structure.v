@@ -83,7 +83,7 @@ we have to split up the definition into several steps:
 [comp_precat_structure1] with the first few components, and [comp_precat_structure2] the rest.  *)
 Section Comp_Precats.
 
-Definition comp_precat_structure1 (C : precategory) :=
+Definition comp_cat_struct1 (C : precategory) :=
   Σ (ty : C -> UU)
     (ext : ∀ Γ, ty Γ -> C),
       ∀ Γ (A : ty Γ) Γ' (f : Γ' ⇒ Γ), ty Γ'.
@@ -96,12 +96,12 @@ Coercion precat_from_comp_precat1 : comp_precat1 >-> precategory.
 (** Since the various access functions should eventually apply directly to comprehension categories
 as well as comprehension precategories (via coercion from the former to the latter), we drop the [pre] in their names. *)
 
-Definition ty_comp_cat {CC : precategory} (C : comp_precat_structure1 CC) : CC -> UU 
+Definition ty_comp_cat {CC : precategory} (C : comp_cat_struct1 CC) : CC -> UU 
  := pr1  C.
 
-Coercion ty_comp_cat : comp_precat_structure1 >-> Funclass.
+Coercion ty_comp_cat : comp_cat_struct1 >-> Funclass.
 
-Definition ext_comp_cat {CC : precategory} {C : comp_precat_structure1 CC} 
+Definition ext_comp_cat {CC : precategory} {C : comp_cat_struct1 CC} 
   (Γ : CC) (A : C Γ) : CC
    := pr1 (pr2  C) Γ A.
 Notation "Γ ◂ A" := (ext_comp_cat Γ A) (at level 45, left associativity).
@@ -111,12 +111,12 @@ Notation "Γ ◂ A" := (ext_comp_cat Γ A) (at level 45, left associativity).
   which should in turn be above the level of composition "g;;f",
   to allow expressions like "c◂a[g;;f]". *)
 
-Definition reind_comp_cat {CC : precategory} {C : comp_precat_structure1 CC}
+Definition reind_comp_cat {CC : precategory} {C : comp_cat_struct1 CC}
   {Γ : CC} (A : C Γ) {Γ'} (f : Γ' ⇒ Γ) : C Γ'
   := pr2 (pr2 C) Γ A Γ' f.
 Notation "A [ f ]" := (reind_comp_cat A f) (at level 40).
 
-Definition comp_precat_structure2 {CC : precategory} (C : comp_precat_structure1 CC) :=
+Definition comp_cat_struct2 {CC : precategory} (C : comp_cat_struct1 CC) :=
   Σ (dpr : ∀ Γ (A : C Γ), Γ◂A ⇒ Γ)
     (q : ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ), (Γ'◂A[f]) ⇒ Γ◂A )
     (dpr_q : ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ), 
@@ -125,35 +125,35 @@ Definition comp_precat_structure2 {CC : precategory} (C : comp_precat_structure1
       isPullback (dpr _ A) f (q _ A _ f) (dpr _ (A[f])) (dpr_q _ A _ f).
 (* TODO: change name [dpr_q] to [q_dpr] throughout, now that composition is diagrammatic order? *)
 
-Definition comp_precat_struct (CC : precategory) 
-  := Σ C : comp_precat_structure1 CC , comp_precat_structure2 C.
+Definition comp_cat_struct (CC : precategory) 
+  := Σ C : comp_cat_struct1 CC , comp_cat_struct2 C.
 
-Definition comp_precat1_from_comp_precat (CC : precategory)(C : comp_precat_struct CC) 
-  : comp_precat_structure1 _  := pr1 C.
-Coercion comp_precat1_from_comp_precat : comp_precat_struct >-> comp_precat_structure1.
+Definition comp_precat1_from_comp_precat (CC : precategory)(C : comp_cat_struct CC) 
+  : comp_cat_struct1 _  := pr1 C.
+Coercion comp_precat1_from_comp_precat : comp_cat_struct >-> comp_cat_struct1.
 
-Definition dpr_comp_cat {CC : precategory}{C : comp_precat_struct CC} {Γ} (A : C Γ)
+Definition dpr_comp_cat {CC : precategory}{C : comp_cat_struct CC} {Γ} (A : C Γ)
   : (Γ◂A) ⇒ Γ
 := pr1 (pr2 C) Γ A.
 
-Definition q_comp_cat {CC : precategory} {C : comp_precat_struct CC} {Γ} (A : C Γ) {Γ'} (f : Γ' ⇒ Γ)
+Definition q_comp_cat {CC : precategory} {C : comp_cat_struct CC} {Γ} (A : C Γ) {Γ'} (f : Γ' ⇒ Γ)
   : (Γ' ◂ A[f]) ⇒ (Γ ◂ A) 
 :=
   pr1 (pr2 (pr2 C)) _ A _ f.
 
-Definition dpr_q_comp_cat {CC : precategory} {C : comp_precat_struct CC} {Γ} (A : C Γ) {Γ'} (f : Γ' ⇒ Γ)
+Definition dpr_q_comp_cat {CC : precategory} {C : comp_cat_struct CC} {Γ} (A : C Γ) {Γ'} (f : Γ' ⇒ Γ)
   : (q_comp_cat A f) ;; (dpr_comp_cat A) = (dpr_comp_cat (A[f])) ;; f
 :=
   pr1 (pr2 (pr2 (pr2 C))) _ A _ f.
 
-Definition reind_pb_comp_cat {CC : precategory} {C : comp_precat_struct CC} {Γ} (A : C Γ) {Γ'} (f : Γ' ⇒ Γ)
+Definition reind_pb_comp_cat {CC : precategory} {C : comp_cat_struct CC} {Γ} (A : C Γ) {Γ'} (f : Γ' ⇒ Γ)
   : isPullback (dpr_comp_cat A) f (q_comp_cat A f) (dpr_comp_cat (A[f]))
       (dpr_q_comp_cat A f)
 :=
   pr2 (pr2 (pr2 (pr2 C))) _ A _ f.
 
 (** A comprehension precategory [C] is _split_ if each collection of types [C Γ] is a set, reindexing is strictly functorial, and the [q] maps satisfy the evident functoriality axioms *) 
-Definition is_split_comp_cat {CC : precategory} (C : comp_precat_struct CC)
+Definition is_split_comp_cat {CC : precategory} (C : comp_cat_struct CC)
   := (∀ Γ:CC, isaset (C Γ))
      × (Σ (reind_id : ∀ Γ (A : C Γ), A [identity Γ] = A),
          ∀ Γ (A : C Γ), q_comp_cat A (identity Γ)
@@ -167,10 +167,10 @@ Definition is_split_comp_cat {CC : precategory} (C : comp_precat_struct CC)
                ;; q_comp_cat A f).
 
 Definition split_comp_struct (CC : precategory) : UU 
-  := Σ C : comp_precat_struct CC, is_split_comp_cat C.
+  := Σ C : comp_cat_struct CC, is_split_comp_cat C.
 
 Coercion comp_cat_from_split_comp (CC : precategory) (C : split_comp_struct CC) 
-  : comp_precat_struct _ 
+  : comp_cat_struct _ 
   := pr1 C.
 
 (*
@@ -188,3 +188,23 @@ End Comp_Precats.
 Notation "Γ ◂ A" := (ext_comp_cat Γ A) (at level 45, left associativity).
 (* Temporarily suppressed due to levels clash with [cwf]. TODO: fix clash! *)
 Notation "A [ f ]" := (reind_comp_cat A f) (at level 40).
+
+
+Section lemmas.
+
+Variable CC : precategory.
+Variable  C : split_comp_struct CC.
+Variable hs : has_homsets CC.
+
+Lemma transportf_dpr_comp_cat (Γ : CC)
+  (A B : C Γ)
+  (f : Γ ⇒ Γ ◂ A)
+  (p : A = B) :
+   transportf (λ B : C Γ, Γ ⇒ Γ ◂ B) p f;; dpr_comp_cat B =
+   f;; dpr_comp_cat A.
+Proof.
+  induction p.
+  apply idpath.
+Defined.
+
+End lemmas.
