@@ -158,7 +158,7 @@ Proof.
       etrans.
       cancel_postcomposition. apply T5.
 
-      clear T5.
+      clear T5 T.
 
       clear E.
 
@@ -172,9 +172,24 @@ Proof.
 
       match goal with |[|- transportf ?a ?b ?c ;; _ ;; _ = _ ] =>
            set (a':=a); set (b':=b); set (c':=c) end.
-
-      Search (transportf _ _ ( _ ;; _ ) = _ ).
-      admit.
+      assert (T':= Pb_map_commutes_1).
+      assert (b' = idpath _ ).
+      apply (pr1 (pr2 C)).
+      rewrite X.
+      simpl.
+      etrans.
+      cancel_postcomposition.
+      apply T'.
+      etrans.
+      eapply pathsinv0.
+      apply assoc.
+      etrans. Focus 2.
+      apply assoc.
+      apply maponpaths.
+      etrans.
+      apply T'.
+      apply idpath.
+ 
     +
       idtac.
       match goal with |[|- pr1 (transportf ?P' ?e' ?x') ;; _ = _ ] =>
@@ -182,6 +197,7 @@ Proof.
       assert (T:=@transportf_total2).
       assert (T':= T (C Γ'') (λ B,  Γ'' ⇒ Γ'' ◂ B)). simpl in T'.
       assert (T'' := T' (λ B f0, f0 ;; dpr_comp_cat B = identity Γ'')).
+        
       simpl in *.
       assert (T3:= T'' _ _  e x).
       assert (T5:= base_paths _ _ T3). clear T3; simpl in *. clear T' T'' T.
@@ -189,11 +205,11 @@ Proof.
       cancel_postcomposition.
       apply T5.
       clear T5.
-      set (T:=Pb_map_commutes_2).
-     
-      
-      admit.
-Admitted.
-    
+      etrans.
+        apply transportf_dpr_comp_cat.
+        set (T:=Pb_map_commutes_2).
+        apply T.
+Qed.    
+
 
 End CwF_of_Comp.
