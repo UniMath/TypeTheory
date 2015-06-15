@@ -149,18 +149,18 @@ Definition reindx_term_comp {C : reindx_precat} (T : reindx_laws C) :
 
 (** Comprehension object and projection *)
 Definition comp_1_struct (C : reindx_precat) :=
-  ∀ Γ (A : C⟨Γ⟩), Σ (ΓAπ : Σ ΓA, ΓA ⇒ Γ), C ⟨pr1 ΓAπ ⊢ A [pr2 ΓAπ]⟩.
+  ∀ Γ (A : C⟨Γ⟩), Σ ΓA, ΓA ⇒ Γ.
 
 Definition comp_1_precat := Σ C : reindx_precat, comp_1_struct C.
 
 Definition reindx_precat_from_comp_1_precat (C : comp_1_precat) : reindx_precat := pr1 C.
 Coercion reindx_precat_from_comp_1_precat : comp_1_precat >-> reindx_precat.
 
-Definition comp_obj (C : comp_1_precat) (Γ : C) (A : C⟨Γ⟩) : C := pr1 (pr1 (pr2 C Γ A)).
+Definition comp_obj (C : comp_1_precat) (Γ : C) (A : C⟨Γ⟩) : C := (pr1 (pr2 C Γ A)).
 Notation "Γ ∙ A" := (comp_obj _ Γ A) (at level 20).
   (* \. in Adga mode *)
 
-Definition proj_mor (C : comp_1_precat) (Γ : C) (A : C⟨Γ⟩) : Γ∙A ⇒ Γ := pr2 (pr1 (pr2 C Γ A)).
+Definition proj_mor (C : comp_1_precat) (Γ : C) (A : C⟨Γ⟩) : Γ∙A ⇒ Γ := (pr2 (pr2 C Γ A)).
 Notation "'π' A" := (proj_mor _ _ A) (at level 20).
 
 (** Generic element and pairing *)

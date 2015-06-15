@@ -173,9 +173,15 @@ Definition reindx_term_comp {CC : precategory} {C : tt_reindx_struct CC}
 (** ** Comprehension structure *)
 
 (** Comprehension object and projection *)
+(*
 Definition comp_1_struct {CC : precategory} (C : tt_reindx_struct CC) : UU 
 :=
   ∀ Γ (A : C⟨Γ⟩), Σ (ΓAπ : Σ ΓA, ΓA ⇒ Γ), C ⟨pr1 ΓAπ ⊢ A [pr2 ΓAπ]⟩.
+*)
+Definition comp_1_struct {CC : precategory} (C : tt_reindx_struct CC) : UU 
+:=
+  ∀ Γ (A : C⟨Γ⟩), Σ ΓA, ΓA ⇒ Γ.
+
 
 (*
 Definition comp_1_precat := Σ C : reindx_precat, comp_1_struct C.
@@ -196,14 +202,14 @@ Coercion comp_1_from_tt_reindx_comp_1 (CC : precategory) (C : tt_reindx_comp_1_s
 *)
 Definition comp_obj {CC : precategory} {C : tt_reindx_comp_1_struct CC} (Γ : CC) (A : C⟨Γ⟩) 
   : CC 
-:= pr1 (pr1 (pr2 C Γ A)).
+:=  (pr1 (pr2 C Γ A)).
 Notation "Γ ∙ A" := (comp_obj Γ A) (at level 20).
   (* \. in Adga mode *)
 
 Definition proj_mor {CC : precategory} {C : tt_reindx_comp_1_struct CC}
       {Γ : CC} (A : C⟨Γ⟩) 
   : Γ ∙ A  ⇒ Γ 
-:= pr2 (pr1 (pr2 C Γ A)).
+:= (pr2 (pr2 C Γ A)).
 
 Notation "'π' A" := (proj_mor A) (at level 20).
 

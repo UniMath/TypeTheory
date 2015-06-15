@@ -209,7 +209,132 @@ Proof.
         apply transportf_dpr_comp_cat.
         set (T:=Pb_map_commutes_2).
         apply T.
-Qed.    
+Qed.
 
+Definition reindx_laws_of_comp_cat : reindx_laws tt_reindx_from_comp.
+Proof.
+  exists reindx_laws_type_of_comp_cat.
+  exact reindx_laws_terms_of_comp_cat.
+Qed.
 
+Definition comp_1_struct_of_comp_cat : comp_1_struct tt_reindx_from_comp.
+Proof.
+  unfold comp_1_struct.
+  intros Γ A.
+  refine (tpair _ _ _ ).
+  unfold tt_reindx_from_comp in A. simpl in A.
+  exact (ext_comp_cat Γ A).
+  exact (dpr_comp_cat A).
+Defined.
+
+Definition tt_reindx_comp_1_of_comp_cat : tt_reindx_comp_1_struct CC .
+Proof.
+  exists tt_reindx_from_comp.
+  exact comp_1_struct_of_comp_cat.
+Defined.
+
+Definition comp_2_struct_of_comp_cat : comp_2_struct tt_reindx_comp_1_of_comp_cat.
+Proof.
+  split.
+  - unfold tt_reindx_comp_1_of_comp_cat in *.
+    simpl in *.
+    + refine (tpair _ _ _ ).
+      * { eapply map_into_Pb.
+          - apply  reind_pb_comp_cat.
+          - cancel_postcomposition.
+            apply (idpath (identity _ )). }
+      * assert (T:= Pb_map_commutes_2).
+        apply T.
+  - intros Γ' γ.
+    intro a.
+    unfold tt_reindx_comp_1_of_comp_cat in *.
+    simpl in *.
+    apply (pr1 a ;; q_comp_cat _ _ ).
+Defined.
+
+Definition tt_reindx_comp_struct_of_comp_cat : tt_reindx_comp_struct CC.
+Proof.
+  exists tt_reindx_comp_1_of_comp_cat.
+  exact  comp_2_struct_of_comp_cat.
+Defined.
+
+Lemma cwf_laws_of_comp_cat : cwf_laws tt_reindx_comp_struct_of_comp_cat .
+Proof.
+  repeat split.
+  - exists reindx_laws_of_comp_cat.
+    repeat split.
+    + unfold comp_laws_1_2.
+      intros Γ A Γ' γ a. unfold tt_reindx_comp_struct_of_comp_cat.
+      simpl in * .
+      refine (tpair _ _ _ ).
+      * unfold pairing. simpl.
+        destruct a as [f H]; simpl in *.
+        etrans. eapply pathsinv0. apply assoc.
+        etrans. apply maponpaths. apply dpr_q_comp_cat.
+        etrans. apply assoc.
+        etrans. cancel_postcomposition. apply H.
+        apply id_left.
+      * simpl.
+        apply total2_paths_second_isaprop.
+        { apply homs_sets. }
+        destruct a as [f H]; simpl in *.
+        match goal with |[ |- pr1 (transportf ?P' ?e' (transportf ?P1' ?e1' ?x')) = _ ] =>
+                         set (P := P'); set (e:=e'); set (P1 := P1') ; set (e1:=e1'); set (x:=x') end.
+        simpl in *.
+        unfold pairing in *. simpl in *.
+        etrans.
+        apply maponpaths.
+        apply maponpaths.
+        assert (T:=@transportf_total2).
+        assert (T':= T (C Γ') (λ B,  Γ' ⇒ Γ' ◂ B)). simpl in T'.
+        assert (T'' := T' (λ B f0, f0 ;; dpr_comp_cat B = identity Γ')).
+        simpl in *.
+        assert (T3:= T'' _ _  e1 x).
+        apply T3.
+
+        
+        match goal with |[|- pr1 (transportf _ _ ?x1') = _ ] => set (x1:= x1') end.
+        assert (T:=@transportf_total2).
+        assert (T' := T (Γ' ⇒ Γ)).
+        unfold rtype in f.
+        assert (T'':= T' (λ i, Γ' ⇒ Γ' ◂ reind_comp_cat A i)).
+        simpl in T''.
+        assert (T3 := T'' (λ i f0, f0 ;; dpr_comp_cat (reind_comp_cat A i) = identity Γ')).
+        simpl in *.
+        assert (T4:= T3 _ _  e x1).  
+        assert (T5:= base_paths _ _ T4). clear T3; simpl in *. clear T' T'' T.
+      etrans.
+      apply T5.
+
+      clear T5. clear T4.
+      unfold x1; simpl in *. clear x1.
+      clear x.
+      match goal with |[ |- transportf _ _ ?e' = _ ] => set (x := e') end.
+      pathvia (transportf (λ B, Γ' ⇒ Γ' ◂ B) (maponpaths _ e) x).
+       { admit. }
+      unfold x; clear x.
+      rewrite transportf_pathscomp0.
+      Check (e1 @ maponpaths _  e).
+      admit.
+    + admit.
+    + admit.
+  -  assumption.
+  - admit.
+  - admit.
+Admitted.
+    
 End CwF_of_Comp.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
