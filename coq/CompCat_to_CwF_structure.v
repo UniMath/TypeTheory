@@ -313,7 +313,7 @@ Proof.
 
     match goal with |[ |- transportf _ _ ?e' = _ ] => set (x' := e') end.
       pathvia (transportf (λ B, Γ' ⇒ Γ' ◂ B) (maponpaths _ e) x').
-      { admit. }
+      { apply transportf_reind_comp_cat'.  }
       unfold x'; clear x'.
       
       rewrite transportf_pathscomp0.
@@ -328,6 +328,7 @@ Proof.
                    set (Y:=Y'); set (Z:=Z')
      end.
      match goal with |[ |- map_into_Pb _ _ _ _ _ _ _ _  ?W'  = _ ] => set (W:=W') end.
+     match goal with |[ |- ?e = _ ] => set (EE:=e) end.
   assert (T1:=Pb_map_commutes_1 f' g h k _ y Y Z W).
   assert (T2:=Pb_map_commutes_2 f' g h k _ y Y Z W).
 
@@ -342,20 +343,8 @@ Proof.
     apply maponpaths.
     unfold f'.
 
-    clear T1 T2 W Y. clear x1 y k.
-
-    etrans.
-    apply maponpaths.
-    apply q_comp_comp_cat.
-
-    repeat rewrite assoc.
-    rewrite idtoiso_concat_pr; try assumption.
-    etrans.
-    cancel_postcomposition.
-    cancel_postcomposition.
-    eapply pathsinv0.
     admit.
-    admit.
+    
    - admit.
 
 
