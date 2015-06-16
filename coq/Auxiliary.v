@@ -130,6 +130,15 @@ Proof.
   intro H. apply (maponpaths (fun f => f ;; g) H).
 Defined.
 
+Lemma idtoiso_postcompose_idtoiso_pre {C : precategory} {a b c : C} (g : a ⇒ b) (f : a ⇒ c)
+              (p : b = c) :
+  g = f ;; idtoiso (!p) -> g ;; idtoiso p = f.
+Proof.
+  induction p. simpl.
+  rewrite id_right.
+  induction 1.
+  apply id_right.
+Qed.
 
 Tactic Notation "etrans" := eapply pathscomp0.
 Tactic Notation "rew_trans_@" := repeat (etrans ; [ apply transportf_pathscomp0 |]).

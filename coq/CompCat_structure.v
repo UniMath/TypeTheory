@@ -226,4 +226,12 @@ Proof.
   apply idpath.
 Defined.
 
+Lemma transportf_reind_comp_cat (Γ Γ' : CC) (A A' : C Γ') (e : A = A') t :
+  transportf (λ B, Γ ⇒ Γ' ◂ B) e t = transportf (λ Δ, Γ ⇒ Δ) (maponpaths _ e) t.
+Proof.
+  induction e.
+  apply idpath.
+Defined.
+      
+
 End lemmas.
