@@ -7,6 +7,30 @@ Require Import UniMath.RezkCompletion.precategories.
 Require Import Systems.UnicodeNotations.
 Require Import UniMath.RezkCompletion.limits.pullbacks.
 
+Lemma maponpaths_eq_idpath : ∀ (T1 T2 : UU) (f : T1 → T2) (t1 : T1) (e : t1 = t1)
+          (H : e = idpath _ ), 
+                                 maponpaths f e = idpath _ .
+Proof.
+  intros.
+  rewrite H.
+  apply idpath.
+Defined.
+
+Lemma idtoiso_concat_pr (C : precategory) (hs: has_homsets C) (a a' a'' : ob C)
+  (p : a = a') (q : a' = a'') :
+  idtoiso p ;; idtoiso q = idtoiso (p @ q).
+Proof.
+  apply pathsinv0.
+  apply (base_paths _ _ (idtoiso_concat _ hs _ _ _ _ _ )).
+Defined.
+
+Lemma idtoiso_eq_idpath (C : precategory) (a : C) (e : a = a)
+    (H : e = idpath _ )
+  : identity a = idtoiso e.
+Proof.
+  rewrite H.
+  apply idpath.
+Qed.
 
 Section on_pullbacks.
 
@@ -40,9 +64,11 @@ Section on_pullbacks.
   : map_into_Pb x y H ;; g = y
     := (pr2 (pr2 (pr1 (Pb _ x y H)))).
 
-  
-
 End on_pullbacks.
+
+Arguments map_into_Pb {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
+Arguments Pb_map_commutes_1 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
+Arguments Pb_map_commutes_2 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 
 (* (Surprised there’s no library function for this!) *)
 Lemma transportf_pathscomp0 {A} {B} {a a' a'' : A} (e : a = a') (e' : a' = a'') (b : B a)
