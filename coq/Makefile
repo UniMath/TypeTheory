@@ -9,18 +9,18 @@
 # Modules to be compiled by default, in plain “make”.
 # Includes everything that compiles in reasonable time, and all dependencies.
 MODULES-CORE := Auxiliary UnicodeNotations \
-	CompCats cwf CwF_to_CompCat \
 	Categories/ess_alg_categories \
 	Categories/ess_and_gen_alg_cats \
 	Categories/category_of_elements \
 	cwf_structure \
 	CompCat_structure CwF_to_CompCat_structure \
-	CompCat_to_CwF_structure
+	CompCat_to_CwF_structure \
+	DM_structure
 
 
 # Remaining modules, included only in “make all”.
 # Useful for leaves that are slow to recompile.
-MODULES-EXTRA := 
+MODULES-EXTRA := CompCats cwf CwF_to_CompCat 
 
 VS-CORE  := $(MODULES-CORE:%=%.v)
 VS-EXTRA := $(MODULES-EXTRA:%=%.v)

@@ -44,11 +44,11 @@ Definition DM {C : precategory}(H : dm_sub_struct C) (Γ Γ' : C) : UU :=
 
 Coercion arrow_from_DM {C : precategory} (H : dm_sub_struct C)(Γ Γ' : C) (δ : DM H Γ Γ') : Γ ⇒ Γ' := pr1 δ.
 
-Definition dm_sub_closed_under_iso {CC : precategory} (DM : dm_sub_struct CC)
+Definition dm_sub_closed_under_iso {CC : precategory} (C : dm_sub_struct CC)
   : UU
-  := ∀ Γ Γ' (γ : Γ ⇒ Γ'), DM _ _ γ →
+  := ∀ Γ Γ' (γ : DM C Γ Γ'),
                           ∀ Δ Δ' (δ : Δ ⇒ Δ'),
-                            ∀ (f : iso Γ Δ) (g : iso Γ' Δ'), γ ;; g = f ;; δ → DM _ _ δ.
+                            ∀ (f : iso Γ Δ) (g : iso Γ' Δ'), γ ;; g = f ;; δ → DM_type C δ.
 
 
 (*
@@ -85,8 +85,19 @@ Definition pb_ob_of_DM {CC : precategory} {C : dm_sub_pb CC}
 Notation "γ ⋆ f" := (pb_ob_of_DM γ f) (at level 45).
 (* written "\st" in Agda input mode *)
                         
-Definition pb_mor_or_DM {CC : precategory} {C : dm_sub_pb CC}
+Definition pb_mor_of_DM {CC : precategory} {C : dm_sub_pb CC}
            {Γ Γ'} (γ : DM C Γ Γ') {Δ} (f : Δ ⇒ Γ')
 : γ ⋆ f ⇒ Δ
 := pr1 (pr2 (pr2 (pr2 C _ _ γ _ f))).
 
+
+Definition dm_closed_under_pb {CC : precategory} (C : dm_sub_pb CC)
+: UU
+    := ∀ Γ Γ' (γ : DM C Γ Γ') Δ (f : Δ ⇒ Γ'), DM_type C (pb_mor_of_DM γ f).
+
+
+Definition DM_structure (CC : precategory) : UU
+  := Σ C : dm_sub_pb CC,
+           dm_closed_under_pb C
+        ×  dm_sub_closed_under_iso C
+        ×  ∀ Γ Γ' (γ : Γ ⇒ Γ'), isaprop (DM_type C γ).            
