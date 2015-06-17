@@ -226,6 +226,17 @@ Proof.
   apply idpath.
 Defined.
 
+Lemma idtoiso_dpr_comp_cat (Γ : CC)
+  (A B : C Γ)
+  (p : A = B) :
+   idtoiso (maponpaths (λ B : C Γ,  Γ ◂ B) p);; dpr_comp_cat B =
+   dpr_comp_cat A.
+Proof.
+  induction p.
+  apply id_left. 
+Defined.
+
+
 Lemma transportf_reind_comp_cat (Γ Γ' : CC) (A A' : C Γ') (e : A = A') t :
   transportf (λ B, Γ ⇒ Γ' ◂ B) e t = transportf (λ Δ, Γ ⇒ Δ) (maponpaths _ e) t.
 Proof.

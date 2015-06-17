@@ -43,15 +43,16 @@ Proof.
     simpl in *.
     intro γ.
     refine (tpair _ _ _ ).
-    eapply map_into_Pb.
-    apply reind_pb_comp_cat.
-    etrans. Focus 2. eapply pathsinv0. apply id_left.
-    etrans. cancel_postcomposition. apply (idpath (γ ;; pr1 H)).
+    + eapply (map_into_Pb _ _ (dpr_comp_cat A)  γ).
+      * apply reind_pb_comp_cat.
+      * etrans. Focus 2. eapply pathsinv0. apply id_left.
+        etrans. cancel_postcomposition. apply (idpath (γ ;; pr1 H)).
     {   etrans. eapply pathsinv0. apply assoc.
         etrans. apply maponpaths. apply (pr2 H).
         apply id_right.
     }
-    apply Pb_map_commutes_2.
+    + simpl.
+      apply Pb_map_commutes_2.
 Defined.    
 
 Definition tt_reindx_from_comp : tt_reindx_struct CC.
@@ -239,7 +240,8 @@ Proof.
   - unfold tt_reindx_comp_1_of_comp_cat in *.
     simpl in *.
     + refine (tpair _ _ _ ).
-      * { eapply map_into_Pb.
+      * { unfold comp_obj. simpl. 
+          eapply map_into_Pb.
           - apply  reind_pb_comp_cat.
           - cancel_postcomposition.
             apply (idpath (identity _ )). }
@@ -319,17 +321,63 @@ Proof.
       rewrite transportf_pathscomp0.
       rewrite transportf_reind_comp_cat.
       rewrite <- idtoiso_postcompose.
-      apply idtoiso_postcompose_idtoiso_pre.
 
-     match goal with |[ |- map_into_Pb ?B' ?C' ?D' ?E' ?F' ?G' ?Y' ?Z' ?W'   = _ ] => 
+
+      eapply map_into_Pb_unique. apply reind_pb_comp_cat.
+
+      Focus 2.
+      match goal with |[ |- map_into_Pb ?B' ?C' ?D' ?E' ?F' ?G' ?Y' ?Z' ?W' ;; _ ;; _ = _ ] => 
                    set (f':=B'); set (g:=C'); set (h:=D'); set (k:=E') end.
-     match goal with |[ |- map_into_Pb _ _ _ _ ?F' ?G' ?Y' ?Z' _    = _ ] => 
+      match goal with |[ |- map_into_Pb _ _ _ _ ?F' ?G' ?Y' ?Z' _   ;; _ ;;_  = _ ] => 
                       set (x1:=F'); set (y:=G');
                    set (Y:=Y'); set (Z:=Z')
      end.
-     match goal with |[ |- map_into_Pb _ _ _ _ _ _ _ _  ?W'  = _ ] => set (W:=W') end.
-     match goal with |[ |- ?e = _ ] => set (EE:=e) end.
-  assert (T1:=Pb_map_commutes_1 f' g h k _ y Y Z W).
+      match goal with |[ |- map_into_Pb _ _ _ _ _ _ _ _  ?W' ;; _ ;; _  = _ ] => set (W:=W') end.
+
+      etrans. Focus 2. eapply pathsinv0. apply H.
+      etrans. eapply pathsinv0. apply assoc.
+      etrans. apply maponpaths.
+      apply idtoiso_dpr_comp_cat.
+      set (T:=pr2 reindx_struct_of_comp_cat ). simpl in *.
+      set (T':= T _ Γ' _ (tpair _ f H)).
+
+      set (T2:=@Pb_map_commutes_2 _ _ _ _ _ f' g h k x1 y _ Y Z W).
+      unfold g.
+      etrans. apply T2.
+      unfold Z. apply idpath.
+
+
+       match goal with |[ |- map_into_Pb ?B' ?C' ?D' ?E' ?F' ?G' ?Y' ?Z' ?W' ;; _ ;; _ = _ ] => 
+                   set (f':=B'); set (g:=C'); set (h:=D'); set (k:=E') end.
+      match goal with |[ |- map_into_Pb _ _ _ _ ?F' ?G' ?Y' ?Z' _   ;; _ ;;_  = _ ] => 
+                      set (x1:=F'); set (y:=G');
+                   set (Y:=Y'); set (Z:=Z')
+     end.
+      match goal with |[ |- map_into_Pb _ _ _ _ _ _ _ _  ?W' ;; _ ;; _  = _ ] => set (W:=W') end.
+
+      assert (T2:=@Pb_map_commutes_1 _ _ _ _ _ f' g h k x1 y _ Y Z W).
+      admit.
+
+     (*   
+      
+      
+      
+     match goal with | [ |- ?e = _ ] => set (EEE := e) end.
+    
+     match goal with |[ |- map_into_Pb ?B' ?C' ?D' ?E' ?F' ?G' ?Y' ?Z' ?W' ;; _  = _ ] => 
+                   set (f':=B'); set (g:=C'); set (h:=D'); set (k:=E') end.
+     match goal with |[ |- map_into_Pb _ _ _ _ ?F' ?G' ?Y' ?Z' _   ;; _  = _ ] => 
+                      set (x1:=F'); set (y:=G');
+                   set (Y:=Y'); set (Z:=Z')
+     end.
+     match goal with |[ |- map_into_Pb _ _ _ _ _ _ _ _  ?W' ;; _  = _ ] => set (W:=W') end.
+(*     match goal with |[ |- ?e = _ ] => set (EE:=e) end. *)
+     assert (T1:=Pb_map_commutes_1 f' g h k x1 y Y Z W).
+     etrans. apply T1. unfold Y.
+
+     unfold 
+     
+  rewrite T1.
   assert (T2:=Pb_map_commutes_2 f' g h k _ y Y Z W).
 
     apply pathsinv0.
@@ -401,6 +449,7 @@ Proof.
        rewrite <- idtoiso_postcompose.
       Check (e1 @ maponpaths _  e).
       admit.
+*)
 *)
 Admitted.
 

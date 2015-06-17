@@ -64,6 +64,19 @@ Section on_pullbacks.
   : map_into_Pb x y H ;; g = y
     := (pr2 (pr2 (pr1 (Pb _ x y H)))).
 
+  Lemma map_into_Pb_unique (e : C) (x y : e ⇒ a)
+  : x ;; f = y ;; f → x ;; g = y ;; g → x = y.
+  Proof.
+    intros H H'.
+    set (T:=@map_into_Pb _ (x ;; f)(y ;; g)).
+    assert  (TH : x ;; f ;; k = y ;; g ;; h).
+    { rewrite H. repeat rewrite <- assoc. rewrite sqr_comm. apply idpath. }
+    pathvia (T TH).
+    apply PullbackArrowUnique. apply idpath. assumption.
+    apply pathsinv0. apply PullbackArrowUnique. apply pathsinv0; assumption.
+    apply idpath.
+Qed.
+ 
 End on_pullbacks.
 
 Arguments map_into_Pb {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
