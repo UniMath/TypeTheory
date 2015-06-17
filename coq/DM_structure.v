@@ -82,13 +82,28 @@ Definition pb_ob_of_DM {CC : precategory} {C : dm_sub_pb CC}
 : CC
   := pr1 (pr2 C _ _ γ _  f).
 
-Notation "γ ⋆ f" := (pb_ob_of_DM γ f) (at level 45).
+Notation "γ ⋆ f" := (pb_ob_of_DM γ f) (at level 45, format "γ ⋆ f").
 (* written "\st" in Agda input mode *)
                         
 Definition pb_mor_of_DM {CC : precategory} {C : dm_sub_pb CC}
            {Γ Γ'} (γ : DM C Γ Γ') {Δ} (f : Δ ⇒ Γ')
 : γ ⋆ f ⇒ Δ
 := pr1 (pr2 (pr2 (pr2 C _ _ γ _ f))).
+
+Definition pb_mor_of_mor {CC : precategory} {C : dm_sub_pb CC}
+           {Γ Γ'} (γ : DM C Γ Γ') {Δ} (f : Δ ⇒ Γ')
+: γ ⋆ f ⇒ Γ
+  := pr1 ( (pr2 (pr2 C _ _ γ _ f))).
+
+Definition sqr_comm_of_dm_sub_pb {CC : precategory} {C : dm_sub_pb CC}
+           {Γ Γ'} (γ : DM C Γ Γ') {Δ} (f : Δ ⇒ Γ')
+: _ ;; _ = _ ;; _
+:= pr1 (pr2 (pr2 (pr2 (pr2 C _ _ γ _ f )))).
+
+Definition isPullback_of_dm_sub_pb {CC : precategory} {C : dm_sub_pb CC}
+           {Γ Γ'} (γ : DM C Γ Γ') {Δ} (f : Δ ⇒ Γ')
+: isPullback _ _ _ _ _ _
+:= pr2 (pr2 (pr2 (pr2 (pr2 C _ _ γ _ f )))).
 
 
 Definition dm_closed_under_pb {CC : precategory} (C : dm_sub_pb CC)
@@ -100,4 +115,31 @@ Definition DM_structure (CC : precategory) : UU
   := Σ C : dm_sub_pb CC,
            dm_closed_under_pb C
         ×  dm_sub_closed_under_iso C
-        ×  ∀ Γ Γ' (γ : Γ ⇒ Γ'), isaprop (DM_type C γ).            
+        ×  ∀ Γ Γ' (γ : Γ ⇒ Γ'), isaprop (DM_type C γ).
+
+Coercion dm_sub_pb_from_DM_structure CC (C : DM_structure CC) : dm_sub_pb CC := pr1 C.
+
+Definition pb_DM_of_DM {CC} {C : DM_structure CC} {Γ Γ'} (γ : DM C Γ Γ') {Δ} (f : Δ ⇒ Γ')
+: DM C (γ⋆f) Δ.
+Proof.
+  exists (pb_mor_of_DM γ f).
+  apply (pr1 (pr2 C)).
+Defined.
+
+Definition pb_arrow_of_arrow {CC} {C : DM_structure CC} {Γ Γ'} (γ : DM C Γ Γ') {Δ} (f : Δ ⇒ Γ')
+: γ⋆f ⇒ Γ.
+Proof.
+  apply pb_mor_of_mor.
+Defined.
+
+Definition sqr_comm_of_DM {CC} {C : DM_structure CC} {Γ Γ'} (γ : DM C Γ Γ') {Δ} (f : Δ ⇒ Γ')
+: pb_arrow_of_arrow γ f  ;; γ = pb_DM_of_DM _ _  ;; f .
+Proof.
+  apply sqr_comm_of_dm_sub_pb.
+Defined.
+
+Definition isPullback_of_DM {CC} {C : DM_structure CC} {Γ Γ'} (γ : DM C Γ Γ') {Δ} (f : Δ ⇒ Γ')
+: isPullback CC _ _ _ _ (sqr_comm_of_DM γ f).
+Proof.
+  apply isPullback_of_dm_sub_pb.
+Defined.

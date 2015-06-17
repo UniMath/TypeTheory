@@ -15,7 +15,8 @@ MODULES-CORE := Auxiliary UnicodeNotations \
 	cwf_structure \
 	CompCat_structure CwF_to_CompCat_structure \
 	CompCat_to_CwF_structure \
-	DM_structure
+	DM_structure \
+	CompCat_to_DM_structure
 
 
 # Remaining modules, included only in “make all”.
