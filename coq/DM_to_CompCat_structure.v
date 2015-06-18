@@ -48,4 +48,15 @@ Proof.
   exact comp_cat_struct2_from_DM.
 Defined.
 
+(* this seems to require (at least!) that the objects of the underlying category form a set *)
+(*
+Lemma is_split_comp_cat_from_DM : is_split_comp_cat comp_cat_struct_from_DM.
+Proof.
+  repeat split.
+  - admit. (* this is probably false when objects don't form a set *)
+  - simpl.
+    refine (tpair _ _ _ ).
+    + unfold reind_comp_cat; simpl.
+*)
+    
 End DM_to_CompCat.
