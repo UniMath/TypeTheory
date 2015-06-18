@@ -166,6 +166,19 @@ Definition is_split_comp_cat {CC : precategory} (C : comp_cat_struct CC)
                ;; q_comp_cat (A[f]) g
                ;; q_comp_cat A f).
 
+Lemma isaprop_is_split_comp_cat (CC : precategory) (hs : has_homsets CC)
+       (C : comp_cat_struct CC) : isaprop (is_split_comp_cat C).
+Proof.
+  repeat (apply isofhleveltotal2).
+  - apply impred; intro; apply isapropisaset.
+  - intro H; apply (isofhleveltotal2).
+    + repeat (apply impred; intro). apply H.
+    + intros; repeat (apply impred; intro); apply hs.
+  - intro H. apply isofhleveltotal2.
+    + repeat (apply impred; intro); apply (pr1 H).
+    + intros; repeat (apply impred; intro); apply hs.
+Qed.
+
 Definition split_comp_struct (CC : precategory) : UU 
   := Σ C : comp_cat_struct CC, is_split_comp_cat C.
 
@@ -243,8 +256,6 @@ Proof.
   induction e.
   apply idpath.
 Defined.
-
-Check @reind_comp_cat.
 
 Lemma transportf_reind_comp_cat' (Γ Γ' : CC) (A : C Γ) (i i' : Γ' ⇒ Γ) (e : i = i')  t :
    transportf (λ i0 : Γ' ⇒ Γ, Γ' ⇒ Γ' ◂ reind_comp_cat A i0) e t =
