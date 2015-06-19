@@ -62,7 +62,19 @@ Proof.
   unfold pb_of_DM_struct.
   intros Γ Γ' γ Δ f.
   destruct γ as [γ A]. simpl.
-  (* now we need that Pullbacks are propositions, that is, we need [C] saturated *)
+  match goal with | [ |- ?T ] => assert (X : isaprop T) end.
+  { admit. (* now we need that Pullbacks are propositions, that is, we need [C] saturated *) }
+  unfold DM_type in A. simpl in *.
+  unfold dm_sub_struct_of_CwF in A.
+  set (T:= hProppair _ X).
+  set (T':= A T).
+  apply T'.
+  unfold T; simpl;
+  clear X T T'.
+  intro T.
+  unfold iso_to_dpr in T.
+  destruct T as [E [B [h [g H]]]].
+  (* wtf, there are no arrows into Δ around *)
   admit.
 Admitted.
 
