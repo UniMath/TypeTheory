@@ -26,8 +26,8 @@ Context (CC : precategory) (C : cwf_struct CC) (homs_sets : has_homsets CC).
 
 (** Being isomorphic to a dependent projection *)
 Definition iso_to_dpr {Γ Γ'} (γ : Γ ⇒ Γ') : UU
-  := Σ Δ (A : C⟨Δ⟩) (f : iso (Δ∙A) Γ)(g : iso Δ Γ'),
-        f ;; γ = π _ ;; g.
+  := Σ (A : C⟨Γ'⟩) (f : iso (Γ'∙A) Γ),
+        π _ = f ;; γ .
 
 Definition dm_sub_struct_of_CwF : dm_sub_struct CC.
 Proof.
@@ -39,23 +39,23 @@ Defined.
 Lemma dm_sub_closed_under_iso_of_CwF : dm_sub_closed_under_iso dm_sub_struct_of_CwF.
 Proof.
   unfold dm_sub_closed_under_iso.
-  intros Γ Γ' γ Δ Δ' δ f g H.
+  intros Γ Γ' γ Δ δ h H.
   unfold dm_sub_struct_of_CwF in γ.
-  destruct γ as [γ A]. simpl in H. unfold DM_type in A.
+  destruct γ as [γ A]. simpl in *. unfold DM_type in A.
   apply A.
   intro A'.
   apply hinhpr.
-  destruct A' as [E [ET [h [k Hhk]]]].
+  clear A.
+  destruct A' as [A [f TH]].
   unfold iso_to_dpr.
-  exists E.
-  exists ET.
-  exists (iso_comp h f).
-  exists (iso_comp k g).
-  simpl.
-  rewrite assoc. rewrite <- Hhk.
-  repeat rewrite <- assoc. apply maponpaths.
-  apply pathsinv0. assumption.
-Qed.
+  exists A.
+  set (T:= iso_comp f (iso_inv_from_iso h)).
+  exists T.
+  unfold T. simpl.
+  rewrite TH.
+  rewrite <- assoc. apply maponpaths.
+  admit.
+Admitted.
 
 Definition pb_of_DM_of_CwF : pb_of_DM_struct dm_sub_struct_of_CwF.
 Proof.
@@ -73,8 +73,7 @@ Proof.
   clear X T T'.
   intro T.
   unfold iso_to_dpr in T.
-  destruct T as [E [B [h [g H]]]].
-  (* wtf, there are no arrows into Δ around *)
+  destruct T as [E [B h]].
   admit.
 Admitted.
 

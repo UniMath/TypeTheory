@@ -47,8 +47,8 @@ Coercion arrow_from_DM {C : precategory} (H : dm_sub_struct C)(Γ Γ' : C) (δ :
 Definition dm_sub_closed_under_iso {CC : precategory} (C : dm_sub_struct CC)
   : UU
   := ∀ Γ Γ' (γ : DM C Γ Γ'),
-                          ∀ Δ Δ' (δ : Δ ⇒ Δ'),
-                            ∀ (f : iso Γ Δ) (g : iso Γ' Δ'), γ ;; g = f ;; δ → DM_type C δ.
+                          ∀ Δ (δ : Δ ⇒ Γ'), 
+                          ∀ (h : iso Δ Γ), h ;; γ = δ → DM_type C δ.
 
 
 (*
