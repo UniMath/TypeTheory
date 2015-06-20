@@ -99,7 +99,6 @@ Section on_pullbacks.
         eapply pathscomp0. apply assoc.
         rewrite T1.
         rewrite <- assoc.
-        Search (inv_from_iso _ ;; _ ).
         rewrite iso_after_iso_inv.
         apply id_right.
       + apply Pb_map_commutes_2.
@@ -117,6 +116,61 @@ Section on_pullbacks.
 Defined.    
  
 End on_pullbacks.
+
+Definition isaprop_Pullback (C : precategory) (H : is_category C)
+           (a b c : C) (f : b ⇒ a) (g : c ⇒ a)
+: isaprop (Pullback _  f g).
+Proof.
+  unfold Pullback.
+  apply invproofirrelevance.
+  unfold Pullback.
+  intros Pb Pb'.
+  apply total2_paths_isaprop.
+  - intro; apply isofhleveltotal2.
+    + destruct H as [H1 H2]. apply H2.
+    + intros; apply isaprop_isPullback.
+  - apply (total2_paths  (isotoid _ H (iso_from_Pullback_to_Pullback _  Pb Pb' ))). 
+    rewrite transportf_dirprod, transportf_isotoid.
+    rewrite inv_from_iso_iso_from_Pullback.
+    rewrite transportf_isotoid.
+    rewrite inv_from_iso_iso_from_Pullback.
+    destruct Pb as [Cone bla];
+    destruct Pb' as [Cone' bla'];
+    simpl in *.
+    destruct Cone as [p [h k]];
+    destruct Cone' as [p' [h' k']];
+    simpl in *. 
+    unfold from_Pullback_to_Pullback;
+    rewrite PullbackArrow_PullbackPr2, PullbackArrow_PullbackPr1.
+    apply idpath.
+Qed.
+
+(*
+Definition Pullback_type  {C : precategory}
+           {a b c : C} (f : b ⇒ a) (g : c ⇒ a) : UU
+ :=  (Σ  (p : C) (f' : p ⇒ b) (g' : p ⇒ c) (H0 : f' ;; f = g' ;; g),
+      isPullback C f g f' g' H0).
+
+Definition Pullback_weq_Pullback_type  (C : precategory)
+           (a b c : C) (f : b ⇒ a) (g : c ⇒ a) :
+  Pullback_type f g ≃ Pullback _ f g.
+Proof.
+  unfold Pullback_type, Pullback.
+  eapply weqcomp. Focus 2. apply weqtotal2asstol.
+  eapply weqcomp. Focus 2. eapply (weqbandf (idweq _ )). intro x. apply weqtotal2asstol.
+  simpl.
+  apply idweq.
+Defined.
+
+Definition isaprop_Pullback'  (C : precategory) (H : is_category C)
+           (a b c : C) (f : b ⇒ a) (g : c ⇒ a) :
+  isaprop (Pullback_type f g).
+Proof.
+  Search ( isofhlevel _  _  -> isofhlevel _  _ ).
+  set (T:= isofhlevelweqb 1 (Pullback_weq_Pullback_type C a b c f g )).
+  apply T. apply isaprop_Pullback. assumption.
+Qed.
+ *)
 
 Arguments map_into_Pb {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 Arguments Pb_map_commutes_1 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .

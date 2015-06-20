@@ -64,11 +64,15 @@ Definition dm_sub_closed_under_iso {CC : precategory} (C : dm_sub_struct CC)
 Definition pb_of_DM_struct {CC : precategory} (H : dm_sub_struct CC)
 : UU
   := ∀ Δ Γ (γ : DM H Δ Γ), ∀ Γ' (f : Γ' ⇒ Γ),
-     Σ (pb : CC)
+       Pullback _ γ f.
+
+(*
+Σ (pb : CC)
        (γ' : pb ⇒ Γ')
        (f' : pb ⇒ Δ)
        (sqr_comm : f' ;; γ  = γ' ;; f),
   isPullback _ γ f f' γ' sqr_comm.
+ *)
 
 Definition dm_sub_pb (CC : precategory) : UU :=
   Σ DM : dm_sub_struct CC, pb_of_DM_struct DM.
@@ -80,7 +84,7 @@ Coercion pb_of_dm_sub_pb {CC : precategory} (C : dm_sub_pb CC) : pb_of_DM_struct
 Definition pb_ob_of_DM {CC : precategory} {C : dm_sub_pb CC}
            {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
 : CC
-  := pr1 (pr2 C _ _ γ _  f).
+  := pr1 (pr1 (pr2 C _ _ γ _  f)).
 
 Notation "γ ⋆ f" := (pb_ob_of_DM γ f) (at level 45, format "γ ⋆ f").
 (* written "\st" in Agda input mode *)
@@ -88,22 +92,22 @@ Notation "γ ⋆ f" := (pb_ob_of_DM γ f) (at level 45, format "γ ⋆ f").
 Definition pb_mor_of_DM {CC : precategory} {C : dm_sub_pb CC}
            {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
 : γ⋆f ⇒ Γ'
-:= pr1 (pr2 (pr2 C _ _ γ _ f)).
+:=  pr2 (pr2 (pr1 (pr2 C _ _ γ _ f))).
 
 Definition pb_mor_of_mor {CC : precategory} {C : dm_sub_pb CC}
            {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
 : γ⋆f ⇒ Δ
-  := pr1 (pr2 (pr2 (pr2 C _ _ γ _ f))).
+  := pr1 (pr2 (pr1 (pr2 C _ _ γ _ f))).
 
 Definition sqr_comm_of_dm_sub_pb {CC : precategory} {C : dm_sub_pb CC}
            {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
 : _ ;; _ = _ ;; _
-:= pr1 (pr2 (pr2 (pr2 (pr2 C _ _ γ _ f )))).
+:= (pr1 (pr2 (pr2 C _ _ γ _ f ))).
 
 Definition isPullback_of_dm_sub_pb {CC : precategory} {C : dm_sub_pb CC}
            {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
 : isPullback _ _ _ _ _ _
-:= pr2 (pr2 (pr2 (pr2 (pr2 C _ _ γ _ f )))).
+:=  (pr2 (pr2 (pr2 C _ _ γ _ f ))).
 
 
 Definition dm_closed_under_pb {CC : precategory} (C : dm_sub_pb CC)

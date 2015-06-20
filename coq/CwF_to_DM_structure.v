@@ -22,7 +22,7 @@ Section DM_of_CwF.
 
 (* TODO: move the [has_homsets] assumption to the definition of a [pre_cwf]? 
    TODO: discuss namine of [has_homsets]: wouldn’t e.g. [homs_are_sets] be clearer? *)
-Context (CC : precategory) (C : cwf_struct CC) (homs_sets : has_homsets CC).
+Context (CC : precategory) (C : cwf_struct CC) (H : is_category CC).
 
 (** Being isomorphic to a dependent projection *)
 Definition iso_to_dpr {Γ Γ'} (γ : Γ ⇒ Γ') : UU
@@ -39,7 +39,7 @@ Defined.
 Lemma dm_sub_closed_under_iso_of_CwF : dm_sub_closed_under_iso dm_sub_struct_of_CwF.
 Proof.
   unfold dm_sub_closed_under_iso.
-  intros Δ Γ γ Δ' δ h H.
+  intros Δ Γ γ Δ' δ h HT.
   unfold dm_sub_struct_of_CwF in γ.
   destruct γ as [γ A]. simpl in *. unfold DM_type in A.
   apply A.
@@ -74,7 +74,7 @@ Proof.
   intros Δ Γ γ Γ' f.
   destruct γ as [γ B]. simpl.
   match goal with | [ |- ?T ] => assert (X : isaprop T) end.
-  { admit. (* now we need that Pullbacks are propositions, that is, we need [C] saturated *) }
+  { apply isaprop_Pullback. assumption. }
   unfold DM_type in B. simpl in *.
   unfold dm_sub_struct_of_CwF in B.
   set (T:= hProppair _ X).
@@ -86,13 +86,16 @@ Proof.
   unfold iso_to_dpr in T.
   destruct T as [A [h e]].
   clear B.
-  exists (Γ' ∙ (A[f])).
-  exists (π _ ).
-  exists (q_precwf _ _ ;; h).
-  set (T:= postcomp_pb_with_iso CC homs_sets). eapply T.
-  apply is_pullback_reindx_cwf. assumption.
-  sym. assumption.
-Admitted.
+  refine (tpair _ _ _ ).
+  - exists (Γ' ∙ (A[f])).
+    exists (q_precwf _ _ ;; h).
+    exact (π _ ).
+  - simpl.
+    set (T:= postcomp_pb_with_iso CC (pr2 H)).
+    eapply T.
+    apply is_pullback_reindx_cwf. apply (pr2 H). 
+    sym. assumption.
+Defined.
 
 Definition dm_sub_pb_of_CwF : dm_sub_pb CC.
 Proof.
@@ -103,21 +106,20 @@ Defined.
 Definition dm_closed_under_pb_of_CwF :  dm_closed_under_pb dm_sub_pb_of_CwF.
 Proof.
   unfold dm_closed_under_pb.
-  intros Γ Γ' γ Δ f.
+  intros Δ Γ γ Γ' f.
   unfold DM_type. simpl. unfold dm_sub_struct_of_CwF.
   match goal with | [ |- ?T ] => assert (X : isaprop T) end.
   { apply pr2. }
   set (T:= hProppair _ X).
-  destruct γ as [γ H]. simpl in *.
-  set (T':= H T).
+  assert (T':= pr2 γ T).
   apply T'.
-  unfold T; simpl;
-  clear X T T'.
+  simpl in *.
   intro H'.
   apply hinhpr.
   unfold iso_to_dpr.
-  destruct H' as [A [h HT]].
+  destruct H' as [A [h HTT]].
   unfold pb_mor_of_DM. simpl.
+  exists (A[f]). 
   admit.
 Admitted.
   
