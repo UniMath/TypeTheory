@@ -13,6 +13,7 @@
 Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
 Require Export UniMath.Foundations.hlevel2.hSet.
+Require Export UniMath.RezkCompletion.limits.pullbacks.
 
 
 Module Record_Preview.
@@ -505,4 +506,163 @@ Proof.
   apply id_right.
 Defined.
 
+Definition q_precwf {Γ} (A : C ⟨ Γ ⟩ ) {Γ'} (f : Γ' ⇒ Γ)
+  : (comp_obj  Γ' (A[f])) ⇒ (Γ ∙ A).
+Proof.
+  set (T:= @pairing _ C).
+  apply T with (γ := π _ ;; f).
+  refine (transportb (term C (Γ' ∙ (A [f])) ) (reindx_type_comp C _ _ A) _).
+  apply gen_elem.
+Defined.
+
+Definition dpr_q_precwf 
+  {Γ} (A : C ⟨ Γ ⟩)
+  {Γ'} (f : Γ' ⇒ Γ)
+: (q_precwf A f) ;; (π A) = (π (A[f])) ;; f.
+Proof.
+  unfold q_precwf.
+  apply cwf_law_1.
+Qed.
+
+
+Lemma rterm_univ {Γ} {A : C ⟨ Γ ⟩} {Γ'} (f : Γ' ⇒ Γ)
+  : ν (A[f])
+   = transportf _ (reindx_type_comp C _ _ _)
+       (transportf _ (maponpaths (fun g => A[g]) (dpr_q_precwf A f))
+         (transportb _ (reindx_type_comp C _ _ _)
+            ((ν A)⟦q_precwf A f⟧))).
+Proof.
+  sym.
+  rew_trans_@.
+  etrans.
+  - apply maponpaths.
+    apply pre_cwf_law_2'.
+  - rew_trans_@.
+    apply term_typeeq_transport_lemma_2.
+    apply idpath.
+Qed.
+
+(** The biggest work is in showing that the square of dependent projections/reindexings is a pullback.  We split this up into several lemmas: construction of the pullback pairing function; proof that projections applied to the pairing recover the original maps; and proof that the pairing map is the unique such map. *)
+
+Definition dpr_q_pbpairing_precwf_aux
+  {Γ} (A : C ⟨ Γ ⟩)
+  {Γ'} (f : Γ' ⇒ Γ)
+  {X} (h : X ⇒ Γ ∙ A) (k : X ⇒ Γ') (H : h ;; π A = k ;; f)
+: C ⟨ X ⊢ (A [f]) [k] ⟩
+:= (transportf _ (reindx_type_comp C _ _ _)
+      (transportf (fun g => C ⟨ X ⊢ A[g] ⟩) H
+        (transportf _ (!reindx_type_comp C _ _ _)
+          ((ν A)⟦h⟧)))).
+
+Definition dpr_q_pbpairing_commutes
+  {Γ} (A : C ⟨ Γ ⟩)
+  {Γ'} (f : Γ' ⇒ Γ)
+  {X} (h : X ⇒ Γ ∙ A) (k : X ⇒ Γ') (H : h ;; π A = k ;; f)
+  (hk := @pairing _ C Γ' (A[f]) X k (dpr_q_pbpairing_precwf_aux A f h k H))
+: (hk ;; q_precwf A f = h) × (hk ;; π (A[f]) = k).
+Proof.
+  split. Focus 2. apply cwf_law_1.
+  unfold q_precwf.
+  etrans. Focus 2.
+    apply map_to_comp_as_pair_precwf.
+  etrans.
+    apply cwf_law_3.
+  assert ((k ♯ (dpr_q_pbpairing_precwf_aux A f h k H)) ;; (π (A [f]) ;; f) 
+          = h ;; π A) as e1.
+    eapply pathscomp0. apply assoc.
+    refine (_ @ !H).
+    apply (maponpaths (fun g => g ;; f)).
+    apply cwf_law_1.
+  eapply pathscomp0. apply (pairing_mapeq _ _ e1).
+  apply maponpaths.
+  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0. apply maponpaths. refine (! rterm_typeeq _ _ _).
+  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0. apply maponpaths, pre_cwf_law_2'.
+  rew_trans_@.
+  eapply pathscomp0. apply maponpaths, transportf_rtype_mapeq.
+  repeat (eapply pathscomp0; [ apply transportf_pathscomp0 | ]).
+  refine (maponpaths (fun e => transportf _ e _) _).
+  apply cwf_types_isaset.
+Qed.
+
+Definition dpr_q_pbpairing_precwf
+  {Γ} (A : C ⟨ Γ ⟩)
+  {Γ'} (f : Γ' ⇒ Γ)
+  {X} (h : X ⇒ Γ ∙ A) (k : X ⇒ Γ') (H : h ;; π A = k ;; f)
+: Σ (hk : X ⇒ Γ' ∙ (A[f])),
+    ( hk ;; q_precwf A f = h
+    × hk ;; π (A[f]) = k).
+Proof.
+  exists (@pairing _ C Γ' (A[f]) X k (dpr_q_pbpairing_precwf_aux A f h k H)).
+  apply dpr_q_pbpairing_commutes.
+Defined.
+
+
+Definition dpr_q_pbpairing_precwf_mapunique
+  {Γ} (A : C⟨Γ⟩)
+  {Γ'} (f : Γ' ⇒ Γ)
+  {X} {h : X ⇒ Γ ∙ A} {k : X ⇒ Γ'} (H : h ;; π A = k ;; f)
+  (hk : X ⇒ Γ' ∙ (A [f]))
+  (e2 : hk ;; q_precwf A f = h)
+  (e1 : hk ;; π (A[f]) = k)
+: hk = pr1 (dpr_q_pbpairing_precwf A f h k H).
+Proof.
+  eapply pathscomp0.
+    eapply pathsinv0. apply map_to_comp_as_pair_precwf.
+  eapply pathscomp0.
+    apply (pairing_mapeq _ _ e1 _).
+  simpl. apply maponpaths.
+  eapply pathscomp0.
+    apply maponpaths, maponpaths. 
+    apply (@maponpaths (C ⟨ Γ' ∙ (A[f]) ⊢ A[f][π (A[f])] ⟩) _ (fun t => t ⟦hk⟧)).
+    apply rterm_univ.
+  eapply pathscomp0.
+    apply maponpaths, maponpaths. 
+    eapply pathscomp0.
+      symmetry. apply rterm_typeeq.
+    apply maponpaths.
+    eapply pathscomp0.
+      symmetry. apply rterm_typeeq.
+    apply maponpaths.
+    eapply pathscomp0.
+      symmetry. apply rterm_typeeq.
+    apply maponpaths.
+    symmetry. apply reindx_term_comp'.
+  apply term_typeeq_transport_lemma.
+  repeat (eapply pathscomp0; [ apply transportf_pathscomp0 |]).
+  eapply pathscomp0.
+    apply maponpaths, (rterm_mapeq e2).
+  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0.
+    Focus 2. symmetry. apply transportf_rtype_mapeq.
+  repeat apply term_typeeq_transport_lemma. 
+  apply term_typeeq_transport_lemma_2.
+  apply idpath.
+Qed.
+
+Definition dpr_q_pbpairing_precwf_unique (hs : has_homsets CC)
+  {Γ} (A : C⟨Γ⟩)
+  {Γ'} (f : Γ' ⇒ Γ)
+  {X} (h : X ⇒ Γ ∙ A) (k : X ⇒ Γ') (H : h ;; π A = k ;; f)
+  (t : Σ hk : X ⇒ Γ' ∙ (A [f]),
+       (hk ;; q_precwf A f = h) × (hk ;; π (A[f]) = k))
+: t = dpr_q_pbpairing_precwf A f h k H.
+Proof.
+  destruct t as [hk [e2 e1]]. 
+  refine (@total2_paths _ _ (tpair _ hk (tpair _ e2 e1)) _ 
+    (dpr_q_pbpairing_precwf_mapunique A f H hk e2 e1) _).
+  refine (total2_paths _ _); apply hs.
+Qed.
+
+Lemma is_pullback_reindx_cwf (hs : has_homsets CC) : ∀ (Γ : CC) (A : C⟨Γ⟩) (Γ' : CC) 
+   (f : Γ' ⇒ Γ),
+   isPullback _ (π A) f (q_precwf A f) (π (A [f])) (dpr_q_precwf A f).
+Proof.
+  unfold isPullback; intros.
+  exists (dpr_q_pbpairing_precwf _ _ h k H).
+  apply dpr_q_pbpairing_precwf_unique.
+  assumption.
+Defined.
+  
 End CwF_lemmas.

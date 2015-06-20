@@ -52,10 +52,20 @@ Proof.
   set (T:= iso_comp f (iso_inv_from_iso h)).
   exists T.
   unfold T. simpl.
-  rewrite TH.
+  rewrite TH; clear TH.
   rewrite <- assoc. apply maponpaths.
-  admit.
-Admitted.
+  sym. apply iso_inv_on_right. sym. assumption.
+Qed.
+
+Definition q_precwf {Γ} (A : C ⟨ Γ ⟩ ) {Γ'} (f : Γ' ⇒ Γ)
+  : (comp_obj  Γ' (A[f])) ⇒ (Γ ∙ A).
+Proof.
+  set (T:= @pairing _ C).
+  apply T with (γ := π _ ;; f).
+  refine (transportb (term C (Γ' ∙ (A [f])) ) (reindx_type_comp C _ _ A) _).
+  apply gen_elem.
+Defined.
+
 
 Definition pb_of_DM_of_CwF : pb_of_DM_struct dm_sub_struct_of_CwF.
 Proof.
@@ -73,9 +83,38 @@ Proof.
   clear X T T'.
   intro T.
   unfold iso_to_dpr in T.
-  destruct T as [E [B h]].
+  destruct T as [E [h B]].
+  exists (Δ ∙ (E[f])).
+  exists (q_precwf _ _ ;; h).
+  exists (π _ ).
   admit.
 Admitted.
 
+Definition dm_sub_pb_of_CwF : dm_sub_pb CC.
+Proof.
+  exists dm_sub_struct_of_CwF.
+  exact pb_of_DM_of_CwF.
+Defined.
+
+Definition dm_closed_under_pb_of_CwF :  dm_closed_under_pb dm_sub_pb_of_CwF.
+Proof.
+  unfold dm_closed_under_pb.
+  intros Γ Γ' γ Δ f.
+  unfold DM_type. simpl. unfold dm_sub_struct_of_CwF.
+  match goal with | [ |- ?T ] => assert (X : isaprop T) end.
+  { apply pr2. }
+  set (T:= hProppair _ X).
+  destruct γ as [γ H]. simpl in *.
+  set (T':= H T).
+  apply T'.
+  unfold T; simpl;
+  clear X T T'.
+  intro H'.
+  apply hinhpr.
+  unfold iso_to_dpr.
+  destruct H' as [A [h HT]].
+  unfold pb_mor_of_DM. simpl.
+  admit.
+Admitted.
   
 End DM_of_CwF.
