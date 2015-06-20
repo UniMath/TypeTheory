@@ -18,8 +18,8 @@ Proof.
   exists (fun X => Σ Y, DM C Y X).
   refine (tpair _ _ _ ).
   - intros Γ H. exact (pr1 H).
-  - intros Γ Γ'γ Δ f.
-    exists (pr2 Γ'γ ⋆ f).
+  - intros Γ Δ'γ Γ' f.
+    exists (pr2 Δ'γ ⋆ f).
     apply pb_DM_of_DM.
 Defined.
 

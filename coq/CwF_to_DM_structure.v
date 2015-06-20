@@ -39,7 +39,7 @@ Defined.
 Lemma dm_sub_closed_under_iso_of_CwF : dm_sub_closed_under_iso dm_sub_struct_of_CwF.
 Proof.
   unfold dm_sub_closed_under_iso.
-  intros Γ Γ' γ Δ δ h H.
+  intros Δ Γ γ Δ' δ h H.
   unfold dm_sub_struct_of_CwF in γ.
   destruct γ as [γ A]. simpl in *. unfold DM_type in A.
   apply A.
@@ -49,14 +49,15 @@ Proof.
   destruct A' as [A [f TH]].
   unfold iso_to_dpr.
   exists A.
-  set (T:= iso_comp f (iso_inv_from_iso h)).
+  set (T:= iso_comp f h).
   exists T.
   unfold T. simpl.
   rewrite TH; clear TH.
   rewrite <- assoc. apply maponpaths.
-  sym. apply iso_inv_on_right. sym. assumption.
+  sym. assumption.
 Qed.
 
+(*
 Definition q_precwf {Γ} (A : C ⟨ Γ ⟩ ) {Γ'} (f : Γ' ⇒ Γ)
   : (comp_obj  Γ' (A[f])) ⇒ (Γ ∙ A).
 Proof.
@@ -65,29 +66,32 @@ Proof.
   refine (transportb (term C (Γ' ∙ (A [f])) ) (reindx_type_comp C _ _ A) _).
   apply gen_elem.
 Defined.
-
+*)
 
 Definition pb_of_DM_of_CwF : pb_of_DM_struct dm_sub_struct_of_CwF.
 Proof.
   unfold pb_of_DM_struct.
-  intros Γ Γ' γ Δ f.
-  destruct γ as [γ A]. simpl.
+  intros Δ Γ γ Γ' f.
+  destruct γ as [γ B]. simpl.
   match goal with | [ |- ?T ] => assert (X : isaprop T) end.
   { admit. (* now we need that Pullbacks are propositions, that is, we need [C] saturated *) }
-  unfold DM_type in A. simpl in *.
-  unfold dm_sub_struct_of_CwF in A.
+  unfold DM_type in B. simpl in *.
+  unfold dm_sub_struct_of_CwF in B.
   set (T:= hProppair _ X).
-  set (T':= A T).
+  set (T':= B T).
   apply T'.
   unfold T; simpl;
   clear X T T'.
   intro T.
   unfold iso_to_dpr in T.
-  destruct T as [E [h B]].
-  exists (Δ ∙ (E[f])).
-  exists (q_precwf _ _ ;; h).
+  destruct T as [A [h e]].
+  clear B.
+  exists (Γ' ∙ (A[f])).
   exists (π _ ).
-  admit.
+  exists (q_precwf _ _ ;; h).
+  set (T:= postcomp_pb_with_iso CC homs_sets). eapply T.
+  apply is_pullback_reindx_cwf. assumption.
+  sym. assumption.
 Admitted.
 
 Definition dm_sub_pb_of_CwF : dm_sub_pb CC.

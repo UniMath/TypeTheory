@@ -35,6 +35,7 @@ Qed.
 Section on_pullbacks.
 
   Variable C : precategory.
+  Variable hs : has_homsets C.
   Variables a b c d : C.
   Variables (f : a ⇒ b) (g : a ⇒ c) (k : b ⇒ d) (h : c ⇒ d).
 
@@ -75,7 +76,45 @@ Section on_pullbacks.
     apply PullbackArrowUnique. apply idpath. assumption.
     apply pathsinv0. apply PullbackArrowUnique. apply pathsinv0; assumption.
     apply idpath.
-Qed.
+  Qed.
+
+  Lemma postcomp_pb_with_iso (y : C) (r : y ⇒ d) (i : iso b y) (Hi : i ;; r = k) :
+    Σ H : f ;; i ;; r = g ;; h, isPullback _ _ _ _ _ H.
+  Proof.
+    refine (tpair _ _ _ ).
+    eapply pathscomp0 ; [|apply sqr_comm].
+    eapply pathscomp0. eapply pathsinv0; apply assoc.
+    apply maponpaths. apply Hi.
+    unfold isPullback.
+    intros e s t HH.
+    refine (tpair _ _ _ ).
+    - refine (tpair _ _ _ ).
+      set (T:= @map_into_Pb e).
+      set (T':= T (s ;; inv_from_iso i) t).
+      apply T'. { rewrite <- HH. rewrite <- assoc. apply maponpaths.
+                  apply iso_inv_on_right. apply pathsinv0; assumption. }
+                simpl.
+      split.
+      + assert (T1:= @Pb_map_commutes_1).
+        eapply pathscomp0. apply assoc.
+        rewrite T1.
+        rewrite <- assoc.
+        Search (inv_from_iso _ ;; _ ).
+        rewrite iso_after_iso_inv.
+        apply id_right.
+      + apply Pb_map_commutes_2.
+    - intro t0.
+      apply total2_paths_second_isaprop.
+      apply isapropdirprod.
+      + apply hs.
+      + apply hs.
+      + simpl.
+        destruct t0 as [w [Ht1 Ht2]]; simpl in *.
+        apply PullbackArrowUnique.
+        * apply iso_inv_on_left.
+          rewrite <- Ht1. apply assoc.
+        * assumption.
+Defined.    
  
 End on_pullbacks.
 
