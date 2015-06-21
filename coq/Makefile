@@ -29,6 +29,8 @@ VS-EXTRA := $(MODULES-EXTRA:%=%.v)
 
 COQDOC := coqdoc
 
+COQOPTIONS := -type-in-type
+
 .PHONY: core all clean
 
 core: Makefile.coq
@@ -38,10 +40,10 @@ all: Makefile_all.coq
 	$(MAKE) -f Makefile_all.coq 
 
 Makefile.coq: Makefile $(VS-CORE)
-	coq_makefile -R . "Systems" $(VS-CORE) -arg -type-in-type -o Makefile.coq
+	coq_makefile -R . "Systems" $(VS-CORE) -arg $(COQOPTIONS) -o Makefile.coq
 
 Makefile_all.coq: Makefile $(VS-CORE) $(VS-EXTRA)
-	coq_makefile -R . "Systems" $(VS-CORE) $(VS-EXTRA) -arg -type-in-type -o Makefile_all.coq
+	coq_makefile -R . "Systems" $(VS-CORE) $(VS-EXTRA) -arg $(COQOPTIONS) -o Makefile_all.coq
 
 install: all
 	$(MAKE) -f Makefile_all.coq install
