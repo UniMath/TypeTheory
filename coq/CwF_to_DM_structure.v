@@ -74,7 +74,10 @@ Proof.
   intros Δ Γ γ Γ' f.
   destruct γ as [γ B]. simpl.
   match goal with | [ |- ?T ] => assert (X : isaprop T) end.
-  { apply isaprop_Pullback. assumption. }
+  { apply isofhleveltotal2.
+    - apply isaprop_Pullback. assumption.
+    - intros. apply isapropishinh.
+  }
   unfold DM_type in B. simpl in *.
   unfold dm_sub_struct_of_CwF in B.
   set (T:= hProppair _ X).
@@ -87,15 +90,28 @@ Proof.
   destruct T as [A [h e]].
   clear B.
   refine (tpair _ _ _ ).
-  - exists (Γ' ∙ (A[f])).
-    exists (q_precwf _ _ ;; h).
-    exact (π _ ).
-  - simpl.
+  -
+    refine (tpair _ _ _). 
+    + exists (Γ' ∙ (A[f])).
+      exists (q_precwf _ _ ;; h).
+      exact (π _ ).
+    +
+      unfold DM_type. simpl. unfold dm_sub_struct_of_CwF.
+simpl.
     set (T:= postcomp_pb_with_iso CC (pr2 H)).
     eapply T.
     apply is_pullback_reindx_cwf. apply (pr2 H). 
     sym. assumption.
+
+  - simpl.
+    
+     apply hinhpr.
+unfold iso_to_dpr.
+    exists (A[f]). Print idtoiso.
+    exists (identity_iso _ ).
+    sym. apply id_left.
 Defined.
+
 
 Definition dm_sub_pb_of_CwF : dm_sub_pb CC.
 Proof.
@@ -103,6 +119,14 @@ Proof.
   exact pb_of_DM_of_CwF.
 Defined.
 
+Definition  DM_structure_of_CwF :  DM_structure CC.
+Proof.
+  exists dm_sub_pb_of_CwF.
+  exists dm_sub_closed_under_iso_of_CwF.
+  intros. apply isapropishinh.
+Defined.
+
+(*
 Definition dm_closed_under_pb_of_CwF :  dm_closed_under_pb dm_sub_pb_of_CwF.
 Proof.
   unfold dm_closed_under_pb.
@@ -119,8 +143,15 @@ Proof.
   unfold iso_to_dpr.
   destruct H' as [A [h HTT]].
   unfold pb_mor_of_DM. simpl.
-  exists (A[f]). 
+  exists (A[f]).
+  refine (tpair _ _ _ ).
+  - refine (tpair _ _ _ ).
+    unfold pb_ob_of_DM. simpl. unfold pb_of_DM_of_CwF. simpl.
+    eapply (map_to_2nd_pb .
+  unfold pb_of_DM_of_CwF. simpl.
+  destruct γ as [g H1]; simpl in *.
   admit.
 Admitted.
-  
+ *)
+
 End DM_of_CwF.
