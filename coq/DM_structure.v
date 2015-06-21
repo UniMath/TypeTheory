@@ -3,11 +3,10 @@
 (**
   Contents:
 
-    - Definition of a precategory with families
+    - Definition of a (pre)category with display maps
 
-  The definition is based on Pitts, *Nominal Presentations of the Cubical Sets
-  Model of Type Theory*, Def. 3.1: 
-  http://www.cl.cam.ac.uk/~amp12/papers/nompcs/nompcs.pdf (page=9)
+  The definition is based on, well, what PLL told me
+
 *)
 
 Require Export Systems.Auxiliary.
@@ -18,16 +17,28 @@ Require Export UniMath.RezkCompletion.limits.pullbacks.
 
 Module Record_Preview.
 
-Reserved Notation "C ⟨ Γ ⟩" (at level 60).
-Reserved Notation "C ⟨ Γ ⊢ A ⟩" (at level 60).
-Reserved Notation "A [ γ ]" (at level 40).
-Reserved Notation "a ⟦ γ ⟧" (at level 40).
-Reserved Notation "Γ ∙ A" (at level 20).
-Reserved Notation "'π' A" (at level 20).
-Reserved Notation "'ν' A" (at level 15).
-Reserved Notation "γ ♯ a" (at level 25).
+Reserved Notation "γ ⋆ f" (at level 25).
 
-(* TODO *)
+(** these are approximations of the access functions implemented at the end of the file 
+
+  one difference is that actually DM is defined as the sigma type of another type
+
+*)
+
+
+Record CwDM := {
+  C : precategory ;
+  DM : ∀ {Δ Γ : C}, Δ ⇒ Γ → hProp ;
+  pb : ∀ {Δ Γ : C} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ), C  where "γ ⋆ f" := (pb γ f) ;
+  pb_DM_of_DM : ∀  {Δ Γ} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ),  Σ f : (γ⋆f) ⇒ Γ', DM f ;
+  pb_arrow_of_arrow : ∀ {Δ Γ} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ),  γ⋆f ⇒ Δ ;
+  sqr_comm_of_DM : ∀ {Δ Γ} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ),
+                      pb_arrow_of_arrow _ _  ;; pr1 γ = pr1 (pb_DM_of_DM γ f)  ;; f ;
+
+  isPullback_of_DM : ∀ {Δ Γ} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ),
+                       isPullback  _ _ _ _ _ (sqr_comm_of_DM γ f)
+
+}.
 
 End Record_Preview.
 
@@ -209,7 +220,8 @@ Definition pb_of_DM_struct {CC : precategory} (H : dm_sub_struct CC)
 (*
     Σ (pfg : Σ Δ' : CC, Δ' ⇒ Δ × DM H Δ' Γ') (H : pr1 (pr2 pfg);; γ = pr2 (pr2 pfg);; f),
            isPullback _ _ _  (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H .
-*)
+ *)
+
 Definition dm_sub_pb (CC : precategory) : UU :=
   Σ DM : dm_sub_struct CC, pb_of_DM_struct DM.
 

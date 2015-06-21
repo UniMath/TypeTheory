@@ -241,32 +241,6 @@ Qed.
 
 End bla.
   
-(*
-Definition Pullback_type  {C : precategory}
-           {a b c : C} (f : b ⇒ a) (g : c ⇒ a) : UU
- :=  (Σ  (p : C) (f' : p ⇒ b) (g' : p ⇒ c) (H0 : f' ;; f = g' ;; g),
-      isPullback C f g f' g' H0).
-
-Definition Pullback_weq_Pullback_type  (C : precategory)
-           (a b c : C) (f : b ⇒ a) (g : c ⇒ a) :
-  Pullback_type f g ≃ Pullback _ f g.
-Proof.
-  unfold Pullback_type, Pullback.
-  eapply weqcomp. Focus 2. apply weqtotal2asstol.
-  eapply weqcomp. Focus 2. eapply (weqbandf (idweq _ )). intro x. apply weqtotal2asstol.
-  simpl.
-  apply idweq.
-Defined.
-
-Definition isaprop_Pullback'  (C : precategory) (H : is_category C)
-           (a b c : C) (f : b ⇒ a) (g : c ⇒ a) :
-  isaprop (Pullback_type f g).
-Proof.
-  Search ( isofhlevel _  _  -> isofhlevel _  _ ).
-  set (T:= isofhlevelweqb 1 (Pullback_weq_Pullback_type C a b c f g )).
-  apply T. apply isaprop_Pullback. assumption.
-Qed.
- *)
 
 Arguments map_into_Pb {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 Arguments Pb_map_commutes_1 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .

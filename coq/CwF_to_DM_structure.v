@@ -12,16 +12,13 @@ Require Import Systems.DM_structure.
   to get more informative bracketing when pairing meets composition. *) 
 Local Notation "γ # a" := (pairing γ a) (at level 75).
 
+(** * Category with DM from Category with families
 
-(** * Comprehension pre-precats from pre-cats with families
-
-Every pre-CwF gives rise to a DM precategory.
 *)
 
 Section DM_of_CwF.
 
-(* TODO: move the [has_homsets] assumption to the definition of a [pre_cwf]? 
-   TODO: discuss namine of [has_homsets]: wouldn’t e.g. [homs_are_sets] be clearer? *)
+(** assumption of [CC] being saturated is essential: we need pullbacks to be propositions *)
 Context (CC : precategory) (C : cwf_struct CC) (H : is_category CC).
 
 (** Being isomorphic to a dependent projection *)
@@ -57,16 +54,6 @@ Proof.
   sym. assumption.
 Qed.
 
-(*
-Definition q_precwf {Γ} (A : C ⟨ Γ ⟩ ) {Γ'} (f : Γ' ⇒ Γ)
-  : (comp_obj  Γ' (A[f])) ⇒ (Γ ∙ A).
-Proof.
-  set (T:= @pairing _ C).
-  apply T with (γ := π _ ;; f).
-  refine (transportb (term C (Γ' ∙ (A [f])) ) (reindx_type_comp C _ _ A) _).
-  apply gen_elem.
-Defined.
-*)
 
 Definition pb_of_DM_of_CwF : pb_of_DM_struct dm_sub_struct_of_CwF.
 Proof.
@@ -90,24 +77,20 @@ Proof.
   destruct T as [A [h e]].
   clear B.
   refine (tpair _ _ _ ).
-  -
-    refine (tpair _ _ _). 
+  - refine (tpair _ _ _). 
     + exists (Γ' ∙ (A[f])).
       exists (q_precwf _ _ ;; h).
       exact (π _ ).
-    +
-      unfold DM_type. simpl. unfold dm_sub_struct_of_CwF.
-simpl.
-    set (T:= postcomp_pb_with_iso CC (pr2 H)).
-    eapply T.
-    apply is_pullback_reindx_cwf. apply (pr2 H). 
-    sym. assumption.
-
+    + simpl. unfold dm_sub_struct_of_CwF.
+      simpl.
+      set (T:= postcomp_pb_with_iso CC (pr2 H)).
+      eapply T.
+      apply is_pullback_reindx_cwf. apply (pr2 H). 
+      sym. assumption.
   - simpl.
-    
-     apply hinhpr.
-unfold iso_to_dpr.
-    exists (A[f]). Print idtoiso.
+    apply hinhpr.
+    unfold iso_to_dpr.
+    exists (A[f]). 
     exists (identity_iso _ ).
     sym. apply id_left.
 Defined.
@@ -126,32 +109,5 @@ Proof.
   intros. apply isapropishinh.
 Defined.
 
-(*
-Definition dm_closed_under_pb_of_CwF :  dm_closed_under_pb dm_sub_pb_of_CwF.
-Proof.
-  unfold dm_closed_under_pb.
-  intros Δ Γ γ Γ' f.
-  unfold DM_type. simpl. unfold dm_sub_struct_of_CwF.
-  match goal with | [ |- ?T ] => assert (X : isaprop T) end.
-  { apply pr2. }
-  set (T:= hProppair _ X).
-  assert (T':= pr2 γ T).
-  apply T'.
-  simpl in *.
-  intro H'.
-  apply hinhpr.
-  unfold iso_to_dpr.
-  destruct H' as [A [h HTT]].
-  unfold pb_mor_of_DM. simpl.
-  exists (A[f]).
-  refine (tpair _ _ _ ).
-  - refine (tpair _ _ _ ).
-    unfold pb_ob_of_DM. simpl. unfold pb_of_DM_of_CwF. simpl.
-    eapply (map_to_2nd_pb .
-  unfold pb_of_DM_of_CwF. simpl.
-  destruct γ as [g H1]; simpl in *.
-  admit.
-Admitted.
- *)
 
 End DM_of_CwF.

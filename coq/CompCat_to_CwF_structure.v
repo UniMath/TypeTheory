@@ -489,8 +489,6 @@ Proof.
   cancel_postcomposition.
   apply functtransportf.
   rewrite <- idtoiso_postcompose.
-  Check (maponpaths (ext_comp_cat Γ'')
-                    (! reindx_type_comp reindx_laws_of_comp_cat γ γ' A)).
   rewrite (q_comp_comp_cat C).
   assert (T:=@Pb_map_commutes_1).
   match goal with |[ |- _ ;; ?B' ;; ?C'  = _ ]  => set (B:=B'); set (D:=C') end.
@@ -511,10 +509,8 @@ Proof.
 
   etrans. cancel_postcomposition. cancel_postcomposition. apply maponpaths.
   eapply pathsinv0. apply idtoiso_eq_idpath. 
-  {  Search (maponpaths _ _ @ maponpaths _ _ ).
-     rewrite <- maponpathscomp0.
+  {  rewrite <- maponpathscomp0.
      apply maponpaths_eq_idpath.
-     Search (!_ @ _ = _ ).
      simpl.
      unfold reindx_type_comp.
      apply pathsinv0l. }
