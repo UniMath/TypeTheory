@@ -22,7 +22,7 @@ MODULES-CORE := Auxiliary UnicodeNotations \
 
 # Remaining modules, included only in “make all”.
 # Useful for leaves that are slow to recompile.
-MODULES-EXTRA := CompCats cwf CwF_to_CompCat 
+MODULES-EXTRA :=  
 
 VS-CORE  := $(MODULES-CORE:%=%.v)
 VS-EXTRA := $(MODULES-EXTRA:%=%.v)
