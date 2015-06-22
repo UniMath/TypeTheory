@@ -404,6 +404,18 @@ Proof.
   apply cwf_law_3.
 Qed.
 
+
+
+
+Lemma retype_term_pi {Γ} {A A' : C ⟨ Γ ⟩ } (p : A = A') (t : C ⟨ Γ ∙ A ⊢ A [π A]⟩ ) :
+  transportf (λ B : C ⟨Γ⟩, C ⟨ Γ ∙ A ⊢ B [π A]⟩) p t
+  =
+  transportf (term C (Γ ∙  A)) (maponpaths (λ x : C⟨Γ⟩, x [π A]) p) t.
+Proof.
+  destruct p.
+  apply idpath.
+Defined.
+
 Lemma pairing_mapeq {Γ} {A : C⟨Γ⟩} {Γ'} (f f' : Γ' ⇒ Γ) (e : f = f')
                      (a : C ⟨ Γ' ⊢ A [f] ⟩)
   : f ♯ a

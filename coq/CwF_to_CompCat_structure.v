@@ -131,12 +131,56 @@ Proof.
       etrans; [ | eapply pathsinv0; apply assoc ].
       cancel_postcomposition. sym. apply cwf_law_1.
     + apply maponpaths.
+      match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
+                       generalize e; generalize e' end.
+      intros p p'.
       rew_trans_@.
       apply term_typeeq_transport_lemma.
       etrans. Focus 2.
       apply rterm_typeeq.
-      admit.
+      match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
+                       generalize e; generalize e' end.
+      clear p p'.
+      intros p p'.
+      clear X'.
+      rewrite  (reindx_term_comp C).
+      rewrite transportf_pathscomp0.
+      match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
+                       generalize e' end.
+      clear p.
+      intro p.
+      rewrite pre_cwf_law_2'.
+      unfold transportb.
+      rewrite transportf_pathscomp0.
+      rewrite transportf_pathscomp0.
+      apply term_typeeq_transport_lemma.
+      match goal with |[ |- _ = transportf _ ?e _ ⟦ _ ⟧ ] => generalize e end.
+      intro q.
+      etrans. Focus 2. apply rterm_typeeq.
+      rewrite  pre_cwf_law_2'.
+      rewrite transportf_pathscomp0.
+      unfold transportb.
+      rewrite transportf_pathscomp0.
+      match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
+                       generalize e; generalize e' end.
+      intros P P'. clear p q. clear p'.
+      
+      match goal with |[ |- _ = transportf _ _  (transportf _ ?e' _ ) ] =>
+                       set (Q:=e') end.
+      Check (transportf
+        (λ B : C ⟨ Γ'' ⟩, C ⟨ Γ'' ∙ (A [g;; f]) ⊢ B [π (A [g;; f])] ⟩) Q
+        (ν (A [g;; f]))).
+      apply term_typeeq_transport_lemma.
+      match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
+                       generalize e end.
+      intro p.
+      clear P P'.
+      clear X.
+      assert (X : p = maponpaths (fun x => x [π (A [g ;; f])]) Q).
+      { apply cwf_types_isaset. }
+      rewrite X.
+      apply pathsinv0. apply retype_term_pi.
+Qed.
 
-Admitted.
 
 End CompPreCat_of_PreCwF.
