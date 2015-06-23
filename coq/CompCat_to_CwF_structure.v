@@ -1,4 +1,15 @@
 
+(**
+  
+ Ahrens, Lumsdaine, Voevodsky, 2015
+
+ Contents:
+
+  - Construction of a precategory with Families from Comprehension precat
+
+*)
+
+
 Require Import UniMath.RezkCompletion.total2_paths.
 
 Require Import Systems.Auxiliary.
@@ -539,13 +550,25 @@ Proof.
   repeat split.
   - exists reindx_laws_of_comp_cat.
     repeat split.
-    + admit. (* apply comp_laws_1_2_of_comp_cat. *)
+    + apply comp_laws_1_2_of_comp_cat. 
     + apply comp_law_3_of_comp_cat. 
     + apply comp_law_4_of_comp_cat.
   -  assumption.
-  - admit.
-  - admit.
-Admitted.
+  - apply (pr1 (pr1 (pr2 C))). 
+  - simpl.
+    intros.
+    apply (isofhleveltotal2 2).
+    + apply homs_sets.
+    + intros.
+      apply hlevelntosn.
+      apply homs_sets.
+Qed.
+
+Definition cwf_of_comp_cat : cwf_struct CC.
+Proof.
+  exists tt_reindx_comp_struct_of_comp_cat.
+  exact cwf_laws_of_comp_cat.
+Defined.
     
 End CwF_of_Comp.
 

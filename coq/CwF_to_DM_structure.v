@@ -1,4 +1,16 @@
 
+(** 
+
+ Ahrens, Lumsdaine, Voevodsky, 2015
+
+ Contents:
+
+  - Definition of a Display map category from Category with Families
+    (requires Pullbacks to be hProps, e.g., as in a saturated precategory
+
+*)
+
+
 Require Import UniMath.Foundations.hlevel2.hSet.
 Require Import UniMath.RezkCompletion.total2_paths.
 

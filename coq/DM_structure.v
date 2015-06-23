@@ -1,6 +1,8 @@
 
-(** * (Pre)categories with families *)
 (**
+
+  Ahrens, Lumsdaine, Voevodsky, 2015
+
   Contents:
 
     - Definition of a (pre)category with display maps
@@ -15,9 +17,15 @@ Require Export UniMath.Foundations.hlevel2.hSet.
 Require Export UniMath.RezkCompletion.precategories.
 Require Export UniMath.RezkCompletion.limits.pullbacks.
 
+
+
+(** * A "preview" of the definition *)
+
 Module Record_Preview.
 
 Reserved Notation "γ ⋆ f" (at level 25).
+
+
 
 (** these are approximations of the access functions implemented at the end of the file 
 
@@ -43,6 +51,10 @@ Record CwDM := {
 End Record_Preview.
 
 
+(** * Definition of Display Map structure on a (pre)category *)
+
+(** ** Predicate selecting the display maps among the arrows *)
+
 Definition dm_sub_struct (CC : precategory)
   : UU
   := ∀ {Δ Γ : CC} , Δ ⇒ Γ → UU.
@@ -55,6 +67,11 @@ Definition DM {C : precategory}(H : dm_sub_struct C) (Δ Γ : C) : UU :=
 
 Coercion arrow_from_DM {C : precategory} (H : dm_sub_struct C)(Δ Γ : C) (δ : DM H Δ Γ) : Δ ⇒ Γ := pr1 δ.
 
+(** ** Display maps are closed under iso *)
+(** Here, isomorphism means isomorphism in the slice category of the target object.
+    Alternatively and equivalently, one could consider isomorphism in the arrow category?
+*)
+
 Definition dm_sub_closed_under_iso {CC : precategory} (C : dm_sub_struct CC)
   : UU
   := ∀ Δ Γ (γ : DM C Δ Γ),
@@ -62,13 +79,20 @@ Definition dm_sub_closed_under_iso {CC : precategory} (C : dm_sub_struct CC)
                           ∀ (h : iso Δ Δ'), h ;; δ = γ → DM_type C δ.
 
 
-(*
+(** ** Display maps are closed under pullback *)
+(**  i.e., the pullback of a display map
+       exists and is again a display map
+*)
+(**
 
+[[
   __________Γ
  |          |
  |          | γ ∈ DM
- |__________|
- Δ    f     Γ'
+ |____f_____|Γ'
+ Δ         
+
+]]
 
 *)
 
@@ -263,11 +287,16 @@ Definition dm_closed_under_pb {CC : precategory} (C : dm_sub_pb CC)
     := ∀ Δ Γ (γ : DM C Δ Γ) Γ' (f : Γ' ⇒ Γ), DM_type C (pb_mor_of_DM γ f).
 *)
 
+(** ** DM structure: putting the pieces together *)
+
 Definition DM_structure (CC : precategory) : UU
   := Σ C : dm_sub_pb CC,
    (*        dm_closed_under_pb C *)
           dm_sub_closed_under_iso C
         ×  ∀ Γ Γ' (γ : Γ ⇒ Γ'), isaprop (DM_type C γ).
+
+(** ** Some access functions *)
+(** Names are chosen as for the preview above *)
 
 Coercion dm_sub_pb_from_DM_structure CC (C : DM_structure CC) : dm_sub_pb CC := pr1 C.
 

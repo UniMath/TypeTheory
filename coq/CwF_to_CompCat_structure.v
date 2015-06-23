@@ -1,4 +1,16 @@
 
+(** 
+  
+ Ahrens, Lumsdaine, Voevodsky, 2015
+
+Contents:
+
+  - Construction of a Comprehension precategory from a precategory with Families
+  - Proof that the constructed CompCat is split
+
+*)
+
+
 Require Import UniMath.RezkCompletion.total2_paths.
 
 Require Import Systems.Auxiliary.
@@ -36,14 +48,16 @@ Defined.
 End Prelims.
 
 
-(** * Comprehension pre-precats from pre-cats with families
+(** * Comprehension precat from precat with Families *)
 
+(**
 Every pre-CwF gives rise to a comprehension pre-category.
 
 (TODO: moreover, this comprehension pre-cat should be split; and there should be a function from split comprehension pre-cats back to pre-CwFs making the two equivalent.)
 
 Since the components of the comprehension pre-cat structure are highly successively dependent, we construct most of them individually, before putting them together in [comp_precat_of_precwf].
 *)
+
 
 Section CompPreCat_of_PreCwF.
 
@@ -71,6 +85,8 @@ Proof.
   apply is_pullback_reindx_cwf.
   assumption.
 Defined.
+
+(** * Splitness of the constructed CompCat *)
 
 (** Moreover, the comprehension precat of a pre-CwF is always split. *)
 
@@ -167,9 +183,7 @@ Proof.
       
       match goal with |[ |- _ = transportf _ _  (transportf _ ?e' _ ) ] =>
                        set (Q:=e') end.
-      Check (transportf
-        (λ B : C ⟨ Γ'' ⟩, C ⟨ Γ'' ∙ (A [g;; f]) ⊢ B [π (A [g;; f])] ⟩) Q
-        (ν (A [g;; f]))).
+    
       apply term_typeeq_transport_lemma.
       match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
                        generalize e end.

@@ -3,6 +3,8 @@ Require Export UniMath.Foundations.Generalities.uu0.
 Require Export UniMath.Foundations.hlevel1.hProp.
 Require Export UniMath.RezkCompletion.precategories.
 
+(** * (Unicode) Notation for various types and operations  *)
+
 Notation "∀  x .. y , P" := (forall x, .. (forall y, P) ..)
   (at level 200, x binder, y binder, right associativity) : type_scope.
 Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
