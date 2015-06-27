@@ -18,7 +18,9 @@ MODULES-CORE := Auxiliary UnicodeNotations \
 	DM_structure \
 	DM_to_CompCat_structure \
 	CwF_to_DM_structure \
-	CompCat_to_DM_structure
+	CompCat_to_DM_structure \
+	CwF_to_CompCat_to_DM_structure
+
 
 
 
