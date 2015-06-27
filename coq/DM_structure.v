@@ -17,6 +17,7 @@ Require Export UniMath.Foundations.hlevel2.hSet.
 Require Export UniMath.RezkCompletion.precategories.
 Require Export UniMath.RezkCompletion.limits.pullbacks.
 
+Require Import UniMath.Foundations.Proof_of_Extensionality.funextfun.
 
 
 (** * A "preview" of the definition *)
@@ -326,3 +327,46 @@ Definition isPullback_of_DM {CC} {C : DM_structure CC} {Δ Γ} (γ : DM C Δ Γ)
 Proof.
   apply isPullback_of_dm_sub_pb.
 Defined.
+
+
+Section lemmas.
+
+  Definition DM_equal {CC} (H : is_category CC) (D D' : DM_structure CC)
+             (X : ∀ Δ Γ (f : Δ ⇒ Γ), DM_type D f → DM_type D' f)
+             (X' : ∀ Δ Γ (f : Δ ⇒ Γ), DM_type D' f → DM_type D f)
+  : D = D'.
+  Proof.
+    apply total2_paths_second_isaprop.
+    - simpl.
+      apply isofhleveltotal2.
+      + unfold dm_sub_closed_under_iso.
+        repeat (apply impred; intro).
+        apply (pr2 (pr2 D')).
+      + intro.
+        repeat (apply impred; intro).
+        apply isapropiscontr.
+    - simpl.
+      destruct D as [D Dh];
+        destruct D' as [D' Dh']; simpl in *.
+      apply total2_paths_second_isaprop.
+      + unfold pb_of_DM_struct.
+        repeat (apply impred; intro).
+        apply isofhleveltotal2.
+        * apply isaprop_Pullback. exact H.
+        * intro. apply (pr2 Dh').
+      + destruct D as [D Da];
+        destruct D' as [D' Da'];
+        simpl in *.
+        unfold dm_sub_struct in D.
+        apply funextsec; intro.
+        apply funextsec; intro.
+        apply funextsec; intro f.
+        apply univalenceaxiom.
+        exists (X _ _ _).
+        apply isweqimplimpl.
+        * apply X'.
+        * apply (pr2 Dh).
+        * apply (pr2 Dh').
+Defined.
+
+End lemmas.
