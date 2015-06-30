@@ -1,18 +1,26 @@
 
+(** 
+
+ Ahrens, Lumsdaine, Voevodsky, 2015
+
+Contents:
+
+  - Definition of Comprehension Category
+  - A few convenience lemmas
+
+*)
+
 Require Export Systems.UnicodeNotations.
 Require Export UniMath.Foundations.hlevel2.hSet.
 Require Export UniMath.RezkCompletion.precategories.
 Require Export UniMath.RezkCompletion.limits.pullbacks.
 
-(* Suppress these preliminaries in the Coqdoc documentation: *)
-(* begin hide *)
 Section Prelims.
 
 (* TODO: move to limits.pullbacks *)
 Global Arguments isPullback [C a b c d] f g p1 p2 H.
 
 End Prelims.
-(* end hide *)
 
 (** * Comprehension pre-categories
 
@@ -37,6 +45,8 @@ though we believe it is also equivalent to the latter?
 
   In order to avoid the nested sigma-types getting too deep, 
 we split up the structure into two stages: [comp_precat_structure1] and [comp_precate_structure2]. *)
+
+(** * A "preview" of the definition *)
 
 Module Record_Preview.
 (** For technical reasons, we prefer not to use record types in the development.
@@ -81,6 +91,10 @@ End Record_Preview.
 As usual, to avoid severe performance issues with these, 
 we have to split up the definition into several steps: 
 [comp_precat_structure1] with the first few components, and [comp_precat_structure2] the rest.  *)
+
+
+(** * Types, reindexing and context extension *)
+
 Section Comp_Precats.
 
 Definition comp_cat_struct1 (C : precategory) :=
@@ -115,6 +129,8 @@ Definition reind_comp_cat {CC : precategory} {C : comp_cat_struct1 CC}
   {Γ : CC} (A : C Γ) {Γ'} (f : Γ' ⇒ Γ) : C Γ'
   := pr2 (pr2 C) Γ A Γ' f.
 Notation "A [ f ]" := (reind_comp_cat A f) (at level 40).
+
+(** * Pullback of dependent projections *)
 
 Definition comp_cat_struct2 {CC : precategory} (C : comp_cat_struct1 CC) :=
   Σ (dpr : ∀ Γ (A : C Γ), Γ◂A ⇒ Γ)
@@ -151,6 +167,8 @@ Definition reind_pb_comp_cat {CC : precategory} {C : comp_cat_struct CC} {Γ} (A
       (dpr_q_comp_cat A f)
 :=
   pr2 (pr2 (pr2 (pr2 C))) _ A _ f.
+
+(** * Splitness *)
 
 (** A comprehension precategory [C] is _split_ if each collection of types [C Γ] is a set, reindexing is strictly functorial, and the [q] maps satisfy the evident functoriality axioms *) 
 Definition is_split_comp_cat {CC : precategory} (C : comp_cat_struct CC)
@@ -221,6 +239,7 @@ Notation "Γ ◂ A" := (ext_comp_cat Γ A) (at level 45, left associativity).
 (* Temporarily suppressed due to levels clash with [cwf]. TODO: fix clash! *)
 Notation "A [ f ]" := (reind_comp_cat A f) (at level 40).
 
+(** * Lemmas about Comprehension categories *)
 
 Section lemmas.
 

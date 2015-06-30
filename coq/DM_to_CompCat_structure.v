@@ -1,3 +1,13 @@
+(** 
+ 
+ Ahrens, Lumsdaine, Voevodsky, 2015
+
+ Contents:
+
+  - Definition of a Comprehension precategory from a precategory with Display maps
+  
+*)
+
 
 Require Import UniMath.RezkCompletion.total2_paths.
 
@@ -6,6 +16,8 @@ Require Import Systems.UnicodeNotations.
 Require Import Systems.CompCat_structure.
 Require Import Systems.DM_structure.
 
+
+(** * Construction of Comprehension precategory from Display map precategory *)
 
 Section DM_to_CompCat.
 

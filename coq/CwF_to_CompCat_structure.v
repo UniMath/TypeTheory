@@ -1,10 +1,22 @@
 
+(** 
+  
+ Ahrens, Lumsdaine, Voevodsky, 2015
+
+Contents:
+
+  - Construction of a Comprehension precategory from a precategory with Families
+  - Proof that the constructed CompCat is split
+
+*)
+
+
 Require Import UniMath.RezkCompletion.total2_paths.
 
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
 Require Import Systems.CompCat_structure.
-Require Import Systems.cwf_structure.
+Require Import Systems.CwF_structure.
 
 
 (* Locally override the notation [ γ ♯ a ], at a higher level,
@@ -36,14 +48,16 @@ Defined.
 End Prelims.
 
 
-(** * Comprehension pre-precats from pre-cats with families
+(** * Comprehension precat from precat with Families *)
 
+(**
 Every pre-CwF gives rise to a comprehension pre-category.
 
 (TODO: moreover, this comprehension pre-cat should be split; and there should be a function from split comprehension pre-cats back to pre-CwFs making the two equivalent.)
 
 Since the components of the comprehension pre-cat structure are highly successively dependent, we construct most of them individually, before putting them together in [comp_precat_of_precwf].
 *)
+
 
 Section CompPreCat_of_PreCwF.
 
@@ -71,6 +85,8 @@ Proof.
   apply is_pullback_reindx_cwf.
   assumption.
 Defined.
+
+(** * Splitness of the constructed CompCat *)
 
 (** Moreover, the comprehension precat of a pre-CwF is always split. *)
 
@@ -131,12 +147,54 @@ Proof.
       etrans; [ | eapply pathsinv0; apply assoc ].
       cancel_postcomposition. sym. apply cwf_law_1.
     + apply maponpaths.
+      match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
+                       generalize e; generalize e' end.
+      intros p p'.
       rew_trans_@.
       apply term_typeeq_transport_lemma.
       etrans. Focus 2.
       apply rterm_typeeq.
-      admit.
+      match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
+                       generalize e; generalize e' end.
+      clear p p'.
+      intros p p'.
+      clear X'.
+      rewrite  (reindx_term_comp C).
+      rewrite transportf_pathscomp0.
+      match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
+                       generalize e' end.
+      clear p.
+      intro p.
+      rewrite pre_cwf_law_2'.
+      unfold transportb.
+      rewrite transportf_pathscomp0.
+      rewrite transportf_pathscomp0.
+      apply term_typeeq_transport_lemma.
+      match goal with |[ |- _ = transportf _ ?e _ ⟦ _ ⟧ ] => generalize e end.
+      intro q.
+      etrans. Focus 2. apply rterm_typeeq.
+      rewrite  pre_cwf_law_2'.
+      rewrite transportf_pathscomp0.
+      unfold transportb.
+      rewrite transportf_pathscomp0.
+      match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
+                       generalize e; generalize e' end.
+      intros P P'. clear p q. clear p'.
+      
+      match goal with |[ |- _ = transportf _ _  (transportf _ ?e' _ ) ] =>
+                       set (Q:=e') end.
+    
+      apply term_typeeq_transport_lemma.
+      match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
+                       generalize e end.
+      intro p.
+      clear P P'.
+      clear X.
+      assert (X : p = maponpaths (fun x => x [π (A [g ;; f])]) Q).
+      { apply cwf_types_isaset. }
+      rewrite X.
+      apply pathsinv0. apply retype_term_pi.
+Qed.
 
-Admitted.
 
 End CompPreCat_of_PreCwF.

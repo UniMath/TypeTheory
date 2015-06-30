@@ -1,9 +1,12 @@
 
-(** * (Pre)categories with families *)
 (**
+
+ Ahrens, Lumsdaine, Voevodsky, 2015
+
   Contents:
 
     - Definition of a precategory with families
+    - Proof that reindexing forms a pullback
 
   The definition is based on Pitts, *Nominal Presentations of the Cubical Sets
   Model of Type Theory*, Def. 3.1: 
@@ -15,6 +18,7 @@ Require Export Systems.UnicodeNotations.
 Require Export UniMath.Foundations.hlevel2.hSet.
 Require Export UniMath.RezkCompletion.limits.pullbacks.
 
+(** * A "preview" of the definition *)
 
 Module Record_Preview.
 
@@ -67,17 +71,15 @@ Record precwf_record : Type := {
 End Record_Preview.
 
 
-(** ** A [tt_precategory] comes with a types, written [C⟨Γ⟩], 
-   and terms [C⟨Γ ⊢ A⟩] *)
+(** * Type and terms of a [CwF] *)
+(** 
+ A [tt_precategory] comes with a types, written [C⟨Γ⟩], 
+   and terms [C⟨Γ ⊢ A⟩] 
+*)
 
 Definition tt_structure (C : precategory) :=
   Σ f : C → UU, ∀ c : C, f c → UU.
 
-(*
-Definition tt_precat : UU := Σ C : precategory, tt_structure C.
-Definition precat_from_tt_precat (C : tt_precat) : precategory := pr1 C.
-Coercion precat_from_tt_precat : tt_precat >-> precategory.
-*)
 
 Definition type {C : precategory} (TT : tt_structure C) : C → UU := pr1 TT.
 
@@ -89,7 +91,7 @@ Definition term {CC : precategory} (C : tt_structure CC) : ∀ Γ : CC, C⟨Γ�
 Notation "C ⟨ Γ ⊢ A ⟩" := (term C Γ A) (at level 60).
   (* \<, \>, and \|- or \vdash *)
 
-(** ** Reindexing of types [A[γ]] and terms [a⟦γ⟧] along a morphism [γ : Γ' ⇒ Γ] *)
+(** * Reindexing of types [A[γ]] and terms [a⟦γ⟧] along a morphism [γ : Γ' ⇒ Γ] *)
 
 Definition reindx_structure {CC : precategory}(C : tt_structure CC) := 
    Σ (rtype : ∀ {Γ Γ' : CC} (A : C⟨Γ⟩) (γ : Γ' ⇒ Γ), C⟨Γ'⟩),
@@ -102,12 +104,6 @@ Definition tt_reindx_struct (CC : precategory) : UU
 Coercion tt_from_tt_reindx CC (C : tt_reindx_struct CC) : tt_structure _ := pr1 C.
 Coercion reindx_from_tt_reindx CC (C : tt_reindx_struct CC) : reindx_structure _ := pr2 C.
 
-(*
-Definition reindx_precat := Σ (C : tt_precat), reindx_structure C.
-
-Definition tt_precat_from_reindx_precat (C : reindx_precat) : tt_precat := pr1 C.
-Coercion tt_precat_from_reindx_precat : reindx_precat >-> tt_precat.
-*)
 
 Definition rtype {CC : precategory}{C : tt_reindx_struct CC} 
   : ∀ {Γ Γ' : CC} (A : C⟨Γ⟩) (γ : Γ' ⇒ Γ), C⟨Γ'⟩ 
@@ -123,7 +119,7 @@ Definition rterm {CC : precategory}{C : tt_reindx_struct CC}
 
 Notation "a ⟦ γ ⟧" := (rterm a γ) (at level 40).
 
-(** **  Reindexing laws *)
+(** *  Reindexing laws *)
 
 (** Reindexing for types *)
 Definition reindx_laws_type {CC : precategory}(C : tt_reindx_struct CC) : UU :=
@@ -171,25 +167,14 @@ Definition reindx_term_comp {CC : precategory} {C : tt_reindx_struct CC}
    pr2 (pr2 T).
     
 
-(** ** Comprehension structure *)
+(** * Comprehension structure *)
 
-(** Comprehension object and projection *)
-(*
-Definition comp_1_struct {CC : precategory} (C : tt_reindx_struct CC) : UU 
-:=
-  ∀ Γ (A : C⟨Γ⟩), Σ (ΓAπ : Σ ΓA, ΓA ⇒ Γ), C ⟨pr1 ΓAπ ⊢ A [pr2 ΓAπ]⟩.
-*)
+(** ** Comprehension object and projection *)
+
 Definition comp_1_struct {CC : precategory} (C : tt_reindx_struct CC) : UU 
 :=
   ∀ Γ (A : C⟨Γ⟩), Σ ΓA, ΓA ⇒ Γ.
 
-
-(*
-Definition comp_1_precat := Σ C : reindx_precat, comp_1_struct C.
-
-Definition reindx_precat_from_comp_1_precat (C : comp_1_precat) : reindx_precat := pr1 C.
-Coercion reindx_precat_from_comp_1_precat : comp_1_precat >-> reindx_precat.
-*)
 
 Definition tt_reindx_comp_1_struct (CC : precategory) : UU 
   := 
@@ -197,10 +182,7 @@ Definition tt_reindx_comp_1_struct (CC : precategory) : UU
 
 Coercion tt_reindx_from_tt_reindx_comp_1 (CC : precategory) (C : tt_reindx_comp_1_struct CC) 
   : tt_reindx_struct _ := pr1 C.
-(*
-Coercion comp_1_from_tt_reindx_comp_1 (CC : precategory) (C : tt_reindx_comp_1_struct CC) 
-  : comp_1_struct _ := pr2 C.
-*)
+
 Definition comp_obj {CC : precategory} {C : tt_reindx_comp_1_struct CC} (Γ : CC) (A : C⟨Γ⟩) 
   : CC 
 :=  (pr1 (pr2 C Γ A)).
@@ -214,7 +196,7 @@ Definition proj_mor {CC : precategory} {C : tt_reindx_comp_1_struct CC}
 
 Notation "'π' A" := (proj_mor A) (at level 20).
 
-(** Generic element and pairing *)
+(** ** Generic element and pairing *)
 Definition comp_2_struct {CC : precategory} (C : tt_reindx_comp_1_struct CC) : UU
 := 
    ∀ Γ (A : C⟨Γ⟩), 
@@ -228,11 +210,6 @@ Definition tt_reindx_comp_struct (CC : precategory) : UU
 Coercion tt_reindx_comp_1_from_tt_reindx_comp (CC : precategory) (C : tt_reindx_comp_struct CC) 
   : tt_reindx_comp_1_struct _ := pr1 C.
 
-(*
-Definition comp_2_precat := Σ C : comp_1_precat, comp_2_struct C.
-Definition comp_1_precat_from_comp_2_precat (C : comp_2_precat) : comp_1_precat := pr1 C.
-Coercion comp_1_precat_from_comp_2_precat : comp_2_precat >-> comp_1_precat.
-*)
 
 Definition gen_elem  {CC : precategory} {C : tt_reindx_comp_struct CC} 
     {Γ : CC} (A : C⟨Γ⟩) 
@@ -251,7 +228,7 @@ Notation "γ ♯ a" := (pairing γ a) (at level 25).
   (* \# in Adga mode *)
  
 
-(** Laws satisfied by the comprehension structure *)
+(** ** Laws satisfied by the comprehension structure *)
 
 Definition comp_laws_1_2  {CC : precategory} {C : tt_reindx_comp_struct CC} 
    (L : reindx_laws C) : UU := 
@@ -274,7 +251,16 @@ Definition comp_law_4  {CC : precategory} {C : tt_reindx_comp_struct CC}
 :=
    ∀ Γ (A : C⟨Γ⟩), π A ♯ ν A = identity _ . 
 
-(** ** Definition of precategory with families *)
+
+
+
+Definition cwf_laws {CC : precategory}(C : tt_reindx_comp_struct CC) 
+   :=
+    (Σ T : reindx_laws C,
+       (comp_laws_1_2 T × comp_law_3 T × comp_law_4 T)) ×
+    (has_homsets CC × (∀ Γ, isaset (C⟨Γ⟩)) × ∀ Γ (A : C⟨Γ⟩), isaset (C⟨Γ⊢ A⟩)). 
+
+(** * Definition of precategory with families *)
 (** A precategory with families [pre_cwf] is 
   - a precategory
   - with reindexing 
@@ -283,42 +269,23 @@ Definition comp_law_4  {CC : precategory} {C : tt_reindx_comp_struct CC}
   - where types and terms are hsets
 *)
 
-(*
-Definition cwf_data (CC : precategory) : UU
-:=
-   Σ C : tt_structure CC,
-     Σ H : reindx_structure C, 
-       Σ K : comp_1_struct H, comp_2_struct K.     
-
-Coercion tt_from_cwf_data (CC : precategory)(C : cwf_data CC) : tt_structure CC := pr1 C.
-Coercion reindx_from_cwf_data CC (C : cwf_data CC) : reindx_structure _ := pr1 (pr2 C).
-Coercion comp_1_struct_from_cwf_data CC (C : cwf_data CC) : comp_1_struct _ := pr1 (pr2 (pr2 C)).
-Coercion comp_2_struct_from_cwf_data CC (C : cwf_data CC) : comp_2_struct _ := pr2 (pr2 (pr2 C)).
-*)
-
-Definition cwf_laws {CC : precategory}(C : tt_reindx_comp_struct CC) 
-   :=
-    (Σ T : reindx_laws C,
-       (comp_laws_1_2 T × comp_law_3 T × comp_law_4 T)) ×
-    (has_homsets CC × (∀ Γ, isaset (C⟨Γ⟩)) × ∀ Γ (A : C⟨Γ⟩), isaset (C⟨Γ⊢ A⟩)). 
 
 Definition cwf_struct (CC : precategory) : UU 
   := Σ C : tt_reindx_comp_struct CC, cwf_laws C.
 
+(** * Various access functions to the components *)
+(** Also a few generalizations are proved, providing variants with 
+    generalized proofs of identity of types, terms (which form hsets) 
+*)
+
 Coercion cwf_data_from_cwf_struct (CC : precategory) (C : cwf_struct CC) : _ CC := pr1 C.
 Coercion cwf_laws_from_cwf_struct (CC : precategory) (C : cwf_struct CC) : cwf_laws C := pr2 C.
 
-(*
-Definition comp_2_precat_from_pre_cwf (C : pre_cwf) : comp_2_precat
-  := pr1 C.
-Coercion comp_2_precat_from_pre_cwf : pre_cwf >-> comp_2_precat.
-(* There is now a chain of coercions from [pre_cwf] to [precategory]. *)
-*)
 
 Coercion reindx_laws_from_cwf_struct (CC : precategory) (C : cwf_struct CC)
   : reindx_laws C
   := pr1 (pr1 (pr2 C)).
-(* This coercion allows us to write things like [reindx_type_id C]. *)
+
 
 Definition cwf_comp_laws {CC : precategory} (C : cwf_struct CC)
   : (comp_laws_1_2 C × comp_law_3 C × comp_law_4 C)
@@ -384,7 +351,7 @@ Definition cwf_law_4 {CC : precategory} (C : cwf_struct CC) : comp_law_4 C
   := pr2 (cwf_comp_laws C).
 
 
-(** ** General lemmas *)
+(** * Lemmas about CwFs, in particular that reindexing forms pullback *)
 
 Section CwF_lemmas.
 
@@ -403,6 +370,18 @@ Proof.
   refine (maponpaths (fun g => f ;; g) (!cwf_law_4 _ _ _)).
   apply cwf_law_3.
 Qed.
+
+
+
+
+Lemma retype_term_pi {Γ} {A A' : C ⟨ Γ ⟩ } (p : A = A') (t : C ⟨ Γ ∙ A ⊢ A [π A]⟩ ) :
+  transportf (λ B : C ⟨Γ⟩, C ⟨ Γ ∙ A ⊢ B [π A]⟩) p t
+  =
+  transportf (term C (Γ ∙  A)) (maponpaths (λ x : C⟨Γ⟩, x [π A]) p) t.
+Proof.
+  destruct p.
+  apply idpath.
+Defined.
 
 Lemma pairing_mapeq {Γ} {A : C⟨Γ⟩} {Γ'} (f f' : Γ' ⇒ Γ) (e : f = f')
                      (a : C ⟨ Γ' ⊢ A [f] ⟩)
@@ -542,7 +521,15 @@ Proof.
     apply idpath.
 Qed.
 
-(** The biggest work is in showing that the square of dependent projections/reindexings is a pullback.  We split this up into several lemmas: construction of the pullback pairing function; proof that projections applied to the pairing recover the original maps; and proof that the pairing map is the unique such map. *)
+(** The biggest work is in showing that the square of dependent projections/reindexings is a pullback.  
+
+We split this up into several lemmas: 
+
+- construction of the pullback pairing function; 
+- proof that projections applied to the pairing recover the original maps; 
+- and proof that the pairing map is the unique such map. 
+
+*)
 
 Definition dpr_q_pbpairing_precwf_aux
   {Γ} (A : C ⟨ Γ ⟩)
