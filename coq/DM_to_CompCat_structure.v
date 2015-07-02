@@ -24,15 +24,22 @@ Section DM_to_CompCat.
 Variable CC : precategory.
 Variable C : DM_structure CC.
 
+
+
 Definition comp_cat_struct1_from_DM : comp_cat_struct1 CC.
 Proof.
   unfold comp_cat_struct1.
-  exists (fun X => Σ Y, DM C Y X).
+  exists (DM_over C).
+(*  exists (fun X => Σ (Yf : Σ Y, X ⇒ Y), DM_type C (pr2 Yf)). *)
   refine (tpair _ _ _ ).
-  - intros Γ H. exact (pr1 H).
-  - intros Γ Δ'γ Γ' f.
-    exists (pr2 Δ'γ ⋆ f).
-    apply pb_DM_of_DM.
+  - intros Γ H. exact (ob_from_DM_over H).
+  - intros Γ Δ'γH Γ' f.
+    simpl in *.
+    refine (tpair _ _ _ ).
+    + exists ( (DM_from_DM_over Δ'γH) ⋆ f).
+      apply pb_mor_of_DM.
+    + simpl.
+      refine (pr2 (pb_DM_of_DM _ _ )).
 Defined.
 
 Definition comp_cat_struct2_from_DM : comp_cat_struct2 comp_cat_struct1_from_DM.
@@ -41,7 +48,8 @@ Proof.
   refine (tpair _ _ _ ).
   - intros Γ A; simpl.
     unfold ext_comp_cat. simpl.
-    apply (pr2 A).
+    unfold comp_cat_struct1_from_DM in A. simpl in *.
+    apply (pr2 (pr1 A)).
   - simpl.
     refine (tpair _ _ _ ).
     + intros Γ A Δ f.
@@ -60,6 +68,28 @@ Proof.
   exact comp_cat_struct2_from_DM.
 Defined.
 
+Lemma is_type_saturated_comp_cat_from_DM : is_type_saturated_comp_cat comp_cat_struct_from_DM.
+Proof.
+  unfold is_type_saturated_comp_cat.
+  intro Γ. unfold comp_cat_struct_from_DM.
+  simpl.
+  unfold ext_comp_cat. simpl.
+  unfold dpr_comp_cat. simpl.
+  assert (
+      (λ A : DM_over C Γ,
+      tpair (λ X : CC, X ⇒ Γ) (ob_from_DM_over A) (pr2 (pr1 A)))
+      = pr1).
+  { apply funextfunax.
+    intro x.
+    destruct x. simpl.
+    destruct t.
+    apply idpath.
+  }
+  rewrite X.
+  apply isinclpr1.
+  intros. apply (pr2 (pr2 C)).
+Qed.  
+  
 (* this seems to require (at least!) that the objects of the underlying category form a set *)
 (*
 Lemma is_split_comp_cat_from_DM : is_split_comp_cat comp_cat_struct_from_DM.

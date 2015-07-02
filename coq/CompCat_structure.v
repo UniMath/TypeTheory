@@ -168,6 +168,12 @@ Definition reind_pb_comp_cat {CC : precategory} {C : comp_cat_struct CC} {Γ} (A
 :=
   pr2 (pr2 (pr2 (pr2 C))) _ A _ f.
 
+(** * Type-saturation *)
+
+Definition is_type_saturated_comp_cat {CC : precategory} (C : comp_cat_struct CC) : UU
+  := ∀ Γ, isincl (λ A : C Γ, tpair (λ X, X ⇒ Γ) (Γ ◂ A) (dpr_comp_cat A)).
+
+
 (** * Splitness *)
 
 (** A comprehension precategory [C] is _split_ if each collection of types [C Γ] is a set, reindexing is strictly functorial, and the [q] maps satisfy the evident functoriality axioms *) 

@@ -66,6 +66,19 @@ Definition DM_type {C : precategory} (H : dm_sub_struct C) {Δ Γ} (γ : Δ ⇒ 
 Definition DM {C : precategory}(H : dm_sub_struct C) (Δ Γ : C) : UU :=
   Σ f : Δ ⇒ Γ, DM_type H f.
 
+Definition DM_over {C : precategory}(H : dm_sub_struct C) (Γ : C) : UU :=
+  Σ (Δf : Σ Δ, Δ ⇒ Γ), DM_type H (pr2 Δf).
+
+Definition ob_from_DM_over {C : precategory} {H : dm_sub_struct C} {Γ : C}
+           (X : DM_over H Γ) : C := pr1 (pr1 X).
+
+Definition DM_from_DM_over {C : precategory} {H : dm_sub_struct C} {Γ : C}
+  (X : DM_over H Γ) : DM H (ob_from_DM_over  X) Γ.
+Proof.
+  exists (pr2 (pr1 X)).
+  exact (pr2 X).
+Defined.
+
 Coercion arrow_from_DM {C : precategory} (H : dm_sub_struct C)(Δ Γ : C) (δ : DM H Δ Γ) : Δ ⇒ Γ := pr1 δ.
 
 (** ** Display maps are closed under iso *)
