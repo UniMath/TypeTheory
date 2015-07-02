@@ -87,12 +87,12 @@ Defined.
 (** * Lemmas about (pre)categories *)
 (** Lemmas about pullbacks more specifically are collected below *)
 
-Lemma idtoiso_concat_pr (C : precategory) (hs: has_homsets C) (a a' a'' : ob C)
+Lemma idtoiso_concat_pr (C : precategory) (a a' a'' : ob C)
   (p : a = a') (q : a' = a'') :
   idtoiso p ;; idtoiso q = idtoiso (p @ q).
 Proof.
   apply pathsinv0.
-  apply (base_paths _ _ (idtoiso_concat _ hs _ _ _ _ _ )).
+  apply (base_paths _ _ (idtoiso_concat _ _ _ _ _ _ )).
 Defined.
 
 Lemma idtoiso_eq_idpath (C : precategory) (a : C) (e : a = a)
