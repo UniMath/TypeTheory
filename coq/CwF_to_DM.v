@@ -16,9 +16,9 @@ Require Import UniMath.RezkCompletion.total2_paths.
 
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
-Require Import Systems.CompCat_structure.
-Require Import Systems.CwF_structure.
-Require Import Systems.DM_structure.
+Require Import Systems.CompCat.
+Require Import Systems.CwF.
+Require Import Systems.DM.
 
 (* Locally override the notation [ γ ♯ a ], at a higher level,
   to get more informative bracketing when pairing meets composition. *) 
