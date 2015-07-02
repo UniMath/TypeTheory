@@ -42,6 +42,6 @@ Proof.
     destruct T.
     destruct t.
     simpl in *.
-    apply 
+Abort.
     
 End CompCat_to_DM.

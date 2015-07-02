@@ -10,13 +10,13 @@ Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
 Require Export UniMath.Foundations.hlevel2.hSet.
 
-Require Export RezkCompletion.functors_transformations.
-Require Export RezkCompletion.category_hset.
-Require Export RezkCompletion.yoneda.
-Require Export RezkCompletion.rezk_completion.
+Require Export UniMath.RezkCompletion.functors_transformations.
+Require Export UniMath.RezkCompletion.category_hset.
+Require Export UniMath.RezkCompletion.yoneda.
+Require Export UniMath.RezkCompletion.rezk_completion.
 
-Require Export Systems.cwf.
-Require Export Systems.category_of_elements.
+Require Export Systems.CwF.
+Require Export Systems.Categories.category_of_elements.
 
 Implicit Arguments iso.
 
@@ -102,10 +102,9 @@ Defined.
 
 (** * Saturating a CwF *)
 
-Section bla.
+Section CwF_completion.
 
-Variable C : pre_cwf.
-Hypothesis hs : has_homsets C.
+Context (CC : precategory) (C : cwf_struct CC).
 
 (** ** The "type" part of a CwF **)
 
@@ -113,9 +112,9 @@ Hypothesis hs : has_homsets C.
     We thus obtain a "type" functor on RC(C) by univ property
 **)
 
-Definition type_hSet (Γ : C) : hSet := hSetpair (C⟨Γ⟩) (pr1 (pr2 (pr2 C)) _ ). 
+Definition type_hSet (Γ : CC) : hSet := hSetpair (C⟨Γ⟩) (cwf_types_isaset _ _ ). 
 
-Definition type_functor_data : functor_data C (opp_precat HSET).
+Definition type_functor_data : functor_data CC (opp_precat HSET).
 Proof.
   exists type_hSet.
   intros Γ Γ' γ A. exact (rtype A γ).
@@ -124,18 +123,18 @@ Defined.
 Definition type_is_functor : is_functor type_functor_data.
 Proof.
   split; intros; simpl.
-  - apply funextfunax; intro A. apply reindx_type_id. 
-    apply (reindx_laws_from_pre_cwf C).
-  - apply funextfunax; intro A.
+  - intros Γ. apply funextfunax; intro A. apply reindx_type_id. 
+    apply reindx_laws_from_cwf_struct.
+  - intros Γ Γ' Γ'' f g. apply funextfunax; intro A.
     apply reindx_type_comp.
-    apply (reindx_laws_from_pre_cwf C).
+    apply reindx_laws_from_cwf_struct.
 Qed.
 
 Definition type_functor : functor _ _ := tpair _ _ type_is_functor.
 
-Definition RC_type_functor : functor (Rezk_completion C hs) (opp_precat HSET).
+Definition RC_type_functor : functor (Rezk_completion CC (has_homsets_cwf C)) (opp_precat HSET).
 Proof.  
-  apply (Rezk_functor C hs (opp_cat (tpair _ HSET is_category_HSET))).
+  apply (Rezk_functor CC _ (opp_cat (tpair _ HSET is_category_HSET))).
   apply type_functor.
 Defined.
   
@@ -146,7 +145,5 @@ Defined.
 
 
 
-
-
-
+End CwF_completion.
 
