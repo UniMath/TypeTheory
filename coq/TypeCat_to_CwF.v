@@ -358,7 +358,7 @@ Proof.
     
       etrans. Focus 2. symmetry. apply (idtoiso_q_type_cat _ e0).
       etrans. apply assoc. cancel_postcomposition.
-      etrans. apply idtoiso_concat_pr. assumption.
+      etrans. apply idtoiso_concat_pr.
       apply maponpaths, maponpaths.
      
       subst e.
@@ -430,8 +430,6 @@ Proof.
   etrans.
   cancel_postcomposition. apply T2.
   unfold Y. apply idpath.
-
-  assumption.
 Qed.  
 
 Lemma comp_law_4_of_type_cat : @comp_law_4 _ tt_reindx_type_struct_of_type_cat reindx_laws_of_type_cat.
