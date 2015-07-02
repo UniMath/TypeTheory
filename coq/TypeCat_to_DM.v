@@ -23,11 +23,11 @@ Section TypeCat_to_DM.
 
 Variable CC : precategory.
 Variable H : is_category CC.  
-Variable C : comp_cat_struct CC.
+Variable C : type_cat_struct CC.
 
 Definition iso_to_dpr {Γ Γ'} (γ : Γ ⇒ Γ') : UU
   := Σ (A : C Γ') (f : iso (Γ'◂ A) Γ),
-        dpr_comp_cat _ = f ;; γ .
+        dpr_type_cat _ = f ;; γ .
 
 Definition dm_sub_struct_of_TypeCat : dm_sub_struct CC.
 Proof.
@@ -81,13 +81,13 @@ Proof.
   refine (tpair _ _ _ ).
   - refine (tpair _ _ _).
     + exists (Γ' ◂ (A[f])).
-      exists (q_comp_cat _ _ ;; h).
-      exact (dpr_comp_cat _ ).
+      exists (q_type_cat _ _ ;; h).
+      exact (dpr_type_cat _ ).
     + simpl. unfold dm_sub_struct_of_TypeCat.
       simpl.
       set (T:= postcomp_pb_with_iso CC (pr2 H)).
       eapply T.
-      apply  reind_pb_comp_cat. 
+      apply  reind_pb_type_cat. 
       sym. assumption.
   - simpl.
     apply hinhpr.

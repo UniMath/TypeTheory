@@ -5,8 +5,7 @@
 
 Contents:
 
-  - Construction of a Comprehension precategory from a precategory with Families
-  - Proof that the constructed TypeCat is split
+  - Commutativity of the constructions between CwFs, type-(pre)cats, and DM-cats
 
 *)
 
@@ -29,7 +28,7 @@ Section compare_maps.
 
   Context (CC : precategory) (C : cwf_struct CC) (H : is_category CC).
 
-  Lemma maps_equal : DM_structure_of_TypeCat _ H (comp_cat_of_precwf _ C (pr2 H)) = DM_structure_of_CwF _ C H.
+  Lemma maps_equal : DM_structure_of_TypeCat _ H (type_cat_of_precwf _ C (pr2 H)) = DM_structure_of_CwF _ C H.
   Proof.
     apply DM_equal.
     - exact H.

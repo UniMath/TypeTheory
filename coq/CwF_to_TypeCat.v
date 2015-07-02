@@ -5,8 +5,8 @@
 
 Contents:
 
-  - Construction of a Comprehension precategory from a precategory with Families
-  - Proof that the constructed TypeCat is split
+  - Construction of a type-precategory from a precategory with Families
+  - Proof that the constructed type-precategory is split
 
 *)
 
@@ -48,37 +48,37 @@ Defined.
 End Prelims.
 
 
-(** * Comprehension precat from precat with Families *)
+(** * Type-precat from precat with Families *)
 
 (**
-Every pre-CwF gives rise to a comprehension pre-category.
+Every pre-CwF gives rise to a type-precategory.
 
-(TODO: moreover, this comprehension pre-cat should be split; and there should be a function from split comprehension pre-cats back to pre-CwFs making the two equivalent.)
+(TODO: moreover, this type-precat should be split; and there should be a function from split type-precats back to pre-CwFs making the two equivalent.)
 
-Since the components of the comprehension pre-cat structure are highly successively dependent, we construct most of them individually, before putting them together in [comp_precat_of_precwf].
+Since the components of the type-precat structure are highly successively dependent, we construct most of them individually, before putting them together in [type_precat_of_precwf].
 *)
 
 
-Section CompPreCat_of_PreCwF.
+Section TypePreCat_of_PreCwF.
 
 (* TODO: move the [has_homsets] assumption to the definition of a [pre_cwf]? 
    TODO: discuss namine of [has_homsets]: wouldn’t e.g. [homs_are_sets] be clearer? *)
 Context (CC : precategory) (C : cwf_struct CC) (homs_sets : has_homsets CC).
 
-Definition comp_cat1_of_precwf : comp_cat_struct1 CC.
+Definition type_cat1_of_precwf : type_cat_struct1 CC.
 Proof.
-  unfold comp_cat_struct1.
+  unfold type_cat_struct1.
   exists (type C).
   exists (comp_obj ).  
   exact (fun Γ a Γ' f => a[f]).
 Defined.
 
-(** We can now assemble the components into a comprehension precategory: *)
+(** We can now assemble the components into a type-precategory: *)
 
-Definition comp_cat_of_precwf : comp_cat_struct CC.
+Definition type_cat_of_precwf : type_cat_struct CC.
 Proof.
-  exists comp_cat1_of_precwf.
-  unfold comp_cat_struct2.
+  exists type_cat1_of_precwf.
+  unfold type_cat_struct2.
   exists (@proj_mor CC C).
   exists (@q_precwf CC C).
   exists (@dpr_q_precwf CC C).
@@ -88,19 +88,19 @@ Defined.
 
 (** * Splitness of the constructed TypeCat *)
 
-(** Moreover, the comprehension precat of a pre-CwF is always split. *)
+(** Moreover, the type-precat of a pre-CwF is always split. *)
 
-Definition issplit_comp_precat_of_precwf
-  : is_split_comp_cat comp_cat_of_precwf.
+Definition issplit_type_precat_of_precwf
+  : is_split_type_cat type_cat_of_precwf.
 Proof.
-  unfold is_split_comp_cat.
+  unfold is_split_type_cat.
   repeat split. 
   - (* Types over each object form a set *)
     apply cwf_types_isaset.
   - (* Reindexing along identities *)
     exists (reindx_type_id C).
     intros Γ A. 
-    unfold q_comp_cat; simpl. unfold q_precwf.
+    unfold q_type_cat; simpl. unfold q_precwf.
     eapply pathscomp0. Focus 2. apply id_left.
     eapply pathscomp0. Focus 2.
       refine (maponpaths (fun q => q ;; _) _).
@@ -113,7 +113,7 @@ Proof.
     apply maponpaths. simpl.
     eapply pathscomp0. apply transportf_pathscomp0.
     refine (_ @ _).
-      exact (transportf (term C (Γ ◂ reind_comp_cat A (identity Γ)))
+      exact (transportf (term C (Γ ◂ reind_type_cat A (identity Γ)))
         (maponpaths (fun B => B [π (A [identity Γ])]) (reindx_type_id C Γ A))
         (ν (A [identity Γ]))).
     apply term_typeeq_transport_lemma.
@@ -123,12 +123,12 @@ Proof.
   - (* Reindexing along composites *)
     exists (fun Γ A Γ' f Γ'' g => reindx_type_comp C f g A).
     intros Γ A Γ' f Γ'' g.
-    unfold q_comp_cat. simpl. 
+    unfold q_type_cat. simpl. 
     match goal with [|- _ = ?e ] => 
            pathvia (identity _ ;; e); [| apply id_left] end.
     rewrite assoc.
     rewrite assoc.
-    unfold ext_comp_cat. simpl.
+    unfold ext_type_cat. simpl.
     rewrite <- cwf_law_4.
     rewrite pairing_transport.
     unfold q_precwf. 
@@ -197,4 +197,4 @@ Proof.
 Qed.
 
 
-End CompPreCat_of_PreCwF.
+End TypePreCat_of_PreCwF.

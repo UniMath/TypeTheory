@@ -203,15 +203,15 @@ Definition comp_2_struct {CC : precategory} (C : tt_reindx_comp_1_struct CC) : U
      C⟨(Γ∙A) ⊢ (A [π A]) ⟩ × 
      (∀ Γ' (γ : Γ' ⇒ Γ) (a : C⟨Γ'⊢A[γ]⟩), Γ' ⇒ Γ∙A).
 
-Definition tt_reindx_comp_struct (CC : precategory) : UU 
+Definition tt_reindx_type_struct (CC : precategory) : UU 
 :=
    Σ C : tt_reindx_comp_1_struct CC, comp_2_struct C.
 
-Coercion tt_reindx_comp_1_from_tt_reindx_comp (CC : precategory) (C : tt_reindx_comp_struct CC) 
+Coercion tt_reindx_comp_1_from_tt_reindx_comp (CC : precategory) (C : tt_reindx_type_struct CC) 
   : tt_reindx_comp_1_struct _ := pr1 C.
 
 
-Definition gen_elem  {CC : precategory} {C : tt_reindx_comp_struct CC} 
+Definition gen_elem  {CC : precategory} {C : tt_reindx_type_struct CC} 
     {Γ : CC} (A : C⟨Γ⟩) 
   : C⟨Γ∙A  ⊢ A[π _ ]⟩ 
  := 
@@ -219,7 +219,7 @@ Definition gen_elem  {CC : precategory} {C : tt_reindx_comp_struct CC}
 
 Notation "'ν' A" := (gen_elem A) (at level 15).
 
-Definition pairing  {CC : precategory} {C : tt_reindx_comp_struct CC} 
+Definition pairing  {CC : precategory} {C : tt_reindx_type_struct CC} 
     {Γ : CC} {A : C⟨Γ⟩} {Γ'} (γ : Γ' ⇒ Γ) (a : C⟨Γ'⊢A[γ]⟩) 
   : Γ' ⇒ Γ∙A  
 := pr2 (pr2 C Γ A) Γ' γ a.
@@ -230,7 +230,7 @@ Notation "γ ♯ a" := (pairing γ a) (at level 25).
 
 (** ** Laws satisfied by the comprehension structure *)
 
-Definition comp_laws_1_2  {CC : precategory} {C : tt_reindx_comp_struct CC} 
+Definition comp_laws_1_2  {CC : precategory} {C : tt_reindx_type_struct CC} 
    (L : reindx_laws C) : UU := 
    ∀ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' ⇒ Γ) (a : C⟨Γ'⊢ A[γ]⟩),
         Σ h : (γ ♯ a) ;; (π _ ) = γ,
@@ -238,7 +238,7 @@ Definition comp_laws_1_2  {CC : precategory} {C : tt_reindx_comp_struct CC}
              (transportf (λ B, C⟨Γ'⊢ B⟩) (!reindx_type_comp L (π _ )(γ ♯ a) _ )
                ((ν _ ) ⟦γ ♯ a⟧)) = a.
 
-Definition comp_law_3  {CC : precategory} {C : tt_reindx_comp_struct CC}
+Definition comp_law_3  {CC : precategory} {C : tt_reindx_type_struct CC}
      (L : reindx_laws C) : UU 
 := 
    ∀ Γ (A : C ⟨Γ⟩) Γ' Γ'' (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') (a : C⟨Γ'⊢ A[γ]⟩),
@@ -246,7 +246,7 @@ Definition comp_law_3  {CC : precategory} {C : tt_reindx_comp_struct CC}
     =  
     (γ' ;; γ) ♯ (transportf (λ B, C⟨Γ''⊢ B⟩) (!reindx_type_comp L γ γ' _ ) (a⟦γ'⟧)).
 
-Definition comp_law_4  {CC : precategory} {C : tt_reindx_comp_struct CC}
+Definition comp_law_4  {CC : precategory} {C : tt_reindx_type_struct CC}
     (L : reindx_laws C) : UU
 :=
    ∀ Γ (A : C⟨Γ⟩), π A ♯ ν A = identity _ . 
@@ -254,7 +254,7 @@ Definition comp_law_4  {CC : precategory} {C : tt_reindx_comp_struct CC}
 
 
 
-Definition cwf_laws {CC : precategory}(C : tt_reindx_comp_struct CC) 
+Definition cwf_laws {CC : precategory}(C : tt_reindx_type_struct CC) 
    :=
     (Σ T : reindx_laws C,
        (comp_laws_1_2 T × comp_law_3 T × comp_law_4 T)) ×
@@ -272,7 +272,7 @@ Definition cwf_laws {CC : precategory}(C : tt_reindx_comp_struct CC)
 
 
 Definition cwf_struct (CC : precategory) : UU 
-  := Σ C : tt_reindx_comp_struct CC, cwf_laws C.
+  := Σ C : tt_reindx_type_struct CC, cwf_laws C.
 
 (** * Various access functions to the components *)
 (** Also a few generalizations are proved, providing variants with 

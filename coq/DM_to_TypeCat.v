@@ -26,9 +26,9 @@ Variable C : DM_structure CC.
 
 
 
-Definition comp_cat_struct1_from_DM : comp_cat_struct1 CC.
+Definition type_cat_struct1_from_DM : type_cat_struct1 CC.
 Proof.
-  unfold comp_cat_struct1.
+  unfold type_cat_struct1.
   exists (DM_over C).
 (*  exists (fun X => Σ (Yf : Σ Y, X ⇒ Y), DM_type C (pr2 Yf)). *)
   refine (tpair _ _ _ ).
@@ -42,18 +42,18 @@ Proof.
       refine (pr2 (pb_DM_of_DM _ _ )).
 Defined.
 
-Definition comp_cat_struct2_from_DM : comp_cat_struct2 comp_cat_struct1_from_DM.
+Definition type_cat_struct2_from_DM : type_cat_struct2 type_cat_struct1_from_DM.
 Proof.
-  unfold comp_cat_struct2.
+  unfold type_cat_struct2.
   refine (tpair _ _ _ ).
   - intros Γ A; simpl.
-    unfold ext_comp_cat. simpl.
-    unfold comp_cat_struct1_from_DM in A. simpl in *.
+    unfold ext_type_cat. simpl.
+    unfold type_cat_struct1_from_DM in A. simpl in *.
     apply (pr2 (pr1 A)).
   - simpl.
     refine (tpair _ _ _ ).
     + intros Γ A Δ f.
-      unfold ext_comp_cat; simpl.
+      unfold ext_type_cat; simpl.
       apply pb_arrow_of_arrow.
     + {
         refine (tpair _ _ _ ).
@@ -62,19 +62,19 @@ Proof.
         - intros. apply isPullback_of_DM. }
 Defined.
 
-Definition comp_cat_struct_from_DM : comp_cat_struct CC.
+Definition type_cat_struct_from_DM : type_cat_struct CC.
 Proof.
-  exists comp_cat_struct1_from_DM.
-  exact comp_cat_struct2_from_DM.
+  exists type_cat_struct1_from_DM.
+  exact type_cat_struct2_from_DM.
 Defined.
 
-Lemma is_type_saturated_comp_cat_from_DM : is_type_saturated_comp_cat comp_cat_struct_from_DM.
+Lemma is_type_saturated_type_cat_from_DM : is_type_saturated_type_cat type_cat_struct_from_DM.
 Proof.
-  unfold is_type_saturated_comp_cat.
-  intro Γ. unfold comp_cat_struct_from_DM.
+  unfold is_type_saturated_type_cat.
+  intro Γ. unfold type_cat_struct_from_DM.
   simpl.
-  unfold ext_comp_cat. simpl.
-  unfold dpr_comp_cat. simpl.
+  unfold ext_type_cat. simpl.
+  unfold dpr_type_cat. simpl.
   assert (
       (λ A : DM_over C Γ,
       tpair (λ X : CC, X ⇒ Γ) (ob_from_DM_over A) (pr2 (pr1 A)))
@@ -92,13 +92,13 @@ Qed.
   
 (* this seems to require (at least!) that the objects of the underlying category form a set *)
 (*
-Lemma is_split_comp_cat_from_DM : is_split_comp_cat comp_cat_struct_from_DM.
+Lemma is_split_type_cat_from_DM : is_split_type_cat type_cat_struct_from_DM.
 Proof.
   repeat split.
   - admit. (* this is probably false when objects don't form a set *)
   - simpl.
     refine (tpair _ _ _ ).
-    + unfold reind_comp_cat; simpl.
+    + unfold reind_type_cat; simpl.
 *)
     
 End DM_to_TypeCat.
