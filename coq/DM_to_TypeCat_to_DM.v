@@ -13,27 +13,27 @@ Require Import UniMath.RezkCompletion.total2_paths.
 
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
-Require Import Systems.CompCat.
+Require Import Systems.TypeCat.
 Require Import Systems.DM.
-Require Import Systems.DM_to_CompCat.
-Require Import Systems.CompCat_to_DM.
+Require Import Systems.DM_to_TypeCat.
+Require Import Systems.TypeCat_to_DM.
 
 (** * Construction of Comprehension precategory from Display map precategory *)
 
-Section CompCat_to_DM.
+Section TypeCat_to_DM.
 
 Variable CC : precategory.
 Variable H : is_category CC.  
 Variable C : DM_structure CC.
 
-Lemma DM_to_CompCat_to_DM : DM_structure_of_CompCat _ H (comp_cat_struct_from_DM _ C) = C.
+Lemma DM_to_TypeCat_to_DM : DM_structure_of_TypeCat _ H (comp_cat_struct_from_DM _ C) = C.
 Proof.
   apply DM_equal.
   - assumption.
-  - intros. unfold DM_structure_of_CompCat in X.
+  - intros. unfold DM_structure_of_TypeCat in X.
     simpl in *.
     unfold DM_type in X. simpl in *.
-    unfold dm_sub_struct_of_CompCat in X; simpl in X.
+    unfold dm_sub_struct_of_TypeCat in X; simpl in X.
     unfold comp_cat_struct_from_DM in X. simpl in *.
     set (X' := hProppair (DM_type C f) (pr2 (pr2 C) _ _ _ )).
     apply (X X'). unfold X'; clear X' X.
@@ -44,4 +44,4 @@ Proof.
     simpl in *.
 Abort.
     
-End CompCat_to_DM.
+End TypeCat_to_DM.

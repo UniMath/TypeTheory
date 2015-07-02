@@ -13,20 +13,20 @@ MODULES-CORE := Auxiliary UnicodeNotations \
 	Categories/ess_and_gen_alg_cats \
 	Categories/category_of_elements \
 	CwF \
-	CompCat \
-        CwF_to_CompCat \
-	CompCat_to_CwF \
+	TypeCat \
+        CwF_to_TypeCat \
+	TypeCat_to_CwF \
 	DM \
-	DM_to_CompCat \
+	DM_to_TypeCat \
 	CwF_to_DM \
-	CompCat_to_DM \
-	CwF_to_CompCat_to_DM \
+	TypeCat_to_DM \
+	CwF_to_TypeCat_to_DM \
 
 # Remaining modules, included only in “make all”.
 # Useful for leaves that are slow to recompile.
 MODULES-EXTRA := \
 	CwF_completion \
-	DM_to_CompCat_to_DM \
+	DM_to_TypeCat_to_DM \
 
 VS-CORE  := $(MODULES-CORE:%=%.v)
 VS-EXTRA := $(MODULES-EXTRA:%=%.v)

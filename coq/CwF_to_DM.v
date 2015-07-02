@@ -16,7 +16,7 @@ Require Import UniMath.RezkCompletion.total2_paths.
 
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
-Require Import Systems.CompCat.
+Require Import Systems.TypeCat.
 Require Import Systems.CwF.
 Require Import Systems.DM.
 

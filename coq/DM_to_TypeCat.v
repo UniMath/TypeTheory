@@ -13,13 +13,13 @@ Require Import UniMath.RezkCompletion.total2_paths.
 
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
-Require Import Systems.CompCat.
+Require Import Systems.TypeCat.
 Require Import Systems.DM.
 
 
 (** * Construction of Comprehension precategory from Display map precategory *)
 
-Section DM_to_CompCat.
+Section DM_to_TypeCat.
 
 Variable CC : precategory.
 Variable C : DM_structure CC.
@@ -101,4 +101,4 @@ Proof.
     + unfold reind_comp_cat; simpl.
 *)
     
-End DM_to_CompCat.
+End DM_to_TypeCat.

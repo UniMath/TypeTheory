@@ -6,7 +6,7 @@
 Contents:
 
   - Construction of a Comprehension precategory from a precategory with Families
-  - Proof that the constructed CompCat is split
+  - Proof that the constructed TypeCat is split
 
 *)
 
@@ -15,7 +15,7 @@ Require Import UniMath.RezkCompletion.total2_paths.
 
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
-Require Import Systems.CompCat.
+Require Import Systems.TypeCat.
 Require Import Systems.CwF.
 
 
@@ -86,7 +86,7 @@ Proof.
   assumption.
 Defined.
 
-(** * Splitness of the constructed CompCat *)
+(** * Splitness of the constructed TypeCat *)
 
 (** Moreover, the comprehension precat of a pre-CwF is always split. *)
 
