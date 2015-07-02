@@ -220,14 +220,13 @@ Definition reind_comp_comp_cat {CC : precategory} {C : comp_cat_struct CC}
       A [g;;f] = A[f][g]
   := pr1 (pr2 H).                
 
-Definition q_comp_comp_cat {CC : precategory} {C : comp_cat_struct CC}
-           (H : is_split_comp_cat C)
+Definition q_comp_comp_cat {CC : precategory} {C : split_comp_struct CC}
   : ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'),
             q_comp_cat A (g ;; f)
-            =  idtoiso (maponpaths (fun b => Γ''◂b) (reind_comp_comp_cat H _ A _ f _ g))
+            =  idtoiso (maponpaths (fun b => Γ''◂b) (reind_comp_comp_cat C _ A _ f _ g))
                ;; q_comp_cat (A[f]) g
                ;; q_comp_cat A f
-  := pr2 (pr2 H).
+  := pr2 (pr2 (pr2 C)).
 
 (*
 Definition split_comp_precat := Σ C, (is_split_comp_cat C).

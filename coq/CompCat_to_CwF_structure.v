@@ -18,6 +18,18 @@ Require Import Systems.CompCat_structure.
 Require Import Systems.CwF_structure.
 
 
+(* TODO: move *)
+Lemma idtoiso_q_comp_cat {CC : precategory} {C : comp_cat_struct CC}
+      {Γ : CC} (A : C Γ) {Γ' : CC} {f f' : Γ' ⇒ Γ} (e : f = f') :
+      q_comp_cat A f
+      = (idtoiso (maponpaths (fun f => ext_comp_cat Γ' (reind_comp_cat A f)) e))
+          ;; q_comp_cat A f'.
+Proof.
+  intros. destruct e; simpl. sym. apply id_left.
+  (* Why the heck doesn’t “symmetry” work here!? *)
+Defined.
+  
+
 
 (** * wF structure from (split) comprehension structure on a precategory 
 
@@ -280,203 +292,91 @@ Proof.
   simpl in * .
   refine (tpair _ _ _ ).
   * unfold pairing. simpl.
-    destruct a as [f H]; simpl in *.
+    destruct a as [a a_sec]; simpl in *.
     etrans. eapply pathsinv0. apply assoc.
     etrans. apply maponpaths. apply dpr_q_comp_cat.
     etrans. apply assoc.
-    etrans. cancel_postcomposition. apply H.
+    etrans. cancel_postcomposition. apply a_sec.
     apply id_left.
   * simpl.
     apply total2_paths_second_isaprop.
     { apply homs_sets. }
-    destruct a as [f H]; simpl in *.
+    destruct a as [a a_sec]; simpl in *.
 
-
-    match goal with |[ |- pr1 (transportf ?P' ?e' (transportf ?P1' ?e1' ?x')) = _ ] =>
-                         set (P := P'); set (e:=e'); set (P1 := P1') ; set (e1:=e1'); set (x:=x') end.
-    simpl in *.
+    (* Commute the [pr1] through the [transportf]s. *)
+    match goal with |[ |- pr1 (transportf _ ?e0' (transportf _ ?e1' _)) = _ ] =>
+                         set (e0:=e0'); set (e1:=e1') end.
     unfold pairing in *. simpl in *.
-    assert (T:=@transportf_total2).
-    assert (T' := T (Γ' ⇒ Γ)).
-    unfold rtype in f.
-    assert (T'':= T' (λ i, Γ' ⇒ Γ' ◂ reind_comp_cat A i)).
-    simpl in T''.
-    assert (T3 := T'' (λ i f0, f0 ;; dpr_comp_cat (reind_comp_cat A i) = identity Γ')).
-    simpl in *.
-    assert (T4:= T3 _ _  e (transportf P1 e1 x)).  
-    assert (T5:= base_paths _ _ T4). clear T3; simpl in *. clear T' T'' T.
-    etrans.
-    apply T5.
+    etrans. apply maponpaths. refine (transportf_total2 e0 _). simpl.
+    etrans. apply maponpaths, maponpaths. refine (transportf_total2 e1 _).
+    match goal with
+      |[ |- transportf _ _ (pr1 (tpair ?P' ?x' _)) = _]
+      => set (x:=x'); set (P:=P') end.    
+    change (pr1 (tpair P x _)) with x. subst x; clear P.
 
-    clear T5. clear T4.
-    assert (T:=@transportf_total2).
-    assert (T':= T (C Γ') (λ B,  Γ' ⇒ Γ' ◂ B)). simpl in T'.
-    assert (T'' := T' (λ B f0, f0 ;; dpr_comp_cat B = identity Γ')).
-    simpl in *.
-    assert (T3:= T'' _ _  e1 x).
-    etrans.
-    apply maponpaths.
-    apply maponpaths.
-    apply T3.
+    (* These are maps into [Γ' ◂ A [γ]].  We will show they’re equal by comparing their composites with the pullback “projections”, i.e. by using [map_into_Pb_unique].  This will generate two proof branches, for the two pullback projections.
 
-    clear T3 T'' T' T.
-    simpl.
+    There are various different ways one can tidy up the two [transportf]s on the LHS in terms of [idtoiso], [maponpaths], and composites (of paths, functions, or morphisms).  We will need them tidied up into two slightly different forms for the two proof branches; it is not obvous what it is best to tidy when.  For now, we tidy up as much as possible before applying [map_into_Pb_unique], and then reassociate as necessary in the two branches. *)
 
-    clearbody e.
+    etrans. refine (functtransportf
+                      (@rtype _ tt_reindx_comp_struct_of_comp_cat _ _ A) _ _ _).
+    etrans. apply transportf_reind_comp_cat.
+    etrans. apply maponpaths, transportf_reind_comp_cat.
+    etrans. apply transportf_pathscomp0.
+    match goal with |[ |- transportf _ ?e' _ = _] => set (e:=e') end.
+    etrans. symmetry; apply idtoiso_postcompose.
 
-    match goal with |[ |- transportf _ _ ?e' = _ ] => set (x' := e') end.
-      pathvia (transportf (λ B, Γ' ⇒ Γ' ◂ B) (maponpaths _ e) x').
-      { apply transportf_reind_comp_cat'.  }
-      unfold x'; clear x'.
-      
-      rewrite transportf_pathscomp0.
-      rewrite transportf_reind_comp_cat.
-      rewrite <- idtoiso_postcompose.
+    eapply map_into_Pb_unique. apply reind_pb_comp_cat.
 
+    (* The second pullback projection, to [Γ'], gives the easier of the two branches: *)
+    Focus 2.
+      etrans. symmetry;apply assoc.
+      etrans.
+        apply maponpaths. cancel_postcomposition.
+        apply maponpaths, maponpaths. symmetry; apply maponpathscomp0.
+      etrans. apply maponpaths. apply idtoiso_dpr_comp_cat.
+      etrans. apply Pb_map_commutes_2.
+      symmetry. exact a_sec.
 
-      eapply map_into_Pb_unique. apply reind_pb_comp_cat.
+    (* The first projection, to [Γ ◂ A ◂ [π A]], is harder.
 
-      Focus 2.
-      match goal with |[ |- map_into_Pb ?B' ?C' ?D' ?E' ?F' ?G' ?Y' ?Z' ?W' ;; _ ;; _ = _ ] => 
-                   set (f':=B'); set (g:=C'); set (h:=D'); set (k:=E') end.
-      match goal with |[ |- map_into_Pb _ _ _ _ ?F' ?G' ?Y' ?Z' _   ;; _ ;;_  = _ ] => 
-                      set (x1:=F'); set (y:=G');
-                   set (Y:=Y'); set (Z:=Z')
-     end.
-      match goal with |[ |- map_into_Pb _ _ _ _ _ _ _ _  ?W' ;; _ ;; _  = _ ] => set (W:=W') end.
+    TODO: LaTeX diagram of this!  See photo from 2015-07-02. 
 
-      etrans. Focus 2. eapply pathsinv0. apply H.
-      etrans. eapply pathsinv0. apply assoc.
-      etrans. apply maponpaths.
-      apply idtoiso_dpr_comp_cat.
-      set (T:=pr2 reindx_struct_of_comp_cat ). simpl in *.
-      set (T':= T _ Γ' _ (tpair _ f H)).
+    The main part of the LHS, [pr1 (ν A ⟦ a;; q_comp_cat A γ ⟧)], was created as a [map_into_Pb]; we need to use the first component of its definition.  So we need to get the LHS into a form where the first projection of that pullback square appears, i.e. [q_comp_cat (reind_comp_cat A (dpr_comp_cat A)) (a;; q_comp_cat A γ)]. *)
+    etrans. symmetry; apply assoc.
+    assert (e2 :
+      (idtoiso e;; q_comp_cat A γ)
+      = (q_comp_cat (reind_comp_cat A (dpr_comp_cat A)) (a;; q_comp_cat A γ))
+          ;; (q_comp_cat A (dpr_comp_cat A))).
 
-      set (T2:=@Pb_map_commutes_2 _ _ _ _ _ f' g h k x1 y _ Y Z W).
-      unfold g.
-      etrans. apply T2.
-      unfold Z. apply idpath.
-
-
-       match goal with |[ |- map_into_Pb ?B' ?C' ?D' ?E' ?F' ?G' ?Y' ?Z' ?W' ;; _ ;; _ = _ ] => 
-                   set (f':=B'); set (g:=C'); set (h:=D'); set (k:=E') end.
-      match goal with |[ |- map_into_Pb _ _ _ _ ?F' ?G' ?Y' ?Z' _   ;; _ ;;_  = _ ] => 
-                      set (x1:=F'); set (y:=G');
-                   set (Y:=Y'); set (Z:=Z')
-     end.
-      match goal with |[ |- map_into_Pb _ _ _ _ _ _ _ _  ?W' ;; _ ;; _  = _ ] => set (W:=W') end.
-
-      assert (T2:=@Pb_map_commutes_1 _ _ _ _ _ f' g h k x1 y _ Y Z W).
-      admit.
-
-     (*   
-      
-      
-      
-     match goal with | [ |- ?e = _ ] => set (EEE := e) end.
+      refine (pre_comp_with_iso_is_inj _ _ _ _ _ _ _ _ _).
+      Focus 4.
+        etrans. Focus 2. symmetry; apply assoc.
+        etrans. Focus 2. apply q_comp_comp_cat.
+      Unfocus.
+      apply pr2.
     
-     match goal with |[ |- map_into_Pb ?B' ?C' ?D' ?E' ?F' ?G' ?Y' ?Z' ?W' ;; _  = _ ] => 
-                   set (f':=B'); set (g:=C'); set (h:=D'); set (k:=E') end.
-     match goal with |[ |- map_into_Pb _ _ _ _ ?F' ?G' ?Y' ?Z' _   ;; _  = _ ] => 
-                      set (x1:=F'); set (y:=G');
-                   set (Y:=Y'); set (Z:=Z')
-     end.
-     match goal with |[ |- map_into_Pb _ _ _ _ _ _ _ _  ?W' ;; _  = _ ] => set (W:=W') end.
-(*     match goal with |[ |- ?e = _ ] => set (EE:=e) end. *)
-     assert (T1:=Pb_map_commutes_1 f' g h k x1 y Y Z W).
-     etrans. apply T1. unfold Y.
-
-     unfold 
+      etrans. Focus 2. symmetry. apply (idtoiso_q_comp_cat _ e0).
+      etrans. apply assoc. cancel_postcomposition.
+      etrans. apply idtoiso_concat_pr. assumption.
+      apply maponpaths, maponpaths.
      
-  rewrite T1.
-  assert (T2:=Pb_map_commutes_2 f' g h k _ y Y Z W).
+      subst e.
+      etrans. symmetry. apply maponpaths, maponpathscomp0.
+      etrans. symmetry. apply maponpathscomp0.
+      (* TODO: make an access function for sethood of types in comp cat. *)
+      etrans. apply maponpaths. apply (pr1 (pr2 C)).
+      apply maponpathscomp.
 
-    apply pathsinv0.
-    apply PullbackArrowUnique.
+    etrans. apply maponpaths, e2. clear e2.
+    etrans. apply assoc.
+    etrans. cancel_postcomposition. apply Pb_map_commutes_1.
     
-  -
-    
-    unfold Y.
-    unfold k. 
-    repeat rewrite <- assoc.
-    apply maponpaths.
-    unfold f'.
-
-    admit.
-    
-   - admit.
-
-
-
-(*
- (* attempt with transforming inner transport first *)
-    
-    match goal with |[ |- pr1 (transportf ?P' ?e' (transportf ?P1' ?e1' ?x')) = _ ] =>
-                         set (P := P'); set (e:=e'); set (P1 := P1') ; set (e1:=e1'); set (x:=x') end.
-    simpl in *.
-    unfold pairing in *. simpl in *.
-    etrans.
-    apply maponpaths.
-    apply maponpaths.
-    assert (T:=@transportf_total2).
-    assert (T':= T (C Γ') (λ B,  Γ' ⇒ Γ' ◂ B)). simpl in T'.
-    assert (T'' := T' (λ B f0, f0 ;; dpr_comp_cat B = identity Γ')).
-    simpl in *.
-    assert (T3:= T'' _ _  e1 x).
-    apply T3.
-    
-    match goal with |[|- pr1 (transportf _ _ ?x1') = _ ] => set (x1:= x1') end.
-    assert (T:=@transportf_total2).
-    assert (T' := T (Γ' ⇒ Γ)).
-    unfold rtype in f.
-    assert (T'':= T' (λ i, Γ' ⇒ Γ' ◂ reind_comp_cat A i)).
-    simpl in T''.
-    assert (T3 := T'' (λ i f0, f0 ;; dpr_comp_cat (reind_comp_cat A i) = identity Γ')).
-    simpl in *.
-    assert (T4:= T3 _ _  e x1).  
-    assert (T5:= base_paths _ _ T4). clear T3; simpl in *. clear T' T'' T.
-    etrans.
-    apply T5.
-
-    clear T5. clear T4.
-    unfold x1; simpl in *. clear x1.
-      clear x.
-      match goal with |[ |- transportf _ _ ?e' = _ ] => set (x := e') end.
-      pathvia (transportf (λ B, Γ' ⇒ Γ' ◂ B) (maponpaths _ e) x).
-       { admit. }
-      unfold x; clear x.
-       rewrite transportf_pathscomp0.
-       match goal with | [ |- transportf _ ?p _ = _ ] => set (PP:=p) end.
-       match goal with |[ |- transportf _ _ (map_into_Pb ?X1 ?X2 ?X3 ?X4 _ _ _ _ _ ) = _ ] =>
-           set (x1 := X1); set (x2 := X2); set (x3 := X3) ; set (x4:=X4) end.
-       match goal with |[ |- transportf _ _ (map_into_Pb _ _ _ _ ?X1 ?X2 ?X3 ?X4 _ ) = _ ] =>
-           set (x5 := X1); set (x6 := X2); set (x7 := X3) ; set (x8:=X4) end.
-       match goal with |[ |- transportf _ _ (map_into_Pb _ _ _ _ _ _ _ _ ?X1 ) = _ ] =>
-                        set (x9 := X1) end.
-       assert (X10:= Pb_map_commutes_1 x1 x2 x3 x4 x5 x6 x7 x8 x9).
-       rewrite X10.
-
-       Check (e1 @ maponpaths (rtype A) e).
-       rewrite <- idtoiso_postcompose.
-      Check (e1 @ maponpaths _  e).
-      admit.
-*)
-*)
-Admitted.
-
-
-(* does not seem to be helpful, instantiation using [apply] fails *)
-Lemma bla : ∀ (A : UU) (B : A → UU) (C0 : ∀ a : A, B a → UU) 
-              (x1 x2 : A) (p : x1 = x2) (*yz : Σ y : B x1, C0 x1 y*) (y : B x1) z,
-        pr1
-         (transportf (λ x : A, Σ y : B x, C0 x y) p
-            (tpair (λ y : B x1, C0 x1 y) y z)) = transportf B p y.
-Proof.
-  intros.
-  assert (T:=@transportf_total2 A B C0 x1 x2 p (tpair _ y z)).
-  assert (T':= base_paths _ _ T).
-  exact T'.
-Defined.  
+    etrans. symmetry. apply assoc.
+    etrans. apply maponpaths. apply Pb_map_commutes_1.
+    etrans. symmetry. apply assoc. apply maponpaths.
+    apply id_right.
+Qed.
 
 Lemma comp_law_3_of_comp_cat : @comp_law_3 CC tt_reindx_comp_struct_of_comp_cat reindx_laws_of_comp_cat.
 Proof.
@@ -500,7 +400,7 @@ Proof.
   cancel_postcomposition.
   apply functtransportf.
   rewrite <- idtoiso_postcompose.
-  rewrite (q_comp_comp_cat C).
+  rewrite q_comp_comp_cat.
   assert (T:=@Pb_map_commutes_1).
   match goal with |[ |- _ ;; ?B' ;; ?C'  = _ ]  => set (B:=B'); set (D:=C') end.
   simpl in *.
