@@ -15,8 +15,8 @@ Require Import UniMath.RezkCompletion.total2_paths.
 
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
-Require Import Systems.CompCat_structure.
-Require Import Systems.CwF_structure.
+Require Import Systems.CompCat.
+Require Import Systems.CwF.
 
 
 (* Locally override the notation [ γ ♯ a ], at a higher level,

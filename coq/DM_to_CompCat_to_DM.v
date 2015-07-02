@@ -13,10 +13,10 @@ Require Import UniMath.RezkCompletion.total2_paths.
 
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
-Require Import Systems.CompCat_structure.
-Require Import Systems.DM_structure.
-Require Import Systems.DM_to_CompCat_structure.
-Require Import Systems.CompCat_to_DM_structure.
+Require Import Systems.CompCat.
+Require Import Systems.DM.
+Require Import Systems.DM_to_CompCat.
+Require Import Systems.CompCat_to_DM.
 
 (** * Construction of Comprehension precategory from Display map precategory *)
 
@@ -42,6 +42,6 @@ Proof.
     destruct T.
     destruct t.
     simpl in *.
-    apply 
+Abort.
     
 End CompCat_to_DM.
