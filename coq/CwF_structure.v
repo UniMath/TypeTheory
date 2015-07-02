@@ -263,6 +263,7 @@ Definition cwf_laws {CC : precategory}(C : tt_reindx_comp_struct CC)
 (** * Definition of precategory with families *)
 (** A precategory with families [pre_cwf] is 
   - a precategory
+  - with type-and-term structure 
   - with reindexing 
   - with comprehension structure
   - satisfying the comprehension laws
