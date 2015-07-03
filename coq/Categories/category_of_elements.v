@@ -103,7 +103,6 @@ Definition Elem_cov_iso_gives_iso (ac bd : ∫) :
   iso ac bd → iso (pr1 ac) (pr1 bd).
 Proof.
   intro H.
-  Search ( _ -> is_z_isomorphism _ ).
   set (H':=is_z_iso_from_is_iso H (pr2 H)).
   exists (pr1 (pr1 H)).
   apply is_iso_from_is_z_iso.
@@ -179,7 +178,6 @@ Proof.
   exists (Elem_cov_iso_to_Elem_cov_iso_type _ _ ).
   apply (gradth _ (Elem_cov_iso_type_to_Elem_cov_iso _ _ )).
   - intro.
-    Search (_ -> _ _ = _ _ -> _ = _ ).
     apply eq_iso. simpl.
     apply total2_paths_second_isaprop.
     + apply setproperty.
@@ -189,18 +187,10 @@ Proof.
     apply idpath.
 Defined.
 
-(*
- Lemma foo (ac, bd : ∫) (x : pr1 ac = pr1 bd)
-  ============================
-   transportf (λ x0 : C, F x0) x (pr2 ac) = pr2 bd
-   ≃ # F (idtoiso x) (pr2 ac) = pr2 bd
-*)
 Lemma bla (H : is_category C) (ac bd : ∫) :
   ac = bd ≃ Σ p : iso (pr1 ac) (pr1 bd), #F p (pr2 ac) = pr2 bd. 
 Proof.
   eapply weqcomp.
-  Search (total2_paths).
-  Search ( _ ≃ Σ _ , _  ).
   apply total2_paths_equiv.
   refine (weqbandf (weqpair (@idtoiso _ _ _ ) _ ) _ _ _ ).
   - apply (pr1 H).
@@ -223,7 +213,7 @@ Proof.
 Defined.
 
 (*  needs better computational behaviour in previous lemmas *)
-(*
+
 Definition is_category_Elem  (H : is_category C) : is_category ∫.
 Proof.
   split.
@@ -237,12 +227,15 @@ Proof.
     simpl.
     apply eq_iso.
     simpl.
+    apply total2_paths_second_isaprop. apply setproperty.
     apply idpath.
-    apply idpath.
-    refine (isweqhomot _   (foobar _ _ _ ) _ _ ).
-
-Search (transportf _ (isotoid _ _ _ ) _ = _ ).
-*)
+    apply pr2.
+  - intros a b.
+    apply (isofhleveltotal2 2).
+    apply (pr2 H).
+    intro. apply isasetaprop.
+    apply setproperty.
+Defined.
 
 End category_of_elements_covariant.
 
