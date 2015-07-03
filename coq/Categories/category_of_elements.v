@@ -88,7 +88,17 @@ Definition proj_functor : functor _ _ := tpair _ _ is_functor_proj.
 Definition Elem_cov_iso_type (ac bd : ∫) : UU
   := Σ (f : iso (pr1 ac) (pr1 bd)), #F f (pr2 ac) = pr2 bd.
 
+Definition Elem_cov_iso_type_eq {ac bd : ∫} (T T' : Elem_cov_iso_type ac bd)
+  : T = T' ≃ (pr1 (pr1 T)) = (pr1 (pr1 T')).
+Proof.
+  eapply weqcomp.
+  apply total2_paths_isaprop_equiv.
+  intro. apply setproperty.
+  apply total2_paths_isaprop_equiv.
+  intro. apply isaprop_is_iso.
+Defined.
 
+  
 Definition Elem_cov_iso_gives_iso (ac bd : ∫) :
   iso ac bd → iso (pr1 ac) (pr1 bd).
 Proof.
@@ -162,24 +172,74 @@ Proof.
       simpl. apply iso_after_iso_inv.
 Defined.
 
+(* opacify the proof components *)
+Definition Elem_cov_iso_type_equiv_Elem_cov_iso (ac bd : ∫) :
+  iso ac bd ≃ Elem_cov_iso_type ac bd.
+Proof.
+  exists (Elem_cov_iso_to_Elem_cov_iso_type _ _ ).
+  apply (gradth _ (Elem_cov_iso_type_to_Elem_cov_iso _ _ )).
+  - intro.
+    Search (_ -> _ _ = _ _ -> _ = _ ).
+    apply eq_iso. simpl.
+    apply total2_paths_second_isaprop.
+    + apply setproperty.
+    + apply idpath.
+  - intro.
+    apply (invmap (Elem_cov_iso_type_eq _ _  )).
+    apply idpath.
+Defined.
 
 (*
+ Lemma foo (ac, bd : ∫) (x : pr1 ac = pr1 bd)
+  ============================
+   transportf (λ x0 : C, F x0) x (pr2 ac) = pr2 bd
+   ≃ # F (idtoiso x) (pr2 ac) = pr2 bd
+*)
 Lemma bla (H : is_category C) (ac bd : ∫) :
-  ac = bd ≃ Elem_cov_iso_type ac bd.
+  ac = bd ≃ Σ p : iso (pr1 ac) (pr1 bd), #F p (pr2 ac) = pr2 bd. 
 Proof.
   eapply weqcomp.
   Search (total2_paths).
   Search ( _ ≃ Σ _ , _  ).
   apply total2_paths_equiv.
-  eapply weqcomp.
-  refine (weqbandf  (weqpair (@idtoiso _ _ _ ) _  ) _ _ _  ).
+  refine (weqbandf (weqpair (@idtoiso _ _ _ ) _ ) _ _ _ ).
   - apply (pr1 H).
-  - exact (λ p, transportf _ (isotoid _ H p) (pr2 ac) = pr2 bd).
-  - intro p. simpl.
-    destruct p.
-  intros x.
-  - 
-  eapply weqbandf.
+  - simpl. intro x.
+    destruct ac. destruct bd.
+    simpl in *.
+    induction x. simpl.
+    rewrite (functor_id F).
+    apply idweq.
+Defined.
+
+Definition foobar (H : is_category C) (ac bd : ∫) :
+  ac = bd ≃ iso ac bd.
+Proof.
+  eapply weqcomp.
+  apply bla.
+  apply H.
+  apply invweq.
+  apply  Elem_cov_iso_type_equiv_Elem_cov_iso.
+Defined.
+
+(*  needs better computational behaviour in previous lemmas *)
+(*
+Definition is_category_Elem  (H : is_category C) : is_category ∫.
+Proof.
+  split.
+  - intros a b.
+    set (T := isweqhomot (foobar  H a b)(@idtoiso _ a b) ).
+    apply T.
+    intro p.
+    induction p.
+    destruct a; simpl in *.
+    
+    simpl.
+    apply eq_iso.
+    simpl.
+    apply idpath.
+    apply idpath.
+    refine (isweqhomot _   (foobar _ _ _ ) _ _ ).
 
 Search (transportf _ (isotoid _ _ _ ) _ = _ ).
 *)
