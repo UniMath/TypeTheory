@@ -162,6 +162,7 @@ Defined.
 Section FAM.
 
 Variable C : precategory.
+Hypothesis C_homsets : has_homsets C. (* Only very occasionally needed! *)
 
 Definition obj_UU : UU := Σ A : UU, A → C.
 
@@ -585,43 +586,50 @@ Qed.
 
 Lemma FAM_is_iso_from_is_iso (A B : FAM) (f : A ⇒ B) : is_iso f → FAM_is_iso f.
 Proof.
-  intro H.
+  intro f_iso.
   split.
   - apply isweq_from_is_iso. assumption.
-  - intro a.
-    set (ff:=isopair f H).
-    set (finv := iso_inv_from_iso ff).
-    set (HH := iso_inv_after_iso ff).
-    set (HHH := iso_after_iso_inv ff).
-    set (HH':= FAM_mor_equiv _ _ HH). clearbody HH'.
-    set (HHH':= FAM_mor_equiv _ _ HHH). clearbody HHH'.
-    set (HH'':= pr1 HH'). simpl in *.
+  - set (g := iso_inv_from_iso (isopair f f_iso) : B ⇒ A).
+    set (fg' := iso_inv_after_iso _ : f ;; g = identity A).
+    set (gf' := iso_after_iso_inv _ : g ;; f = identity B).
+    set (fg:= FAM_mor_equiv _ _ fg'). clearbody fg; clear fg'.
+    set (gf:= FAM_mor_equiv _ _ gf'). clearbody gf; clear gf'.
+    clearbody g; clear f_iso.
+    
+    destruct f as [f1 f2], g as [g1 g2],
+             fg as [fg1 fg2], gf as [gf1 gf2]; simpl in *.
+    intro a. 
     apply is_iso_from_is_z_iso.
-    set (H2:= finv ₂ (pr1 f a)). simpl in *.
-    set (inv:= transportf (λ a', B ₂ _  ⇒ A ₂ a') (HH'' a) H2). simpl in *.
-    exists inv.
+    set (inv := transportf (λ a', B ₂ _  ⇒ A ₂ a') (fg1 a) (g2 (f1 a))).
+    exists inv. subst inv.
     split.
-    + unfold inv. simpl in *.
-      set (H1:= pr2 HH' a). simpl in *. unfold HH''. simpl in *.
-      unfold H2. 
-      rewrite <- H1.
-      apply pathsinv0.
-      apply transportf_comp.
-    + unfold inv. simpl in *.
-      set (H1:= pr2 HHH' (pr1 f a)). simpl in *.
-      unfold HH''. unfold H2. simpl in *.
-      rewrite <- H1.
-      set (H4:=homotinvweqweq (weqpair _ (isweq_from_is_iso f H)) a). simpl in *.
-      clearbody H4.
-      clear H4.
-      rewrite  transportf_comp. 
-      clear H1. clear HH. clear HHH. 
+    
+    + eapply pathscomp0. Focus 2. apply fg2. symmetry.
+      eapply pathscomp0. apply (functtransportf (A ₂)).
+      eapply pathscomp0. symmetry; apply idtoiso_postcompose.
+      eapply pathscomp0. symmetry; apply assoc.
+      apply maponpaths. eapply pathscomp0. apply idtoiso_postcompose.
+      symmetry. apply functtransportf.
+      
+    + eapply pathscomp0. Focus 2. apply gf2.
+      eapply pathscomp0. cancel_postcomposition.
+        eapply pathscomp0. apply (functtransportf (A ₂)).
+        symmetry; apply idtoiso_postcompose.
+      symmetry. eapply pathscomp0. apply (functtransportf (B ₂)).
+      eapply pathscomp0. symmetry; apply idtoiso_postcompose.
+      eapply pathscomp0. symmetry; apply assoc.
+      eapply pathscomp0. Focus 2. apply assoc.
+      apply maponpaths.
 
-      Check (pr1 HHH'(pr1 f a)). (* (inv_from_iso f ;; f) (f ₁ a) = identity B (f ₁ a) *)
-      Check (pr1 HH' a) (* (f ;; inv_from_iso f) a = identity A a *) .
-      idtac.
-      admit.
-Admitted.
+      assert (f2_natl : forall a1 a2 (p : a2 = a1),
+                          f2 a2 ;; idtoiso (maponpaths (fun a => B ₂ (f1 a)) p)
+                          = idtoiso (maponpaths (A ₂) p) ;; f2 a1).
+        destruct p. eapply pathscomp0. apply id_right. sym. apply id_left.
+      eapply pathscomp0. Focus 2. apply f2_natl.
+      apply maponpaths , maponpaths, maponpaths.
+      eapply pathscomp0. Focus 2. apply maponpathscomp.
+      apply maponpaths. apply (pr2 B).
+Qed.
 
 End isos.
 
