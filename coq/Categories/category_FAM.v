@@ -541,70 +541,47 @@ Proof.
   induction p.
   apply idpath.
 Qed.
-
-
-Lemma inv_bla (A B : FAM) (f : A ⇒ B) (g : B ⇒ A) (H : f ;; g = identity _ ) 
-              (H' : g ;; f = identity _ ) : True.
-Proof.
-  assert (T:=(FAM_mor_equiv _ _ )  H).
-  unfold FAM_mor_eq_type in T.
-  simpl in T.
-  destruct T as [HT bla].
-  simpl in *.
-  assert (T' := FAM_mor_equiv _ _ H').
-  destruct T' as [HT' bla'].
-  simpl in *.
-  clear H H'.
-  destruct A as [[A a] pa ].
-  destruct B as [[B b] pb] .
-  simpl in *.
-  clear pa pb.
-  destruct f as [f Cf].
-  destruct g as [g Cg].
-  simpl in *.
-  assert (H : forall a, is_z_isomorphism (Cf a)).
-  { 
-    intro c.
-    assert (X:= bla c).
-    assert (X':= bla' (f c)).
-    simpl in *.
-    rewrite transportf_comp in X.
-    generalize dependent X'.
-    assert (H' := HT c).
-    rewrite H'.
-    destruct H'.
-    rewrite (HT c) in X'.d
     
 
 Lemma is_iso_from_FAM_is_iso (A B : FAM) (f : A ⇒ B) : FAM_is_iso f → is_iso f.
 Proof.
-  intro H.
+  intros H.
   apply is_iso_from_is_z_iso.
   exists (inv_from_FAM_is_iso H).
+  destruct f as [f1 f2], H as [H1 H2]. simpl in *.
   split.
   - apply (invmap (FAM_mor_equiv _ _ )).
     exists (λ a, homotinvweqweq _ _ ).
-    intro a.
-    simpl.
-    set (H':= pr2 H a). 
-    set (H2 := is_z_iso_from_is_iso _ H').
+    intro a. simpl.
     
-    set (ff := weqpair (pr1 f) (pr1 H)).
-    set (aa := isopair (pr2 f a) (pr2 H a)).
-    set (Hinv1:= pr1 (pr2 H2)).
-    rewrite <- Hinv1.
-    destruct f as [f x]; simpl in *.
-    destruct H2 as [xa_inv [Ha Hb]]; simpl in *.
-    rewrite transportf_comp.
-    apply maponpaths.
-    Check (homotweqinvweq ff (f a)). (* ff (invmap ff (f a)) = f a *)
-    Check (homotinvweqweq ff a). (* invmap ff (ff a) = a *)
-    admit.
+    set (p := homotinvweqweq (weqpair f1 H1) a).
+    set (p' := homotweqinvweq (weqpair f1 H1) (f1 a)).
+    assert (tri : maponpaths f1 p = p'). apply (homotweqinvweqweq (weqpair _ _)).
+    clearbody p'. destruct tri. simpl in *.
+
+    assert (transp_lem : forall (a1 a2 : A ₁) (q : a2 = a1),
+      transportf (λ b : A ₁, A ₂ a1 ⇒ A ₂ b) q
+      (f2 a1 ;;
+        transportf
+          (λ b' : B ₁, B ₂ b' ⇒ A ₂ a2)
+          (maponpaths f1 q)
+          (inv_from_iso (isopair (f2 a2) (H2 a2))))
+      = identity (A ₂ a1)).
+      intros. destruct q; simpl. cbn. unfold idfun; simpl.
+      apply (iso_inv_after_iso (isopair _ _)).
+    apply transp_lem.
+
   - apply (invmap (FAM_mor_equiv _ _ )).
-    exists (λ a, homotweqinvweq _ _ ).
-    intro b.
-    admit.
-Admitted.
+    exists (λ a, homotweqinvweq (weqpair _ _) _).
+    intro b. simpl.
+    set (p := (homotweqinvweq (weqpair f1 H1) b)).
+    change (transportf (λ b0 : B ₁, B ₂ b ⇒ B ₂ b0)
+                         (homotweqinvweq (weqpair f1 H1) b))
+    with (transportf (λ b0 : B ₁, B ₂ b ⇒ B ₂ b0) p).
+    set (a := (invmap (weqpair f1 H1) b)) in *. clearbody p. clearbody a.
+    destruct p. cbn. unfold idfun; simpl. apply iso_after_iso_inv.
+Qed.
+
 
 Lemma FAM_is_iso_from_is_iso (A B : FAM) (f : A ⇒ B) : is_iso f → FAM_is_iso f.
 Proof.
