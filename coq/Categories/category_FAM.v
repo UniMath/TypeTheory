@@ -7,8 +7,6 @@
     - TODO: FAM(C) saturated if C is
 *)
 
-Require Export Systems.Auxiliary.
-Require Export Systems.UnicodeNotations.
 Require Export UniMath.Foundations.hlevel2.hSet.
 
 Require Import UniMath.Foundations.Proof_of_Extensionality.funextfun.
@@ -20,14 +18,9 @@ Require Export UniMath.RezkCompletion.yoneda.
 Require Export UniMath.RezkCompletion.rezk_completion.
 
 Require Export Systems.Auxiliary.
+Require Export Systems.UnicodeNotations.
 
-Search (transportf _ _ _ = _ ).
-
-Lemma transportf_idpath (A : UU) (B : A → UU) (a : A) (x : B a) :
-   transportf _ (idpath a) x = x.
-Proof.
-  apply idpath.
-Defined.
+Section Auxiliary.
 
 Lemma transportf_eqweqmap (A B : UU) (p : A = B) C (A' : A → C) (b : B) :
   transportf (λ X, X → C) p A' b = A' (eqweqmap (!p) b).
@@ -52,117 +45,40 @@ Proof.
   apply idpath.
 Defined.  
 
-Lemma transportf_toforallpaths (A B : UU) (f g : A → B) (P : B → UU)
-   (x : ∀ a, P (f a)) (H : f = g) (a : A): 
-  transportf (λ x0 : A → B, ∀ a0 : A, _ )
-     H x a =
-   transportf (λ b : B, P b) (toforallpaths _ _ _ H a) (x a).
+Lemma transportf_toforallpaths {A B : UU} {f g : A → B} (H : f = g) 
+   (P : A → B → UU) (x : ∀ a, P a (f a)) (a : A) : 
+  transportf (λ b : B, P a b) (toforallpaths _ _ _ H a) (x a)
+  = transportf (λ x0 : A → B, ∀ a0 : A, _ ) H x a.
 Proof.
   intros.
   induction H.
   apply idpath.
 Defined.
-
-Lemma transportf_funext (A B : UU) (f g : A → B) (H : ∀ x, f x = g x) (a : A) (P : B → UU)
-   (x : ∀ a, P (f a)) (x' : ∀ a, P (g a))  : 
-  transportf (λ x0 : A → B, ∀ a0 : A, _ )
-     (funextsec _ f g H) x a =
-   transportf (λ b : B, P b ) (H a) (x a).
-Proof.
-  intros.
-  rewrite transportf_toforallpaths.
-  rewrite toforallpaths_funextsec.
-  apply idpath.
-Defined.
-
-Lemma transportf_toforallpaths2 (A B : UU) (f g : A → B) (P : A → B → UU)
-   (x : ∀ a, P a (f a)) (H : f = g) (a : A): 
-  transportf (λ x0 : A → B, ∀ a0 : A, _ )
-     H x a =
-   transportf (λ b : B, P a b) (toforallpaths _ _ _ H a) (x a).
-Proof.
-  intros.
-  induction H.
-  apply idpath.
-Defined.
-
-Lemma transportf_funext2 (A B : UU) (f g : A → B) (H : ∀ x, f x = g x) (a : A) (P : A → B → UU)
-   (x : ∀ a, P a (f a))   : 
-  transportf (λ x0 : A → B, ∀ a0 : A, _ )
-     (funextsec _ f g H) x a =
-   transportf (λ b : B, P a b ) (H a) (x a).
-Proof.
-  intros.
-  rewrite transportf_toforallpaths2.
-  rewrite toforallpaths_funextsec.
-  apply idpath.
-Defined.
-
-Definition path_assoc {X} {a b c d:X}
-        (f : a = b) (g : b = c) (h : c = d)
-      : f @ (g @ h) = (f @ g) @ h.
-Proof.
-  intros; destruct f; 
-  apply  idpath.
-Defined.
-
-
 
 Lemma funextsec_idpath (A : UU) (B : A → UU) (f : ∀ a : A, B a)
   (H : ∀ x, f x = f x) (H' : ∀ x, H x = idpath _ ) 
   : funextsec _ _ _ H = idpath f.
 Proof.
-  set (H1:= invmaponpathsweq (weqtoforallpaths B f f)).
-  apply H1.
-  simpl.
-  rewrite toforallpaths_funextsec.
-  apply funextsec.
-  intro a. simpl.
-  apply H'.
+  eapply pathscomp0.
+    eapply maponpaths. apply funextsec. apply H'.
+  refine (homotinvweqweq _ (idpath f)).
 Defined.
 
-Lemma homot_toforallpaths_weq (A B : UU) (f g f' : A → B) (H : ∀ x, f x = f' x) :
-   f = g ≃ ∀ x, f' x = g x.
+Lemma isweqpathscomp0l {X : UU} {x x' : X} (x'' : X) (e : x = x')
+  : isweq (λ e' : x' = x'', e @ e').
 Proof.
-  exists (λ H', λ x, ! H x @ toforallpaths _ _ _ H' x).
-  apply (gradth _ (λ H' : ∀ x, f' x = g x, (funextsec _ _ _ (λ x, H x @ H' x)))).
-  - intro H'. induction H'.
-    simpl. apply funextsec_idpath.
-    intro a; rewrite path_assoc.
-    rewrite pathscomp0rid.
-    apply pathsinv0r.
-  - intros.
-    apply funextsec; intro a. simpl.
-    rewrite toforallpaths_funextsec.
-    rewrite path_assoc.
-    rewrite pathsinv0l.
-    apply idpath.
-Defined.
+  destruct e. simpl. apply idisweq.
+Qed.
 
+Definition weqpathscomp0l {X : UU} {x x' : X} (x'' : X) (e : x = x')
+  := weqpair _ (isweqpathscomp0l x'' e).
 
-Lemma homot_toforallpaths_dep_weq (A : UU) (B : A → UU) (f g f' : ∀ a, B a) (H : ∀ x, f x = f' x) :
-   f = g ≃ ∀ x, f' x = g x.
-Proof.
-  exists (λ H', λ x, ! H x @ toforallpaths _ _ _ H' x).
-  apply (gradth _ (λ H' : ∀ x, f' x = g x, (funextsec _ _ _ (λ x, H x @ H' x)))).
-  - intro H'. induction H'.
-    simpl. apply funextsec_idpath.
-    intro a. rewrite path_assoc. 
-    rewrite pathscomp0rid.
-    apply pathsinv0r.
-  - intros.
-    apply funextsec; intro a. simpl.
-    rewrite toforallpaths_funextsec.
-    rewrite path_assoc.
-    rewrite pathsinv0l.
-    apply idpath.
-Defined.
+End Auxiliary.
 
 
 Section FAM.
 
 Variable C : precategory.
-Hypothesis C_homsets : has_homsets C. (* Only very occasionally needed! *)
 
 Definition obj_UU : UU := Σ A : UU, A → C.
 
@@ -194,7 +110,6 @@ Proof.
   exists (idweq _ ).
   exact (λ a, idpath _ ).
 Defined.
-
 
 Definition FAM_obj_UU_eq_sigma {A B : obj_UU} (f : pr1 A ≃ pr1 B) 
    (H : ∀ a : pr1 A, pr2 A a = pr2 B (f a)) : A = B.
@@ -234,165 +149,28 @@ Definition FAM_mor_eq_type {A B : obj} (f g : mor A B) : UU
   Σ H : ∀ a : A ₁, pr1 f a = pr1 g a,
   (∀ a : A ₁, transportf (λ b, A ₂ a ⇒ B ₂ b) (H a) (pr2 f a) = pr2 g a).
 
-(* not needed, is integrated in FAM_mor_equiv
-Lemma FAM_mor_eq {A B : obj} {f g : mor A B} 
-  (H : ∀ a : A ₁, pr1 f a = pr1 g a) :  
-  (∀ a : A ₁, transportf (λ b, A ₂ a ⇒ B ₂ b) (H a) (pr2 f a) = pr2 g a) → f = g.
-Proof.
-  intro t.
-  apply (total2_paths (funextsec  _ _ _ H)).
-  apply funextsec. intro a.
-  destruct f as [f x].
-  destruct g as [g x'].
-  simpl in *.
-  rewrite <- t; clear t.
-  simpl in *.
-  set (H1:= transportf_funext2 (A ₁) (B ₁) f g H a).
-  set (H2 := H1 (fun a b => A ₂ a ⇒ B ₂ b) ). simpl in *.
-  apply H2.
-Defined.  
-*)
-
-(* not needed, is integrated in FAM_mor_equiv
-Definition FAM_mor_eq_sigma {A B : obj} {f g : mor A B} : 
-   (Σ H : ∀ a : A ₁, pr1 f a = pr1 g a,
-     ∀ a : A ₁, transportf (λ b, A ₂ a ⇒ B ₂ b) (H a) (pr2 f a) = pr2 g a)
-   → f = g 
-  := λ Hx, FAM_mor_eq (pr1 Hx) (pr2 Hx).
-*)
-
-(* not needed, is integrated in FAM_mor_equiv
-Lemma FAM_mor_eq_inv {A B : obj} {f g : mor A B} : f = g → 
-   Σ H : ∀ a : A ₁, pr1 f a = pr1 g a,
-     ∀ a : A ₁, transportf (λ b, A ₂ a ⇒ B ₂ b) (H a) (pr2 f a) = pr2 g a.
-Proof.
-  induction 1.
-  exists (λ _ , idpath _ ).
-  intro a.
-  apply idpath.
-Defined.
-*)
-
-(*  Lemmas towards a proof of what is already done in Foundations as weqbandf
-
-Definition Sigma_retype {A A' : UU} (B : A' → UU) (f : A → A') : A → UU 
-  := λ a, B (f a).
- 
-Definition Sigma_retype_map {A A' : UU} (B : A' → UU) (f : A ≃ A') : 
-  (Σ a' : A', B a') → Σ a : A, Sigma_retype B f a.
-Proof.
-  intro ap.
-  exists (invmap f (pr1 ap)).
-  unfold Sigma_retype.
-  exact (transportf (λ a, B a) (! homotweqinvweq _ _ ) (pr2 ap)).
-Defined.
-  
-Definition Sigma_retype_inv {A A' : UU} (B : A' → UU) (f : A ≃ A') : 
-  (Σ a : A, Sigma_retype B f a) → (Σ a' : A', B a').
-Proof.
-  intro ap.
-  unfold Sigma_retype in ap.
-  exists (f (pr1 ap)).
-  exact (pr2 ap).
-Defined.
-
-Definition Sigma_retype_weq {A A' : UU} (hs : isaset A') (B : A' → UU) (f : A ≃ A') : 
-  (Σ a' : A', B a') ≃ Σ a : A, Sigma_retype B f a.
-Proof.
-  exists (Sigma_retype_map _ _ ).
-  apply (gradth _ (Sigma_retype_inv _ _ )).
-  - intro x. simpl in *.
-    refine (total2_paths _ _ ).
-    exact (homotweqinvweq f (pr1 x)).
-    simpl. rewrite  transportf_pathscomp0.
-    Search (! _ @ _ = _ ).
-    rewrite (pathsinv0l).
-    apply idpath.
-  - intro x; simpl in *.
-    refine (total2_paths _ _ ).
-    exact (homotinvweqweq _ _ ).
-    simpl. unfold Sigma_retype in *. simpl in *. 
-    destruct x as [a p]. simpl in *.
-    rewrite  functtransportf.
-    rewrite transportf_pathscomp0.
-    Search (  maponpaths _ _ @ _ ).
-    simpl.
-    assert (H : (! homotweqinvweq f (f a) @ maponpaths f (homotinvweqweq f a)) = idpath _ ).
-      { apply proofirrelevance. apply hs. }
-    rewrite H.
-    apply idpath.
-Defined.
-
-Definition Sigma_pointwise_map {A : UU} (B B' : A → UU) (x : ∀ a, B a ≃ B' a) : 
-   (Σ a, B a) → Σ a, B' a.
-Proof.
-  intro ap.  
-  exact (tpair _ (pr1 ap) (x _ (pr2 ap))).
-Defined.
-
-Definition Sigma_pointwise_inv {A : UU} (B B' : A → UU) (x : ∀ a, B a ≃ B' a) : 
-   (Σ a, B' a) → Σ a, B a.
-Proof.
-  intro ap.  
-  exact (tpair _ (pr1 ap) (invmap (x _) (pr2 ap))).
-Defined.
-
-Definition Sigma_pointwise_weq {A : UU} (B B' : A → UU) (x : ∀ a, B a ≃ B' a) : 
-   (Σ a, B a) ≃ Σ a, B' a.
-Proof.
-  exists (Sigma_pointwise_map _ _ x).  
-  apply (gradth _ (Sigma_pointwise_inv _ _ x )).
-  - intros [a p]; simpl.
-    unfold Sigma_pointwise_inv. unfold Sigma_pointwise_map.
-    simpl.
-    apply maponpaths.
-    apply homotinvweqweq.
-  - intros [a p].
-    unfold Sigma_pointwise_inv, Sigma_pointwise_map; simpl.
-    apply maponpaths.
-    apply homotweqinvweq.
-Defined.
-
-
-Lemma weq_Sigmas {A A' : UU} {B : A → UU} {B' : A' → UU} (hs : isaset A') (f : A ≃ A') 
-   (P : ∀ a : A, B a ≃ B' (f a)) : (Σ a, B a) ≃ Σ a', B' a'.
-Proof.
-  eapply weqcomp.
-    Focus 2.
-      set (x := @Sigma_retype_weq A A' hs B' f).
-      apply (invweq x).
-   apply Sigma_pointwise_weq.
-   apply P.
-Defined.
-*)
-
 Definition FAM_mor_equiv {A B : obj} (f g : mor A B) : 
    f = g ≃ FAM_mor_eq_type f g.
 Proof.
   eapply weqcomp.
   - apply total2_paths_equiv.
   - refine ( @weqbandf _ _ (weqtoforallpaths _ _ _ ) _ _ _ ).
-   + simpl.
-     intro H.
-     set (H':=homot_toforallpaths_dep_weq).
-     destruct f as [f x].
-     destruct g as [g y].
-     simpl in *.
-     refine (homot_toforallpaths_dep_weq _ _ _ _ _ _ ).
-     intro a. 
-     destruct A as [[A F] Ahs].
-     destruct B as [[B G] Bhs].
-     simpl in *.
-     set (H2 := transportf_toforallpaths2).
-     set (H3 := H2 _ _  f g ). 
-     set (H4:=  H3 (λ a b, F a ⇒ G b)). apply H4.
+    simpl.
+    intro H.
+    destruct f as [f x].
+    destruct g as [g y].
+    simpl in *.
+    eapply weqcomp. Focus 2. apply weqtoforallpaths.
+    apply weqpathscomp0l.
+    apply funextsec; intro t.
+    apply (transportf_toforallpaths _ (λ a b, (A ₂) a ⇒ (B ₂) b)).
 Defined.
   
 Definition FAM_ob_mor : precategory_ob_mor.
 Proof.
   exists obj.  
-  exact  (λ A B, Σ f : A ₁ → B ₁,
-      ∀ a : A ₁, A ₂ a ⇒ B ₂ (f a)).
+  exact (λ A B, Σ f : A ₁ → B ₁,
+        ∀ a : A ₁, A ₂ a ⇒ B ₂ (f a)).
 Defined.
 
 Definition FAM_precategory_data : precategory_data.
@@ -489,8 +267,7 @@ Proof.
      apply weqfibtototal.
      intro T.
 
-     Search ( (∀ _ , _ ) ≃ (Σ _ , _ )).
-     
+     (* Search ( (∀ _ , _ ) ≃ (Σ _ , _ )). *)
      apply weqforalltototal.
 Defined.
   
@@ -512,10 +289,6 @@ Proof.
     apply (toforallpaths _ _ _ (maponpaths pr1 (iso_after_iso_inv (isopair f H)))).
 Defined.
 
-
-(*Definition FAM_iso (A B : FAM) : UU := Σ f : A ⇒ B,
-    isweq (pr1 f) × (∀ x, is_iso (pr2 f x)).
-*)
 Definition FAM_is_iso {A B : FAM} (f : A ⇒ B) : UU := 
    isweq (pr1 f) × (∀ x, is_iso (pr2 f x)).
 
