@@ -25,6 +25,7 @@ MODULES-CORE := Auxiliary UnicodeNotations \
 # Remaining modules, included only in “make all”.
 # Useful for leaves that are slow to recompile.
 MODULES-EXTRA := \
+	Categories/category_FAM \
 	CwF_completion \
 	DM_to_TypeCat_to_DM \
 
