@@ -87,8 +87,17 @@ Definition obj : UU := Σ A : obj_UU, isaset (pr1 A).
 Definition obj_UU_from_obj (X : obj) : obj_UU := pr1 X.
 Coercion obj_UU_from_obj : obj >-> obj_UU.
 
+Definition index_type (A : obj) : UU := pr1 (pr1 A).
+Definition index_func (A : obj) : index_type A → C := pr2 (pr1 A).
+
+Notation "A ₁" := (index_type A)(at level 3).
+Notation "A ₂" := (index_func A)(at level 3).
+
+
+(*
 Notation "A ₁" := (pr1 (pr1 A))(at level 3).
 Notation "A ₂" := (pr2 (pr1 A))(at level 3).
+ *)
 
 Definition mor (A B : obj_UU) : UU := Σ f : pr1 A → pr1 B,
       ∀ a : pr1 A, pr2 A a ⇒ pr2 B (f a).
