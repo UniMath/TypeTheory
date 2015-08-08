@@ -14,6 +14,12 @@ Require Import UniMath.RezkCompletion.functors_transformations.
 
 Require Import Systems.UnicodeNotations.
 
+(* TODO: move to UnicodeNotations; pick level *)
+Notation "( x , y , .. , z )" := (dirprodpair .. (dirprodpair x y) .. z).
+
+(* TODO: try to get the opposite associativity, since it would seem to fit our current composition conventions better; but for some reason, it doesn’t seem to parse correctly ??
+Notation "( x ; .. ; y ; z )" := (dirprodpair x .. (dirprodpair y z) .. ). *)
+
 Section Background.
 
 (* Very useful tactic, taken from Jason Gross and Aruand Spiwack at <https://coq.inria.fr/bugs/show_bug.cgi?id=3551>. 
@@ -41,19 +47,19 @@ Defined.
 Definition dirprod_assoc {C0 C1 C2 : Type}
   : (C0 × (C1 × C2)) -> ((C0 × C1) × C2).
 Proof.
-  intros c. split. split. exact (pr1 c). exact (pr1 (pr2 c)). exact (pr2 (pr2 c)).
+  intros c. exact ((pr1 c , (pr1 (pr2 c))) , pr2 (pr2 c)). 
 Defined.
 
 Definition dirprod_maps {A0 A1 B0 B1} (f0 : A0 -> B0) (f1 : A1 -> B1)
   : A0 × A1 -> B0 × B1.
 Proof.
-  intros aa; split. exact (f0 (pr1 aa)). exact (f1 (pr2 aa)).
+  intros aa. exact (f0 (pr1 aa), f1 (pr2 aa)).
 Defined.
 
 Definition dirprod_pair_maps {A B0 B1} (f0 : A -> B0) (f1 : A -> B1)
   : A -> B0 × B1.
 Proof.
-  intros a; split; auto.
+  intros a; exact (f0 a, f1 a).
 Defined.
 
 Definition unit_precategory : precategory.
@@ -94,8 +100,8 @@ Defined.
 Definition prod_precategory_data (C D : precategory) : precategory_data.
   exists (prod_precategory_ob_mor C D); split.
   (* identity *) split; apply identity.
-  (* comp *) intros a b c f g. split; eapply compose. 
-    exact (pr1 f). exact (pr1 g). exact (pr2 f). exact (pr2 g).
+  (* comp *) intros a b c f g. 
+    exact ((pr1 f ;; pr1 g) , (pr2 f ;; pr2 g)).
 Defined.
 
 Definition prod_precategory (C D : precategory) : precategory.
@@ -171,7 +177,7 @@ Notation "C × D" := (prod_precategory C D)
 Open Scope precategory_scope.
 
 
-Record prebicategory : Type := {
+Time Record prebicategory : Type := {
   ob_bicat :> Type;
   hom1 : forall (X Y : ob_bicat), precategory;
   hom2 := fun X Y (f g : hom1 X Y) => (f ⇒ g);
@@ -201,6 +207,18 @@ Record prebicategory : Type := {
         (functor_composite _ _ _ (unit_functor _) (ob_as_functor (identity_bicat Y))))
       (compose_bicat X Y Y))
     (functor_identity _);
-  pentagon_bicat : unit;
-  idtri_bicat : unit
-     }.
+  pentagon_bicat : forall X Y Z W V
+  (A : hom1 X Y) (B : hom1 Y Z) (C : hom1 Z W) (D : hom1 W V),
+    (@functor_on_morphisms _ _ (compose_bicat _ _ _) (_ , _) (_ , _)
+      (identity A, assoc_bicat _ _ _ _ (B , (C , D)) )
+    ;; assoc_bicat _ _ _ _ (A , (compose_bicat _ _ _ (B, C) , D))
+    ;; @functor_on_morphisms _ _ (compose_bicat _ _ _) (_,_) (_,_)
+      (assoc_bicat _ _ _ _ (A , (B , C)) , identity D))
+  =
+    assoc_bicat _ _ _ _ (A , (B , compose_bicat _ _ _ (C , D)))
+    ;; assoc_bicat _ _ _ _ (compose_bicat _ _ _ (A, B), (C , D));
+  triangle_bicat : forall X,
+    id_left_bicat _ _ (identity_bicat X)
+    = id_right_bicat _ _ (identity_bicat X)
+     }
+.
