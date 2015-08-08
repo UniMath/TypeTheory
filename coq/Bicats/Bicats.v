@@ -30,7 +30,7 @@ Section Background.
 Tactic Notation "transparent" "assert" "(" ident(H) ":" open_constr(type) ")" :=
   refine (let H := (_ : type) in _).
 
-(* TODO: try to find this somwehre in library? *)
+(* TODO: try to find next few [dirprod] lemmas somwhere in library? *)
 Definition dirprod_paths {A B : Type} {p q : A × B}
   : pr1 p = pr1 q -> pr2 p = pr2 q -> p = q.
 Proof.
@@ -44,6 +44,18 @@ Proof.
   intros c. split. split. exact (pr1 c). exact (pr1 (pr2 c)). exact (pr2 (pr2 c)).
 Defined.
 
+Definition dirprod_maps {A0 A1 B0 B1} (f0 : A0 -> B0) (f1 : A1 -> B1)
+  : A0 × A1 -> B0 × B1.
+Proof.
+  intros aa; split. exact (f0 (pr1 aa)). exact (f1 (pr2 aa)).
+Defined.
+
+Definition dirprod_pair_maps {A B0 B1} (f0 : A -> B0) (f1 : A -> B1)
+  : A -> B0 × B1.
+Proof.
+  intros a; split; auto.
+Defined.
+
 Definition unit_precategory : precategory.
 Proof.
   refine (tpair _ _ _). refine (tpair _ _ _).
@@ -52,6 +64,17 @@ Proof.
   (* id_left *) simpl; split; try split; intros; apply isconnectedunit.
 Defined.
 
+Definition unit_functor C : functor C unit_precategory.
+Proof.
+  refine (tpair _ _ _). refine (tpair _ _ _).
+  (* functor_on_objects *) intros; exact tt.
+  (* functor_on_morphisms *) intros; apply identity.
+  split.
+  (* functor_id *) intros x; apply paths_refl.
+  (* functor_comp *) intros x y z w v; apply paths_refl.
+Defined.
+
+(* TODO: perhaps generalise to constant functors? *)
 Definition ob_as_functor {C : precategory} (c : C) : functor unit_precategory C.
 Proof.
   refine (tpair _ _ _). refine (tpair _ _ _).
@@ -103,6 +126,44 @@ Proof.
   (* functor_comp *) intros c0 c1 c2 f g. simpl; apply paths_refl.
 Defined.
 
+Definition prod_functor_data {C0 C1 D0 D1 : precategory}
+  (F0 : functor C0 D0) (F1 : functor C1 D1)
+: functor_data (C0 × C1) (D0 × D1).
+Proof.
+  (* functor_on_objects *) exists (dirprod_maps F0 F1).
+  (* functor_on_morphisms *) intros a b.
+    apply dirprod_maps; apply functor_on_morphisms.
+Defined.
+
+Definition prod_functor {C0 C1 D0 D1 : precategory}
+  (F0 : functor C0 D0) (F1 : functor C1 D1)
+: functor (C0 × C1) (D0 × D1).
+Proof.
+  exists (prod_functor_data F0 F1); split.
+  (* functor_id *) intros c. apply dirprod_paths; apply functor_id.
+  (* functor_comp *) intros c0 c1 c2 f g.
+    apply dirprod_paths; apply functor_comp.
+Defined.
+
+Definition pair_functor_data {C D0 D1 : precategory}
+  (F0 : functor C D0) (F1 : functor C D1)
+: functor_data C (D0 × D1).
+Proof.
+  (* functor_on_objects *) exists (dirprod_pair_maps F0 F1).
+  (* functor_on_morphisms *) intros a b.
+    apply dirprod_pair_maps; apply functor_on_morphisms.
+Defined.
+
+Definition pair_functor {C D0 D1 : precategory}
+  (F0 : functor C D0) (F1 : functor C D1)
+: functor C (D0 × D1).
+Proof.
+  exists (pair_functor_data F0 F1); split.
+  (* functor_id *) intros c. apply dirprod_paths; apply functor_id.
+  (* functor_comp *) intros c0 c1 c2 f g.
+    apply dirprod_paths; apply functor_comp.
+Defined.
+
 End Background. 
 
 Notation "C × D" := (prod_precategory C D)
@@ -117,9 +178,29 @@ Record prebicategory : Type := {
   identity_bicat : forall X, hom1 X X;
   compose_bicat : forall X Y Z,
     functor (prod_precategory (hom1 X Y) (hom1 Y Z)) (hom1 X Z);
-  assoc_bicat : unit;
-  idL_bicat : unit;
-  idR_bicat : unit;
+  assoc_bicat : forall X Y Z W, nat_trans
+    (functor_composite _ _ _
+      (prod_functor (functor_identity _) (compose_bicat Y Z W))
+      (compose_bicat X Y W))
+    (functor_composite _ _ _
+      (prod_precategory_assoc _ _ _)
+      (functor_composite _ _ _
+        (prod_functor (compose_bicat X Y Z) (functor_identity _))
+        (compose_bicat X Z W)));
+  id_left_bicat : forall X Y, nat_trans
+    (functor_composite _ _ _
+      (pair_functor 
+        (functor_composite _ _ _ (unit_functor _) (ob_as_functor (identity_bicat X)))
+        (functor_identity _))
+      (compose_bicat X X Y))
+    (functor_identity _);
+  id_right_bicat : forall X Y, nat_trans
+    (functor_composite _ _ _
+      (pair_functor 
+        (functor_identity _)
+        (functor_composite _ _ _ (unit_functor _) (ob_as_functor (identity_bicat Y))))
+      (compose_bicat X Y Y))
+    (functor_identity _);
   pentagon_bicat : unit;
   idtri_bicat : unit
      }.
