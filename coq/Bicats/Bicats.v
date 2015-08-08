@@ -37,29 +37,31 @@ Tactic Notation "transparent" "assert" "(" ident(H) ":" open_constr(type) ")" :=
   refine (let H := (_ : type) in _).
 
 (* TODO: try to find next few [dirprod] lemmas somwhere in library? *)
+
+(* should by UU instead of Type? *)
 Definition dirprod_paths {A B : Type} {p q : A × B}
   : pr1 p = pr1 q -> pr2 p = pr2 q -> p = q.
 Proof.
-  destruct p as [a b], q as [a' b']; simpl. 
+  destruct p as [a b], q as [a' b']; simpl. (* apply pathsdirprod. would work here*) 
   intros e1 e2; destruct e1, e2; simpl. constructor.
 Defined.
 
 Definition dirprod_assoc {C0 C1 C2 : Type}
   : (C0 × (C1 × C2)) -> ((C0 × C1) × C2).
 Proof.
-  intros c. exact ((pr1 c , (pr1 (pr2 c))) , pr2 (pr2 c)). 
+  intros c. exact ((pr1 c , (pr1 (pr2 c))) , pr2 (pr2 c)). (* this is total2asstol *) 
 Defined.
 
 Definition dirprod_maps {A0 A1 B0 B1} (f0 : A0 -> B0) (f1 : A1 -> B1)
   : A0 × A1 -> B0 × B1.
 Proof.
-  intros aa. exact (f0 (pr1 aa), f1 (pr2 aa)).
+  intros aa. exact (f0 (pr1 aa), f1 (pr2 aa)). (* apply (dirprodf f0 f1). *)
 Defined.
 
 Definition dirprod_pair_maps {A B0 B1} (f0 : A -> B0) (f1 : A -> B1)
   : A -> B0 × B1.
 Proof.
-  intros a; exact (f0 a, f1 a).
+  intros a; exact (f0 a, f1 a). (* apply (prodtofuntoprod (dirprodpair f0 f1)). *)
 Defined.
 
 Definition unit_precategory : precategory.
