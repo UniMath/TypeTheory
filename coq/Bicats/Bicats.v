@@ -15,7 +15,21 @@ Require Import UniMath.RezkCompletion.functors_transformations.
 Require Import Systems.UnicodeNotations.
 
 Section Background.
-(* Prereqs: prods of precats *)
+
+(* Fantastically useful tactic, taken from Jason Gross and Aruand Spiwack at <https://coq.inria.fr/bugs/show_bug.cgi?id=3551>. 
+
+  Typical usage: you want to construct an instance of a big record type, where later fields depend on earlier ones, but the constructions of the earlier fields are non-trivial enough that you want to do them interactively, not write them explicitly.
+
+  Older versions of Coq required the earlier fields to be broken out as separate lemmas, to do this.
+
+  Out-of-the-box in current Coq, you can get this with [ refine (Build_some_big_record _ _ _ _ _) ].  However, the resulting proof-term often becomes quite slow to typecheck.
+
+  Instead, you can do [ transparent assert ( H : record_field_type ). ], then build the field instance, and then [ refine (Build_some_big_record _ _ H _ _). ]  This can be repeated with multiple successively dependent fields; typically, until all subgoals produced by [refine] are independent.  This gains a *lot* of speed for each early field factored out.
+
+  It is often convenient to write the construction first using a single [ refine ], since this generates all the required field types as you go along, and then afterwards to speed up compilation by refactoring into the form with [transparent assert] for as many fields as desired. *)
+Tactic Notation "transparent" "assert" "(" ident(H) ":" open_constr(type) ")" :=
+  refine (let H := (_ : type) in _).
+
 
 (* TODO: try to find this somwehre in library? *)
 Definition dirprod_paths {A B : Type} {p q : A × B}
@@ -51,15 +65,17 @@ Defined.
 
 Definition prod_precategory (C D : precategory) : precategory.
 Proof.
-  refine (tpair _ _ _). refine (tpair _ _ _).
+  transparent assert (prod_precategory_ob_mor : precategory_ob_mor).
   (* ob *) exists (C × D).
   (* mor *) intros a b. refine (_ × _).
-    exact ((pr1 a) ⇒ (pr1 b)). exact ((pr2 a) ⇒ (pr2 b)).
-  simpl; split.
+      exact ((pr1 a) ⇒ (pr1 b)). exact ((pr2 a) ⇒ (pr2 b)).
+  transparent assert (prod_precategory_data : precategory_data).
+  exists prod_precategory_ob_mor; split.
   (* identity *) split; apply identity.
   (* comp *) intros a b c f g. split; eapply compose. 
     exact (pr1 f). exact (pr1 g). exact (pr2 f). exact (pr2 g).
-  simpl; split; try split; simpl; intros.
+  exists prod_precategory_data.
+  split; try split; try split; intros.
   (* id_left *) apply dirprod_paths; simpl; apply id_left.
   (* id_right *) apply dirprod_paths; simpl; apply id_right. 
   (* assoc *) apply dirprod_paths; simpl; apply assoc.
@@ -76,9 +92,9 @@ Proof.
   (* functor_on_morphisms *) intros a b; apply dirprod_assoc.
 Defined.
 
-(* TODO: why are the next two so slow?
-  (And much worse if inlined in [prod_precategory_assoc]!) 
-  Would splitting up the components of [prod_precategory] into separate definitions help?  *)
+(* TODO: next two lemmas are still rather slow (though much better now that [prod_precategory] is written using [transparent assert]).
+
+  Try (a) factoring those transparent asserts into separate lemmas; (b) grouping these lemmas into transparent asserts; see if either affects timing.  *)
 Definition prod_precategory_assoc_idax (C0 C1 C2 : precategory)
   : functor_idax (prod_precategory_assoc_data C0 C1 C2).
 Proof.
