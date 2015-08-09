@@ -179,48 +179,111 @@ Notation "C × D" := (prod_precategory C D)
 Open Scope precategory_scope.
 
 
-Time Record prebicategory : Type := {
-  ob_bicat :> Type;
-  hom1 : forall (X Y : ob_bicat), precategory;
-  hom2 := fun X Y (f g : hom1 X Y) => (f ⇒ g);
-  identity_bicat : forall X, hom1 X X;
-  compose_bicat : forall X Y Z,
-    functor (prod_precategory (hom1 X Y) (hom1 Y Z)) (hom1 X Z);
-  assoc_bicat : forall X Y Z W, nat_trans
+Section Bicategory_definition.
+
+(** The definition of a prebicategory is split up into four stages, each comprising 2 or 3 components.  Most of these components are themselves precategories, functors, or natural transformations.  In rough overview, the groups/components are:
+
+precategory_obmor
+  ob_bicat : Type;
+  hom1 : forall (X Y : ob_bicat), prebicategory;
+prebicategory_idcomp
+  identity1 : forall X, hom1 X X;
+  compose1 : forall {X Y Z}, functor (hom1 X Y × hom1 Y Z) (hom1 X Z);
+prebicategory_associd
+  assoc_bicat : (associativity natural transformation for compose1)
+  id_left_bicat : (left unit natural transformation)
+  id_right_bicat : (right unit natural transformation)
+prebicategory_axioms
+  pentagon_bicat : (pentagon axiom for assoc_bicat)
+  idl_idr_bicat : (id_left_bicat and id_right_bicat agree on identity1)
+
+Within each group apart from [obmor], the components are independent. *)
+
+Definition prebicategory_obmor : Type
+  := Σ (ob : Type), (forall (X Y : ob), precategory).
+
+Definition ob_bicat (BB : prebicategory_obmor) := pr1 BB.
+Coercion ob_bicat : prebicategory_obmor >-> Sortclass.
+Definition hom1 (BB : prebicategory_obmor) := pr2 BB.
+Coercion hom1 : prebicategory_obmor >-> Funclass.
+Global Arguments hom1 [_] _ _.
+
+Definition prebicategory_idcomp (BB : prebicategory_obmor) : Type
+:= (forall X, BB X X)
+ × (forall X Y Z, functor (BB X Y × BB Y Z) (BB X Z)).
+
+Definition prebicategory_data1 := Σ BB0, prebicategory_idcomp BB0.
+
+Definition prebicat_obmor (BB : prebicategory_data1) := pr1 BB.
+Coercion prebicat_obmor : prebicategory_data1 >-> prebicategory_obmor.
+Definition identity1 (BB : prebicategory_data1) := pr1 (pr2 BB).
+Global Arguments identity1 [BB] X.
+Definition compose1 (BB : prebicategory_data1) := pr2 (pr2 BB).
+Global Arguments compose1 [BB X Y Z].
+
+Definition prebicategory_associd (BB : prebicategory_data1) : Type
+:= 
+  (forall X Y Z W : BB, nat_trans
     (functor_composite _ _ _
-      (prod_functor (functor_identity _) (compose_bicat Y Z W))
-      (compose_bicat X Y W))
+      (prod_functor (functor_identity _) (@compose1 _ Y Z W))
+      (@compose1 _ X Y W))
     (functor_composite _ _ _
       (prod_precategory_assoc _ _ _)
       (functor_composite _ _ _
-        (prod_functor (compose_bicat X Y Z) (functor_identity _))
-        (compose_bicat X Z W)));
-  id_left_bicat : forall X Y, nat_trans
+        (prod_functor (@compose1 _ X Y Z) (functor_identity _))
+        (@compose1 _ X Z W))))
+× 
+  ((forall X Y : BB, nat_trans
     (functor_composite _ _ _
       (pair_functor 
-        (functor_composite _ _ _ (unit_functor _) (ob_as_functor (identity_bicat X)))
+        (functor_composite _ _ _
+           (unit_functor _) (ob_as_functor (identity1 X)))
         (functor_identity _))
-      (compose_bicat X X Y))
-    (functor_identity _);
-  id_right_bicat : forall X Y, nat_trans
+      (@compose1 _ X X Y))
+    (functor_identity _))
+×
+  (forall X Y : BB, nat_trans
     (functor_composite _ _ _
       (pair_functor 
         (functor_identity _)
-        (functor_composite _ _ _ (unit_functor _) (ob_as_functor (identity_bicat Y))))
-      (compose_bicat X Y Y))
-    (functor_identity _);
-  pentagon_bicat : forall X Y Z W V
-  (A : hom1 X Y) (B : hom1 Y Z) (C : hom1 Z W) (D : hom1 W V),
-    (@functor_on_morphisms _ _ (compose_bicat _ _ _) (_ , _) (_ , _)
-      (identity A, assoc_bicat _ _ _ _ (B , (C , D)) )
-    ;; assoc_bicat _ _ _ _ (A , (compose_bicat _ _ _ (B, C) , D))
-    ;; @functor_on_morphisms _ _ (compose_bicat _ _ _) (_,_) (_,_)
-      (assoc_bicat _ _ _ _ (A , (B , C)) , identity D))
+        (functor_composite _ _ _
+           (unit_functor _) (ob_as_functor (identity1 Y))))
+      (@compose1 _ X Y Y))
+    (functor_identity _)))%type.
+
+Definition prebicategory_data2 : Type := Σ BB1, prebicategory_associd BB1.
+
+Definition prebicat_data1 (BB : prebicategory_data2) := pr1 BB.
+Coercion prebicat_data1 : prebicategory_data2 >-> prebicategory_data1.
+Definition assoc_bicat (BB : prebicategory_data2) := pr1 (pr2 BB).
+Global Arguments assoc_bicat [BB X Y Z W].
+Definition id_left_bicat (BB : prebicategory_data2) := pr1 (pr2 (pr2 BB)).
+Global Arguments id_left_bicat [BB X Y].
+Definition id_right_bicat (BB : prebicategory_data2) := pr1 (pr2 (pr2 BB)).
+Global Arguments id_right_bicat [BB X Y].
+
+(* It would perhaps be more principled to give these as equalities of natural transformations, but it is significantly easier to specify them pointwise. *) 
+Definition prebicategory_axioms (BB : prebicategory_data2) : Type
+:=
+  (forall X Y Z W V (A : BB X Y) (B : BB Y Z) (C : BB Z W) (D : BB W V),
+    (@functor_on_morphisms _ _ (compose1) (_,_) (_,_)
+      (identity A, assoc_bicat (B , (C , D)) )
+    ;; assoc_bicat (A , ( compose1 (B, C) , D))
+    ;; @functor_on_morphisms _ _ (compose1) (_,_) (_,_)
+      (assoc_bicat (A , (B , C)) , identity D))
   =
-    assoc_bicat _ _ _ _ (A , (B , compose_bicat _ _ _ (C , D)))
-    ;; assoc_bicat _ _ _ _ (compose_bicat _ _ _ (A, B), (C , D));
-  triangle_bicat : forall X,
-    id_left_bicat _ _ (identity_bicat X)
-    = id_right_bicat _ _ (identity_bicat X)
-     }
-.
+    assoc_bicat (A , (B , compose1 (C , D)))
+    ;; assoc_bicat (compose1 (A, B), (C , D)))
+×
+  (forall X : BB, id_left_bicat (identity1 X) = id_right_bicat (identity1 X)).
+
+Definition prebicategory : Type := Σ BB2, prebicategory_axioms BB2.
+
+Definition prebicat_data2 (BB : prebicategory) := pr1 BB.
+Coercion prebicat_data2 : prebicategory >-> prebicategory_data2.
+Definition pentagon_bicat (BB : prebicategory) := pr1 (pr2 BB).
+Global Arguments pentagon_bicat [BB X Y Z W V] A B C D.
+Definition idl_idr_bicat (BB : prebicategory) := pr2 (pr2 BB).
+Global Arguments idl_idr_bicat [BB X].
+
+End Bicategory_definition.
