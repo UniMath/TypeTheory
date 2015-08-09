@@ -188,10 +188,39 @@ Defined.
 
 End Precategory_products.
 
+(* TODO: discuss the issue of hom-sets further. For now, an ad hoc solution. *)
+Definition good_precategory := Σ (C : precategory), has_homsets C.
+Definition precat_of_good_precat (C : good_precategory) := pr1 C.
+Coercion precat_of_good_precat : good_precategory >-> precategory.
+Definition good_precat_hom_sets (C : good_precategory) := pr2 C.
+
 Section Functor_precategories.
 (** * Precategories of functors between precategories. *)
 
-(* TODO: complete. *)
+Definition functor_precat_ob_mor (C D : precategory) : precategory_ob_mor.
+Proof.
+  (* ob *) exists (functor C D).
+  (* mor *) intros F G; exact (nat_trans F G).
+Defined.
+
+Definition functor_precat_data (C D : precategory) : precategory_data.
+Proof.
+  exists (functor_precat_ob_mor C D). split.
+  (* id *) intros; apply nat_trans_id.
+  (* comp *) intros F G H α β; exact (nat_trans_comp _ _ _ α β).
+Defined.
+
+(* The [has_homsets] argument is required: without it, [id_left], [id_right] and [assoc] here would require extra axioms on the natural transformations, corresponding to the id and comp constraints classically taken for the 2-cells of a pseudo-natural transformation. *)
+Definition functor_precategory (C : precategory) (D : good_precategory)
+  : precategory.
+Proof.
+  exists (functor_precat_data C D). split; try split; 
+    intros; apply nat_trans_eq; try apply good_precat_hom_sets; intros.
+  (* id_left *) apply id_left.
+  (* id_right *) apply id_right.
+  (* assoc *) apply assoc.
+Defined.
+
 End Functor_precategories.
 
 End Background. 
@@ -222,6 +251,8 @@ prebicategory_axioms
   idl_idr_bicat : (id_left_bicat and id_right_bicat agree on identity1)
 
 Within each group apart from [obmor], the components are independent. *)
+
+(* TODO: change names to [ob_mor] etc. to fit with precat names. *)
 
 Definition prebicategory_obmor : Type
   := Σ (ob : Type), (forall (X Y : ob), precategory).
@@ -315,7 +346,40 @@ End Bicategory_definition.
 Section Precat_as_prebicat.
 (** * The prebicategory of precategories *)
 
-(* TODO: complete! *)
+Definition PRECAT_ob_mor : prebicategory_obmor.
+Proof.
+  (* ob_bicat *) exists good_precategory.
+  (* hom1 *) intros C D. exact (functor_precategory C D).
+Defined.
+
+(* TODO: the interaction of reduction and coercions seems to cause issues here.
+
+  E.g. given [ X : ob_bicat (PRECAT_ob_mor) ], we can’t write [ functor_identity X ] — it doesn’t typecheck, presumably because the coercions don’t trigger since it’s not of the *syntactic* form to which they apply.
+
+  Two workarounds: annotate it as [  (X : good_precategory) ], making the coercions trigger; or issue [ simpl in X ] to reduce its type in the context to [ good_precategory ]. *)
+
+Definition PRECAT_data1 : prebicategory_data1.
+Proof.
+  exists PRECAT_ob_mor. split; intros.
+  (* identity1 *) simpl. exact (functor_identity (X : good_precategory)).
+  (* compose1 *) shelve.
+Admitted.
+
+Definition PRECAT_data2 : prebicategory_data2.
+Proof.
+  exists PRECAT_data1. split; try split.
+  (* assoc_bicat *) shelve.
+  (* id_left_bicat *) shelve.
+  (* id_right_bicat *) shelve.
+Admitted.
+
+Definition PRECAT : prebicategory.
+Proof.
+  exists PRECAT_data2. split.
+  (* pentagon_bicat *) shelve.
+  (* idl_idr_bicat *) shelve.
+Admitted.
+
 
 End Precat_as_prebicat.
 
