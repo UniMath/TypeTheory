@@ -22,7 +22,7 @@ Notation "( x ; .. ; y ; z )" := (dirprodpair x .. (dirprodpair y z) .. ). *)
 
 Section Background.
 
-(* Very useful tactic, taken from Jason Gross and Aruand Spiwack at <https://coq.inria.fr/bugs/show_bug.cgi?id=3551>. 
+(** Very useful tactic, taken from Jason Gross and Aruand Spiwack at <https://coq.inria.fr/bugs/show_bug.cgi?id=3551>. 
 
   Typical usage: you want to construct an instance of a big iterated sigma-type, where later components depend on earlier ones, but the constructions of the earlier components are non-trivial enough that you want to do them interactively, not write them explicitly.
 
@@ -38,31 +38,45 @@ Tactic Notation "transparent" "assert" "(" ident(H) ":" open_constr(type) ")" :=
 
 (* TODO: try to find next few [dirprod] lemmas somwhere in library? *)
 
-(* should by UU instead of Type? *)
+Section Dirprod_utils.
+(** * Utility functions on direct products of types. *)
+
+(** The next few are either aliases or very mild generalisations of existing functions from the UniMath libraries.  They differ generally in using projections instead of destructing, making them apply and/or reduce in more situations.  The aliases are included just to standardise local naming conventions. *)
+
+(** Compare [pathsdirprod]. *)
 Definition dirprod_paths {A B : Type} {p q : A × B}
   : pr1 p = pr1 q -> pr2 p = pr2 q -> p = q.
 Proof.
-  destruct p as [a b], q as [a' b']; simpl. (* apply pathsdirprod. would work here*) 
-  intros e1 e2; destruct e1, e2; simpl. constructor.
+  destruct p as [a b], q as [a' b']; apply pathsdirprod.
 Defined.
 
+(** Compare [total2asstol]. *) 
 Definition dirprod_assoc {C0 C1 C2 : Type}
   : (C0 × (C1 × C2)) -> ((C0 × C1) × C2).
 Proof.
-  intros c. exact ((pr1 c , (pr1 (pr2 c))) , pr2 (pr2 c)). (* this is total2asstol *) 
+  intros c. exact ((pr1 c , (pr1 (pr2 c))) , pr2 (pr2 c)). 
 Defined.
 
+(** Identical to [dirprodf]. *)
 Definition dirprod_maps {A0 A1 B0 B1} (f0 : A0 -> B0) (f1 : A1 -> B1)
   : A0 × A1 -> B0 × B1.
 Proof.
-  intros aa. exact (f0 (pr1 aa), f1 (pr2 aa)). (* apply (dirprodf f0 f1). *)
+  intros aa. exact (f0 (pr1 aa), f1 (pr2 aa)).
 Defined.
 
+(** Compare [prodtofuntoprod]. *)
 Definition dirprod_pair_maps {A B0 B1} (f0 : A -> B0) (f1 : A -> B1)
   : A -> B0 × B1.
 Proof.
-  intros a; exact (f0 a, f1 a). (* apply (prodtofuntoprod (dirprodpair f0 f1)). *)
+  intros a; exact (f0 a, f1 a).
 Defined.
+
+End Dirprod_utils.
+
+Section Precategory_products.
+(** * Products of precategories *)
+
+(** Construction of finite products of precategories, including functoriality, associativity, and similar infrastructure. *)
 
 Definition unit_precategory : precategory.
 Proof.
@@ -172,14 +186,24 @@ Proof.
     apply dirprod_paths; apply functor_comp.
 Defined.
 
+End Precategory_products.
+
+Section Functor_precategories.
+(** * Precategories of functors between precategories. *)
+
+(* TODO: complete. *)
+End Functor_precategories.
+
 End Background. 
 
+(** Redeclare section notations to be available globally. *)
 Notation "C × D" := (prod_precategory C D)
   (at level 80, no associativity) : precategory_scope.
 Open Scope precategory_scope.
 
 
 Section Bicategory_definition.
+(** * Definition of a prebicategory *)
 
 (** The definition of a prebicategory is split up into four stages, each comprising 2 or 3 components.  Most of these components are themselves precategories, functors, or natural transformations.  In rough overview, the groups/components are:
 
@@ -287,3 +311,11 @@ Definition idl_idr_bicat (BB : prebicategory) := pr2 (pr2 BB).
 Global Arguments idl_idr_bicat [BB X].
 
 End Bicategory_definition.
+
+Section Precat_as_prebicat.
+(** * The prebicategory of precategories *)
+
+(* TODO: complete! *)
+
+End Precat_as_prebicat.
+
