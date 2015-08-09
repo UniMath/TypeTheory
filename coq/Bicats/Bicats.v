@@ -248,7 +248,7 @@ prebicategory_associd
   id_right_bicat : (right unit natural transformation)
 prebicategory_axioms
   pentagon_bicat : (pentagon axiom for assoc_bicat)
-  idl_idr_bicat : (id_left_bicat and id_right_bicat agree on identity1)
+  triangle_bicat : (id_left_bicat and id_right_bicat agree on identity1)
 
 Within each group apart from [obmor], the components are independent. *)
 
@@ -314,7 +314,7 @@ Definition assoc_bicat (BB : prebicategory_data2) := pr1 (pr2 BB).
 Global Arguments assoc_bicat [BB X Y Z W].
 Definition id_left_bicat (BB : prebicategory_data2) := pr1 (pr2 (pr2 BB)).
 Global Arguments id_left_bicat [BB X Y].
-Definition id_right_bicat (BB : prebicategory_data2) := pr1 (pr2 (pr2 BB)).
+Definition id_right_bicat (BB : prebicategory_data2) := pr2 (pr2 (pr2 BB)).
 Global Arguments id_right_bicat [BB X Y].
 
 (* It would perhaps be more principled to give these as equalities of natural transformations, but it is significantly easier to specify them pointwise. *) 
@@ -330,7 +330,13 @@ Definition prebicategory_axioms (BB : prebicategory_data2) : Type
     assoc_bicat (A , (B , compose1 (C , D)))
     ;; assoc_bicat (compose1 (A, B), (C , D)))
 ×
-  (forall X : BB, id_left_bicat (identity1 X) = id_right_bicat (identity1 X)).
+  (forall X Y Z (A : BB X Y) (B : BB Y Z),
+    (assoc_bicat (A , (identity1 Y, B)))
+    ;; (@functor_on_morphisms _ _ (compose1) (_,_) (_,_)
+      (id_right_bicat A , identity B))
+  = 
+    @functor_on_morphisms _ _ (compose1) (_,_) (_,_)
+      (identity A, id_left_bicat B )).
 
 Definition prebicategory : Type := Σ BB2, prebicategory_axioms BB2.
 
@@ -338,8 +344,8 @@ Definition prebicat_data2 (BB : prebicategory) := pr1 BB.
 Coercion prebicat_data2 : prebicategory >-> prebicategory_data2.
 Definition pentagon_bicat (BB : prebicategory) := pr1 (pr2 BB).
 Global Arguments pentagon_bicat [BB X Y Z W V] A B C D.
-Definition idl_idr_bicat (BB : prebicategory) := pr2 (pr2 BB).
-Global Arguments idl_idr_bicat [BB X].
+Definition triangle_bicat (BB : prebicategory) := pr2 (pr2 BB).
+Global Arguments triangle_bicat [BB X Y Z] A B.
 
 End Bicategory_definition.
 
@@ -377,7 +383,7 @@ Definition PRECAT : prebicategory.
 Proof.
   exists PRECAT_data2. split.
   (* pentagon_bicat *) shelve.
-  (* idl_idr_bicat *) shelve.
+  (* triangle_bicat *) shelve.
 Admitted.
 
 
