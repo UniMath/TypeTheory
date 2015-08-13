@@ -503,7 +503,7 @@ Defined.
 
 Definition PRECAT_data2 : prebicategory_data2.
 Proof.
-  exists PRECAT_data1. split; try split.
+  exists PRECAT_data1. apply dirprodpair; try apply dirprodpair.
   (* assoc_bicat *) intros X Y Z W. apply functor_assoc_nat_trans_2.
   (* id_left_bicat *) intros X Y.
     apply functor_id_left_nat_trans.
@@ -511,10 +511,10 @@ Proof.
     apply functor_id_right_nat_trans.
 Defined.
 
-
+(* NOTE: factoring out components here does *not* seem to affect performance significantly.  However, using [apply dirprodpair] instead of [split] for the coherence axioms *does* make a significant difference, as does the placement of [simpl]. *)
 Definition PRECAT : prebicategory.
 Proof.
-  exists PRECAT_data2. split; split.
+  exists PRECAT_data2. split. split.
   (* assoc_bicat_is_iso *) intros X Y Z W FGH.
     refine (functor_iso_if_pointwise_iso _ _ _ _ _ _ _).
     intros x; simpl. apply identity_is_iso.
@@ -525,7 +525,8 @@ Proof.
   (* id_right_bicat_is_iso *) intros X Y F.
     refine (functor_iso_if_pointwise_iso _ _ _ _ _ _ _).
     intros x; simpl. apply identity_is_iso.
-  (* pentagon_bicat *) intros X Y Z W V F G H K; simpl.
+  apply dirprodpair; simpl.
+  (* pentagon_bicat *) intros X Y Z W V F G H K.
     apply nat_trans_eq; simpl. apply good_precat_hom_sets. intros x.
     eapply pathscomp0. apply maponpaths.
       eapply pathscomp0. apply id_right. apply functor_id.
@@ -537,7 +538,7 @@ Proof.
         apply functor_id.
       apply functor_id.
     apply functor_id.
-  (* triangle_bicat *) intros X Y Z F G; simpl.
+  (* triangle_bicat *) intros X Y Z F G.
     apply nat_trans_eq; simpl. apply good_precat_hom_sets. intros x.
     apply id_left.
 Defined.
