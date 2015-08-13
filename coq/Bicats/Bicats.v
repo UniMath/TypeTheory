@@ -393,6 +393,7 @@ Section Comp_Functor.
       eapply pathscomp0. apply assoc.
       eapply pathscomp0. apply cancel_postcomposition, nat_trans_ax.
       apply pathsinv0, assoc.
+    (* NB: this [functor_compax] amounts to the interchange law between horizontal and vertical composition of natural transformations. *)
   Defined.
 
   Definition comp_functor 
@@ -411,13 +412,41 @@ Proof.
   (* compose1 *) apply comp_functor.
 Defined.
 
+(* NOTE: compare [functor_identity_left], [functor_identity_right], [functor_assoc].  Not sure whether it is better to work in terms of those here, or simply construct the isos directly, for a more elementary definition. For now, doing the latter. *)
+
+(* TODO: factor out the “refines” to transparent asserts to improve speed here; possibly further factor out the natural transformation components. *)
 Definition PRECAT_data2 : prebicategory_data2.
 Proof.
   exists PRECAT_data1. split; try split.
-  (* assoc_bicat *) shelve.
-  (* id_left_bicat *) shelve.
-  (* id_right_bicat *) shelve.
-Admitted.
+  (* assoc_bicat *) intros X Y Z W. 
+    refine (tpair _ _ _). 
+      intros FGH; simpl. exists (fun x => identity _).
+      intros x y f; simpl. exact (id_right _ _ _ _ @ !(id_left _ _ _ _)).
+    (* Since we don’t care about the computational content of the naturality, nothing is lost by destructing here: *) 
+    intros [F [G H]]; simpl. intros [F' [G' H']]; simpl. intros [α [β δ]]; simpl.
+    apply nat_trans_eq. apply good_precat_hom_sets. intros x; simpl.
+    eapply pathscomp0. apply id_right.
+    eapply pathscomp0. Focus 2. eapply pathsinv0, id_left.
+    eapply pathscomp0. apply assoc. apply cancel_postcomposition.
+    apply pathsinv0, functor_comp.
+  (* id_left_bicat *) intros X Y.
+    refine (tpair _ _ _). intros F; simpl.
+      exists (fun x => identity _).
+      intros x y f; simpl. exact (id_right _ _ _ _ @ !(id_left _ _ _ _)).
+    intros F G α; simpl.
+    apply nat_trans_eq. apply good_precat_hom_sets. intros x; simpl.
+    eapply pathscomp0. apply id_right.
+    apply cancel_postcomposition, functor_id.
+  (* id_right_bicat *) intros X Y.
+    refine (tpair _ _ _). intros F; simpl.
+      exists (fun x => identity _).
+      intros x y f; simpl. exact (id_right _ _ _ _ @ !(id_left _ _ _ _)).
+    intros F G α; simpl.
+    apply nat_trans_eq. apply good_precat_hom_sets. intros x; simpl.
+    eapply pathscomp0. apply id_right.
+    eapply pathscomp0. apply id_right.
+    apply pathsinv0, id_left.
+Defined.
 
 Definition PRECAT : prebicategory.
 Proof.
