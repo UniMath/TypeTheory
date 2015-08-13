@@ -414,30 +414,83 @@ Defined.
 
 (* NOTE: compare [functor_identity_left], [functor_identity_right], [functor_assoc].  Not sure whether it is better to work in terms of those here, or simply construct the isos directly, for a more elementary definition. For now, doing the latter. *)
 
-(* TODO: factor out the “refines” to transparent asserts to improve speed here; possibly further factor out the natural transformation components. *)
-Definition PRECAT_data2 : prebicategory_data2.
+Definition functor_assoc_nat_trans {X Y Z W : precategory} {HW : has_homsets W} 
+  (F : functor X Y) (G : functor Y Z) (H : functor Z W)
+: nat_trans (functor_composite _ _ _ F (functor_composite _ _ _ G H))
+            (functor_composite _ _ _ (functor_composite _ _ _ F G) H).
+
 Proof.
-  exists PRECAT_data1. split; try split.
-  (* assoc_bicat *) intros X Y Z W. 
-    refine (tpair _ _ _). 
-      intros FGH; simpl. exists (fun x => identity _).
-      intros x y f; simpl. exact (id_right _ _ _ _ @ !(id_left _ _ _ _)).
-    (* Since we don’t care about the computational content of the naturality, nothing is lost by destructing here: *) 
-    intros [F [G H]]; simpl. intros [F' [G' H']]; simpl. intros [α [β δ]]; simpl.
-    apply nat_trans_eq. apply good_precat_hom_sets. intros x; simpl.
-    eapply pathscomp0. apply id_right.
-    eapply pathscomp0. Focus 2. eapply pathsinv0, id_left.
-    eapply pathscomp0. apply assoc. apply cancel_postcomposition.
-    apply pathsinv0, functor_comp.
-  (* id_left_bicat *) intros X Y.
-    refine (tpair _ _ _). intros F; simpl.
-      exists (fun x => identity _).
-      intros x y f; simpl. exact (id_right _ _ _ _ @ !(id_left _ _ _ _)).
-    intros F G α; simpl.
-    apply nat_trans_eq. apply good_precat_hom_sets. intros x; simpl.
-    eapply pathscomp0. apply id_right.
-    apply cancel_postcomposition, functor_id.
-  (* id_right_bicat *) intros X Y.
+  exists (fun x => identity _).
+  intros x y f; simpl. refine (id_right _ _ _ _ @ !(id_left _ _ _ _)).
+Defined.
+
+Definition functor_assoc_nat_trans_2 {X Y Z W : good_precategory} 
+  : nat_trans
+     (functor_composite
+        ((pr1 PRECAT_data1) X Y
+         × ((pr1 PRECAT_data1) Y Z × (pr1 PRECAT_data1) Z W))
+        ((pr1 PRECAT_data1) X Y × (pr1 PRECAT_data1) Y W)
+        ((pr1 PRECAT_data1) X W)
+        (prod_functor (functor_identity ((pr1 PRECAT_data1) X Y)) compose1)
+        compose1)
+     (functor_composite
+        ((pr1 PRECAT_data1) X Y
+         × ((pr1 PRECAT_data1) Y Z × (pr1 PRECAT_data1) Z W))
+        (((pr1 PRECAT_data1) X Y × (pr1 PRECAT_data1) Y Z)
+         × (pr1 PRECAT_data1) Z W) ((pr1 PRECAT_data1) X W)
+        (prod_precategory_assoc ((pr1 PRECAT_data1) X Y)
+           ((pr1 PRECAT_data1) Y Z) ((pr1 PRECAT_data1) Z W))
+        (functor_composite
+           (((pr1 PRECAT_data1) X Y × (pr1 PRECAT_data1) Y Z)
+            × (pr1 PRECAT_data1) Z W)
+           ((pr1 PRECAT_data1) X Z × (pr1 PRECAT_data1) Z W)
+           ((pr1 PRECAT_data1) X W)
+           (prod_functor compose1 (functor_identity ((pr1 PRECAT_data1) Z W)))
+           compose1)).
+Proof.
+  exists (fun FGH => @functor_assoc_nat_trans _ _ _ _ (good_precat_hom_sets W) _ _ _).
+  (* Since we don’t care about the computational content of the naturality, nothing is lost by destructing here: *) 
+  intros [F [G H]]; simpl. intros [F' [G' H']]; simpl. intros [α [β δ]]; simpl.
+  apply nat_trans_eq. apply good_precat_hom_sets. intros x; simpl.
+  eapply pathscomp0. apply id_right.
+  eapply pathscomp0. Focus 2. eapply pathsinv0, id_left.
+  eapply pathscomp0. apply assoc. apply cancel_postcomposition.
+  apply pathsinv0, functor_comp.
+Defined.
+
+Definition functor_id_left_nat_trans (X Y : good_precategory)
+: nat_trans
+     (functor_composite ((pr1 PRECAT_data1) X Y)
+        ((pr1 PRECAT_data1) X X × (pr1 PRECAT_data1) X Y)
+        ((pr1 PRECAT_data1) X Y)
+        (pair_functor
+           (functor_composite ((pr1 PRECAT_data1) X Y) unit_precategory
+              ((pr1 PRECAT_data1) X X)
+              (unit_functor ((pr1 PRECAT_data1) X Y))
+              (ob_as_functor (@identity1 PRECAT_data1 X)))
+           (functor_identity ((pr1 PRECAT_data1) X Y))) compose1)
+     (functor_identity ((pr1 PRECAT_data1) X Y)).
+Proof.
+  refine (tpair _ _ _). intros F; simpl.
+    exists (fun x => identity _).
+    intros x y f; simpl. exact (id_right _ _ _ _ @ !(id_left _ _ _ _)).
+  intros F G α; simpl.
+  apply nat_trans_eq. apply good_precat_hom_sets. intros x; simpl.
+  eapply pathscomp0. apply id_right.
+  apply cancel_postcomposition, functor_id.
+Defined.
+
+Definition functor_id_right_nat_trans (X Y : good_precategory)
+: nat_trans
+   (functor_composite ((pr1 PRECAT_data1) X Y)
+      ((pr1 PRECAT_data1) X Y × (pr1 PRECAT_data1) Y Y)
+      ((pr1 PRECAT_data1) X Y)
+      (pair_functor (functor_identity ((pr1 PRECAT_data1) X Y))
+         (functor_composite ((pr1 PRECAT_data1) X Y) unit_precategory
+            ((pr1 PRECAT_data1) Y Y) (unit_functor ((pr1 PRECAT_data1) X Y))
+            (ob_as_functor (@identity1 PRECAT_data1 Y)))) compose1)
+   (functor_identity ((pr1 PRECAT_data1) X Y)).
+Proof.
     refine (tpair _ _ _). intros F; simpl.
       exists (fun x => identity _).
       intros x y f; simpl. exact (id_right _ _ _ _ @ !(id_left _ _ _ _)).
@@ -447,6 +500,17 @@ Proof.
     eapply pathscomp0. apply id_right.
     apply pathsinv0, id_left.
 Defined.
+
+Definition PRECAT_data2 : prebicategory_data2.
+Proof.
+  exists PRECAT_data1. split; try split.
+  (* assoc_bicat *) intros X Y Z W. apply functor_assoc_nat_trans_2.
+  (* id_left_bicat *) intros X Y.
+    apply functor_id_left_nat_trans.
+  (* id_right_bicat *) intros X Y.
+    apply functor_id_right_nat_trans.
+Defined.
+
 
 Definition PRECAT : prebicategory.
 Proof.
