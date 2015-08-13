@@ -20,8 +20,6 @@ Notation "( x , y , .. , z )" := (dirprodpair .. (dirprodpair x y) .. z).
 (* TODO: try to get the opposite associativity, since it would seem to fit our current composition conventions better; but for some reason, it doesn’t seem to parse correctly ??
 Notation "( x ; .. ; y ; z )" := (dirprodpair x .. (dirprodpair y z) .. ). *)
 
-Section Background.
-
 (** Very useful tactic, taken from Jason Gross and Aruand Spiwack at <https://coq.inria.fr/bugs/show_bug.cgi?id=3551>. 
 
   Typical usage: you want to construct an instance of a big iterated sigma-type, where later components depend on earlier ones, but the constructions of the earlier components are non-trivial enough that you want to do them interactively, not write them explicitly.
@@ -35,6 +33,8 @@ Section Background.
   It is often convenient to write the construction first using [ refine ], since this generates all the required field types as you go along, and then afterwards to speed up compilation by breaking fields out using [transparent assert] or as standalone lemmas. *)
 Tactic Notation "transparent" "assert" "(" ident(H) ":" open_constr(type) ")" :=
   refine (let H := (_ : type) in _).
+
+Section Background.
 
 (* TODO: try to find next few [dirprod] lemmas somwhere in library? *)
 
@@ -352,12 +352,64 @@ Defined.
 
   Three workarounds: annotate it as [  (X : good_precategory) ], making the coercions trigger; issue [ simpl in X ] to reduce its type in the context to [ good_precategory ]; or write [ pr1 X ], which again pulls [ X ] into a type on which the coercions trigger. *)
 
+Section Comp_Functor.
+  Context (C D E : precategory) (HD : has_homsets D) (HE : has_homsets E).
+
+  Definition nat_trans_horiz_comp {F F' : functor C D} {G G' : functor D E}
+    (α : nat_trans F F') (β : nat_trans G G')
+    : nat_trans (functor_composite _ _ _ F G) (functor_composite _ _ _ F' G').
+  Proof.
+    exists (fun x => functor_on_morphisms G (α x) ;; β (F' x)).
+    intros x y f; simpl.
+    eapply pathscomp0. apply assoc.
+    eapply pathscomp0. apply cancel_postcomposition.
+      eapply pathscomp0. eapply pathsinv0, functor_comp.
+      apply maponpaths. apply nat_trans_ax.
+    eapply pathscomp0. apply cancel_postcomposition, functor_comp.
+    eapply pathscomp0. eapply pathsinv0, assoc.
+    eapply pathscomp0. Focus 2. eapply assoc.
+    apply maponpaths, nat_trans_ax.
+  Defined.
+
+  Definition comp_functor_data : functor_data
+    (functor_precategory C D HD × functor_precategory D E HE)
+    (functor_precategory C E HE).
+  Proof.
+    (* ob *) exists (fun FG => functor_composite _ _ _ (pr1 FG) (pr2 FG)).
+    (* mor *) intros FG FG' αβ. exact (nat_trans_horiz_comp (pr1 αβ) (pr2 αβ)).
+  Defined.
+
+  Definition comp_functor_is_functor : is_functor comp_functor_data.
+  Proof.
+    split.
+    (* functor_idax *) intros FG. apply nat_trans_eq. apply HE.
+      intros x; simpl.
+      eapply pathscomp0. apply id_right. apply functor_id.
+    (* functor_compax *) intros FG1 FG' FG'' αβ αβ'. 
+      apply nat_trans_eq. apply HE. intros x; simpl.
+      eapply pathscomp0. apply cancel_postcomposition, functor_comp.
+      eapply pathscomp0. eapply pathsinv0, assoc.
+      eapply pathscomp0. Focus 2. apply assoc. apply maponpaths.
+      eapply pathscomp0. apply assoc.
+      eapply pathscomp0. apply cancel_postcomposition, nat_trans_ax.
+      apply pathsinv0, assoc.
+  Defined.
+
+  Definition comp_functor 
+    : functor (functor_precategory C D HD × functor_precategory D E HE)
+              (functor_precategory C E HE).
+  Proof.
+    exists comp_functor_data. apply comp_functor_is_functor.
+  Defined.
+
+End Comp_Functor.
+
 Definition PRECAT_data1 : prebicategory_data1.
 Proof.
   exists PRECAT_ob_mor. split; intros.
   (* identity1 *) simpl. exact (functor_identity (X : good_precategory)).
-  (* compose1 *) shelve.
-Admitted.
+  (* compose1 *) apply comp_functor.
+Defined.
 
 Definition PRECAT_data2 : prebicategory_data2.
 Proof.
