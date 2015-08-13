@@ -317,10 +317,10 @@ Global Arguments id_left_bicat [BB X Y].
 Definition id_right_bicat (BB : prebicategory_data2) := pr2 (pr2 (pr2 BB)).
 Global Arguments id_right_bicat [BB X Y].
 
-(* It would perhaps be more principled to give these as equalities of natural transformations, but it is significantly easier to specify them pointwise. *) 
-Definition prebicategory_axioms (BB : prebicategory_data2) : Type
+(* The axioms could be specified either as equalities/iso-ness of natural transformations, or pointwise.  We choose pointwise, for two reasons: firstly, it is easier to write (not requiring so much machinery for composition of natural transformations); secondly, in the absence of function extensionality, the pointwise notion is the correct one.  *) 
+Definition prebicategory_coherence_axioms (BB : prebicategory_data2) : Type
 :=
-  (forall X Y Z W V (A : BB X Y) (B : BB Y Z) (C : BB Z W) (D : BB W V),
+  ((forall X Y Z W V (A : BB X Y) (B : BB Y Z) (C : BB Z W) (D : BB W V),
     (@functor_on_morphisms _ _ (compose1) (_,_) (_,_)
       (identity A, assoc_bicat (B , (C , D)) )
     ;; assoc_bicat (A , ( compose1 (B, C) , D))
@@ -336,15 +336,30 @@ Definition prebicategory_axioms (BB : prebicategory_data2) : Type
       (id_right_bicat A , identity B))
   = 
     @functor_on_morphisms _ _ (compose1) (_,_) (_,_)
-      (identity A, id_left_bicat B )).
+      (identity A, id_left_bicat B )))%type.
 
-Definition prebicategory : Type := Σ BB2, prebicategory_axioms BB2.
+Definition prebicategory_iso_axioms (BB : prebicategory_data2) : Type
+:=
+  ((forall (X Y Z W : BB) FGH, is_iso (@assoc_bicat _ X Y Z W FGH))
+×
+  ((forall (X Y : BB) (F : BB X Y), is_iso (id_left_bicat F))
+×
+  (forall (X Y : BB) (F : BB X Y), is_iso (id_right_bicat F))))%type.
+
+Definition prebicategory : Type :=
+  Σ BB2, (prebicategory_iso_axioms BB2 × prebicategory_coherence_axioms BB2)%type.
 
 Definition prebicat_data2 (BB : prebicategory) := pr1 BB.
 Coercion prebicat_data2 : prebicategory >-> prebicategory_data2.
-Definition pentagon_bicat (BB : prebicategory) := pr1 (pr2 BB).
+Definition assoc_bicat_is_iso (BB : prebicategory) := pr1 (pr1 (pr2 BB)).
+Global Arguments assoc_bicat [BB X Y Z W].
+Definition id_left_bicat_is_iso (BB : prebicategory) := pr1 (pr2 (pr1 (pr2 BB))).
+Global Arguments id_left_bicat [BB X Y].
+Definition id_right_bicat_is_iso (BB : prebicategory) := pr2 (pr2 (pr1 (pr2 BB))).
+Global Arguments id_right_bicat [BB X Y].
+Definition pentagon_bicat (BB : prebicategory) := pr1 (pr2 (pr2 BB)).
 Global Arguments pentagon_bicat [BB X Y Z W V] A B C D.
-Definition triangle_bicat (BB : prebicategory) := pr2 (pr2 BB).
+Definition triangle_bicat (BB : prebicategory) := pr2 (pr2 (pr2 BB)).
 Global Arguments triangle_bicat [BB X Y Z] A B.
 
 End Bicategory_definition.
@@ -381,7 +396,11 @@ Admitted.
 
 Definition PRECAT : prebicategory.
 Proof.
-  exists PRECAT_data2. split.
+  exists PRECAT_data2. split; split.
+  (* assoc_bicat_is_iso *) shelve.
+  split.
+  (* id_left_bicat_is_iso *) shelve.
+  (* id_right_bicat_is_iso *) shelve.
   (* pentagon_bicat *) shelve.
   (* triangle_bicat *) shelve.
 Admitted.
