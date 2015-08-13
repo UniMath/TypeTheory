@@ -188,41 +188,6 @@ Defined.
 
 End Precategory_products.
 
-(* TODO: discuss the issue of hom-sets further. For now, an ad hoc solution. *)
-Definition good_precategory := Σ (C : precategory), has_homsets C.
-Definition precat_of_good_precat (C : good_precategory) := pr1 C.
-Coercion precat_of_good_precat : good_precategory >-> precategory.
-Definition good_precat_hom_sets (C : good_precategory) := pr2 C.
-
-Section Functor_precategories.
-(** * Precategories of functors between precategories. *)
-
-Definition functor_precat_ob_mor (C D : precategory) : precategory_ob_mor.
-Proof.
-  (* ob *) exists (functor C D).
-  (* mor *) intros F G; exact (nat_trans F G).
-Defined.
-
-Definition functor_precat_data (C D : precategory) : precategory_data.
-Proof.
-  exists (functor_precat_ob_mor C D). split.
-  (* id *) intros; apply nat_trans_id.
-  (* comp *) intros F G H α β; exact (nat_trans_comp _ _ _ α β).
-Defined.
-
-(* The [has_homsets] argument is required: without it, [id_left], [id_right] and [assoc] here would require extra axioms on the natural transformations, corresponding to the id and comp constraints classically taken for the 2-cells of a pseudo-natural transformation. *)
-Definition functor_precategory (C : precategory) (D : good_precategory)
-  : precategory.
-Proof.
-  exists (functor_precat_data C D). split; try split; 
-    intros; apply nat_trans_eq; try apply good_precat_hom_sets; intros.
-  (* id_left *) apply id_left.
-  (* id_right *) apply id_right.
-  (* assoc *) apply assoc.
-Defined.
-
-End Functor_precategories.
-
 End Background. 
 
 (** Redeclare section notations to be available globally. *)
@@ -367,17 +332,25 @@ End Bicategory_definition.
 Section Precat_as_prebicat.
 (** * The prebicategory of precategories *)
 
+(* Forming the functor precategory from C to D requires that the hom-types of D are sets.  Without this, [id_left], [id_right] and [assoc] for this precat would require extra axioms on the natural transformations, corresponding to the id and comp constraints classically taken for the 2-cells of a pseudo-natural transformation. 
+
+To form a prebicategory, therefore, we have to restrict to precategories with hom-sets.*)
+Definition good_precategory := Σ (C : precategory), has_homsets C.
+Definition precat_of_good_precat (C : good_precategory) := pr1 C.
+Coercion precat_of_good_precat : good_precategory >-> precategory.
+Definition good_precat_hom_sets (C : good_precategory) := pr2 C.
+
 Definition PRECAT_ob_mor : prebicategory_obmor.
 Proof.
   (* ob_bicat *) exists good_precategory.
-  (* hom1 *) intros C D. exact (functor_precategory C D).
+  (* hom1 *) intros C D. exact (functor_precategory C D (good_precat_hom_sets D)).
 Defined.
 
-(* TODO: the interaction of reduction and coercions seems to cause issues here.
+(* Note: the interaction of reduction and coercions causes a sllightly irritating issue here.  (The same issue arises with other (bi-)categories of structured objects whose access functions rely on cascading coercions.)
 
-  E.g. given [ X : ob_bicat (PRECAT_ob_mor) ], we can’t write [ functor_identity X ] — it doesn’t typecheck, presumably because the coercions don’t trigger since it’s not of the *syntactic* form to which they apply.
+  Given [ X : ob_bicat (PRECAT_ob_mor) ], we can’t write [ functor_identity X ]: the coercions [good_precategory >-> … >-> precategory_data ] don’t trigger, since [ob_bicat (PRECAT_ob_mor)] is not of the *syntactic* form to which they apply.
 
-  Two workarounds: annotate it as [  (X : good_precategory) ], making the coercions trigger; or issue [ simpl in X ] to reduce its type in the context to [ good_precategory ]. *)
+  Three workarounds: annotate it as [  (X : good_precategory) ], making the coercions trigger; issue [ simpl in X ] to reduce its type in the context to [ good_precategory ]; or write [ pr1 X ], which again pulls [ X ] into a type on which the coercions trigger. *)
 
 Definition PRECAT_data1 : prebicategory_data1.
 Proof.
