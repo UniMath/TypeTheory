@@ -451,14 +451,32 @@ Defined.
 Definition PRECAT : prebicategory.
 Proof.
   exists PRECAT_data2. split; split.
-  (* assoc_bicat_is_iso *) shelve.
+  (* assoc_bicat_is_iso *) intros X Y Z W FGH.
+    refine (functor_iso_if_pointwise_iso _ _ _ _ _ _ _).
+    intros x; simpl. apply identity_is_iso.
   split.
-  (* id_left_bicat_is_iso *) shelve.
-  (* id_right_bicat_is_iso *) shelve.
-  (* pentagon_bicat *) shelve.
-  (* triangle_bicat *) shelve.
-Admitted.
-
+  (* id_left_bicat_is_iso *) intros X Y F.
+    refine (functor_iso_if_pointwise_iso _ _ _ _ _ _ _).
+    intros x; simpl. apply identity_is_iso.
+  (* id_right_bicat_is_iso *) intros X Y F.
+    refine (functor_iso_if_pointwise_iso _ _ _ _ _ _ _).
+    intros x; simpl. apply identity_is_iso.
+  (* pentagon_bicat *) intros X Y Z W V F G H K; simpl.
+    apply nat_trans_eq; simpl. apply good_precat_hom_sets. intros x.
+    eapply pathscomp0. apply maponpaths.
+      eapply pathscomp0. apply id_right. apply functor_id.
+    eapply pathscomp0. apply id_right.
+    eapply pathscomp0. apply id_right.
+    apply cancel_postcomposition.
+    eapply pathscomp0. apply maponpaths. 
+      eapply pathscomp0. apply maponpaths. 
+        apply functor_id.
+      apply functor_id.
+    apply functor_id.
+  (* triangle_bicat *) intros X Y Z F G; simpl.
+    apply nat_trans_eq; simpl. apply good_precat_hom_sets. intros x.
+    apply id_left.
+Defined.
 
 End Precat_as_prebicat.
 
