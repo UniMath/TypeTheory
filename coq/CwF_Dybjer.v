@@ -5,7 +5,7 @@
 
   Contents:
 
-    - Definition of a precategory with families à la Dybjer's "Internal type theory"
+    - Definition of a precategory with families, as presented in Dybjer's *Internal type theory*, http://www.cse.chalmers.se/~peterd/papers/InternalTT.pdf (page=
 
 *)
 
@@ -37,17 +37,29 @@ Notation "A ₂" := (index_func _ A)(at level 3).
 
 Record precwf_record : Type := {
   C : precategory ;
-  T : functor C^op (FAM(HSET))  where "C ⟨ Γ ⟩" := ((T Γ) ₁)
-                                (* and
-                                where "C ⟨ Γ ⊢ A ⟩" := ((T Γ) ₂ A) *)
-;
+  T : functor C^op (FAM(HSET))  where "C ⟨ Γ ⟩" := ((T Γ) ₁);
+                                  (* "C ⟨ Γ ⊢ A ⟩" := ((T Γ) ₂ A) *)
   comp_obj : ∀ Γ (A : C⟨Γ⟩), C where "Γ ∙ A" := (comp_obj Γ A) ;
   proj_mor : ∀ Γ (A : C⟨Γ⟩), C ⦃Γ ∙ A, Γ⦄ where "'π' A" := (proj_mor _ A) ;
-  q : ∀ Γ (A : C ⟨Γ⟩), pr1 ((T Γ) ₂ A) ;
-  univ_prop : ∀ Γ (A : C ⟨Γ⟩),
-              ∀ Δ (γ : C⦃Δ, Γ⦄) (a :  pr1 ((T Γ)₂ A)),
-                iscontr (Σ θ : Δ ⇒ Γ ∙ A, θ ;; π A = γ ) (* × (# T θ q = a)) *)
+  q : ∀ Γ (A : C ⟨Γ⟩), pr1 ((T _)₂ (pr1 (# T (π A)) A)) ;
+  (*TODO: [temp] should not be a separate field, but should be defined using
+          [functor_comp]. *)
+  temp :  ∀ Γ (A : C ⟨Γ⟩) Δ (γ : C⦃Δ, Γ⦄) (a : pr1 ((T _)₂ (pr1 (# T γ) A)))
+           (θ : Δ ⇒ Γ ∙ A) (e : θ ;; π A = γ),
+    pr1 (# T θ) (pr1 (# T (proj_mor Γ A)) A) = pr1 (# T (θ;; proj_mor Γ A)) A;
+  univ_prop : ∀ Γ (A : C ⟨Γ⟩) Δ (γ : C⦃Δ, Γ⦄) (a : pr1 ((T _)₂ (pr1 (# T γ) A))),
+        iscontr (Σ (θ : Δ ⇒ Γ ∙ A),
+                 Σ (e : θ ;; π A = γ),
+                   transportf (fun f => pr1 ((T Δ)₂ (pr1 (# T f) A))) e
+                   (transportf (fun (B:(T Δ)₁) => pr1 ((T Δ)₂ B))
+                               (temp Γ A Δ γ a θ e)
+                     (pr2 (# T θ) _ (q _ A)))
+                   = a)
  }.
+
+End Record_Preview.
+
+(* Obsolete material, copied from [CwF.v]; retained for easy cannibalisation/adaptation:
 
   type : C → UU     where "C ⟨ Γ ⟩" := (type Γ) ;
   term : ∀ Γ : C, C⟨Γ⟩ → UU     where "C ⟨ Γ ⊢ A ⟩" := (term Γ A) ;
@@ -84,7 +96,6 @@ Record precwf_record : Type := {
           a
 }.
 
-End Record_Preview.
 
 
 (** * Type and terms of a [CwF] *)
@@ -670,3 +681,5 @@ Proof.
 Defined.
   
 End CwF_lemmas.
+
+*)
