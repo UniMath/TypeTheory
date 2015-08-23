@@ -36,25 +36,21 @@ Notation "A ₁" := (index_type _ A)(at level 3).
 Notation "A ₂" := (index_func _ A)(at level 3).
 
 Record precwf_record : Type := {
-  C : precategory ;
+  C :> precategory ;
   T : functor C^op (FAM(HSET))  where "C ⟨ Γ ⟩" := ((T Γ) ₁);
                                   (* "C ⟨ Γ ⊢ A ⟩" := ((T Γ) ₂ A) *)
   comp_obj : ∀ Γ (A : C⟨Γ⟩), C where "Γ ∙ A" := (comp_obj Γ A) ;
   proj_mor : ∀ Γ (A : C⟨Γ⟩), C ⦃Γ ∙ A, Γ⦄ where "'π' A" := (proj_mor _ A) ;
-  q : ∀ Γ (A : C ⟨Γ⟩), pr1 ((T _)₂ (pr1 (# T (π A)) A)) ;
-  (*TODO: [temp] should not be a separate field, but should be defined using
-          [functor_comp]. *)
-  temp :  ∀ Γ (A : C ⟨Γ⟩) Δ (γ : C⦃Δ, Γ⦄) (a : pr1 ((T _)₂ (pr1 (# T γ) A)))
-           (θ : Δ ⇒ Γ ∙ A) (e : θ ;; π A = γ),
-    pr1 (# T θ) (pr1 (# T (proj_mor Γ A)) A) = pr1 (# T (θ;; proj_mor Γ A)) A;
+  q : ∀ Γ (A : C ⟨Γ⟩), pr1 ((T _)₂ (pr1 (# T (π A)) A));
   univ_prop : ∀ Γ (A : C ⟨Γ⟩) Δ (γ : C⦃Δ, Γ⦄) (a : pr1 ((T _)₂ (pr1 (# T γ) A))),
         iscontr (Σ (θ : Δ ⇒ Γ ∙ A),
                  Σ (e : θ ;; π A = γ),
-                   transportf (fun f => pr1 ((T Δ)₂ (pr1 (# T f) A))) e
-                   (transportf (fun (B:(T Δ)₁) => pr1 ((T Δ)₂ B))
-                               (temp Γ A Δ γ a θ e)
-                     (pr2 (# T θ) _ (q _ A)))
-                   = a)
+                 pr2 (# T θ) _ (q _ A)
+                 = 
+                  transportf (fun f => pr1 ((T Δ)₂ (pr1 f A)))
+                             (functor_comp T _ _ _ _ _)
+                  (transportb (fun f => pr1 ((T Δ)₂ (pr1 (# T f) A))) e
+                 a))
  }.
 
 End Record_Preview.
