@@ -7,15 +7,15 @@
     - TODO: FAM(C) saturated if C is
 *)
 
-Require Export UniMath.Foundations.hlevel2.hSet.
+Require Export UniMath.Foundations.Sets.
 
-Require Import UniMath.Foundations.Proof_of_Extensionality.funextfun.
+Require Import UniMath.Foundations.FunctionalExtensionality.
 
-Require Export UniMath.RezkCompletion.precategories.
-Require Export UniMath.RezkCompletion.functors_transformations.
-Require Export UniMath.RezkCompletion.category_hset.
-Require Export UniMath.RezkCompletion.yoneda.
-Require Export UniMath.RezkCompletion.rezk_completion.
+Require Export UniMath.CategoryTheory.precategories.
+Require Export UniMath.CategoryTheory.functor_categories.
+Require Export UniMath.CategoryTheory.category_hset.
+Require Export UniMath.CategoryTheory.yoneda.
+Require Export UniMath.CategoryTheory.rezk_completion.
 
 Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.

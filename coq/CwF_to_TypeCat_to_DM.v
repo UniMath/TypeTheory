@@ -10,8 +10,8 @@ Contents:
 *)
 
 
-Require Import UniMath.RezkCompletion.total2_paths.
-
+Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
 Require Import Systems.TypeCat.
@@ -22,7 +22,6 @@ Require Import Systems.CwF_to_TypeCat.
 Require Import Systems.CwF_to_DM.
 Require Import Systems.TypeCat_to_DM.
 
-Require Import UniMath.RezkCompletion.limits.pullbacks.
 
 Section compare_maps.
 

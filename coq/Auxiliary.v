@@ -8,10 +8,10 @@ Possibly some should be upstreamed to “UniMath” eventually.
 
 *)
 
-Require Import UniMath.Foundations.Generalities.uu0.
-Require Import UniMath.RezkCompletion.precategories.
+Require Import UniMath.Foundations.Basics.All.
+Require Import UniMath.CategoryTheory.precategories.
 Require Import Systems.UnicodeNotations.
-Require Import UniMath.RezkCompletion.limits.pullbacks.
+Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 
 (** * Lemmas about identity etc *)

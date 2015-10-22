@@ -11,9 +11,9 @@ Contents:
 *)
 
 Require Export Systems.UnicodeNotations.
-Require Export UniMath.Foundations.hlevel2.hSet.
-Require Export UniMath.RezkCompletion.precategories.
-Require Export UniMath.RezkCompletion.limits.pullbacks.
+Require Export UniMath.Foundations.Sets.
+Require Export UniMath.CategoryTheory.precategories.
+Require Export UniMath.CategoryTheory.limits.pullbacks.
 
 Section Prelims.
 
@@ -185,14 +185,14 @@ Definition is_split_type_cat {CC : precategory} (C : type_cat_struct CC)
 Lemma isaprop_is_split_type_cat (CC : precategory) (hs : has_homsets CC)
        (C : type_cat_struct CC) : isaprop (is_split_type_cat C).
 Proof.
-  repeat (apply isofhleveltotal2).
+  repeat (apply isofhleveltotal2; intros).
   - apply impred; intro; apply isapropisaset.
-  - intro H; apply (isofhleveltotal2).
-    + repeat (apply impred; intro). apply H.
-    + intros; repeat (apply impred; intro); apply hs.
-  - intro H. apply isofhleveltotal2.
-    + repeat (apply impred; intro); apply (pr1 H).
-    + intros; repeat (apply impred; intro); apply hs.
+  - repeat (apply impred; intro). apply x.
+  - repeat (apply impred; intro). apply hs.
+  - repeat (apply impred; intro). apply x.
+  - intros.  
+    repeat (apply impred; intro).
+    apply hs.
 Qed.
 
 Definition split_type_struct (CC : precategory) : UU 
@@ -210,7 +210,7 @@ Definition reind_comp_type_cat {CC : precategory} {C : type_cat_struct CC}
            (H : is_split_type_cat C)
   : ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'),
       A [g;;f] = A[f][g]
-  := pr1 (pr2 H).                
+  := pr1 (pr2 (pr2 H)).
 
 Definition q_q_type_cat {CC : precategory} {C : split_type_struct CC}
   : ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'),
@@ -218,7 +218,7 @@ Definition q_q_type_cat {CC : precategory} {C : split_type_struct CC}
             =  idtoiso (maponpaths (fun b => Γ''◂b) (reind_comp_type_cat C _ A _ f _ g))
                ;; q_type_cat (A[f]) g
                ;; q_type_cat A f
-  := pr2 (pr2 (pr2 C)).
+  := pr2 (pr2 (pr2 (pr2 C))).
 
 (*
 Definition split_type_precat := Σ C, (is_split_type_cat C).
@@ -227,6 +227,33 @@ Definition split_type_precat := Σ C, (is_split_type_cat C).
 Definition type_precat_of_split (C : split_type_precat) := pr1 C.
 *)
 (* TODO: define access functions for other components of [is_split_…]. *)
+
+Section access_functions.
+
+Context {CC : precategory} {C : type_cat_struct CC} (T : is_split_type_cat C).
+
+Definition isaset_types_typecat : ∀ Γ:CC, isaset (C Γ) := pr1 T.
+
+Definition reind_id_type_typecat :  ∀ Γ (A : C Γ), A [identity Γ] = A := pr1 (pr1 (pr2 T)).
+
+Definition reind_id_term_typecat : 
+  ∀ Γ (A : C Γ), q_type_cat A (identity Γ)
+                        = idtoiso (maponpaths (fun b => Γ◂b) (reind_id_type_typecat Γ A)) :=
+ pr2 (pr1 (pr2 T)).
+
+Definition reind_comp_type_typecat : 
+  ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'), A [g;;f] = A[f][g] 
+ := pr1 (pr2 (pr2 T)).
+
+Definition reind_comp_term_typecat : 
+   ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'),
+            q_type_cat A (g ;; f)
+            =  idtoiso (maponpaths (fun b => Γ''◂b) (reind_comp_type_typecat _ A _ f _ g))
+               ;; q_type_cat (A[f]) g
+               ;; q_type_cat A f
+ := pr2 (pr2 (pr2 T)).
+
+End access_functions.
  
 End Type_Precats.
 

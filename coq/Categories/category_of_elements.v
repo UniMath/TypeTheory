@@ -8,11 +8,11 @@
 
 Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
-Require Export UniMath.Foundations.hlevel2.hSet.
+Require Export UniMath.Foundations.Sets.
 
-Require Export UniMath.RezkCompletion.functors_transformations.
-Require Export UniMath.RezkCompletion.category_hset.
-Require Export UniMath.RezkCompletion.opp_precat.
+Require Export UniMath.CategoryTheory.functor_categories.
+Require Export UniMath.CategoryTheory.category_hset.
+Require Export UniMath.CategoryTheory.opp_precat.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 

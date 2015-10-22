@@ -85,6 +85,12 @@ Definition ess_alg_cat_axioms (C : graph_w_comp) :=
     comp_source_ax (C:=C) × comp_target_ax (C:=C) × assoc_ax (C:=C) × 
     isaset (objects C) × isaset (mor C) .
 
+Definition isaset_objects (C : graph_w_comp) (T : ess_alg_cat_axioms C) : 
+   isaset (objects C) := pr1 (pr2 (pr2 (pr2 (pr2 T)))).
+
+Definition isaset_mor (C : graph_w_comp) (T : ess_alg_cat_axioms C) : 
+   isaset (mor C) := pr2 (pr2 (pr2 (pr2 (pr2 T)))).
+
 
 (** ** The categorical axioms are indeed a property *)
 
@@ -103,11 +109,11 @@ Proof.
     + apply funextfun.
       intro a.
       assert (p : target (i a) = source (i' a)).
-      { rewrite (pr2 (pr1 (pr1 x))). 
-        rewrite (pr1 (pr1 (pr1 x'))).
+      { rewrite (pr1 (pr2 x)). 
+        rewrite (pr1 x').
         reflexivity. }
-      destruct x as [[[x1 x2] x3] x4].
-      destruct x' as [[[x1' x2'] x3'] x4'].
+      destruct x as [x1 [x2 [x3 x4]]].
+      destruct x' as [x1' [x2' [x3' x4']]].
       transitivity (comp (i a) (i' a) p).      
       { rewrite (id_comp_right i'). 
         - reflexivity.
@@ -119,10 +125,11 @@ Proof.
         - apply x1'. }
    + clear x x'. 
      repeat apply isapropdirprod;
-       repeat (apply impred; intro); try apply (pr2 (pr1 X)); try apply (pr2 X).
-  - repeat (apply impred; intro).  apply (pr2 (pr1 X)). 
-  - repeat (apply impred; intro).  apply (pr2 (pr1 X)). 
-  - repeat (apply impred; intro).  apply (pr2 X). 
+       repeat (apply impred; intro);  
+            try apply isaset_objects; try apply isaset_mor; assumption. 
+  - repeat (apply impred; intro).  apply isaset_objects; assumption.
+  - repeat (apply impred; intro).  apply isaset_objects; assumption. 
+  - repeat (apply impred; intro).  apply isaset_mor; assumption. 
   - apply isapropisaset.
   - apply isapropisaset.
 Qed.

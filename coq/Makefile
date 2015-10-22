@@ -9,8 +9,6 @@
 # Modules to be compiled by default, in plain “make”.
 # Includes everything that compiles in reasonable time, and all dependencies.
 MODULES-CORE := Auxiliary UnicodeNotations \
-	Categories/ess_alg_categories \
-	Categories/ess_and_gen_alg_cats \
 	Categories/category_of_elements \
 	Categories/category_FAM \
 	CwF \

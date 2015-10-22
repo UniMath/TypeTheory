@@ -11,7 +11,7 @@ Contents:
 *)
 
 
-Require Import UniMath.RezkCompletion.total2_paths.
+Require Import UniMath.CategoryTheory.total2_paths.
 
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.

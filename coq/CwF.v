@@ -15,8 +15,8 @@
 
 Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
-Require Export UniMath.Foundations.hlevel2.hSet.
-Require Export UniMath.RezkCompletion.limits.pullbacks.
+Require Export UniMath.Foundations.Sets.
+Require Export UniMath.CategoryTheory.limits.pullbacks.
 
 (** * A "preview" of the definition *)
 
@@ -294,19 +294,19 @@ Definition cwf_comp_laws {CC : precategory} (C : cwf_struct CC)
 
 
 Definition has_homsets_cwf {CC : precategory} (C : cwf_struct CC) : has_homsets CC
-  := pr1 (pr1 (pr2 (pr2 C))).
+  := pr1 (pr2 (pr2 C)).
 
 Definition cwf_types_isaset {CC : precategory} (C : cwf_struct CC) Γ : isaset (C⟨Γ⟩)
-  := pr2 (pr1 (pr2 (pr2 C))) Γ.
+  := pr1 (pr2 (pr2 (pr2 C))) Γ.
 
 Definition cwf_terms_isaset  {CC : precategory} (C : cwf_struct CC) : ∀ Γ A, isaset (C⟨Γ ⊢ A⟩)
-  := pr2 (pr2 (pr2 C)).
+  := pr2 (pr2 (pr2 (pr2 C))).
 
 
 Definition cwf_law_1 {CC : precategory} (C : cwf_struct CC) 
   Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' ⇒ Γ) (a : C⟨Γ'⊢ A[γ]⟩)
   : (γ ♯ a) ;; (π _) = γ
-  := pr1 (pr1 (pr1 (cwf_comp_laws C)) Γ A Γ' γ a).
+  :=  pr1 (pr1 (cwf_comp_laws C) Γ A Γ' γ a).
 
 Definition cwf_law_2 {CC : precategory} (C : cwf_struct CC) 
   Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' ⇒ Γ) (a : C⟨Γ'⊢ A[γ]⟩)
@@ -314,7 +314,7 @@ Definition cwf_law_2 {CC : precategory} (C : cwf_struct CC)
     (transportf (λ B, C⟨Γ'⊢ B⟩) (!reindx_type_comp C (π _)(γ ♯ a) _ ) 
       ((ν A) ⟦γ ♯ a⟧))
     = a
-  := pr2 (pr1 (pr1 (cwf_comp_laws C)) Γ A Γ' γ a).
+  := pr2 ((pr1 (cwf_comp_laws C)) Γ A Γ' γ a).
 
 Definition cwf_law_2_gen {CC : precategory} (C : cwf_struct CC) 
   Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' ⇒ Γ) (a : C⟨Γ'⊢ A[γ]⟩)
@@ -333,7 +333,7 @@ Proof.
 Qed.  
 
 Definition cwf_law_3 {CC : precategory} (C : cwf_struct CC) : comp_law_3 C
-  := pr2 (pr1 (cwf_comp_laws C)).
+  :=  pr1 (pr2 (cwf_comp_laws C)).
 
 Definition cwf_law_3_gen {CC : precategory} (C : cwf_struct CC) 
   (Γ : CC) (A : C ⟨ Γ ⟩) (Γ' Γ'' : CC) (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ')
@@ -349,7 +349,7 @@ Proof.
 Qed.
 
 Definition cwf_law_4 {CC : precategory} (C : cwf_struct CC) : comp_law_4 C
-  := pr2 (cwf_comp_laws C).
+  := pr2 (pr2 (cwf_comp_laws C)).
 
 
 (** * Lemmas about CwFs, in particular that reindexing forms pullback *)

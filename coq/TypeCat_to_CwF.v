@@ -10,7 +10,7 @@
 *)
 
 
-Require Import UniMath.RezkCompletion.total2_paths.
+Require Import UniMath.CategoryTheory.total2_paths.
 
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
@@ -89,12 +89,9 @@ Proof.
   split.
   - unfold tt_reindx_from_type_cat. simpl.
     intros Γ A.
-    unfold rtype. simpl.
-    assert (X:= pr2 (pr1 (pr2 C))). simpl in X.
-    apply (pr1 X).
+    apply reind_id_type_typecat. apply (pr2 C).
   - intros.
-    assert (X:= pr1 (pr2 (pr2 C))). simpl in X.
-    apply (X).
+    apply reind_comp_type_typecat. apply (pr2 C).
 Defined.  (* needs to be transparent for comp_law_3 at least *)
 
 Definition reindx_laws_terms_of_type_cat : reindx_laws_terms  reindx_laws_type_of_type_cat.
@@ -108,14 +105,17 @@ Proof.
     + simpl.
       rewrite id_left.
       destruct a as [f H]; simpl in *.
-      assert (X := (pr2 (pr1 (pr2 C)))). simpl in X.
+      assert (X:= reind_id_term_typecat (pr2 C)).
+      rewrite X.
+(*      assert (X := (pr2 (pr1 (pr2 C)))). simpl in X.
       rewrite (pr2 X).
-
+*)
       assert (T:=@transportf_total2).
       assert (T':= T (C Γ) (λ B,  Γ ⇒ Γ ◂ B)). simpl in T'.
       assert (T'' := T' (λ B f, f ;; dpr_type_cat B = identity Γ)).
       simpl in *.
-      assert (T3:= T'' _ _  (! pr1 (pr2 (pr1 (pr2 C))) Γ A)).
+      assert (T3 := T'' _ _ (! (reind_id_type_typecat (pr2 C)  Γ A))).
+(*      assert (T3:= T'' _ _  (! pr1 (pr2 (pr1 (pr2 C))) Γ A)).*)
       assert (T4 := T3 (tpair (λ f0 : Γ ⇒ Γ ◂ A, f0;; dpr_type_cat A = identity Γ) f H)).
       clear T3 T'' T'. simpl in T4.
       assert (T5:= base_paths _ _ T4). clear T4; simpl in *.
@@ -140,7 +140,8 @@ Proof.
       assert (T':= T (C Γ) (λ B,  Γ ⇒ Γ ◂ B)). simpl in T'.
       assert (T'' := T' (λ B f0, f0 ;; dpr_type_cat B = f ;; dpr_type_cat A)).
       simpl in *.
-      assert (T3:= T'' _ _  (! pr1 (pr2 (pr1 (pr2 C))) Γ A) ).
+      assert (T3 := T'' _ _ (! (reind_id_type_typecat (pr2 C)  Γ A))).
+(*      assert (T3:= T'' _ _  (! pr1 (pr2 (pr1 (pr2 C))) Γ A) ). *)
       assert (T4 := T3  (tpair (λ f0 : Γ ⇒ Γ ◂ A, f0;; dpr_type_cat A = f;; dpr_type_cat A) f
                                (idpath (f;; dpr_type_cat A)))).
       clear T3 T'' T'. simpl in T4.
@@ -161,9 +162,12 @@ Proof.
     apply PullbackArrowUnique.
     + simpl.
       destruct a as [f H]; simpl in *.
-      assert (X := (pr2 (pr2 (pr2 C)))). simpl in X.
-      rewrite (X). clear X
-      .
+      assert (X := reind_comp_term_typecat (pr2 C)).
+      rewrite X.
+(*      assert (X := (pr2 (pr2 (pr2 C)))). simpl in X.
+      rewrite (X). 
+*)      
+      clear X.
 
       assert (T:=@transportf_total2).
 
@@ -171,7 +175,8 @@ Proof.
       assert (T':= T (C Γ'') (λ B,  Γ'' ⇒ Γ'' ◂ B)). simpl in T'.
       assert (T'' := T' (λ B f0, f0 ;; dpr_type_cat B = identity Γ'')).
       simpl in *.
-      assert (T3:= T'' _ _  (! pr1 (pr2 (pr2 C)) Γ A Γ' γ Γ'' γ') ).
+      assert (T3 := T'' _ _ (! (reind_comp_type_typecat (pr2 C)  Γ A Γ' γ Γ'' γ'))).
+(*      assert (T3:= T'' _ _  (! pr1 (pr2 (pr2 C)) Γ A Γ' γ Γ'' γ') ). *)
 
       match goal with | [ |- pr1 (transportf _ _ ?e ) ;; _ ;; _ = _ ] => set (E:=e) end.
       assert (T4 := T3 E).
@@ -452,7 +457,7 @@ Proof.
     + apply comp_law_3_of_type_cat. 
     + apply comp_law_4_of_type_cat.
   -  assumption.
-  - apply (pr1 (pr1 (pr2 C))). 
+  - apply isaset_types_typecat. apply (pr2 C).
   - simpl.
     intros.
     apply (isofhleveltotal2 2).
