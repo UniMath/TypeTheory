@@ -98,15 +98,17 @@ Definition reindx_laws_terms_of_type_cat : reindx_laws_terms  reindx_laws_type_o
 Proof.
   split.
   - intros; simpl. unfold tt_reindx_from_type_cat in *. simpl in *.
-    apply total2_paths_second_isaprop.
-    apply homs_sets. simpl.
+    apply subtypeEquality.
+    intro; apply homs_sets. simpl.
     apply pathsinv0.
-    apply PullbackArrowUnique.
+    apply PullbackArrowUnique'.
     + simpl.
       rewrite id_left.
       destruct a as [f H]; simpl in *.
       assert (X:= reind_id_term_typecat (pr2 C)).
-      rewrite X.
+      simpl.
+      eapply pathscomp0. apply maponpaths. apply X.
+      (* rewrite X. *)
 (*      assert (X := (pr2 (pr1 (pr2 C)))). simpl in X.
       rewrite (pr2 X).
 *)
@@ -156,14 +158,16 @@ Proof.
 
     intros.
     unfold tt_reindx_from_type_cat in *. simpl in *.
-    apply total2_paths_second_isaprop.
-    apply homs_sets. simpl.
+    apply subtypeEquality.
+    intro; apply homs_sets. simpl.
     apply pathsinv0.
-    apply PullbackArrowUnique.
+    apply PullbackArrowUnique'.
     + simpl.
       destruct a as [f H]; simpl in *.
       assert (X := reind_comp_term_typecat (pr2 C)).
-      rewrite X.
+      simpl in *.
+      eapply pathscomp0. apply maponpaths. apply X.
+(*      rewrite X. *)
 (*      assert (X := (pr2 (pr2 (pr2 C)))). simpl in X.
       rewrite (X). 
 *)      

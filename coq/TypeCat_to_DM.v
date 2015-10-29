@@ -79,17 +79,34 @@ Proof.
   destruct T as [A [h e]].
   clear B.
   refine (tpair _ _ _ ).
-  - refine (tpair _ _ _).
-    + exists (Γ' ◂ (A[f])).
-      exists (q_type_cat _ _ ;; h).
-      exact (dpr_type_cat _ ).
+  - refine (mk_Pullback _ _ _ _ _ _ _ _ ).
+    + apply (Γ' ◂ (A[f])).
+    + apply (q_type_cat _ _ ;; h).
+    + apply (dpr_type_cat _ ).
     + simpl. unfold dm_sub_struct_of_TypeCat.
       simpl.
       set (T:= postcomp_pb_with_iso CC (pr2 H)).
-      eapply T.
-      apply  reind_pb_type_cat. 
+      set (T':= T _ _ _ _  (q_type_cat A f) _ _ f _ (reind_pb_type_cat _ _ )).
+      refine (pr1 (T' _ _ _ _ )).
       sym. assumption.
-  - simpl.
+    + 
+      set (T:= postcomp_pb_with_iso CC (pr2 H)).
+      set (T':= T _ _ _ _  (q_type_cat A f) _ _ f _ (reind_pb_type_cat _ _ )).
+      eapply (pr2 (T' _ _ _ _ )).
+(*      eapply T.
+      apply  reind_pb_type_cat. 
+      Show Proof.
+      sym. assumption.
+*)
+
+(*      
+      simpl.
+      set (T:= postcomp_pb_with_iso CC (pr2 H)).
+      simpl in T.
+      eaply T.
+*)
+ -
+   simpl.
     apply hinhpr.
     unfold iso_to_dpr.
     exists (A[f]).

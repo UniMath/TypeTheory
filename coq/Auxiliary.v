@@ -185,8 +185,8 @@ Section on_pullbacks.
     assert  (TH : x ;; f ;; k = y ;; g ;; h).
     { rewrite H. repeat rewrite <- assoc. rewrite sqr_comm. apply idpath. }
     pathvia (T TH).
-    apply PullbackArrowUnique. apply idpath. assumption.
-    apply pathsinv0. apply PullbackArrowUnique. apply pathsinv0; assumption.
+    apply PullbackArrowUnique'. apply idpath. assumption.
+    apply pathsinv0. apply PullbackArrowUnique'. apply pathsinv0; assumption.
     apply idpath.
   Qed.
 
@@ -215,13 +215,11 @@ Section on_pullbacks.
         apply id_right.
       + apply Pb_map_commutes_2.
     - intro t0.
-      apply total2_paths_second_isaprop.
-      apply isapropdirprod.
-      + apply hs.
-      + apply hs.
+      apply subtypeEquality.
+      + intro. apply isapropdirprod; apply hs.
       + simpl.
         destruct t0 as [w [Ht1 Ht2]]; simpl in *.
-        apply PullbackArrowUnique.
+        apply PullbackArrowUnique'.
         * apply iso_inv_on_left.
           rewrite <- Ht1. apply assoc.
         * assumption.

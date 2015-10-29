@@ -114,7 +114,7 @@ Definition dm_sub_closed_under_iso {CC : precategory} (C : dm_sub_struct CC)
 Definition pb_of_DM_struct {CC : precategory} (H : dm_sub_struct CC)
 : UU
   := ∀ Δ Γ (γ : DM H Δ Γ), ∀ Γ' (f : Γ' ⇒ Γ),
-       Σ P : Pullback _ γ f, DM_type H (PullbackPr1 _ P).
+       Σ P : Pullback _ γ f, DM_type H (PullbackPr2 _ P).
 
 (*
 Definition pb_type_of_DM {CC : precategory} (H : dm_sub_struct CC)
@@ -270,7 +270,7 @@ Coercion pb_of_dm_sub_pb {CC : precategory} (C : dm_sub_pb CC) : pb_of_DM_struct
 Definition pb_ob_of_DM {CC : precategory} {C : dm_sub_pb CC}
            {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
 : CC
-  := pr1 (pr1 (pr1 (pr2 C _ _ γ _  f))).
+  := PullbackObject  _ ((pr1 (pr2 C _ _ γ _  f))).
 
 Notation "γ ⋆ f" := (pb_ob_of_DM γ f) (at level 45, format "γ ⋆ f").
 (* written "\st" in Agda input mode *)
@@ -296,10 +296,10 @@ Definition sqr_comm_of_dm_sub_pb {CC : precategory} {C : dm_sub_pb CC}
 : _ ;; _ = _ ;; _ 
 := PullbackSqrCommutes _ (pr1 (pr2 C _ _ γ _ f )).
 
-Definition isPullback_of_dm_sub_pb {CC : precategory} {C : dm_sub_pb CC}
+Definition isPullback_of_dm_sub_pb {CC : precategory} (hs: has_homsets CC) {C : dm_sub_pb CC}
            {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
-: isPullback _ _ _ _ _ _
-:=  pr2 (pr2 (pr1 (pr2 C _ _ γ _ f ))).
+: isPullback _ _ _ _ _ _ :=
+isPullback_Pullback _ hs (pr1 (pr2 C _ _ γ _ f )).
 
 (*
 Definition dm_closed_under_pb {CC : precategory} (C : dm_sub_pb CC)
@@ -320,12 +320,22 @@ Definition DM_structure (CC : precategory) : UU
 
 Coercion dm_sub_pb_from_DM_structure CC (C : DM_structure CC) : dm_sub_pb CC := pr1 C.
 
+(*
+Lemma isaprop_DM_type (CC : precategory) (x : dm_sub_pb CC)
+ (t0 : CC)
+ (t2 : CC)
+ (t3 : t2 ⇒ t0) :
+ isofhlevel 1 (DM_type x t3).
+Proof.
+  set (p:=pr2 x t2 t0 t3). simpl in p. apply p.
+Qed.
+*)
 
 Definition pb_DM_of_DM {CC} {C : DM_structure CC}  {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
 : DM C (γ⋆f) Γ'.
 Proof.
   exists (pb_mor_of_DM γ f).
-  apply ( pr2 (pr2 (pr1 C) _ _ γ _ f)). 
+  apply (pr2 (pr2 (pr1 C) _ _ γ _ f)). 
 Defined.
 
 
@@ -335,16 +345,16 @@ Proof.
   apply pb_mor_of_mor.
 Defined.
 
-Definition sqr_comm_of_DM {CC} {C : DM_structure CC}  {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
+Definition sqr_comm_of_DM {CC : precategory} {C : DM_structure CC}  {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
 :  pb_arrow_of_arrow _ _  ;; γ = pb_DM_of_DM γ f  ;; f.
 Proof. 
   apply sqr_comm_of_dm_sub_pb.
 Defined.
 
-Definition isPullback_of_DM {CC} {C : DM_structure CC} {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
+Definition isPullback_of_DM {CC : precategory} (hs: has_homsets CC) {C : DM_structure CC} {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
 : isPullback CC _ _ _ _ (sqr_comm_of_DM γ f).
 Proof.
-  apply isPullback_of_dm_sub_pb.
+  apply isPullback_of_dm_sub_pb; assumption.
 Defined.
 
 
@@ -355,24 +365,11 @@ Section lemmas.
              (X' : ∀ Δ Γ (f : Δ ⇒ Γ), DM_type D' f → DM_type D f)
   : D = D'.
   Proof.
-    apply total2_paths_second_isaprop.
-    - simpl.
-      apply isofhleveltotal2.
-      + unfold dm_sub_closed_under_iso.
-        repeat (apply impred; intro).
-        apply (pr2 (pr2 D')).
-      + intro.
-        repeat (apply impred; intro).
-        apply isapropiscontr.
+    apply subtypeEquality'.
     - simpl.
       destruct D as [D Dh];
         destruct D' as [D' Dh']; simpl in *.
-      apply total2_paths_second_isaprop.
-      + unfold pb_of_DM_struct.
-        repeat (apply impred; intro).
-        apply isofhleveltotal2.
-        * apply isaprop_Pullback. exact H.
-        * intro. apply (pr2 Dh').
+      apply subtypeEquality'.
       + destruct D as [D Da];
         destruct D' as [D' Da'];
         simpl in *.
@@ -386,6 +383,21 @@ Section lemmas.
         * apply X'.
         * apply (pr2 Dh).
         * apply (pr2 Dh').
+
+      + unfold pb_of_DM_struct.
+        repeat (apply impred; intro).
+        apply isofhleveltotal2.
+        * apply isaprop_Pullback. exact H.
+        * intro. apply (pr2 Dh').
+
+    - simpl.
+      apply isofhleveltotal2.
+      + unfold dm_sub_closed_under_iso.
+        repeat (apply impred; intro).
+        apply (pr2 (pr2 D')).
+      + intro.
+        repeat (apply impred; intro).
+        apply isapropiscontr.
 Defined.
 
 End lemmas.

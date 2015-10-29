@@ -148,7 +148,7 @@ Defined.
 Definition FAM_obj_weq_1 (A B : obj) : (A = B) ≃ FAM_obj_eq_type A B.
 Proof.   
   eapply weqcomp.
-  - apply total2_paths_isaprop_equiv.
+  - apply subtypeInjectivity.
     intros ? ; apply isapropisaset.
   - apply FAM_obj_UU_weq.
 Defined.

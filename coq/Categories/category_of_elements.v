@@ -51,14 +51,14 @@ Lemma is_precategory_precategory_of_elements : is_precategory precategory_of_ele
 Proof.
   repeat split; intros;
   simpl in *.
-  - apply total2_paths_second_isaprop.
-    + apply setproperty.
+  - apply subtypeEquality.
+    + intro. apply setproperty.
     + apply id_left.
-  - apply total2_paths_second_isaprop.
-    + apply setproperty.
+  - apply subtypeEquality.
+    + intro; apply setproperty.
     + apply id_right.
-  - apply total2_paths_second_isaprop.
-    + apply setproperty.
+  - apply subtypeEquality.
+    + intro; apply setproperty.
     + apply assoc.
 Qed.
 
@@ -92,9 +92,9 @@ Definition Elem_cov_iso_type_eq {ac bd : ∫} (T T' : Elem_cov_iso_type ac bd)
   : T = T' ≃ (pr1 (pr1 T)) = (pr1 (pr1 T')).
 Proof.
   eapply weqcomp.
-  apply total2_paths_isaprop_equiv.
-  intro. apply setproperty.
-  apply total2_paths_isaprop_equiv.
+    apply subtypeInjectivity. (*total2_paths_isaprop_equiv.*)
+    intro. apply setproperty.
+  apply subtypeInjectivity.
   intro. apply isaprop_is_iso.
 Defined.
 
@@ -163,11 +163,11 @@ Proof.
     exists (inv_from_iso (pr1 H)).
     apply foo.
     split.
-    + apply total2_paths_second_isaprop.
-      apply setproperty.
+    + apply subtypeEquality.
+      intro; apply setproperty.
       simpl. apply iso_inv_after_iso.
-    + apply total2_paths_second_isaprop.
-      apply setproperty.
+    + apply subtypeEquality.
+      intro; apply setproperty.
       simpl. apply iso_after_iso_inv.
 Defined.
 
@@ -179,8 +179,8 @@ Proof.
   apply (gradth _ (Elem_cov_iso_type_to_Elem_cov_iso _ _ )).
   - intro.
     apply eq_iso. simpl.
-    apply total2_paths_second_isaprop.
-    + apply setproperty.
+    apply subtypeEquality.
+    + intro; apply setproperty.
     + apply idpath.
   - intro.
     apply (invmap (Elem_cov_iso_type_eq _ _  )).
@@ -227,7 +227,7 @@ Proof.
     simpl.
     apply eq_iso.
     simpl.
-    apply total2_paths_second_isaprop. apply setproperty.
+    apply subtypeEquality. intro; apply setproperty.
     apply idpath.
     apply pr2.
   - intros a b.

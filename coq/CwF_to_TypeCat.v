@@ -21,15 +21,15 @@ Require Import Systems.CwF.
 
 (* Locally override the notation [ γ ♯ a ], at a higher level,
   to get more informative bracketing when pairing meets composition. *) 
-Local Notation "γ # a" := (pairing γ a) (at level 75).
+Local Notation "γ ## a" := (pairing γ a) (at level 75).
 
 Section Prelims.
 
 (* TODO: move to [cwf] *)
 Definition pairing_transport {CC : precategory} (C : cwf_struct CC) {Γ} {A A' : C⟨Γ⟩} (e : A = A')
   {Γ'} (γ : Γ' ⇒ Γ) (a : C ⟨Γ'⊢A[γ]⟩)
-: (γ # a) ;; idtoiso (maponpaths (fun (B : C⟨Γ⟩) => Γ∙B) e)
-= (γ # (transportf (fun B => C ⟨ Γ' ⊢ B [γ] ⟩) e a)).
+: (γ ## a) ;; idtoiso (maponpaths (fun (B : C⟨Γ⟩) => Γ∙B) e)
+= (γ ## (transportf (fun B => C ⟨ Γ' ⊢ B [γ] ⟩) e a)).
 Proof.
   destruct e; simpl.
   apply id_right.
