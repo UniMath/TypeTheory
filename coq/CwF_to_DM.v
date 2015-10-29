@@ -22,7 +22,7 @@ Require Import Systems.DM.
 
 (* Locally override the notation [ γ ♯ a ], at a higher level,
   to get more informative bracketing when pairing meets composition. *) 
-Local Notation "γ # a" := (pairing γ a) (at level 75).
+Local Notation "γ ## a" := (pairing γ a) (at level 75).
 
 (** * Category with DM from Category with families
 
@@ -89,7 +89,7 @@ Proof.
   destruct T as [A [h e]].
   clear B.
   refine (tpair _ _ _ ).
-  - refine (tpair _ _ _). 
+  - refine (mk_Pullback _ _ _ _ _ _ ). refine (tpair _ _ _). 
     + exists (Γ' ∙ (A[f])).
       exists (q_precwf _ _ ;; h).
       exact (π _ ).
