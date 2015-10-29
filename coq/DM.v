@@ -114,7 +114,7 @@ Definition dm_sub_closed_under_iso {CC : precategory} (C : dm_sub_struct CC)
 Definition pb_of_DM_struct {CC : precategory} (H : dm_sub_struct CC)
 : UU
   := ∀ Δ Γ (γ : DM H Δ Γ), ∀ Γ' (f : Γ' ⇒ Γ),
-       Σ P : Pullback _ γ f, DM_type H (pr2 (pr2 (pr1 P))).
+       Σ P : Pullback _ γ f, DM_type H (PullbackPr1 _ P).
 
 (*
 Definition pb_type_of_DM {CC : precategory} (H : dm_sub_struct CC)
@@ -277,18 +277,24 @@ Notation "γ ⋆ f" := (pb_ob_of_DM γ f) (at level 45, format "γ ⋆ f").
                         
 Definition pb_mor_of_DM {CC : precategory} {C : dm_sub_pb CC}
            {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
-:  (γ⋆f) ⇒  Γ'
-:=  pr2 (pr2 (pr1 (pr1 (pr2 C _ _ γ _ f)))).
+  :  (γ⋆f) ⇒  Γ'.
+Proof.
+  apply (PullbackPr2 _ (pr1 (pr2 C _ _ γ _ f))).
+Defined.
+(*  :=  pr2 (pr2 (pr1 (pr1 (pr2 C _ _ γ _ f)))). *)
 
 Definition pb_mor_of_mor {CC : precategory} {C : dm_sub_pb CC}
            {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
-: γ⋆f ⇒ Δ
-  := pr1 (pr2 (pr1 (pr1 (pr2 C _ _ γ _ f)))).
+: γ⋆f ⇒ Δ.
+Proof.
+  apply (PullbackPr1 _ (pr1 (pr2 C _ _ γ _ f))).
+Defined.
+(* := pr1 (pr2 (pr1 (pr1 (pr2 C _ _ γ _ f)))). *)
 
 Definition sqr_comm_of_dm_sub_pb {CC : precategory} {C : dm_sub_pb CC}
            {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
-: _ ;; _ = _ ;; _
-:= pr1 ((pr2 (pr1 (pr2 C _ _ γ _ f )))).
+: _ ;; _ = _ ;; _ 
+:= PullbackSqrCommutes _ (pr1 (pr2 C _ _ γ _ f )).
 
 Definition isPullback_of_dm_sub_pb {CC : precategory} {C : dm_sub_pb CC}
            {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)

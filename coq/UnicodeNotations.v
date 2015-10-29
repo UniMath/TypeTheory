@@ -19,8 +19,10 @@ Notation "x → y" := (x -> y)
 Notation "'λ' x .. y , t" := (fun x => .. (fun y => t) ..)
   (at level 200, x binder, y binder, right associativity).
 
+(*
 Notation "∥ A ∥" := (ishinh A) (at level 200) : type_scope.
 (* written \|| *)
+ *)
 
 Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
   (* \=> in Agda input method *)

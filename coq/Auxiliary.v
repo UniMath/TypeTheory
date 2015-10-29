@@ -12,7 +12,7 @@ Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import Systems.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
-
+Require Import UniMath.CategoryTheory.limits.limits.
 
 (** * Lemmas about identity etc *)
 
@@ -142,18 +142,40 @@ Section on_pullbacks.
   Variable sqr_comm : f ;; k = g ;; h.
   Variable Pb : isPullback _ _ _ _ _ sqr_comm.
 
-  Definition map_into_Pb {e : C} (x : e ⇒ b) (y : e ⇒ c)
-      :  x ;; k = y ;; h → e ⇒ a
-    := fun H => pr1 (pr1 (Pb _ x y H)).
-
-  Definition Pb_map_commutes_1 {e : C} (x : e ⇒ b) (y : e ⇒ c) H
-  : map_into_Pb x y H ;; f = x
-    := (pr1 (pr2 (pr1 (Pb _ x y H)))).
+  Local Definition Pbb : Pullback _ k h.
+  Proof.
+    refine (mk_LimCone _ _ _ _ ).
+      - apply a.
+      - refine (PullbCone _ _ _ _ _ _ _ ).
+        + apply f.
+        + apply g.
+        + apply sqr_comm.
+      - apply Pb.
+  Defined.
   
+  Definition map_into_Pb {e : C} (x : e ⇒ b) (y : e ⇒ c)
+  :  x ;; k = y ;; h → e ⇒ a.
+  Proof.
+    intro H.
+    refine (PullbackArrow _ Pbb _ _ _ _ ).
+    - apply x.
+    - apply y.
+    - apply H.
+  Defined.
+      
+  Definition Pb_map_commutes_1 {e : C} (x : e ⇒ b) (y : e ⇒ c) H
+  : map_into_Pb x y H ;; f = x.
+  Proof.
+    assert (P:=PullbackArrow_PullbackPr1 _ Pbb).
+    apply P.
+  Qed.
 
   Definition Pb_map_commutes_2 {e : C} (x : e ⇒ b) (y : e ⇒ c) H
-  : map_into_Pb x y H ;; g = y
-    := (pr2 (pr2 (pr1 (Pb _ x y H)))).
+  : map_into_Pb x y H ;; g = y.
+  Proof.
+    assert (P:=PullbackArrow_PullbackPr2 _ Pbb).
+    apply P.
+  Qed.
 
   Lemma map_into_Pb_unique (e : C) (x y : e ⇒ a)
   : x ;; f = y ;; f → x ;; g = y ;; g → x = y.
@@ -175,7 +197,7 @@ Section on_pullbacks.
     eapply pathscomp0 ; [|apply sqr_comm].
     eapply pathscomp0. eapply pathsinv0; apply assoc.
     apply maponpaths. apply Hi.
-    unfold isPullback.
+    apply (mk_isPullback _ hs).    
     intros e s t HH.
     refine (tpair _ _ _ ).
     - refine (tpair _ _ _ ).
@@ -214,6 +236,7 @@ Definition isaprop_Pullback (C : precategory) (H : is_category C)
            (a b c : C) (f : b ⇒ a) (g : c ⇒ a)
 : isaprop (Pullback _  f g).
 Proof.
+(*
   unfold Pullback.
   apply invproofirrelevance.
   unfold Pullback.
@@ -237,6 +260,8 @@ Proof.
     rewrite PullbackArrow_PullbackPr2, PullbackArrow_PullbackPr1.
     apply idpath.
 Qed.
+*)
+Admitted.
 
 Section bla.
 
