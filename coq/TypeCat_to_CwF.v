@@ -94,104 +94,115 @@ Proof.
     apply reind_comp_type_typecat. apply (pr2 C).
 Defined.  (* needs to be transparent for comp_law_3 at least *)
 
-Definition reindx_laws_terms_of_type_cat : reindx_laws_terms  reindx_laws_type_of_type_cat.
+Lemma reindx_law_1_term_of_type_cat 
+  (Γ : CC)
+  (A : tt_reindx_from_type_cat ⟨ Γ ⟩)
+  (a : tt_reindx_from_type_cat ⟨ Γ ⊢ A ⟩) :
+   a ⟦ identity Γ ⟧ =
+   transportf (λ B : C Γ, Σ f : Γ ⇒ Γ ◂ B, f;; dpr_type_cat B = identity Γ)
+              (! reind_id_type_typecat (pr2 C) Γ A) a.
 Proof.
-  split.
-  - intros; simpl. unfold tt_reindx_from_type_cat in *. simpl in *.
-    apply subtypeEquality.
-    intro; apply homs_sets. simpl.
-    apply pathsinv0.
-    apply PullbackArrowUnique'.
-    + simpl.
-      rewrite id_left.
-      destruct a as [f H]; simpl in *.
-      assert (X:= reind_id_term_typecat (pr2 C)).
-      simpl.
-      eapply pathscomp0. apply maponpaths. apply X.
+  intros. simpl. unfold tt_reindx_from_type_cat in *. simpl in *.
+  apply subtypeEquality.
+  intro; apply homs_sets. simpl.
+  apply pathsinv0.
+  apply PullbackArrowUnique'.
+  + simpl.
+    rewrite id_left.
+    destruct a as [f H]; simpl in *.
+    assert (X:= reind_id_term_typecat (pr2 C)).
+    simpl.
+    eapply pathscomp0. apply maponpaths. apply X.
       (* rewrite X. *)
 (*      assert (X := (pr2 (pr1 (pr2 C)))). simpl in X.
       rewrite (pr2 X).
 *)
-      assert (T:=@transportf_total2).
-      assert (T':= T (C Γ) (λ B,  Γ ⇒ Γ ◂ B)). simpl in T'.
-      assert (T'' := T' (λ B f, f ;; dpr_type_cat B = identity Γ)).
-      simpl in *.
-      assert (T3 := T'' _ _ (! (reind_id_type_typecat (pr2 C)  Γ A))).
-(*      assert (T3:= T'' _ _  (! pr1 (pr2 (pr1 (pr2 C))) Γ A)).*)
-      assert (T4 := T3 (tpair (λ f0 : Γ ⇒ Γ ◂ A, f0;; dpr_type_cat A = identity Γ) f H)).
-      clear T3 T'' T'. simpl in T4.
-      assert (T5:= base_paths _ _ T4). clear T4; simpl in *.
-      etrans.
-      cancel_postcomposition. apply T5.
-
-      clear T5.
+    assert (T:=@transportf_total2).
+    assert (T':= T (C Γ) (λ B,  Γ ⇒ Γ ◂ B)). simpl in T'.
+    assert (T'' := T' (λ B f, f ;; dpr_type_cat B = identity Γ)).
+    simpl in *.
+    assert (T3 := T'' _ _ (! (reind_id_type_typecat (pr2 C)  Γ A))).
+    (*      assert (T3:= T'' _ _  (! pr1 (pr2 (pr1 (pr2 C))) Γ A)).*)
+    assert (T4 := T3 (tpair (λ f0 : Γ ⇒ Γ ◂ A, f0;; dpr_type_cat A = identity Γ) f H)).
+    clear T3 T'' T'. simpl in T4.
+    assert (T5:= base_paths _ _ T4). clear T4; simpl in *.
+    etrans.
+    cancel_postcomposition. apply T5.
+    
+    clear T5.
       
-      rewrite idtoiso_postcompose.
-      etrans.
-      eapply pathsinv0. apply functtransportf.
-      rewrite transportf_pathscomp0.
-      match goal with |[|- transportf _ ?e _ = _ ] =>
-                       assert (He : e = idpath _ )  end .
-      apply (pr1 (pr2 C)).
-      rewrite He. apply idpath.
-    +
+    rewrite idtoiso_postcompose.
+    etrans.
+    eapply pathsinv0. apply functtransportf.
+    rewrite transportf_pathscomp0.
+    match goal with |[|- transportf _ ?e _ = _ ] =>
+                     assert (He : e = idpath _ )  end .
+    apply (pr1 (pr2 C)).
+    rewrite He. apply idpath.
+  +
       
-      destruct a as [f H]; simpl in *.
-      rewrite <- H.
-      assert (T:=@transportf_total2).
-      assert (T':= T (C Γ) (λ B,  Γ ⇒ Γ ◂ B)). simpl in T'.
-      assert (T'' := T' (λ B f0, f0 ;; dpr_type_cat B = f ;; dpr_type_cat A)).
-      simpl in *.
-      assert (T3 := T'' _ _ (! (reind_id_type_typecat (pr2 C)  Γ A))).
-(*      assert (T3:= T'' _ _  (! pr1 (pr2 (pr1 (pr2 C))) Γ A) ). *)
-      assert (T4 := T3  (tpair (λ f0 : Γ ⇒ Γ ◂ A, f0;; dpr_type_cat A = f;; dpr_type_cat A) f
+    destruct a as [f H]; simpl in *.
+    rewrite <- H.
+    assert (T:=@transportf_total2).
+    assert (T':= T (C Γ) (λ B,  Γ ⇒ Γ ◂ B)). simpl in T'.
+    assert (T'' := T' (λ B f0, f0 ;; dpr_type_cat B = f ;; dpr_type_cat A)).
+    simpl in *.
+    assert (T3 := T'' _ _ (! (reind_id_type_typecat (pr2 C)  Γ A))).
+      (*      assert (T3:= T'' _ _  (! pr1 (pr2 (pr1 (pr2 C))) Γ A) ). *)
+    assert (T4 := T3  (tpair (λ f0 : Γ ⇒ Γ ◂ A, f0;; dpr_type_cat A = f;; dpr_type_cat A) f
                                (idpath (f;; dpr_type_cat A)))).
-      clear T3 T'' T'. simpl in T4.
-      assert (T5:= base_paths _ _ T4). clear T4; simpl in *.
-      etrans.
-      cancel_postcomposition. apply T5.
-      clear T5.
+    clear T3 T'' T'. simpl in T4.
+    assert (T5:= base_paths _ _ T4). clear T4; simpl in *.
+    etrans.
+    cancel_postcomposition. apply T5.
+    clear T5.
 
-      apply transportf_dpr_type_cat.
+    apply transportf_dpr_type_cat.
+Qed.
 
-  -
-
-    intros.
-    unfold tt_reindx_from_type_cat in *. simpl in *.
+Lemma foo
+  (Γ Γ' Γ'' : CC)
+  (γ : Γ' ⇒ Γ)
+  (γ' : Γ'' ⇒ Γ')
+  (A : ( tt_reindx_from_type_cat) ⟨ Γ ⟩)
+  (a : ( tt_reindx_from_type_cat) ⟨ Γ ⊢ A ⟩)
+  :
+   a ⟦ γ';; γ ⟧ =
+   transportf
+     (λ B : C Γ'', Σ f : Γ'' ⇒ Γ'' ◂ B, f;; dpr_type_cat B = identity Γ'')
+     (! reind_comp_type_typecat (pr2 C) Γ A Γ' γ Γ'' γ') 
+     ((a ⟦ γ ⟧) ⟦ γ' ⟧).
+Proof.
+  intros.
+    unfold tt_reindx_from_type_cat in *. simpl.
     apply subtypeEquality.
     intro; apply homs_sets. simpl.
     apply pathsinv0.
     apply PullbackArrowUnique'.
-    + simpl.
-      destruct a as [f H]; simpl in *.
+    + destruct a as [f H]; simpl in *.
       assert (X := reind_comp_term_typecat (pr2 C)).
-      simpl in *.
       eapply pathscomp0. apply maponpaths. apply X.
 (*      rewrite X. *)
 (*      assert (X := (pr2 (pr2 (pr2 C)))). simpl in X.
       rewrite (X). 
 *)      
       clear X.
-
-      assert (T:=@transportf_total2).
-
-      rewrite assoc.
-      assert (T':= T (C Γ'') (λ B,  Γ'' ⇒ Γ'' ◂ B)). simpl in T'.
-      assert (T'' := T' (λ B f0, f0 ;; dpr_type_cat B = identity Γ'')).
-      simpl in *.
-      assert (T3 := T'' _ _ (! (reind_comp_type_typecat (pr2 C)  Γ A Γ' γ Γ'' γ'))).
-(*      assert (T3:= T'' _ _  (! pr1 (pr2 (pr2 C)) Γ A Γ' γ Γ'' γ') ). *)
-
-      match goal with | [ |- pr1 (transportf _ _ ?e ) ;; _ ;; _ = _ ] => set (E:=e) end.
-      assert (T4 := T3 E).
       
-      clear T3 T'' T'.
-      assert (T5:= base_paths _ _ T4). clear T4; simpl in *.
+      assert (T:=@transportf_total2).
+      assert (T':= T (C Γ'') (λ B,  Γ'' ⇒ Γ'' ◂ B)); clear T; simpl in T'.
+      assert (T'' := T' (λ B f0, f0 ;; dpr_type_cat B = identity Γ''));
+        clear T'.
+      simpl in T''.
+      assert (T3 := T'' _ _ (! (reind_comp_type_typecat (pr2 C)  Γ A Γ' γ Γ'' γ'))); clear T''.
+(*      assert (T3:= T'' _ _  (! pr1 (pr2 (pr2 C)) Γ A Γ' γ Γ'' γ') ). *)
+      rewrite assoc.
+      match goal with | [ |- pr1 (transportf _ _ ?e ) ;; _ ;; _ = _ ] => set (E:=e) end.
+      assert (T4 := T3 E); clear T3. 
+      assert (T5:= base_paths _ _ T4); clear T4; simpl in *.
       rewrite <- assoc.
-      etrans.
-      cancel_postcomposition. apply T5.
+      etrans. cancel_postcomposition. apply T5.
 
-      clear T5 T.
+      clear T5.
 
       clear E.
 
@@ -199,49 +210,43 @@ Proof.
       etrans. cancel_postcomposition. apply assoc.
       rewrite idtoiso_postcompose.
 
-       etrans.
-      eapply pathsinv0. cancel_postcomposition. cancel_postcomposition. apply functtransportf.
+      etrans. eapply pathsinv0. cancel_postcomposition.
+        cancel_postcomposition. apply functtransportf.
       rewrite transportf_pathscomp0.
 
       match goal with |[|- transportf ?a ?b ?c ;; _ ;; _ = _ ] =>
            set (a':=a); set (b':=b); set (c':=c) end.
-      assert (T':= @Pb_map_commutes_1).
       assert (b' = idpath _ ).
-      apply (pr1 (pr2 C)).
-      rewrite X.
-      simpl.
-      etrans.
-      cancel_postcomposition.
-      apply T'.
-      etrans.
-      eapply pathsinv0.
-      apply assoc.
-      etrans. Focus 2.
-      apply assoc.
+      { apply (pr1 (pr2 C)). }
+      rewrite X; clear X.
+      etrans. cancel_postcomposition.
+        apply (@Pb_map_commutes_1).
+      etrans. eapply pathsinv0. apply assoc.
+      etrans. Focus 2. apply assoc.
       apply maponpaths.
-      etrans.
-      apply T'.
-      apply idpath.
- 
-    +
-      idtac.
-      match goal with |[|- pr1 (transportf ?P' ?e' ?x') ;; _ = _ ] =>
+      apply (@Pb_map_commutes_1).
+
+    + match goal with |[|- pr1 (transportf ?P' ?e' ?x') ;; _ = _ ] =>
                        set (P:=P') ; set (e := e') ; set (x := x') end.
       assert (T:=@transportf_total2).
-      assert (T':= T (C Γ'') (λ B,  Γ'' ⇒ Γ'' ◂ B)). simpl in T'.
-      assert (T'' := T' (λ B f0, f0 ;; dpr_type_cat B = identity Γ'')).
-        
-      simpl in *.
-      assert (T3:= T'' _ _  e x).
-      assert (T5:= base_paths _ _ T3). clear T3; simpl in *. clear T' T'' T.
-      etrans.
-      cancel_postcomposition.
-      apply T5.
+      assert (T':= T (C Γ'') (λ B,  Γ'' ⇒ Γ'' ◂ B)); clear T; simpl in T'.
+      assert (T'' := T' (λ B f0, f0 ;; dpr_type_cat B = identity Γ''));
+        clear T'.
+      assert (T3:= T'' _ _  e x); clear T''.
+      assert (T5:= base_paths _ _ T3); clear T3; simpl in *.
+      etrans. cancel_postcomposition. apply T5.
       clear T5.
       etrans.
-        apply transportf_dpr_type_cat.
-        set (T:=@Pb_map_commutes_2).
-        apply T.
+      apply transportf_dpr_type_cat.
+      apply (@Pb_map_commutes_2).
+Admitted. (* Qed takes ages, why? *)
+
+  
+Definition reindx_laws_terms_of_type_cat : reindx_laws_terms  reindx_laws_type_of_type_cat.
+Proof.
+  split.
+  - apply reindx_law_1_term_of_type_cat. 
+  - intros. apply foo.
 Qed.
 
 Definition reindx_laws_of_type_cat : reindx_laws tt_reindx_from_type_cat.
@@ -308,37 +313,36 @@ Proof.
     etrans. cancel_postcomposition. apply a_sec.
     apply id_left.
   * simpl.
-    apply total2_paths_second_isaprop.
-    { apply homs_sets. }
-    destruct a as [a a_sec]; simpl in *.
+    apply subtypeEquality'.
+    + destruct a as [a a_sec]; simpl in *.
 
     (* Commute the [pr1] through the [transportf]s. *)
-    match goal with |[ |- pr1 (transportf _ ?e0' (transportf _ ?e1' _)) = _ ] =>
+      match goal with |[ |- pr1 (transportf _ ?e0' (transportf _ ?e1' _)) = _ ] =>
                          set (e0:=e0'); set (e1:=e1') end.
-    unfold pairing in *. simpl in *.
-    etrans. apply maponpaths. refine (transportf_total2 e0 _). simpl.
-    etrans. apply maponpaths, maponpaths. refine (transportf_total2 e1 _).
-    match goal with
-      |[ |- transportf _ _ (pr1 (tpair ?P' ?x' _)) = _]
-      => set (x:=x'); set (P:=P') end.    
-    change (pr1 (tpair P x _)) with x. subst x; clear P.
+      unfold pairing in *. simpl in *.
+      etrans. apply maponpaths. refine (transportf_total2 e0 _). simpl.
+      etrans. apply maponpaths, maponpaths. refine (transportf_total2 e1 _).
+      match goal with
+        |[ |- transportf _ _ (pr1 (tpair ?P' ?x' _)) = _]
+         => set (x:=x'); set (P:=P') end.    
+      change (pr1 (tpair P x _)) with x. subst x; clear P.
 
     (* These are maps into [Γ' ◂ A [γ]].  We will show they’re equal by comparing their composites with the pullback “projections”, i.e. by using [map_into_Pb_unique].  This will generate two proof branches, for the two pullback projections.
 
     There are various different ways one can tidy up the two [transportf]s on the LHS in terms of [idtoiso], [maponpaths], and composites (of paths, functions, or morphisms).  We will need them tidied up into two slightly different forms for the two proof branches; it is not obvous what it is best to tidy when.  For now, we tidy up as much as possible before applying [map_into_Pb_unique], and then reassociate as necessary in the two branches. *)
 
-    etrans. refine (functtransportf
+      etrans. refine (functtransportf
                       (@rtype _ tt_reindx_type_struct_of_type_cat _ _ A) _ _ _).
-    etrans. apply transportf_reind_type_cat.
-    etrans. apply maponpaths, transportf_reind_type_cat.
-    etrans. apply transportf_pathscomp0.
-    match goal with |[ |- transportf _ ?e' _ = _] => set (e:=e') end.
-    etrans. symmetry; apply idtoiso_postcompose.
-
-    eapply map_into_Pb_unique. apply reind_pb_type_cat.
+      etrans. apply transportf_reind_type_cat.
+      etrans. apply maponpaths, transportf_reind_type_cat.
+      etrans. apply transportf_pathscomp0.
+      match goal with |[ |- transportf _ ?e' _ = _] => set (e:=e') end.
+      etrans. symmetry; apply idtoiso_postcompose.
+    
+      eapply map_into_Pb_unique. apply reind_pb_type_cat.
 
     (* The second pullback projection, to [Γ'], gives the easier of the two branches: *)
-    Focus 2.
+      Focus 2.
       etrans. symmetry;apply assoc.
       etrans.
         apply maponpaths. cancel_postcomposition.
@@ -352,8 +356,8 @@ Proof.
     TODO: LaTeX diagram of this!  See photo from 2015-07-02. 
 
     The main part of the LHS, [pr1 (ν A ⟦ a;; q_type_cat A γ ⟧)], was created as a [map_into_Pb]; we need to use the first component of its definition.  So we need to get the LHS into a form where the first projection of that pullback square appears, i.e. [q_type_cat (reind_type_cat A (dpr_type_cat A)) (a;; q_type_cat A γ)]. *)
-    etrans. symmetry; apply assoc.
-    assert (e2 :
+      etrans. symmetry; apply assoc.
+      assert (e2 :
       (idtoiso e;; q_type_cat A γ)
       = (q_type_cat (reind_type_cat A (dpr_type_cat A)) (a;; q_type_cat A γ))
           ;; (q_type_cat A (dpr_type_cat A))).
@@ -385,6 +389,7 @@ Proof.
     etrans. apply maponpaths. apply Pb_map_commutes_1.
     etrans. symmetry. apply assoc. apply maponpaths.
     apply id_right.
+    + apply homs_sets. 
 Qed.
 
 Lemma comp_law_3_of_type_cat : @comp_law_3 CC tt_reindx_type_struct_of_type_cat reindx_laws_of_type_cat.

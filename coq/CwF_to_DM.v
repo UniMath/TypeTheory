@@ -89,20 +89,24 @@ Proof.
   destruct T as [A [h e]].
   clear B.
   refine (tpair _ _ _ ).
-  - refine (mk_Pullback _ _ _ _ _ _ ). refine (tpair _ _ _). 
-    + exists (Γ' ∙ (A[f])).
-      exists (q_precwf _ _ ;; h).
-      exact (π _ ).
+  - refine (mk_Pullback _ _ _ _ _ _ _ _ ).
+    + apply (Γ' ∙ (A[f])).
+    + apply (q_precwf _ _ ;; h).
+    + apply (π _ ). 
     + simpl. unfold dm_sub_struct_of_CwF.
       simpl.
       set (T:= postcomp_pb_with_iso CC (pr2 H)).
-      eapply T.
-      apply is_pullback_reindx_cwf. apply (pr2 H). 
+      set (T':= T _ _ _ _  (q_precwf A f) _ _ f _ (is_pullback_reindx_cwf (pr2 H) _ _ _ _ )).
+      refine (pr1 (T' _ _ _ _ )).
       sym. assumption.
+    + 
+      set (T:= postcomp_pb_with_iso CC (pr2 H)).
+      set (T':= T _ _ _ _  (q_precwf A f) _ _ f _ (is_pullback_reindx_cwf (pr2 H) _ _ _ _ )).
+      eapply (pr2 (T' _ _ _ _ )).
   - simpl.
     apply hinhpr.
     unfold iso_to_dpr.
-    exists (A[f]). 
+    exists (A[f]).
     exists (identity_iso _ ).
     sym. apply id_left.
 Defined.

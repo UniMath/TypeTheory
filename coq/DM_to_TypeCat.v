@@ -22,6 +22,7 @@ Require Import Systems.DM.
 Section DM_to_TypeCat.
 
 Variable CC : precategory.
+Variable hs : has_homsets CC. 
 Variable C : DM_structure CC.
 
 
@@ -58,8 +59,10 @@ Proof.
     + {
         refine (tpair _ _ _ ).
         - intros Γ A Γ' f.
-          apply sqr_comm_of_DM.
-        - intros. apply isPullback_of_DM. }
+          refine (sqr_comm_of_DM (( DM_from_DM_over A)) _ ).
+        - intros.
+          refine (@isPullback_of_DM  _ _ _ _ _ _ _ _ ) .
+          apply hs. }
 Defined.
 
 Definition type_cat_struct_from_DM : type_cat_struct CC.
