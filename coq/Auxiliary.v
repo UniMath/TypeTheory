@@ -230,6 +230,11 @@ End on_pullbacks.
 Arguments map_into_Pb {_ _ _ _ _ _ _ _ _ } _ _ {_} _ _ _ .
 Arguments map_into_Pb_unique {_ _ _ _ _ _ _ _ _} _ _ {_} _ _ _ _   .
 
+
+(**
+will be an instance of a general lemma to be proved
+   in UniMath
+*)
 Definition isaprop_Pullback (C : precategory) (H : is_category C)
            (a b c : C) (f : b ⇒ a) (g : c ⇒ a)
 : isaprop (Pullback _  f g).
