@@ -20,6 +20,7 @@ MODULES-CORE := Auxiliary UnicodeNotations \
 	CwF_to_DM \
 	TypeCat_to_DM \
 	CwF_to_TypeCat_to_DM \
+	CwF_1
 
 # Remaining modules, included only in “make all”.
 # Useful for leaves that are slow to recompile.
