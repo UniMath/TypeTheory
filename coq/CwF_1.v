@@ -146,7 +146,7 @@ Proof.
   split.
   - intros. apply (toforallpaths _ _ _ (functor_id (pr1 (pr1 C))_ )).
   - intros. apply (toforallpaths _ _ _ (functor_comp (pr1 (pr1 C))_ _ _ _ _ )).
-Qed.
+Defined.
 
 (** Reindexing for terms needs transport along reindexing for types *) 
 Definition reindx_laws_terms {CC : precategory} (C : tt_reindx_struct CC) 
