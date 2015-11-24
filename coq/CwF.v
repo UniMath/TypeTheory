@@ -352,6 +352,52 @@ Definition cwf_law_4 {CC : precategory} (C : cwf_struct CC) : comp_law_4 C
   := pr2 (pr2 (cwf_comp_laws C)).
 
 
+Ltac imp := apply impred; intro.
+
+Lemma isPredicate_cwf_laws (CC : precategory)
+: isPredicate (@cwf_laws CC).
+Proof.
+  intros T.
+  apply isofhlevelsn.
+  intro H.
+  set (X:= tpair _ T H : cwf_struct CC).
+  apply (isofhleveltotal2).
+  - apply isofhleveltotal2.
+    + apply isofhleveltotal2.
+      *
+        {
+          apply isofhleveltotal2.
+          - do 2 imp.
+            apply (cwf_types_isaset X).
+          - intros.
+            do 6 imp. apply (cwf_types_isaset X).
+        }
+      * intros.
+        { 
+          apply isofhleveltotal2.
+          - do 3 imp.
+            apply (cwf_terms_isaset X).
+          - intros. do 7 imp.
+            apply (cwf_terms_isaset X).
+        }
+    + intros.
+      repeat (apply isofhleveldirprod).
+      *
+        {
+          do 5 imp.
+          apply (isofhleveltotal2 1).
+          - apply (has_homsets_cwf X).
+          - intros. apply (cwf_terms_isaset X).
+        }
+      * do 7 imp. apply (has_homsets_cwf X).
+      * do 2 imp. apply (has_homsets_cwf X).
+  - intros.
+    repeat (apply isofhleveldirprod).
+    + apply isaprop_has_homsets.
+    + do 1 imp. apply isapropisaset.
+    + do 2 imp. apply isapropisaset.
+Qed.
+        
 (** * Lemmas about CwFs, in particular that reindexing forms pullback *)
 
 Section CwF_lemmas.
