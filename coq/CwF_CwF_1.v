@@ -47,11 +47,11 @@ Section fix_a_precategory.
       apply (CwF.rtype A f).
     -  split; intros; simpl.
        + intro Γ; simpl;
-         apply funextfun; intro A;
+         apply funextsec; intro A;
          apply CwF.reindx_type_id;
          apply (CwF.reindx_laws_from_cwf_struct _ CC).
        + intros Γ Γ' Γ'' γ γ';
-         apply funextfun; intro A;
+         apply funextsec; intro A;
          apply CwF.reindx_type_comp;
          apply (CwF.reindx_laws_from_cwf_struct _ CC).
   Defined.
@@ -87,7 +87,26 @@ Section fix_a_precategory.
                  intros Γ A a.
                  assert (T:= CwF.reindx_term_id CC).
                  eapply pathscomp0. apply T.
+                 apply transportf_ext.
+                 apply maponpaths.
+                 apply pathsinv0.
+                 unfold functor_id. simpl.
+                 rewrite toforallpaths_funextsec.
+                 apply idpath.
+(*
+                 eapply pathscomp0.
+                 set (T2:= toforallpaths_funextsec).
+                 match goal with [|- toforallpaths ?P ?f ?g ?h _ = _ ]
+                                   => set (T3 := toforallpaths_funextsec _ P f g )  end.
+                 rewrite T3. 
+                 eapply pathscomp0.
+                 unfold CwF.reindx_type_id.
                  simpl.
+                 simpl in T3.
+                 rewrite T3.
+                 apply T3.
+                 set (T3:= @T2 _ (λ _ : CC ⟨ Γ ⟩, CC ⟨ Γ ⟩)).
+                 eapply (toforallpaths_funextsec).
                  unfold functor_id.
                  simpl. (* here is the first place where we get a propositional equality instead of
                            the desired definitional one *)
@@ -95,15 +114,17 @@ Section fix_a_precategory.
                  apply transportf_ext;
                  apply proofirrelevance;
                  apply (CwF.cwf_types_isaset).
-               -  simpl;
-                        intros;
-                        assert (T:= @CwF.reindx_term_comp _ CC);
-                        eapply pathscomp0; [apply T|];
-                        apply transportf_ext;
-                        apply proofirrelevance;
-                        apply (CwF.cwf_types_isaset)
-                      ])
-              .
+*)
+               - simpl.
+                 intros.
+                 assert (T:= @CwF.reindx_term_comp _ CC).
+                 eapply pathscomp0; [apply T|].
+                 apply transportf_ext.
+                 apply maponpaths.
+                 apply pathsinv0.
+                 unfold functor_comp; simpl.
+                 rewrite toforallpaths_funextsec.
+                 apply idpath.
           }
         * { repeat split; simpl.
             - intros Γ A Γ' γ a.
@@ -113,9 +134,13 @@ Section fix_a_precategory.
               + simpl in *.
                 assert (T:=CwF.cwf_law_2 CC).
                 eapply pathscomp0. Focus 2. apply T.
-                apply map_on_two_paths.
-                * apply proofirrelevance. apply (CwF.has_homsets_cwf CC).
-                * apply transportf_ext. apply (CwF.cwf_types_isaset CC).
+                apply maponpaths.
+                apply transportf_ext.
+                apply maponpaths.
+                unfold reindx_type_comp. simpl.
+                unfold functor_comp. simpl.
+                rewrite toforallpaths_funextsec.
+                apply idpath.
             - intros ? ? ? ? ? ? ? .
               simpl in *.
               assert (T:= CwF.cwf_law_3 CC).
@@ -132,8 +157,6 @@ Section fix_a_precategory.
       + apply (CwF.has_homsets_cwf CC).
       + simpl.
         apply (CwF.cwf_terms_isaset CC).
-        Unshelve.
-        (apply (CwF.reindx_laws_from_cwf_struct _ CC)).
   Defined.
 
   End CwF_1_from_CwF.
@@ -203,22 +226,23 @@ Section fix_a_precategory.
                 refine (tpair _ _ _ ).
                 + apply (CwF_1.cwf_law_1).
                 + assert (T:=CwF_1.cwf_law_2 CC).
-                  eapply pathscomp0. Focus 2. apply T.
+                  apply T.
+(*                  eapply pathscomp0. Focus 2. apply T.
+                  apply idpath.
+                  apply maponpaths.
+                  apply maponpaths.
                   apply map_on_two_paths.
                   * apply proofirrelevance.
                     apply (CwF_1.has_homsets_cwf CC).
                   * apply transportf_ext.
                     apply proofirrelevance.
                     apply (CwF_1.cwf_types_isaset CC).
+*)
               - split.
                 + intros ? ? ? ? ? ? ? .
                   simpl in *|-.
                   assert (T:= CwF_1.cwf_law_3 CC).
-                  unfold comp_law_3 in T.
-                  eapply pathscomp0. apply T.
-                  apply maponpaths.
-                  apply transportf_ext.
-                  apply (CwF_1.cwf_types_isaset CC).
+                  apply T.
                 + intros ? ? .
                   simpl in A.
                   apply (CwF_1.cwf_law_4 CC).
@@ -247,29 +271,52 @@ Section fix_a_precategory.
         + simpl.
           refine (total2_paths _ _ ).
           * simpl.
-            refine (total2_paths _ _ ).
-            simpl.
-            destruct a as [t p].
-            refine (total2_paths _ _ ).
-            simpl.
-            destruct t as [t1 t2].
-            refine (total2_paths _ _ ).
-            simpl.
-            destruct CClaws as [c d].
-            destruct c as [c1 c2].
-            destruct c2 as [c2 c3].
-            destruct c3 as [c3 c4].
+            {
+              refine (total2_paths _ _ ).
+              - simpl.
+                destruct a as [t p].
+                refine (total2_paths _ _ ).
+                + simpl. 
+                  destruct t as [t1 t2].
+                  refine (total2_paths _ _ ).
+                  * simpl. 
+                    destruct CClaws as [c d].
+                    destruct c as [c1 c2].
+                    destruct c2 as [c2 c3].
+                    destruct c3 as [c3 c4].
             
-            simpl in *.
-            apply funextfun; intro.
-            destruct p as [p1 p2].
-            simpl in *.
-            destruct d as [d1 d2].
-            simpl in *.
-            refine (total2_paths _ _ ).
+                    simpl in *.
+            
+                    (*apply funextfun; intro.*)
+                    destruct p as [p1 p2].
+                    simpl in *.
+                    destruct d as [d1 d2].
+                    simpl in *.   (* problem here is: we need eta for pairs under a lambda *)
+                    apply funextsec; intro.
+                    (* apply idpath. *)
+                    { 
+                      refine (total2_paths _ _ ).
+                      - apply idpath.
+                      - apply idpath.
+                    }
+                  * destruct CClaws as [X1 X2].
+                    simpl in *.
+                    destruct X1 as [Y1 Y2].
+                    destruct Y1 as [Z1 Z2].
+                    destruct Y2 as [W1 W2].
+                    destruct W2 as [S1 S2].
+                    destruct p as [p1 p2].
+                    simpl in *.
+                    destruct X2 as [U1 U2].
+            
+                    idtac.
+                    simpl.
+            Search (transportf funextsec  ).
+            
+            idtac.
+
+            
             apply idpath.
-            apply idpath.
-            simpl in *.
             apply idpath.
             destruct (t1 x).
             refine (total2_paths _ _ ).
