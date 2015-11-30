@@ -27,7 +27,6 @@ Require Export UniMath.CategoryTheory.limits.pullbacks.
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
-
 (** * A "preview" of the definition *)
 
 Module Preview.
@@ -43,30 +42,43 @@ Reserved Notation "'ν' A" (at level 15).
 Reserved Notation "γ ♯ a" (at level 25).
 *)
 
+Let hsHSET := has_homsets_HSET.
+  
 Variable C : precategory.
-Variable hs : has_homsets C.
-Variable Ty : functor C^op HSET.
-Variable Tm : functor C^op HSET. (* needs to be written as ob in a precat *)
-Variable p : nat_trans Tm Ty. (* needs to be written as mor in a precat *)
+Variable hs : has_homsets C. 
+Variable Ty Tm: [C^op, HSET, hsHSET]. (* functor C^op HSET. *)
+Variable p : _ ⟦Tm, Ty⟧. (* needs to be written as mor in a precat *)
 
-Variable comp : forall (Γ : C) (A : pr1hSet (Ty Γ)), C.
-Variable pi : forall (Γ : C) (A : pr1hSet (Ty Γ)), comp Γ A ⇒ Γ.
-Variable q : forall (Γ : C) (A : pr1hSet (Ty Γ)), pr1hSet (Tm (comp Γ A)).
+Variable comp : forall (Γ : C) (A : pr1hSet ((Ty : functor _ _ ) Γ)), C.
+Variable pi : forall (Γ : C) (A : pr1hSet ((Ty : functor _ _ ) Γ)), comp Γ A ⇒ Γ.
+Variable q : forall (Γ : C) (A : pr1hSet ((Ty : functor _ _)  Γ)),
+               pr1hSet ((Tm : functor _ _ ) (comp Γ A)).
 
-Definition yoTy (Γ : C) : pr1hSet (Ty Γ) ≃ nat_trans (yoneda_objects C hs Γ) Ty.
+Definition yoTy (Γ : C) :
+  pr1hSet ((Ty : functor _ _ ) Γ)
+          ≃
+  _ ⟦(yoneda C hs Γ) , Ty ⟧.
 Proof.
   apply invweq.
   apply yoneda_weq.
 Defined.
 
-Definition yoTm (Γ : C) : pr1hSet (Tm Γ) ≃ nat_trans (yoneda_objects C hs Γ) Tm.
+Definition yoTm (Γ : C) :
+  pr1hSet ((Tm : functor _ _ ) Γ)
+          ≃
+  _ ⟦yoneda C hs Γ, Tm⟧.
 Proof.
   apply invweq.
   apply yoneda_weq.
 Defined.
 
-Variable comp_comm : forall Γ (A : pr1hSet (Ty Γ)),
-    nat_trans_comp _ _ _ (yoTm _ (q Γ A)) p =
-    nat_trans_comp _ _ _ (yoneda_morphisms _ _ _ _ (pi Γ A)) (yoTy _ A).
+Variable comp_comm :
+  forall Γ (A : pr1hSet ((Ty : functor _ _ ) Γ)),
+    yoTm _ (q Γ A) ;; p =
+    #(yoneda _ _ ) (pi Γ A) ;; yoTy _ A.
+
+Variable ispullback_comp_comm : 
+  forall Γ (A : pr1hSet ((Ty : functor _ _ ) Γ)),
+    isPullback _ _ _ _ _ (comp_comm Γ A).
 
 End Preview.
