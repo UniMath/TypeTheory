@@ -106,7 +106,7 @@ Proof.
   apply subtypeEquality.
   intro; apply homs_sets. simpl.
   apply pathsinv0.
-  apply PullbackArrowUnique'.
+  apply PullbackArrowUnique.
   + simpl.
     rewrite id_left.
     destruct a as [f H]; simpl in *.
@@ -178,7 +178,7 @@ Proof.
   apply subtypeEquality.
   intro; apply homs_sets. simpl.
   apply pathsinv0.
-  apply PullbackArrowUnique'.
+  apply PullbackArrowUnique.
   + destruct a as [f H]; simpl in *.
     assert (X := reind_comp_term_typecat (pr2 C)).
     eapply pathscomp0. apply maponpaths. apply X.

@@ -299,7 +299,7 @@ Definition sqr_comm_of_dm_sub_pb {CC : precategory} {C : dm_sub_pb CC}
 Definition isPullback_of_dm_sub_pb {CC : precategory} (hs: has_homsets CC) {C : dm_sub_pb CC}
            {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
 : isPullback _ _ _ _ _ _ :=
-isPullback_Pullback _ hs (pr1 (pr2 C _ _ γ _ f )).
+isPullback_Pullback _  (pr1 (pr2 C _ _ γ _ f )).
 
 (*
 Definition dm_closed_under_pb {CC : precategory} (C : dm_sub_pb CC)

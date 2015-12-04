@@ -144,12 +144,11 @@ Section on_pullbacks.
 
   Local Definition Pbb : Pullback _ k h.
   Proof.
-    refine (mk_LimCone _ _ _ _ ).
+    refine (mk_Pullback _ _ _ _ _ _ _ _ ).
       - apply a.
-      - refine (PullbCone _ _ _ _ _ _ _ ).
-        + apply f.
-        + apply g.
-        + apply sqr_comm.
+      - apply f.
+      - apply g.
+      - apply sqr_comm.
       - apply Pb.
   Defined.
   
@@ -185,8 +184,8 @@ Section on_pullbacks.
     assert  (TH : x ;; f ;; k = y ;; g ;; h).
     { rewrite H. repeat rewrite <- assoc. rewrite sqr_comm. apply idpath. }
     pathvia (T TH).
-    apply PullbackArrowUnique'. apply idpath. assumption.
-    apply pathsinv0. apply PullbackArrowUnique'. apply pathsinv0; assumption.
+    apply PullbackArrowUnique. apply idpath. assumption.
+    apply pathsinv0. apply PullbackArrowUnique. apply pathsinv0; assumption.
     apply idpath.
   Qed.
 
@@ -197,7 +196,7 @@ Section on_pullbacks.
     eapply pathscomp0 ; [|apply sqr_comm].
     eapply pathscomp0. eapply pathsinv0; apply assoc.
     apply maponpaths. apply Hi.
-    apply (mk_isPullback _ hs).    
+    apply (mk_isPullback _ ).    
     intros e s t HH.
     refine (tpair _ _ _ ).
     - refine (tpair _ _ _ ).
@@ -219,7 +218,7 @@ Section on_pullbacks.
       + intro. apply isapropdirprod; apply hs.
       + simpl.
         destruct t0 as [w [Ht1 Ht2]]; simpl in *.
-        apply PullbackArrowUnique'.
+        apply PullbackArrowUnique.
         * apply iso_inv_on_left.
           rewrite <- Ht1. apply assoc.
         * assumption.
