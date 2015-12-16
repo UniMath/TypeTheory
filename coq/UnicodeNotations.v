@@ -1,6 +1,6 @@
 
-Require Export UniMath.Foundations.Basics.All.
-Require Export UniMath.Foundations.Propositions.
+Require Export UniMath.Foundations.Basics.PartD.
+Require Export UniMath.Foundations.Basics.Propositions.
 Require Export UniMath.CategoryTheory.precategories.
 
 (** * (Unicode) Notation for various types and operations  *)

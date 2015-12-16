@@ -36,7 +36,7 @@ Proof.
   - intros Γ H. exact (ob_from_DM_over H).
   - intros Γ Δ'γH Γ' f.
     simpl in *.
-    refine (tpair _ _ _ ).
+    unshelve refine (tpair _ _ _ ).
     + exists ( (DM_from_DM_over Δ'γH) ⋆ f).
       apply pb_mor_of_DM.
     + simpl.
@@ -46,20 +46,20 @@ Defined.
 Definition type_cat_struct2_from_DM : type_cat_struct2 type_cat_struct1_from_DM.
 Proof.
   unfold type_cat_struct2.
-  refine (tpair _ _ _ ).
+  unshelve refine (tpair _ _ _ ).
   - intros Γ A; simpl.
     unfold ext_type_cat. simpl.
     unfold type_cat_struct1_from_DM in A. simpl in *.
     apply (pr2 (pr1 A)).
   - simpl.
-    refine (tpair _ _ _ ).
+    unshelve refine (tpair _ _ _ ).
     + intros Γ A Δ f.
       unfold ext_type_cat; simpl.
       apply pb_arrow_of_arrow.
     + {
-        refine (tpair _ _ _ ).
+        unshelve refine (tpair _ _ _ ).
         - intros Γ A Γ' f.
-          refine (sqr_comm_of_DM (( DM_from_DM_over A)) _ ).
+          unshelve refine (sqr_comm_of_DM (( DM_from_DM_over A)) _ ).
         - intros.
           refine (@isPullback_of_DM  _ _ _ _ _ _ _ _ ) .
           apply hs. }

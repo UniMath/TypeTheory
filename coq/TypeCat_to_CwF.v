@@ -56,7 +56,7 @@ Defined.
 Definition reindx_struct_of_type_cat : reindx_structure tt_structure_of_type_cat.
 Proof.
   unfold reindx_structure.
-  refine (tpair _ _ _ ).
+  unshelve refine (tpair _ _ _ ).
   - intros Γ Γ'.
     unfold tt_structure_of_type_cat.
     simpl.
@@ -65,7 +65,7 @@ Proof.
   - intros Γ Γ' A H. unfold tt_structure_of_type_cat in *.
     simpl in *.
     intro γ.
-    refine (tpair _ _ _ ).
+    unshelve refine (tpair _ _ _ ).
     + eapply (map_into_Pb _ _ (dpr_type_cat A)  γ).
       * apply reind_pb_type_cat.
       * etrans. Focus 2. eapply pathsinv0. apply id_left.
@@ -256,10 +256,10 @@ Definition comp_1_struct_of_type_cat : comp_1_struct tt_reindx_from_type_cat.
 Proof.
   unfold comp_1_struct.
   intros Γ A.
-  refine (tpair _ _ _ ).
-  unfold tt_reindx_from_type_cat in A. simpl in A.
-  exact (ext_type_cat Γ A).
-  exact (dpr_type_cat A).
+  unshelve refine (tpair _ _ _ ).
+  - unfold tt_reindx_from_type_cat in A. simpl in A.
+    exact (ext_type_cat Γ A).
+  - exact (dpr_type_cat A).
 Defined.
 
 Definition tt_reindx_comp_1_of_type_cat : tt_reindx_comp_1_struct CC .
@@ -273,7 +273,7 @@ Proof.
   split.
   - unfold tt_reindx_comp_1_of_type_cat in *.
     simpl in *.
-    + refine (tpair _ _ _ ).
+    + unshelve refine (tpair _ _ _ ).
       * { unfold comp_obj. simpl. 
           eapply map_into_Pb.
           - apply  reind_pb_type_cat.
@@ -301,7 +301,7 @@ Proof.
   unfold comp_laws_1_2.
   intros Γ A Γ' γ a. unfold tt_reindx_type_struct_of_type_cat.
   simpl in * .
-  refine (tpair _ _ _ ).
+  unshelve refine (tpair _ _ _ ).
   * unfold pairing. simpl.
     destruct a as [a a_sec]; simpl in *.
     etrans. eapply pathsinv0. apply assoc.
@@ -359,7 +359,7 @@ Proof.
       = (q_type_cat (reind_type_cat A (dpr_type_cat A)) (a;; q_type_cat A γ))
           ;; (q_type_cat A (dpr_type_cat A))).
 
-      refine (pre_comp_with_iso_is_inj _ _ _ _ _ _ _ _ _).
+      unshelve refine (pre_comp_with_iso_is_inj _ _ _ _ _ _ _ _ _).
       Focus 4.
         etrans. Focus 2. symmetry; apply assoc.
         etrans. Focus 2. apply q_q_type_cat.

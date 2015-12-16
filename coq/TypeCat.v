@@ -11,7 +11,7 @@ Contents:
 *)
 
 Require Export Systems.UnicodeNotations.
-Require Export UniMath.Foundations.Sets.
+Require Export UniMath.Foundations.Basics.Sets.
 Require Export UniMath.CategoryTheory.precategories.
 Require Export UniMath.CategoryTheory.limits.pullbacks.
 

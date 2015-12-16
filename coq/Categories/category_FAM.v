@@ -7,9 +7,9 @@
     - TODO: FAM(C) saturated if C is
 *)
 
-Require Export UniMath.Foundations.Sets.
+Require Export UniMath.Foundations.Basics.Sets.
 
-Require Import UniMath.Foundations.FunctionalExtensionality.
+Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 
 Require Export UniMath.CategoryTheory.precategories.
 Require Export UniMath.CategoryTheory.functor_categories.
@@ -440,7 +440,7 @@ Lemma FAM_obj_weq_4 (A B : ob FAM) :
      isweq f1 × ∀ a, is_iso (f2 a))
   ≃ Σ (f : A ⇒ B), FAM_is_iso f.
 Proof.
-  refine (weqgradth _ _ _ _).
+  unshelve refine (weqgradth _ _ _ _).
   - intros [f1 [f2 [wf1 wf2]]]. exists (tpair _ f1 f2). exists wf1. exact wf2.
   - intros [[f1 f2] [wf1 wf2]]. exists f1. exists f2. exists wf1. exact wf2.
   - intros [f1 [f2 [wf1 wf2]]]. simpl. apply idpath.
@@ -451,7 +451,7 @@ Lemma FAM_obj_weq_5 (A B : ob FAM) (H : has_homsets C)
   : (Σ (f : A ⇒ B), FAM_is_iso f)
   ≃ Σ (f : A ⇒ B), is_iso f.
 Proof.
-  refine (weqbandf _ _ _ _).
+  unshelve refine (weqbandf _ _ _ _).
   - apply idweq.
   - simpl. intros. apply invweq. apply FAM_is_iso_weq. assumption.
 Defined.
@@ -508,7 +508,7 @@ Lemma FAM_obj_weq_3_id (A : ob FAM)
   : (FAM_obj_weq_3 A A (FAM_id2 A)) = FAM_id3 A.
 Proof.
   apply (total2_paths (idpath _)).
-  refine (total2_paths _ _).
+  unshelve refine (total2_paths _ _).
   - apply funextsec; intros a.
     destruct A as [[A1 A2] A3].
     eapply pathscomp0. Focus 2. exact (idpath (identity _)).

@@ -112,7 +112,7 @@ Proof.
     apply (pairing_mapeq _ _ (id_right _ _ _ _)).
     apply maponpaths. simpl.
     eapply pathscomp0. apply transportf_pathscomp0.
-    refine (_ @ _).
+    unshelve refine (_ @ _).
       exact (transportf (term C (Γ ◂ reind_type_cat A (identity Γ)))
         (maponpaths (fun B => B [π (A [identity Γ])]) (reindx_type_id C Γ A))
         (ν (A [identity Γ]))).

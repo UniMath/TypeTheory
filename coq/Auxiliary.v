@@ -8,7 +8,7 @@ Possibly some should be upstreamed to “UniMath” eventually.
 
 *)
 
-Require Import UniMath.Foundations.Basics.All.
+Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import Systems.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
@@ -144,7 +144,7 @@ Section on_pullbacks.
 
   Local Definition Pbb : Pullback _ k h.
   Proof.
-    refine (mk_Pullback _ _ _ _ _ _ _ _ ).
+    unshelve refine (mk_Pullback _ _ _ _ _ _ _ _ ).
       - apply a.
       - apply f.
       - apply g.
@@ -156,7 +156,7 @@ Section on_pullbacks.
   :  x ;; k = y ;; h → e ⇒ a.
   Proof.
     intro H.
-    refine (PullbackArrow _ Pbb _ _ _ _ ).
+    unshelve refine (PullbackArrow _ Pbb _ _ _ _ ).
     - apply x.
     - apply y.
     - apply H.
@@ -192,14 +192,15 @@ Section on_pullbacks.
   Lemma postcomp_pb_with_iso (y : C) (r : y ⇒ d) (i : iso b y) (Hi : i ;; r = k) :
     Σ H : f ;; i ;; r = g ;; h, isPullback _ _ _ _ _ H.
   Proof.
-    refine (tpair _ _ _ ).
-    eapply pathscomp0 ; [|apply sqr_comm].
-    eapply pathscomp0. eapply pathsinv0; apply assoc.
-    apply maponpaths. apply Hi.
+    unshelve refine (tpair _ _ _ ).
+    { eapply pathscomp0 ; [|apply sqr_comm].
+      eapply pathscomp0. eapply pathsinv0; apply assoc.
+      apply maponpaths. apply Hi.
+    }
     apply (mk_isPullback _ ).    
     intros e s t HH.
-    refine (tpair _ _ _ ).
-    - refine (tpair _ _ _ ).
+    unshelve refine (tpair _ _ _ ).
+    - unshelve refine (tpair _ _ _ ).
       set (T:= @map_into_Pb e).
       set (T':= T (s ;; inv_from_iso i) t).
       apply T'. { rewrite <- HH. rewrite <- assoc. apply maponpaths.
@@ -294,7 +295,7 @@ Section bla.
 
   Definition map_to_2nd_pb : A ⇒ A'.
   Proof.
-    refine (map_into_Pb H' pb' _ _ _  ).
+    unshelve refine (map_into_Pb H' pb' _ _ _  ).
     - exact (f ;; h).
     - exact g.
     - eapply pathscomp0. Focus 2. apply H.
@@ -304,7 +305,7 @@ Section bla.
 
   Definition map_to_1st_pb : A' ⇒ A.
   Proof.
-    refine (map_into_Pb H pb _ _ _ ).
+    unshelve refine (map_into_Pb H pb _ _ _ ).
     - exact (f';; inv_from_iso h).
     - exact g'.
     - eapply pathscomp0; [| apply H'].

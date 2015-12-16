@@ -8,7 +8,7 @@
 
 Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
-Require Export UniMath.Foundations.Sets.
+Require Export UniMath.Foundations.Basics.Sets.
 
 Require Export UniMath.CategoryTheory.functor_categories.
 Require Export UniMath.CategoryTheory.category_hset.
@@ -154,12 +154,12 @@ Definition Elem_cov_iso_type_to_Elem_cov_iso (ac bd : ∫) :
   Elem_cov_iso_type ac bd → iso ac bd .
 Proof.
   intro H.
-  refine (tpair _ _ _ ).
-  refine (tpair _ _ _ ).
+  unshelve refine (tpair _ _ _ ).
+  unshelve refine (tpair _ _ _ ).
   - exact (pr1 H).
   - exact (pr2 H).
   - apply is_iso_from_is_z_iso.
-    refine (tpair _ _ _ ).
+    unshelve refine (tpair _ _ _ ).
     exists (inv_from_iso (pr1 H)).
     apply foo.
     split.
@@ -192,7 +192,7 @@ Lemma bla (H : is_category C) (ac bd : ∫) :
 Proof.
   eapply weqcomp.
   apply total2_paths_equiv.
-  refine (weqbandf (weqpair (@idtoiso _ _ _ ) _ ) _ _ _ ).
+  unshelve refine (weqbandf (weqpair (@idtoiso _ _ _ ) _ ) _ _ _ ).
   - apply (pr1 H).
   - simpl. intro x.
     destruct ac. destruct bd.

@@ -13,11 +13,11 @@
 
 Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
-Require Export UniMath.Foundations.Sets.
+Require Export UniMath.Foundations.Basics.Sets.
 Require Export UniMath.CategoryTheory.precategories.
 Require Export UniMath.CategoryTheory.limits.pullbacks.
 
-Require Import UniMath.Foundations.FunctionalExtensionality.
+Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 
 
 (** * A "preview" of the definition *)

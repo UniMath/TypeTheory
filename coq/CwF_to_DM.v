@@ -11,7 +11,7 @@
 *)
 
 
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.total2_paths.
 
 Require Import Systems.Auxiliary.
@@ -88,8 +88,8 @@ Proof.
   unfold iso_to_dpr in T.
   destruct T as [A [h e]].
   clear B.
-  refine (tpair _ _ _ ).
-  - refine (mk_Pullback _ _ _ _ _ _ _ _ ).
+  unshelve refine (tpair _ _ _ ).
+  - unshelve refine (mk_Pullback _ _ _ _ _ _ _ _ ).
     + apply (Γ' ∙ (A[f])).
     + apply (q_precwf _ _ ;; h).
     + apply (π _ ). 
