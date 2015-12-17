@@ -12,13 +12,14 @@ Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import Systems.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.limits.
 
 (** * Lemmas about identity etc *)
 
 
 
-Lemma maponpaths_eq_idpath : ∀ (T1 T2 : UU) (f : T1 → T2) (t1 : T1) (e : t1 = t1)
+Lemma maponpaths_eq_idpath : ∀ (T1 T2 : UU) (f : T1 -> T2) (t1 : T1) (e : t1 = t1)
           (H : e = idpath _ ), 
                                  maponpaths f e = idpath _ .
 Proof.

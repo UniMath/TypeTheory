@@ -13,6 +13,7 @@ Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 
 Require Export UniMath.CategoryTheory.precategories.
 Require Export UniMath.CategoryTheory.functor_categories.
+Require Export UniMath.CategoryTheory.UnicodeNotations.
 Require Export UniMath.CategoryTheory.category_hset.
 Require Export UniMath.CategoryTheory.yoneda.
 Require Export UniMath.CategoryTheory.rezk_completion.

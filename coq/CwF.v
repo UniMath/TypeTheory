@@ -16,7 +16,8 @@
 Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
 Require Export UniMath.Foundations.Basics.Sets.
-Require Export UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Export UniMath.CategoryTheory.UnicodeNotations.
 
 (** * A "preview" of the definition *)
 

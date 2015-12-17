@@ -13,6 +13,7 @@ Contents:
 Require Export Systems.UnicodeNotations.
 Require Export UniMath.Foundations.Basics.Sets.
 Require Export UniMath.CategoryTheory.precategories.
+(* Require Export UniMath.CategoryTheory.UnicodeNotations. *)
 Require Export UniMath.CategoryTheory.limits.pullbacks.
 
 Section Prelims.
@@ -55,11 +56,11 @@ Record type_precat_record : Type := {
   C : precategory ;
   ty : C -> Type                                        where "C ⟨ Γ ⟩" := (ty Γ);
   ext : ∀ Γ, C⟨Γ⟩ -> C                                  where "Γ ◂ A" := (ext Γ A);
-  dpr : ∀ Γ (A : C⟨Γ⟩), Γ ◂ A ⇒ Γ                       where "'π' A" := (dpr _ A);
-  reind : ∀ Γ (A : C⟨Γ⟩) Γ' (f : Γ' ⇒ Γ), C⟨Γ'⟩         where "A [ f ]" := (reind _ A _ f)  ;
-  q : ∀ {Γ} (A : ty Γ) {Γ'} (f : Γ' ⇒ Γ),
-          (Γ' ◂ (A [ f ]) ⇒ Γ ◂ A) ;
-  dpr_q : ∀ Γ (A : C⟨Γ⟩) Γ' (f : Γ' ⇒ Γ), 
+  dpr : ∀ Γ (A : C⟨Γ⟩), Γ ◂ A -> Γ                       where "'π' A" := (dpr _ A);
+  reind : ∀ Γ (A : C⟨Γ⟩) Γ' (f : Γ' -> Γ), C⟨Γ'⟩         where "A [ f ]" := (reind _ A _ f)  ;
+  q : ∀ {Γ} (A : ty Γ) {Γ'} (f : Γ' -> Γ),
+          (Γ' ◂ (A [ f ]) -> Γ ◂ A) ;
+  dpr_q : ∀ Γ (A : C⟨Γ⟩) Γ' (f : Γ' -> Γ), 
           (q A f) ;; (π A) = (π (A[f])) ;; f ;
   reind_pb : ∀ Γ (A : ty Γ) Γ' (f : Γ' ⇒ Γ),
       isPullback _ _ _ _ (dpr_q _ A _ f)
