@@ -16,6 +16,7 @@
 Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
 Require Export UniMath.CategoryTheory.functor_categories.
+Require Export UniMath.CategoryTheory.UnicodeNotations.
 Require Export UniMath.CategoryTheory.category_hset.
 Require Export UniMath.CategoryTheory.opp_precat.
 Require Export UniMath.Foundations.Basics.Sets.
