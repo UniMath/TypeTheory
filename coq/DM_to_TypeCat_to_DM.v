@@ -9,7 +9,7 @@
 *)
 
 
-Require Import UniMath.RezkCompletion.total2_paths.
+Require Import UniMath.CategoryTheory.total2_paths.
 
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
@@ -26,7 +26,7 @@ Variable CC : precategory.
 Variable H : is_category CC.  
 Variable C : DM_structure CC.
 
-Lemma DM_to_TypeCat_to_DM : DM_structure_of_TypeCat _ H (type_cat_struct_from_DM _ C) = C.
+Lemma DM_to_TypeCat_to_DM : DM_structure_of_TypeCat _ H (type_cat_struct_from_DM _ (pr2 H)  C) = C.
 Proof.
   apply DM_equal.
   - assumption.

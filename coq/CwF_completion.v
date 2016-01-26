@@ -8,12 +8,12 @@
 
 Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
-Require Export UniMath.Foundations.hlevel2.hSet.
+Require Export UniMath.Foundations.Basics.Sets.
 
-Require Export UniMath.RezkCompletion.functors_transformations.
-Require Export UniMath.RezkCompletion.category_hset.
-Require Export UniMath.RezkCompletion.yoneda.
-Require Export UniMath.RezkCompletion.rezk_completion.
+Require Export UniMath.CategoryTheory.functor_categories.
+Require Export UniMath.CategoryTheory.category_hset.
+Require Export UniMath.CategoryTheory.yoneda.
+Require Export UniMath.CategoryTheory.rezk_completion.
 
 Require Export Systems.CwF.
 Require Export Systems.Categories.category_of_elements.
@@ -26,7 +26,7 @@ Definition Rezk_functor (C : precategory) (hs : has_homsets C) (D : category)
     (F : functor C D) 
   :  functor (Rezk_completion C hs) D.
 Proof.
-  set (H:=Rezk_eta_Universal_Property C D hs (pr2 D)).
+  set (H:=Rezk_eta_Universal_Property C hs D  (pr2 D)).
   apply (invmap (weqpair _  H)).
   apply F.
 Defined.

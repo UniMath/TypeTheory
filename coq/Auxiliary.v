@@ -240,12 +240,11 @@ Definition isaprop_Pullback (C : precategory) (H : is_category C)
            (a b c : C) (f : b ⇒ a) (g : c ⇒ a)
 : isaprop (Pullback _  f g).
 Proof.
-(*
   unfold Pullback.
   apply invproofirrelevance.
   unfold Pullback.
   intros Pb Pb'.
-  apply total2_paths_isaprop.
+  apply subtypeEquality.
   - intro; apply isofhleveltotal2.
     + destruct H as [H1 H2]. apply H2.
     + intros; apply isaprop_isPullback.
@@ -264,8 +263,7 @@ Proof.
     rewrite PullbackArrow_PullbackPr2, PullbackArrow_PullbackPr1.
     apply idpath.
 Qed.
-*)
-Admitted.
+
 
 Section bla.
 
@@ -357,6 +355,15 @@ Qed.
       unfold map_to_1st_pb.
       apply Pb_map_commutes_2.
 Qed.
+
+Definition iso_to_second_pb : iso A A'.
+Proof.
+  exists map_to_2nd_pb.
+  simple refine (is_iso_qinv _ map_to_1st_pb _ ).
+  split.
+  - apply inv1.
+  - apply inv2.
+Defined.
 
 End bla.
   
