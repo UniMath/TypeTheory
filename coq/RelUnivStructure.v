@@ -9,8 +9,9 @@ Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
 Require Export UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.limits.more_on_pullbacks.
 Require Export UniMath.CategoryTheory.UnicodeNotations.
-
+Require Export UniMath.CategoryTheory.functor_categories.
 
 
 Section fix_some_stuff.
@@ -44,6 +45,9 @@ Qed.
 
 Definition fpullback {X : C} (f : D ⟦J X, U⟧) := 
   Σ T : fpullback_data f, fpullback_prop T.
+
+Coercion fpullback_data_from_fpullback {X : C} {f : D ⟦J X, U⟧} (T : fpullback f) :
+   fpullback_data f := pr1 T.
 
 Definition fcomprehension := ∀ X (f : D⟦J X, U⟧), fpullback f.
 
@@ -116,10 +120,12 @@ Proof.
 Qed.
 
 
-Lemma isaprop_fcomprehension : isaprop fcomprehension.
+Lemma isaprop_fcomprehension  (is_c : is_category C)(is_d : is_category D) 
+    (HJ : fully_faithful J) : isaprop fcomprehension.
 Proof.
-  (* needs more hypotheses on the functor etc *)
-Abort.
+  do 2 (apply impred; intro).
+  apply isaprop_fpullback; assumption.
+Qed.  
 
 End fix_a_morphism.
 
@@ -128,3 +134,68 @@ Definition relative_universe_structure : UU :=
 
 
 End fix_some_stuff.
+
+Section rel_univ_structure_and_functors.
+
+Variables C D : precategory.
+Variable J : functor C D.
+Variable RUJ : relative_universe_structure _ _ J.
+
+Variables C' D' : precategory.
+Variable J' : functor C' D'.
+Variable J'ff : fully_faithful J'.
+Variable isC' : is_category C'.
+Variable isD' : is_category D'.
+
+Variables (R : functor C C') (S : functor D D').
+Variable a : nat_trans (functor_composite _ _ _ J S) (functor_composite _ _ _ R J').
+Variable a' : nat_trans (functor_composite _ _ _ R J') (functor_composite _ _ _ J S).
+
+Hypothesis Res : essentially_surjective R.
+Hypothesis Sff : fully_faithful S.
+Hypothesis Spb : maps_pb_squares_to_pb_squares _ _ S.
+
+Local Notation tU := (pr1 RUJ).
+Local Notation U := (pr1 (pr2 RUJ)).
+Local Notation pp := (pr1 (pr2 (pr2 RUJ))).
+
+(*
+Let e {X : C} (f : D ⟦J X, U⟧) (* :  #J(fp _ _ _ X) ;; f = fq X ;; pp *)
+  := pr1 (pr1 (pr2 (pr2 (pr2 RUJ)) X f)).
+*)
+
+Definition rel_univ_struct_functor : relative_universe_structure _ _ J'.
+Proof.
+  exists (S tU).
+  exists (S U).
+  exists (#S pp).
+  intros X' g.
+  set (preimg := Res X').
+  apply (squash_to_prop preimg).
+  - apply isaprop_fpullback.
+    + apply (pr2 isD').
+    + apply isC'.
+    + apply isD'.
+    + apply J'ff.
+  - intros [X i].
+    set (f' := a X ;; #J' i ;; g : D' ⟦ S (J X), S U ⟧). 
+    set (f := invmap (weq_from_fully_faithful Sff _ _ ) f').
+    set (Xf :=  (pr2 (pr2 (pr2 RUJ))) _ f). 
+    destruct Xf as [H A].
+    destruct H as [Xf [p q]].
+    destruct A as [e isPb]. cbn in *.
+    set (Sfp := Spb _ _ _ _ _ _ _ _ _ isPb).
+    simple refine (tpair _ _ _ ).
+    + simple refine (tpair _ _ _ ).
+      * apply (R Xf).
+      * { cbn. split.
+          - apply (#R p ;; i).
+          - apply (a' Xf ;; #S q).
+        }
+    + cbn.
+      simple refine (tpair _ _ _ ).
+      * cbn.
+Abort.        
+  
+
+End rel_univ_structure_and_functors.
