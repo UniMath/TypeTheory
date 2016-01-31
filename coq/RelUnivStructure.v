@@ -13,6 +13,7 @@ Require Import UniMath.CategoryTheory.limits.more_on_pullbacks.
 Require Export UniMath.CategoryTheory.UnicodeNotations.
 Require Export UniMath.CategoryTheory.functor_categories.
 
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 Section fix_some_stuff.
 
@@ -148,8 +149,19 @@ Variable isC' : is_category C'.
 Variable isD' : is_category D'.
 
 Variables (R : functor C C') (S : functor D D').
-Variable a : nat_trans (functor_composite _ _ _ J S) (functor_composite _ _ _ R J').
-Variable a' : nat_trans (functor_composite _ _ _ R J') (functor_composite _ _ _ J S).
+
+Locate "[ , , ]".
+
+Variable a :   [C, D', pr2 isD']
+     ⟦functor_composite _ _ _ J S , functor_composite _ _ _ R J'⟧.
+Hypothesis is_iso_a : is_iso a.
+
+Let a' := inv_from_iso (isopair a is_iso_a).  
+Let TA':= iso_after_iso_inv (isopair (C:=[C, D', pr2 isD']) a is_iso_a).
+(*
+Let T := inv_from_iso (isopair (C:=[C, D', pr2 isD']) a is_iso_a).
+Let TA := iso_inv_after_iso (isopair )).
+*)
 
 Hypothesis Res : essentially_surjective R.
 Hypothesis Sff : fully_faithful S.
@@ -178,7 +190,7 @@ Proof.
     + apply isD'.
     + apply J'ff.
   - intros [X i].
-    set (f' := a X ;; #J' i ;; g : D' ⟦ S (J X), S U ⟧). 
+    set (f' := pr1 a X ;; #J' i ;; g : D' ⟦ S (J X), S U ⟧). 
     set (f := invmap (weq_from_fully_faithful Sff _ _ ) f').
     set (Xf :=  (pr2 (pr2 (pr2 RUJ))) _ f). 
     destruct Xf as [H A].
@@ -195,6 +207,33 @@ Proof.
     + cbn.
       simple refine (tpair _ _ _ ).
       * cbn.
+        set (HSfp := functor_on_square D D' S e).
+        rewrite <- assoc.
+        rewrite <- HSfp. clear HSfp.
+        rewrite assoc.
+        assert (Ha':= nat_trans_ax a'). cbn in Ha'.
+        rewrite <- Ha'. clear Ha'.
+        unfold f in e. cbn in e.
+        unfold f' in e.
+        unfold f.
+        assert (XTT:=homotweqinvweq (weq_from_fully_faithful Sff (J X) U )).
+        cbn in XTT. rewrite XTT. clear XTT.
+        unfold f'.
+        rewrite functor_comp. 
+        repeat rewrite <- assoc. 
+        apply maponpaths. repeat rewrite assoc. apply cancel_postcomposition.
+        set (XXX:= nat_trans_eq_pointwise TA'). cbn in XXX.
+
+        rewrite XXX. apply pathsinv0. apply id_left.
+      * 
+        cbn.
+        match goal with |[|- isPullback _ _ _ _ _  ?eee] => generalize eee end.
+        assert (XXX : g = #J' (inv_from_iso i) ;; a' _ ;; #S f).
+        { admit. }
+        rewrite XXX.
+        rewrite <- assoc.
+        Print isPullback.
+        
 Abort.        
   
 
