@@ -57,8 +57,7 @@ Lemma isaprop_fpullback {X : C} (f : D ⟦J X, U⟧) (is_c : is_category C)(is_d
   : isaprop (fpullback f).
 Proof.
   apply invproofirrelevance.
-  intros x x'.
-  apply subtypeEquality.
+  intros x x'. apply subtypeEquality.
   - intro t. apply isaprop_fpullback_prop.
   - destruct x as [x H]. 
     destruct x' as [x' H']. cbn.    
@@ -79,11 +78,9 @@ Proof.
       cbn in XT.
       set (XT' := XT (tpair _ a m : Σ a : C, C ⟦ a, X ⟧ × D ⟦ J a, tU ⟧ )
                      (tpair _ a' m' : Σ a : C, C ⟦ a, X ⟧ × D ⟦ J a, tU ⟧ )).
-      cbn in XT'.
-      cbn.
+      cbn in *.
       match goal with | [ |- transportf _ ?e _ = _ ] => set (TT := e) end.
       rewrite XT'.
-      Search (dirprodpair _ _ = _ ).
       destruct m as [p q].
       destruct m' as [p' q'].
       cbn. 
@@ -158,6 +155,16 @@ Hypothesis is_iso_a : is_iso a.
 
 Let a' := inv_from_iso (isopair a is_iso_a).  
 Let TA':= iso_after_iso_inv (isopair (C:=[C, D', pr2 isD']) a is_iso_a).
+Let TAA := is_functor_iso_pointwise_if_iso _ _ _ _ _ a'.
+Let aiso := isopair a is_iso_a.
+
+Local Definition a'iso : forall X, is_iso (pr1 a' X).
+Proof.
+  intros.
+  apply TAA.
+  apply (is_iso_inv_from_iso).
+Qed.
+  
 (*
 Let T := inv_from_iso (isopair (C:=[C, D', pr2 isD']) a is_iso_a).
 Let TA := iso_inv_after_iso (isopair )).
@@ -202,12 +209,13 @@ Proof.
       * apply (R Xf).
       * { cbn. split.
           - apply (#R p ;; i).
-          - apply (a' Xf ;; #S q).
+          - apply (identity _ ;; (a' Xf ;; #S q)).
         }
     + cbn.
       simple refine (tpair _ _ _ ).
       * cbn.
         set (HSfp := functor_on_square D D' S e).
+        rewrite id_left.
         rewrite <- assoc.
         rewrite <- HSfp. clear HSfp.
         rewrite assoc.
@@ -229,12 +237,66 @@ Proof.
         cbn.
         match goal with |[|- isPullback _ _ _ _ _  ?eee] => generalize eee end.
         assert (XXX : g = #J' (inv_from_iso i) ;; a' _ ;; #S f).
-        { admit. }
-        rewrite XXX.
+        { clear Sfp.  clear isPb.
+          unfold f.
+          assert (XX:=homotweqinvweq (weq_from_fully_faithful Sff (J X) U )).
+          cbn in XX. rewrite XX.
+          unfold f'.
+          repeat rewrite assoc.
+          match goal with |[ |- _ = ?A1 ;; _ ;; _ ;; ?A2 ;; ?A3] =>
+                           pathvia (A1 ;; A2 ;; A3) end.
+          - rewrite <- functor_comp.
+            rewrite iso_after_iso_inv. rewrite functor_id.
+            apply pathsinv0. apply id_left.
+          - do 2 apply cancel_postcomposition.
+            rewrite <- assoc.
+            assert (XXX := nat_trans_eq_pointwise TA').
+            cbn in XXX. rewrite XXX.
+            apply pathsinv0. apply id_right.          
+        }
+        rewrite XXX. clear XXX.
         rewrite <- assoc.
-        Print isPullback.
-        
-Abort.        
+        clear preimg. clear TA'.
+        {
+        intro Hp.
+        simple refine
+               (isPullback_iso_of_morphisms _ _ _ _ _ _ _ _ _ _ _ _ ).
+        - apply (pr2 isD').
+        - apply (#J' (#R p)). 
+        - repeat rewrite assoc.
+          repeat rewrite assoc in Hp.
+          rewrite id_left in Hp.
+          rewrite <- Hp.
+          rewrite functor_comp.
+          do 2 apply cancel_postcomposition.
+          rewrite <- assoc.
+          rewrite <- functor_comp.
+          rewrite iso_inv_after_iso.
+          rewrite functor_id. apply pathsinv0, id_right.
+        - apply (functor_on_iso_is_iso _ _ _ _ _  (iso_inv_from_iso i)).
+        - apply identity_is_iso.
+        - rewrite id_left.
+          rewrite functor_comp. rewrite <- assoc.
+          rewrite <- functor_comp. rewrite iso_inv_after_iso.
+          rewrite functor_id. apply id_right.
+        - match goal with |[|- isPullback _ _ _ _ _ ?HHH ]
+                           => generalize HHH end.
+          clear Hp.
+          intro Hp.
+          simple refine
+                 (isPullback_iso_of_morphisms _ _ _ _ _ _ _ _ _ _ _ _ ).
+          + apply (pr2 isD').
+          + cbn. apply (#S (#J p)).
+          + apply functor_on_square. assumption.
+          + apply a'iso.
+          + apply a'iso. 
+          + apply (nat_trans_ax a').
+          + apply Spb.
+            assumption.
+        } 
+Qed.
   
 
 End rel_univ_structure_and_functors.
+
+Print Assumptions rel_univ_struct_functor.
