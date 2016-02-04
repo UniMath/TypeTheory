@@ -141,11 +141,11 @@ Section on_pullbacks.
  *)
 
   Variable sqr_comm : f ;; k = g ;; h.
-  Variable Pb : isPullback _ _ _ _ _ sqr_comm.
+  Variable Pb : isPullback _ _ _ _ sqr_comm.
 
-  Local Definition Pbb : Pullback _ k h.
+  Local Definition Pbb : Pullback k h.
   Proof.
-    unshelve refine (mk_Pullback _ _ _ _ _ _ _ _ ).
+    unshelve refine (mk_Pullback _ _ _ _ _ _ _ ).
       - apply a.
       - apply f.
       - apply g.
@@ -157,7 +157,7 @@ Section on_pullbacks.
   :  x ;; k = y ;; h → e ⇒ a.
   Proof.
     intro H.
-    unshelve refine (PullbackArrow _ Pbb _ _ _ _ ).
+    unshelve refine (PullbackArrow Pbb _ _ _ _ ).
     - apply x.
     - apply y.
     - apply H.
@@ -166,14 +166,14 @@ Section on_pullbacks.
   Definition Pb_map_commutes_1 {e : C} (x : e ⇒ b) (y : e ⇒ c) H
   : map_into_Pb x y H ;; f = x.
   Proof.
-    assert (P:=PullbackArrow_PullbackPr1 _ Pbb).
+    assert (P:=PullbackArrow_PullbackPr1 Pbb).
     apply P.
   Qed.
 
   Definition Pb_map_commutes_2 {e : C} (x : e ⇒ b) (y : e ⇒ c) H
   : map_into_Pb x y H ;; g = y.
   Proof.
-    assert (P:=PullbackArrow_PullbackPr2 _ Pbb).
+    assert (P:=PullbackArrow_PullbackPr2 Pbb).
     apply P.
   Qed.
 
@@ -191,7 +191,7 @@ Section on_pullbacks.
   Qed.
 
   Lemma postcomp_pb_with_iso (y : C) (r : y ⇒ d) (i : iso b y) (Hi : i ;; r = k) :
-    Σ H : f ;; i ;; r = g ;; h, isPullback _ _ _ _ _ H.
+    Σ H : f ;; i ;; r = g ;; h, isPullback _ _ _ _ H.
   Proof.
     unshelve refine (tpair _ _ _ ).
     { eapply pathscomp0 ; [|apply sqr_comm].
@@ -238,7 +238,7 @@ will be an instance of a general lemma to be proved
 *)
 Definition isaprop_Pullback (C : precategory) (H : is_category C)
            (a b c : C) (f : b ⇒ a) (g : c ⇒ a)
-: isaprop (Pullback _  f g).
+: isaprop (Pullback f g).
 Proof.
   unfold Pullback.
   apply invproofirrelevance.
@@ -248,7 +248,7 @@ Proof.
   - intro; apply isofhleveltotal2.
     + destruct H as [H1 H2]. apply H2.
     + intros; apply isaprop_isPullback.
-  - apply (total2_paths  (isotoid _ H (iso_from_Pullback_to_Pullback _  Pb Pb' ))). 
+  - apply (total2_paths  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))). 
     rewrite transportf_dirprod, transportf_isotoid.
     rewrite inv_from_iso_iso_from_Pullback.
     rewrite transportf_isotoid.
@@ -286,10 +286,10 @@ Section bla.
   Variable CC : precategory.
   Variables A B C D A' B' : CC.
   Variables (f : A ⇒ B) (g : A ⇒ C) (k : B ⇒ D) (j : C ⇒ D) (H : f ;; k = g ;; j)
-            (pb : isPullback _ _ _ _ _ H).
+            (pb : isPullback _ _ _ _ H).
   Variables (f' : A' ⇒ B') (g' : A' ⇒ C) (r : B' ⇒ D) (h : iso B B').
   Variable (H' : f' ;; r = g' ;; j).
-  Variable (pb' : isPullback _ _ _ _ _ H').
+  Variable (pb' : isPullback _ _ _ _ H').
   Variable (T : h ;; r = k).
 
   Definition map_to_2nd_pb : A ⇒ A'.

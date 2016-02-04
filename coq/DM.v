@@ -46,7 +46,7 @@ Record CwDM := {
                       pb_arrow_of_arrow _ _  ;; pr1 γ = pr1 (pb_DM_of_DM γ f)  ;; f ;
 
   isPullback_of_DM : ∀ {Δ Γ} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ),
-                       isPullback  _ _ _ _ _ (sqr_comm_of_DM γ f)
+                       isPullback _ _ _ _ (sqr_comm_of_DM γ f)
 
 }.
 
@@ -115,7 +115,7 @@ Definition dm_sub_closed_under_iso {CC : precategory} (C : dm_sub_struct CC)
 Definition pb_of_DM_struct {CC : precategory} (H : dm_sub_struct CC)
 : UU
   := ∀ Δ Γ (γ : DM H Δ Γ), ∀ Γ' (f : Γ' ⇒ Γ),
-       Σ P : Pullback _ γ f, DM_type H (PullbackPr2 _ P).
+       Σ P : Pullback γ f, DM_type H (PullbackPr2 P).
 
 (*
 Definition pb_type_of_DM {CC : precategory} (H : dm_sub_struct CC)
@@ -271,7 +271,7 @@ Coercion pb_of_dm_sub_pb {CC : precategory} (C : dm_sub_pb CC) : pb_of_DM_struct
 Definition pb_ob_of_DM {CC : precategory} {C : dm_sub_pb CC}
            {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
 : CC
-  := PullbackObject  _ ((pr1 (pr2 C _ _ γ _  f))).
+  := PullbackObject (pr1 (pr2 C _ _ γ _  f)).
 
 Notation "γ ⋆ f" := (pb_ob_of_DM γ f) (at level 45, format "γ ⋆ f").
 (* written "\st" in Agda input mode *)
@@ -280,7 +280,7 @@ Definition pb_mor_of_DM {CC : precategory} {C : dm_sub_pb CC}
            {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
   :  (γ⋆f) ⇒  Γ'.
 Proof.
-  apply (PullbackPr2 _ (pr1 (pr2 C _ _ γ _ f))).
+  apply (PullbackPr2 (pr1 (pr2 C _ _ γ _ f))).
 Defined.
 (*  :=  pr2 (pr2 (pr1 (pr1 (pr2 C _ _ γ _ f)))). *)
 
@@ -288,19 +288,19 @@ Definition pb_mor_of_mor {CC : precategory} {C : dm_sub_pb CC}
            {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
 : γ⋆f ⇒ Δ.
 Proof.
-  apply (PullbackPr1 _ (pr1 (pr2 C _ _ γ _ f))).
+  apply (PullbackPr1 (pr1 (pr2 C _ _ γ _ f))).
 Defined.
 (* := pr1 (pr2 (pr1 (pr1 (pr2 C _ _ γ _ f)))). *)
 
 Definition sqr_comm_of_dm_sub_pb {CC : precategory} {C : dm_sub_pb CC}
            {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
 : _ ;; _ = _ ;; _ 
-:= PullbackSqrCommutes _ (pr1 (pr2 C _ _ γ _ f )).
+:= PullbackSqrCommutes (pr1 (pr2 C _ _ γ _ f )).
 
 Definition isPullback_of_dm_sub_pb {CC : precategory} (hs: has_homsets CC) {C : dm_sub_pb CC}
            {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
-: isPullback _ _ _ _ _ _ :=
-isPullback_Pullback _  (pr1 (pr2 C _ _ γ _ f )).
+: isPullback _ _ _ _ _ :=
+isPullback_Pullback (pr1 (pr2 C _ _ γ _ f )).
 
 (*
 Definition dm_closed_under_pb {CC : precategory} (C : dm_sub_pb CC)
@@ -353,7 +353,7 @@ Proof.
 Defined.
 
 Definition isPullback_of_DM {CC : precategory} (hs: has_homsets CC) {C : DM_structure CC} {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
-: isPullback CC _ _ _ _ (sqr_comm_of_DM γ f).
+: isPullback _ _ _ _ (sqr_comm_of_DM γ f).
 Proof.
   apply isPullback_of_dm_sub_pb; assumption.
 Defined.

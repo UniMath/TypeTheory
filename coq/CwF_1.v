@@ -704,7 +704,7 @@ Qed.
 
 Lemma is_pullback_reindx_cwf (hs : has_homsets CC) : ∀ (Γ : CC) (A : C⟨Γ⟩) (Γ' : CC) 
    (f : Γ' ⇒ Γ),
-   isPullback _ (π A) f (q_precwf A f) (π (A [[f]])) (dpr_q_precwf A f).
+   isPullback (π A) f (q_precwf A f) (π (A [[f]])) (dpr_q_precwf A f).
 Proof.
   intros.
   apply mk_isPullback; try assumption.

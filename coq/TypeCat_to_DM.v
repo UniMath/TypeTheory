@@ -79,7 +79,7 @@ Proof.
   destruct T as [A [h e]].
   clear B.
   unshelve refine (tpair _ _ _ ).
-  - unshelve refine (mk_Pullback _ _ _ _ _ _ _ _ ).
+  - unshelve refine (mk_Pullback _ _ _ _ _ _ _ ).
     + apply (Γ' ◂ (A[f])).
     + apply (q_type_cat _ _ ;; h).
     + apply (dpr_type_cat _ ).
