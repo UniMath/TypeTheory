@@ -34,7 +34,7 @@ Definition fp {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f) : C⟦fpb_obj T
 Definition fq {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f) : D⟦ J (fpb_obj T), tU⟧ := pr2 (pr2 T).
 
 Definition fpullback_prop {X : C} {f : D ⟦J X, U⟧} (T : fpullback_data f) : UU 
-  := Σ (fe : #J(fp T) ;; f = fq T ;; pp), isPullback _ _ _ _ _ fe .
+  := Σ (fe : #J(fp T) ;; f = fq T ;; pp), isPullback _ _ _ _ fe .
 
 Lemma isaprop_fpullback_prop {X : C} {f : D ⟦J X, U⟧} (T : fpullback_data f)
   : isaprop (fpullback_prop T).
@@ -67,9 +67,9 @@ Proof.
     destruct H' as [H' isP'].
     simple refine (total2_paths _ _ ).
     + unfold fpullback_prop in *.
-      set (T1 := mk_Pullback _ _ _ _ _ _ _ isP).
-      set (T2 := mk_Pullback _ _ _ _ _ _ _ isP').
-      set (i := iso_from_Pullback_to_Pullback  _  T1 T2). cbn in i.
+      set (T1 := mk_Pullback _ _ _ _ _ _ isP).
+      set (T2 := mk_Pullback _ _ _ _ _ _ isP').
+      set (i := iso_from_Pullback_to_Pullback T1 T2). cbn in i.
       set (i' := invmap (weq_ff_functor_on_iso HJ a a') i ).
       set (TT := isotoid _ is_c i').
       apply TT.
@@ -97,7 +97,7 @@ Proof.
         cbn in *.
         rewrite functor_comp. rewrite T. clear T.
         clear XT' XT. clear TT. 
-        assert (X1:= PullbackArrow_PullbackPr1 _ (mk_Pullback _ _ _ _ _ _ _ isP)).
+        assert (X1:= PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ isP)).
         cbn in X1.
         apply X1.
       * unfold TT. clear TT. clear XT' XT.
@@ -112,7 +112,7 @@ Proof.
         cbn.
         unfold precomp_with.
         rewrite id_right.
-        assert (X1:= PullbackArrow_PullbackPr2 _ (mk_Pullback _ _ _ _ _ _ _ isP)).
+        assert (X1:= PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ isP)).
         cbn in X1.
         apply X1.
 Qed.
@@ -146,8 +146,6 @@ Variable isC' : is_category C'.
 Variable isD' : is_category D'.
 
 Variables (R : functor C C') (S : functor D D').
-
-Locate "[ , , ]".
 
 Variable a :   [C, D', pr2 isD']
      ⟦functor_composite _ _ _ J S , functor_composite _ _ _ R J'⟧.
@@ -235,7 +233,7 @@ Proof.
         rewrite XXX. apply pathsinv0. apply id_left.
       * 
         cbn.
-        match goal with |[|- isPullback _ _ _ _ _  ?eee] => generalize eee end.
+        match goal with |[|- isPullback _ _ _ _ ?eee] => generalize eee end.
         assert (XXX : g = #J' (inv_from_iso i) ;; a' _ ;; #S f).
         { clear Sfp.  clear isPb.
           unfold f.
@@ -279,7 +277,7 @@ Proof.
           rewrite functor_comp. rewrite <- assoc.
           rewrite <- functor_comp. rewrite iso_inv_after_iso.
           rewrite functor_id. apply id_right.
-        - match goal with |[|- isPullback _ _ _ _ _ ?HHH ]
+        - match goal with |[|- isPullback _ _ _ _ ?HHH ]
                            => generalize HHH end.
           clear Hp.
           intro Hp.
