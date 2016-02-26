@@ -94,7 +94,41 @@ Definition is_split_comprehension_structure (Y : comprehension_structure) : UU
 Definition compatible_scomp_families (Y : families_structure)(Z : comprehension_structure) : UU
   := ∀ Γ Γ' A (f : C⟦Γ', Γ⟧) , Q Y A[f] = #(yoneda _ hsC) (qq Z f A) ;; Q Y A.
 
-End families_structure.
+Definition compatible_fam_structure (Z : comprehension_structure) : UU
+  := Σ Y : families_structure, compatible_scomp_families Y Z.
+
+Definition compatible_comp_structure (Y : families_structure) : UU
+  := Σ Z : comprehension_structure, compatible_scomp_families Y Z.
+
+
+
+Section compatible_comp_structure_from_fam.
+
+Variable Y : families_structure.
+
+(*
+Definition qq_fam :   
+*)
+
+End compatible_comp_structure_from_fam.
+
+(* needs splitness? *)
+Lemma iscontr_compatible_fam_structure (Z : comprehension_structure)
+: iscontr (compatible_fam_structure Z).
+Proof.
+Abort.
+
+
+
+
+Lemma iscontr_compatible_comp_structure (Y : families_structure)
+: iscontr (compatible_comp_structure Y).
+Proof.
+Abort.
+
+
+
+End some_structures.
 
 
 End fix_a_category.
