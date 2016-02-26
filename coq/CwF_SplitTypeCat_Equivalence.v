@@ -25,11 +25,21 @@ Section fix_a_category.
 Variable C : precategory.
 Variable hsC : has_homsets C.
 
-Local Definition yy {F : preShv C} {c : C} : ((F : functor _ _) c : hSet) ≃ _ ⟦ yoneda _ hsC c, F⟧.
+Local Notation "'Yo'" := (yoneda C hsC).
+
+Local Definition yy {F : preShv C} {c : C} : ((F : functor _ _) c : hSet) ≃ _ ⟦ Yo c, F⟧.
 Proof.
   apply invweq.
   apply yoneda_weq.
 Defined.
+
+Lemma yy_natural (F : preShv C) (c : C) (A : (F:functor _ _) c : hSet) 
+                  c' (f : C⟦c', c⟧) :
+        yy (# (F : functor _ _) f A) = # Yo f ;; yy A.
+Proof.
+  assert (XTT := is_natural_yoneda_iso_inv _ hsC F _ _ f).
+  apply (toforallpaths _ _ _ XTT).
+Qed.
 
 (** * Type of type structures *)
 
@@ -50,7 +60,7 @@ Section some_structures.
 Context {X : type_structure}.
 
 Definition families_data_structure : UU :=
-  Σ Tm : preShv C, _ ⟦ Tm, TY X ⟧ × (∀ Γ (A : (TY X : functor _ _ ) Γ : hSet), _ ⟦ yoneda _ hsC (Γ ◂ A) , Tm⟧ ).
+  Σ Tm : preShv C, _ ⟦ Tm, TY X ⟧ × (∀ Γ (A : (TY X : functor _ _ ) Γ : hSet), _ ⟦Yo (Γ ◂ A) , Tm⟧ ).
 
 Definition TM (Y : families_data_structure) : preShv C := pr1 Y.
 Definition pp Y : _ ⟦TM Y, TY X⟧ := pr1 (pr2 Y).
@@ -58,7 +68,7 @@ Definition Q Y {Γ} A : _ ⟦ _ , TM Y⟧ := pr2 (pr2 Y) Γ A.
 
 Definition families_prop_structure (Y : families_data_structure) :=
   ∀ Γ (A : (TY X : functor _ _ ) Γ : hSet), 
-        Σ (e : Q Y A ;; pp Y = #(yoneda _ hsC) (π A) ;; yy A), isPullback _ _ _ _ e.
+        Σ (e : #Yo (π A) ;; yy A = Q Y A ;; pp Y), isPullback _ _ _ _ e.
 
 Definition families_structure : UU :=
   Σ Y : families_data_structure, families_prop_structure Y.
@@ -106,6 +116,58 @@ Section compatible_comp_structure_from_fam.
 
 Variable Y : families_structure.
 
+Section qq_from_fam.
+
+Variables Γ Γ' : C.
+Variable f : C⟦Γ', Γ⟧.
+Variable A : (TY X : functor _ _) Γ : hSet.
+
+Let Xk := mk_Pullback _ _ _ _ _ (pr1 (pr2 Y Γ A)) (pr2 (pr2 Y Γ A)).
+
+Definition Yo_of_qq : _ ⟦Yo (Γ' ◂ A[f]), Yo (Γ ◂ A) ⟧.
+Proof.
+  simple refine (PullbackArrow Xk _ _ _ _ ).
+  - apply (#Yo (π _) ;; #Yo f ). 
+  - apply (Q Y).
+  - abstract (
+        clear Xk;
+        assert (XT:= pr1 (pr2 Y Γ' A[f]));
+        eapply pathscomp0; try apply XT; clear XT;
+        rewrite <- assoc; apply maponpaths;
+        apply pathsinv0, yy_natural).
+Defined.
+
+Lemma Yo_of_qq_commutes_1 : # Yo (π _ ) ;; # Yo f = Yo_of_qq ;; # Yo (π _ ) .
+Proof.
+  apply pathsinv0.
+  apply (PullbackArrow_PullbackPr1 Xk).
+Qed.
+
+Lemma Yo_of_qq_commutes_2 : Yo_of_qq ;; Q _ A = Q Y _ .
+Proof.
+  apply (PullbackArrow_PullbackPr2 Xk).
+Qed.  
+
+Lemma isPullback_Yo_of_qq : isPullback _ _ _ _ Yo_of_qq_commutes_1.
+Proof.
+  simple refine (isPullback_two_pullback _ _ _ _ _ _ _ _ _ _ ).
+  - apply functor_category_has_homsets.
+  - apply (TY X).
+  - apply (TM Y).
+  - apply (yy A).
+  - apply pp.
+  - apply Q.
+  - apply (pr1 (pr2 Y _ _ )).
+  - apply (pr2 (pr2 Y _ _ )).
+  - match goal with [|- isPullback _ _ _ _ ?HH ] => generalize HH end.
+    rewrite <- yy_natural.
+    rewrite Yo_of_qq_commutes_2.
+    intro.
+    apply (pr2 (pr2 Y _ _ )).
+Defined.
+
+End qq_from_fam.
+      
 (*
 Definition qq_fam :   
 *)
