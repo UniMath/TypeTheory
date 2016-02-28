@@ -15,8 +15,14 @@ Require Export UniMath.CategoryTheory.functor_categories.
 Require Export UniMath.CategoryTheory.opp_precat.
 Require Export UniMath.CategoryTheory.category_hset.
 Require Export UniMath.CategoryTheory.yoneda.
+
+
+Undelimit Scope transport.
+
+
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
+
 
 Local Definition preShv C := [C^op , HSET , pr2 is_category_HSET].
 
@@ -53,6 +59,14 @@ Definition comp_ext {X : type_structure} Γ A : C := pr1 (pr2 X Γ A).
 Notation "Γ ◂ A" := (comp_ext Γ A) (at level 30).
 Definition π {X : type_structure} {Γ} A : C ⟦Γ ◂ A, Γ⟧ := pr2 (pr2 X _ A).
 
+Lemma idtoiso_π {X : type_structure} (Γ : C) (A A' : (TY X : functor _ _ ) Γ : hSet) (e : A = A')
+  :
+    idtoiso (maponpaths (λ B, Γ ◂ B) e) ;; π _ = π _ .
+Proof.
+  induction e.
+  apply id_left.
+Qed.
+
 (** * Type of families structures over a type structure *)
 
 Section some_structures.
@@ -83,12 +97,17 @@ Definition comprehension_structure : UU :=
   Σ q : ∀ {Γ Γ'} (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet), 
            C ⟦Γ' ◂ A [ f ], Γ ◂ A⟧, 
     (∀ Γ Γ' (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet), 
-        Σ e : q f A ;; π _ = π _ ;; f, isPullback _ _ _ _ e).
+        Σ e :  π _ ;; f = q f A ;; π _ , isPullback _ _ _ _ e).
 
 Definition qq (Y : comprehension_structure) {Γ Γ'} (f : C ⟦Γ', Γ⟧)
               (A : (TY X:functor _ _ ) Γ : hSet) 
   : C ⟦Γ' ◂ A [ f ], Γ ◂ A⟧
   := pr1 Y _ _ f A.
+
+Definition pullback_from_comp (Y : comprehension_structure) 
+  {Γ Γ'} (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet) : 
+        Σ e : π _ ;; f = qq Y f A ;; π _ , isPullback _ _ _ _ e
+:= pr2 Y _ _ f A.
 
 Definition is_split_comprehension_structure (Y : comprehension_structure) : UU
   := 
@@ -212,6 +231,7 @@ End compatible_comp_structure_from_fam.
 Section compatible_fam_structure_from_comp.
 
 Variable Z : comprehension_structure.
+Variable ZZ : is_split_comprehension_structure Z.
 
 Definition tm_carrier (Γ : C) : UU :=
   Σ A : (TY X : functor _ _ ) Γ : hSet,
@@ -228,7 +248,106 @@ Qed.
 
 Definition tm Γ : hSet := hSetpair _ (isaset_tm_carrier Γ).
 
+Definition tm_on_mor Γ Γ' (f : C⟦Γ',Γ⟧) : tm_carrier Γ → tm_carrier Γ'.
+Proof.
+  intro Ase.
+  exists ((pr1 Ase) [f]).
+  eapply pb_of_section.
+  - apply (pr2 (pullback_from_comp Z f _ )).
+  - apply (pr2 (pr2 Ase)).
+Defined.
 
+Definition tm_functor_data : functor_data C^op HSET.
+Proof.
+  exists tm.
+  refine tm_on_mor.
+Defined.
+
+Lemma is_functor_tm : is_functor tm_functor_data.
+Proof.
+  split; [unfold functor_idax | unfold functor_compax].
+  - intro Γ. apply funextsec.
+    intro t. simpl. 
+    destruct t as [A [s e]].
+    cbn. simpl.
+    unfold tm_on_mor.  simpl.
+    use total2_paths.
+    + simpl. use (toforallpaths _ _ _ (functor_id (TY X) _ ) A).
+    + simpl.
+      apply subtypeEquality.
+      * intro. apply hsC.
+      * simpl.
+        eapply pathscomp0. apply (pr1_transportf ((TY X : functor _ _ )  Γ : hSet) (fun x => C⟦Γ,Γ◂ x⟧)
+                      (fun A => fun b => b ;; π _ = identity _ )                 ).
+        simpl.
+        Search transportf maponpaths.
+        rewrite functtransportf.
+        rewrite <- idtoiso_postcompose.
+        assert (XT := pr1 Z).
+        rewrite <- (pr1 ZZ).        
+        match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => set (XR := HH) end.
+        etrans. apply (PullbackArrow_PullbackPr2 XR). apply id_left.
+  - intros Γ Γ' Γ'' f g. cbn.
+    apply funextsec.
+    intro t.
+    destruct t as [A [s e]]; simpl in *.
+    unfold tm_on_mor. simpl.
+    use total2_paths.
+    + simpl. apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ _ _ _) A).
+    + simpl. apply subtypeEquality.
+      * intro. apply hsC.
+      * simpl.
+        eapply pathscomp0.
+        apply (pr1_transportf ((TY X : functor _ _ )  Γ'' : hSet) (fun x => C⟦Γ'',Γ''◂ x⟧)
+                      (fun A => fun b => b ;; π _ = identity _ )                 ).
+        rewrite functtransportf.
+        rewrite <- idtoiso_postcompose.
+        simpl.
+(*        assert (XT := pr2 ZZ). *)
+        cbn.
+        {
+        apply PullbackArrowUnique.
+        - rewrite <- assoc. cbn.  
+          Check (maponpaths (comp_ext Γ'')
+         (toforallpaths (λ _ : (TY X : functor _ _ ) Γ : hSet, (TY X : functor _ _ ) Γ'': hSet) 
+            (# (TY X : functor _ _ ) (g ;; f))
+            (λ x : (TY X : functor _ _ ) Γ : hSet, # (TY X : functor _ _ ) g (# (TY X : functor _ _ ) f x))
+            (functor_comp (TY X) Γ Γ' Γ'' f g) A)).
+          rewrite idtoiso_π.
+          match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => set (XR := HH) end.
+          apply (PullbackArrow_PullbackPr1 XR).
+        - cbn. simpl.
+          (* match goal with |[|- _ = ?eee] => set (EE:= eee) end. *)
+          use (MorphismsIntoPullbackEqual (pr2 (pr2 Z _ _ _ _ ))).
+          + simpl. 
+            rewrite <- assoc.
+            rewrite <- assoc.
+            rewrite <- assoc.
+            match goal with [|- _ = _ ;; (PullbackArrow ?HH _ _ _ _ ;; _ )] =>
+                            set (XR := HH) end.
+            rewrite (PullbackArrow_PullbackPr1 XR). clear XR.
+            assert (XT:= pr2 Z _ _ g (# (TY X : functor _ _ ) f A)). simpl in XT.
+            etrans. apply maponpaths.
+                    apply maponpaths. apply (! (pr1 XT)).
+            clear XT.
+            repeat rewrite assoc.
+            rewrite assoc4.
+            rewrite idtoiso_π.
+            match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ ;; _ = _ ] => set (XR := HH) end.
+            rewrite (PullbackArrow_PullbackPr1 XR). clear XR.
+            rewrite id_right. apply id_left.
+          + repeat rewrite <- assoc.
+            etrans.  apply maponpaths. rewrite assoc. eapply pathsinv0. apply (pr2 ZZ).
+            match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => set (XR := HH) end.
+            rewrite (PullbackArrow_PullbackPr2 XR). clear XR.
+            repeat rewrite <- assoc. apply maponpaths.
+            apply pathsinv0. 
+            match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => set (XR := HH) end.
+            apply (PullbackArrow_PullbackPr2 XR).
+        } 
+Qed.
+         
+        
 
 End compatible_fam_structure_from_comp.
 

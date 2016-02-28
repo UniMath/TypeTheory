@@ -17,7 +17,14 @@ Require Import UniMath.CategoryTheory.limits.limits.
 
 (** * Lemmas about identity etc *)
 
-
+Lemma pr1_transportf (A : UU) (B : A -> UU) (P : ∀ a, B a -> UU)
+   (a a' : A) (e : a = a') (xs : Σ b : B a, P _ b):
+   pr1 (transportf (fun x => Σ b : B x, P _ b) e xs) = 
+     transportf (fun x => B x) e (pr1 xs).
+Proof.
+  induction e.
+  apply idpath.
+Defined.
 
 Lemma maponpaths_eq_idpath : ∀ (T1 T2 : UU) (f : T1 -> T2) (t1 : T1) (e : t1 = t1)
           (H : e = idpath _ ), 
