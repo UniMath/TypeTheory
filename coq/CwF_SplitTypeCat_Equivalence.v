@@ -166,13 +166,74 @@ Proof.
     apply (pr2 (pr2 Y _ _ )).
 Defined.
 
+Definition qq_fam :  _ ⟦Γ' ◂ A[f] , Γ ◂ A⟧.
+Proof.
+  apply (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
+  apply Yo_of_qq.
+Defined.
+
+Lemma Yo_qq_fam_Yo_of_qq : # Yo qq_fam = Yo_of_qq.
+Proof.
+  unfold qq_fam.
+  assert (XT := homotweqinvweq
+     (weqpair _ (yoneda_fully_faithful _  hsC (Γ'◂ A[f]) (Γ ◂ A)  ))).
+  apply XT.
+Qed.
+
+Lemma qq_commutes_1 : π _ ;; f = qq_fam ;; π _ .
+Proof.
+  assert (XT:= Yo_of_qq_commutes_1).
+  rewrite <- Yo_qq_fam_Yo_of_qq in XT.
+  do 2 rewrite <- functor_comp in XT.
+  apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
+  apply XT.
+Qed.
+
+Definition isPullback_qq : isPullback _ _ _ _ qq_commutes_1.
+Proof.
+  use (isPullback_preimage_square _ _ _ Yo).
+  - apply hsC.
+  - apply yoneda_fully_faithful.
+  - assert (XT:= isPullback_Yo_of_qq).
+    match goal with |[|- isPullback _ _ _ _ ?HHH] => generalize HHH end.
+    rewrite Yo_qq_fam_Yo_of_qq.
+    intro. assumption.
+Qed.
+
+(** missing: splitness *)
+
 End qq_from_fam.
       
-(*
-Definition qq_fam :   
-*)
-
 End compatible_comp_structure_from_fam.
+
+
+
+
+Section compatible_fam_structure_from_comp.
+
+Variable Z : comprehension_structure.
+
+Definition tm_carrier (Γ : C) : UU :=
+  Σ A : (TY X : functor _ _ ) Γ : hSet,
+  Σ s : C⟦Γ, Γ ◂ A⟧, s ;; π _ = identity _ .
+
+Lemma isaset_tm_carrier Γ : isaset (tm_carrier Γ).
+Proof.
+  apply (isofhleveltotal2 2).
+  - apply setproperty.
+  - intro. apply (isofhleveltotal2 2).
+    + apply hsC.
+    + intro. apply isasetaprop. apply hsC.
+Qed.
+
+Definition tm Γ : hSet := hSetpair _ (isaset_tm_carrier Γ).
+
+
+
+End compatible_fam_structure_from_comp.
+
+
+
 
 (* needs splitness? *)
 Lemma iscontr_compatible_fam_structure (Z : comprehension_structure)
