@@ -104,6 +104,16 @@ Definition qq (Y : comprehension_structure) {Γ Γ'} (f : C ⟦Γ', Γ⟧)
   : C ⟦Γ' ◂ A [ f ], Γ ◂ A⟧
   := pr1 Y _ _ f A.
 
+Definition idtoiso_qq (Y : comprehension_structure) {Γ Γ'} (f f' : C ⟦Γ', Γ⟧)
+              (e : f = f')
+              (A : (TY X:functor _ _ ) Γ : hSet) 
+  : idtoiso (maponpaths (comp_ext Γ') (maponpaths (λ k : C⟦Γ', Γ⟧, #(TY X : functor _ _ ) k A) e))
+                ;; qq Y f' A = qq Y f A.
+Proof.
+  induction e.
+  apply id_left.
+Qed.
+
 Definition pullback_from_comp (Y : comprehension_structure) 
   {Γ Γ'} (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet) : 
         Σ e : π _ ;; f = qq Y f A ;; π _ , isPullback _ _ _ _ e
@@ -303,16 +313,10 @@ Proof.
         rewrite functtransportf.
         rewrite <- idtoiso_postcompose.
         simpl.
-(*        assert (XT := pr2 ZZ). *)
         cbn.
         {
         apply PullbackArrowUnique.
         - rewrite <- assoc. cbn.  
-          Check (maponpaths (comp_ext Γ'')
-         (toforallpaths (λ _ : (TY X : functor _ _ ) Γ : hSet, (TY X : functor _ _ ) Γ'': hSet) 
-            (# (TY X : functor _ _ ) (g ;; f))
-            (λ x : (TY X : functor _ _ ) Γ : hSet, # (TY X : functor _ _ ) g (# (TY X : functor _ _ ) f x))
-            (functor_comp (TY X) Γ Γ' Γ'' f g) A)).
           rewrite idtoiso_π.
           match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => set (XR := HH) end.
           apply (PullbackArrow_PullbackPr1 XR).
@@ -346,8 +350,107 @@ Proof.
             apply (PullbackArrow_PullbackPr2 XR).
         } 
 Qed.
-         
-        
+
+Definition tm_functor : functor _ _  := tpair _ _ is_functor_tm.
+
+Definition pp_carrier (Γ : C^op) : (tm_functor Γ : hSet) → (TY X : functor _ _ ) Γ : hSet.
+Proof.
+  exact pr1.
+Defined.
+
+Lemma is_nat_trans_pp_carrier : is_nat_trans tm_functor (TY X : functor _ _ ) pp_carrier.
+Proof.
+  intros Γ Γ' f.
+  apply idpath.
+Defined.
+
+Definition pp_from_q : preShv C ⟦tm_functor, TY X⟧ := tpair _ _ is_nat_trans_pp_carrier.
+
+Section Q_from_comp.
+
+Variable Γ : C.
+Variable A : (TY X : functor _ _ ) Γ : hSet.
+
+Definition Q_from_comp : _ ⟦ Yo (Γ ◂ A), tm_functor⟧.
+Proof.
+  mkpair.
+  - intros Γ' f. simpl in *.
+    unfold yoneda_objects_ob in f. 
+    mkpair.
+    + simpl. apply A[f;;π _ ].
+    + use (section_from_diagonal _ (pr2 (pullback_from_comp Z _  _ ))). 
+      exists f. apply idpath.
+  - intros Γ' Γ'' f. simpl.
+    apply funextsec. intro g.
+    unfold yoneda_objects_ob. cbn.    
+    use total2_paths. 
+    + simpl.
+      etrans. apply (maponpaths (fun k => #(TY X : functor _ _ ) k A) (assoc _ _ _ _ _ _ _ _ )).
+      apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ _ _ _ )).
+    + simpl.
+      apply subtypeEquality.
+      { intro. apply hsC. }     
+      rewrite (pr1_transportf _ (fun a => C⟦Γ'', Γ'' ◂ a⟧)
+                              (fun A => fun b => b ;; π _ = identity _ )).
+      simpl.
+      rewrite functtransportf.
+      rewrite <- idtoiso_postcompose.
+      simpl.
+      apply PullbackArrowUnique.
+      * cbn.
+        etrans. apply (!assoc _ _ _ _ _ _ _ _ ).
+        rewrite idtoiso_π.
+        match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => set (XR := HH) end.
+        apply (PullbackArrow_PullbackPr1 XR).
+      * cbn.
+        {
+          use (MorphismsIntoPullbackEqual (pr2 (pr2 Z _ _ _ _ ))).
+          - etrans. Focus 2. apply assoc.
+            match goal with [|- _ = _ ;; (PullbackArrow ?HH _ _ _ _ ;; _ )] =>
+                            set (XR := HH) end.
+            rewrite (PullbackArrow_PullbackPr1 XR). clear XR.
+            etrans. apply (!assoc _ _ _ _ _ _ _ _ ).
+            rewrite <- (pr1 (pullback_from_comp Z f _ )).
+            etrans. apply assoc.
+            etrans. apply assoc4.
+            rewrite idtoiso_π.
+            match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ ;; _ = _ ] => set (XR := HH) end.
+            rewrite (PullbackArrow_PullbackPr1 XR).
+            rewrite id_right. apply id_left.
+          - etrans. Focus 2. apply assoc.
+            match goal with |[|- _ = _ ;; (PullbackArrow ?HH _ _ _ _ ;; _ )] => set (XR := HH) end.
+            rewrite (PullbackArrow_PullbackPr2 XR).
+            clear XR.
+(*
+            etrans. apply cancel_postcomposition. apply (!assoc _ _ _ _ _ _ _ _ ).
+            etrans. apply (!assoc _ _ _ _ _ _ _ _ ).
+*)
+            assert (XT:= pr2 ZZ). simpl in XT.
+            specialize (XT _ _ _ (g ;; π _ ) f ).
+            specialize (XT A).
+            rewrite maponpathscomp0 . 
+            rewrite idtoiso_concat.
+            simpl.
+            match goal with |[ H : ?EE =  _ |- ?DD ;; (?II ;; ?KK) ;; _  ;; _  = _ ] => 
+                     set (d := DD); set (i:= II) end.
+            rewrite <- assoc.
+            rewrite <- assoc.
+            etrans. apply maponpaths. apply (!assoc _ _ _ _ _ _ _ _ ).
+            
+            etrans. apply maponpaths. apply maponpaths. apply assoc.
+            etrans. apply maponpaths. apply maponpaths. 
+                        apply (!XT).
+            unfold i. clear i. clear XT.
+            rewrite idtoiso_qq.
+            unfold d; clear d.
+            match goal with [|- PullbackArrow ?HH _ _ _ _ ;; _  = _ ] =>
+                            set (XR := HH) end.
+            apply (PullbackArrow_PullbackPr2 XR). 
+        } 
+Defined.
+            
+
+End Q_from_comp.
 
 End compatible_fam_structure_from_comp.
 
