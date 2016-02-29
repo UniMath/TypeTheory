@@ -364,23 +364,27 @@ Proof.
   apply idpath.
 Defined.
 
-Definition pp_from_q : preShv C ⟦tm_functor, TY X⟧ := tpair _ _ is_nat_trans_pp_carrier.
+Definition pp_from_comp : preShv C ⟦tm_functor, TY X⟧ := tpair _ _ is_nat_trans_pp_carrier.
 
 Section Q_from_comp.
 
 Variable Γ : C.
 Variable A : (TY X : functor _ _ ) Γ : hSet.
 
-Definition Q_from_comp : _ ⟦ Yo (Γ ◂ A), tm_functor⟧.
+Definition Q_from_comp_data :
+ ∀ x : C^op, HSET ⟦ (Yo (Γ ◂ A) : functor _ _ ) x, tm_functor x ⟧.
 Proof.
+  intros Γ' f. simpl in *.
+  unfold yoneda_objects_ob in f. 
   mkpair.
-  - intros Γ' f. simpl in *.
-    unfold yoneda_objects_ob in f. 
-    mkpair.
-    + simpl. apply A[f;;π _ ].
-    + use (section_from_diagonal _ (pr2 (pullback_from_comp Z _  _ ))). 
-      exists f. apply idpath.
-  - intros Γ' Γ'' f. simpl.
+  + simpl. apply A[f;;π _ ].
+  + use (section_from_diagonal _ (pr2 (pullback_from_comp Z _  _ ))). 
+    exists f. apply idpath.
+Defined.
+
+Lemma is_nat_trans_Q_from_comp : is_nat_trans _ _ Q_from_comp_data.
+Proof.
+intros Γ' Γ'' f. simpl.
     apply funextsec. intro g.
     unfold yoneda_objects_ob. cbn.    
     use total2_paths. 
@@ -421,10 +425,6 @@ Proof.
             match goal with |[|- _ = _ ;; (PullbackArrow ?HH _ _ _ _ ;; _ )] => set (XR := HH) end.
             rewrite (PullbackArrow_PullbackPr2 XR).
             clear XR.
-(*
-            etrans. apply cancel_postcomposition. apply (!assoc _ _ _ _ _ _ _ _ ).
-            etrans. apply (!assoc _ _ _ _ _ _ _ _ ).
-*)
             assert (XT:= pr2 ZZ). simpl in XT.
             specialize (XT _ _ _ (g ;; π _ ) f ).
             specialize (XT A).
@@ -447,8 +447,46 @@ Proof.
                             set (XR := HH) end.
             apply (PullbackArrow_PullbackPr2 XR). 
         } 
+Qed.
+
+Definition Q_from_comp : _ ⟦ Yo (Γ ◂ A), tm_functor⟧ := tpair _ _ is_nat_trans_Q_from_comp.
+
+Definition Q_from_comp_commutes : # Yo (π _ ) ;; yy A = Q_from_comp ;; pp_from_comp.            
+Proof.
+  apply nat_trans_eq. apply has_homsets_HSET.
+  intro Γ'. apply idpath.
 Defined.
-            
+
+Lemma isPullback_Q_from_comp_commutes : isPullback _ _ _ _ Q_from_comp_commutes.
+Proof.
+  apply pb_if_pointwise_pb.
+  intro Γ'. simpl.
+  unfold yoneda_morphisms_data. 
+  apply mk_isPullback.
+  intros S x y Hxy.
+  mkpair.
+  - mkpair. 
+    + simpl in *. unfold yoneda_objects_ob in *.
+      intro s.
+      set (Ase := y s). unfold tm_carrier in Ase.
+      set (HxyH := toforallpaths _ _ _ (!Hxy)); simpl in HxyH. cbn in HxyH.
+      set (XX := (pr1 (pr2 Ase))).
+      set (YY := maponpaths (fun x => Γ'◂ x) (HxyH s)). simpl in YY.
+      set (iYY := idtoiso YY).
+      apply (XX ;; iYY ;; qq Z _ _ ).
+    + simpl. split.
+      * apply funextsec. intro s.
+        etrans. apply assoc4.
+        set (Hxys := toforallpaths _ _ _ Hxy s). simpl in Hxys. cbn in Hxys.
+        cbn in x. unfold yoneda_objects_ob in x. simpl. 
+        rewrite <- assoc.
+        rewrite <- assoc.
+        assert (XR:= pullback_from_comp Z (x s) A).
+        etrans. apply maponpaths. apply maponpaths.
+        apply (! (pr1 XR)).
+        admit.
+      * admit.
+Abort.
 
 End Q_from_comp.
 
