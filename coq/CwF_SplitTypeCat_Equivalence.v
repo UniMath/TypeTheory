@@ -484,6 +484,54 @@ Proof.
         assert (XR:= pullback_from_comp Z (x s) A).
         etrans. apply maponpaths. apply maponpaths.
         apply (! (pr1 XR)).
+        etrans. apply maponpaths. apply assoc.
+        rewrite idtoiso_π.
+        rewrite assoc.
+        assert (XT:= (pr2 (pr2 (y s)))). simpl in XT.
+        unfold pp_carrier.
+        simpl. cbn.
+        
+        etrans. apply (cancel_postcomposition C). apply XT.
+        apply id_left.
+      * apply funextsec. intro s.
+        {
+          use total2_paths.
+          - simpl.
+            set (XX:= toforallpaths _ _ _ Hxy s). cbn in XX.
+            etrans. Focus 2. apply XX.
+            apply (maponpaths (fun k => # (TY X : functor _ _ ) k A)).
+            assert (XR:= pullback_from_comp Z (x s) A).
+            rewrite <- assoc.
+            rewrite <- assoc.
+            etrans. apply maponpaths. apply maponpaths.
+            apply (! (pr1 XR)).
+            etrans. apply maponpaths. apply assoc.
+            rewrite idtoiso_π.
+            rewrite assoc.
+            assert (XT:= (pr2 (pr2 (y s)))). simpl in XT.
+            unfold pp_carrier.
+            simpl. cbn.
+            etrans. apply (cancel_postcomposition C). apply XT.
+            apply id_left.
+          - simpl.
+            apply subtypeEquality.
+            { intro. apply hsC. }
+            rewrite (pr1_transportf  _ (fun a => C⟦Γ', Γ' ◂ a⟧)
+                              (fun A => fun b => b ;; π _ = identity _ )).
+            simpl.
+            rewrite functtransportf.
+            rewrite idtoiso_postcompose.
+
+        
+        etrans. apply (cancel_postcomposition C). apply XT.
+        apply id_left.
+
+          
+        apply idpath.
+        rewrite XT.
+        
+        
+        
         admit.
       * admit.
 Abort.
