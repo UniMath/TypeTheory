@@ -500,19 +500,18 @@ Proof.
             set (XX:= toforallpaths _ _ _ Hxy s). cbn in XX.
             etrans. Focus 2. apply XX.
             apply (maponpaths (fun k => # (TY X : functor _ _ ) k A)).
-            assert (XR:= pullback_from_comp Z (x s) A).
-            rewrite <- assoc.
-            rewrite <- assoc.
-            etrans. apply maponpaths. apply maponpaths.
-            apply (! (pr1 XR)).
-            etrans. apply maponpaths. apply assoc.
-            rewrite idtoiso_π.
-            rewrite assoc.
-            assert (XT:= (pr2 (pr2 (y s)))). simpl in XT.
-            unfold pp_carrier.
-            simpl. cbn.
-            etrans. apply (cancel_postcomposition C). apply XT.
-            apply id_left.
+            abstract (
+            assert (XR:= pullback_from_comp Z (x s) A);
+            rewrite <- assoc;
+            rewrite <- assoc;
+            etrans ; [apply maponpaths; apply maponpaths; apply (! (pr1 XR))|];
+            etrans ; [apply maponpaths; apply assoc | idtac];
+            rewrite idtoiso_π; rewrite assoc;
+            assert (XT:= (pr2 (pr2 (y s)))); simpl in XT;
+            unfold pp_carrier;
+            simpl; cbn;
+            etrans; [apply (cancel_postcomposition C); apply XT | idtac];
+            apply id_left ).
           - simpl.
             apply subtypeEquality.
             { intro. apply hsC. }
@@ -520,7 +519,23 @@ Proof.
                               (fun A => fun b => b ;; π _ = identity _ )).
             simpl.
             rewrite functtransportf.
-            rewrite idtoiso_postcompose.
+            apply pathsinv0.
+            etrans. Focus 2. apply idtoiso_postcompose.
+            apply pathsinv0.
+            match goal with |[ |- PullbackArrow ?HH _ _ _ ?ee ;; _ = _ ] => 
+                             set (XR:=HH); generalize ee end. 
+            intro p.
+            assert (XT := PullbackArrow_PullbackPr2 XR). cbn in XT.
+            match goal with |[ |- PullbackArrow ?HH _ _ _ ?ee ;; ?II = _ ] => 
+                             set (i:= II) end. 
+            Search ( _ ;; _ = _ -> _ = _ ;; _ ).
+            (* apply iso_inv_to_left. *) (* or similar *)
+            rewrite <- assoc.
+            
+            rewrite maponpathscomp0. cbn.
+                        rewrite idtoiso_postcompose.
+                        
+            rewrite transportf_pathscomp0.
 
         
         etrans. apply (cancel_postcomposition C). apply XT.
