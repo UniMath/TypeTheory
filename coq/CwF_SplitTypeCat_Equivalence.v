@@ -163,7 +163,8 @@ Proof.
         assert (XT:= pr1 (pr2 Y Γ' A[f]));
         eapply pathscomp0; try apply XT; clear XT;
         rewrite <- assoc; apply maponpaths;
-        apply pathsinv0, yy_natural).
+        apply pathsinv0, yy_natural
+    ).
 Defined.
 
 Lemma Yo_of_qq_commutes_1 : # Yo (π _ ) ;; # Yo f = Yo_of_qq ;; # Yo (π _ ) .
@@ -229,9 +230,40 @@ Proof.
     intro. assumption.
 Qed.
 
-(** missing: splitness *)
-
 End qq_from_fam.
+
+Definition comp_from_fam : comprehension_structure.
+Proof.
+  mkpair.
+  - intros. apply qq_fam.
+  - intros. simpl.
+    exists (qq_commutes_1 _ _ _ _ ).
+    apply isPullback_qq.
+Defined.
+
+Lemma is_split_comp_from_fam : is_split_comprehension_structure comp_from_fam.
+Proof.
+  split.
+  - intros Γ A. simpl.
+    apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
+    etrans; [ apply (homotweqinvweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))) | idtac ].    
+    apply pathsinv0.
+    unfold Yo_of_qq.
+    apply PullbackArrowUnique. 
+    + etrans. apply maponpaths. cbn. apply idpath. 
+      rewrite <- functor_comp.
+      etrans. eapply pathsinv0. apply (functor_comp Yo).
+      apply maponpaths. rewrite idtoiso_π.
+      apply pathsinv0. apply id_right.
+    + etrans. apply maponpaths. cbn. apply idpath. 
+      etrans. apply cancel_postcomposition. apply functor_id.
+      cbn.
+    simpl.
+    match goal with |[ |- _ = PullbackArrow ?HH _ _ _ _  ] => set (XR:=HH) end.
+    simple refine (MorphismsIntoPullbackEqual (pr2 (pr2 XR))).
+    apply PullbackArrowUnique.
+Abort.
+
       
 End compatible_comp_structure_from_fam.
 
@@ -466,7 +498,8 @@ Proof.
   intros S x y Hxy.
   mkpair.
   - mkpair. 
-    + simpl in *. unfold yoneda_objects_ob in *.
+    + (* define the morphism *)
+      simpl in *. unfold yoneda_objects_ob in *.
       intro s.
       set (Ase := y s). unfold tm_carrier in Ase.
       set (HxyH := toforallpaths _ _ _ (!Hxy)); simpl in HxyH. cbn in HxyH.
@@ -474,7 +507,8 @@ Proof.
       set (YY := maponpaths (fun x => Γ'◂ x) (HxyH s)). simpl in YY.
       set (iYY := idtoiso YY).
       apply (XX ;; iYY ;; qq Z _ _ ).
-    + simpl. split.
+    + (* show that the defined morphism makes two triangles commute *)
+      simpl. split.
       * apply funextsec. intro s.
         etrans. apply assoc4.
         set (Hxys := toforallpaths _ _ _ Hxy s). simpl in Hxys. cbn in Hxys.
@@ -528,8 +562,17 @@ Proof.
             assert (XT := PullbackArrow_PullbackPr2 XR). cbn in XT.
             match goal with |[ |- PullbackArrow ?HH _ _ _ ?ee ;; ?II = _ ] => 
                              set (i:= II) end. 
+            apply iso_inv_to_right.
+            apply pathsinv0.
+            apply PullbackArrowUnique.
+            Focus 2. cbn. repeat rewrite <- assoc. apply maponpaths.
+            cbn.
+            rewrite maponpathscomp0.
+            Search (iso_inv_from_iso idtoiso).
+            rewrite (
+            rewrite inv_from_iso_idtoiso.
             Search ( _ ;; _ = _ -> _ = _ ;; _ ).
-            (* apply iso_inv_to_left. *) (* or similar *)
+            (* apply iso_inv_to_right. *) (* or similar *)
             rewrite <- assoc.
             
             rewrite maponpathscomp0. cbn.
