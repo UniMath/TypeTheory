@@ -527,59 +527,74 @@ Proof.
   intro Γ'. apply idpath.
 Defined.
 
+Definition into_Pb  (Γ' : C)
+  (S : HSET)
+  (a : HSET ⟦ S, hSetpair (yoneda_objects_ob C Γ Γ') (hsC Γ' Γ) ⟧)
+  (b : HSET ⟦ S, tm Γ' ⟧)
+  (Hab : a ;; (λ f : C ⟦ Γ', Γ ⟧, # (TY X : functor _ _ ) f A) = b ;; pp_carrier Γ')
+:
+   HSET ⟦ S, hSetpair (yoneda_objects_ob C (Γ ◂ A) Γ') (hsC Γ' (Γ ◂ A)) ⟧. 
+Proof.
+(* define the morphism *)
+      simpl in *. unfold yoneda_objects_ob in *.
+      intro s.
+      set (Ase := b s). unfold tm_carrier in Ase.
+      set (HabH := toforallpaths _ _ _ (!Hab)); simpl in HabH. cbn in HabH.
+      set (XX := (pr1 (pr2 Ase))).
+      set (YY := maponpaths (fun x => Γ'◂ x) (HabH s)). simpl in YY.
+      set (iYY := idtoiso YY).
+      apply (XX ;; iYY ;; qq Z _ _ ).
+Defined.
+
+
 Lemma isPullback_Q_from_comp_commutes : isPullback _ _ _ _ Q_from_comp_commutes.
 Proof.
   apply pb_if_pointwise_pb.
   intro Γ'. simpl.
   unfold yoneda_morphisms_data. 
   apply mk_isPullback.
-  intros S x y Hxy.
+  intros S a b Hab.
   mkpair.
   - mkpair. 
-    + (* define the morphism *)
-      simpl in *. unfold yoneda_objects_ob in *.
-      intro s.
-      set (Ase := y s). unfold tm_carrier in Ase.
-      set (HxyH := toforallpaths _ _ _ (!Hxy)); simpl in HxyH. cbn in HxyH.
-      set (XX := (pr1 (pr2 Ase))).
-      set (YY := maponpaths (fun x => Γ'◂ x) (HxyH s)). simpl in YY.
-      set (iYY := idtoiso YY).
-      apply (XX ;; iYY ;; qq Z _ _ ).
+    + apply (into_Pb _ _ a b Hab).
     + (* show that the defined morphism makes two triangles commute *)
       simpl. split.
-      * apply funextsec. intro s.
+      * (* <a,b>(s) . π = a(s)   *)
+        apply funextsec. intro s.
         etrans. apply assoc4.
-        set (Hxys := toforallpaths _ _ _ Hxy s). simpl in Hxys. cbn in Hxys.
-        cbn in x. unfold yoneda_objects_ob in x. simpl. 
+        set (Habs := toforallpaths _ _ _ Hab s). simpl in Habs. cbn in Habs.
+        cbn in a. unfold yoneda_objects_ob in a. simpl. 
         rewrite <- assoc.
         rewrite <- assoc.
-        assert (XR:= pullback_from_comp Z (x s) A).
+        assert (XR:= pullback_from_comp Z (a s) A).
         etrans. apply maponpaths. apply maponpaths.
         apply (! (pr1 XR)).
         etrans. apply maponpaths. apply assoc.
         rewrite idtoiso_π.
         rewrite assoc.
-        assert (XT:= (pr2 (pr2 (y s)))). simpl in XT.
+        assert (XT:= (pr2 (pr2 (b s)))). simpl in XT.
         unfold pp_carrier.
         simpl. cbn.
         
         etrans. apply (cancel_postcomposition C). apply XT.
         apply id_left.
-      * apply funextsec. intro s.
+      * (* <a,b> . Q(A) = b *)
+        apply funextsec. intro s.
         {
           use total2_paths.
           - simpl.
-            set (XX:= toforallpaths _ _ _ Hxy s). cbn in XX.
+            set (XX:= toforallpaths _ _ _ Hab s). cbn in XX.
             etrans. Focus 2. apply XX.
             apply (maponpaths (fun k => # (TY X : functor _ _ ) k A)).
+            unfold into_Pb.
             abstract (
-            assert (XR:= pullback_from_comp Z (x s) A);
+            assert (XR:= pullback_from_comp Z (a s) A);
             rewrite <- assoc;
             rewrite <- assoc;
             etrans ; [apply maponpaths; apply maponpaths; apply (! (pr1 XR))|];
             etrans ; [apply maponpaths; apply assoc | idtac];
             rewrite idtoiso_π; rewrite assoc;
-            assert (XT:= (pr2 (pr2 (y s)))); simpl in XT;
+            assert (XT:= (pr2 (pr2 (b s)))); simpl in XT;
             unfold pp_carrier;
             simpl; cbn;
             etrans; [apply (cancel_postcomposition C); apply XT | idtac];
@@ -587,8 +602,8 @@ Proof.
           - simpl.
             apply subtypeEquality.
             { intro. apply hsC. }
-            rewrite (pr1_transportf  _ (fun a => C⟦Γ', Γ' ◂ a⟧)
-                              (fun A => fun b => b ;; π _ = identity _ )).
+            rewrite (pr1_transportf  _ (fun K => C⟦Γ', Γ' ◂ K⟧)
+                              (fun A => fun h => h ;; π _ = identity _ )).
             simpl.
             rewrite functtransportf.
             apply pathsinv0.
@@ -598,7 +613,7 @@ Proof.
                              set (XR:=HH); generalize ee end. 
             intro p.
             assert (XT := PullbackArrow_PullbackPr2 XR). cbn in XT.
-            match goal with |[ |- PullbackArrow ?HH _ _ _ ?ee ;; ?II = _ ] => 
+            match goal with |[ |- _ ;; ?II = _ ] => 
                              set (i:= II) end. 
             apply iso_inv_to_right.
             apply pathsinv0.
@@ -606,6 +621,8 @@ Proof.
             + etrans. apply maponpaths. cbn. apply idpath.
               clear XT XR. clear i. clear p.
 
+
+(*
             Focus 2. cbn. repeat rewrite <- assoc. apply maponpaths.
             cbn.
             rewrite maponpathscomp0.
@@ -628,11 +645,20 @@ Proof.
           
         apply idpath.
         rewrite XT.
+*)      
         
         
-        
-        admit.
-      * admit.
+              admit.
+            + admit.
+        } 
+  - intro t.
+    apply subtypeEquality.
+    { intro. apply isapropdirprod. 
+      + apply (has_homsets_HSET S (hSetpair (yoneda_objects_ob C Γ Γ') (hsC Γ' Γ))).
+      + apply (has_homsets_HSET S (tm Γ')).
+    }
+    simpl.
+    admit.
 Abort.
 
 End Q_from_comp.
