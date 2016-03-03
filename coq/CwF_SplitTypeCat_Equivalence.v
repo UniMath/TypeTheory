@@ -80,6 +80,14 @@ Definition TM (Y : families_data_structure) : preShv C := pr1 Y.
 Definition pp Y : _ ⟦TM Y, TY X⟧ := pr1 (pr2 Y).
 Definition Q Y {Γ} A : _ ⟦ _ , TM Y⟧ := pr2 (pr2 Y) Γ A.
 
+Lemma idtoiso_Q Y Γ (A A' : (TY X : functor _ _ ) Γ : hSet) (e : A = A') : 
+  #Yo (idtoiso (maponpaths (fun B => Γ ◂ B) e )) ;; Q Y _ = Q Y _ . 
+Proof.
+  induction e. 
+  etrans. apply cancel_postcomposition. apply functor_id.
+  apply id_left.
+Defined.
+
 Definition families_prop_structure (Y : families_data_structure) :=
   ∀ Γ (A : (TY X : functor _ _ ) Γ : hSet), 
         Σ (e : #Yo (π A) ;; yy A = Q Y A ;; pp Y), isPullback _ _ _ _ e.
@@ -241,6 +249,15 @@ Proof.
     apply isPullback_qq.
 Defined.
 
+Lemma comp_from_fam_compatible_scomp_families : compatible_scomp_families Y comp_from_fam.
+Proof.
+  intros Γ Γ' A f.
+  assert (XR:= Yo_of_qq_commutes_2).
+  apply pathsinv0.
+  rewrite Yo_qq_fam_Yo_of_qq.
+  apply XR.
+Qed.
+
 Lemma is_split_comp_from_fam : is_split_comprehension_structure comp_from_fam.
 Proof.
   split.
@@ -255,14 +272,35 @@ Proof.
       etrans. eapply pathsinv0. apply (functor_comp Yo).
       apply maponpaths. rewrite idtoiso_π.
       apply pathsinv0. apply id_right.
-    + etrans. apply maponpaths. cbn. apply idpath. 
-      etrans. apply cancel_postcomposition. apply functor_id.
-      cbn.
-    simpl.
-    match goal with |[ |- _ = PullbackArrow ?HH _ _ _ _  ] => set (XR:=HH) end.
-    simple refine (MorphismsIntoPullbackEqual (pr2 (pr2 XR))).
-    apply PullbackArrowUnique.
-Abort.
+    + etrans. apply maponpaths. cbn. apply idpath.
+      apply idtoiso_Q.
+  - intros.
+    apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
+    etrans; [ apply (homotweqinvweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))) | idtac ].    
+    sym. apply PullbackArrowUnique.
+    + etrans. apply maponpaths. cbn. apply idpath.
+      rewrite <- functor_comp.
+      etrans. eapply pathsinv0. apply (functor_comp Yo).
+      apply maponpaths.
+      rewrite <- assoc. rewrite <- qq_commutes_1 .
+      repeat rewrite assoc.
+      rewrite assoc4.
+      etrans. apply cancel_postcomposition. apply maponpaths. eapply pathsinv0. apply qq_commutes_1 .
+      apply cancel_postcomposition.
+      repeat rewrite assoc.
+      apply cancel_postcomposition.
+      apply idtoiso_π.
+    + etrans. apply maponpaths. cbn. apply idpath.
+      etrans. apply cancel_postcomposition. apply functor_comp.
+      rewrite <- assoc.
+      rewrite Yo_qq_fam_Yo_of_qq.
+      rewrite  Yo_of_qq_commutes_2 .
+      etrans. apply cancel_postcomposition. apply functor_comp.
+      rewrite <- assoc.
+      etrans. apply maponpaths. apply cancel_postcomposition. apply Yo_qq_fam_Yo_of_qq.
+      etrans. apply maponpaths. apply Yo_of_qq_commutes_2 .
+      apply idtoiso_Q.
+Qed.
 
       
 End compatible_comp_structure_from_fam.
@@ -565,6 +603,9 @@ Proof.
             apply iso_inv_to_right.
             apply pathsinv0.
             apply PullbackArrowUnique.
+            + etrans. apply maponpaths. cbn. apply idpath.
+              clear XT XR. clear i. clear p.
+
             Focus 2. cbn. repeat rewrite <- assoc. apply maponpaths.
             cbn.
             rewrite maponpathscomp0.
