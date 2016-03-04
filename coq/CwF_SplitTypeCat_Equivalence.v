@@ -659,10 +659,61 @@ Proof.
     }
     simpl.
     admit.
-Abort.
+Admitted.
 
 End Q_from_comp.
 
+Definition comp_fam_structure_from_comp : compatible_fam_structure Z.
+Proof.
+  mkpair.
+  - mkpair.
+    + mkpair.
+      * apply tm_functor.
+      * {
+          split.
+          - apply pp_from_comp.
+          - intros. apply Q_from_comp.
+        } 
+    + unfold families_prop_structure.
+      intros.
+      exists (Q_from_comp_commutes _ _ ).
+      apply isPullback_Q_from_comp_commutes.
+  - unfold compatible_scomp_families. 
+    intros Γ Γ' A f.
+    apply nat_trans_eq. 
+    { apply has_homsets_HSET. }
+    intro Γ''.
+    apply funextsec. intro g. unfold yoneda_objects_ob in g.
+    use total2_paths. 
+    + unfold yoneda_morphisms_data.
+      etrans. Focus 2. eapply (maponpaths (fun k => #(TY X : functor _ _ ) k A)).
+                       apply (assoc C _ _ _ _ _ _ _ ).
+      etrans. Focus 2. eapply (maponpaths (fun k => #(TY X : functor _ _ ) k A)).
+                       apply maponpaths.
+                       apply (pr1 (pullback_from_comp Z _ _ )).
+      etrans. Focus 2.  eapply (maponpaths (fun k => #(TY X : functor _ _ ) k A)).
+                       apply (!assoc C _ _ _ _ _ _ _ ).
+      apply (toforallpaths _ _ _ (!functor_comp (TY X) _ _ _ _ _ ) A).
+    + apply subtypeEquality.
+      { intro. apply hsC. }
+      etrans. apply (pr1_transportf _ (fun a => C⟦Γ'', Γ'' ◂ a⟧)   
+                                      (fun A => fun b => b ;; π _ = identity _ )).
+      etrans. apply functtransportf.
+      rewrite <- idtoiso_postcompose.
+      apply PullbackArrowUnique.
+      * simpl. cbn.
+        etrans. apply (!assoc C _ _ _ _ _ _ _ ).
+        etrans. apply maponpaths. apply idtoiso_π.
+        match goal with [|- PullbackArrow ?HH _ _ _ _ ;; _  = _ ] =>
+                            set (XR := HH) end.
+        apply (PullbackArrow_PullbackPr1 XR). 
+      * simpl. cbn.
+        etrans. apply (!assoc C _ _ _ _ _ _ _ ).
+        unfold yoneda_morphisms_data.
+        rewrite maponpathscomp0.
+        admit.
+Abort.
+    
 End compatible_fam_structure_from_comp.
 
 
@@ -677,11 +728,55 @@ Abort.
 
 
 
+(* we are more interested in split such things, but that 
+   is easily added; 
+   splitness of the construed comprehension structure
+   is proved above
+*)
 Lemma iscontr_compatible_comp_structure (Y : families_structure)
 : iscontr (compatible_comp_structure Y).
 Proof.
-Abort.
-
+  mkpair.
+  - mkpair.
+    + apply (comp_from_fam Y).
+    + apply comp_from_fam_compatible_scomp_families.
+  - intro t.
+    apply subtypeEquality.
+    { 
+      intro. do 4 (apply impred; intro).
+      apply functor_category_has_homsets. 
+    }
+    simpl.
+    apply subtypeEquality.
+    { 
+      intro. do 4 (apply impred; intro).
+      apply isofhleveltotal2. 
+      - apply hsC.
+      - intro. apply isaprop_isPullback.
+    } 
+    simpl.
+    destruct t as [t H]. simpl.
+    destruct t as [q h]; simpl.
+    apply funextsec. intro Γ.
+    apply funextsec; intro Γ'.
+    apply funextsec; intro f.
+    apply funextsec; intro A.
+    
+    apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
+    apply pathsinv0.
+    etrans. apply Yo_qq_fam_Yo_of_qq.
+    unfold Yo_of_qq.
+    apply pathsinv0.
+    apply PullbackArrowUnique.
+    + etrans. apply maponpaths. cbn. apply idpath.
+      rewrite <- functor_comp.
+      etrans. eapply pathsinv0. apply (functor_comp Yo).
+      apply maponpaths.
+      apply pathsinv0. apply (pr1 (h _ _ _ _ )).
+    + etrans. apply maponpaths. cbn. apply idpath.
+      apply pathsinv0.
+      apply H.
+Qed.
 
 
 End some_structures.
