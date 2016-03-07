@@ -649,7 +649,12 @@ Proof.
         
         
               admit.
-            + admit.
+            + etrans. apply maponpaths. cbn. apply idpath.
+              unfold into_Pb.
+              repeat rewrite <- assoc.
+              apply maponpaths.
+              repeat rewrite assoc.
+               admit.
         } 
   - intro t.
     apply subtypeEquality.
@@ -712,18 +717,73 @@ Proof.
         unfold yoneda_morphisms_data.
         rewrite maponpathscomp0.
         admit.
-Abort.
+Admitted.
     
 End compatible_fam_structure_from_comp.
 
 
+Section canonical_TM.
 
+Variable Z : comprehension_structure.
+Variable ZZ : is_split_comprehension_structure Z.
+Variable Y : compatible_fam_structure Z.
 
+Definition foo : preShv C  ⟦tm_functor Z ZZ, TM (pr1 Y)⟧.
+Proof.
+  mkpair.
+  - intro Γ. simpl.
+    intro Ase. 
+    set (XX := # Yo (pr1 (pr2 Ase)) ;; Q (pr1 Y) _ ).
+    exact (yoneda_weq _ _ _ _ XX).
+  - intros Γ Γ' f.
+    apply funextsec. intro t. simpl. cbn.
+    unfold yoneda_morphisms_data. simpl.
+    rewrite id_left. rewrite id_left.
+    destruct t as [A [s e]]. simpl in *.
+    assert (XR:= pr2 Y). simpl in XR. unfold compatible_scomp_families in XR.
+    specialize (XR _ _ A f).
+    assert (XR2 := nat_trans_eq_pointwise XR).
+    admit.
+Admitted.
+
+Definition bar : preShv C  ⟦TM (pr1 Y), tm_functor Z ZZ⟧.
+Proof.
+  mkpair.
+  - intro Γ. simpl.
+    intro s'. set (S' := yy s').
+    assert (XR : S' ;; pp (pr1 Y) = yy ( (pp (pr1 Y) : nat_trans _ _ ) _ s')).
+    { unfold S'. apply nat_trans_eq. apply has_homsets_HSET.
+        simpl. intro Γ'. 
+        apply funextsec.
+        unfold yoneda_objects_ob. intro g. simpl. cbn.
+        assert (XR := nat_trans_ax (pp (pr1 Y)) _ _ g).
+        assert (XR2 := toforallpaths _ _ _ XR).
+        apply XR2.
+    } 
+    
+    
 (* needs splitness? *)
-Lemma iscontr_compatible_fam_structure (Z : comprehension_structure)
+Lemma iscontr_compatible_fam_structure (Z : comprehension_structure) (ZZ : is_split_comprehension_structure Z)
 : iscontr (compatible_fam_structure Z).
 Proof.
-Abort.
+  exists (comp_fam_structure_from_comp Z ZZ).
+  intro t.
+  apply subtypeEquality.
+  { intro. do 4 (apply impred; intro).
+      apply functor_category_has_homsets. 
+  }
+  destruct t as [t Hcomp]. simpl.
+  apply subtypeEquality.
+  { intro. unfold families_prop_structure.
+    do 2 (apply impred; intro).
+    apply isofhleveltotal2. 
+    - apply functor_category_has_homsets.
+    - intro.  apply isaprop_isPullback.
+  } 
+  destruct t as [t tprop]. simpl.
+  use total2_paths.
+  
+applAbort.
 
 
 
