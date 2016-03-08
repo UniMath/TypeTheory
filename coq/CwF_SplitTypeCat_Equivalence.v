@@ -23,8 +23,12 @@ Undelimit Scope transport.
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
+Local Notation "< h , k >" := (PullbackArrow _ _ h k _ ) : pullback_scope.
+
+Open Scope pullback_scope.
 
 Local Definition preShv C := [C^op , HSET , pr2 is_category_HSET].
+
 
 Section fix_a_category.
 
@@ -32,6 +36,7 @@ Variable C : precategory.
 Variable hsC : has_homsets C.
 
 Local Notation "'Yo'" := (yoneda C hsC).
+Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
 
 Local Definition yy {F : preShv C} {c : C} : ((F : functor _ _) c : hSet) ≃ _ ⟦ Yo c, F⟧.
 Proof.
@@ -751,16 +756,68 @@ Proof.
   mkpair.
   - intro Γ. simpl.
     intro s'. set (S' := yy s').
+    set (ps := (pp (pr1 Y) : nat_trans _ _ )  _ s').
     assert (XR : S' ;; pp (pr1 Y) = yy ( (pp (pr1 Y) : nat_trans _ _ ) _ s')).
-    { unfold S'. apply nat_trans_eq. apply has_homsets_HSET.
-        simpl. intro Γ'. 
-        apply funextsec.
-        unfold yoneda_objects_ob. intro g. simpl. cbn.
-        assert (XR := nat_trans_ax (pp (pr1 Y)) _ _ g).
-        assert (XR2 := toforallpaths _ _ _ XR).
-        apply XR2.
+    { 
+      apply nat_trans_eq; [ apply has_homsets_HSET | ];
+      intro Γ' ;
+      apply funextsec;
+      intro g; simpl; cbn;
+      assert (XR := nat_trans_ax (pp (pr1 Y)) _ _ g);
+      apply (toforallpaths _ _ _ XR)
+            .
     } 
-    
+    exists ps.
+    set (Pb := pr2 (pr1 Y) Γ ps). 
+    set (T:= section_from_diagonal (pr1 Pb) (pr2 Pb) (S',,XR) ).
+    mkpair.
+    + apply Yo^-1.
+      exact (pr1 T).
+    + (
+      apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ )));
+      etrans ; [ apply functor_comp |];
+      etrans ; [ apply cancel_postcomposition ;
+         apply(homotweqinvweq (weqpair _ (yoneda_fully_faithful _ hsC Γ (Γ◂ps) ))) | ];
+      simpl;
+      match goal with |[ |- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => 
+                       set (XR3:=HH) end;
+      rewrite (PullbackArrow_PullbackPr1 XR3);
+      apply pathsinv0; apply (functor_id Yo)
+       ).
+  - intros Γ Γ' f.
+    simpl in *.
+    apply funextsec; intro; simpl; cbn.
+    use total2_paths.
+    + simpl.
+      set (XT:= (nat_trans_ax (pp (pr1 Y))) _ _ f ).
+      set (XT2 := toforallpaths _ _ _ XT).
+      apply XT2.
+    + apply subtypeEquality.
+      { intro. apply hsC. }
+      simpl.
+      etrans. apply (pr1_transportf _ (fun a => C⟦Γ', Γ' ◂ a⟧)   
+                                      (fun A => fun b => b ;; π _ = identity _ )).
+      simpl.
+      rewrite functtransportf.
+      rewrite <- idtoiso_postcompose.
+      apply PullbackArrowUnique.
+      * etrans. apply maponpaths. cbn. apply idpath.
+        etrans. apply (!assoc _ _ _ _ _ _  _ _ ).
+        rewrite idtoiso_π.
+        apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
+        etrans ; [ apply functor_comp |].
+        match goal with |[ |- _  (_ ?EE) ;; _ = _ ] => set (e := EE) end.
+
+        assert (XR := homotweqinvweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ )) e).
+        etrans. apply cancel_postcomposition. apply XR. 
+        clear XR ; unfold e; clear e.
+        match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] 
+                           => set (XR := HH) end.
+        etrans. apply (PullbackArrow_PullbackPr1 XR).
+        apply pathsinv0. apply (functor_id Yo).
+      * etrans. apply maponpaths. cbn. apply idpath.
+        admit.
+Admitted.
     
 (* needs splitness? *)
 Lemma iscontr_compatible_fam_structure (Z : comprehension_structure) (ZZ : is_split_comprehension_structure Z)
