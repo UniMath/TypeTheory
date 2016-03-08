@@ -23,9 +23,10 @@ Undelimit Scope transport.
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
+(*
 Local Notation "< h , k >" := (PullbackArrow _ _ h k _ ) : pullback_scope.
-
 Open Scope pullback_scope.
+*)
 
 Local Definition preShv C := [C^op , HSET , pr2 is_category_HSET].
 
@@ -154,161 +155,6 @@ Definition compatible_comp_structure (Y : families_structure) : UU
 
 
 
-Section compatible_comp_structure_from_fam.
-
-Variable Y : families_structure.
-
-Section qq_from_fam.
-
-Variables Γ Γ' : C.
-Variable f : C⟦Γ', Γ⟧.
-Variable A : (TY X : functor _ _) Γ : hSet.
-
-Let Xk := mk_Pullback _ _ _ _ _ (pr1 (pr2 Y Γ A)) (pr2 (pr2 Y Γ A)).
-
-Definition Yo_of_qq : _ ⟦Yo (Γ' ◂ A[f]), Yo (Γ ◂ A) ⟧.
-Proof.
-  simple refine (PullbackArrow Xk _ _ _ _ ).
-  - apply (#Yo (π _) ;; #Yo f ). 
-  - apply (Q Y).
-  - abstract (
-        clear Xk;
-        assert (XT:= pr1 (pr2 Y Γ' A[f]));
-        eapply pathscomp0; try apply XT; clear XT;
-        rewrite <- assoc; apply maponpaths;
-        apply pathsinv0, yy_natural
-    ).
-Defined.
-
-Lemma Yo_of_qq_commutes_1 : # Yo (π _ ) ;; # Yo f = Yo_of_qq ;; # Yo (π _ ) .
-Proof.
-  apply pathsinv0.
-  apply (PullbackArrow_PullbackPr1 Xk).
-Qed.
-
-Lemma Yo_of_qq_commutes_2 : Yo_of_qq ;; Q _ A = Q Y _ .
-Proof.
-  apply (PullbackArrow_PullbackPr2 Xk).
-Qed.  
-
-Lemma isPullback_Yo_of_qq : isPullback _ _ _ _ Yo_of_qq_commutes_1.
-Proof.
-  simple refine (isPullback_two_pullback _ _ _ _ _ _ _ _ _ _ ).
-  - apply functor_category_has_homsets.
-  - apply (TY X).
-  - apply (TM Y).
-  - apply (yy A).
-  - apply pp.
-  - apply Q.
-  - apply (pr1 (pr2 Y _ _ )).
-  - apply (pr2 (pr2 Y _ _ )).
-  - match goal with [|- isPullback _ _ _ _ ?HH ] => generalize HH end.
-    rewrite <- yy_natural.
-    rewrite Yo_of_qq_commutes_2.
-    intro.
-    apply (pr2 (pr2 Y _ _ )).
-Defined.
-
-Definition qq_fam :  _ ⟦Γ' ◂ A[f] , Γ ◂ A⟧.
-Proof.
-  apply (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
-  apply Yo_of_qq.
-Defined.
-
-Lemma Yo_qq_fam_Yo_of_qq : # Yo qq_fam = Yo_of_qq.
-Proof.
-  unfold qq_fam.
-  assert (XT := homotweqinvweq
-     (weqpair _ (yoneda_fully_faithful _  hsC (Γ'◂ A[f]) (Γ ◂ A)  ))).
-  apply XT.
-Qed.
-
-Lemma qq_commutes_1 : π _ ;; f = qq_fam ;; π _ .
-Proof.
-  assert (XT:= Yo_of_qq_commutes_1).
-  rewrite <- Yo_qq_fam_Yo_of_qq in XT.
-  do 2 rewrite <- functor_comp in XT.
-  apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
-  apply XT.
-Qed.
-
-Definition isPullback_qq : isPullback _ _ _ _ qq_commutes_1.
-Proof.
-  use (isPullback_preimage_square _ _ _ Yo).
-  - apply hsC.
-  - apply yoneda_fully_faithful.
-  - assert (XT:= isPullback_Yo_of_qq).
-    match goal with |[|- isPullback _ _ _ _ ?HHH] => generalize HHH end.
-    rewrite Yo_qq_fam_Yo_of_qq.
-    intro. assumption.
-Qed.
-
-End qq_from_fam.
-
-Definition comp_from_fam : comprehension_structure.
-Proof.
-  mkpair.
-  - intros. apply qq_fam.
-  - intros. simpl.
-    exists (qq_commutes_1 _ _ _ _ ).
-    apply isPullback_qq.
-Defined.
-
-Lemma comp_from_fam_compatible_scomp_families : compatible_scomp_families Y comp_from_fam.
-Proof.
-  intros Γ Γ' A f.
-  assert (XR:= Yo_of_qq_commutes_2).
-  apply pathsinv0.
-  rewrite Yo_qq_fam_Yo_of_qq.
-  apply XR.
-Qed.
-
-Lemma is_split_comp_from_fam : is_split_comprehension_structure comp_from_fam.
-Proof.
-  split.
-  - intros Γ A. simpl.
-    apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
-    etrans; [ apply (homotweqinvweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))) | idtac ].    
-    apply pathsinv0.
-    unfold Yo_of_qq.
-    apply PullbackArrowUnique. 
-    + etrans. apply maponpaths. cbn. apply idpath. 
-      rewrite <- functor_comp.
-      etrans. eapply pathsinv0. apply (functor_comp Yo).
-      apply maponpaths. rewrite idtoiso_π.
-      apply pathsinv0. apply id_right.
-    + etrans. apply maponpaths. cbn. apply idpath.
-      apply idtoiso_Q.
-  - intros.
-    apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
-    etrans; [ apply (homotweqinvweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))) | idtac ].    
-    sym. apply PullbackArrowUnique.
-    + etrans. apply maponpaths. cbn. apply idpath.
-      rewrite <- functor_comp.
-      etrans. eapply pathsinv0. apply (functor_comp Yo).
-      apply maponpaths.
-      rewrite <- assoc. rewrite <- qq_commutes_1 .
-      repeat rewrite assoc.
-      rewrite assoc4.
-      etrans. apply cancel_postcomposition. apply maponpaths. eapply pathsinv0. apply qq_commutes_1 .
-      apply cancel_postcomposition.
-      repeat rewrite assoc.
-      apply cancel_postcomposition.
-      apply idtoiso_π.
-    + etrans. apply maponpaths. cbn. apply idpath.
-      etrans. apply cancel_postcomposition. apply functor_comp.
-      rewrite <- assoc.
-      rewrite Yo_qq_fam_Yo_of_qq.
-      rewrite  Yo_of_qq_commutes_2 .
-      etrans. apply cancel_postcomposition. apply functor_comp.
-      rewrite <- assoc.
-      etrans. apply maponpaths. apply cancel_postcomposition. apply Yo_qq_fam_Yo_of_qq.
-      etrans. apply maponpaths. apply Yo_of_qq_commutes_2 .
-      apply idtoiso_Q.
-Qed.
-
-      
-End compatible_comp_structure_from_fam.
 
 
 
@@ -816,9 +662,197 @@ Proof.
         etrans. apply (PullbackArrow_PullbackPr1 XR).
         apply pathsinv0. apply (functor_id Yo).
       * etrans. apply maponpaths. cbn. apply idpath.
-        admit.
+        apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
+        etrans. apply functor_comp.
+        etrans. apply cancel_postcomposition. apply functor_comp.
+        match goal with |[ |- _  (_ ?EE) ;; _ ;; _ = _ ] => set (e := EE) end.
+        assert (XR := homotweqinvweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ )) e).
+        etrans. apply cancel_postcomposition. apply cancel_postcomposition. apply XR. 
+        clear XR.
+        etrans. Focus 2. eapply pathsinv0. apply functor_comp.
+        match goal with |[ |- _ = _ ;; _  (_ ?EE)] => set (e' := EE) end.
+        assert (XR := homotweqinvweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ )) e').
+        etrans. Focus 2. apply maponpaths. eapply pathsinv0. apply XR.
+        
+        use (MorphismsIntoPullbackEqual).
+        admit.        
+Admitted.
+
+Lemma foo_bar : foo ;; bar = identity _ .
+Proof.
+  apply nat_trans_eq. { apply has_homsets_HSET. }
+  intro Γ. apply funextsec; intro Ase.
+  destruct Ase as [A [s e]].
+  use total2_paths.
+  - admit.
+  - apply subtypeEquality.
+    { intro. apply hsC. }
+    admit.
 Admitted.
     
+End canonical_TM.
+
+
+
+Section compatible_comp_structure_from_fam.
+
+Variable Y : families_structure.
+
+Section qq_from_fam.
+
+Variables Γ Γ' : C.
+Variable f : C⟦Γ', Γ⟧.
+Variable A : (TY X : functor _ _) Γ : hSet.
+
+Let Xk := mk_Pullback _ _ _ _ _ (pr1 (pr2 Y Γ A)) (pr2 (pr2 Y Γ A)).
+
+Definition Yo_of_qq : _ ⟦Yo (Γ' ◂ A[f]), Yo (Γ ◂ A) ⟧.
+Proof.
+  simple refine (PullbackArrow Xk _ _ _ _ ).
+  - apply (#Yo (π _) ;; #Yo f ). 
+  - apply (Q Y).
+  - abstract (
+        clear Xk;
+        assert (XT:= pr1 (pr2 Y Γ' A[f]));
+        eapply pathscomp0; try apply XT; clear XT;
+        rewrite <- assoc; apply maponpaths;
+        apply pathsinv0, yy_natural
+    ).
+Defined.
+
+Lemma Yo_of_qq_commutes_1 : # Yo (π _ ) ;; # Yo f = Yo_of_qq ;; # Yo (π _ ) .
+Proof.
+  apply pathsinv0.
+  apply (PullbackArrow_PullbackPr1 Xk).
+Qed.
+
+Lemma Yo_of_qq_commutes_2 : Yo_of_qq ;; Q _ A = Q Y _ .
+Proof.
+  apply (PullbackArrow_PullbackPr2 Xk).
+Qed.  
+
+Lemma isPullback_Yo_of_qq : isPullback _ _ _ _ Yo_of_qq_commutes_1.
+Proof.
+  simple refine (isPullback_two_pullback _ _ _ _ _ _ _ _ _ _ ).
+  - apply functor_category_has_homsets.
+  - apply (TY X).
+  - apply (TM Y).
+  - apply (yy A).
+  - apply pp.
+  - apply Q.
+  - apply (pr1 (pr2 Y _ _ )).
+  - apply (pr2 (pr2 Y _ _ )).
+  - match goal with [|- isPullback _ _ _ _ ?HH ] => generalize HH end.
+    rewrite <- yy_natural.
+    rewrite Yo_of_qq_commutes_2.
+    intro.
+    apply (pr2 (pr2 Y _ _ )).
+Defined.
+
+Definition qq_fam :  _ ⟦Γ' ◂ A[f] , Γ ◂ A⟧.
+Proof.
+  apply (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
+  apply Yo_of_qq.
+Defined.
+
+Lemma Yo_qq_fam_Yo_of_qq : # Yo qq_fam = Yo_of_qq.
+Proof.
+  unfold qq_fam.
+  assert (XT := homotweqinvweq
+     (weqpair _ (yoneda_fully_faithful _  hsC (Γ'◂ A[f]) (Γ ◂ A)  ))).
+  apply XT.
+Qed.
+
+Lemma qq_commutes_1 : π _ ;; f = qq_fam ;; π _ .
+Proof.
+  assert (XT:= Yo_of_qq_commutes_1).
+  rewrite <- Yo_qq_fam_Yo_of_qq in XT.
+  do 2 rewrite <- functor_comp in XT.
+  apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
+  apply XT.
+Qed.
+
+Definition isPullback_qq : isPullback _ _ _ _ qq_commutes_1.
+Proof.
+  use (isPullback_preimage_square _ _ _ Yo).
+  - apply hsC.
+  - apply yoneda_fully_faithful.
+  - assert (XT:= isPullback_Yo_of_qq).
+    match goal with |[|- isPullback _ _ _ _ ?HHH] => generalize HHH end.
+    rewrite Yo_qq_fam_Yo_of_qq.
+    intro. assumption.
+Qed.
+
+End qq_from_fam.
+
+Definition comp_from_fam : comprehension_structure.
+Proof.
+  mkpair.
+  - intros. apply qq_fam.
+  - intros. simpl.
+    exists (qq_commutes_1 _ _ _ _ ).
+    apply isPullback_qq.
+Defined.
+
+Lemma comp_from_fam_compatible_scomp_families : compatible_scomp_families Y comp_from_fam.
+Proof.
+  intros Γ Γ' A f.
+  assert (XR:= Yo_of_qq_commutes_2).
+  apply pathsinv0.
+  rewrite Yo_qq_fam_Yo_of_qq.
+  apply XR.
+Qed.
+
+Lemma is_split_comp_from_fam : is_split_comprehension_structure comp_from_fam.
+Proof.
+  split.
+  - intros Γ A. simpl.
+    apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
+    etrans; [ apply (homotweqinvweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))) | idtac ].    
+    apply pathsinv0.
+    unfold Yo_of_qq.
+    apply PullbackArrowUnique. 
+    + etrans. apply maponpaths. cbn. apply idpath. 
+      rewrite <- functor_comp.
+      etrans. eapply pathsinv0. apply (functor_comp Yo).
+      apply maponpaths. rewrite idtoiso_π.
+      apply pathsinv0. apply id_right.
+    + etrans. apply maponpaths. cbn. apply idpath.
+      apply idtoiso_Q.
+  - intros.
+    apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
+    etrans; [ apply (homotweqinvweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))) | idtac ].    
+    sym. apply PullbackArrowUnique.
+    + etrans. apply maponpaths. cbn. apply idpath.
+      rewrite <- functor_comp.
+      etrans. eapply pathsinv0. apply (functor_comp Yo).
+      apply maponpaths.
+      rewrite <- assoc. rewrite <- qq_commutes_1 .
+      repeat rewrite assoc.
+      rewrite assoc4.
+      etrans. apply cancel_postcomposition. apply maponpaths. eapply pathsinv0. apply qq_commutes_1 .
+      apply cancel_postcomposition.
+      repeat rewrite assoc.
+      apply cancel_postcomposition.
+      apply idtoiso_π.
+    + etrans. apply maponpaths. cbn. apply idpath.
+      etrans. apply cancel_postcomposition. apply functor_comp.
+      rewrite <- assoc.
+      rewrite Yo_qq_fam_Yo_of_qq.
+      rewrite  Yo_of_qq_commutes_2 .
+      etrans. apply cancel_postcomposition. apply functor_comp.
+      rewrite <- assoc.
+      etrans. apply maponpaths. apply cancel_postcomposition. apply Yo_qq_fam_Yo_of_qq.
+      etrans. apply maponpaths. apply Yo_of_qq_commutes_2 .
+      apply idtoiso_Q.
+Qed.
+
+      
+End compatible_comp_structure_from_fam.
+
+
+
+
 (* needs splitness? *)
 Lemma iscontr_compatible_fam_structure (Z : comprehension_structure) (ZZ : is_split_comprehension_structure Z)
 : iscontr (compatible_fam_structure Z).
@@ -839,9 +873,9 @@ Proof.
   } 
   destruct t as [t tprop]. simpl.
   use total2_paths.
-  
-applAbort.
-
+  - admit.
+  - admit.
+Admitted.
 
 
 
@@ -900,3 +934,7 @@ End some_structures.
 
 
 End fix_a_category.
+
+Print Assumptions iscontr_compatible_comp_structure.
+Print Assumptions iscontr_compatible_fam_structure.
+

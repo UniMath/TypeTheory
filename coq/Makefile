@@ -21,7 +21,9 @@ MODULES-CORE := Auxiliary UnicodeNotations \
 	TypeCat_to_DM \
 	CwF_to_TypeCat_to_DM \
 	RelUnivStructure \
-	CwF_1
+	CwF_1 \
+	CwF_SplitTypeCat_Equivalence
+
 
 # Remaining modules, included only in “make all”.
 # Useful for leaves that are slow to recompile.
