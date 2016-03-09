@@ -390,9 +390,9 @@ Proof.
       simpl in *. unfold yoneda_objects_ob in *.
       intro s.
       set (Ase := b s). unfold tm_carrier in Ase.
-      set (HabH := toforallpaths _ _ _ (!Hab)); simpl in HabH. cbn in HabH.
+      set (HabH := ! toforallpaths _ _ _ (Hab) s); simpl in HabH. cbn in HabH.
       set (XX := (pr1 (pr2 Ase))).
-      set (YY := maponpaths (fun x => Γ'◂ x) (HabH s)). simpl in YY.
+      set (YY := maponpaths (fun x => Γ'◂ x) (HabH)). simpl in YY.
       set (iYY := idtoiso YY).
       apply (XX ;; iYY ;; qq Z _ _ ).
 Defined.
@@ -471,8 +471,90 @@ Proof.
             apply PullbackArrowUnique.
             + etrans. apply maponpaths. cbn. apply idpath.
               clear XT XR. clear i. clear p.
+              etrans. apply cancel_postcomposition. apply maponpaths.
+              eapply pathsinv0. 
+              apply (maponpaths pr1 (idtoiso_inv _ _ _ _ )).
+              Search ( _ = ! (maponpaths _ _ )).
+              rewrite <- maponpathsinv0.
+              rewrite <- assoc.
+              etrans. apply maponpaths. apply idtoiso_π.
+              apply (pr2 (pr2 (b s))).
+            + simpl. cbn.
+              etrans. apply cancel_postcomposition. apply maponpaths. eapply pathsinv0. 
+              apply (maponpaths pr1 (idtoiso_inv _ _ _ _ )).
+              rewrite <- assoc.
+              rewrite <- maponpathsinv0.
+              Search ( ! ( _ @ _ ) = _ ).
+              rewrite pathscomp_inv.
+              rewrite maponpathscomp0.
+              rewrite idtoiso_concat. simpl.
+              repeat rewrite <- assoc.
+              etrans. apply maponpaths. apply maponpaths. apply cancel_postcomposition.
+                      apply maponpaths. apply maponpaths. apply maponpaths.
+                      eapply pathsinv0. 
+                      apply (maponpathsinv0  (λ k : C ⟦ Γ', Γ ⟧, # (TY X : functor _ _ ) k A)).
+              etrans. apply maponpaths. apply maponpaths. apply idtoiso_qq.
+              unfold into_Pb.
+              rewrite <- assoc. 
+              apply idpath.
+        } 
+  - intro t.
+    apply subtypeEquality.
+    { intro. apply isofhleveldirprod. 
+      + apply (has_homsets_HSET S (hSetpair (yoneda_objects_ob C Γ Γ') (hsC Γ' Γ)) ).
+      + apply (has_homsets_HSET S (tm Γ')).
+    }
+    simpl.
+    destruct t as [t Ht]. simpl.
+    unfold into_Pb.
+    apply funextsec. intro s.
+    assert (XR:= pr1 ZZ).
+    assert (Ht1 := toforallpaths _ _ _ (pr1 Ht) s). simpl in Ht1.
+    assert (Ht2 := toforallpaths _ _ _ (pr2 Ht) s). simpl in Ht2. unfold Q_from_comp_data in Ht2.
+            simpl in Ht2. cbn in Ht2.
+    assert (Ht21 := base_paths _ _ Ht2). simpl in Ht21.
+    assert (Ht22 := fiber_paths Ht2). simpl in Ht21.
+    assert (Ht221 := base_paths _ _ Ht22). simpl in Ht221.
+    rewrite (pr1_transportf _ (fun a => C ⟦Γ', Γ' ◂ a⟧) 
+                      (fun A => fun b => b ;; π _ = identity _ )          ) in Ht221.
+      simpl in Ht221. cbn in Ht221.
+    etrans. Focus 2. apply cancel_postcomposition. apply cancel_postcomposition. apply Ht221.
+    rewrite functtransportf.
+    rewrite <- idtoiso_postcompose.
+    
+    match goal with |[ |- _ = PullbackArrow ?HH _ _ _ _  ;; _ ;; _ ;; _ ] => set (XT:=HH) end.
+    assert (XR1 := PullbackArrow_PullbackPr1 XT). cbn in XR1.
+    assert (XR2 := PullbackArrow_PullbackPr2 XT). cbn in XR2.
+    admit.
+(*
+    rewrite <- Ht1.
+    idtoiso_qq.
+    clear 
+    
+    rewrite <- Ht221.
+    pr1_transportf _ (fun a => C⟦Γ'', Γ'' ◂ a⟧)   
+                                      (fun A => fun b => b ;; π _ = identity _ )).
+    rewrite functtransportf.
+    idtoiso_qq
+    use (MorphismsIntoPullbackEqual).
+    
+                                 
+              Search (! toforallpaths = _ ).
+              camaponpaths.
+              
+              rewrite <- maponpathsinv0.
+              
 
-
+              etrans. apply maponpaths. apply maponpaths. apply idtoiso_qq.
+             rewrite <- maponpathsinv0.
+              etrans. apply maponpaths. apply idtoiso_qq.
+              
+              apply cancel_postcomposition.
+              apply map
+              rewrite <- idtoiso_inv.
+              Print idtoiso_qq.
+              Search (iso_inv_from_iso  ).
+*)            
 (*
             Focus 2. cbn. repeat rewrite <- assoc. apply maponpaths.
             cbn.
@@ -498,23 +580,6 @@ Proof.
         rewrite XT.
 *)      
         
-        
-              admit.
-            + etrans. apply maponpaths. cbn. apply idpath.
-              unfold into_Pb.
-              repeat rewrite <- assoc.
-              apply maponpaths.
-              repeat rewrite assoc.
-               admit.
-        } 
-  - intro t.
-    apply subtypeEquality.
-    { intro. apply isapropdirprod. 
-      + apply (has_homsets_HSET S (hSetpair (yoneda_objects_ob C Γ Γ') (hsC Γ' Γ))).
-      + apply (has_homsets_HSET S (tm Γ')).
-    }
-    simpl.
-    admit.
 Admitted.
 
 End Q_from_comp.
@@ -556,6 +621,7 @@ Proof.
                                       (fun A => fun b => b ;; π _ = identity _ )).
       etrans. apply functtransportf.
       rewrite <- idtoiso_postcompose.
+      simpl.
       apply PullbackArrowUnique.
       * simpl. cbn.
         etrans. apply (!assoc C _ _ _ _ _ _ _ ).
@@ -567,8 +633,45 @@ Proof.
         etrans. apply (!assoc C _ _ _ _ _ _ _ ).
         unfold yoneda_morphisms_data.
         rewrite maponpathscomp0.
-        admit.
-Admitted.
+        rewrite maponpathscomp0.
+        rewrite maponpathscomp0.
+        rewrite idtoiso_concat.
+        rewrite idtoiso_concat.
+        rewrite idtoiso_concat.
+        simpl.
+        etrans. apply maponpaths. apply assoc4.
+        etrans. apply maponpaths. apply cancel_postcomposition. apply assoc. 
+        etrans. apply maponpaths. apply (!assoc _ _ _ _ _ _ _ _ ).
+        etrans. apply maponpaths. apply maponpaths. apply idtoiso_qq.
+        etrans. apply maponpaths. apply (!assoc _ _ _ _ _ _ _ _ ).  
+        etrans. apply maponpaths. apply maponpaths.
+                apply idtoiso_qq.
+        etrans. apply maponpaths. apply (!assoc _ _ _ _ _ _ _ _ ).
+        etrans. apply maponpaths. apply maponpaths.
+                apply idtoiso_qq.
+        etrans. apply maponpaths. apply maponpaths. apply (pr2 ZZ).
+        
+        etrans. apply maponpaths. apply maponpaths. apply (!assoc _ _ _ _ _ _ _ _ ).
+        etrans. apply maponpaths. apply assoc.
+        
+        match goal with [|- _ ;; (?I ;; _ ) = _ ] => set (i := I) end.
+        assert (XR : i = identity _ ).
+        {
+          unfold i; clear i.
+          apply pathsinv0. 
+          etrans. Focus 2. apply (maponpaths pr1 (idtoiso_concat _ _ _ _ _ _ )).
+          apply idtoiso_eq_idpath.
+          rewrite <- maponpathscomp0.
+          apply maponpaths_eq_idpath.
+          apply setproperty. (* setproperty should not be needed *)
+        }
+        rewrite XR. rewrite id_left.
+        rewrite assoc.
+        match goal with |[ |- PullbackArrow ?HH _ _ _ _  ;; _ ;; _  = _ ] => set (XT:=HH) end.
+        
+        etrans. apply cancel_postcomposition. apply (PullbackArrow_PullbackPr2 XT).
+        apply idpath.
+Qed.
     
 End compatible_fam_structure_from_comp.
 
