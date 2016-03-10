@@ -147,8 +147,7 @@ Variable isD' : is_category D'.
 
 Variables (R : functor C C') (S : functor D D').
 
-Variable a :   [C, D', pr2 isD']
-     ⟦functor_composite _ _ _ J S , functor_composite _ _ _ R J'⟧.
+Variable a :   [C, D', pr2 isD'] ⟦functor_composite J S , functor_composite R J'⟧.
 Hypothesis is_iso_a : is_iso a.
 
 Let a' := inv_from_iso (isopair a is_iso_a).  
