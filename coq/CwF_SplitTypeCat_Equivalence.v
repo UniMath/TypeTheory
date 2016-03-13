@@ -17,6 +17,7 @@ Require Export UniMath.CategoryTheory.category_hset.
 Require Export UniMath.CategoryTheory.yoneda.
 
 
+
 Undelimit Scope transport.
 
 
@@ -194,47 +195,41 @@ Proof.
   refine tm_on_mor.
 Defined.
 
+Lemma tm_functor_eq {Γ} (t t' : (tm_functor_data Γ : hSet)) 
+  (eA : pr1 t = pr1 t')
+  (es : (pr1 (pr2 t)) ;; idtoiso (maponpaths (comp_ext Γ) eA) = (pr1 (pr2 t')))
+  : t = t'.
+Proof.
+  destruct t as [A [s e]], t' as [A' [s' e']]; simpl in *.
+  use total2_paths; simpl.
+    apply eA.
+  apply subtypeEquality. intro; apply hsC.
+  simpl. eapply pathscomp0. refine (pr1_transportf _ _ _ _ _ eA _).
+  simpl. eapply pathscomp0. apply functtransportf.
+  eapply pathscomp0. eapply pathsinv0. apply idtoiso_postcompose.
+  exact es.
+Qed.
+
 Lemma is_functor_tm : is_functor tm_functor_data.
 Proof.
   split; [unfold functor_idax | unfold functor_compax].
   - intro Γ. apply funextsec.
-    intro t. simpl. 
-    destruct t as [A [s e]].
-    cbn. simpl.
-    unfold tm_on_mor.  simpl.
-    use total2_paths.
-    + simpl. use (toforallpaths _ _ _ (functor_id (TY X) _ ) A).
-    + simpl.
-      apply subtypeEquality.
-      * intro. apply hsC.
-      * simpl.
-        eapply pathscomp0. apply (pr1_transportf ((TY X : functor _ _ )  Γ : hSet) (fun x => C⟦Γ,Γ◂ x⟧)
-                      (fun A => fun b => b ;; π _ = identity _ )                 ).
-        simpl.
-        Search transportf maponpaths.
-        rewrite functtransportf.
-        rewrite <- idtoiso_postcompose.
-        assert (XT := pr1 Z).
-        rewrite <- (pr1 ZZ).        
-        match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => set (XR := HH) end.
-        etrans. apply (PullbackArrow_PullbackPr2 XR). apply id_left.
+    intro t. simpl.
+    destruct t as [A [s e]]. cbn.
+    use tm_functor_eq; simpl.
+    + use (toforallpaths _ _ _ (functor_id (TY X) _ ) A).
+    + assert (XT := pr1 Z).
+      rewrite <- (pr1 ZZ).        
+      match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => set (XR := HH) end.
+      etrans. apply (PullbackArrow_PullbackPr2 XR). apply id_left.
   - intros Γ Γ' Γ'' f g. cbn.
     apply funextsec.
     intro t.
     destruct t as [A [s e]]; simpl in *.
     unfold tm_on_mor. simpl.
-    use total2_paths.
-    + simpl. apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ _ _ _) A).
-    + simpl. apply subtypeEquality.
-      * intro. apply hsC.
-      * simpl.
-        eapply pathscomp0.
-        apply (pr1_transportf ((TY X : functor _ _ )  Γ'' : hSet) (fun x => C⟦Γ'',Γ''◂ x⟧)
-                      (fun A => fun b => b ;; π _ = identity _ )                 ).
-        rewrite functtransportf.
-        rewrite <- idtoiso_postcompose.
-        simpl.
-        cbn.
+    use tm_functor_eq; simpl.
+    + apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ _ _ _) A).
+    + cbn.
         {
         apply PullbackArrowUnique.
         - rewrite <- assoc. cbn.  
@@ -296,10 +291,10 @@ Definition Q_from_comp_data :
  ∀ x : C^op, HSET ⟦ (Yo (Γ ◂ A) : functor _ _ ) x, tm_functor x ⟧.
 Proof.
   intros Γ' f. simpl in *.
-  unfold yoneda_objects_ob in f. 
-  mkpair.
-  + simpl. apply A[f;;π _ ].
-  + use (section_from_diagonal _ (pr2 (pullback_from_comp Z _  _ ))). 
+  unfold yoneda_objects_ob in f.
+  unfold tm_carrier. mkpair.
+  + exact A[f;;π _ ].
+  + apply (section_from_diagonal _ (pr2 (pullback_from_comp Z _ _ ))). 
     exists f. apply idpath.
 Defined.
 
@@ -308,20 +303,10 @@ Proof.
 intros Γ' Γ'' f. simpl.
     apply funextsec. intro g.
     unfold yoneda_objects_ob. cbn.    
-    use total2_paths. 
-    + simpl.
-      etrans. apply (maponpaths (fun k => #(TY X : functor _ _ ) k A) (assoc _ _ _ _ _ _ _ _ )).
+    use tm_functor_eq; simpl pr1.
+    + etrans. apply (maponpaths (fun k => #(TY X : functor _ _ ) k A) (assoc _ _ _ _ _ _ _ _ )).
       apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ _ _ _ )).
-    + simpl.
-      apply subtypeEquality.
-      { intro. apply hsC. }     
-      rewrite (pr1_transportf _ (fun a => C⟦Γ'', Γ'' ◂ a⟧)
-                              (fun A => fun b => b ;; π _ = identity _ )).
-      simpl.
-      rewrite functtransportf.
-      rewrite <- idtoiso_postcompose.
-      simpl.
-      apply PullbackArrowUnique.
+    + apply PullbackArrowUnique.
       * cbn.
         etrans. apply (!assoc _ _ _ _ _ _ _ _ ).
         rewrite idtoiso_π.
@@ -432,7 +417,7 @@ Proof.
       * (* <a,b> . Q(A) = b *)
         apply funextsec. intro s.
         {
-          use total2_paths.
+          use tm_functor_eq.
           - simpl.
             set (XX:= toforallpaths _ _ _ Hab s). cbn in XX.
             etrans. Focus 2. apply XX.
@@ -451,15 +436,6 @@ Proof.
             etrans; [apply (cancel_postcomposition C); apply XT | idtac];
             apply id_left ).
           - simpl.
-            apply subtypeEquality.
-            { intro. apply hsC. }
-            rewrite (pr1_transportf  _ (fun K => C⟦Γ', Γ' ◂ K⟧)
-                              (fun A => fun h => h ;; π _ = identity _ )).
-            simpl.
-            rewrite functtransportf.
-            apply pathsinv0.
-            etrans. Focus 2. apply idtoiso_postcompose.
-            apply pathsinv0.
             match goal with |[ |- PullbackArrow ?HH _ _ _ ?ee ;; _ = _ ] => 
                              set (XR:=HH); generalize ee end. 
             intro p.
@@ -605,7 +581,7 @@ Proof.
     { apply has_homsets_HSET. }
     intro Γ''.
     apply funextsec. intro g. unfold yoneda_objects_ob in g.
-    use total2_paths. 
+    use tm_functor_eq. 
     + unfold yoneda_morphisms_data.
       etrans. Focus 2. eapply (maponpaths (fun k => #(TY X : functor _ _ ) k A)).
                        apply (assoc C _ _ _ _ _ _ _ ).
@@ -615,13 +591,7 @@ Proof.
       etrans. Focus 2.  eapply (maponpaths (fun k => #(TY X : functor _ _ ) k A)).
                        apply (!assoc C _ _ _ _ _ _ _ ).
       apply (toforallpaths _ _ _ (!functor_comp (TY X) _ _ _ _ _ ) A).
-    + apply subtypeEquality.
-      { intro. apply hsC. }
-      etrans. apply (pr1_transportf _ (fun a => C⟦Γ'', Γ'' ◂ a⟧)   
-                                      (fun A => fun b => b ;; π _ = identity _ )).
-      etrans. apply functtransportf.
-      rewrite <- idtoiso_postcompose.
-      simpl.
+    + simpl.
       apply PullbackArrowUnique.
       * simpl. cbn.
         etrans. apply (!assoc C _ _ _ _ _ _ _ ).
@@ -736,19 +706,12 @@ Proof.
   - intros Γ Γ' f.
     simpl in *.
     apply funextsec; intro; simpl; cbn.
-    use total2_paths.
+    use (@tm_functor_eq Z).
     + simpl.
       set (XT:= (nat_trans_ax (pp (pr1 Y))) _ _ f ).
       set (XT2 := toforallpaths _ _ _ XT).
       apply XT2.
-    + apply subtypeEquality.
-      { intro. apply hsC. }
-      simpl.
-      etrans. apply (pr1_transportf _ (fun a => C⟦Γ', Γ' ◂ a⟧)   
-                                      (fun A => fun b => b ;; π _ = identity _ )).
-      simpl.
-      rewrite functtransportf.
-      rewrite <- idtoiso_postcompose.
+    + simpl.
       apply PullbackArrowUnique.
       * etrans. apply maponpaths. cbn. apply idpath.
         etrans. apply (!assoc _ _ _ _ _ _  _ _ ).
@@ -786,11 +749,9 @@ Proof.
   apply nat_trans_eq. { apply has_homsets_HSET. }
   intro Γ. apply funextsec; intro Ase.
   destruct Ase as [A [s e]].
-  use total2_paths.
+  use tm_functor_eq.
   - admit.
-  - apply subtypeEquality.
-    { intro. apply hsC. }
-    admit.
+  - admit.
 Admitted.
     
 End canonical_TM.
