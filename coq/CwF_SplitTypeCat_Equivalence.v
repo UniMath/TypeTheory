@@ -88,7 +88,7 @@ Definition pp Y : _ ⟦TM Y, TY X⟧ := pr1 (pr2 Y).
 Definition Q Y {Γ} A : _ ⟦ _ , TM Y⟧ := pr2 (pr2 Y) Γ A.
 
 Lemma idtoiso_Q Y Γ (A A' : (TY X : functor _ _ ) Γ : hSet) (e : A = A') : 
-  #Yo (idtoiso (maponpaths (fun B => Γ ◂ B) e )) ;; Q Y _ = Q Y _ . 
+  #Yo (idtoiso (maponpaths (fun B => Γ ◂ B) e )) ;; Q Y A' = Q Y A . 
 Proof.
   induction e. 
   etrans. apply cancel_postcomposition. apply functor_id.
@@ -278,6 +278,8 @@ Qed.
 
 Definition tm_functor : functor _ _  := tpair _ _ is_functor_tm.
 
+Arguments tm_functor : simpl never.
+
 Definition pp_carrier (Γ : C^op) : (tm_functor Γ : hSet) → (TY X : functor _ _ ) Γ : hSet.
 Proof.
   exact pr1.
@@ -290,6 +292,8 @@ Proof.
 Defined.
 
 Definition pp_from_comp : preShv C ⟦tm_functor, TY X⟧ := tpair _ _ is_nat_trans_pp_carrier.
+
+Arguments pp_from_comp : simpl never.
 
 Section Q_from_comp.
 
@@ -366,6 +370,8 @@ Qed.
 
 Definition Q_from_comp : _ ⟦ Yo (Γ ◂ A), tm_functor⟧ := tpair _ _ is_nat_trans_Q_from_comp.
 
+Arguments Q_from_comp : simpl never.
+
 Definition Q_from_comp_commutes : # Yo (π _ ) ;; yy A = Q_from_comp ;; pp_from_comp.            
 Proof.
   apply nat_trans_eq. apply has_homsets_HSET.
@@ -392,18 +398,16 @@ Proof.
 Defined.
 
 
-Lemma isPullback_Q_from_comp_commutes : isPullback _ _ _ _ Q_from_comp_commutes.
+Lemma into_Pb_commutes
+      (Γ' : C^op)
+      (S : HSET)
+      (a : HSET ⟦ S, hSetpair (yoneda_objects_ob C Γ Γ') (hsC Γ' Γ) ⟧)
+      (b : HSET ⟦ S, tm Γ' ⟧)
+      (Hab : a ;; (λ f : C ⟦ Γ', Γ ⟧, # (TY X : functor _ _ ) f A) = b ;; pp_carrier Γ'):
+   (λ x : (S : hSet), into_Pb Γ' S a b Hab x ;; π A) = a
+   × (λ x : (S : hSet), Q_from_comp_data Γ' (into_Pb Γ' S a b Hab x)) = b.
 Proof.
-  apply pb_if_pointwise_pb.
-  intro Γ'. simpl.
-  unfold yoneda_morphisms_data. 
-  apply mk_isPullback.
-  intros S a b Hab.
-  mkpair.
-  - mkpair. 
-    + apply (into_Pb _ _ a b Hab).
-    + (* show that the defined morphism makes two triangles commute *)
-      simpl. split.
+   simpl. split.
       * (* <a,b>(s) . π = a(s)   *)
         apply funextsec. intro s.
         etrans. apply assoc4.
@@ -483,31 +487,47 @@ Proof.
               rewrite <- assoc. 
               apply idpath.
         }     
+Qed.
+
+Lemma isPullback_Q_from_comp_commutes : isPullback _ _ _ _ Q_from_comp_commutes.
+Proof.
+  apply pb_if_pointwise_pb.
+  intro Γ'. simpl.
+  unfold yoneda_morphisms_data. 
+  apply mk_isPullback.
+  intros S a b Hab.
+  mkpair.
+  - mkpair. 
+    + apply (into_Pb _ _ a b Hab).
+    + (* show that the defined morphism makes two triangles commute *)
+      apply into_Pb_commutes.
+  - intro t.
+    apply subtypeEquality.
+    { intro. apply isofhleveldirprod. 
+      + apply (has_homsets_HSET S (hSetpair (yoneda_objects_ob C Γ Γ') (hsC Γ' Γ)) ).
+      + apply (has_homsets_HSET S (tm Γ')).
+    }
 Admitted.
 
 End Q_from_comp.
 
-Definition comp_fam_structure_from_comp : compatible_fam_structure Z.
+Notation "'cQ'" := Q_from_comp_data.
+Notation "'cQ'" := Q_from_comp.
+Notation "'cTm'":= tm_functor.
+Notation "'cp'" := pp_from_comp.
+Arguments Q_from_comp_data : simpl never.
+Arguments Q_from_comp : simpl never.
+Arguments tm_functor : simpl never.
+Arguments pp_from_comp : simpl never.
+
+
+Lemma cQ_compatible_pw (Γ Γ' : C) (A : (TY X : functor _ _ ) Γ : hSet) (f : C ⟦ Γ', Γ ⟧) (Γ'' : C)
+          (g : C ⟦ Γ'', Γ' ◂ # (TY X : functor _ _ ) f A ⟧)
+   :
+   Q_from_comp_data Γ' (# (TY X : functor _ _ ) f A) Γ'' g =
+   Q_from_comp_data Γ A Γ'' (g ;; qq Z f A).
 Proof.
-  mkpair.
-  - mkpair.
-    + mkpair.
-      * apply tm_functor.
-      * {
-          split.
-          - apply pp_from_comp.
-          - intros. apply Q_from_comp.
-        } 
-    + unfold families_prop_structure.
-      intros.
-      exists (Q_from_comp_commutes _ _ ).
-      apply isPullback_Q_from_comp_commutes.
-  - unfold compatible_scomp_families. 
-    intros Γ Γ' A f.
-    apply nat_trans_eq. 
-    { apply has_homsets_HSET. }
-    intro Γ''.
-    apply funextsec. intro g. unfold yoneda_objects_ob in g.
+    simpl. cbn.
     use tm_functor_eq. 
     + unfold yoneda_morphisms_data.
       etrans. Focus 2. eapply (maponpaths (fun k => #(TY X : functor _ _ ) k A)).
@@ -569,9 +589,63 @@ Proof.
         etrans. apply cancel_postcomposition. apply (PullbackArrow_PullbackPr2 XT).
         apply idpath.
 Qed.
+
+
+
+(* 
+  the next statement morally reads
+
+  cQ Γ' (# (TY X) f A) Γ'' =
+  (λ g : C ⟦ Γ'', Γ' ◂ # (TY X) f A ⟧, g ;; qq Z f A) ;; cQ Γ A Γ''
+
+  but needs many type annotations to trigger coercions
+*)
+
+Lemma cQ_commutes (Γ Γ' : C) (A : (TY X : functor _ _ ) Γ : hSet) (f : C ⟦ Γ', Γ ⟧) (Γ'' : C)
+  :   (cQ Γ' (# (TY X : functor _ _ ) f A) : nat_trans _ _ ) Γ'' =
+      ((λ g : hSetpair (C ⟦ Γ'', Γ' ◂ # (TY X : functor _ _ ) f A ⟧) (hsC _ _ ), g ;; qq Z f A) : HSET ⟦ _ , hSetpair _ (hsC _ _ ) ⟧) ;; (cQ Γ A : nat_trans _ _ ) Γ''.
+Proof.
+  simpl.
+  apply funextsec. 
+  apply cQ_compatible_pw.
+Qed.
+
+
+Definition comp_fam_structure_from_comp : compatible_fam_structure Z.
+Proof.
+  mkpair.
+  - mkpair.
+    + mkpair.
+      * apply tm_functor.
+      * {
+          mkpair.
+          - apply pp_from_comp.
+          - intros. apply Q_from_comp.
+        } 
+    + unfold families_prop_structure.
+      intros.
+      exists (Q_from_comp_commutes _ _ ).
+      apply isPullback_Q_from_comp_commutes.
+  - unfold compatible_scomp_families. 
+    intros Γ Γ' A f.
+    apply nat_trans_eq. 
+    { apply has_homsets_HSET. }
+    intro Γ''. 
+    apply cQ_commutes.
+Defined.
     
 End compatible_fam_structure_from_comp.
 
+Notation "'cQ'" := Q_from_comp_data.
+Notation "'cQ'" := Q_from_comp.
+Notation "'cTm'":= tm_carrier.
+Notation "'cTm'":= (tm_on_mor _ _ _ ).
+Notation "'cp'" := pp_from_comp.
+Arguments Q_from_comp_data : simpl never.
+Arguments Q_from_comp : simpl never.
+Arguments tm_functor : simpl never.
+Arguments pp_from_comp : simpl never.
+Arguments tm_on_mor : simpl never.
 
 Section canonical_TM.
 
@@ -579,23 +653,58 @@ Variable Z : comprehension_structure.
 Variable ZZ : is_split_comprehension_structure Z.
 Variable Y : compatible_fam_structure Z.
 
+Lemma is_nat_trans_foo : 
+ is_nat_trans (tm_functor Z ZZ) (TM (pr1 Y): functor _ _ )
+     (λ (Γ : C^op) (Ase : tm_carrier Γ),
+      (yoneda_weq C hsC Γ (TM (pr1 Y)))
+        (# Yo (pr1 (pr2 Ase)) ;; Q (pr1 Y) (pr1 Ase))).
+Proof.
+  intros Γ Γ' f. simpl.
+  unfold yoneda_morphisms_data. simpl.
+  unfold yoneda_objects_ob.
+  apply funextsec. intro Ase. cbn.
+  rewrite id_left. rewrite id_left.
+  destruct Ase as [A [s e]].
+  (* now use naturality of (yoneda_weq) on the right-hand side *)
+  assert (XR := nat_trans_ax (natural_trans_yoneda_iso _ hsC (TM (pr1 Y))) _ _ f). 
+  assert (XR1 := toforallpaths _ _ _ XR).  simpl in XR1.
+  cbn in XR1.
+  set (XX := # Yo s ;; Q (pr1 Y) _ ). 
+  assert (XR2 := XR1 XX).
+  unfold XX in XR2.
+  simpl in XR2. cbn in XR2. unfold yoneda_morphisms_data in XR2.
+  do 2 rewrite id_left in XR2.
+  etrans. Focus 2. apply XR2.
+  clear XR2. clear XR1. clear XX. clear XR.
+  (* now use compatibility of [Q (Y)] with [qq] *)
+  assert (XT :=  nat_trans_eq_pointwise (pr2 Y _ _ A f)).
+  simpl in XT. unfold yoneda_morphisms_data in XT. unfold yoneda_objects in XT.
+  simpl in XT.
+  assert (XT1 := toforallpaths _ _ _ (XT Γ')).
+  etrans. apply XT1.
+  etrans. cbn. apply idpath.
+  apply maponpaths.
+
+  clear XT1 XT.
+  
+  (* TODO : the stuff below should be a separate lemma *)
+    
+  simpl. 
+  match goal with [|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => set (XR := HH) end.
+  apply (PullbackArrow_PullbackPr2 XR).
+Qed.
+
 Definition foo : preShv C  ⟦tm_functor Z ZZ, TM (pr1 Y)⟧.
 Proof.
   mkpair.
   - intro Γ. simpl.
     intro Ase. 
-    set (XX := # Yo (pr1 (pr2 Ase)) ;; Q (pr1 Y) _ ).
-    exact (yoneda_weq _ _ _ _ XX).
-  - intros Γ Γ' f.
-    apply funextsec. intro t. simpl. cbn.
-    unfold yoneda_morphisms_data. simpl.
-    rewrite id_left. rewrite id_left.
-    destruct t as [A [s e]]. simpl in *.
-    assert (XR:= pr2 Y). simpl in XR. unfold compatible_scomp_families in XR.
-    specialize (XR _ _ A f).
-    assert (XR2 := nat_trans_eq_pointwise XR).
-    admit.
-Admitted.
+    (* set (XX := # Yo (pr1 (pr2 Ase)) ;; Q (pr1 Y) _ ). *)
+    exact (yoneda_weq _ _ _ _ (# Yo (pr1 (pr2 Ase)) ;; Q (pr1 Y) _ )).
+       (*  y^-1 ( Yo(s) . Q) *)
+  - apply is_nat_trans_foo.
+Defined.    
+
 
 Definition bar : preShv C  ⟦TM (pr1 Y), tm_functor Z ZZ⟧.
 Proof.
