@@ -145,6 +145,24 @@ Definition is_split_comprehension_structure (Y : comprehension_structure) : UU
                           ;; qq Y g (A [f]) 
                           ;; qq Y f A).
 
+(* Since [Ty X] is always an hset, the splitness properties hold with any equality replacing the canonical ones. This is sometimes handy, one may want to opacify the canonical equalities in later proofs. *)
+Lemma split_comprehension_structure_comp_general
+  {Y : comprehension_structure} (Z : is_split_comprehension_structure Y)
+  {Γ Γ' Γ'' : C}
+  {f : C ⟦ Γ', Γ ⟧} {g : C ⟦ Γ'', Γ' ⟧} {A : ((TY X : functor _ _) Γ : hSet)}
+  (p : # (TY X : functor C^op HSET) (g ;; f) A
+       = # (TY X : functor C^op HSET) g (# (TY X : functor C^op HSET) f A)) 
+: qq Y (g ;; f) A
+  = idtoiso
+         (maponpaths (λ B : ((pr1 X : functor _ _) Γ'' : hSet), Γ'' ◂ B)
+            p) ;; 
+       qq Y g (# (TY X : functor _ _) f A) ;; qq Y f A.
+Proof.
+  eapply pathscomp0. apply (pr2 Z).
+  repeat apply (maponpaths (fun h => h ;; _)).
+  repeat apply maponpaths. apply uip. exact (pr2 ((TY X : functor _ _) _)).
+Qed.
+
 Definition compatible_scomp_families (Y : families_structure)(Z : comprehension_structure) : UU
   := ∀ Γ Γ' A (f : C⟦Γ', Γ⟧) , Q Y A[f] = #(yoneda _ hsC) (qq Z f A) ;; Q Y A.
 
@@ -218,8 +236,7 @@ Proof.
     destruct t as [A [s e]]. cbn.
     use tm_functor_eq; simpl.
     + use (toforallpaths _ _ _ (functor_id (TY X) _ ) A).
-    + assert (XT := pr1 Z).
-      rewrite <- (pr1 ZZ).        
+    + simpl. rewrite <- (pr1 ZZ).
       match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => set (XR := HH) end.
       etrans. apply (PullbackArrow_PullbackPr2 XR). apply id_left.
   - intros Γ Γ' Γ'' f g. cbn.
@@ -228,43 +245,35 @@ Proof.
     destruct t as [A [s e]]; simpl in *.
     unfold tm_on_mor. simpl.
     use tm_functor_eq; simpl.
-    + apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ _ _ _) A).
-    + cbn.
-        {
-        apply PullbackArrowUnique.
-        - rewrite <- assoc. cbn.  
-          rewrite idtoiso_π.
-          match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => set (XR := HH) end.
-          apply (PullbackArrow_PullbackPr1 XR).
-        - cbn. simpl.
-          (* match goal with |[|- _ = ?eee] => set (EE:= eee) end. *)
-          use (MorphismsIntoPullbackEqual (pr2 (pr2 Z _ _ _ _ ))).
-          + simpl. 
-            rewrite <- assoc.
-            rewrite <- assoc.
-            rewrite <- assoc.
-            match goal with [|- _ = _ ;; (PullbackArrow ?HH _ _ _ _ ;; _ )] =>
-                            set (XR := HH) end.
-            rewrite (PullbackArrow_PullbackPr1 XR). clear XR.
-            assert (XT:= pr2 Z _ _ g (# (TY X : functor _ _ ) f A)). simpl in XT.
-            etrans. apply maponpaths.
-                    apply maponpaths. apply (! (pr1 XT)).
-            clear XT.
-            repeat rewrite assoc.
-            rewrite assoc4.
-            rewrite idtoiso_π.
-            match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ ;; _ = _ ] => set (XR := HH) end.
-            rewrite (PullbackArrow_PullbackPr1 XR). clear XR.
-            rewrite id_right. apply id_left.
-          + repeat rewrite <- assoc.
-            etrans.  apply maponpaths. rewrite assoc. eapply pathsinv0. apply (pr2 ZZ).
-            match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => set (XR := HH) end.
-            rewrite (PullbackArrow_PullbackPr2 XR). clear XR.
-            repeat rewrite <- assoc. apply maponpaths.
-            apply pathsinv0. 
-            match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => set (XR := HH) end.
-            apply (PullbackArrow_PullbackPr2 XR).
-        } 
+    + abstract (apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ _ _ _) A)).
+    + { cbn.
+      apply PullbackArrowUnique; cbn.
+      - rewrite <- assoc.  
+        rewrite idtoiso_π.
+        apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
+      - cbn.
+        apply (MorphismsIntoPullbackEqual (pr2 (pr2 Z _ _ _ _ ))); simpl.
+        + etrans. Focus 2. apply assoc.
+          etrans. Focus 2.
+            apply maponpaths, @pathsinv0.
+            apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
+          etrans. Focus 2. apply @pathsinv0, id_right.
+          etrans. apply @pathsinv0, assoc.
+          etrans. eapply maponpaths, pathsinv0.
+            apply (pr1 (pullback_from_comp _ _ _)).
+          etrans. apply assoc.
+          etrans. Focus 2. apply id_left.
+          refine (maponpaths (fun h => h ;; g) _).
+          etrans. apply @pathsinv0, assoc.
+          etrans. apply maponpaths, idtoiso_π.
+          apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
+        + repeat rewrite <- assoc.
+          etrans. apply maponpaths. rewrite assoc.
+            apply @pathsinv0, split_comprehension_structure_comp_general, ZZ.
+          etrans. apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
+          etrans. apply @pathsinv0, assoc.
+          apply (maponpaths (fun h => g ;; h)).
+          apply @pathsinv0. apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). }
 Qed.
 
 Definition tm_functor : functor _ _  := tpair _ _ is_functor_tm.
@@ -473,89 +482,7 @@ Proof.
               unfold into_Pb.
               rewrite <- assoc. 
               apply idpath.
-        } 
-  - intro t.
-    apply subtypeEquality.
-    { intro. apply isofhleveldirprod. 
-      + apply (has_homsets_HSET S (hSetpair (yoneda_objects_ob C Γ Γ') (hsC Γ' Γ)) ).
-      + apply (has_homsets_HSET S (tm Γ')).
-    }
-    simpl.
-    destruct t as [t Ht]. simpl.
-    unfold into_Pb.
-    apply funextsec. intro s.
-    assert (XR:= pr1 ZZ).
-    assert (Ht1 := toforallpaths _ _ _ (pr1 Ht) s). simpl in Ht1.
-    assert (Ht2 := toforallpaths _ _ _ (pr2 Ht) s). simpl in Ht2. unfold Q_from_comp_data in Ht2.
-            simpl in Ht2. cbn in Ht2.
-    assert (Ht21 := base_paths _ _ Ht2). simpl in Ht21.
-    assert (Ht22 := fiber_paths Ht2). simpl in Ht21.
-    assert (Ht221 := base_paths _ _ Ht22). simpl in Ht221.
-    rewrite (pr1_transportf _ (fun a => C ⟦Γ', Γ' ◂ a⟧) 
-                      (fun A => fun b => b ;; π _ = identity _ )          ) in Ht221.
-      simpl in Ht221. cbn in Ht221.
-    etrans. Focus 2. apply cancel_postcomposition. apply cancel_postcomposition. apply Ht221.
-    rewrite functtransportf.
-    rewrite <- idtoiso_postcompose.
-    
-    match goal with |[ |- _ = PullbackArrow ?HH _ _ _ _  ;; _ ;; _ ;; _ ] => set (XT:=HH) end.
-    assert (XR1 := PullbackArrow_PullbackPr1 XT). cbn in XR1.
-    assert (XR2 := PullbackArrow_PullbackPr2 XT). cbn in XR2.
-    admit.
-(*
-    rewrite <- Ht1.
-    idtoiso_qq.
-    clear 
-    
-    rewrite <- Ht221.
-    pr1_transportf _ (fun a => C⟦Γ'', Γ'' ◂ a⟧)   
-                                      (fun A => fun b => b ;; π _ = identity _ )).
-    rewrite functtransportf.
-    idtoiso_qq
-    use (MorphismsIntoPullbackEqual).
-    
-                                 
-              Search (! toforallpaths = _ ).
-              camaponpaths.
-              
-              rewrite <- maponpathsinv0.
-              
-
-              etrans. apply maponpaths. apply maponpaths. apply idtoiso_qq.
-             rewrite <- maponpathsinv0.
-              etrans. apply maponpaths. apply idtoiso_qq.
-              
-              apply cancel_postcomposition.
-              apply map
-              rewrite <- idtoiso_inv.
-              Print idtoiso_qq.
-              Search (iso_inv_from_iso  ).
-*)            
-(*
-            Focus 2. cbn. repeat rewrite <- assoc. apply maponpaths.
-            cbn.
-            rewrite maponpathscomp0.
-            Search (iso_inv_from_iso idtoiso).
-            rewrite (
-            rewrite inv_from_iso_idtoiso.
-            Search ( _ ;; _ = _ -> _ = _ ;; _ ).
-            (* apply iso_inv_to_right. *) (* or similar *)
-            rewrite <- assoc.
-            
-            rewrite maponpathscomp0. cbn.
-                        rewrite idtoiso_postcompose.
-                        
-            rewrite transportf_pathscomp0.
-
-        
-        etrans. apply (cancel_postcomposition C). apply XT.
-        apply id_left.
-
-          
-        apply idpath.
-        rewrite XT.
-*)      
-        
+        }     
 Admitted.
 
 End Q_from_comp.
