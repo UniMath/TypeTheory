@@ -34,7 +34,10 @@ Local Definition preShv C := [C^op , HSET , pr2 is_category_HSET].
 Section Auxiliary.
 
 (* TODO: move? is there already a provided easy way to apply the [isaset] of something known to be an hset? *)
+(* Yes, it is called [setproperty] *)
+(*
 Definition pr2hSet (a : hSet) : isaset a := pr2 a.
+*)
 
 (* TODO: move? does this already exist?
 
@@ -50,7 +53,7 @@ Proof.
   apply iscontraprop1.
   - apply invproofirrelevance.
     intros hk hk'.
-    apply subtypeEquality. intro. apply isapropdirprod; apply pr2hSet.
+    apply subtypeEquality. { intro. apply isapropdirprod; apply setproperty. }
     destruct hk as [hk [eh ek]], hk' as [hk' [eh' ek']]; simpl.
     apply funextsec; intro x.
     refine (H_uniqueness (h x) (k x) _ (_,,_) (_,,_)).
@@ -114,6 +117,8 @@ Section some_structures.
 
 Context {X : type_structure}.
 
+(* Notation "A [ f ]" := (# (TY X : functor C^op HSET) f A)(at level 30). *)
+
 Definition families_data_structure : UU :=
   Σ Tm : preShv C, _ ⟦ Tm, TY X ⟧ × (∀ Γ (A : (TY X : functor _ _ ) Γ : hSet), _ ⟦Yo (Γ ◂ A) , Tm⟧ ).
 
@@ -153,10 +158,22 @@ Definition qq (Y : comprehension_structure) {Γ Γ'} (f : C ⟦Γ', Γ⟧)
   : C ⟦Γ' ◂ A [ f ], Γ ◂ A⟧
   := pr1 Y _ _ f A.
 
+(* Access function *)
+Lemma qq_π (Y : comprehension_structure) {Γ Γ'} (f : Γ' ⇒ Γ) (A : _ ) : π _ ;; f = qq Y f A ;; π A.
+Proof.
+  exact (pr1 (pr2 Y _ _ f A)).
+Qed.
+
+(* Access function *)
+Lemma qq_π_Pb (Y : comprehension_structure) {Γ Γ'} (f : Γ' ⇒ Γ) (A : _ ) : isPullback _ _ _ _ (qq_π Y f A).
+Proof.
+  exact (pr2 (pr2 Y _ _ f A)).
+Qed.
+
 Definition idtoiso_qq (Y : comprehension_structure) {Γ Γ'} (f f' : C ⟦Γ', Γ⟧)
               (e : f = f')
               (A : (TY X:functor _ _ ) Γ : hSet) 
-  : idtoiso (maponpaths (comp_ext Γ') (maponpaths (λ k : C⟦Γ', Γ⟧, #(TY X : functor _ _ ) k A) e))
+  : idtoiso (maponpaths (comp_ext Γ') (maponpaths (λ k : C⟦Γ', Γ⟧, A [k]) e))
                 ;; qq Y f' A = qq Y f A.
 Proof.
   induction e.
@@ -184,13 +201,13 @@ Lemma split_comprehension_structure_comp_general
   {Y : comprehension_structure} (Z : is_split_comprehension_structure Y)
   {Γ Γ' Γ'' : C}
   {f : C ⟦ Γ', Γ ⟧} {g : C ⟦ Γ'', Γ' ⟧} {A : ((TY X : functor _ _) Γ : hSet)}
-  (p : # (TY X : functor C^op HSET) (g ;; f) A
+  (p : A [g ;; f]
        = # (TY X : functor C^op HSET) g (# (TY X : functor C^op HSET) f A)) 
 : qq Y (g ;; f) A
   = idtoiso
          (maponpaths (λ B : ((pr1 X : functor _ _) Γ'' : hSet), Γ'' ◂ B)
             p) ;; 
-       qq Y g (# (TY X : functor _ _) f A) ;; qq Y f A.
+       qq Y g (A [f]) ;; qq Y f A.
 Proof.
   eapply pathscomp0. apply (pr2 Z).
   repeat apply (maponpaths (fun h => h ;; _)).
@@ -262,7 +279,7 @@ Proof.
   destruct e; simpl.
   etrans.
     apply @maponpaths, @pathsinv0, idtoiso_eq_idpath.
-    apply maponpaths_eq_idpath, pr2hSet.
+    apply maponpaths_eq_idpath, setproperty.
   apply id_right.
 Qed.
 
@@ -287,12 +304,14 @@ Lemma tm_functor_eq' {Γ : C} (A : (TY X : functor _ _) Γ : hSet)
   {s : Γ' ⇒ Γ' ◂ # (TY X : functor _ _) f A} (es : s ;; π _ = identity _)
   {s' : Γ' ⇒ Γ' ◂ # (TY X : functor _ _) f' A} (es' : s' ;; π _ = identity _)
   (e_ss' : s' = s ;; idtoiso (maponpaths (fun f => Γ' ◂ # (TY X : functor _ _) f A) e_ff'))
-: ((# (TY X : functor _ _) f A ,, (s,, es)) : tm_functor_data Γ' : hSet)
-  = (# (TY X : functor _ _) f' A ,, (s',, es')).
+: (( A[f] ,, (s,, es)) : tm_functor_data Γ' : hSet)
+  = (A[f'] ,, (s',, es')).
 Proof.
   destruct e_ff'; simpl in *.
-  destruct (e_ss' @ id_right _ _ _ _); simpl in *. 
-  repeat apply maponpaths. apply hsC.
+  apply maponpaths.
+  rewrite id_right in e_ss'.
+  destruct e_ss'.
+  apply maponpaths. apply hsC.
 Qed.
 
 Lemma is_functor_tm : is_functor tm_functor_data.
@@ -380,59 +399,59 @@ Defined.
 
 Lemma is_nat_trans_Q_from_comp : is_nat_trans _ _ Q_from_comp_data.
 Proof.
-intros Γ' Γ'' f. simpl.
-    apply funextsec. intro g.
-    unfold yoneda_objects_ob. cbn.    
-    use tm_functor_eq; simpl pr1.
-    + etrans. apply (maponpaths (fun k => #(TY X : functor _ _ ) k A) (assoc _ _ _ _ _ _ _ _ )).
-      apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ _ _ _ )).
-    + apply PullbackArrowUnique.
-      * cbn.
-        etrans. apply (!assoc _ _ _ _ _ _ _ _ ).
-        rewrite idtoiso_π.
-        match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => set (XR := HH) end.
-        apply (PullbackArrow_PullbackPr1 XR).
-      * cbn.
-        {
-          use (MorphismsIntoPullbackEqual (pr2 (pr2 Z _ _ _ _ ))).
-          - etrans. Focus 2. apply assoc.
-            match goal with [|- _ = _ ;; (PullbackArrow ?HH _ _ _ _ ;; _ )] =>
-                            set (XR := HH) end.
-            rewrite (PullbackArrow_PullbackPr1 XR). clear XR.
-            etrans. apply (!assoc _ _ _ _ _ _ _ _ ).
-            rewrite <- (pr1 (pullback_from_comp Z f _ )).
-            etrans. apply assoc.
-            etrans. apply assoc4.
-            rewrite idtoiso_π.
-            match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ ;; _ = _ ] => set (XR := HH) end.
-            rewrite (PullbackArrow_PullbackPr1 XR).
-            rewrite id_right. apply id_left.
-          - etrans. Focus 2. apply assoc.
-            match goal with |[|- _ = _ ;; (PullbackArrow ?HH _ _ _ _ ;; _ )] => set (XR := HH) end.
-            rewrite (PullbackArrow_PullbackPr2 XR).
-            clear XR.
-            assert (XT:= pr2 ZZ). simpl in XT.
-            specialize (XT _ _ _ (g ;; π _ ) f ).
-            specialize (XT A).
-            rewrite maponpathscomp0 . 
-            rewrite idtoiso_concat.
-            simpl.
-            match goal with |[ H : ?EE =  _ |- ?DD ;; (?II ;; ?KK) ;; _  ;; _  = _ ] => 
-                     set (d := DD); set (i:= II) end.
-            rewrite <- assoc.
-            rewrite <- assoc.
-            etrans. apply maponpaths. apply (!assoc _ _ _ _ _ _ _ _ ).
-            
-            etrans. apply maponpaths. apply maponpaths. apply assoc.
-            etrans. apply maponpaths. apply maponpaths. 
-                        apply (!XT).
-            unfold i. clear i. clear XT.
-            rewrite idtoiso_qq.
-            unfold d; clear d.
-            match goal with [|- PullbackArrow ?HH _ _ _ _ ;; _  = _ ] =>
-                            set (XR := HH) end.
-            apply (PullbackArrow_PullbackPr2 XR). 
-        } 
+  intros Γ' Γ'' f. simpl.
+  apply funextsec. intro g.
+  unfold yoneda_objects_ob. cbn.    
+  use tm_functor_eq; simpl pr1.
+  + etrans. apply (maponpaths (fun k => #(TY X : functor _ _ ) k A) (assoc _ _ _ _ _ _ _ _ )).
+    apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ _ _ _ )).
+  + apply PullbackArrowUnique.
+    * cbn.
+      etrans. apply (!assoc _ _ _ _ _ _ _ _ ).
+      rewrite idtoiso_π.
+      match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => set (XR := HH) end.
+      apply (PullbackArrow_PullbackPr1 XR).
+    * cbn.
+      {
+        use (MorphismsIntoPullbackEqual (pr2 (pr2 Z _ _ _ _ ))).
+        - etrans. Focus 2. apply assoc.
+          match goal with [|- _ = _ ;; (PullbackArrow ?HH _ _ _ _ ;; _ )] =>
+                          set (XR := HH) end.
+          rewrite (PullbackArrow_PullbackPr1 XR). clear XR.
+          etrans. apply (!assoc _ _ _ _ _ _ _ _ ).
+          rewrite <- (pr1 (pullback_from_comp Z f _ )).
+          etrans. apply assoc.
+          etrans. apply assoc4.
+          rewrite idtoiso_π.
+          match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ ;; _ = _ ] => set (XR := HH) end.
+          rewrite (PullbackArrow_PullbackPr1 XR).
+          rewrite id_right. apply id_left.
+        - etrans. Focus 2. apply assoc.
+          match goal with |[|- _ = _ ;; (PullbackArrow ?HH _ _ _ _ ;; _ )] => set (XR := HH) end.
+          rewrite (PullbackArrow_PullbackPr2 XR).
+          clear XR.
+          assert (XT:= pr2 ZZ). simpl in XT.
+          specialize (XT _ _ _ (g ;; π _ ) f ).
+          specialize (XT A).
+          rewrite maponpathscomp0 . 
+          rewrite idtoiso_concat.
+          simpl.
+          match goal with |[ H : ?EE =  _ |- ?DD ;; (?II ;; ?KK) ;; _  ;; _  = _ ] => 
+                           set (d := DD); set (i:= II) end.
+          rewrite <- assoc.
+          rewrite <- assoc.
+          etrans. apply maponpaths. apply (!assoc _ _ _ _ _ _ _ _ ).
+          
+          etrans. apply maponpaths. apply maponpaths. apply assoc.
+          etrans. apply maponpaths. apply maponpaths. 
+          apply (!XT).
+          unfold i. clear i. clear XT.
+          rewrite idtoiso_qq.
+          unfold d; clear d.
+          match goal with [|- PullbackArrow ?HH _ _ _ _ ;; _  = _ ] =>
+                          set (XR := HH) end.
+          apply (PullbackArrow_PullbackPr2 XR). 
+      } 
 Qed.
 
 Definition Q_from_comp : _ ⟦ Yo (Γ ◂ A), tm_functor⟧ := tpair _ _ is_nat_trans_Q_from_comp.
@@ -445,6 +464,18 @@ Proof.
   intro Γ'. apply idpath.
 Defined.
 
+Definition section_qq_π  (Γ' : C) (f : C⟦ Γ', Γ⟧) 
+  (s : C ⟦ Γ', Γ' ◂ A[f] ⟧)
+  (e : s ;; π (A[f]) = identity Γ'):
+   s ;; qq Z f A ;; π A = f.
+Proof.
+  etrans. apply @pathsinv0, assoc.
+  etrans. apply @maponpaths, @pathsinv0, qq_π.
+  etrans. apply assoc.
+  etrans. eapply (maponpaths (fun g => g ;; f)). exact e.
+  apply id_left.
+Qed.
+
 Lemma Q_from_comp_reconstruction
   {Γ' : C} ( ft : C ⟦ Γ', Γ ◂ A ⟧ )
 : ft = pr1 (pr2 (Q_from_comp_data Γ' ft)) ;; qq Z (ft ;; π A) A.
@@ -452,18 +483,6 @@ Proof.
   cbn. apply pathsinv0, (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
 Qed.
 
-(* Access function. TODO: move to def of comp structure, and replace throughout? 
-  TODO: rename?  or switch equality in the def of comp cat?  see which direction is used more. *)
-Lemma qq_π {Γ'} (f : Γ' ⇒ Γ) : π _ ;; f = qq Z f A ;; π A.
-Proof.
-  exact (pr1 (pr2 Z _ _ f A)).
-Qed.
-
-(* Access function. TODO: move to def of comp structure, and replace throughout? *)
-Lemma qq_π_Pb {Γ'} (f : Γ' ⇒ Γ) : isPullback _ _ _ _ (qq_π f).
-Proof.
-  exact (pr2 (pr2 Z _ _ f A)).
-Qed.
 
 Lemma isPullback_Q_from_comp_commutes : isPullback _ _ _ _ Q_from_comp_commutes.
 Proof.
@@ -473,17 +492,11 @@ Proof.
   mkpair.
   - exists (s ;; qq Z f A).
     simpl; unfold yoneda_morphisms_data.
-    assert (H : s ;; qq Z f A ;; π A = f). (* needed in both branches *)
-      etrans. apply @pathsinv0, assoc.
-      etrans. apply @maponpaths, @pathsinv0, qq_π.
-      etrans. apply assoc.
-      etrans. eapply (maponpaths (fun g => g ;; f)). exact e.
-      apply id_left.
     split.
-    + exact H.
+    + apply (section_qq_π _ _ _ e).
     + use tm_functor_eq'; simpl.
-      exact H.
-      use (map_into_Pb_unique _ (qq_π_Pb _)).
+      apply (section_qq_π _ _ _ e).
+      use (map_into_Pb_unique _ (qq_π_Pb Z _ _  )).
       * etrans. apply e.
         apply pathsinv0.
         etrans. apply @pathsinv0, assoc.
@@ -501,7 +514,7 @@ Proof.
           apply (maponpathscomp (fun f => # (TY X : functor _ _) f A)).
         apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
   - intros ft.
-    apply subtypeEquality. intro. apply isapropdirprod. apply hsC. apply pr2hSet.
+    apply subtypeEquality. intro. apply isapropdirprod. apply hsC. apply setproperty.
     simpl. destruct ft as [ ft [ e1 e2 ] ]; simpl.
     etrans. apply Q_from_comp_reconstruction.
     etrans. eapply (maponpaths (fun g => g ;; _)).
@@ -511,7 +524,7 @@ Proof.
     etrans. Focus 2. apply idtoiso_qq.
     eapply (maponpaths (fun p => p ;; _)).
     apply pathsinv0, maponpaths, maponpaths, maponpaths.
-    apply pr2hSet.
+    apply setproperty.
     Unshelve. apply pathsinv0. exact e1.
 Qed.
 
@@ -521,17 +534,17 @@ Notation "'cQ'" := Q_from_comp_data.
 Notation "'cQ'" := Q_from_comp.
 Notation "'cTm'":= tm_functor.
 Notation "'cp'" := pp_from_comp.
-Arguments Q_from_comp_data : simpl never.
-Arguments Q_from_comp : simpl never.
+Arguments Q_from_comp_data { _ } _ _ _ : simpl never.
+Arguments Q_from_comp { _ } _ : simpl never.
 Arguments tm_functor : simpl never.
 Arguments pp_from_comp : simpl never.
 
 
 Lemma cQ_compatible_pw (Γ Γ' : C) (A : (TY X : functor _ _ ) Γ : hSet) (f : C ⟦ Γ', Γ ⟧) (Γ'' : C)
-          (g : C ⟦ Γ'', Γ' ◂ # (TY X : functor _ _ ) f A ⟧)
+          (g : C ⟦ Γ'', Γ' ◂ A[f] ⟧)
    :
-   Q_from_comp_data Γ' (# (TY X : functor _ _ ) f A) Γ'' g =
-   Q_from_comp_data Γ A Γ'' (g ;; qq Z f A).
+   Q_from_comp_data A[f] Γ'' g =
+   Q_from_comp_data A Γ'' (g ;; qq Z f A).
 Proof.
     simpl. cbn.
     use tm_functor_eq. 
@@ -608,8 +621,8 @@ Qed.
 *)
 
 Lemma cQ_commutes (Γ Γ' : C) (A : (TY X : functor _ _ ) Γ : hSet) (f : C ⟦ Γ', Γ ⟧) (Γ'' : C)
-  :   (cQ Γ' (# (TY X : functor _ _ ) f A) : nat_trans _ _ ) Γ'' =
-      ((λ g : hSetpair (C ⟦ Γ'', Γ' ◂ # (TY X : functor _ _ ) f A ⟧) (hsC _ _ ), g ;; qq Z f A) : HSET ⟦ _ , hSetpair _ (hsC _ _ ) ⟧) ;; (cQ Γ A : nat_trans _ _ ) Γ''.
+  :   (cQ A[f] : nat_trans _ _ ) Γ'' =
+      ((λ g : hSetpair (C ⟦ Γ'', Γ' ◂ A[f] ⟧) (hsC _ _ ), g ;; qq Z f A) : HSET ⟦ _ , hSetpair _ (hsC _ _ ) ⟧) ;; (cQ A : nat_trans _ _ ) Γ''.
 Proof.
   simpl.
   apply funextsec. 
@@ -647,8 +660,8 @@ Notation "'cQ'" := Q_from_comp.
 Notation "'cTm'":= tm_carrier.
 Notation "'cTm'":= (tm_on_mor _ _ _ ).
 Notation "'cp'" := pp_from_comp.
-Arguments Q_from_comp_data : simpl never.
-Arguments Q_from_comp : simpl never.
+Arguments Q_from_comp_data {_} _ {_} _ _ _ : simpl never.
+Arguments Q_from_comp {_} _ {_} _ : simpl never.
 Arguments tm_functor : simpl never.
 Arguments pp_from_comp : simpl never.
 Arguments tm_on_mor : simpl never.
@@ -712,22 +725,25 @@ Proof.
 Defined.    
 
 
-Definition bar : preShv C  ⟦TM (pr1 Y), tm_functor Z ZZ⟧.
+(* TODO : we do not need naturality of [bar] below, we only 
+          need to show that it is pointwise inverse to [foo] above 
+*)
+
+Definition bar : ∀ Γ, HSET ⟦ (TM (pr1 Y) : functor _ _ ) Γ, tm_functor Z ZZ Γ⟧.
 Proof.
-  mkpair.
-  - intro Γ. simpl.
-    intro s'. set (S' := yy s').
-    set (ps := (pp (pr1 Y) : nat_trans _ _ )  _ s').
-    assert (XR : S' ;; pp (pr1 Y) = yy ( (pp (pr1 Y) : nat_trans _ _ ) _ s')).
-    { 
-      apply nat_trans_eq; [ apply has_homsets_HSET | ];
-      intro Γ' ;
-      apply funextsec;
-      intro g; simpl; cbn;
-      assert (XR := nat_trans_ax (pp (pr1 Y)) _ _ g);
-      apply (toforallpaths _ _ _ XR)
-            .
-    } 
+  intro Γ. simpl.
+  intro s'. set (S' := yy s').
+  set (ps := (pp (pr1 Y) : nat_trans _ _ )  _ s').
+  assert (XR : S' ;; pp (pr1 Y) = yy ( (pp (pr1 Y) : nat_trans _ _ ) _ s')).
+  { 
+    apply nat_trans_eq; [ apply has_homsets_HSET | ];
+    intro Γ' ;
+    apply funextsec;
+    intro g; simpl; cbn;
+    assert (XR := nat_trans_ax (pp (pr1 Y)) _ _ g);
+    apply (toforallpaths _ _ _ XR)
+    .
+  } 
     exists ps.
     set (Pb := pr2 (pr1 Y) Γ ps). 
     set (T:= section_from_diagonal (pr1 Pb) (pr2 Pb) (S',,XR) ).
@@ -745,6 +761,8 @@ Proof.
       rewrite (PullbackArrow_PullbackPr1 XR3);
       apply pathsinv0; apply (functor_id Yo)
        ).
+Defined.
+(*
   - intros Γ Γ' f.
     simpl in *.
     apply funextsec; intro; simpl; cbn.
@@ -785,11 +803,13 @@ Proof.
         use (MorphismsIntoPullbackEqual).
         admit.        
 Admitted.
+*)
 
-Lemma foo_bar : foo ;; bar = identity _ .
+
+
+Lemma foo_bar Γ : (foo : nat_trans _ _ )  Γ ;; bar Γ = identity _ .
 Proof.
-  apply nat_trans_eq. { apply has_homsets_HSET. }
-  intro Γ. apply funextsec; intro Ase.
+  apply funextsec; intro Ase.
   destruct Ase as [A [s e]].
   use tm_functor_eq.
   - admit.
