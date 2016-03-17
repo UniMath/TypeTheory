@@ -11,6 +11,7 @@
 MODULES-CORE := Auxiliary UnicodeNotations \
 	Categories/category_of_elements \
 	Categories/category_FAM \
+	Bicats/Bicats \
 	CwF \
 	TypeCat \
         CwF_to_TypeCat \
@@ -70,6 +71,6 @@ html: all
 html_core: core
 	mkdir -p html
 	$(COQDOC) -R . "Systems" -toc $(COQDOCFLAGS) -utf8 -html $(COQDOCLIBS) -d html $(VS-CORE)
-	
+
 # Makefile based on example from Adam Chlipala, “Theorem Proving in the Large”,
 # section “Build Patterns”. http://adam.chlipala.net/cpdt/html/Large.html
