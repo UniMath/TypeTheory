@@ -8,16 +8,15 @@ A module for bicategories, extending the Rezk-Completion Categories library
 
 *)
 
-Require Export UniMath.Foundations.Generalities.uu0.
-Require Import UniMath.RezkCompletion.precategories.
-Require Import UniMath.RezkCompletion.functors_transformations.
+Require Export UniMath.Foundations.Basics.Sets.
+Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.functor_categories.
 
-Require Import Systems.UnicodeNotations.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-(* TODO: move to UnicodeNotations; pick level *)
 Notation "( x , y , .. , z )" := (dirprodpair .. (dirprodpair x y) .. z).
 
-(* TODO: try to get the opposite associativity, since it would seem to fit our current composition conventions better; but for some reason, it doesn’t seem to parse correctly ??
+(* TODO: the opposite associativity would seem to fit our current composition conventions better; but for some reason, it doesn’t seem to parse correctly ??
 Notation "( x ; .. ; y ; z )" := (dirprodpair x .. (dirprodpair y z) .. ). *)
 
 (** Very useful tactic, taken from Jason Gross and Aruand Spiwack at <https://coq.inria.fr/bugs/show_bug.cgi?id=3551>. 
@@ -80,7 +79,7 @@ Section Precategory_products.
 
 Definition unit_precategory : precategory.
 Proof.
-  refine (tpair _ _ _). refine (tpair _ _ _).
+  use tpair. use tpair.
   (* ob, mor *) exists unit. intros; exact unit.
   (* identity, comp *) split; intros; constructor.
   (* id_left *) simpl; split; try split; intros; apply isconnectedunit.
@@ -88,9 +87,9 @@ Defined.
 
 Definition unit_functor C : functor C unit_precategory.
 Proof.
-  refine (tpair _ _ _). refine (tpair _ _ _).
+  use tpair. use tpair.
   (* functor_on_objects *) intros; exact tt.
-  (* functor_on_morphisms *) intros; apply identity.
+  (* functor_on_morphisms *) intros F a b; apply identity.
   split.
   (* functor_id *) intros x; apply paths_refl.
   (* functor_comp *) intros x y z w v; apply paths_refl.
@@ -99,9 +98,9 @@ Defined.
 (* TODO: perhaps generalise to constant functors? *)
 Definition ob_as_functor {C : precategory} (c : C) : functor unit_precategory C.
 Proof.
-  refine (tpair _ _ _). refine (tpair _ _ _).
+  use tpair. use tpair.
   (* functor_on_objects *) intros; exact c.
-  (* functor_on_morphisms *) intros; apply identity.
+  (* functor_on_morphisms *) intros F a b; apply identity.
   split.
   (* functor_id *) intros; constructor.
   (* functor_comp *) intros x y z w v; simpl. apply pathsinv0, id_left.
@@ -129,7 +128,7 @@ Proof.
   (* assoc *) apply dirprod_paths; simpl; apply assoc.
 Defined.
 
-Local Notation "C × D" := (prod_precategory C D) (at level 80, no associativity) : precategory_scope.
+Local Notation "C × D" := (prod_precategory C D) (at level 75, right associativity) : precategory_scope.
 Open Scope precategory_scope.
 Delimit Scope precategory_scope with precat.
 
@@ -192,7 +191,7 @@ End Background.
 
 (** Redeclare section notations to be available globally. *)
 Notation "C × D" := (prod_precategory C D)
-  (at level 80, no associativity) : precategory_scope.
+  (at level 75, right associativity) : precategory_scope.
 Open Scope precategory_scope.
 
 
@@ -471,7 +470,7 @@ Definition functor_id_left_nat_trans (X Y : good_precategory)
            (functor_identity ((pr1 PRECAT_data1) X Y))) compose1)
      (functor_identity ((pr1 PRECAT_data1) X Y)).
 Proof.
-  refine (tpair _ _ _). intros F; simpl.
+  use tpair. intros F; simpl.
     exists (fun x => identity _).
     intros x y f; simpl. exact (id_right _ _ _ _ @ !(id_left _ _ _ _)).
   intros F G α; simpl.
@@ -491,7 +490,7 @@ Definition functor_id_right_nat_trans (X Y : good_precategory)
             (ob_as_functor (@identity1 PRECAT_data1 Y)))) compose1)
    (functor_identity ((pr1 PRECAT_data1) X Y)).
 Proof.
-    refine (tpair _ _ _). intros F; simpl.
+    use tpair. intros F; simpl.
       exists (fun x => identity _).
       intros x y f; simpl. exact (id_right _ _ _ _ @ !(id_left _ _ _ _)).
     intros F G α; simpl.
@@ -516,14 +515,14 @@ Definition PRECAT : prebicategory.
 Proof.
   exists PRECAT_data2. split. split.
   (* assoc_bicat_is_iso *) intros X Y Z W FGH.
-    refine (functor_iso_if_pointwise_iso _ _ _ _ _ _ _).
+    apply functor_iso_if_pointwise_iso.
     intros x; simpl. apply identity_is_iso.
   split.
   (* id_left_bicat_is_iso *) intros X Y F.
-    refine (functor_iso_if_pointwise_iso _ _ _ _ _ _ _).
+    apply functor_iso_if_pointwise_iso.
     intros x; simpl. apply identity_is_iso.
   (* id_right_bicat_is_iso *) intros X Y F.
-    refine (functor_iso_if_pointwise_iso _ _ _ _ _ _ _).
+    apply functor_iso_if_pointwise_iso.
     intros x; simpl. apply identity_is_iso.
   apply dirprodpair; simpl.
   (* pentagon_bicat *) intros X Y Z W V F G H K.
@@ -544,4 +543,3 @@ Proof.
 Defined.
 
 End Precat_as_prebicat.
-
