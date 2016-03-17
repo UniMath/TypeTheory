@@ -8,11 +8,19 @@ A module for bicategories, extending the Rezk-Completion Categories library
 
 *)
 
+Require Import UniMath.CategoryTheory.UnicodeNotations.
+
 Require Export UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+
+Require UniMath.Ktheory.Precategories.
+Local Coercion Precategories.Precategory_to_precategory
+  : Precategories.Precategory >-> precategory.
+Require Import UniMath.Ktheory.StandardCategories.
+Local Set Automatic Introduction.
 
 Notation "( x , y , .. , z )" := (dirprodpair .. (dirprodpair x y) .. z).
 
@@ -208,8 +216,8 @@ prebicategory_idcomp
   compose1 : forall {X Y Z}, functor (hom1 X Y × hom1 Y Z) (hom1 X Z);
 prebicategory_associd
   assoc_bicat : (associativity natural transformation for compose1)
-  id_left_bicat : (left unit natural transformation)
-  id_right_bicat : (right unit natural transformation)
+  id_left_bicat : (left unitor natural transformation)
+  id_right_bicat : (right unitor natural transformation)
 prebicategory_axioms
   pentagon_bicat : (pentagon axiom for assoc_bicat)
   triangle_bicat : (id_left_bicat and id_right_bicat agree on identity1)
@@ -334,6 +342,8 @@ Section Precat_as_prebicat.
 (* Forming the functor precategory from C to D requires that the hom-types of D are sets.  Without this, [id_left], [id_right] and [assoc] for this precat would require extra axioms on the natural transformations, corresponding to the id and comp constraints classically taken for the 2-cells of a pseudo-natural transformation. 
 
 To form a prebicategory, therefore, we have to restrict to precategories with hom-sets.*)
+
+(* TODO: replace [good_precategory] with [Precategory] (from [Ktheory.Precategories]) throughout. *)
 Definition good_precategory := Σ (C : precategory), has_homsets C.
 Definition precat_of_good_precat (C : good_precategory) := pr1 C.
 Coercion precat_of_good_precat : good_precategory >-> precategory.
@@ -420,7 +430,7 @@ Definition functor_assoc_nat_trans {X Y Z W : precategory} {HW : has_homsets W}
 
 Proof.
   exists (fun x => identity _).
-  intros x y f; simpl. refine (id_right _ _ _ _ @ !(id_left _ _ _ _)).
+  intros x y f; simpl. refine (id_right _ @ !(id_left _)).
 Defined.
 
 Definition functor_assoc_nat_trans_2 {X Y Z W : good_precategory} 
@@ -472,7 +482,7 @@ Definition functor_id_left_nat_trans (X Y : good_precategory)
 Proof.
   use tpair. intros F; simpl.
     exists (fun x => identity _).
-    intros x y f; simpl. exact (id_right _ _ _ _ @ !(id_left _ _ _ _)).
+    intros x y f; simpl. exact (id_right _ @ !(id_left _)).
   intros F G α; simpl.
   apply nat_trans_eq. apply good_precat_hom_sets. intros x; simpl.
   eapply pathscomp0. apply id_right.
@@ -492,7 +502,7 @@ Definition functor_id_right_nat_trans (X Y : good_precategory)
 Proof.
     use tpair. intros F; simpl.
       exists (fun x => identity _).
-      intros x y f; simpl. exact (id_right _ _ _ _ @ !(id_left _ _ _ _)).
+      intros x y f; simpl. exact (id_right _ @ !(id_left _)).
     intros F G α; simpl.
     apply nat_trans_eq. apply good_precat_hom_sets. intros x; simpl.
     eapply pathscomp0. apply id_right.
@@ -543,3 +553,121 @@ Proof.
 Defined.
 
 End Precat_as_prebicat.
+
+Section Pregroupoids.
+(** * Pregroupoids *)
+
+(* TODO: search library more thoroughly for any of these! *)
+
+Definition is_pregroupoid (C : precategory)
+  := forall (x y : C) (f : x ⇒ y), is_iso f.
+
+Lemma is_pregroupoid_functor_precat {C D : Precategories.Precategory}
+  (gr_D : is_pregroupoid D)
+  : is_pregroupoid (Precategories.functorPrecategory C D).
+Proof.
+  intros F G α; apply functor_iso_if_pointwise_iso.
+  intros c; apply gr_D.
+Defined.
+
+End Pregroupoids.
+
+Section Discrete_precats.
+(** * Discrete precategories on hSets. *)
+
+(* In order to construct locally discrete (pre)bicategories, we first need some infrastructure on discrete (pre)categories. *)
+
+Definition discrete_precat (X : hSet) : good_precategory.
+Proof.
+  use tpair.
+    apply (path_pregroupoid X).
+    apply hlevelntosn, setproperty.
+  apply Precategories.homset_property.
+Defined.
+
+Lemma is_pregroupoid_path_pregroupoid {X} {H}
+  : is_pregroupoid (path_pregroupoid X H).
+Proof.
+  intros x y f. apply is_iso_qinv with (!f).
+  split. apply pathsinv0r. apply pathsinv0l.
+Defined.
+
+(* TODO: check naming conventions; what should this be called? *)
+Definition fmap_discrete_precat {X Y : hSet} (f : X -> Y)
+  : functor (discrete_precat X) (discrete_precat Y).
+Proof.
+  use tpair.
+  + (* functor_on_objects *) exists f.
+    (* functor_on_morphisms *) intros c d. apply maponpaths.
+  + split.
+    - (* functor_id *) intros x; apply setproperty.
+    - (* functor_comp *) intros x y z w v; apply setproperty.
+Defined.
+
+Definition prod_discrete_precat (X Y : hSet)
+  : functor (discrete_precat X × discrete_precat Y)
+            (discrete_precat (X × Y)%set).
+Proof.
+  use tpair. use tpair.
+  + (* functor_on_objects *) apply id.
+  + (* functor_on_morphisms *)
+    intros a b; simpl. apply uncurry, dirprod_paths.
+  + (* functor_id, functor_comp *) split; intro; intros; apply setproperty.
+Defined.
+
+Definition discrete_precat_nat_trans {C : precategory} {X : hSet}
+  {F G : functor C (discrete_precat X)}
+  : (forall c:C, F c = G c) -> nat_trans F G.
+Proof.
+  intros h. exists h.
+  (* naturality *) intros c d f; apply setproperty.
+Defined.
+
+End Discrete_precats.
+
+Section Loc_discrete_prebicat.
+(** * The locally discrete prebicategory on a precategory *)
+
+Variable C : good_precategory.
+
+Definition LocallyDiscretePreBicat_ob_mor : prebicategory_obmor.
+Proof.
+  (* objects *) exists (ob C).
+  (* morphisms *) intros x y. use discrete_precat.
+    exists (x ⇒ y); apply good_precat_hom_sets.
+Defined.
+
+Definition LocallyDiscretePreBicat_data1 : prebicategory_data1.
+Proof.
+  exists LocallyDiscretePreBicat_ob_mor. split; intros.
+  - (* identity1 *) apply identity.
+  - (* compose1 *)
+    eapply functor_composite.
+      apply prod_discrete_precat.
+    apply fmap_discrete_precat.
+    apply uncurry, compose.
+Defined.
+
+Definition LocallyDiscretePreBicat_data2 : prebicategory_data2.
+Proof.
+  exists LocallyDiscretePreBicat_data1.
+  apply dirprodpair; try apply dirprodpair;
+  intros; apply discrete_precat_nat_trans; simpl; unfold uncurry, id.
+  - (* assoc_bicat *)
+    intros [f [g h]]; simpl.
+    apply assoc.
+  - (* id_left_bicat *)
+    intro f; simpl. apply id_left.
+  - (* id_right_bicat *)
+    intro f; simpl. apply id_right.
+Defined.
+
+Definition LocallyDiscretePreBicat : prebicategory.
+  exists LocallyDiscretePreBicat_data2.
+  split.
+  - (* iso axioms *)
+    repeat split; intros; apply is_pregroupoid_path_pregroupoid.
+  - (* coherence axioms *) split; intros; apply setproperty.
+Defined.
+
+End Loc_discrete_prebicat. 
