@@ -142,6 +142,17 @@ Definition families_structure : UU :=
   Σ Y : families_data_structure, families_prop_structure Y.
 Coercion families_data_from_families (Y : families_structure) : _ := pr1 Y.
 
+Definition Q_pp (Y : families_structure) Γ (A : (TY X : functor _ _ ) Γ : hSet) 
+  : #Yo (π A) ;; yy A = Q Y A ;; pp Y.
+Proof.
+  apply (pr1 (pr2 Y _ _ )).
+Defined.
+
+Definition isPullback_Q_pp (Y : families_structure) Γ (A : (TY X : functor _ _ ) Γ : hSet) 
+  : isPullback _ _ _ _ (Q_pp Y _ A ). 
+Proof.
+  apply (pr2 (pr2 Y _ _ )).
+Defined.
 
 (** * Type of split comprehension structures over a types structure *)
 
@@ -736,13 +747,14 @@ Proof.
   set (ps := (pp (pr1 Y) : nat_trans _ _ )  _ s').
   assert (XR : S' ;; pp (pr1 Y) = yy ( (pp (pr1 Y) : nat_trans _ _ ) _ s')).
   { 
+    abstract (
     apply nat_trans_eq; [ apply has_homsets_HSET | ];
     intro Γ' ;
     apply funextsec;
     intro g; simpl; cbn;
     assert (XR := nat_trans_ax (pp (pr1 Y)) _ _ g);
     apply (toforallpaths _ _ _ XR)
-    .
+     ) .
   } 
     exists ps.
     set (Pb := pr2 (pr1 Y) Γ ps). 
@@ -750,7 +762,8 @@ Proof.
     mkpair.
     + apply Yo^-1.
       exact (pr1 T).
-    + (
+    + abstract
+      (
       apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ )));
       etrans ; [ apply functor_comp |];
       etrans ; [ apply cancel_postcomposition ;
@@ -805,16 +818,63 @@ Defined.
 Admitted.
 *)
 
+Lemma bar_foo Γ : bar Γ ;; (foo  : nat_trans _ _ ) Γ = identity _ .
+Proof.
+  apply funextsec.
+  intro s. simpl.
+  unfold yoneda_morphisms_data.
+  simpl.
+  cbn. rewrite id_left.
+  unfold yoneda_map_1.
+  cbn. simpl.  
+  match goal with |[|- _ ( ((_ (_ ?HH _ _ _ _ ) )) _  _ )  = _ ] => set (XR:= HH) end.
+  assert (XR1 := PullbackArrow_PullbackPr2 XR).
+  match goal with |[|- _ ( ((_ (_ ?HH ?E ?H ?K _ ) )) _  _ )  = _ ] => specialize (XR1 E H K)  end.
+  match goal with |[|- _ ( ((_ (_ _ _ _ _ ?HH ) )) _  _ )  = _ ] => specialize (XR1 HH)  end.
+  assert (XR2 := nat_trans_eq_pointwise XR1).
+  simpl in XR2. 
+  assert (XR3 := toforallpaths _ _ _ (XR2 Γ)).
+  simpl in XR3.
+  etrans. apply XR3.
+  apply (toforallpaths _ _ _ (functor_id (TM (pr1 Y)) _ )).
+Qed.
 
-
+  
 Lemma foo_bar Γ : (foo : nat_trans _ _ )  Γ ;; bar Γ = identity _ .
 Proof.
   apply funextsec; intro Ase.
-  destruct Ase as [A [s e]].
+  destruct Ase as [A [s e]]. 
   use tm_functor_eq.
-  - admit.
-  - admit.
-Admitted.
+  -
+    simpl. 
+    cbn. unfold yoneda_morphisms_data.  
+    etrans. apply maponpaths. apply maponpaths. apply id_left.
+    assert (XR := ! Q_pp (pr1 Y) _ A).
+    assert (XR1 := nat_trans_eq_pointwise XR Γ).
+    assert (XR2 := toforallpaths _ _ _ XR1 s).
+    simpl in XR2.
+    unfold yoneda_morphisms_data in XR2. cbn in XR2.
+    etrans. apply XR2.
+    etrans. apply (maponpaths (fun k => # (TY X : functor _ _ ) k A) e).
+    apply (toforallpaths _ _ _ (functor_id (TY X)  _ ) A).
+  - rewrite maponpathscomp0.
+    rewrite maponpathscomp0.
+    rewrite maponpathscomp0.
+    rewrite idtoiso_concat.
+    rewrite idtoiso_concat.    
+    rewrite idtoiso_concat.
+    
+    
+    etrans. apply maponpaths. simpl. apply idpath.
+    etrans. Focus 2. simpl. apply idpath.
+    apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
+    etrans. apply (functor_comp Yo).
+    etrans. apply cancel_postcomposition.
+            apply (homotweqinvweq
+      (weqpair _ (yoneda_fully_faithful _  hsC _ _   ))).
+   simpl.            
+   admit.
+Abort.
     
 End canonical_TM.
 
