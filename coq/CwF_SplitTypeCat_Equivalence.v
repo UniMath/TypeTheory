@@ -216,6 +216,18 @@ Definition is_split_comprehension_structure (Y : comprehension_structure) : UU
                           ;; qq Y g (A [f]) 
                           ;; qq Y f A).
 
+Lemma isaprop_is_split_comprehension_structure
+  (Y : comprehension_structure)
+  : isaprop (is_split_comprehension_structure Y).
+Proof.
+  apply isofhleveldirprod.
+  - do 2 (apply impred; intro).
+    apply hsC.
+  - do 6 (apply impred; intro).
+    apply hsC.    
+Qed.
+
+
 (* Since [Ty X] is always an hset, the splitness properties hold with any equality replacing the canonical ones. This is sometimes handy, one may want to opacify the canonical equalities in later proofs. *)
 Lemma split_comprehension_structure_comp_general
   {Y : comprehension_structure} (Z : is_split_comprehension_structure Y)
@@ -242,6 +254,11 @@ Definition compatible_fam_structure (Z : comprehension_structure) : UU
 
 Definition compatible_comp_structure (Y : families_structure) : UU
   := Σ Z : comprehension_structure, compatible_scomp_families Y Z.
+
+Definition compatible_split_comp_structure (Y : families_structure) : UU
+  := Σ Z : comprehension_structure,
+            is_split_comprehension_structure Z ×
+            compatible_scomp_families Y Z.
 
 
 
@@ -926,11 +943,61 @@ Proof.
       simpl.
       apply nat_trans_eq. apply has_homsets_HSET.
       intro Γ. apply idpath.
-    + simpl.
-      etrans. 
-      apply funextsec.
-      Search (transportf _  _ _  = _ ).
-Abort.
+    + cbn. simpl.
+(*
+      apply funextsec. intro c.
+*)
+
+Lemma idtoiso_transportf_wtf (D : precategory)
+      (A : UU) (B : A -> UU)
+      (F : ∀ a, B a -> D)
+      (d d' : D) (deq : d = d')
+      (R : ∀ a (b : B a), D⟦ F a b, d⟧)
+     
+: transportf (λ x, ∀ a b, D⟦ F a b, x⟧)
+             deq R =
+  λ a b, R a b ;; idtoiso deq.
+Proof.
+  destruct deq.
+  apply funextsec.
+  intro. apply funextsec. intro.
+  apply pathsinv0.
+  apply id_right.
+Qed.
+
+
+  idtac.
+  assert (XR := 
+          (idtoiso_transportf_wtf (preShv C))).
+  specialize (XR C (λ B, (TY X : functor _ _ ) B : hSet)).
+  specialize (XR (λ Γ' B, (yoneda C hsC (Γ' ◂ B)))).
+  etrans. apply XR.
+  apply funextsec. intro Γ.
+  apply funextsec. intro A.
+  clear XR.
+  unfold i. rewrite idtoiso_isotoid.
+  simpl.
+  apply nat_trans_eq. { apply has_homsets_HSET. }
+  intro Γ'. simpl. cbn.
+  apply funextsec.
+  unfold yoneda_objects_ob.
+  intro s.
+  unfold yoneda_morphisms_data.
+  rewrite id_left.
+
+  cbn.
+  
+  simpl. clear i.
+  specialize (YH Γ Γ' A (s ;; π _ )). simpl in YH.
+  assert (XR := nat_trans_eq_pointwise YH Γ').
+  assert (XR2 := toforallpaths _ _ _ XR).
+  simpl in XR2. cbn in XR2.
+  etrans. apply XR2.
+  apply maponpaths.
+  unfold yoneda_morphisms_data.
+  match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] =>
+            apply (PullbackArrow_PullbackPr2 HH) end.
+Defined.
 
 
 
@@ -1099,25 +1166,67 @@ Lemma iscontr_compatible_fam_structure (Z : comprehension_structure) (ZZ : is_sp
 Proof.
   exists (comp_fam_structure_from_comp Z ZZ).
   intro t.
-  apply subtypeEquality.
-  { intro. do 4 (apply impred; intro).
-      apply functor_category_has_homsets. 
-  }
-  destruct t as [t Hcomp]. simpl.
-  apply subtypeEquality.
-  { intro. unfold families_prop_structure.
-    do 2 (apply impred; intro).
-    apply isofhleveltotal2. 
-    - apply functor_category_has_homsets.
-    - intro.  apply isaprop_isPullback.
-  } 
-  destruct t as [t tprop]. simpl.
-  use total2_paths.
-  - admit.
-  - admit.
-Admitted.
+  apply pathsinv0. apply unique.
+Defined.
 
+Lemma compat_split_comp_eq Y:
+∀ t : compatible_split_comp_structure Y,
+   t =
+   comp_from_fam Y,,
+   is_split_comp_from_fam Y,, comp_from_fam_compatible_scomp_families Y.
+Proof.
+  intro t.
+    apply subtypeEquality.
+    { 
+      intro.
+      apply isofhleveldirprod.
+      - apply isaprop_is_split_comprehension_structure.
+      - do 4 (apply impred; intro).
+        apply functor_category_has_homsets. 
+    }
+    simpl.
+    apply subtypeEquality.
+    { 
+      intro. do 4 (apply impred; intro).
+      apply isofhleveltotal2. 
+      - apply hsC.
+      - intro. apply isaprop_isPullback.
+    } 
+    simpl.
+    destruct t as [t [H1 H2]]. simpl.
+    destruct t as [q h]; simpl.
+    apply funextsec. intro Γ.
+    apply funextsec; intro Γ'.
+    apply funextsec; intro f.
+    apply funextsec; intro A.
+    
+    apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
+    apply pathsinv0.
+    etrans. apply Yo_qq_fam_Yo_of_qq.
+    unfold Yo_of_qq.
+    apply pathsinv0.
+    apply PullbackArrowUnique.
+    + etrans. apply maponpaths. cbn. apply idpath.
+      rewrite <- functor_comp.
+      etrans. eapply pathsinv0. apply (functor_comp Yo).
+      apply maponpaths.
+      apply pathsinv0. apply (pr1 (h _ _ _ _ )).
+    + etrans. apply maponpaths. cbn. apply idpath.
+      apply pathsinv0.
+      apply H2.
+Qed.
+  
 
+Lemma iscontr_compatible_split_comp_structure (Y : families_structure)
+: iscontr (compatible_split_comp_structure Y).
+Proof.
+  mkpair.
+  exists (comp_from_fam Y).
+  - split.
+    + apply is_split_comp_from_fam.
+    + apply comp_from_fam_compatible_scomp_families.
+  - intro. apply compat_split_comp_eq.
+Defined.
 
 (* we are more interested in split such things, but that 
    is easily added; 
@@ -1175,6 +1284,6 @@ End some_structures.
 
 End fix_a_category.
 
-Print Assumptions iscontr_compatible_comp_structure.
+Print Assumptions iscontr_compatible_split_comp_structure.
 Print Assumptions iscontr_compatible_fam_structure.
 
