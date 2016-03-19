@@ -138,6 +138,15 @@ Definition families_prop_structure (Y : families_data_structure) :=
   ∀ Γ (A : (TY X : functor _ _ ) Γ : hSet), 
         Σ (e : #Yo (π A) ;; yy A = Q Y A ;; pp Y), isPullback _ _ _ _ e.
 
+Lemma isaprop_families_prop_structure Y
+  : isaprop (families_prop_structure Y).
+Proof.
+  do 2 (apply impred; intro).
+  apply isofhleveltotal2.
+  - apply functor_category_has_homsets.
+  - intro. apply isaprop_isPullback.
+Qed.
+
 Definition families_structure : UU :=
   Σ Y : families_data_structure, families_prop_structure Y.
 Coercion families_data_from_families (Y : families_structure) : _ := pr1 Y.
@@ -862,10 +871,66 @@ Proof.
       assert (XR := nat_trans_ax (Q (pr1 Y) A) _ _ s').
       assert (XR1 := toforallpaths _ _ _ XR).
       apply pathsinv0. simpl in XR1. apply XR1.
-Qed.      
- 
-    
+Qed.
+
+Lemma foo_pointwise_iso Γ : is_iso ((foo : nat_trans _ _) Γ).
+Proof.
+  apply (is_iso_qinv _ (bar Γ) ).
+  split.
+  - apply foo_bar.
+  - apply bar_foo.
+Defined.
+
+Definition foo_iso :  iso (C:=preShv C) (tm_functor Z ZZ) (TM (pr1 Y)).
+Proof.
+  exists foo.
+  apply functor_iso_if_pointwise_iso.
+  apply foo_pointwise_iso.
+Defined.
+
 End canonical_TM.
+
+Lemma unique (Z : comprehension_structure)
+             (ZZ : is_split_comprehension_structure Z)
+             (Y : compatible_fam_structure Z)
+  : comp_fam_structure_from_comp Z ZZ = Y.
+Proof.
+  set (i := isotoid _
+                   (is_category_functor_category _ _ is_category_HSET)
+                   (foo_iso _  ZZ Y)).
+  apply subtypeEquality.
+  { intro. do 4 (apply impred; intro).
+    apply functor_category_has_homsets.
+  }
+  destruct Y as [Y YH]. simpl.
+  apply subtypeEquality.
+  { intro. apply isaprop_families_prop_structure. }
+  simpl.
+  destruct Y as [Y YH']. simpl.
+  use total2_paths.
+  - simpl.
+    apply i.
+  - rewrite transportf_dirprod.
+    destruct Y as [Tm [p Q]].
+    simpl.
+    apply dirprodeq.
+    + simpl.
+      etrans. eapply pathsinv0.
+      apply  (idtoiso_precompose (preShv C)).
+      unfold i.
+ 
+      Search (idtoiso (! _ ) = _).
+
+      rewrite idtoiso_inv.
+      rewrite idtoiso_isotoid.
+      simpl.
+      apply nat_trans_eq. apply has_homsets_HSET.
+      intro Γ. apply idpath.
+    + simpl.
+      etrans. 
+      apply funextsec.
+      Search (transportf _  _ _  = _ ).
+Abort.
 
 
 
