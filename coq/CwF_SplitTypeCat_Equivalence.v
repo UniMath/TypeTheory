@@ -775,48 +775,7 @@ Proof.
       apply pathsinv0; apply (functor_id Yo)
        ).
 Defined.
-(*
-  - intros Γ Γ' f.
-    simpl in *.
-    apply funextsec; intro; simpl; cbn.
-    use (@tm_functor_eq Z).
-    + simpl.
-      set (XT:= (nat_trans_ax (pp (pr1 Y))) _ _ f ).
-      set (XT2 := toforallpaths _ _ _ XT).
-      apply XT2.
-    + simpl.
-      apply PullbackArrowUnique.
-      * etrans. apply maponpaths. cbn. apply idpath.
-        etrans. apply (!assoc _ _ _ _ _ _  _ _ ).
-        rewrite idtoiso_π.
-        apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
-        etrans ; [ apply functor_comp |].
-        match goal with |[ |- _  (_ ?EE) ;; _ = _ ] => set (e := EE) end.
 
-        assert (XR := homotweqinvweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ )) e).
-        etrans. apply cancel_postcomposition. apply XR. 
-        clear XR ; unfold e; clear e.
-        match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] 
-                           => set (XR := HH) end.
-        etrans. apply (PullbackArrow_PullbackPr1 XR).
-        apply pathsinv0. apply (functor_id Yo).
-      * etrans. apply maponpaths. cbn. apply idpath.
-        apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
-        etrans. apply functor_comp.
-        etrans. apply cancel_postcomposition. apply functor_comp.
-        match goal with |[ |- _  (_ ?EE) ;; _ ;; _ = _ ] => set (e := EE) end.
-        assert (XR := homotweqinvweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ )) e).
-        etrans. apply cancel_postcomposition. apply cancel_postcomposition. apply XR. 
-        clear XR.
-        etrans. Focus 2. eapply pathsinv0. apply functor_comp.
-        match goal with |[ |- _ = _ ;; _  (_ ?EE)] => set (e' := EE) end.
-        assert (XR := homotweqinvweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ )) e').
-        etrans. Focus 2. apply maponpaths. eapply pathsinv0. apply XR.
-        
-        use (MorphismsIntoPullbackEqual).
-        admit.        
-Admitted.
-*)
 
 Lemma bar_foo Γ : bar Γ ;; (foo  : nat_trans _ _ ) Γ = identity _ .
 Proof.
@@ -857,13 +816,14 @@ Proof.
     etrans. apply XR2.
     etrans. apply (maponpaths (fun k => # (TY X : functor _ _ ) k A) e).
     apply (toforallpaths _ _ _ (functor_id (TY X)  _ ) A).
-  - rewrite maponpathscomp0.
+  - (*
+    rewrite maponpathscomp0.
     rewrite maponpathscomp0.
     rewrite maponpathscomp0.
     rewrite idtoiso_concat.
     rewrite idtoiso_concat.    
     rewrite idtoiso_concat.
-    
+    *)
     
     etrans. apply maponpaths. simpl. apply idpath.
     etrans. Focus 2. simpl. apply idpath.
@@ -871,10 +831,39 @@ Proof.
     etrans. apply (functor_comp Yo).
     etrans. apply cancel_postcomposition.
             apply (homotweqinvweq
-      (weqpair _ (yoneda_fully_faithful _  hsC _ _   ))).
-   simpl.            
-   admit.
-Abort.
+               (weqpair _ (yoneda_fully_faithful _  hsC _ _   ))).
+    etrans. apply cancel_postcomposition. cbn. apply idpath. 
+    match goal with |[|- PullbackArrow ?HH _ _ _ ?PP ;; _ = _ ] =>
+            set (XR:= HH); generalize PP end.
+    intro ee.
+    use (MorphismsIntoPullbackEqual (isPullback_Q_pp (pr1 Y) _ _ )).
+    + etrans. apply (!assoc _ _ _ _ _ _ _ _ ).
+      etrans. apply maponpaths. apply (!functor_comp _ _ _ _ _ _ ).
+      etrans. apply maponpaths. apply maponpaths.
+              apply idtoiso_π.
+      etrans. apply (PullbackArrow_PullbackPr1 XR).
+      etrans. Focus 2. apply functor_comp.
+      etrans. Focus 2. apply maponpaths. apply (!e).
+      apply pathsinv0. apply (functor_id Yo).
+    + etrans. apply (!assoc _ _ _ _ _ _ _ _ ).
+      etrans. apply maponpaths.
+              apply idtoiso_Q.
+      etrans. apply (PullbackArrow_PullbackPr2 XR).
+      simpl.
+      Check yoneda_map_2.
+      clear XR. clear ee.
+      unfold yoneda_morphisms. unfold yoneda_morphisms_data.
+      apply nat_trans_eq. apply (has_homsets_HSET).
+      intro Γ'.
+      apply funextsec.
+      simpl. intro s'.
+      cbn. simpl.
+      rewrite id_left.
+      assert (XR := nat_trans_ax (Q (pr1 Y) A) _ _ s').
+      assert (XR1 := toforallpaths _ _ _ XR).
+      apply pathsinv0. simpl in XR1. apply XR1.
+Qed.      
+ 
     
 End canonical_TM.
 
