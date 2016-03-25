@@ -22,6 +22,7 @@ Require Export UniMath.CategoryTheory.opp_precat.
 Require Export UniMath.Foundations.Basics.Sets.
 Require Export UniMath.CategoryTheory.limits.pullbacks.
 
+Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 

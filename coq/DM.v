@@ -20,6 +20,7 @@ Require Export UniMath.CategoryTheory.limits.pullbacks.
 
 Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 
+Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
 
 (** * A "preview" of the definition *)
 

@@ -15,6 +15,8 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.limits.
 
+Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
+
 (** * Lemmas about identity etc *)
 
 Lemma pr1_transportf (A : UU) (B : A -> UU) (P : ∀ a, B a -> UU)

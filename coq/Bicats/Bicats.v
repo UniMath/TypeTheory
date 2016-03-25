@@ -24,6 +24,8 @@ Local Set Automatic Introduction.
 
 Notation "( x , y , .. , z )" := (dirprodpair .. (dirprodpair x y) .. z).
 
+Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
+
 (* TODO: the opposite associativity would seem to fit our current composition conventions better; but for some reason, it doesn’t seem to parse correctly ??
 Notation "( x ; .. ; y ; z )" := (dirprodpair x .. (dirprodpair y z) .. ). *)
 

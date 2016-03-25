@@ -23,6 +23,7 @@ Undelimit Scope transport.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
+Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
 
 (*
 Local Notation "< h , k >" := (PullbackArrow _ _ h k _ ) : pullback_scope.
