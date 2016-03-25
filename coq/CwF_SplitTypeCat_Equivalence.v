@@ -116,7 +116,7 @@ Qed.
 
 Section some_structures.
 
-Context {X : type_structure}.
+Context (X : type_structure).
 
 (* Notation "A [ f ]" := (# (TY X : functor C^op HSET) f A)(at level 30). *)
 
@@ -247,19 +247,34 @@ Proof.
   repeat apply maponpaths. apply uip. exact (pr2 ((TY X : functor _ _) _)).
 Qed.
 
-Definition compatible_scomp_families (Y : families_structure)(Z : comprehension_structure) : UU
+
+Definition split_comprehension_structure : UU
+  := Σ Z : comprehension_structure,
+           is_split_comprehension_structure Z.
+
+Definition comprehension_from_split_comprehension :
+   split_comprehension_structure -> comprehension_structure := pr1.
+Coercion comprehension_from_split_comprehension :
+   split_comprehension_structure >-> comprehension_structure.
+
+
+
+
+Definition compatible_scomp_families (Y : families_structure)
+         (Z : split_comprehension_structure) : UU
   := ∀ Γ Γ' A (f : C⟦Γ', Γ⟧) , Q Y A[f] = #(yoneda _ hsC) (qq Z f A) ;; Q Y A.
 
-Definition compatible_fam_structure (Z : comprehension_structure) : UU
+
+
+
+
+Definition compatible_fam_structure (Z : split_comprehension_structure) : UU
   := Σ Y : families_structure, compatible_scomp_families Y Z.
 
-Definition compatible_comp_structure (Y : families_structure) : UU
-  := Σ Z : comprehension_structure, compatible_scomp_families Y Z.
+Definition compatible_split_comprehension_structure (Y : families_structure) : UU
+  := Σ Z : split_comprehension_structure, compatible_scomp_families Y Z.
 
-Definition compatible_split_comp_structure (Y : families_structure) : UU
-  := Σ Z : comprehension_structure,
-            is_split_comprehension_structure Z ×
-            compatible_scomp_families Y Z.
+
 
 
 
@@ -668,7 +683,8 @@ Proof.
 Qed.
 
 
-Definition comp_fam_structure_from_comp : compatible_fam_structure Z.
+Definition comp_fam_structure_from_comp
+  : compatible_fam_structure (Z,,ZZ).
 Proof.
   mkpair.
   - mkpair.
@@ -708,7 +724,7 @@ Section canonical_TM.
 
 Variable Z : comprehension_structure.
 Variable ZZ : is_split_comprehension_structure Z.
-Variable Y : compatible_fam_structure Z.
+Variable Y : compatible_fam_structure (Z,,ZZ).
 
 Lemma is_nat_trans_foo : 
  is_nat_trans (tm_functor Z ZZ) (TM (pr1 Y): functor _ _ )
@@ -910,7 +926,7 @@ End canonical_TM.
 
 Lemma unique (Z : comprehension_structure)
              (ZZ : is_split_comprehension_structure Z)
-             (Y : compatible_fam_structure Z)
+             (Y : compatible_fam_structure (Z,,ZZ))
   : comp_fam_structure_from_comp Z ZZ = Y.
 Proof.
   set (i := isotoid _
@@ -1102,14 +1118,6 @@ Proof.
     apply isPullback_qq.
 Defined.
 
-Lemma comp_from_fam_compatible_scomp_families : compatible_scomp_families Y comp_from_fam.
-Proof.
-  intros Γ Γ' A f.
-  assert (XR:= Yo_of_qq_commutes_2).
-  apply pathsinv0.
-  rewrite Yo_qq_fam_Yo_of_qq.
-  apply XR.
-Qed.
 
 Lemma is_split_comp_from_fam : is_split_comprehension_structure comp_from_fam.
 Proof.
@@ -1155,6 +1163,22 @@ Proof.
       apply idtoiso_Q.
 Qed.
 
+Definition split_comp_structure_from_fam
+  : split_comprehension_structure.
+Proof.
+  exists comp_from_fam.
+  apply is_split_comp_from_fam.
+Defined.
+
+Lemma comp_from_fam_compatible_scomp_families : compatible_scomp_families Y split_comp_structure_from_fam.
+Proof.
+  intros Γ Γ' A f.
+  assert (XR:= Yo_of_qq_commutes_2).
+  apply pathsinv0.
+  rewrite Yo_qq_fam_Yo_of_qq.
+  apply XR.
+Qed.
+
       
 End compatible_comp_structure_from_fam.
 
@@ -1163,7 +1187,7 @@ End compatible_comp_structure_from_fam.
 
 (* needs splitness? *)
 Lemma iscontr_compatible_fam_structure (Z : comprehension_structure) (ZZ : is_split_comprehension_structure Z)
-: iscontr (compatible_fam_structure Z).
+: iscontr (compatible_fam_structure (Z,,ZZ)).
 Proof.
   exists (comp_fam_structure_from_comp Z ZZ).
   intro t.
@@ -1171,30 +1195,36 @@ Proof.
 Defined.
 
 Lemma compat_split_comp_eq Y:
-∀ t : compatible_split_comp_structure Y,
+∀ t : compatible_split_comprehension_structure Y,
    t =
-   comp_from_fam Y,,
-   is_split_comp_from_fam Y,, comp_from_fam_compatible_scomp_families Y.
+   (comp_from_fam Y,,
+   is_split_comp_from_fam Y),, comp_from_fam_compatible_scomp_families Y.
 Proof.
   intro t.
     apply subtypeEquality.
     { 
       intro.
-      apply isofhleveldirprod.
-      - apply isaprop_is_split_comprehension_structure.
+(*      apply isofhleveldirprod. *)
+      (*- apply isaprop_is_split_comprehension_structure.*)
       - do 4 (apply impred; intro).
         apply functor_category_has_homsets. 
     }
     simpl.
     apply subtypeEquality.
     { 
-      intro. do 4 (apply impred; intro).
+      intro.
+      apply isaprop_is_split_comprehension_structure.
+    }
+    apply subtypeEquality.
+    {
+      intro.
+      do 4 (apply impred; intro).
       apply isofhleveltotal2. 
       - apply hsC.
       - intro. apply isaprop_isPullback.
     } 
     simpl.
-    destruct t as [t [H1 H2]]. simpl.
+    destruct t as [[t H1] H2]. simpl.
     destruct t as [q h]; simpl.
     apply funextsec. intro Γ.
     apply funextsec; intro Γ'.
@@ -1219,72 +1249,91 @@ Qed.
   
 
 Lemma iscontr_compatible_split_comp_structure (Y : families_structure)
-: iscontr (compatible_split_comp_structure Y).
+: iscontr (compatible_split_comprehension_structure Y).
 Proof.
   mkpair.
-  exists (comp_from_fam Y).
-  - split.
-    + apply is_split_comp_from_fam.
+  - mkpair.
+    + exists (comp_from_fam Y).
+      apply is_split_comp_from_fam.
     + apply comp_from_fam_compatible_scomp_families.
   - intro. apply compat_split_comp_eq.
 Defined.
 
-(* we are more interested in split such things, but that 
-   is easily added; 
-   splitness of the construed comprehension structure
-   is proved above
-*)
-Lemma iscontr_compatible_comp_structure (Y : families_structure)
-: iscontr (compatible_comp_structure Y).
-Proof.
-  mkpair.
-  - mkpair.
-    + apply (comp_from_fam Y).
-    + apply comp_from_fam_compatible_scomp_families.
-  - intro t.
-    apply subtypeEquality.
-    { 
-      intro. do 4 (apply impred; intro).
-      apply functor_category_has_homsets. 
-    }
-    simpl.
-    apply subtypeEquality.
-    { 
-      intro. do 4 (apply impred; intro).
-      apply isofhleveltotal2. 
-      - apply hsC.
-      - intro. apply isaprop_isPullback.
-    } 
-    simpl.
-    destruct t as [t H]. simpl.
-    destruct t as [q h]; simpl.
-    apply funextsec. intro Γ.
-    apply funextsec; intro Γ'.
-    apply funextsec; intro f.
-    apply funextsec; intro A.
-    
-    apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
-    apply pathsinv0.
-    etrans. apply Yo_qq_fam_Yo_of_qq.
-    unfold Yo_of_qq.
-    apply pathsinv0.
-    apply PullbackArrowUnique.
-    + etrans. apply maponpaths. cbn. apply idpath.
-      rewrite <- functor_comp.
-      etrans. eapply pathsinv0. apply (functor_comp Yo).
-      apply maponpaths.
-      apply pathsinv0. apply (pr1 (h _ _ _ _ )).
-    + etrans. apply maponpaths. cbn. apply idpath.
-      apply pathsinv0.
-      apply H.
-Qed.
-
-
 End some_structures.
-
-
-End fix_a_category.
 
 Print Assumptions iscontr_compatible_split_comp_structure.
 Print Assumptions iscontr_compatible_fam_structure.
+
+
+Section equivalence.
+
+Variable X : type_structure.
+
+Definition T1 : UU :=
+  Σ Y : families_structure X,
+        compatible_split_comprehension_structure _ Y.
+
+Definition T2 : UU :=
+  Σ Z : split_comprehension_structure X,
+        compatible_fam_structure _ Z.
+
+Definition shuffle : T1 ≃ T2.
+Proof.
+  eapply weqcomp.
+  unfold T1.
+  unfold compatible_split_comprehension_structure.
+  set (XR := @weqtotal2asstol).
+  specialize (XR (families_structure X)).
+  specialize (XR (fun _ => split_comprehension_structure X)).
+  simpl in XR.
+  specialize (XR (fun YZ => compatible_scomp_families _ (pr1 YZ) (pr2 YZ))).
+  apply XR.
+  eapply weqcomp. Focus 2.
+  unfold T2. unfold compatible_fam_structure.
+  set (XR := @weqtotal2asstor).
+  specialize (XR (split_comprehension_structure X)).
+  specialize (XR (fun _ => families_structure X)).
+  simpl in XR.
+  specialize (XR (fun YZ => compatible_scomp_families _ (pr2 YZ) (pr1 YZ))).
+  apply XR.
+  use weqbandf.
+  - apply weqdirprodcomm.
+  - intros. simpl.
+    apply idweq.
+Defined.
+
+Definition forget_fam :
+  T2 ≃ split_comprehension_structure X.
+Proof.
+  exists pr1.
+  apply isweqpr1.
+  intros [z zz].
+  apply iscontr_compatible_fam_structure.
+Defined.
+
+Definition forget_comp :
+  T1 ≃ families_structure X.
+Proof.
+  exists pr1.
+  apply isweqpr1.
+  intro.
+  apply iscontr_compatible_split_comp_structure.
+Defined.
+
+Definition result : families_structure X ≃ split_comprehension_structure X.
+Proof.
+  eapply weqcomp.
+  eapply invweq.
+  apply forget_comp.
+  eapply weqcomp.
+  apply shuffle.
+  apply forget_fam.
+Defined.
+
+Print Assumptions result.
+
+End equivalence.
+
+End fix_a_category.
+
 
