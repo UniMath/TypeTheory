@@ -17,10 +17,14 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Require UniMath.Ktheory.Precategories.
+Require Import UniMath.Ktheory.StandardCategories.
+Local Set Automatic Introduction. (* only needed if imports globally unset it *)
+
+(* Unfortunately we can’t [Import Precategories], due to notation clashes. So instead we make local alias notations: *)
+Local Notation Precategory := Precategories.Precategory. 
 Local Coercion Precategories.Precategory_to_precategory
   : Precategories.Precategory >-> precategory.
-Require Import UniMath.Ktheory.StandardCategories.
-Local Set Automatic Introduction.
+Local Notation homset_property := Precategories.homset_property.
 
 Notation "( x , y , .. , z )" := (dirprodpair .. (dirprodpair x y) .. z).
 
@@ -29,7 +33,7 @@ Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
 (* TODO: the opposite associativity would seem to fit our current composition conventions better; but for some reason, it doesn’t seem to parse correctly ??
 Notation "( x ; .. ; y ; z )" := (dirprodpair x .. (dirprodpair y z) .. ). *)
 
-(** Very useful tactic, taken from Jason Gross and Aruand Spiwack at <https://coq.inria.fr/bugs/show_bug.cgi?id=3551>. 
+(** [transparent assert]: a very useful tactic, taken from Jason Gross and Aruand Spiwack at <https://coq.inria.fr/bugs/show_bug.cgi?id=3551>. 
 
   Typical usage: you want to construct an instance of a big iterated sigma-type, where later components depend on earlier ones, but the constructions of the earlier components are non-trivial enough that you want to do them interactively, not write them explicitly.
 
@@ -345,23 +349,17 @@ Section Precat_as_prebicat.
 
 To form a prebicategory, therefore, we have to restrict to precategories with hom-sets.*)
 
-(* TODO: replace [good_precategory] with [Precategory] (from [Ktheory.Precategories]) throughout. *)
-Definition good_precategory := Σ (C : precategory), has_homsets C.
-Definition precat_of_good_precat (C : good_precategory) := pr1 C.
-Coercion precat_of_good_precat : good_precategory >-> precategory.
-Definition good_precat_hom_sets (C : good_precategory) := pr2 C.
-
 Definition PRECAT_ob_mor : prebicategory_obmor.
 Proof.
-  (* ob_bicat *) exists good_precategory.
-  (* hom1 *) intros C D. exact (functor_precategory C D (good_precat_hom_sets D)).
+  (* ob_bicat *) exists Precategory.
+  (* hom1 *) intros C D. exact (functor_precategory C D (homset_property D)).
 Defined.
 
 (* Note: the interaction of reduction and coercions causes a sllightly irritating issue here.  (The same issue arises with other (bi-)categories of structured objects whose access functions rely on cascading coercions.)
 
-  Given [ X : ob_bicat (PRECAT_ob_mor) ], we can’t write [ functor_identity X ]: the coercions [good_precategory >-> … >-> precategory_data ] don’t trigger, since [ob_bicat (PRECAT_ob_mor)] is not of the *syntactic* form to which they apply.
+  Given [ X : ob_bicat (PRECAT_ob_mor) ], we can’t write [ functor_identity X ]: the coercions [Precategory >-> … >-> precategory_data ] don’t trigger, since [ob_bicat (PRECAT_ob_mor)] is not of the *syntactic* form to which they apply.
 
-  Three workarounds: annotate it as [  (X : good_precategory) ], making the coercions trigger; issue [ simpl in X ] to reduce its type in the context to [ good_precategory ]; or write [ pr1 X ], which again pulls [ X ] into a type on which the coercions trigger. *)
+  Three workarounds: annotate it as [  (X : Precategory) ], making the coercions trigger; issue [ simpl in X ] to reduce its type in the context to [ Precategory ]; or write [ pr1 X ], which again pulls [ X ] into a type on which the coercions trigger. *)
 
 Section Comp_Functor.
   Context (C D E : precategory) (HD : has_homsets D) (HE : has_homsets E).
@@ -419,7 +417,7 @@ End Comp_Functor.
 Definition PRECAT_data1 : prebicategory_data1.
 Proof.
   exists PRECAT_ob_mor. split; intros.
-  (* identity1 *) simpl. exact (functor_identity (X : good_precategory)).
+  (* identity1 *) simpl. exact (functor_identity (X : Precategory)).
   (* compose1 *) apply comp_functor.
 Defined.
 
@@ -435,7 +433,7 @@ Proof.
   intros x y f; simpl. refine (id_right _ @ !(id_left _)).
 Defined.
 
-Definition functor_assoc_nat_trans_2 {X Y Z W : good_precategory} 
+Definition functor_assoc_nat_trans_2 {X Y Z W : Precategory} 
   : nat_trans
      (functor_composite
         ((pr1 PRECAT_data1) X Y
@@ -459,17 +457,17 @@ Definition functor_assoc_nat_trans_2 {X Y Z W : good_precategory}
            (prod_functor compose1 (functor_identity ((pr1 PRECAT_data1) Z W)))
            compose1)).
 Proof.
-  exists (fun FGH => @functor_assoc_nat_trans _ _ _ _ (good_precat_hom_sets W) _ _ _).
+  exists (fun FGH => @functor_assoc_nat_trans _ _ _ _ (homset_property W) _ _ _).
   (* Since we don’t care about the computational content of the naturality, nothing is lost by destructing here: *) 
   intros [F [G H]]; simpl. intros [F' [G' H']]; simpl. intros [α [β δ]]; simpl.
-  apply nat_trans_eq. apply good_precat_hom_sets. intros x; simpl.
+  apply nat_trans_eq. apply homset_property. intros x; simpl.
   eapply pathscomp0. apply id_right.
   eapply pathscomp0. Focus 2. eapply pathsinv0, id_left.
   eapply pathscomp0. apply assoc. apply cancel_postcomposition.
   apply pathsinv0, functor_comp.
 Defined.
 
-Definition functor_id_left_nat_trans (X Y : good_precategory)
+Definition functor_id_left_nat_trans (X Y : Precategory)
 : nat_trans
      (functor_composite ((pr1 PRECAT_data1) X Y)
         ((pr1 PRECAT_data1) X X × (pr1 PRECAT_data1) X Y)
@@ -486,12 +484,12 @@ Proof.
     exists (fun x => identity _).
     intros x y f; simpl. exact (id_right _ @ !(id_left _)).
   intros F G α; simpl.
-  apply nat_trans_eq. apply good_precat_hom_sets. intros x; simpl.
+  apply nat_trans_eq. apply homset_property. intros x; simpl.
   eapply pathscomp0. apply id_right.
   apply cancel_postcomposition, functor_id.
 Defined.
 
-Definition functor_id_right_nat_trans (X Y : good_precategory)
+Definition functor_id_right_nat_trans (X Y : Precategory)
 : nat_trans
    (functor_composite ((pr1 PRECAT_data1) X Y)
       ((pr1 PRECAT_data1) X Y × (pr1 PRECAT_data1) Y Y)
@@ -506,7 +504,7 @@ Proof.
       exists (fun x => identity _).
       intros x y f; simpl. exact (id_right _ @ !(id_left _)).
     intros F G α; simpl.
-    apply nat_trans_eq. apply good_precat_hom_sets. intros x; simpl.
+    apply nat_trans_eq. apply homset_property. intros x; simpl.
     eapply pathscomp0. apply id_right.
     eapply pathscomp0. apply id_right.
     apply pathsinv0, id_left.
@@ -538,7 +536,7 @@ Proof.
     intros x; simpl. apply identity_is_iso.
   apply dirprodpair; simpl.
   (* pentagon_bicat *) intros X Y Z W V F G H K.
-    apply nat_trans_eq; simpl. apply good_precat_hom_sets. intros x.
+    apply nat_trans_eq; simpl. apply homset_property. intros x.
     eapply pathscomp0. apply maponpaths.
       eapply pathscomp0. apply id_right. apply functor_id.
     eapply pathscomp0. apply id_right.
@@ -550,7 +548,7 @@ Proof.
       apply functor_id.
     apply functor_id.
   (* triangle_bicat *) intros X Y Z F G.
-    apply nat_trans_eq; simpl. apply good_precat_hom_sets. intros x.
+    apply nat_trans_eq; simpl. apply homset_property. intros x.
     apply id_left.
 Defined.
 
@@ -564,7 +562,7 @@ Section Pregroupoids.
 Definition is_pregroupoid (C : precategory)
   := forall (x y : C) (f : x ⇒ y), is_iso f.
 
-Lemma is_pregroupoid_functor_precat {C D : Precategories.Precategory}
+Lemma is_pregroupoid_functor_precat {C D : Precategory}
   (gr_D : is_pregroupoid D)
   : is_pregroupoid (Precategories.functorPrecategory C D).
 Proof.
@@ -579,7 +577,7 @@ Section Discrete_precats.
 
 (* In order to construct locally discrete (pre)bicategories, we first need some infrastructure on discrete (pre)categories. *)
 
-Definition discrete_precat (X : hSet) : good_precategory.
+Definition discrete_precat (X : hSet) : Precategory.
 Proof.
   use tpair.
     apply (path_pregroupoid X).
@@ -630,13 +628,13 @@ End Discrete_precats.
 Section Loc_discrete_prebicat.
 (** * The locally discrete prebicategory on a precategory *)
 
-Variable C : good_precategory.
+Variable C : Precategory.
 
 Definition LocallyDiscretePreBicat_ob_mor : prebicategory_obmor.
 Proof.
   (* objects *) exists (ob C).
   (* morphisms *) intros x y. use discrete_precat.
-    exists (x ⇒ y); apply good_precat_hom_sets.
+    exists (x ⇒ y); apply homset_property.
 Defined.
 
 Definition LocallyDiscretePreBicat_data1 : prebicategory_data1.
