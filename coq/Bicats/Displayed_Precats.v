@@ -7,9 +7,15 @@ In a little more detail: if [D] is a displayed precategory over [C], then [D] ha
 
 Two major motivations for displayed categories:
 
-- Pragmatically, they give a technical tool for building categories of “structured objects”, and functors into such categories, encapsulating a lot of frequently-used contstructions.
-- More conceptually, they give a setting for developing the theory of Grothendieck fibrations and isofibrations, without mentioning equality of objects.
+- Pragmatically, they give a convenient tool for building categories of “structured objects”, and functors into such categories, encapsulating a lot of frequently-used contstructions.
+- More conceptually, they give a setting for developing things like Grothendieck fibrations and isofibrations without mentioning equality of objects.
 
+** Contents:
+
+- Displayed precategories: [disp_precat C]
+- Total precategories (and their forgetful functors)
+  - [total_precat D]
+  - [pr1_functor]
 *)
 
 Require Import UniMath.CategoryTheory.UnicodeNotations.
@@ -17,6 +23,8 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
+
+Require UniMath.Ktheory.Utilities.
 
 Require Import Systems.Bicats.Auxiliary.
 
@@ -246,7 +254,7 @@ Qed.
 Definition total_precat : Precategory
   := (total_precat_pre ,, total_precat_has_homsets).
 
-(** ** Forgetful functor from the total precategory *)
+(** ** Forgetful functor *)
 
 Definition pr1_precat_data : functor_data total_precat C.
 Proof.
@@ -265,3 +273,56 @@ Definition pr1_precat : functor total_precat C
   := (pr1_precat_data ,, pr1_precat_is_functor).
 
 End Total_Precat.
+
+Arguments pr1_precat [C D].
+
+(** * Examples 
+
+A typical use for displayed categories is for constructing categories of structured objects, over a given (specific or general) category. We give a few examples here:
+
+- objects with N-actions;
+- slice categories (bis)
+
+*)
+
+(** ** Objects with N-action
+
+For any category C, “C-objects equipped with an N-action” (or more elementarily, with an endomorphism) form a displayed category over C 
+Section ZAct. *)
+
+Section NAction.
+
+Context (C:Precategory).
+
+Definition NAction_disp_ob_mor : disp_precat_ob_mor C.
+Proof.
+  exists (fun c => c ⇒ c).
+  intros x y f xx yy. exact (f ;; yy = xx ;; f).
+Defined.
+
+Definition NAction_id_comp : disp_precat_id_comp C NAction_disp_ob_mor.
+Proof.
+  split.
+  - simpl; intros.
+    eapply pathscomp0. apply id_left. apply pathsinv0, id_right.
+  - simpl; intros x y z f g xx yy zz ff gg.
+    eapply pathscomp0. apply @pathsinv0, assoc.
+    eapply pathscomp0. apply maponpaths, gg.
+    eapply pathscomp0. apply assoc.
+    eapply pathscomp0. eapply (maponpaths (fun f' => f' ;; g)), ff.
+    apply pathsinv0, assoc.
+Qed.
+
+Definition NAction_data : disp_precat_data C
+  := (NAction_disp_ob_mor ,, NAction_id_comp).
+
+Lemma NAction_axioms : disp_precat_axioms C NAction_data.
+Proof.
+  repeat apply tpair; intros; try apply homset_property.
+  apply isasetaprop, homset_property. 
+Qed.
+
+Definition NAction_disp : disp_precat C
+  := (NAction_data ,, NAction_axioms).
+
+End NAction.
