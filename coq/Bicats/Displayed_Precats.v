@@ -26,6 +26,7 @@ Require Import UniMath.CategoryTheory.functor_categories.
 
 Require UniMath.Ktheory.Utilities.
 
+Require Import Systems.Auxiliary.
 Require Import Systems.Bicats.Auxiliary.
 
 Local Set Automatic Introduction.
@@ -171,10 +172,35 @@ Definition homsets_disp {C} {D :disp_precat C} {x y} {f} {xx : D x} {yy : D y}
   : isaset (xx ⇒[f] yy)
 := pr2 (pr2 (pr2 (pr2 D))) _ _ _ _ _.
 
-(** TODO: prove this lemma!  (Probably not often needed, but would be nice to know.) *)
+(** ** Some utility lemmas *)
+Section Lemmas.
+
+(** TODO: prove this lemma!  Probably not often needed, but would be nice to know. *)
 Lemma isaprop_disp_precat_axioms (C : Precategory) (D : disp_precat_data C)
   : isaprop (disp_precat_axioms C D).
 Abort.
+
+Lemma compl_disp_transp {C : Precategory} {D : disp_precat_data C}
+    {x y z : C} {f f' : x ⇒ y} (ef : f = f') {g : y ⇒ z}
+    {xx : D x} {yy} {zz} (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
+  : ((transportf (fun k => _ ⇒[k] _) ef ff) ;; gg
+  = transportf (fun k => _ ⇒[k] _)
+    (maponpaths (fun k => k ;; _)%mor ef) (ff ;; gg))%mor_disp.
+Proof.
+  destruct ef. apply idpath.
+Qed.
+
+Lemma compr_disp_transp {C : Precategory} {D : disp_precat_data C}
+    {x y z : C} {f : x ⇒ y} {g g' : y ⇒ z} (eg : g = g')
+    {xx : D x} {yy} {zz} (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
+  : (ff ;; (transportf (fun k => _ ⇒[k] _) eg gg)
+  = transportf (fun k => _ ⇒[k] _)
+    (maponpaths (fun k => _ ;; k)%mor eg) (ff ;; gg))%mor_disp.
+Proof.
+  destruct eg. apply idpath.
+Qed.
+
+End Lemmas.
 
 End Disp_Precat.
 
@@ -276,13 +302,96 @@ End Total_Precat.
 
 Arguments pr1_precat [C D].
 
+(** * Functors 
+
+- Reindexing of displayed precats along functors
+- Functors into displayed precategories *)
+
+(** ** Reindexing *)
+
+Section Reindexing.
+
+Context {C' C : Precategory} (F : functor C' C) (D : disp_precat C).
+
+(* TODO: search/replace [disp_precat] to [disp_precat] once done *)
+Definition reindex_disp_precat_ob_mor : disp_precat_ob_mor C'.
+Proof.
+  exists (fun c => D (F c)).
+  intros x y f xx yy. exact (xx ⇒[# F f] yy).
+Defined.
+
+Definition reindex_disp_precat_id_comp : disp_precat_id_comp C' reindex_disp_precat_ob_mor.
+Proof.
+  apply tpair.
+  - simpl; intros x xx.
+    refine (transportb (fun g => _ ⇒[g] _) _ _).
+    apply functor_id. apply id_disp.
+  - simpl; intros x y z f g xx yy zz ff gg.
+    refine (transportb (fun g => _ ⇒[g] _) _ _).
+    apply functor_comp. exact (ff ;; gg)%mor_disp.    
+Defined.
+
+Definition reindex_disp_precat_data : disp_precat_data C'
+  := (_ ,, reindex_disp_precat_id_comp).
+
+Definition reindex_disp_precat_axioms : disp_precat_axioms C' reindex_disp_precat_data.
+Proof.
+  repeat apply tpair; cbn.
+  - intros x y f xx yy ff. 
+    eapply pathscomp0. apply maponpaths, compl_disp_transp.
+    eapply pathscomp0. refine (transport_b_f (fun g => _ ⇒[g] _) _ _ _).
+    eapply pathscomp0. apply maponpaths, id_left_disp.
+    eapply pathscomp0. refine (transport_f_b (fun g => _ ⇒[g] _) _ _ _).
+    eapply pathscomp0. Focus 2. eapply pathsinv0.
+      refine (functtransportb (# F) (fun g => _ ⇒[g] _) _ _).
+    refine (toforallpaths _ _ _ _ ff). unfold transportb; apply maponpaths.
+    apply homset_property.
+  - intros x y f xx yy ff. 
+    eapply pathscomp0. apply maponpaths, compr_disp_transp.
+    eapply pathscomp0. refine (transport_b_f (fun g => _ ⇒[g] _) _ _ _).
+    eapply pathscomp0. apply maponpaths, id_right_disp.
+    eapply pathscomp0. refine (transport_f_b (fun g => _ ⇒[g] _) _ _ _).
+    eapply pathscomp0. Focus 2. eapply pathsinv0.
+      refine (functtransportb (# F) (fun g => _ ⇒[g] _) _ _).
+    refine (toforallpaths _ _ _ _ ff). unfold transportb; apply maponpaths.
+    apply homset_property.
+  - intros x y z w f g h xx yy zz ww ff gg hh.
+    eapply pathscomp0. apply maponpaths, compr_disp_transp.
+    eapply pathscomp0. refine (transport_b_f (fun g => _ ⇒[g] _) _ _ _).
+    eapply pathscomp0. apply maponpaths, assoc_disp.
+    eapply pathscomp0. refine (transport_f_b (fun g => _ ⇒[g] _) _ _ _).
+    apply pathsinv0.
+    eapply pathscomp0.
+      refine (functtransportb (# F) (fun g => _ ⇒[g] _) _ _).
+    eapply pathscomp0. refine (transport_b_b (fun g => _ ⇒[g] _) _ _ _).
+    eapply pathscomp0. apply maponpaths, compl_disp_transp.
+    eapply pathscomp0. refine (transport_b_f (fun g => _ ⇒[g] _) _ _ _).
+    refine (toforallpaths _ _ _ _ (ff ;; gg ;; hh)%mor_disp).
+    unfold transportb; apply maponpaths.
+    apply homset_property.
+  - intros; apply homsets_disp.
+Qed.
+
+Definition reindex_disp_precat : disp_precat C'
+  := (_ ,, reindex_disp_precat_axioms).
+
+End Reindexing.
+
+(** ** Functors into displayed categories *)
+
+(* TODO: define sections of a d.pr. *)
+
+(* TODO: define “lifts of a functor C' —> C into D'”, as sections of the pullback*)
+
+(* TODO: define the total functor of a lift. *)
+
+
 (** * Examples 
 
 A typical use for displayed categories is for constructing categories of structured objects, over a given (specific or general) category. We give a few examples here:
 
 - arrow precategories
-  - objects with N-actions;
-  - slice categories (bis)
+- objects with N-actions;
 
 *)
 
