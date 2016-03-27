@@ -13,6 +13,7 @@ MODULES-CORE := Auxiliary UnicodeNotations \
 	Categories/category_FAM \
 	Bicats/Auxiliary \
 	Bicats/Bicats \
+	Bicats/Displayed_Precats \
 	CwF \
 	TypeCat \
         CwF_to_TypeCat \
