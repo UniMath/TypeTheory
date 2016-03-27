@@ -50,7 +50,7 @@ or Tom Leinster, _Basic Bicategories_, 1998, <http://arxiv.org/abs/math/9810017>
 (* TODO: change names to [ob_mor] etc. to fit with precat names? *)
 
 Definition prebicategory_obmor : Type
-  := Σ (ob : Type), (forall (X Y : ob), precategory).
+  := Σ (ob : Type), (forall (X Y : ob), Precategory).
 
 Definition ob_bicat (BB : prebicategory_obmor) := pr1 BB.
 Coercion ob_bicat : prebicategory_obmor >-> Sortclass.
@@ -172,7 +172,7 @@ To form a prebicategory, therefore, we have to restrict to precategories with ho
 Definition PRECAT_ob_mor : prebicategory_obmor.
 Proof.
   (* ob_bicat *) exists Precategory.
-  (* hom1 *) intros C D. exact (functor_precategory C D (homset_property D)).
+  (* hom1 *) intros C D. exact (functorPrecategory C D).
 Defined.
 
 (** Note: the interaction of reduction and coercions causes a slightly irritating issue here.  (The same issue arises with other (bi-)categories of structured objects whose access functions rely on cascading coercions.)
@@ -182,7 +182,7 @@ Defined.
   Three workarounds: annotate it as [  (X : Precategory) ], making the coercions trigger; issue [ simpl in X ] to reduce its type in the context to [ Precategory ]; or write [ pr1 X ], which again pulls [ X ] into a type on which the coercions trigger. *)
 
 Section Comp_Functor.
-  Context (C D E : precategory) (HD : has_homsets D) (HE : has_homsets E).
+  Context (C D E : Precategory).
 
   Definition nat_trans_horiz_comp {F F' : functor C D} {G G' : functor D E}
     (α : nat_trans F F') (β : nat_trans G G')
@@ -201,8 +201,8 @@ Section Comp_Functor.
   Defined.
 
   Definition comp_functor_data : functor_data
-    (functor_precategory C D HD × functor_precategory D E HE)
-    (functor_precategory C E HE).
+    (functorPrecategory C D × functorPrecategory D E)
+    (functorPrecategory C E).
   Proof.
     (* ob *) exists (fun FG => functor_composite _ _ _ (pr1 FG) (pr2 FG)).
     (* mor *) intros FG FG' αβ. exact (nat_trans_horiz_comp (pr1 αβ) (pr2 αβ)).
@@ -211,11 +211,11 @@ Section Comp_Functor.
   Definition comp_functor_is_functor : is_functor comp_functor_data.
   Proof.
     split.
-    (* functor_idax *) intros FG. apply nat_trans_eq. apply HE.
+    (* functor_idax *) intros FG. apply nat_trans_eq. apply homset_property.
       intros x; simpl.
       eapply pathscomp0. apply id_right. apply functor_id.
     (* functor_compax *) intros FG1 FG' FG'' αβ αβ'. 
-      apply nat_trans_eq. apply HE. intros x; simpl.
+      apply nat_trans_eq. apply homset_property. intros x; simpl.
       eapply pathscomp0. apply cancel_postcomposition, functor_comp.
       eapply pathscomp0. eapply pathsinv0, assoc.
       eapply pathscomp0. Focus 2. apply assoc. apply maponpaths.
@@ -226,8 +226,8 @@ Section Comp_Functor.
   Defined.
 
   Definition comp_functor 
-    : functor (functor_precategory C D HD × functor_precategory D E HE)
-              (functor_precategory C E HE).
+    : functor (functorPrecategory C D × functorPrecategory D E)
+              (functorPrecategory C E).
   Proof.
     exists comp_functor_data. apply comp_functor_is_functor.
   Defined.

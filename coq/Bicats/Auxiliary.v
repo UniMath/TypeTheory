@@ -30,9 +30,17 @@ Notation Precategory := Precategories.Precategory.
 Coercion Precategories.Precategory_to_precategory
   : Precategories.Precategory >-> precategory.
 Notation homset_property := Precategories.homset_property.
+Notation functorPrecategory := Precategories.functorPrecategory.
 
 Notation "( x , y , .. , z )" := (dirprodpair .. (dirprodpair x y) .. z) : core_scope.
 (** Replaces builtin notation for [pair], since we use [dirprod, dirprodpair] instead of [prod, pair]. *)
+
+Bind Scope precategory_scope with precategory_ob_mor.
+Bind Scope precategory_scope with precategory_data.
+Bind Scope precategory_scope with Precategory.
+Bind Scope precategory_scope with precategory.
+Delimit Scope precategory_scope with precat.
+(** Many scopes, following the many coercions on precategories. *)
 
 (** * Direct products of types.
 
@@ -122,27 +130,39 @@ Definition prod_precategory_data (C D : precategory) : precategory_data.
     exact ((pr1 f ;; pr1 g) , (pr2 f ;; pr2 g)).
 Defined.
 
-Definition prod_precategory (C D : precategory) : precategory.
+Definition prod_precategory_is_precategory (C D : precategory)
+  : is_precategory (prod_precategory_data C D).
 Proof.
-  exists (prod_precategory_data C D).
   split; try split; try split; intros.
   (* id_left *) apply dirprod_paths; simpl; apply id_left.
   (* id_right *) apply dirprod_paths; simpl; apply id_right. 
   (* assoc *) apply dirprod_paths; simpl; apply assoc.
-Defined.
+Qed.
+
+Definition prod_precategory_pre (C D : precategory) : precategory
+  := (_ ,, prod_precategory_is_precategory C D).
+
+Definition prod_precategory_homsets (C D : Precategory)
+  : has_homsets (prod_precategory_data C D).
+Proof.
+  intros x y. apply isaset_dirprod; apply homset_property.
+Qed.
+
+Definition prod_precategory (C D : Precategory) : Precategory
+  := (prod_precategory_pre C D,, prod_precategory_homsets C D).
+
+Arguments prod_precategory (_ _)%precat.
 
 Notation "C × D" := (prod_precategory C D) (at level 75, right associativity) : precategory_scope.
-Open Scope precategory_scope.
-Delimit Scope precategory_scope with precat.
 
-Definition prod_precategory_assoc_data (C0 C1 C2 : precategory)
+Definition prod_precategory_assoc_data (C0 C1 C2 : Precategory)
   : functor_data (C0 × (C1 × C2)) ((C0 × C1) × C2).
 Proof.
   (* functor_on_objects *) exists dirprod_assoc.
   (* functor_on_morphisms *) intros a b; apply dirprod_assoc.
 Defined.
 
-Definition prod_precategory_assoc (C0 C1 C2 : precategory)
+Definition prod_precategory_assoc (C0 C1 C2 : Precategory)
   : functor (C0 × (C1 × C2)) ((C0 × C1) × C2).
 Proof.
   exists (prod_precategory_assoc_data _ _ _). split.
@@ -150,7 +170,7 @@ Proof.
   (* functor_comp *) intros c0 c1 c2 f g. simpl; apply paths_refl.
 Defined.
 
-Definition prod_functor_data {C0 C1 D0 D1 : precategory}
+Definition prod_functor_data {C0 C1 D0 D1 : Precategory}
   (F0 : functor C0 D0) (F1 : functor C1 D1)
 : functor_data (C0 × C1) (D0 × D1).
 Proof.
@@ -159,7 +179,7 @@ Proof.
     apply dirprod_maps; apply functor_on_morphisms.
 Defined.
 
-Definition prod_functor {C0 C1 D0 D1 : precategory}
+Definition prod_functor {C0 C1 D0 D1 : Precategory}
   (F0 : functor C0 D0) (F1 : functor C1 D1)
 : functor (C0 × C1) (D0 × D1).
 Proof.
@@ -169,7 +189,7 @@ Proof.
     apply dirprod_paths; apply functor_comp.
 Defined.
 
-Definition pair_functor_data {C D0 D1 : precategory}
+Definition pair_functor_data {C D0 D1 : Precategory}
   (F0 : functor C D0) (F1 : functor C D1)
 : functor_data C (D0 × D1).
 Proof.
@@ -178,7 +198,7 @@ Proof.
     apply dirprod_pair_maps; apply functor_on_morphisms.
 Defined.
 
-Definition pair_functor {C D0 D1 : precategory}
+Definition pair_functor {C D0 D1 : Precategory}
   (F0 : functor C D0) (F1 : functor C D1)
 : functor C (D0 × D1).
 Proof.
@@ -193,7 +213,6 @@ End Precategory_products.
 (** Redeclare section notations to be available globally. *)
 Notation "C × D" := (prod_precategory C D)
   (at level 75, right associativity) : precategory_scope.
-Open Scope precategory_scope.
 
 (** * Pregroupoids *)
 Section Pregroupoids.
