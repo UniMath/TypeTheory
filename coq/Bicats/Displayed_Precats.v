@@ -83,8 +83,6 @@ Definition mor_disp {C} {D : disp_precat_ob_mor C}
   {x y} (f : x ⇒ y) xx yy
 := pr2 D x y f xx yy : Type. 
 
-(** We define all notations locally for now. *)
-
 Local Notation "xx ⇒[ f ] yy" := (mor_disp f xx yy) (at level 50, yy at next level).
 
 Definition disp_precat_id_comp (C : precategory_data)
@@ -172,3 +170,98 @@ Abort.
 
 End Disp_Precat.
 
+(** Redeclare sectional notations globally. *)
+Notation "xx ⇒[ f ] yy" := (mor_disp f xx yy) (at level 50, yy at next level).
+
+Notation "ff ;; gg" := (comp_disp ff gg)
+  (at level 50, left associativity, format "ff  ;;  gg")
+  : mor_disp_scope.
+Delimit Scope mor_disp_scope with mor_disp.
+Bind Scope mor_disp_scope with mor_disp.
+
+(** * Total category *)
+
+(* Any displayed precategory has a total precategory, with a forgetful functor to the base category. *)
+Section Total_Precat.
+
+Context {C : Precategory} (D : disp_precat C).
+
+Definition total_precat_ob_mor : precategory_ob_mor.
+Proof.
+  exists (Σ x:C, D x).
+  intros xx yy.
+  (* note: we use projections rather than destructing, so that [ xx ⇒ yy ] 
+  can β-reduce without [xx] and [yy] needing to be in whnf *) 
+  exact (Σ (f : pr1 xx ⇒ pr1 yy), pr2 xx ⇒[f] pr2 yy).
+Defined.
+
+Definition total_precat_id_comp : precategory_id_comp (total_precat_ob_mor).
+Proof.
+  apply tpair; simpl.
+  - intros. exists (identity _). apply id_disp.
+  - intros xx yy zz ff gg.
+    exists (pr1 ff ;; pr1 gg).
+    exact (pr2 ff ;; pr2 gg)%mor_disp.
+Defined.
+
+Definition total_precat_data : precategory_data
+  := (total_precat_ob_mor ,, total_precat_id_comp).
+
+(* TODO: make notations [( ,, )] and [ ;; ] different levels?  ;; should bind tighter, perhaps, and ,, looser? *)
+Lemma total_precat_is_precat : is_precategory (total_precat_data).
+Proof.
+  repeat apply tpair; simpl.
+  - intros xx yy ff; cbn.
+    use total2_paths; simpl.
+    apply id_left.
+    eapply pathscomp0.
+      apply maponpaths, id_left_disp.
+  (* Note: [transportbfinv] is from [UniMath.Ktheory.Utilities.
+  We currently can’t import that, due to notation clashes. *)
+    exact (Utilities.transportfbinv _ _ (pr2 ff)).
+  - intros xx yy ff; cbn.
+    use total2_paths; simpl.
+    apply id_right.
+    eapply pathscomp0.
+      apply maponpaths, id_right_disp.
+    exact (Utilities.transportfbinv _ _ (pr2 ff)).
+  - intros xx yy zz ww ff gg hh.
+    use total2_paths; simpl.
+    apply assoc.
+    eapply pathscomp0.
+      apply maponpaths, assoc_disp.
+    exact (Utilities.transportfbinv (fun k => _ ⇒[k] _) _ _).
+Qed.
+
+(* The “pre-pre-category” version, without homsets *)
+Definition total_precat_pre : precategory
+  := (total_precat_data ,, total_precat_is_precat).
+
+Lemma total_precat_has_homsets : has_homsets (total_precat_data).
+Proof.
+  intros xx yy; simpl. apply isaset_total2. apply homset_property.
+  intros; apply homsets_disp.
+Qed.
+
+Definition total_precat : Precategory
+  := (total_precat_pre ,, total_precat_has_homsets).
+
+(** ** Forgetful functor from the total precategory *)
+
+Definition pr1_precat_data : functor_data total_precat C.
+Proof.
+  exists pr1.
+  intros a b; exact pr1.
+Defined.
+
+Lemma pr1_precat_is_functor : is_functor pr1_precat_data.
+Proof.
+  apply tpair.
+  - intros x; apply idpath.
+  - intros x y z f g; apply idpath.
+Qed.  
+
+Definition pr1_precat : functor total_precat C
+  := (pr1_precat_data ,, pr1_precat_is_functor).
+
+End Total_Precat.
