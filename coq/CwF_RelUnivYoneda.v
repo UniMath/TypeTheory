@@ -162,33 +162,11 @@ Proof.
                     nat_trans (yoneda_ob_functor_data C hsC (comp_ext (Ty,,pr1 deprTmp) Γ A)) (pr1 (pr2 deprTmp) ))).
      apply XR.
    simpl. 
+  eapply weqcomp. use weqtotal2dirprodcomm. simpl.
+  eapply weqcomp; apply weqtotal2asstor. (* this looks like magic *)
+Defined.
 
 
-  eapply weqcomp. Focus 2.
-  eapply weqfibtototal. intro Tm. 
-
-
-  eapply weqcomp. Focus 2.
-    set (XR := @weqtotal2asstor  (Σ Tm : functor (opp_precat_data C) hset_precategory_data,
-           nat_trans Tm Ty)  ). 
-    unfold comp_data.
-    specialize (XR (fun Tmp =>
-               ∀ Γ : C, (u ( (Ty,, pr1 Tmp),, pr2 Tmp : mor_of_presheaves)) Γ
-                    → Σ ΓA : C, ΓA ⇒ Γ)).
-
- 
-    specialize (XR (fun x =>  ∀ Γ : C, ((u (Ty,, x,,p0) : functor _ _ ) Γ : hSet) → Σ ΓA : C, ΓA ⇒ Γ)).
-        simpl in XR.
-    specialize (XR (fun Tmpdepr =>  ∀ (Γ : C^op) (A : (u (Ty,, pr1 Tmpdepr) : functor _ _ ) Γ : hSet),
-                                      Yo (pr1 (pr2 Tmpdepr Γ A)) ⇒ tu (Ty,, pr1 Tmpdepr))).
-    apply XR. simpl.
-    
-    use weqbandf.
-    -  apply weqdirprodcomm.
-    - intro. apply idweq.
-Defined.    
-*)  
-  
 Definition foobar : CwF' ≃ iCwF.
 Proof.
   unfold iCwF.  
@@ -210,13 +188,18 @@ Proof.
     intro. 
     destruct x as [Tydepr [Tm [p Q]]].
     destruct Tydepr as [Ty depr].
-admit.
-Admitted.
-(*
+
     simple refine (idweq _ ).
 Defined.  
-*)
 
+
+Lemma wtf:
+ ∀ x : arrow (preShv C),
+   comp x ≃ fcomprehension C (preShv C) Yo (target x) (source x) x.
+Proof.
+  intro x.
+  admit.
+Admitted.
 
 Definition foobarla : iCwF ≃ CwF.
 Proof.
@@ -224,8 +207,8 @@ Proof.
   unfold CwF. unfold relative_universe_structure.
   unfold mor_of_presheaves.
   apply weqfibtototal.
-  
-Abort.
+  apply wtf.
+Defined.   
 
 End fix_category.
 

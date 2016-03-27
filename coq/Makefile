@@ -23,7 +23,8 @@ MODULES-CORE := Auxiliary UnicodeNotations \
 	CwF_to_TypeCat_to_DM \
 	RelUnivStructure \
 	CwF_1 \
-	CwF_SplitTypeCat_Equivalence
+	CwF_SplitTypeCat_Equivalence \
+	CwF_RelUnivYoneda
 
 
 # Remaining modules, included only in “make all”.

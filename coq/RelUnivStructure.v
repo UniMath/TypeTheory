@@ -23,7 +23,7 @@ Variable J : functor C D.
 
 Section fix_a_morphism.
 
-Variables tU U : D.
+Variables U tU : D.
 Variable pp : D ⟦tU, U⟧.
 
 Definition fpullback_data {X : C} (f : D ⟦J X, U⟧) : UU 
@@ -130,16 +130,17 @@ End fix_a_morphism.
 
 (** to upstream *)
 Definition arrow (E : precategory) : UU
-  := Σ (ab : E × E), E⟦pr1 ab, pr2 ab⟧.
-Definition source {E} (X : arrow E) : E := pr1 (pr1 X).
-Definition target {E} (X : arrow E) : E := pr2 (pr1 X).
+  := Σ (ab : E × E), E⟦pr2 ab, pr1 ab⟧.
+Definition source {E} (X : arrow E) : E := pr2 (pr1 X).
+Definition target {E} (X : arrow E) : E := pr1 (pr1 X).
 Definition morphism_from_arrow {E} (X : arrow E)
   : E⟦source X, target X⟧
   := pr2 X.
 Coercion morphism_from_arrow : arrow >-> precategory_morphisms.
 
 Definition relative_universe_structure : UU :=
-  Σ X : arrow D, fcomprehension (source X) (target X) X.
+  Σ X : arrow D, fcomprehension (target X) (source X)
+      (morphism_from_arrow X).
 
 
 End fix_some_stuff.
@@ -195,8 +196,8 @@ Definition rel_univ_struct_functor : relative_universe_structure _ _ J'.
 Proof.
   mkpair.
   mkpair.
-  exists (S tU).
-  exact (S U).
+  exists (S U).
+  exact (S tU).
   apply (#S pp).
   intros X' g.
   set (preimg := Res X').
