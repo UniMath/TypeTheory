@@ -31,26 +31,8 @@ Coercion Precategories.Precategory_to_precategory
   : Precategories.Precategory >-> precategory.
 Notation homset_property := Precategories.homset_property.
 
-Notation "( x , y , .. , z )" := (dirprodpair .. (dirprodpair x y) .. z).
-
-Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
-
-(* TODO: the opposite associativity would seem to fit our current composition conventions better; but for some reason, it doesn’t seem to parse correctly ??
-Notation "( x ; .. ; y ; z )" := (dirprodpair x .. (dirprodpair y z) .. ). *)
-
-(** [transparent assert]: a very useful tactic, taken from Jason Gross and Aruand Spiwack at <https://coq.inria.fr/bugs/show_bug.cgi?id=3551>. 
-
-  Typical usage: you want to construct an instance of a big iterated sigma-type, where later components depend on earlier ones, but the constructions of the earlier components are non-trivial enough that you want to do them interactively, not write them explicitly.
-
-  Older versions of Coq required the earlier components to be broken out as separate lemmas for this.  In current Coq, you can get this out-of-the-box with [ refine (tpair _ _ _)].  However, the resulting proof-term often becomes quite slow to work with.
-
-  Instead, you can do [ transparent assert ( H : whatever_type ). ], then build the component, and then [ exists H. ]  This can be repeated with multiple successively dependent components.
-
-  This gains a *lot* of speed for each early component factored out — better performance both in the current construction itself (since not so many subgoals are being simultaneously updated), and when it is used down the line (since it allows better sharing between repeated occurrences of terms).  On the latter aspect, though, even more speed can sometimes be gained by breaking the asserts out further into standalone lemmas.
-
-  It is often convenient to write the construction first using [ refine ], since this generates all the required field types as you go along, and then afterwards to speed up compilation by breaking fields out using [transparent assert] or as standalone lemmas. *)
-Tactic Notation "transparent" "assert" "(" ident(H) ":" open_constr(type) ")" :=
-  refine (let H := (_ : type) in _).
+Notation "( x , y , .. , z )" := (dirprodpair .. (dirprodpair x y) .. z) : core_scope.
+(** Replaces builtin notation for [pair], since we use [dirprod, dirprodpair] instead of [prod, pair]. *)
 
 (** * Direct products of types.
 
