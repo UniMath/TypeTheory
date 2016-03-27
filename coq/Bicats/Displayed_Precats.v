@@ -379,25 +379,112 @@ End Reindexing.
 
 (** ** Functors into displayed categories *)
 
-(* TODO: define sections of a d.pr. *)
+(** Just like how context morphisms in a CwA can be built up out of terms, similarly, the basic building-block for functors into (total cats of) displayed precategories will be analogous to a term. 
 
-(* TODO: define “lifts of a functor C' —> C into D'”, as sections of the pullback*)
+We call it a _section_ (though we define it intrinsically, not as a section in a (bi)category), since it corresponds to a section of the forgetful functor. *)
 
-(* TODO: define the total functor of a lift. *)
+Section Sections.
 
+Definition section_disp_data {C} (D : disp_precat C) : Type
+  := Σ (Fob : forall x:C, D x),
+       (forall (x y:C) (f:x ⇒ y), Fob x ⇒[f] Fob y).
+
+Definition section_disp_on_objects {C} {D : disp_precat C}
+  (F : section_disp_data D) (x : C)
+:= pr1 F x : D x.
+
+Coercion section_disp_on_objects : section_disp_data >-> Funclass.
+
+Definition section_disp_on_morphisms {C} {D : disp_precat C}
+  (F : section_disp_data D) {x y : C} (f : x ⇒ y)
+:= pr2 F _ _ f : F x ⇒[f] F y.
+
+Notation "## F" := (section_disp_on_morphisms F)
+  (at level 3) : mor_disp_scope.
+
+Definition section_disp_axioms {C} {D : disp_precat C}
+  (F : section_disp_data D) : Type
+:= ((forall x:C, ## F (identity x) = id_disp (F x))
+  × (forall (x y z : C) (f : x ⇒ y) (g : y ⇒ z),
+      ## F (f ;; g)%mor = (## F f) ;; (## F g)))%mor_disp.
+
+Definition section_disp {C} (D : disp_precat C) : Type
+  := total2 (@section_disp_axioms C D).
+
+Definition section_disp_data_from_section_disp {C} {D : disp_precat C}
+  (F : section_disp D) := pr1 F.
+
+Coercion section_disp_data_from_section_disp
+  : section_disp >-> section_disp_data.
+
+Definition section_disp_id {C} {D : disp_precat C} (F : section_disp D)
+  := pr1 (pr2 F).
+
+Definition section_disp_comp {C} {D : disp_precat C} (F : section_disp D)
+  := pr2 (pr2 F).
+
+End Sections.
+
+Notation "## F" := (section_disp_on_morphisms F)
+  (at level 3) : mor_disp_scope.
+
+(** With sections defined, we can now define _lifts_ to a displayed precategory of a functor into the base. *)
+Section Functor_Disp.
+
+Definition functor_disp
+  {C C' : Precategory} (D : disp_precat C) (F : functor C' C) 
+  := section_disp (reindex_disp_precat F D).
+
+Identity Coercion section_from_functor_disp
+  : functor_disp >-> section_disp.
+
+(** Note: perhaps it would be better to define [functor_disp] directly? 
+  Reindexed displayed-precats are a bit confusing to work in, since a term like [id_disp xx] is ambiguous: it can mean both the identity in the original displayed category, or the identity in the reindexing, which is nealry but not quite the same.  This shows up already in the proofs of [total_functor_axioms] below. *)
+
+Definition total_functor_data {C C' : Precategory} {D : disp_precat C}
+  {F : functor C' C} (FF : functor_disp D F)
+  : functor_data C' (total_precat D).
+Proof.
+  exists (fun x => (F x ,, FF x)). 
+  intros x y f. exists (# F f). exact (## FF f)%mor_disp.
+Defined.
+
+Definition total_functor_axioms {C C' : Precategory} {D : disp_precat C}
+  {F : functor C' C} (FF : functor_disp D F)
+  : is_functor (total_functor_data FF).
+Proof.
+  split.
+  - intros x. use total2_paths; simpl.
+    apply functor_id.
+    eapply pathscomp0. apply maponpaths, (section_disp_id FF).
+    cbn.
+    refine (Utilities.transportfbinv (fun (g : F _ ⇒ F _) => _ ⇒[g] _) _ _).
+  - intros x y z f g. use total2_paths; simpl.
+    apply functor_comp.
+    eapply pathscomp0. apply maponpaths, (section_disp_comp FF).
+    cbn.
+    refine (Utilities.transportfbinv (fun (g : F _ ⇒ F _) => _ ⇒[g] _) _ _).
+Qed.
+
+Definition total_functor {C C' : Precategory} {D : disp_precat C}
+  {F : functor C' C} (FF : functor_disp D F)
+  : functor C' (total_precat D)
+:= (_ ,, total_functor_axioms FF).
+
+End Functor_Disp.
 
 (** * Examples 
 
 A typical use for displayed categories is for constructing categories of structured objects, over a given (specific or general) category. We give a few examples here:
 
 - arrow precategories
-- objects with N-actions;
+- objects with N-actions
 
 *)
 
 (** ** The displayed arrow category 
 
-A very fertile example: many others can be obtained from it by pullback. *)
+A very fertile example: many others can be obtained from it by reindexing. *)
 Section Arrow_Disp.
 
 Context (C:Precategory).
