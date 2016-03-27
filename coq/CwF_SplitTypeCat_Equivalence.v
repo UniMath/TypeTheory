@@ -30,7 +30,7 @@ Local Notation "< h , k >" := (PullbackArrow _ _ h k _ ) : pullback_scope.
 Open Scope pullback_scope.
 *)
 
-Local Definition preShv C := [C^op , HSET , pr2 is_category_HSET].
+Definition preShv C := [C^op , HSET , pr2 is_category_HSET].
 
 Section Auxiliary.
 
@@ -78,7 +78,7 @@ Variable hsC : has_homsets C.
 Local Notation "'Yo'" := (yoneda C hsC).
 Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
 
-Local Definition yy {F : preShv C} {c : C} : ((F : functor _ _) c : hSet) ≃ _ ⟦ Yo c, F⟧.
+Definition yy {F : preShv C} {c : C} : ((F : functor _ _) c : hSet) ≃ _ ⟦ Yo c, F⟧.
 Proof.
   apply invweq.
   apply yoneda_weq.
