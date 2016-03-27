@@ -280,15 +280,59 @@ Arguments pr1_precat [C D].
 
 A typical use for displayed categories is for constructing categories of structured objects, over a given (specific or general) category. We give a few examples here:
 
-- objects with N-actions;
-- slice categories (bis)
+- arrow precategories
+  - objects with N-actions;
+  - slice categories (bis)
 
 *)
+
+(** ** The displayed arrow category 
+
+A very fertile example: many others can be obtained from it by pullback. *)
+Section Arrow_Disp.
+
+Context (C:Precategory).
+
+Definition arrow_disp_ob_mor : disp_precat_ob_mor (C × C).
+Proof.
+  exists (fun xy : (C × C) => (pr1 xy) ⇒ (pr2 xy)).
+  simpl; intros xx' yy' ff' g h. 
+    exact (pr1 ff' ;; h = g ;; pr2 ff').
+Defined.
+
+Definition arrow_id_comp : disp_precat_id_comp _ arrow_disp_ob_mor.
+Proof.
+  split.
+  - simpl; intros.
+    eapply pathscomp0. apply id_left. apply pathsinv0, id_right.
+  - simpl; intros x y z f g xx yy zz ff gg.
+    eapply pathscomp0. apply @pathsinv0, assoc.
+    eapply pathscomp0. apply maponpaths, gg.
+    eapply pathscomp0. apply assoc.
+    eapply pathscomp0. eapply (maponpaths (fun f' => f' ;; _)), ff.
+    apply pathsinv0, assoc.
+Qed.
+
+Definition arrow_data : disp_precat_data _
+  := (arrow_disp_ob_mor ,, arrow_id_comp).
+
+Lemma arrow_axioms : disp_precat_axioms (C × C) arrow_data.
+Proof.
+  repeat apply tpair; intros; try apply homset_property.
+  apply isasetaprop, homset_property. 
+Qed.
+
+Definition arrow_disp : disp_precat (C × C)
+  := (arrow_data ,, arrow_axioms).
+
+End Arrow_Disp.
 
 (** ** Objects with N-action
 
 For any category C, “C-objects equipped with an N-action” (or more elementarily, with an endomorphism) form a displayed category over C 
-Section ZAct. *)
+Section ZAct. 
+
+Once we have pullbacks of displayed precategories, this can be obtained as a pullback of the previous example. *)
 
 Section NAction.
 
@@ -326,3 +370,4 @@ Definition NAction_disp : disp_precat C
   := (NAction_data ,, NAction_axioms).
 
 End NAction.
+
