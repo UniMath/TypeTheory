@@ -613,7 +613,7 @@ Definition precat_of_elements {C : Precategory} (P : functor C SET)
 
 End Elements_Disp.
 
-(* TODOs:
+(** TODOs:
 
 - add definitions of fibrations/isofibrations
 - add lemmas connecting with products of precats (as required for displayed bicats)

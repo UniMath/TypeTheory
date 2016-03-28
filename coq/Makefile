@@ -14,6 +14,7 @@ MODULES-CORE := Auxiliary UnicodeNotations \
 	Bicats/Auxiliary \
 	Bicats/Bicats \
 	Bicats/Displayed_Precats \
+	Bicats/Displayed_Bicats \
 	CwF \
 	TypeCat \
         CwF_to_TypeCat \

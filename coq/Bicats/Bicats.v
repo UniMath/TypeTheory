@@ -29,9 +29,9 @@ Section Bicategory_definition.
 
 (** The definition of a prebicategory is split up into four stages, each comprising 2 or 3 components.  Most of these components are themselves precategories, functors, or natural transformations.  In rough overview, the groups/components are:
 
-- [precategory_obmor]
+- [prebicategory_obmor]
   - [ob_bicat : Type];
-  - [hom1 : forall (X Y : ob_bicat), prebicategory];
+  - [hom1 : forall (X Y : ob_bicat), precategory];
 - [prebicategory_idcomp]
   - [identity1 : forall X, hom1 X X];
   - [compose1 : forall {X Y Z}, functor (hom1 X Y × hom1 Y Z) (hom1 X Z)];
@@ -39,9 +39,9 @@ Section Bicategory_definition.
   - [assoc_bicat : ](associativity natural transformation for [compose1])
   - [id_left_bicat : ](left unitor natural transformation)
   - [id_right_bicat : ](right unitor natural transformation)
-- [prebicategory_axioms]
-  - [pentagon_bicat : ] (pentagon axiom for [assoc_bicat])
-  - [triangle_bicat : ] ([id_left_bicat] and [id_right_bicat] agree on [identity1])
+- [prebicategory_coherence_axioms]
+  - [pentagon_bicat : ](pentagon axiom for [assoc_bicat])
+  - [triangle_bicat : ]([id_left_bicat] and [id_right_bicat] agree on [identity1])
 
 Within each group apart from [obmor], the components are independent.
 
@@ -420,3 +420,10 @@ Definition LocallyDiscretePreBicat : prebicategory.
 Defined.
 
 End Loc_discrete_prebicat. 
+
+(** TODOs:
+
+- consider removing [pre] from most of the component/group names (since they are components of bicats just as much as of prebicats, and _prebicategory_ is a bit of a mouthful);
+- add definition of (non-pre) bicats!
+- naming: [obmor] vs [ob_mor] etc? (here and elsewhere)
+*)
