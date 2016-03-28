@@ -8,7 +8,7 @@ In a little more detail: if [D] is a displayed precategory over [C], then [D] ha
 Two major motivations for displayed categories:
 
 - Pragmatically, they give a convenient tool for building categories of “structured objects”, and functors into such categories, encapsulating a lot of frequently-used contstructions.
-- More conceptually, they give a setting for developing things like Grothendieck fibrations and isofibrations without mentioning equality of objects.
+- More conceptually, they give a setting for defining Grothendieck fibrations and isofibrations without mentioning equality of objects.
 
 ** Contents:
 
@@ -16,10 +16,11 @@ Two major motivations for displayed categories:
 - Total precategories (and their forgetful functors)
   - [total_precat D]
   - [pr1_functor]
+- Examples
+
 *)
 
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-
 Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -175,7 +176,7 @@ Definition homsets_disp {C} {D :disp_precat C} {x y} {f} {xx : D x} {yy : D y}
 (** ** Some utility lemmas *)
 Section Lemmas.
 
-(** TODO: prove this lemma!  Probably not often needed, but would be nice to know. *)
+(** TODO: prove this lemma!  Probably not needed, but would be nice to know. *)
 Lemma isaprop_disp_precat_axioms (C : Precategory) (D : disp_precat_data C)
   : isaprop (disp_precat_axioms C D).
 Abort.
@@ -479,6 +480,7 @@ A typical use for displayed categories is for constructing categories of structu
 
 - arrow precategories
 - objects with N-actions
+- elements, over hSet
 
 *)
 
@@ -567,3 +569,47 @@ Definition NAction_disp : disp_precat C
 
 End NAction.
 
+(** ** Elements of sets
+
+A presheaf on a (pre)category can be viewed as a fibrewise discrete displayed (pre)category. In fact, the universal example of this is the case corresponding to the identity functor on [SET].  So, having given the displayed category for this case, one obtains it for arbitrary presheaves by reindexing. *)
+
+(* TODO: move? ponder? *)
+Local Notation SET := Precategories.SET.
+
+Section Elements_Disp.
+
+Definition elements_ob_mor : disp_precat_ob_mor SET.
+Proof.
+  use tpair.
+  - simpl. exact (fun X => X).
+  - simpl. intros X Y f x y. exact (f x = y).
+Defined.
+
+Lemma elements_id_comp : disp_precat_id_comp SET elements_ob_mor.
+Proof.
+  apply tpair; simpl.
+  - intros X x. apply idpath.
+  - intros X Y Z f g x y z e_fx_y e_gy_z. cbn.
+    eapply pathscomp0. apply maponpaths, e_fx_y. apply e_gy_z.
+Qed.
+
+Definition elements_data : disp_precat_data SET
+  := (_ ,, elements_id_comp).
+
+Lemma elements_axioms : disp_precat_axioms SET elements_data.
+Proof.
+  repeat split; intros; try apply setproperty.
+  apply isasetaprop; apply setproperty.
+Qed.
+
+Definition elements_universal : disp_precat SET
+  := (_ ,, elements_axioms).
+
+Definition disp_precat_of_elements {C : Precategory} (P : functor C SET)
+  := reindex_disp_precat P elements_universal.
+
+(* TODO: compare to other definitions of this in the library! *)
+Definition precat_of_elements {C : Precategory} (P : functor C SET)
+  := total_precat (disp_precat_of_elements P).
+
+End Elements_Disp.
