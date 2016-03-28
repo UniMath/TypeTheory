@@ -20,10 +20,9 @@ Two major motivations for displayed categories:
 
 *)
 
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Require UniMath.Ktheory.Utilities.
 
@@ -613,3 +612,11 @@ Definition precat_of_elements {C : Precategory} (P : functor C SET)
   := total_precat (disp_precat_of_elements P).
 
 End Elements_Disp.
+
+(* TODOs:
+
+- add definitions of fibrations/isofibrations
+- add lemmas connecting with products of precats (as required for displayed bicats)
+- add more applications of the displayed arrow category: slices; equalisers, inserters; hence groups etc.
+
+*)
