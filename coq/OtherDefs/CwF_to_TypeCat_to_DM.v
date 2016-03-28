@@ -14,13 +14,13 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
-Require Import Systems.TypeCat.
-Require Import Systems.CwF.
-Require Import Systems.TypeCat.
+Require Import Systems.OtherDefs.TypeCat.
+Require Import Systems.OtherDefs.CwF.
+Require Import Systems.OtherDefs.TypeCat.
 Require Import Systems.DM.
-Require Import Systems.CwF_to_TypeCat.
-Require Import Systems.CwF_to_DM.
-Require Import Systems.TypeCat_to_DM.
+Require Import Systems.OtherDefs.CwF_to_TypeCat.
+Require Import Systems.OtherDefs.CwF_to_DM.
+Require Import Systems.OtherDefs.TypeCat_to_DM.
 
 
 Section compare_maps.

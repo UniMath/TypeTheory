@@ -15,25 +15,25 @@ MODULES-CORE := Auxiliary UnicodeNotations \
 	Bicats/Bicats \
 	Bicats/Displayed_Precats \
 	Bicats/Displayed_Bicats \
-	CwF \
-	TypeCat \
-        CwF_to_TypeCat \
-	TypeCat_to_CwF \
+	OtherDefs/CwF \
+	OtherDefs/TypeCat \
+        OtherDefs/CwF_to_TypeCat \
+	OtherDefs/TypeCat_to_CwF \
 	DM \
-	DM_to_TypeCat \
-	CwF_to_DM \
-	TypeCat_to_DM \
-	CwF_to_TypeCat_to_DM \
+	OtherDefs/DM_to_TypeCat \
+	OtherDefs/CwF_to_DM \
+	OtherDefs/TypeCat_to_DM \
+	OtherDefs/CwF_to_TypeCat_to_DM \
 	RelUnivStructure \
-	CwF_1 \
+	OtherDefs/CwF_1 \
 	CwF_SplitTypeCat_Equivalence
 
 
 # Remaining modules, included only in “make all”.
 # Useful for leaves that are slow to recompile.
 MODULES-EXTRA := \
-	CwF_completion \
-	DM_to_TypeCat_to_DM \
+	OtherDefs/CwF_completion \
+	OtherDefs/DM_to_TypeCat_to_DM \
 
 VS-CORE  := $(MODULES-CORE:%=%.v)
 VS-EXTRA := $(MODULES-EXTRA:%=%.v)

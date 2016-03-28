@@ -13,7 +13,7 @@ Require Import UniMath.CategoryTheory.total2_paths.
 
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
-Require Import Systems.TypeCat.
+Require Import Systems.OtherDefs.TypeCat.
 Require Import Systems.DM.
 
 
