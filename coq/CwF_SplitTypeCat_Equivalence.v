@@ -30,19 +30,19 @@ Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _
 
 Section compatible_structures.
 
-Context (X : type_structure C).
-Local Notation "Γ ◂ A" := (comp_ext Γ A) (at level 30).
+Context (X : obj_ext_structure C).
+Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 Local Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).
 
 Definition compatible_scomp_families (Y : families_structure hsC X)
-         (Z : split_comprehension_structure X) : UU
+         (Z : qq_morphism_structure X) : UU
   := ∀ Γ Γ' A (f : C⟦Γ', Γ⟧) , Q Y A[f] = #(yoneda _ hsC) (qq Z f A) ;; Q Y A.
 
-Definition compatible_fam_structure (Z : split_comprehension_structure X) : UU
+Definition compatible_fam_structure (Z : qq_morphism_structure X) : UU
   := Σ Y : families_structure hsC X, compatible_scomp_families Y Z.
 
-Definition compatible_split_comprehension_structure (Y : families_structure hsC X) : UU
-  := Σ Z : split_comprehension_structure X, compatible_scomp_families Y Z.
+Definition compatible_qq_morphism_structure (Y : families_structure hsC X) : UU
+  := Σ Z : qq_morphism_structure X, compatible_scomp_families Y Z.
 
 
 
@@ -51,8 +51,8 @@ Definition compatible_split_comprehension_structure (Y : families_structure hsC 
 
 Section compatible_fam_structure_from_comp.
 
-Variable Z : comprehension_structure X.
-Variable ZZ : is_split_comprehension_structure Z.
+Variable Z : qq_morphism_data X.
+Variable ZZ : qq_morphism_axioms Z.
 
 Definition tm_carrier (Γ : C) : UU :=
   Σ A : (TY X : functor _ _ ) Γ : hSet,
@@ -93,7 +93,7 @@ Qed.
 Lemma section_eq_from_tm_functor_eq {Γ} (t t' : (tm_functor_data Γ : hSet)) 
   (e : t = t')
   : pr1 (pr2 t)
-      ;; idtoiso (maponpaths (@comp_ext _ X Γ) (type_eq_from_tm_functor_eq e))
+      ;; idtoiso (maponpaths (comp_ext X Γ) (type_eq_from_tm_functor_eq e))
     = pr1 (pr2 t').
 Proof.
   destruct e; simpl.
@@ -105,7 +105,7 @@ Qed.
 
 Lemma tm_functor_eq {Γ} (t t' : (tm_functor_data Γ : hSet)) 
   (eA : pr1 t = pr1 t')
-  (es : (pr1 (pr2 t)) ;; idtoiso (maponpaths (@comp_ext _ X Γ) eA) = (pr1 (pr2 t')))
+  (es : (pr1 (pr2 t)) ;; idtoiso (maponpaths (comp_ext X Γ) eA) = (pr1 (pr2 t')))
   : t = t'.
 Proof.
   destruct t as [A [s e]], t' as [A' [s' e']]; simpl in *.
@@ -175,7 +175,7 @@ Proof.
           apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
         + repeat rewrite <- assoc.
           etrans. apply maponpaths. rewrite assoc.
-            apply @pathsinv0, split_comprehension_structure_comp_general, ZZ.
+            apply @pathsinv0, qq_morphism_structure_comp_general, ZZ.
           etrans. apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
           etrans. apply @pathsinv0, assoc.
           apply (maponpaths (fun h => g ;; h)).
@@ -462,7 +462,7 @@ Proof.
           - apply pp_from_comp.
           - intros. apply Q_from_comp.
         } 
-    + unfold families_prop_structure.
+    + unfold families_structure_axioms.
       intros.
       exists (Q_from_comp_commutes _ _ ).
       apply isPullback_Q_from_comp_commutes.
@@ -489,8 +489,8 @@ Arguments tm_on_mor : simpl never.
 
 Section canonical_TM.
 
-Variable Z : comprehension_structure X.
-Variable ZZ : is_split_comprehension_structure Z.
+Variable Z : qq_morphism_data X.
+Variable ZZ : qq_morphism_axioms Z.
 Variable Y : compatible_fam_structure (Z,,ZZ).
 
 Lemma is_nat_trans_foo : 
@@ -578,7 +578,7 @@ Proof.
       etrans ; [ apply functor_comp |];
       etrans ; [ apply cancel_postcomposition ;
          apply( homotweqinvweq (weqpair _
-           (yoneda_fully_faithful _ hsC Γ (@comp_ext _ X Γ ps) ))) | ];
+           (yoneda_fully_faithful _ hsC Γ (comp_ext X Γ ps) ))) | ];
       simpl;
       match goal with |[ |- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => 
                        set (XR3:=HH) end;
@@ -619,7 +619,7 @@ Proof.
     simpl. 
     cbn. unfold yoneda_morphisms_data.  
     etrans. apply maponpaths. apply maponpaths. apply id_left.
-    assert (XR := ! Q_pp (pr1 Y) _ A).
+    assert (XR := ! Q_pp (pr1 Y) A).
     assert (XR1 := nat_trans_eq_pointwise XR Γ).
     assert (XR2 := toforallpaths _ _ _ XR1 s).
     simpl in XR2.
@@ -647,7 +647,7 @@ Proof.
     match goal with |[|- PullbackArrow ?HH _ _ _ ?PP ;; _ = _ ] =>
             set (XR:= HH); generalize PP end.
     intro ee.
-    use (MorphismsIntoPullbackEqual (isPullback_Q_pp (pr1 Y) _ _ )).
+    use (MorphismsIntoPullbackEqual (isPullback_Q_pp (pr1 Y) _ )).
     + etrans. apply (!assoc _ _ _ _ _ _ _ _ ).
       etrans. apply maponpaths. apply (!functor_comp _ _ _ _ _ _ ).
       etrans. apply maponpaths. apply maponpaths.
@@ -692,8 +692,8 @@ Defined.
 
 End canonical_TM.
 
-Lemma unique (Z : comprehension_structure X)
-             (ZZ : is_split_comprehension_structure Z)
+Lemma unique (Z : qq_morphism_data X)
+             (ZZ : qq_morphism_axioms Z)
              (Y : compatible_fam_structure (Z,,ZZ))
   : comp_fam_structure_from_comp Z ZZ = Y.
 Proof.
@@ -706,7 +706,7 @@ Proof.
   }
   destruct Y as [Y YH]. simpl.
   apply subtypeEquality.
-  { intro. apply isaprop_families_prop_structure. }
+  { intro. apply isaprop_families_structure_axioms. }
   simpl.
   destruct Y as [Y YH']. simpl.
   use total2_paths.
@@ -877,7 +877,7 @@ Qed.
 
 End qq_from_fam.
 
-Definition comp_from_fam : comprehension_structure X.
+Definition comp_from_fam : qq_morphism_data X.
 Proof.
   mkpair.
   - intros. apply qq_fam.
@@ -887,7 +887,7 @@ Proof.
 Defined.
 
 
-Lemma is_split_comp_from_fam : is_split_comprehension_structure comp_from_fam.
+Lemma is_split_comp_from_fam : qq_morphism_axioms comp_from_fam.
 Proof.
   split.
   - intros Γ A. simpl.
@@ -932,7 +932,7 @@ Proof.
 Qed.
 
 Definition split_comp_structure_from_fam
-  : split_comprehension_structure X.
+  : qq_morphism_structure X.
 Proof.
   exists comp_from_fam.
   apply is_split_comp_from_fam.
@@ -954,7 +954,7 @@ End compatible_comp_structure_from_fam.
 
 
 (* needs splitness? *)
-Lemma iscontr_compatible_fam_structure (Z : comprehension_structure X) (ZZ : is_split_comprehension_structure Z)
+Lemma iscontr_compatible_fam_structure (Z : qq_morphism_data X) (ZZ : qq_morphism_axioms Z)
 : iscontr (compatible_fam_structure (Z,,ZZ)).
 Proof.
   exists (comp_fam_structure_from_comp Z ZZ).
@@ -963,7 +963,7 @@ Proof.
 Defined.
 
 Lemma compat_split_comp_eq Y:
-∀ t : compatible_split_comprehension_structure Y,
+∀ t : compatible_qq_morphism_structure Y,
    t =
    (comp_from_fam Y,,
    is_split_comp_from_fam Y),, comp_from_fam_compatible_scomp_families Y.
@@ -973,7 +973,7 @@ Proof.
     { 
       intro.
 (*      apply isofhleveldirprod. *)
-      (*- apply isaprop_is_split_comprehension_structure.*)
+      (*- apply isaprop_qq_morphism_axioms.*)
       - do 4 (apply impred; intro).
         apply functor_category_has_homsets. 
     }
@@ -981,7 +981,7 @@ Proof.
     apply subtypeEquality.
     { 
       intro.
-      apply @isaprop_is_split_comprehension_structure, hsC.
+      apply @isaprop_qq_morphism_axioms, hsC.
     }
     apply subtypeEquality.
     {
@@ -1017,7 +1017,7 @@ Qed.
   
 
 Lemma iscontr_compatible_split_comp_structure (Y : families_structure hsC X)
-: iscontr (compatible_split_comprehension_structure Y).
+: iscontr (compatible_qq_morphism_structure Y).
 Proof.
   mkpair.
   - mkpair.
@@ -1035,31 +1035,31 @@ Print Assumptions iscontr_compatible_fam_structure.
 
 Section equivalence.
 
-Variable X : type_structure C.
+Variable X : obj_ext_structure C.
 
 Definition T1 : UU :=
   Σ Y : families_structure hsC X,
-        compatible_split_comprehension_structure _ Y.
+        compatible_qq_morphism_structure _ Y.
 
 Definition T2 : UU :=
-  Σ Z : split_comprehension_structure X,
+  Σ Z : qq_morphism_structure X,
         compatible_fam_structure _ Z.
 
 Definition shuffle : T1 ≃ T2.
 Proof.
   eapply weqcomp.
   unfold T1.
-  unfold compatible_split_comprehension_structure.
+  unfold compatible_qq_morphism_structure.
   set (XR := @weqtotal2asstol).
   specialize (XR (families_structure hsC X)).
-  specialize (XR (fun _ => split_comprehension_structure X)).
+  specialize (XR (fun _ => qq_morphism_structure X)).
   simpl in XR.
   specialize (XR (fun YZ => compatible_scomp_families _ (pr1 YZ) (pr2 YZ))).
   apply XR.
   eapply weqcomp. Focus 2.
   unfold T2. unfold compatible_fam_structure.
   set (XR := @weqtotal2asstor).
-  specialize (XR (split_comprehension_structure X)).
+  specialize (XR (qq_morphism_structure X)).
   specialize (XR (fun _ => families_structure hsC X)).
   simpl in XR.
   specialize (XR (fun YZ => compatible_scomp_families _ (pr2 YZ) (pr1 YZ))).
@@ -1071,7 +1071,7 @@ Proof.
 Defined.
 
 Definition forget_fam :
-  T2 ≃ split_comprehension_structure X.
+  T2 ≃ qq_morphism_structure X.
 Proof.
   exists pr1.
   apply isweqpr1.
@@ -1088,7 +1088,7 @@ Proof.
   apply iscontr_compatible_split_comp_structure.
 Defined.
 
-Definition result : families_structure hsC X ≃ split_comprehension_structure X.
+Definition result : families_structure hsC X ≃ qq_morphism_structure X.
 Proof.
   eapply weqcomp.
   eapply invweq.

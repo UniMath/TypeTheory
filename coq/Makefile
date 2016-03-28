@@ -16,8 +16,8 @@ MODULES-CORE := \
 	RelUnivStructure \
 	DM \
 	Structures \
-	CwF_SplitTypeCat_Equivalence \
 	CwF_RelUnivYoneda \
+	CwF_SplitTypeCat_Equivalence \
 	Bicats/Auxiliary \
 	Bicats/Bicats \
 	Bicats/Displayed_Precats \

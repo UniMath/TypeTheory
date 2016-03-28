@@ -17,6 +17,7 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.limits.
 Require Import UniMath.CategoryTheory.category_hset.
+Require Import UniMath.CategoryTheory.yoneda.
 
 Require Import Systems.UnicodeNotations.
 
@@ -26,8 +27,7 @@ Notation "ff ;; gg" := (compose ff gg)
   : mor_scope.
 Delimit Scope mor_scope with mor.
 Bind Scope mor_scope with precategory_morphisms.
-
-Definition preShv C := functor_precategory C^op HSET (pr2 is_category_HSET).
+Open Scope mor_scope.
 
 (** * Lemmas about identity etc *)
 
@@ -106,8 +106,28 @@ Defined.
 
 
 
-(** * Lemmas about (pre)categories *)
-(** Lemmas about pullbacks more specifically are collected below *)
+(** * Lemmas/definitions on (pre)categories *)
+
+Definition preShv C := functor_precategory C^op HSET (pr2 is_category_HSET).
+
+(* TODO: perhaps rename e.g. [yoneda_eq]? *)
+Definition yy {C : precategory} {hsC : has_homsets C}
+  {F : preShv C} {c : C} : ((F : functor _ _) c : hSet) ≃ _ ⟦ yoneda _ hsC c, F⟧.
+Proof.
+  apply invweq.
+  apply yoneda_weq.
+Defined.
+
+Arguments yy {_ _ _ _}.
+
+Lemma yy_natural {C : precategory} {hsC : has_homsets C}
+  (F : preShv C) (c : C) (A : (F:functor _ _) c : hSet) 
+                  c' (f : C⟦c', c⟧) :
+        yy (# (F : functor _ _) f A) = # (yoneda _ hsC) f ;; yy A.
+Proof.
+  assert (XTT := is_natural_yoneda_iso_inv _ hsC F _ _ f).
+  apply (toforallpaths _ _ _ XTT).
+Qed.
 
 Lemma idtoiso_concat_pr (C : precategory) (a a' a'' : ob C)
   (p : a = a') (q : a' = a'') :
@@ -142,7 +162,7 @@ Proof.
 Qed.
 
 
-(** * Lemmas on pullbacks *)
+(** ** Lemmas on pullbacks *)
 
 Section on_pullbacks.
 
@@ -254,7 +274,7 @@ Arguments map_into_Pb_unique {_ _ _ _ _ _ _ _ _} _ _ {_} _ _ _ _   .
 
 Section Pullback_HSET.
 
-(* TODO: move? does this already exist?
+(* TODO: does this already exist?
 
   If we had the standard pullback of hsets defined, this could be maybe better stated as the fact that P is a pullback if the map from P to the standard pullback is an iso. *)
 Lemma isPullback_HSET {P A B C : HSET}

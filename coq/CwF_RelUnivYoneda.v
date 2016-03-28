@@ -12,18 +12,15 @@ Require Import UniMath.CategoryTheory.limits.more_on_pullbacks.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import Systems.RelUnivStructure.
-Require Import Systems.CwF_SplitTypeCat_Equivalence.
-
-Arguments yy {_ _ _ _}.
+Require Import Systems.Structures.
 
 Section fix_category.
 
 Variable C : precategory.
 Variable hsC : has_homsets C.
 
-Local Notation "'Yo'" := (yoneda C hsC).
+Local Notation "'Yo'" := (yoneda _ hsC).
 Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
-
 
 (** a CwF as a relative univ structure on Yo is
     - two presheaves tU, U
@@ -34,7 +31,7 @@ Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _
        - a morphism of presheaves yo(X,f) -> tU
        - such that the square commutes and is a pb square
 
-  The comprehension structure (third point) is a proposition,
+  The q-morphism structure (third point) is a proposition,
   since [preShv C] is a category.
 
 *)
@@ -59,7 +56,7 @@ Local Definition CwF : UU
 *)
 
 Local Definition CwF' : UU
- := Σ (X : type_structure C), families_structure hsC X.
+ := Σ (X : obj_ext_structure C), families_structure hsC X.
 
 
 (** Plan: a reasonable intermediate structure seems to be 
@@ -69,7 +66,7 @@ Local Definition CwF' : UU
 
      We then can show that the second component of that thing
      - is a prop and
-     - is logically equivalent to the comprehension structure
+     - is logically equivalent to the q-morphism structure
        of a CwF 
 
     Alternatively, we can fiddle with interchanging Σ and ∀ and
@@ -117,28 +114,23 @@ Definition comp (X : mor_of_presheaves) : UU
 
 Definition iCwF := Σ (X : mor_of_presheaves), comp X.
 
-
-Arguments comp_ext {_} _ _ _ .
-
-
-
 (** the next lemma might be proved more easily with the specialized lemmas
     [weqtotal2dirprodassoc] and [weqtotal2dirprodassoc']
 *)
 
 Definition foo : 
- (Σ X : type_structure C, families_data_structure hsC X)
+ (Σ X : obj_ext_structure C, families_structure_data hsC X)
    ≃ 
  Σ X : mor_of_presheaves, comp_data X.
 Proof.
   eapply weqcomp.
-    unfold type_structure.
+    unfold obj_ext_structure.
     apply weqtotal2asstor. simpl.
   eapply weqcomp. Focus 2. apply weqtotal2asstol.
   apply weqfibtototal.
   intro Ty.
   eapply weqcomp. apply weqfibtototal. intro depr.
-    set (XR := @weqtotal2asstol). unfold families_data_structure.
+    set (XR := @weqtotal2asstol). unfold families_structure_data.
     specialize (XR (preShv C)
                    (fun x =>  x ⇒ TY (Ty,, depr))). simpl in XR.
     specialize (XR (fun Tmp =>  (∀ (Γ : C^op) (A : (TY (Ty,, depr):functor _ _ ) Γ : hSet), 
@@ -177,13 +169,13 @@ Proof.
     apply XR.
   unfold CwF'. 
   eapply weqcomp.
-    set (XR:= @weqtotal2asstol (type_structure C) (fun X => families_data_structure hsC X) ).
-    specialize (XR (fun XY => families_prop_structure hsC (pr1 XY) (pr2 XY))).
+    set (XR:= @weqtotal2asstol (obj_ext_structure C) (fun X => families_structure_data hsC X) ).
+    specialize (XR (fun XY => families_structure_axioms hsC (pr1 XY) (pr2 XY))).
     apply XR.
   use weqbandf.
   - apply foo.
   - intro x.
-    unfold families_prop_structure.
+    unfold families_structure_axioms.
     unfold comp_prop.
     apply weqonsecfibers.
     intro. 

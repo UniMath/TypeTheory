@@ -16,41 +16,35 @@ Require Export UniMath.CategoryTheory.yoneda.
 Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
 
-
-Section fix_a_category.
+Section Fix_Base_Category.
 
 Context {C : precategory} {hsC : has_homsets C}.
 
-Local Notation "'Yo'" := (yoneda C hsC).
+Local Notation "'Yo'" := (yoneda _ hsC).
 Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
 
-Definition yy {F : preShv C} {c : C} : ((F : functor _ _) c : hSet) ≃ _ ⟦ Yo c, F⟧.
-Proof.
-  apply invweq.
-  apply yoneda_weq.
-Defined.
+(** * Object-extension structures 
 
-Lemma yy_natural (F : preShv C) (c : C) (A : (F:functor _ _) c : hSet) 
-                  c' (f : C⟦c', c⟧) :
-        yy (# (F : functor _ _) f A) = # Yo f ;; yy A.
-Proof.
-  assert (XTT := is_natural_yoneda_iso_inv _ hsC F _ _ f).
-  apply (toforallpaths _ _ _ XTT).
-Qed.
+We start by fixing the common core of families structures and split type-category structures: an _object-extension structure_, a presheaf together with “extension” and “dependent projection” operations.
 
-(** * Type of type structures *)
+Components:
 
-Definition type_structure : UU :=
-  Σ Ty : preShv C,
-        ∀ (Γ : C) (A : (Ty : functor _ _ ) Γ : hSet ), Σ (ΓA : C), C⟦ΓA, Γ⟧.
+- [TY Γ : hSet]
+- [comp_ext X Γ A : C].  Notation: [Γ ◂ A]
+- [π A : Γ ◂ A ⇒  A ⟧ *)
 
-Definition TY (X : type_structure) : preShv _ := pr1 X.
+Definition obj_ext_structure : UU
+  := Σ Ty : preShv C,
+        ∀ (Γ : C) (A : (Ty : functor _ _ ) Γ : hSet ), Σ (ΓA : C), ΓA ⇒ Γ.
 
-Definition comp_ext {X : type_structure} Γ A : C := pr1 (pr2 X Γ A).
-Notation "Γ ◂ A" := (comp_ext Γ A) (at level 30).
-Definition π {X : type_structure} {Γ} A : C ⟦Γ ◂ A, Γ⟧ := pr2 (pr2 X _ A).
+Definition TY (X : obj_ext_structure) : preShv _ := pr1 X.
 
-Lemma idtoiso_π {X : type_structure} (Γ : C) (A A' : (TY X : functor _ _ ) Γ : hSet) (e : A = A')
+Definition comp_ext (X : obj_ext_structure) Γ A : C := pr1 (pr2 X Γ A).
+Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
+
+Definition π {X : obj_ext_structure} {Γ} A : Γ ◂ A ⇒ Γ := pr2 (pr2 X _ A).
+
+Lemma idtoiso_π {X : obj_ext_structure} (Γ : C) (A A' : (TY X : functor _ _ ) Γ : hSet) (e : A = A')
   :
     idtoiso (maponpaths (λ B, Γ ◂ B) e) ;; π _ = π _ .
 Proof.
@@ -58,20 +52,33 @@ Proof.
   apply id_left.
 Qed.
 
-(** * Type of families structures over a type structure *)
+(** The definitions of families structures and split type structures will all be relative to a fixed object-extension structure. *)
 
-Section some_structures.
+Section Fix_Obj_Ext_Structure.
 
-Context {X : type_structure}.
+Context {X : obj_ext_structure}.
 
-(* Notation "A [ f ]" := (# (TY X : functor C^op HSET) f A)(at level 30). *)
+(** * Families structures 
 
-Definition families_data_structure : UU :=
-  Σ Tm : preShv C, _ ⟦ Tm, TY X ⟧ × (∀ Γ (A : (TY X : functor _ _ ) Γ : hSet), _ ⟦Yo (Γ ◂ A) , Tm⟧ ).
+We now define the extra structure, over an object-extension structure, which constitutes a _category with families_ in the sense of Dybjer, as reformulated by Fiore. 
 
-Definition TM (Y : families_data_structure) : preShv C := pr1 Y.
-Definition pp Y : _ ⟦TM Y, TY X⟧ := pr1 (pr2 Y).
-Definition Q Y {Γ} A : _ ⟦ _ , TM Y⟧ := pr2 (pr2 Y) Γ A.
+Components of [Y : families_structure X]:
+
+- [TM Y : preShv C] 
+- [pp Y : TM Y ⇒ TY X]
+- [Q Y A :  Yo (Γ ◂ A) ⇒ TM Y]
+- [Q_pp Y A : #Yo (π A) ;; yy A = Q Y A ;; pp Y]
+- [isPullback_Q_pp Y A : isPullback _ _ _ _ (Q_pp Y A)]
+*)
+
+Definition families_structure_data : UU
+  := Σ Tm : preShv C, 
+        (Tm ⇒ TY X)
+        × (∀ Γ (A : (TY X : functor _ _ ) Γ : hSet), Yo (Γ ◂ A) ⇒ Tm).
+
+Definition TM (Y : families_structure_data) : preShv C := pr1 Y.
+Definition pp Y : TM Y ⇒ TY X := pr1 (pr2 Y).
+Definition Q Y {Γ} A : _ ⇒ TM Y := pr2 (pr2 Y) Γ A.
 
 Lemma idtoiso_Q Y Γ (A A' : (TY X : functor _ _ ) Γ : hSet) (e : A = A') : 
   #Yo (idtoiso (maponpaths (fun B => Γ ◂ B) e )) ;; Q Y A' = Q Y A . 
@@ -81,12 +88,12 @@ Proof.
   apply id_left.
 Defined.
 
-Definition families_prop_structure (Y : families_data_structure) :=
+Definition families_structure_axioms (Y : families_structure_data) :=
   ∀ Γ (A : (TY X : functor _ _ ) Γ : hSet), 
         Σ (e : #Yo (π A) ;; yy A = Q Y A ;; pp Y), isPullback _ _ _ _ e.
 
-Lemma isaprop_families_prop_structure Y
-  : isaprop (families_prop_structure Y).
+Lemma isaprop_families_structure_axioms Y
+  : isaprop (families_structure_axioms Y).
 Proof.
   do 2 (apply impred; intro).
   apply isofhleveltotal2.
@@ -95,77 +102,92 @@ Proof.
 Qed.
 
 Definition families_structure : UU :=
-  Σ Y : families_data_structure, families_prop_structure Y.
+  Σ Y : families_structure_data, families_structure_axioms Y.
 Coercion families_data_from_families (Y : families_structure) : _ := pr1 Y.
 
-Definition Q_pp (Y : families_structure) Γ (A : (TY X : functor _ _ ) Γ : hSet) 
-  : #Yo (π A) ;; yy A = Q Y A ;; pp Y.
-Proof.
-  apply (pr1 (pr2 Y _ _ )).
-Defined.
+Definition Q_pp (Y : families_structure) {Γ} (A : (TY X : functor _ _ ) Γ : hSet) 
+  : #Yo (π A) ;; yy A = Q Y A ;; pp Y
+:= pr1 (pr2 Y _ _ ).
 
-Definition isPullback_Q_pp (Y : families_structure) Γ (A : (TY X : functor _ _ ) Γ : hSet) 
-  : isPullback _ _ _ _ (Q_pp Y _ A ). 
-Proof.
-  apply (pr2 (pr2 Y _ _ )).
-Defined.
+Definition isPullback_Q_pp (Y : families_structure) {Γ} (A : (TY X : functor _ _ ) Γ : hSet)
+  : isPullback _ _ _ _ (Q_pp Y A)
+:= pr2 (pr2 Y _ _ ).
 
-(** * Type of split comprehension structures over a types structure *)
+(** * Split type structures 
 
-Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).
+On the other hand, _cartesian q-structure_ (over an object-extension structure) is what is required to constitute a _split type-category_.
 
-Definition comprehension_structure : UU :=
+These are essentially the _type-categories_ of Andy Pitts, _Categorical Logic_, 2000, Def. 6.3.3
+#(<a href="https://synrc.com/publications/cat/Category%%20Theory/Categorical%%20Logic/Pitts%%20A.M.%%20Categorical%%20Logic.pdf##page=73">link</a>).#
+
+Our terminology follows van den Berg and Garner, _Topological and simplicial models_, Def 2.2.1 #(<a href="http://arxiv.org/abs/1007.4638">arXiv</a>)# 
+in calling this notion a _split_ type-category, and reserving _type-category_ (unqualified) for the weaker version without hSet/splitness assumptions.  We formalise non-split type-categories elsewhere, since they do not extend object-extension structures.
+
+Components of [Z : qq_morphism_structure X]:
+
+- [qq Z f A : Γ' ◂ A[f] ⇒ Γ ◂ A]
+- [qq_π Y f A : π _ ;; f = qq Y f A ;; π A]
+- [qq_π_Pb Y f A : isPullback _ _ _ _ (qq_π Y f A)]
+- [qq_id], [qq_comp]: functoriality for [qq] (not currently given)
+*)
+
+Local Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).
+
+Definition qq_morphism_data : UU :=
   Σ q : ∀ {Γ Γ'} (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet), 
            C ⟦Γ' ◂ A [ f ], Γ ◂ A⟧, 
     (∀ Γ Γ' (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet), 
         Σ e :  π _ ;; f = q f A ;; π _ , isPullback _ _ _ _ e).
 
-Definition qq (Y : comprehension_structure) {Γ Γ'} (f : C ⟦Γ', Γ⟧)
+Definition qq (Y : qq_morphism_data) {Γ Γ'} (f : C ⟦Γ', Γ⟧)
               (A : (TY X:functor _ _ ) Γ : hSet) 
   : C ⟦Γ' ◂ A [ f ], Γ ◂ A⟧
-  := pr1 Y _ _ f A.
+:= pr1 Y _ _ f A.
 
-(* Access function *)
-Lemma qq_π (Y : comprehension_structure) {Γ Γ'} (f : Γ' ⇒ Γ) (A : _ ) : π _ ;; f = qq Y f A ;; π A.
+(* TODO: consider changing the direction of this equality? *)
+Lemma qq_π (Y : qq_morphism_data) {Γ Γ'} (f : Γ' ⇒ Γ) (A : _ ) : π _ ;; f = qq Y f A ;; π A.
 Proof.
   exact (pr1 (pr2 Y _ _ f A)).
 Qed.
 
-(* Access function *)
-Lemma qq_π_Pb (Y : comprehension_structure) {Γ Γ'} (f : Γ' ⇒ Γ) (A : _ ) : isPullback _ _ _ _ (qq_π Y f A).
+Lemma qq_π_Pb (Y : qq_morphism_data) {Γ Γ'} (f : Γ' ⇒ Γ) (A : _ ) : isPullback _ _ _ _ (qq_π Y f A).
 Proof.
   exact (pr2 (pr2 Y _ _ f A)).
 Qed.
 
-Definition idtoiso_qq (Y : comprehension_structure) {Γ Γ'} (f f' : C ⟦Γ', Γ⟧)
+Lemma idtoiso_qq (Y : qq_morphism_data) {Γ Γ'} (f f' : C ⟦Γ', Γ⟧)
               (e : f = f')
               (A : (TY X:functor _ _ ) Γ : hSet) 
-  : idtoiso (maponpaths (comp_ext Γ') (maponpaths (λ k : C⟦Γ', Γ⟧, A [k]) e))
-                ;; qq Y f' A = qq Y f A.
+  : idtoiso (maponpaths (comp_ext _ Γ') (maponpaths (λ k : C⟦Γ', Γ⟧, A [k]) e))
+                ;; qq Y f' A
+  = qq Y f A.
 Proof.
   induction e.
   apply id_left.
 Qed.
 
-Definition pullback_from_comp (Y : comprehension_structure) 
+Definition pullback_from_comp (Y : qq_morphism_data) 
   {Γ Γ'} (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet) : 
         Σ e : π _ ;; f = qq Y f A ;; π _ , isPullback _ _ _ _ e
 := pr2 Y _ _ f A.
 
-Definition is_split_comprehension_structure (Y : comprehension_structure) : UU
+Definition qq_morphism_axioms (Y : qq_morphism_data) : UU
   := 
-    (∀ Γ A, qq Y (identity Γ) A = idtoiso (maponpaths (fun B => Γ ◂ B) 
-                                                      (toforallpaths _ _ _ (functor_id (TY X) _ ) _ )) )
- ×
-   (∀ Γ Γ' Γ'' (f : C⟦Γ', Γ⟧) (g : C ⟦Γ'', Γ'⟧) (A : (TY X:functor _ _ ) Γ : hSet),
-       qq Y (g ;; f) A = idtoiso (maponpaths (fun B => Γ'' ◂ B)
-                                             (toforallpaths _ _ _ (functor_comp (TY X) _ _ _  f g) A))
-                          ;; qq Y g (A [f]) 
-                          ;; qq Y f A).
+    (∀ Γ A,
+    qq Y (identity Γ) A
+    = idtoiso (maponpaths (fun B => Γ ◂ B) 
+                  (toforallpaths _ _ _ (functor_id (TY X) _ ) _ )) )
+  ×
+    (∀ Γ Γ' Γ'' (f : C⟦Γ', Γ⟧) (g : C ⟦Γ'', Γ'⟧) (A : (TY X:functor _ _ ) Γ : hSet),
+    qq Y (g ;; f) A
+    = idtoiso (maponpaths (fun B => Γ'' ◂ B)
+                (toforallpaths _ _ _ (functor_comp (TY X) _ _ _  f g) A))
+      ;; qq Y g (A [f]) 
+      ;; qq Y f A).
 
-Lemma isaprop_is_split_comprehension_structure
-  (Y : comprehension_structure)
-  : isaprop (is_split_comprehension_structure Y).
+Lemma isaprop_qq_morphism_axioms
+  (Y : qq_morphism_data)
+  : isaprop (qq_morphism_axioms Y).
 Proof.
   apply isofhleveldirprod.
   - do 2 (apply impred; intro).
@@ -174,10 +196,9 @@ Proof.
     apply hsC.    
 Qed.
 
-
-(* Since [Ty X] is always an hset, the splitness properties hold with any equality replacing the canonical ones. This is sometimes handy, one may want to opacify the canonical equalities in later proofs. *)
-Lemma split_comprehension_structure_comp_general
-  {Y : comprehension_structure} (Z : is_split_comprehension_structure Y)
+(* Since [Ty X] is always an hset, the splitness properties hold with any path in place of the canonical ones. This is sometimes handy, as one may want to opacify the canonical equalities in examples. *)
+Lemma qq_morphism_structure_comp_general
+  {Y : qq_morphism_data} (Z : qq_morphism_axioms Y)
   {Γ Γ' Γ'' : C}
   {f : C ⟦ Γ', Γ ⟧} {g : C ⟦ Γ'', Γ' ⟧} {A : ((TY X : functor _ _) Γ : hSet)}
   (p : A [g ;; f]
@@ -194,22 +215,22 @@ Proof.
 Qed.
 
 
-Definition split_comprehension_structure : UU
-  := Σ Z : comprehension_structure,
-           is_split_comprehension_structure Z.
+Definition qq_morphism_structure : UU
+  := Σ Z : qq_morphism_data,
+           qq_morphism_axioms Z.
 
-Definition comprehension_from_split_comprehension :
-   split_comprehension_structure -> comprehension_structure := pr1.
-Coercion comprehension_from_split_comprehension :
-   split_comprehension_structure >-> comprehension_structure.
+Definition qq_morphism_data_from_axioms :
+   qq_morphism_structure -> qq_morphism_data := pr1.
+Coercion qq_morphism_data_from_axioms :
+   qq_morphism_structure >-> qq_morphism_data.
 
-End some_structures.
+End Fix_Obj_Ext_Structure.
 
-End fix_a_category.
+End Fix_Base_Category.
 
-Arguments type_structure _ : clear implicits.
-Arguments families_data_structure [_] _ _ : clear implicits.
-Arguments families_prop_structure [_] _ _ _ : clear implicits.
+Arguments obj_ext_structure _ : clear implicits.
+Arguments families_structure_data [_] _ _ : clear implicits.
+Arguments families_structure_axioms [_] _ _ _ : clear implicits.
 Arguments families_structure [_] _ _ : clear implicits.
-Arguments comprehension_structure [_] _ : clear implicits.
-Arguments split_comprehension_structure [_] _ : clear implicits.
+Arguments qq_morphism_data [_] _ : clear implicits.
+Arguments qq_morphism_structure [_] _ : clear implicits.
