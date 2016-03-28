@@ -15,7 +15,14 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.limits.
 
-Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
+Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50) : type_scope.
+
+(** Redeclare this notation, along with a new scope. *)
+Notation "ff ;; gg" := (compose ff gg)
+  (at level 50, left associativity, format "ff  ;;  gg")
+  : mor_scope.
+Delimit Scope mor_scope with mor.
+Bind Scope mor_scope with precategory_morphisms.
 
 (** * Lemmas about identity etc *)
 

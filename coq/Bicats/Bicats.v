@@ -4,7 +4,6 @@ A module for bicategories, based over UniMath’s [CategoryTheory] library.
 
 Contents:
 
-  - Background material
   - Prebicategories
     Main definition: [prebicategory] 
   - Examples
@@ -15,283 +14,14 @@ Contents:
 
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-Require Export UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import Systems.Bicats.Auxiliary.
 
-Require UniMath.Ktheory.Precategories.
-Require Import UniMath.Ktheory.StandardCategories.
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
-
-(** * Background
-
-Auxiliary material needed, not specific to bicategories but not available in the library.
-
-Much of this material could probably be moved upstream to the [CategoryTheory] library and elsewhere. *)
-
-(** ** Notations and tactics *)
-
-(** Unfortunately we can’t [Import Precategories], due to notation clashes. So instead we make local alias notations: *)
-Local Notation Precategory := Precategories.Precategory. 
-Local Coercion Precategories.Precategory_to_precategory
-  : Precategories.Precategory >-> precategory.
-Local Notation homset_property := Precategories.homset_property.
-
-Notation "( x , y , .. , z )" := (dirprodpair .. (dirprodpair x y) .. z).
-
-Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
-
-(* TODO: the opposite associativity would seem to fit our current composition conventions better; but for some reason, it doesn’t seem to parse correctly ??
-Notation "( x ; .. ; y ; z )" := (dirprodpair x .. (dirprodpair y z) .. ). *)
-
-(** [transparent assert]: a very useful tactic, taken from Jason Gross and Aruand Spiwack at <https://coq.inria.fr/bugs/show_bug.cgi?id=3551>. 
-
-  Typical usage: you want to construct an instance of a big iterated sigma-type, where later components depend on earlier ones, but the constructions of the earlier components are non-trivial enough that you want to do them interactively, not write them explicitly.
-
-  Older versions of Coq required the earlier components to be broken out as separate lemmas for this.  In current Coq, you can get this out-of-the-box with [ refine (tpair _ _ _)].  However, the resulting proof-term often becomes quite slow to work with.
-
-  Instead, you can do [ transparent assert ( H : whatever_type ). ], then build the component, and then [ exists H. ]  This can be repeated with multiple successively dependent components.
-
-  This gains a *lot* of speed for each early component factored out — better performance both in the current construction itself (since not so many subgoals are being simultaneously updated), and when it is used down the line (since it allows better sharing between repeated occurrences of terms).  On the latter aspect, though, even more speed can sometimes be gained by breaking the asserts out further into standalone lemmas.
-
-  It is often convenient to write the construction first using [ refine ], since this generates all the required field types as you go along, and then afterwards to speed up compilation by breaking fields out using [transparent assert] or as standalone lemmas. *)
-Tactic Notation "transparent" "assert" "(" ident(H) ":" open_constr(type) ")" :=
-  refine (let H := (_ : type) in _).
-
-(** ** Utility functions on direct products of types.
-
-Lemmas of this subsection are either aliases or mild generalisations of existing functions from the UniMath libraries.  They differ generally in using projections instead of destructing, making them apply and/or reduce in more situations.  The aliases are included just to standardise local naming conventions. *)
-
-Section Dirprod_utils.
-
-(* TODO: check library more thoroughly in case these are already provided. *)
-
-(** Compare [pathsdirprod]. *)
-Definition dirprod_paths {A B : Type} {p q : A × B}
-  : pr1 p = pr1 q -> pr2 p = pr2 q -> p = q.
-Proof.
-  destruct p as [a b], q as [a' b']; apply pathsdirprod.
-Defined.
-
-(** Compare [total2asstol]. *) 
-Definition dirprod_assoc {C0 C1 C2 : Type}
-  : (C0 × (C1 × C2)) -> ((C0 × C1) × C2).
-Proof.
-  intros c. exact ((pr1 c , (pr1 (pr2 c))) , pr2 (pr2 c)). 
-Defined.
-
-(** Identical to [dirprodf]. *)
-Definition dirprod_maps {A0 A1 B0 B1} (f0 : A0 -> B0) (f1 : A1 -> B1)
-  : A0 × A1 -> B0 × B1.
-Proof.
-  intros aa. exact (f0 (pr1 aa), f1 (pr2 aa)).
-Defined.
-
-(** Compare [prodtofuntoprod]. *)
-Definition dirprod_pair_maps {A B0 B1} (f0 : A -> B0) (f1 : A -> B1)
-  : A -> B0 × B1.
-Proof.
-  intros a; exact (f0 a, f1 a).
-Defined.
-
-End Dirprod_utils.
-
-(** ** Products of precategories
-
-Construction of finite products of precategories, including functoriality, associativity, and similar infrastructure. *)
-
-Section Precategory_products.
-
-(* TODO: move this upstream to [CategoryTheory]? *)
-
-Definition unit_precategory : precategory.
-Proof.
-  use tpair. use tpair.
-  (* ob, mor *) exists unit. intros; exact unit.
-  (* identity, comp *) split; intros; constructor.
-  (* id_left *) simpl; split; try split; intros; apply isconnectedunit.
-Defined.
-
-Definition unit_functor C : functor C unit_precategory.
-Proof.
-  use tpair. use tpair.
-  (* functor_on_objects *) intros; exact tt.
-  (* functor_on_morphisms *) intros F a b; apply identity.
-  split.
-  (* functor_id *) intros x; apply paths_refl.
-  (* functor_comp *) intros x y z w v; apply paths_refl.
-Defined.
-
-(* TODO: perhaps generalise to constant functors? *)
-Definition ob_as_functor {C : precategory} (c : C) : functor unit_precategory C.
-Proof.
-  use tpair. use tpair.
-  (* functor_on_objects *) intros; exact c.
-  (* functor_on_morphisms *) intros F a b; apply identity.
-  split.
-  (* functor_id *) intros; constructor.
-  (* functor_comp *) intros x y z w v; simpl. apply pathsinv0, id_left.
-Defined.
-
-Definition prod_precategory_ob_mor (C D : precategory) : precategory_ob_mor.
-  (* ob *) exists (C × D).
-  (* mor *) intros a b. refine (_ × _).
-    exact ((pr1 a) ⇒ (pr1 b)). exact ((pr2 a) ⇒ (pr2 b)).
-Defined.
-
-Definition prod_precategory_data (C D : precategory) : precategory_data.
-  exists (prod_precategory_ob_mor C D); split.
-  (* identity *) split; apply identity.
-  (* comp *) intros a b c f g. 
-    exact ((pr1 f ;; pr1 g) , (pr2 f ;; pr2 g)).
-Defined.
-
-Definition prod_precategory (C D : precategory) : precategory.
-Proof.
-  exists (prod_precategory_data C D).
-  split; try split; try split; intros.
-  (* id_left *) apply dirprod_paths; simpl; apply id_left.
-  (* id_right *) apply dirprod_paths; simpl; apply id_right. 
-  (* assoc *) apply dirprod_paths; simpl; apply assoc.
-Defined.
-
-Notation "C × D" := (prod_precategory C D) (at level 75, right associativity) : precategory_scope.
-Open Scope precategory_scope.
-Delimit Scope precategory_scope with precat.
-
-Definition prod_precategory_assoc_data (C0 C1 C2 : precategory)
-  : functor_data (C0 × (C1 × C2)) ((C0 × C1) × C2).
-Proof.
-  (* functor_on_objects *) exists dirprod_assoc.
-  (* functor_on_morphisms *) intros a b; apply dirprod_assoc.
-Defined.
-
-Definition prod_precategory_assoc (C0 C1 C2 : precategory)
-  : functor (C0 × (C1 × C2)) ((C0 × C1) × C2).
-Proof.
-  exists (prod_precategory_assoc_data _ _ _). split.
-  (* functor_id *) intros c. simpl; apply paths_refl.
-  (* functor_comp *) intros c0 c1 c2 f g. simpl; apply paths_refl.
-Defined.
-
-Definition prod_functor_data {C0 C1 D0 D1 : precategory}
-  (F0 : functor C0 D0) (F1 : functor C1 D1)
-: functor_data (C0 × C1) (D0 × D1).
-Proof.
-  (* functor_on_objects *) exists (dirprod_maps F0 F1).
-  (* functor_on_morphisms *) intros a b.
-    apply dirprod_maps; apply functor_on_morphisms.
-Defined.
-
-Definition prod_functor {C0 C1 D0 D1 : precategory}
-  (F0 : functor C0 D0) (F1 : functor C1 D1)
-: functor (C0 × C1) (D0 × D1).
-Proof.
-  exists (prod_functor_data F0 F1); split.
-  (* functor_id *) intros c. apply dirprod_paths; apply functor_id.
-  (* functor_comp *) intros c0 c1 c2 f g.
-    apply dirprod_paths; apply functor_comp.
-Defined.
-
-Definition pair_functor_data {C D0 D1 : precategory}
-  (F0 : functor C D0) (F1 : functor C D1)
-: functor_data C (D0 × D1).
-Proof.
-  (* functor_on_objects *) exists (dirprod_pair_maps F0 F1).
-  (* functor_on_morphisms *) intros a b.
-    apply dirprod_pair_maps; apply functor_on_morphisms.
-Defined.
-
-Definition pair_functor {C D0 D1 : precategory}
-  (F0 : functor C D0) (F1 : functor C D1)
-: functor C (D0 × D1).
-Proof.
-  exists (pair_functor_data F0 F1); split.
-  (* functor_id *) intros c. apply dirprod_paths; apply functor_id.
-  (* functor_comp *) intros c0 c1 c2 f g.
-    apply dirprod_paths; apply functor_comp.
-Defined.
-
-End Precategory_products.
-
-(** Redeclare section notations to be available globally. *)
-Notation "C × D" := (prod_precategory C D)
-  (at level 75, right associativity) : precategory_scope.
-Open Scope precategory_scope.
-
-(** ** Pregroupoids *)
-Section Pregroupoids.
-(* TODO: search library more thoroughly for any of these! *)
-
-Definition is_pregroupoid (C : precategory)
-  := forall (x y : C) (f : x ⇒ y), is_iso f.
-
-Lemma is_pregroupoid_functor_precat {C D : Precategory}
-  (gr_D : is_pregroupoid D)
-  : is_pregroupoid (Precategories.functorPrecategory C D).
-Proof.
-  intros F G α; apply functor_iso_if_pointwise_iso.
-  intros c; apply gr_D.
-Defined.
-
-End Pregroupoids.
-
-(** ** Discrete precategories on hSets.
-
-In order to construct locally discrete (pre)bicategories below, we need some infrastructure on discrete (pre)categories. *)
-Section Discrete_precats.
-
-Definition discrete_precat (X : hSet) : Precategory.
-Proof.
-  use tpair.
-    apply (path_pregroupoid X).
-    apply hlevelntosn, setproperty.
-  apply Precategories.homset_property.
-Defined.
-
-Lemma is_pregroupoid_path_pregroupoid {X} {H}
-  : is_pregroupoid (path_pregroupoid X H).
-Proof.
-  intros x y f. apply is_iso_qinv with (!f).
-  split. apply pathsinv0r. apply pathsinv0l.
-Defined.
-
-(* TODO: check naming conventions; what should this be called? *)
-Definition fmap_discrete_precat {X Y : hSet} (f : X -> Y)
-  : functor (discrete_precat X) (discrete_precat Y).
-Proof.
-  use tpair.
-  + (* functor_on_objects *) exists f.
-    (* functor_on_morphisms *) intros c d. apply maponpaths.
-  + split.
-    - (* functor_id *) intros x; apply setproperty.
-    - (* functor_comp *) intros x y z w v; apply setproperty.
-Defined.
-
-Definition prod_discrete_precat (X Y : hSet)
-  : functor (discrete_precat X × discrete_precat Y)
-            (discrete_precat (X × Y)%set).
-Proof.
-  use tpair. use tpair.
-  + (* functor_on_objects *) apply id.
-  + (* functor_on_morphisms *)
-    intros a b; simpl. apply uncurry, dirprod_paths.
-  + (* functor_id, functor_comp *) split; intro; intros; apply setproperty.
-Defined.
-
-Definition discrete_precat_nat_trans {C : precategory} {X : hSet}
-  {F G : functor C (discrete_precat X)}
-  : (forall c:C, F c = G c) -> nat_trans F G.
-Proof.
-  intros h. exists h.
-  (* naturality *) intros c d f; apply setproperty.
-Defined.
-
-End Discrete_precats.
-
 
 (** * Prebicategories *)
 
@@ -299,9 +29,9 @@ Section Bicategory_definition.
 
 (** The definition of a prebicategory is split up into four stages, each comprising 2 or 3 components.  Most of these components are themselves precategories, functors, or natural transformations.  In rough overview, the groups/components are:
 
-- [precategory_obmor]
+- [prebicategory_obmor]
   - [ob_bicat : Type];
-  - [hom1 : forall (X Y : ob_bicat), prebicategory];
+  - [hom1 : forall (X Y : ob_bicat), precategory];
 - [prebicategory_idcomp]
   - [identity1 : forall X, hom1 X X];
   - [compose1 : forall {X Y Z}, functor (hom1 X Y × hom1 Y Z) (hom1 X Z)];
@@ -309,9 +39,9 @@ Section Bicategory_definition.
   - [assoc_bicat : ](associativity natural transformation for [compose1])
   - [id_left_bicat : ](left unitor natural transformation)
   - [id_right_bicat : ](right unitor natural transformation)
-- [prebicategory_axioms]
-  - [pentagon_bicat : ] (pentagon axiom for [assoc_bicat])
-  - [triangle_bicat : ] ([id_left_bicat] and [id_right_bicat] agree on [identity1])
+- [prebicategory_coherence_axioms]
+  - [pentagon_bicat : ](pentagon axiom for [assoc_bicat])
+  - [triangle_bicat : ]([id_left_bicat] and [id_right_bicat] agree on [identity1])
 
 Within each group apart from [obmor], the components are independent.
 
@@ -320,7 +50,7 @@ or Tom Leinster, _Basic Bicategories_, 1998, <http://arxiv.org/abs/math/9810017>
 (* TODO: change names to [ob_mor] etc. to fit with precat names? *)
 
 Definition prebicategory_obmor : Type
-  := Σ (ob : Type), (forall (X Y : ob), precategory).
+  := Σ (ob : Type), (forall (X Y : ob), Precategory).
 
 Definition ob_bicat (BB : prebicategory_obmor) := pr1 BB.
 Coercion ob_bicat : prebicategory_obmor >-> Sortclass.
@@ -442,7 +172,7 @@ To form a prebicategory, therefore, we have to restrict to precategories with ho
 Definition PRECAT_ob_mor : prebicategory_obmor.
 Proof.
   (* ob_bicat *) exists Precategory.
-  (* hom1 *) intros C D. exact (functor_precategory C D (homset_property D)).
+  (* hom1 *) intros C D. exact (functorPrecategory C D).
 Defined.
 
 (** Note: the interaction of reduction and coercions causes a slightly irritating issue here.  (The same issue arises with other (bi-)categories of structured objects whose access functions rely on cascading coercions.)
@@ -452,7 +182,7 @@ Defined.
   Three workarounds: annotate it as [  (X : Precategory) ], making the coercions trigger; issue [ simpl in X ] to reduce its type in the context to [ Precategory ]; or write [ pr1 X ], which again pulls [ X ] into a type on which the coercions trigger. *)
 
 Section Comp_Functor.
-  Context (C D E : precategory) (HD : has_homsets D) (HE : has_homsets E).
+  Context (C D E : Precategory).
 
   Definition nat_trans_horiz_comp {F F' : functor C D} {G G' : functor D E}
     (α : nat_trans F F') (β : nat_trans G G')
@@ -471,8 +201,8 @@ Section Comp_Functor.
   Defined.
 
   Definition comp_functor_data : functor_data
-    (functor_precategory C D HD × functor_precategory D E HE)
-    (functor_precategory C E HE).
+    (functorPrecategory C D × functorPrecategory D E)
+    (functorPrecategory C E).
   Proof.
     (* ob *) exists (fun FG => functor_composite _ _ _ (pr1 FG) (pr2 FG)).
     (* mor *) intros FG FG' αβ. exact (nat_trans_horiz_comp (pr1 αβ) (pr2 αβ)).
@@ -481,11 +211,11 @@ Section Comp_Functor.
   Definition comp_functor_is_functor : is_functor comp_functor_data.
   Proof.
     split.
-    (* functor_idax *) intros FG. apply nat_trans_eq. apply HE.
+    (* functor_idax *) intros FG. apply nat_trans_eq. apply homset_property.
       intros x; simpl.
       eapply pathscomp0. apply id_right. apply functor_id.
     (* functor_compax *) intros FG1 FG' FG'' αβ αβ'. 
-      apply nat_trans_eq. apply HE. intros x; simpl.
+      apply nat_trans_eq. apply homset_property. intros x; simpl.
       eapply pathscomp0. apply cancel_postcomposition, functor_comp.
       eapply pathscomp0. eapply pathsinv0, assoc.
       eapply pathscomp0. Focus 2. apply assoc. apply maponpaths.
@@ -496,8 +226,8 @@ Section Comp_Functor.
   Defined.
 
   Definition comp_functor 
-    : functor (functor_precategory C D HD × functor_precategory D E HE)
-              (functor_precategory C E HE).
+    : functor (functorPrecategory C D × functorPrecategory D E)
+              (functorPrecategory C E).
   Proof.
     exists comp_functor_data. apply comp_functor_is_functor.
   Defined.
@@ -690,3 +420,10 @@ Definition LocallyDiscretePreBicat : prebicategory.
 Defined.
 
 End Loc_discrete_prebicat. 
+
+(** TODOs:
+
+- consider removing [pre] from most of the component/group names (since they are components of bicats just as much as of prebicats, and _prebicategory_ is a bit of a mouthful);
+- add definition of (non-pre) bicats!
+- naming: [obmor] vs [ob_mor] etc? (here and elsewhere)
+*)

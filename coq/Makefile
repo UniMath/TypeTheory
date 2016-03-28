@@ -3,7 +3,7 @@
 
 # Quick usage: “make” to build core of library, “make all” to build all files.
 # If you do not have Unimath installed globally, then invoke as e.g.
-# make COQC="~/src/UniMath/sub/coq/bib/coqc"
+# make COQBIN="~/src/UniMath/sub/coq/bin/"
 # (or wherever you keep your UniMath coq).
 
 # Modules to be compiled by default, in plain “make”.
@@ -11,7 +11,10 @@
 MODULES-CORE := Auxiliary UnicodeNotations \
 	Categories/category_of_elements \
 	Categories/category_FAM \
+	Bicats/Auxiliary \
 	Bicats/Bicats \
+	Bicats/Displayed_Precats \
+	Bicats/Displayed_Bicats \
 	CwF \
 	TypeCat \
         CwF_to_TypeCat \
