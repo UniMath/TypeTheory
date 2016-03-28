@@ -23,7 +23,7 @@ Variable J : functor C D.
 
 Section fix_a_morphism.
 
-Variables tU U : D.
+Variables U tU : D.
 Variable pp : D ⟦tU, U⟧.
 
 Definition fpullback_data {X : C} (f : D ⟦J X, U⟧) : UU 
@@ -127,8 +127,20 @@ Qed.
 
 End fix_a_morphism.
 
+
+(** to upstream *)
+Definition arrow (E : precategory) : UU
+  := Σ (ab : E × E), E⟦pr2 ab, pr1 ab⟧.
+Definition source {E} (X : arrow E) : E := pr2 (pr1 X).
+Definition target {E} (X : arrow E) : E := pr1 (pr1 X).
+Definition morphism_from_arrow {E} (X : arrow E)
+  : E⟦source X, target X⟧
+  := pr2 X.
+Coercion morphism_from_arrow : arrow >-> precategory_morphisms.
+
 Definition relative_universe_structure : UU :=
-  Σ (tU U : D) (p : D⟦tU, U⟧), fcomprehension tU U p.
+  Σ X : arrow D, fcomprehension (target X) (source X)
+      (morphism_from_arrow X).
 
 
 End fix_some_stuff.
@@ -171,9 +183,9 @@ Hypothesis Res : essentially_surjective R.
 Hypothesis Sff : fully_faithful S.
 Hypothesis Spb : maps_pb_squares_to_pb_squares _ _ S.
 
-Local Notation tU := (pr1 RUJ).
-Local Notation U := (pr1 (pr2 RUJ)).
-Local Notation pp := (pr1 (pr2 (pr2 RUJ))).
+Local Notation tU := (source (pr1 RUJ)).
+Local Notation U :=  (target (pr1 RUJ)).
+Local Notation pp := (morphism_from_arrow (pr1 RUJ)).
 
 (*
 Let e {X : C} (f : D ⟦J X, U⟧) (* :  #J(fp _ _ _ X) ;; f = fq X ;; pp *)
@@ -182,9 +194,11 @@ Let e {X : C} (f : D ⟦J X, U⟧) (* :  #J(fp _ _ _ X) ;; f = fq X ;; pp *)
 
 Definition rel_univ_struct_functor : relative_universe_structure _ _ J'.
 Proof.
-  exists (S tU).
+  mkpair.
+  mkpair.
   exists (S U).
-  exists (#S pp).
+  exact (S tU).
+  apply (#S pp).
   intros X' g.
   set (preimg := Res X').
   apply (squash_to_prop preimg).
@@ -196,7 +210,7 @@ Proof.
   - intros [X i].
     set (f' := pr1 a X ;; #J' i ;; g : D' ⟦ S (J X), S U ⟧). 
     set (f := invmap (weq_from_fully_faithful Sff _ _ ) f').
-    set (Xf :=  (pr2 (pr2 (pr2 RUJ))) _ f). 
+    set (Xf :=  (pr2 RUJ) _ f). 
     destruct Xf as [H A].
     destruct H as [Xf [p q]].
     destruct A as [e isPb]. cbn in *.
