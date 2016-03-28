@@ -5,8 +5,6 @@
 
 *)
 
-Require Export Systems.Auxiliary.
-Require Export Systems.UnicodeNotations.
 Require Export UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.more_on_pullbacks.
@@ -16,266 +14,35 @@ Require Export UniMath.CategoryTheory.opp_precat.
 Require Export UniMath.CategoryTheory.category_hset.
 Require Export UniMath.CategoryTheory.yoneda.
 
+Require Export Systems.Auxiliary.
+Require Export Systems.UnicodeNotations.
+Require Export Systems.Structures.
 
-
+Open Scope mor_scope.
 Undelimit Scope transport.
-
-
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
-Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
-
-(*
-Local Notation "< h , k >" := (PullbackArrow _ _ h k _ ) : pullback_scope.
-Open Scope pullback_scope.
-*)
-
-Definition preShv C := [C^op , HSET , pr2 is_category_HSET].
-
-Section Auxiliary.
-
-(* TODO: move? is there already a provided easy way to apply the [isaset] of something known to be an hset? *)
-(* Yes, it is called [setproperty] *)
-(*
-Definition pr2hSet (a : hSet) : isaset a := pr2 a.
-*)
-
-(* TODO: move? does this already exist?
-
-  If we had the standard pullback of hsets defined, this could be maybe better stated as the fact that P is a pullback if the map from P to the standard pullback is an iso. *)
-Lemma isPullback_HSET {P A B C : HSET}
-  (p1 : P ⇒ A) (p2 : P ⇒ B) (f : A ⇒ C) (g : B ⇒ C) (ep : p1 ;; f = p2 ;; g) 
-  : (∀ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b)
-  -> isPullback _ _ _ _ ep.
-Proof.
-  intros H X h k ehk.
-  set (H_existence := fun a b e => pr1 (H a b e)).
-  set (H_uniqueness := fun a b e x x' => base_paths _ _ (proofirrelevancecontr (H a b e) x x')).
-  apply iscontraprop1.
-  - apply invproofirrelevance.
-    intros hk hk'.
-    apply subtypeEquality. { intro. apply isapropdirprod; apply setproperty. }
-    destruct hk as [hk [eh ek]], hk' as [hk' [eh' ek']]; simpl.
-    apply funextsec; intro x.
-    refine (H_uniqueness (h x) (k x) _ (_,,_) (_,,_)).
-    apply (toforallpaths _ _ _ ehk).
-    split. apply (toforallpaths _ _ _ eh). apply (toforallpaths _ _ _ ek).
-    split. apply (toforallpaths _ _ _ eh'). apply (toforallpaths _ _ _ ek').
-  - mkpair. 
-    + intros x. refine (pr1 (H_existence (h x) (k x) _)). apply (toforallpaths _ _ _ ehk).
-    + simpl.
-      split; apply funextsec; intro x.
-      apply (pr1 (pr2 (H_existence _ _ _))). apply (pr2 (pr2 (H_existence _ _ _))).
-Qed.
-
-End Auxiliary.
 
 Section fix_a_category.
 
-Variable C : precategory.
-Variable hsC : has_homsets C.
+Context {C : precategory} {hsC : has_homsets C}.
 
 Local Notation "'Yo'" := (yoneda C hsC).
 Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
 
-Definition yy {F : preShv C} {c : C} : ((F : functor _ _) c : hSet) ≃ _ ⟦ Yo c, F⟧.
-Proof.
-  apply invweq.
-  apply yoneda_weq.
-Defined.
+Section compatible_structures.
 
-Lemma yy_natural (F : preShv C) (c : C) (A : (F:functor _ _) c : hSet) 
-                  c' (f : C⟦c', c⟧) :
-        yy (# (F : functor _ _) f A) = # Yo f ;; yy A.
-Proof.
-  assert (XTT := is_natural_yoneda_iso_inv _ hsC F _ _ f).
-  apply (toforallpaths _ _ _ XTT).
-Qed.
+Context (X : type_structure C).
+Local Notation "Γ ◂ A" := (comp_ext Γ A) (at level 30).
+Local Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).
 
-(** * Type of type structures *)
-
-Definition type_structure : UU :=
-  Σ Ty : preShv C,
-        ∀ (Γ : C) (A : (Ty : functor _ _ ) Γ : hSet ), Σ (ΓA : C), C⟦ΓA, Γ⟧.
-
-Definition TY (X : type_structure) : preShv _ := pr1 X.
-
-Definition comp_ext {X : type_structure} Γ A : C := pr1 (pr2 X Γ A).
-Notation "Γ ◂ A" := (comp_ext Γ A) (at level 30).
-Definition π {X : type_structure} {Γ} A : C ⟦Γ ◂ A, Γ⟧ := pr2 (pr2 X _ A).
-
-Lemma idtoiso_π {X : type_structure} (Γ : C) (A A' : (TY X : functor _ _ ) Γ : hSet) (e : A = A')
-  :
-    idtoiso (maponpaths (λ B, Γ ◂ B) e) ;; π _ = π _ .
-Proof.
-  induction e.
-  apply id_left.
-Qed.
-
-(** * Type of families structures over a type structure *)
-
-Section some_structures.
-
-Context (X : type_structure).
-
-(* Notation "A [ f ]" := (# (TY X : functor C^op HSET) f A)(at level 30). *)
-
-Definition families_data_structure : UU :=
-  Σ Tm : preShv C, _ ⟦ Tm, TY X ⟧ × (∀ Γ (A : (TY X : functor _ _ ) Γ : hSet), _ ⟦Yo (Γ ◂ A) , Tm⟧ ).
-
-Definition TM (Y : families_data_structure) : preShv C := pr1 Y.
-Definition pp Y : _ ⟦TM Y, TY X⟧ := pr1 (pr2 Y).
-Definition Q Y {Γ} A : _ ⟦ _ , TM Y⟧ := pr2 (pr2 Y) Γ A.
-
-Lemma idtoiso_Q Y Γ (A A' : (TY X : functor _ _ ) Γ : hSet) (e : A = A') : 
-  #Yo (idtoiso (maponpaths (fun B => Γ ◂ B) e )) ;; Q Y A' = Q Y A . 
-Proof.
-  induction e. 
-  etrans. apply cancel_postcomposition. apply functor_id.
-  apply id_left.
-Defined.
-
-Definition families_prop_structure (Y : families_data_structure) :=
-  ∀ Γ (A : (TY X : functor _ _ ) Γ : hSet), 
-        Σ (e : #Yo (π A) ;; yy A = Q Y A ;; pp Y), isPullback _ _ _ _ e.
-
-Lemma isaprop_families_prop_structure Y
-  : isaprop (families_prop_structure Y).
-Proof.
-  do 2 (apply impred; intro).
-  apply isofhleveltotal2.
-  - apply functor_category_has_homsets.
-  - intro. apply isaprop_isPullback.
-Qed.
-
-Definition families_structure : UU :=
-  Σ Y : families_data_structure, families_prop_structure Y.
-Coercion families_data_from_families (Y : families_structure) : _ := pr1 Y.
-
-Definition Q_pp (Y : families_structure) Γ (A : (TY X : functor _ _ ) Γ : hSet) 
-  : #Yo (π A) ;; yy A = Q Y A ;; pp Y.
-Proof.
-  apply (pr1 (pr2 Y _ _ )).
-Defined.
-
-Definition isPullback_Q_pp (Y : families_structure) Γ (A : (TY X : functor _ _ ) Γ : hSet) 
-  : isPullback _ _ _ _ (Q_pp Y _ A ). 
-Proof.
-  apply (pr2 (pr2 Y _ _ )).
-Defined.
-
-(** * Type of split comprehension structures over a types structure *)
-
-Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).
-
-Definition comprehension_structure : UU :=
-  Σ q : ∀ {Γ Γ'} (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet), 
-           C ⟦Γ' ◂ A [ f ], Γ ◂ A⟧, 
-    (∀ Γ Γ' (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet), 
-        Σ e :  π _ ;; f = q f A ;; π _ , isPullback _ _ _ _ e).
-
-Definition qq (Y : comprehension_structure) {Γ Γ'} (f : C ⟦Γ', Γ⟧)
-              (A : (TY X:functor _ _ ) Γ : hSet) 
-  : C ⟦Γ' ◂ A [ f ], Γ ◂ A⟧
-  := pr1 Y _ _ f A.
-
-(* Access function *)
-Lemma qq_π (Y : comprehension_structure) {Γ Γ'} (f : Γ' ⇒ Γ) (A : _ ) : π _ ;; f = qq Y f A ;; π A.
-Proof.
-  exact (pr1 (pr2 Y _ _ f A)).
-Qed.
-
-(* Access function *)
-Lemma qq_π_Pb (Y : comprehension_structure) {Γ Γ'} (f : Γ' ⇒ Γ) (A : _ ) : isPullback _ _ _ _ (qq_π Y f A).
-Proof.
-  exact (pr2 (pr2 Y _ _ f A)).
-Qed.
-
-Definition idtoiso_qq (Y : comprehension_structure) {Γ Γ'} (f f' : C ⟦Γ', Γ⟧)
-              (e : f = f')
-              (A : (TY X:functor _ _ ) Γ : hSet) 
-  : idtoiso (maponpaths (comp_ext Γ') (maponpaths (λ k : C⟦Γ', Γ⟧, A [k]) e))
-                ;; qq Y f' A = qq Y f A.
-Proof.
-  induction e.
-  apply id_left.
-Qed.
-
-Definition pullback_from_comp (Y : comprehension_structure) 
-  {Γ Γ'} (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet) : 
-        Σ e : π _ ;; f = qq Y f A ;; π _ , isPullback _ _ _ _ e
-:= pr2 Y _ _ f A.
-
-Definition is_split_comprehension_structure (Y : comprehension_structure) : UU
-  := 
-    (∀ Γ A, qq Y (identity Γ) A = idtoiso (maponpaths (fun B => Γ ◂ B) 
-                                                      (toforallpaths _ _ _ (functor_id (TY X) _ ) _ )) )
- ×
-   (∀ Γ Γ' Γ'' (f : C⟦Γ', Γ⟧) (g : C ⟦Γ'', Γ'⟧) (A : (TY X:functor _ _ ) Γ : hSet),
-       qq Y (g ;; f) A = idtoiso (maponpaths (fun B => Γ'' ◂ B)
-                                             (toforallpaths _ _ _ (functor_comp (TY X) _ _ _  f g) A))
-                          ;; qq Y g (A [f]) 
-                          ;; qq Y f A).
-
-Lemma isaprop_is_split_comprehension_structure
-  (Y : comprehension_structure)
-  : isaprop (is_split_comprehension_structure Y).
-Proof.
-  apply isofhleveldirprod.
-  - do 2 (apply impred; intro).
-    apply hsC.
-  - do 6 (apply impred; intro).
-    apply hsC.    
-Qed.
-
-
-(* Since [Ty X] is always an hset, the splitness properties hold with any equality replacing the canonical ones. This is sometimes handy, one may want to opacify the canonical equalities in later proofs. *)
-Lemma split_comprehension_structure_comp_general
-  {Y : comprehension_structure} (Z : is_split_comprehension_structure Y)
-  {Γ Γ' Γ'' : C}
-  {f : C ⟦ Γ', Γ ⟧} {g : C ⟦ Γ'', Γ' ⟧} {A : ((TY X : functor _ _) Γ : hSet)}
-  (p : A [g ;; f]
-       = # (TY X : functor C^op HSET) g (# (TY X : functor C^op HSET) f A)) 
-: qq Y (g ;; f) A
-  = idtoiso
-         (maponpaths (λ B : ((pr1 X : functor _ _) Γ'' : hSet), Γ'' ◂ B)
-            p) ;; 
-       qq Y g (A [f]) ;; qq Y f A.
-Proof.
-  eapply pathscomp0. apply (pr2 Z).
-  repeat apply (maponpaths (fun h => h ;; _)).
-  repeat apply maponpaths. apply uip. exact (pr2 ((TY X : functor _ _) _)).
-Qed.
-
-
-Definition split_comprehension_structure : UU
-  := Σ Z : comprehension_structure,
-           is_split_comprehension_structure Z.
-
-Definition comprehension_from_split_comprehension :
-   split_comprehension_structure -> comprehension_structure := pr1.
-Coercion comprehension_from_split_comprehension :
-   split_comprehension_structure >-> comprehension_structure.
-
-
-
-
-Definition compatible_scomp_families (Y : families_structure)
-         (Z : split_comprehension_structure) : UU
+Definition compatible_scomp_families (Y : families_structure hsC X)
+         (Z : split_comprehension_structure X) : UU
   := ∀ Γ Γ' A (f : C⟦Γ', Γ⟧) , Q Y A[f] = #(yoneda _ hsC) (qq Z f A) ;; Q Y A.
 
+Definition compatible_fam_structure (Z : split_comprehension_structure X) : UU
+  := Σ Y : families_structure hsC X, compatible_scomp_families Y Z.
 
-
-
-
-Definition compatible_fam_structure (Z : split_comprehension_structure) : UU
-  := Σ Y : families_structure, compatible_scomp_families Y Z.
-
-Definition compatible_split_comprehension_structure (Y : families_structure) : UU
-  := Σ Z : split_comprehension_structure, compatible_scomp_families Y Z.
-
-
-
+Definition compatible_split_comprehension_structure (Y : families_structure hsC X) : UU
+  := Σ Z : split_comprehension_structure X, compatible_scomp_families Y Z.
 
 
 
@@ -284,7 +51,7 @@ Definition compatible_split_comprehension_structure (Y : families_structure) : U
 
 Section compatible_fam_structure_from_comp.
 
-Variable Z : comprehension_structure.
+Variable Z : comprehension_structure X.
 Variable ZZ : is_split_comprehension_structure Z.
 
 Definition tm_carrier (Γ : C) : UU :=
@@ -326,7 +93,7 @@ Qed.
 Lemma section_eq_from_tm_functor_eq {Γ} (t t' : (tm_functor_data Γ : hSet)) 
   (e : t = t')
   : pr1 (pr2 t)
-      ;; idtoiso (maponpaths (comp_ext Γ) (type_eq_from_tm_functor_eq e))
+      ;; idtoiso (maponpaths (@comp_ext _ X Γ) (type_eq_from_tm_functor_eq e))
     = pr1 (pr2 t').
 Proof.
   destruct e; simpl.
@@ -338,7 +105,7 @@ Qed.
 
 Lemma tm_functor_eq {Γ} (t t' : (tm_functor_data Γ : hSet)) 
   (eA : pr1 t = pr1 t')
-  (es : (pr1 (pr2 t)) ;; idtoiso (maponpaths (comp_ext Γ) eA) = (pr1 (pr2 t')))
+  (es : (pr1 (pr2 t)) ;; idtoiso (maponpaths (@comp_ext _ X Γ) eA) = (pr1 (pr2 t')))
   : t = t'.
 Proof.
   destruct t as [A [s e]], t' as [A' [s' e']]; simpl in *.
@@ -388,7 +155,7 @@ Proof.
     + { cbn.
       apply PullbackArrowUnique; cbn.
       - rewrite <- assoc.  
-        rewrite idtoiso_π.
+        rewrite (@idtoiso_π _ X).
         apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
       - cbn.
         apply (MorphismsIntoPullbackEqual (pr2 (pr2 Z _ _ _ _ ))); simpl.
@@ -404,7 +171,7 @@ Proof.
           etrans. Focus 2. apply id_left.
           refine (maponpaths (fun h => h ;; g) _).
           etrans. apply @pathsinv0, assoc.
-          etrans. apply maponpaths, idtoiso_π.
+          rewrite (@idtoiso_π _ X).
           apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
         + repeat rewrite <- assoc.
           etrans. apply maponpaths. rewrite assoc.
@@ -461,7 +228,7 @@ Proof.
   + apply PullbackArrowUnique.
     * cbn.
       etrans. apply (!assoc _ _ _ _ _ _ _ _ ).
-      rewrite idtoiso_π.
+      etrans. apply maponpaths, idtoiso_π.
       match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => set (XR := HH) end.
       apply (PullbackArrow_PullbackPr1 XR).
     * cbn.
@@ -475,7 +242,7 @@ Proof.
           rewrite <- (pr1 (pullback_from_comp Z f _ )).
           etrans. apply assoc.
           etrans. apply assoc4.
-          rewrite idtoiso_π.
+          rewrite (@idtoiso_π _ X).
           match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ ;; _ = _ ] => set (XR := HH) end.
           rewrite (PullbackArrow_PullbackPr1 XR).
           rewrite id_right. apply id_left.
@@ -499,7 +266,7 @@ Proof.
           etrans. apply maponpaths. apply maponpaths. 
           apply (!XT).
           unfold i. clear i. clear XT.
-          rewrite idtoiso_qq.
+          rewrite (@idtoiso_qq _ X).
           unfold d; clear d.
           match goal with [|- PullbackArrow ?HH _ _ _ _ ;; _  = _ ] =>
                           set (XR := HH) end.
@@ -722,7 +489,7 @@ Arguments tm_on_mor : simpl never.
 
 Section canonical_TM.
 
-Variable Z : comprehension_structure.
+Variable Z : comprehension_structure X.
 Variable ZZ : is_split_comprehension_structure Z.
 Variable Y : compatible_fam_structure (Z,,ZZ).
 
@@ -786,7 +553,7 @@ Defined.
 Definition bar : ∀ Γ, HSET ⟦ (TM (pr1 Y) : functor _ _ ) Γ, tm_functor Z ZZ Γ⟧.
 Proof.
   intro Γ. simpl.
-  intro s'. set (S' := yy s').
+  intro s'. set (S' := @yy _ hsC _ _ s').
   set (ps := (pp (pr1 Y) : nat_trans _ _ )  _ s').
   assert (XR : S' ;; pp (pr1 Y) = yy ( (pp (pr1 Y) : nat_trans _ _ ) _ s')).
   { 
@@ -810,7 +577,8 @@ Proof.
       apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ )));
       etrans ; [ apply functor_comp |];
       etrans ; [ apply cancel_postcomposition ;
-         apply(homotweqinvweq (weqpair _ (yoneda_fully_faithful _ hsC Γ (Γ◂ps) ))) | ];
+         apply( homotweqinvweq (weqpair _
+           (yoneda_fully_faithful _ hsC Γ (@comp_ext _ X Γ ps) ))) | ];
       simpl;
       match goal with |[ |- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => 
                        set (XR3:=HH) end;
@@ -924,7 +692,7 @@ Defined.
 
 End canonical_TM.
 
-Lemma unique (Z : comprehension_structure)
+Lemma unique (Z : comprehension_structure X)
              (ZZ : is_split_comprehension_structure Z)
              (Y : compatible_fam_structure (Z,,ZZ))
   : comp_fam_structure_from_comp Z ZZ = Y.
@@ -1020,7 +788,7 @@ Defined.
 
 Section compatible_comp_structure_from_fam.
 
-Variable Y : families_structure.
+Variable Y : families_structure hsC X.
 
 Section qq_from_fam.
 
@@ -1109,7 +877,7 @@ Qed.
 
 End qq_from_fam.
 
-Definition comp_from_fam : comprehension_structure.
+Definition comp_from_fam : comprehension_structure X.
 Proof.
   mkpair.
   - intros. apply qq_fam.
@@ -1131,7 +899,7 @@ Proof.
     + etrans. apply maponpaths. cbn. apply idpath. 
       rewrite <- functor_comp.
       etrans. eapply pathsinv0. apply (functor_comp Yo).
-      apply maponpaths. rewrite idtoiso_π.
+      apply maponpaths. rewrite (@idtoiso_π _ X).
       apply pathsinv0. apply id_right.
     + etrans. apply maponpaths. cbn. apply idpath.
       apply idtoiso_Q.
@@ -1164,7 +932,7 @@ Proof.
 Qed.
 
 Definition split_comp_structure_from_fam
-  : split_comprehension_structure.
+  : split_comprehension_structure X.
 Proof.
   exists comp_from_fam.
   apply is_split_comp_from_fam.
@@ -1186,7 +954,7 @@ End compatible_comp_structure_from_fam.
 
 
 (* needs splitness? *)
-Lemma iscontr_compatible_fam_structure (Z : comprehension_structure) (ZZ : is_split_comprehension_structure Z)
+Lemma iscontr_compatible_fam_structure (Z : comprehension_structure X) (ZZ : is_split_comprehension_structure Z)
 : iscontr (compatible_fam_structure (Z,,ZZ)).
 Proof.
   exists (comp_fam_structure_from_comp Z ZZ).
@@ -1213,7 +981,7 @@ Proof.
     apply subtypeEquality.
     { 
       intro.
-      apply isaprop_is_split_comprehension_structure.
+      apply @isaprop_is_split_comprehension_structure, hsC.
     }
     apply subtypeEquality.
     {
@@ -1248,7 +1016,7 @@ Proof.
 Qed.
   
 
-Lemma iscontr_compatible_split_comp_structure (Y : families_structure)
+Lemma iscontr_compatible_split_comp_structure (Y : families_structure hsC X)
 : iscontr (compatible_split_comprehension_structure Y).
 Proof.
   mkpair.
@@ -1259,7 +1027,7 @@ Proof.
   - intro. apply compat_split_comp_eq.
 Defined.
 
-End some_structures.
+End compatible_structures.
 
 Print Assumptions iscontr_compatible_split_comp_structure.
 Print Assumptions iscontr_compatible_fam_structure.
@@ -1267,10 +1035,10 @@ Print Assumptions iscontr_compatible_fam_structure.
 
 Section equivalence.
 
-Variable X : type_structure.
+Variable X : type_structure C.
 
 Definition T1 : UU :=
-  Σ Y : families_structure X,
+  Σ Y : families_structure hsC X,
         compatible_split_comprehension_structure _ Y.
 
 Definition T2 : UU :=
@@ -1283,7 +1051,7 @@ Proof.
   unfold T1.
   unfold compatible_split_comprehension_structure.
   set (XR := @weqtotal2asstol).
-  specialize (XR (families_structure X)).
+  specialize (XR (families_structure hsC X)).
   specialize (XR (fun _ => split_comprehension_structure X)).
   simpl in XR.
   specialize (XR (fun YZ => compatible_scomp_families _ (pr1 YZ) (pr2 YZ))).
@@ -1292,7 +1060,7 @@ Proof.
   unfold T2. unfold compatible_fam_structure.
   set (XR := @weqtotal2asstor).
   specialize (XR (split_comprehension_structure X)).
-  specialize (XR (fun _ => families_structure X)).
+  specialize (XR (fun _ => families_structure hsC X)).
   simpl in XR.
   specialize (XR (fun YZ => compatible_scomp_families _ (pr2 YZ) (pr1 YZ))).
   apply XR.
@@ -1312,7 +1080,7 @@ Proof.
 Defined.
 
 Definition forget_comp :
-  T1 ≃ families_structure X.
+  T1 ≃ families_structure hsC X.
 Proof.
   exists pr1.
   apply isweqpr1.
@@ -1320,7 +1088,7 @@ Proof.
   apply iscontr_compatible_split_comp_structure.
 Defined.
 
-Definition result : families_structure X ≃ split_comprehension_structure X.
+Definition result : families_structure hsC X ≃ split_comprehension_structure X.
 Proof.
   eapply weqcomp.
   eapply invweq.

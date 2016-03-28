@@ -15,7 +15,7 @@ Require Export UniMath.CategoryTheory.category_hset.
 Require Export UniMath.CategoryTheory.yoneda.
 Require Export UniMath.CategoryTheory.rezk_completion.
 
-Require Export Systems.CwF.
+Require Export Systems.OtherDefs.CwF_Pitts.
 Require Export Systems.Categories.category_of_elements.
 
 Implicit Arguments iso.

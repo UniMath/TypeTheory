@@ -1,46 +1,55 @@
+
 (** 
- 
+
  Ahrens, Lumsdaine, Voevodsky, 2015
 
  Contents:
 
-  - Definition of a Category with Display maps from a Comprehension Category
-      (assumption of saturatedness needed for pullbacks forming hprop)
+  - Definition of a Display map category from Category with Families
+    (requires Pullbacks to be hProps, e.g., as in a saturated precategory
+
 *)
 
 
+Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.total2_paths.
 
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
-Require Import Systems.TypeCat.
+Require Import Systems.OtherDefs.TypeCat.
+Require Import Systems.OtherDefs.CwF_Pitts.
 Require Import Systems.DM.
 
+(* Locally override the notation [ γ ♯ a ], at a higher level,
+  to get more informative bracketing when pairing meets composition. *) 
+Local Notation "γ ## a" := (pairing γ a) (at level 75).
 
-(** * Construction of Comprehension precategory from Display map precategory *)
+(** * Category with DM from Category with families
 
-Section TypeCat_to_DM.
+*)
 
-Variable CC : precategory.
-Variable H : is_category CC.  
-Variable C : type_cat_struct CC.
+Section DM_of_CwF.
 
+(** assumption of [CC] being saturated is essential: we need pullbacks to be propositions *)
+Context (CC : precategory) (C : cwf_struct CC) (H : is_category CC).
+
+(** Being isomorphic to a dependent projection *)
 Definition iso_to_dpr {Γ Γ'} (γ : Γ ⇒ Γ') : UU
-  := Σ (A : C Γ') (f : iso (Γ'◂ A) Γ),
-        dpr_type_cat _ = f ;; γ .
+  := Σ (A : C⟨Γ'⟩) (f : iso (Γ'∙A) Γ),
+        π _ = f ;; γ .
 
-Definition dm_sub_struct_of_TypeCat : dm_sub_struct CC.
+Definition dm_sub_struct_of_CwF : dm_sub_struct CC.
 Proof.
   unfold dm_sub_struct.
   intros Γ Γ' γ.
   exact (ishinh (iso_to_dpr γ)).
 Defined.
 
-Lemma dm_sub_closed_under_iso_of_TypeCat : dm_sub_closed_under_iso dm_sub_struct_of_TypeCat.
+Lemma dm_sub_closed_under_iso_of_CwF : dm_sub_closed_under_iso dm_sub_struct_of_CwF.
 Proof.
   unfold dm_sub_closed_under_iso.
   intros Δ Γ γ Δ' δ h HT.
-  unfold dm_sub_struct_of_TypeCat in γ.
+  unfold dm_sub_struct_of_CwF in γ.
   destruct γ as [γ A]. simpl in *. unfold DM_type in A.
   apply A.
   intro A'.
@@ -57,7 +66,8 @@ Proof.
   sym. assumption.
 Qed.
 
-Definition pb_of_DM_of_TypeCat : pb_of_DM_struct dm_sub_struct_of_TypeCat.
+
+Definition pb_of_DM_of_CwF : pb_of_DM_struct dm_sub_struct_of_CwF.
 Proof.
   unfold pb_of_DM_struct.
   intros Δ Γ γ Γ' f.
@@ -68,7 +78,7 @@ Proof.
     - intros. apply isapropishinh.
   }
   unfold DM_type in B. simpl in *.
-  unfold dm_sub_struct_of_TypeCat in B.
+  unfold dm_sub_struct_of_CwF in B.
   set (T:= hProppair _ X).
   set (T':= B T).
   apply T'.
@@ -80,33 +90,20 @@ Proof.
   clear B.
   unshelve refine (tpair _ _ _ ).
   - unshelve refine (mk_Pullback _ _ _ _ _ _ _ ).
-    + apply (Γ' ◂ (A[f])).
-    + apply (q_type_cat _ _ ;; h).
-    + apply (dpr_type_cat _ ).
-    + simpl. unfold dm_sub_struct_of_TypeCat.
+    + apply (Γ' ∙ (A[f])).
+    + apply (q_precwf _ _ ;; h).
+    + apply (π _ ). 
+    + simpl. unfold dm_sub_struct_of_CwF.
       simpl.
       set (T:= postcomp_pb_with_iso CC (pr2 H)).
-      set (T':= T _ _ _ _  (q_type_cat A f) _ _ f _ (reind_pb_type_cat _ _ )).
+      set (T':= T _ _ _ _  (q_precwf A f) _ _ f _ (is_pullback_reindx_cwf (pr2 H) _ _ _ _ )).
       refine (pr1 (T' _ _ _ _ )).
       sym. assumption.
     + 
       set (T:= postcomp_pb_with_iso CC (pr2 H)).
-      set (T':= T _ _ _ _  (q_type_cat A f) _ _ f _ (reind_pb_type_cat _ _ )).
+      set (T':= T _ _ _ _  (q_precwf A f) _ _ f _ (is_pullback_reindx_cwf (pr2 H) _ _ _ _ )).
       eapply (pr2 (T' _ _ _ _ )).
-(*      eapply T.
-      apply  reind_pb_type_cat. 
-      Show Proof.
-      sym. assumption.
-*)
-
-(*      
-      simpl.
-      set (T:= postcomp_pb_with_iso CC (pr2 H)).
-      simpl in T.
-      eaply T.
-*)
- -
-   simpl.
+  - simpl.
     apply hinhpr.
     unfold iso_to_dpr.
     exists (A[f]).
@@ -114,17 +111,19 @@ Proof.
     sym. apply id_left.
 Defined.
 
-Definition dm_sub_pb_of_TypeCat : dm_sub_pb CC.
+
+Definition dm_sub_pb_of_CwF : dm_sub_pb CC.
 Proof.
-  exists dm_sub_struct_of_TypeCat.
-  exact pb_of_DM_of_TypeCat.
+  exists dm_sub_struct_of_CwF.
+  exact pb_of_DM_of_CwF.
 Defined.
 
-Definition DM_structure_of_TypeCat : DM_structure CC.
+Definition  DM_structure_of_CwF :  DM_structure CC.
 Proof.
-  exists dm_sub_pb_of_TypeCat.
-  exists dm_sub_closed_under_iso_of_TypeCat.
+  exists dm_sub_pb_of_CwF.
+  exists dm_sub_closed_under_iso_of_CwF.
   intros. apply isapropishinh.
 Defined.
-    
-End TypeCat_to_DM.
+
+
+End DM_of_CwF.

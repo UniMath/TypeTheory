@@ -16,8 +16,6 @@ Require Export UniMath.CategoryTheory.precategories.
 Require Export UniMath.CategoryTheory.UnicodeNotations.
 Require Export UniMath.CategoryTheory.limits.pullbacks.
 
-Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
-
 Section Prelims.
 
 (* TODO: move to limits.pullbacks *)

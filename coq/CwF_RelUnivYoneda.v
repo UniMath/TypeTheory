@@ -14,10 +14,6 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import Systems.RelUnivStructure.
 Require Import Systems.CwF_SplitTypeCat_Equivalence.
 
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
-Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
-
 Arguments yy {_ _ _ _}.
 
 Section fix_category.
@@ -63,7 +59,7 @@ Local Definition CwF : UU
 *)
 
 Local Definition CwF' : UU
- := Σ (X : type_structure C), families_structure _ hsC X.
+ := Σ (X : type_structure C), families_structure hsC X.
 
 
 (** Plan: a reasonable intermediate structure seems to be 
@@ -131,7 +127,7 @@ Arguments comp_ext {_} _ _ _ .
 *)
 
 Definition foo : 
- (Σ X : type_structure C, families_data_structure C hsC X)
+ (Σ X : type_structure C, families_data_structure hsC X)
    ≃ 
  Σ X : mor_of_presheaves, comp_data X.
 Proof.
@@ -145,9 +141,9 @@ Proof.
   intro Ty.
   eapply weqcomp. apply weqfibtototal. intro depr.
     set (XR := @weqtotal2asstol). unfold families_data_structure.
-    specialize (XR (CwF_SplitTypeCat_Equivalence.preShv C)
-                   (fun x =>  x ⇒ TY C (Ty,, depr))). simpl in XR.
-    specialize (XR (fun Tmp =>  (∀ (Γ : C^op) (A : (TY C (Ty,, depr):functor _ _ ) Γ : hSet), 
+    specialize (XR (preShv C)
+                   (fun x =>  x ⇒ TY (Ty,, depr))). simpl in XR.
+    specialize (XR (fun Tmp =>  (∀ (Γ : C^op) (A : (TY (Ty,, depr):functor _ _ ) Γ : hSet), 
                                         Yo (comp_ext (Ty,,depr) Γ A) ⇒ pr1 Tmp)) ).       
     apply XR. simpl.
 
@@ -176,8 +172,8 @@ Proof.
     apply XR.
   unfold CwF'. 
   eapply weqcomp.
-    set (XR:= @weqtotal2asstol (type_structure C) (fun X => families_data_structure _ hsC X) ).
-    specialize (XR (fun XY => families_prop_structure _ hsC (pr1 XY) (pr2 XY))).
+    set (XR:= @weqtotal2asstol (type_structure C) (fun X => families_data_structure hsC X) ).
+    specialize (XR (fun XY => families_prop_structure hsC (pr1 XY) (pr2 XY))).
     apply XR.
   use weqbandf.
   - apply foo.

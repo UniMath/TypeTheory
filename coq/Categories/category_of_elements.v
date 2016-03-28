@@ -15,8 +15,6 @@ Require Export UniMath.CategoryTheory.UnicodeNotations.
 Require Export UniMath.CategoryTheory.category_hset.
 Require Export UniMath.CategoryTheory.opp_precat.
 
-
-Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 
