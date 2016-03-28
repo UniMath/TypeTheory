@@ -15,6 +15,7 @@ MODULES-CORE := \
 	UnicodeNotations \
 	RelUnivStructure \
 	DM \
+	Structures \
 	CwF_SplitTypeCat_Equivalence \
 	CwF_RelUnivYoneda \
 	Bicats/Auxiliary \
