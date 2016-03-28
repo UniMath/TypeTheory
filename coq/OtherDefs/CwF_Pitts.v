@@ -19,8 +19,6 @@ Require Export UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Export UniMath.CategoryTheory.UnicodeNotations.
 
-Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
-
 (** * A "preview" of the definition *)
 
 Module Record_Preview.
@@ -40,7 +38,7 @@ Record precwf_record : Type := {
   term : ∀ Γ : C, C⟨Γ⟩ → UU     where "C ⟨ Γ ⊢ A ⟩" := (term Γ A) ;
   rtype : ∀ {Γ Γ' : C} (A : C⟨Γ⟩) (γ : Γ' ⇒ Γ), C⟨Γ'⟩ where "A [ γ ]" := (rtype A γ) ;
   rterm : ∀ {Γ Γ' : C} {A : C⟨Γ⟩} (a : C⟨Γ⊢A⟩) (γ : Γ' ⇒ Γ), 
-          C⟨Γ'⊢ A[γ]⟩   where "a ⟦ γ ⟧" := (rterm a γ) ;
+          C⟨Γ'⊢ (A[γ])⟩   where "a ⟦ γ ⟧" := (rterm a γ) ;
   reindx_type_id : ∀ Γ (A : C⟨Γ⟩), A [identity Γ] = A ;
   reindx_type_comp : ∀  {Γ Γ' Γ''} (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') (A : C⟨Γ⟩), 
           A [γ';;γ] 

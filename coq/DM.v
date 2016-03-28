@@ -12,15 +12,12 @@
 *)
 
 Require Export Systems.Auxiliary.
-Require Export Systems.UnicodeNotations.
 Require Export UniMath.Foundations.Basics.Sets.
 Require Export UniMath.CategoryTheory.precategories.
 Require Export UniMath.CategoryTheory.UnicodeNotations.
 Require Export UniMath.CategoryTheory.limits.pullbacks.
 
 Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
-
-Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
 
 (** * A "preview" of the definition *)
 

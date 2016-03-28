@@ -8,14 +8,17 @@ Possibly some should be upstreamed to “UniMath” eventually.
 
 *)
 
+
 Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import Systems.UnicodeNotations.
+Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.limits.
+Require Import UniMath.CategoryTheory.category_hset.
 
-Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50) : type_scope.
+Require Import Systems.UnicodeNotations.
 
 (** Redeclare this notation, along with a new scope. *)
 Notation "ff ;; gg" := (compose ff gg)
@@ -23,6 +26,8 @@ Notation "ff ;; gg" := (compose ff gg)
   : mor_scope.
 Delimit Scope mor_scope with mor.
 Bind Scope mor_scope with precategory_morphisms.
+
+Definition preShv C := functor_precategory C^op HSET (pr2 is_category_HSET).
 
 (** * Lemmas about identity etc *)
 
@@ -247,6 +252,37 @@ End on_pullbacks.
 Arguments map_into_Pb {_ _ _ _ _ _ _ _ _ } _ _ {_} _ _ _ .
 Arguments map_into_Pb_unique {_ _ _ _ _ _ _ _ _} _ _ {_} _ _ _ _   .
 
+Section Pullback_HSET.
+
+(* TODO: move? does this already exist?
+
+  If we had the standard pullback of hsets defined, this could be maybe better stated as the fact that P is a pullback if the map from P to the standard pullback is an iso. *)
+Lemma isPullback_HSET {P A B C : HSET}
+  (p1 : P ⇒ A) (p2 : P ⇒ B) (f : A ⇒ C) (g : B ⇒ C) (ep : p1 ;; f = p2 ;; g) 
+  : (∀ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b)
+  -> isPullback _ _ _ _ ep.
+Proof.
+  intros H X h k ehk.
+  set (H_existence := fun a b e => pr1 (H a b e)).
+  set (H_uniqueness := fun a b e x x' => base_paths _ _ (proofirrelevancecontr (H a b e) x x')).
+  apply iscontraprop1.
+  - apply invproofirrelevance.
+    intros hk hk'.
+    apply subtypeEquality. { intro. apply isapropdirprod; apply setproperty. }
+    destruct hk as [hk [eh ek]], hk' as [hk' [eh' ek']]; simpl.
+    apply funextsec; intro x.
+    refine (H_uniqueness (h x) (k x) _ (_,,_) (_,,_)).
+    apply (toforallpaths _ _ _ ehk).
+    split. apply (toforallpaths _ _ _ eh). apply (toforallpaths _ _ _ ek).
+    split. apply (toforallpaths _ _ _ eh'). apply (toforallpaths _ _ _ ek').
+  - mkpair. 
+    + intros x. refine (pr1 (H_existence (h x) (k x) _)). apply (toforallpaths _ _ _ ehk).
+    + simpl.
+      split; apply funextsec; intro x.
+      apply (pr1 (pr2 (H_existence _ _ _))). apply (pr2 (pr2 (H_existence _ _ _))).
+Qed.
+
+End Pullback_HSET.
 
 (**
 will be an instance of a general lemma to be proved
@@ -387,7 +423,6 @@ End bla.
 Arguments map_into_Pb {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 Arguments Pb_map_commutes_1 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 Arguments Pb_map_commutes_2 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
-
 
 (** * Some tactics *)
 

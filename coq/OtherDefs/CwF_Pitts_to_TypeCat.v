@@ -16,7 +16,7 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
 Require Import Systems.OtherDefs.TypeCat.
-Require Import Systems.OtherDefs.CwF.
+Require Import Systems.OtherDefs.CwF_Pitts.
 
 
 (* Locally override the notation [ γ ♯ a ], at a higher level,

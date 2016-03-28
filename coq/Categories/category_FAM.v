@@ -21,8 +21,6 @@ Require Export UniMath.CategoryTheory.rezk_completion.
 Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
 
-Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
-
 Section Auxiliary.
 
 Lemma transportf_eqweqmap (A B : UU) (p : A = B) C (A' : A → C) (b : B) :

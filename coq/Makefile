@@ -23,29 +23,29 @@ MODULES-CORE := \
 	Bicats/Displayed_Bicats \
 	Categories/category_of_elements \
 	Categories/category_FAM \
-	OtherDefs/CwF \
+	OtherDefs/CwF_Pitts \
 	OtherDefs/TypeCat \
-        OtherDefs/CwF_to_TypeCat \
-	OtherDefs/TypeCat_to_CwF \
+        OtherDefs/CwF_Pitts_to_TypeCat \
+	OtherDefs/TypeCat_to_CwF_Pitts \
 	OtherDefs/DM_to_TypeCat \
-	OtherDefs/CwF_to_DM \
+	OtherDefs/CwF_Pitts_to_DM \
 	OtherDefs/TypeCat_to_DM \
-	OtherDefs/CwF_to_TypeCat_to_DM \
+	OtherDefs/CwF_Pitts_to_TypeCat_to_DM \
 	OtherDefs/CwF_1 \
 
 # Remaining modules, included only in “make all”.
 # Useful for leaves that are slow to recompile.
 MODULES-EXTRA := \
-	OtherDefs/CwF_completion \
+	OtherDefs/CwF_Pitts_completion \
 	OtherDefs/DM_to_TypeCat_to_DM \
 
 # Modules that have gone out-of-date with upstream changes,
 # and don’t currently compile.
 MODULES-ROTTEN := \
 	OtherDefs/DM_truncated \
-	OtherDefs/CwF_CwF_1 \
+	OtherDefs/CwF_Pitts_to_CwF_1 \
 	OtherDefs/CwF_Dybjer \
-	OtherDefs/CwF_natural \
+	OtherDefs/CwF_Pitts_natural \
 
 VS-CORE  := $(MODULES-CORE:%=%.v)
 VS-EXTRA := $(MODULES-EXTRA:%=%.v)

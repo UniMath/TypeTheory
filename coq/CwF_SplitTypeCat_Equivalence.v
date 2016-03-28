@@ -16,59 +16,7 @@ Require Export UniMath.CategoryTheory.opp_precat.
 Require Export UniMath.CategoryTheory.category_hset.
 Require Export UniMath.CategoryTheory.yoneda.
 
-
-
 Undelimit Scope transport.
-
-
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
-Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
-
-(*
-Local Notation "< h , k >" := (PullbackArrow _ _ h k _ ) : pullback_scope.
-Open Scope pullback_scope.
-*)
-
-Definition preShv C := [C^op , HSET , pr2 is_category_HSET].
-
-Section Auxiliary.
-
-(* TODO: move? is there already a provided easy way to apply the [isaset] of something known to be an hset? *)
-(* Yes, it is called [setproperty] *)
-(*
-Definition pr2hSet (a : hSet) : isaset a := pr2 a.
-*)
-
-(* TODO: move? does this already exist?
-
-  If we had the standard pullback of hsets defined, this could be maybe better stated as the fact that P is a pullback if the map from P to the standard pullback is an iso. *)
-Lemma isPullback_HSET {P A B C : HSET}
-  (p1 : P ⇒ A) (p2 : P ⇒ B) (f : A ⇒ C) (g : B ⇒ C) (ep : p1 ;; f = p2 ;; g) 
-  : (∀ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b)
-  -> isPullback _ _ _ _ ep.
-Proof.
-  intros H X h k ehk.
-  set (H_existence := fun a b e => pr1 (H a b e)).
-  set (H_uniqueness := fun a b e x x' => base_paths _ _ (proofirrelevancecontr (H a b e) x x')).
-  apply iscontraprop1.
-  - apply invproofirrelevance.
-    intros hk hk'.
-    apply subtypeEquality. { intro. apply isapropdirprod; apply setproperty. }
-    destruct hk as [hk [eh ek]], hk' as [hk' [eh' ek']]; simpl.
-    apply funextsec; intro x.
-    refine (H_uniqueness (h x) (k x) _ (_,,_) (_,,_)).
-    apply (toforallpaths _ _ _ ehk).
-    split. apply (toforallpaths _ _ _ eh). apply (toforallpaths _ _ _ ek).
-    split. apply (toforallpaths _ _ _ eh'). apply (toforallpaths _ _ _ ek').
-  - mkpair. 
-    + intros x. refine (pr1 (H_existence (h x) (k x) _)). apply (toforallpaths _ _ _ ehk).
-    + simpl.
-      split; apply funextsec; intro x.
-      apply (pr1 (pr2 (H_existence _ _ _))). apply (pr2 (pr2 (H_existence _ _ _))).
-Qed.
-
-End Auxiliary.
 
 Section fix_a_category.
 
