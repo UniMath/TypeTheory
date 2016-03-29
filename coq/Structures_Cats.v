@@ -264,6 +264,16 @@ Proof.
     intros Γ. apply funextsec. apply e_TM.
 Qed.
 
+Lemma families_mor_transportf {X X'} {F F' : X ⇒ X'} (eF : F = F')
+    {Y Y'} (FF : families_mor F Y Y')
+    {Γ:C} (t : Tm Y Γ)
+  : (families_mor_TM 
+      (transportf (fun G : X ⇒ X' => _) eF FF) : nat_trans _ _) Γ t
+    = (families_mor_TM FF : nat_trans _ _) Γ t.
+Proof.
+  destruct eF. apply idpath.
+Qed.
+ 
 Definition families_ob_mor : disp_precat_ob_mor (obj_ext_Precat C).
 Proof.
   exists (fun X => families_structure hsC X).
@@ -303,15 +313,28 @@ Definition families_data : disp_precat_data (obj_ext_Precat C)
 Definition families_axioms : disp_precat_axioms _ families_data.
 Proof.
   repeat apply tpair.
-  - intros X X' F Y Y' FF. apply families_mor_eq. intros Γ t.
-    simpl.
-    admit.
-  - admit.
-  - admit.
-  - admit.
-Admitted.
+  - intros. apply families_mor_eq. intros.
+    etrans. Focus 2. apply @pathsinv0, families_mor_transportf.
+    apply idpath.
+  - intros. apply families_mor_eq. intros.
+    etrans. Focus 2. apply @pathsinv0, families_mor_transportf.
+    apply idpath.
+  - intros. apply families_mor_eq. intros.
+    etrans. Focus 2. apply @pathsinv0, families_mor_transportf.
+    apply idpath.
+  - intros. apply isaset_total2.
+    apply functor_category_has_homsets.
+    intros. apply isasetaprop, isapropdirprod.
+    apply functor_category_has_homsets.
+    repeat (apply impred_isaprop; intro). apply functor_category_has_homsets.
+Qed.
+
+Definition families_disp_precat : disp_precat (obj_ext_Precat C)
+  := (_ ,, families_axioms).
 
 End Families_Structure_Precat.
+
+Arguments families_disp_precat _ : clear implicits.
 
 (** * Precategory of cartesian _q_-morphism-structures *)
 Section qq_Structure_Precat.
@@ -378,8 +401,10 @@ Proof.
     try apply isasetaprop; apply isaprop_qq_structure_mor.
 Qed.
 
-Definition qq_structure_Precat : disp_precat (obj_ext_Precat C)
+Definition qq_structure_disp_precat : disp_precat (obj_ext_Precat C)
   := (_ ,, qq_structure_axioms).
 
 End qq_Structure_Precat.
+
+Arguments qq_structure_disp_precat _ : clear implicits.
 
