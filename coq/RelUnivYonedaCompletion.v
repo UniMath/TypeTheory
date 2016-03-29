@@ -178,6 +178,85 @@ Proof.
 Defined.
 *)
 
+
+
+
+(*
+Lemma right_adjoint_faithful
+    (D1 D2 : precategory) 
+    (F : functor D1 D2)
+    (G : is_left_adjoint F)
+    (H : ∀ x, is_epi (counit_of_left_adjoint G))
+  : faithful (right_adjoint G).
+
+(G : functor D2 D1)
+    (eta : nat_trans (functor_identity A) (functor_composite F G))
+    (eps : nat_trans (functor_composite G F) (functor_identity B)) 
+*)
+
+
+Definition adj_from_equiv (D1 D2 : precategory) (F : functor D1 D2):
+    adj_equivalence_of_precats F → is_left_adjoint F := fun x => pr1 x.
+Coercion adj_from_equiv : adj_equivalence_of_precats >-> is_left_adjoint.
+
+
+Section about_equivalences.
+
+Variables D1 D2 : precategory.
+Variable F : functor D1 D2.
+Variable GG : adj_equivalence_of_precats F.
+
+Let G : functor D2 D1 := right_adjoint GG.
+Let η := unit_from_left_adjoint GG.
+Let ε := counit_from_left_adjoint GG.
+Let εinv a := inv_from_iso (counit_pointwise_iso_from_adj_equivalence GG a).
+
+Check εinv.
+
+Lemma right_adj_is_ff : fully_faithful G.
+Proof.
+  intros c d.
+  set (inv := (fun f : D1 ⟦G c, G d⟧ => εinv _ ;; #F f ;; ε _ )).
+  simpl in inv.
+  apply (gradth _ inv ).
+  - intro f. simpl in f. unfold inv.
+    assert (XR := nat_trans_ax ε). simpl in XR.
+    rewrite <- assoc.
+    etrans. apply maponpaths. apply XR.
+    rewrite assoc.
+    etrans.
+      assert (XT := nat_trans_eq_pointwise (iso_inv_after_iso eta)).
+      simpl in XT. apply maponpaths. apply XT.
+    apply id_right.
+  
+
+Lemma functor_with_inverse_is_ff (D1 D2 : precategory)
+    (F : functor D1 D2)
+    (G : adj_equivalence_of_precats F) 
+   : fully_faithful (right_adjoint G).
+Proof.
+  intros c d.
+  set (inv := (fun g : D2 ⟦F c, F d⟧ =>
+             (unit_from_left_adjoint G _ ;; #G g ;;
+                                            (pr1 (iso_inv_from_iso eta) : nat_trans _ _ ) _ ))).
+  
+  use (gradth _ inv).
+  - intro f. simpl in f. unfold inv.
+    assert (XR := nat_trans_ax (pr1 eta)). simpl in XR.
+    etrans. apply cancel_postcomposition. apply (! XR _ _ _ ).
+    rewrite <- assoc.
+    etrans.
+      assert (XT := nat_trans_eq_pointwise (iso_inv_after_iso eta)).
+      simpl in XT. apply maponpaths. apply XT.
+    apply id_right.
+  - intro e.
+    unfold inv.
+    assert (XR := nat_trans_ax (pr1 (iso_inv_from_iso eta))). simpl in XR.
+    simpl.    
+    rewrite functor_comp. rewrite functor_comp.
+    assert (XT := nat_trans_ax (pr1 eta)). simpl in XT.
+    
+
 Definition fi : iso (C:=[C, preShv RC, functor_category_has_homsets _ _ _ ])
                         (functor_composite Yo ext)
                                   (functor_composite (Rezk_eta C hsC) YoR).
@@ -198,17 +277,16 @@ Proof.
      apply counit_iso_from_adj_equivalence_of_precats.
   eapply iso_comp.
     apply functor_comp_id_iso.
-  use nat_iso_from_pointwise_iso.
-  - intro d.
-    exists (yoneda_functor_precomp' _ _ _ _ _ _ ).
-    apply is_iso_yoneda_functor_precomp. apply Rezk_eta_fully_faithful.
-  - intros x x' f. simpl. simpl.
- simpl.
-simpl.
-  unfold pre_composition_functor.
-  specialize (T (
-  use T.
-Abort.    
+
+  exists (yoneda_functor_precomp_nat_trans _ _ _ _ _ ).
+  apply functor_iso_if_pointwise_iso.
+    intro c. apply is_iso_yoneda_functor_precomp.
+    apply Rezk_eta_fully_faithful.
+Defined.
+
+Let R4 := R3 fi (pr2 fi).
+Let R5 := R4 (Rezk_eta_essentially_surjective _ _ ).
+Check R5.
 
 End fix_category.
 
