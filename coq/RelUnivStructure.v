@@ -192,15 +192,10 @@ Let e {X : C} (f : D ⟦J X, U⟧) (* :  #J(fp _ _ _ X) ;; f = fq X ;; pp *)
   := pr1 (pr1 (pr2 (pr2 (pr2 RUJ)) X f)).
 *)
 
-Definition rel_univ_struct_functor : relative_universe_structure _ _ J'.
-Proof.
-  mkpair.
-  mkpair.
-  exists (S U).
-  exact (S tU).
-  apply (#S pp).
+Definition fcomprehension_induced
+  :  fcomprehension C' D' J' (S U) (S tU) (# S (pr1 RUJ)).
   intros X' g.
-  set (preimg := Res X').
+  set (preimg := Res X'). cbn. simpl.
   apply (squash_to_prop preimg).
   - apply isaprop_fpullback.
     + apply (pr2 isD').
@@ -241,8 +236,7 @@ Proof.
         rewrite functor_comp. 
         repeat rewrite <- assoc. 
         apply maponpaths. repeat rewrite assoc. apply cancel_postcomposition.
-        set (XXX:= nat_trans_eq_pointwise TA'). cbn in XXX.
-
+        assert (XXX:= nat_trans_eq_pointwise TA'). cbn in XXX.
         rewrite XXX. apply pathsinv0. apply id_left.
       * 
         cbn.
@@ -306,8 +300,17 @@ Proof.
             assumption.
         } 
 Qed.
+
+
+Definition rel_univ_struct_functor : relative_universe_structure _ _ J'.
+Proof.
+  mkpair.
+  mkpair.
+  exists (S U).
+  exact (S tU).
+  apply (#S pp). cbn.
+  apply fcomprehension_induced.
+Defined.
   
 
 End rel_univ_structure_and_functors.
-
-Print Assumptions rel_univ_struct_functor.
