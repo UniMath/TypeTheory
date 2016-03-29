@@ -2,6 +2,12 @@
 
  Ahrens, Lumsdaine, Voevodsky, 2015 - 2016
 
+Key definitions:
+
+- _object-extension structures_, [obj_ext_structure], the common core of CwF’s and split type-categories;
+- _families structures_, [families_structure], for building CwF’s;
+- _q-morphism structures_, [qq_morphism_structure], for building split type-categories
+
 *)
 
 Require Export UniMath.Foundations.Basics.Sets.
@@ -27,7 +33,7 @@ Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _
 
 We start by fixing the common core of families structures and split type-category structures: an _object-extension structure_, a presheaf together with “extension” and “dependent projection” operations.
 
-Components:
+Components of [X : obj_ext_structure C]:
 
 - [TY Γ : hSet]
 - [comp_ext X Γ A : C].  Notation: [Γ ◂ A]
@@ -40,7 +46,7 @@ Definition obj_ext_structure : UU
 Definition TY (X : obj_ext_structure) : preShv _ := pr1 X.
 
 Definition comp_ext (X : obj_ext_structure) Γ A : C := pr1 (pr2 X Γ A).
-Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
+Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 
 Definition π {X : obj_ext_structure} {Γ} A : Γ ◂ A ⇒ Γ := pr2 (pr2 X _ A).
 
@@ -52,7 +58,7 @@ Proof.
   apply id_left.
 Qed.
 
-(** The definitions of families structures and split type structures will all be relative to a fixed object-extension structure. *)
+(** The definitions of families structures and split type-category structures will all be relative to a fixed object-extension structure. *)
 
 Section Fix_Obj_Ext_Structure.
 

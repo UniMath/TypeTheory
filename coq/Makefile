@@ -22,6 +22,7 @@ MODULES-CORE := \
 	Bicats/Bicats \
 	Bicats/Displayed_Precats \
 	Bicats/Displayed_Bicats \
+	Structures_Cats \
 	Categories/category_of_elements \
 	Categories/category_FAM \
 	OtherDefs/CwF_Pitts \
