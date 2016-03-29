@@ -14,6 +14,8 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import Systems.RelUnivStructure.
 Require Import Systems.Structures.
 
+Undelimit Scope transport.
+
 Section fix_category.
 
 Variable C : precategory.
@@ -109,6 +111,15 @@ Definition comp_prop (X : mor_of_presheaves) (Y : comp_data X) : UU :=
   ∀ Γ (A : (u X : functor _ _ ) Γ : hSet),
         Σ (e : #Yo (dpr _ A) ;; yy A = QQ Y A ;; p X), isPullback _ _ _ _ e.
 
+Lemma isaprop_comp_prop (X : mor_of_presheaves) (Y : comp_data X) 
+  : isaprop (comp_prop X Y).
+Proof.
+  do 2 (apply impred; intro).
+  apply isofhleveltotal2.
+  - apply functor_category_has_homsets.
+  - intro. apply isaprop_isPullback.
+Qed.
+
 Definition comp (X : mor_of_presheaves) : UU 
   := Σ (Y : comp_data X), comp_prop _ Y.
 
@@ -181,13 +192,96 @@ Proof.
 Defined.  
 
 
+Lemma isaprop_comp (y : arrow (preShv C)) : isaprop (comp y).
+Proof.
+  apply invproofirrelevance.
+  intros x x'. apply subtypeEquality.
+  - intro t. apply isaprop_comp_prop.
+  - destruct x as [x H]. 
+    destruct x' as [x' H']. cbn.    
+    destruct x as [a m].
+    destruct x' as [a' m']. cbn in *.
+    simple refine (total2_paths _ _ ).
+Abort.
+
+Definition comp_to_fcomprehension (x : arrow (preShv C)):
+   comp x → fcomprehension C (preShv C) Yo (target x) (source x) x.
+Proof.
+  intro H.
+  set ( t := pr1 H).
+  set (depr := pr1 t).
+  set (Q := pr2 t).
+  set (Hprop := pr2 H).
+  intros Γ A.
+  set (yiA := yoneda_weq _ _ _ _ A).
+  set (XA := depr Γ yiA).
+  mkpair.
+  - mkpair.
+    + exact (pr1 XA).
+    + mkpair. 
+      * exact (pr2 XA).
+      * apply Q.
+  - simpl. unfold fpullback_prop.
+    mkpair.
+    + etrans. Focus 2. apply (pr1 (Hprop Γ yiA)).
+      apply maponpaths. apply pathsinv0. apply homotinvweqweq.
+    + assert (XR := pr2 (Hprop Γ yiA)).
+      assert (XT:= homotinvweqweq (yoneda_weq _ _ _ _ )  A).
+      simpl in XR.
+      assert (XR2 := isPb_morphism_equal _ _ _ _ _ _ _ _ _ _ XR A (!XT) ).
+      apply XR2.
+Defined.
+
+Definition fcomprehension_to_comp (x : arrow (preShv C)):
+  fcomprehension C (preShv C) Yo (target x) (source x) x → comp x.
+Proof.
+  intro H.
+  mkpair.
+  - mkpair.
+    + intros Γ A.
+      set (XR := H Γ (yy A)).
+      exists (fpb_obj _ _ _ _ _ XR).
+      apply (fp _ _ _ _ _ XR).
+    + intros Γ A.
+      set (XR := H Γ (yy A)).
+      apply (fq _ _ _ _ _ XR).
+  - cbn. intros Γ A.
+    set (XR := H Γ (yy A)).
+    assert (XRT := pr2 XR). simpl in XRT. destruct XRT as [t p0]. simpl in t.
+    mkpair.
+    + apply t.
+    + apply p0.
+Defined.     
+
+
+
 Lemma wtf:
  ∀ x : arrow (preShv C),
    comp x ≃ fcomprehension C (preShv C) Yo (target x) (source x) x.
 Proof.
-  intro x.
-  apply 
-  admit.
+  intro y.
+  exists (comp_to_fcomprehension _ ).
+  apply (gradth _ (fcomprehension_to_comp _ )).
+  - intro x.
+    apply subtypeEquality.
+    intro. apply isaprop_comp_prop.
+    destruct x as [t H]. simpl.
+    destruct t as [t t'].
+    simpl in *.
+    use total2_paths.
+    + simpl.
+      apply funextsec; intro Γ.
+      apply funextsec; intro A.
+      simpl. 
+      use total2_paths.
+      * simpl. 
+        simpl. 
+        unfold comp_to_fcomprehension.
+        apply maponpaths.
+        apply maponpaths.
+        apply (toforallpaths _ _ _ (functor_id (u y) _  )).
+      * simpl. cbn.
+admit.
 Admitted.
 
 Definition foobarla : iCwF ≃ CwF.
