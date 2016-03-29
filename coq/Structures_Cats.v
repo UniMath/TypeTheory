@@ -17,8 +17,9 @@ Local Set Automatic Introduction.
 
 (** Some local notations, *)
 
-Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
-Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
+Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
+Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
+Local Notation "'Tm'" := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
 
 (* TODO: as ever, upstream to [Systems.Auxiliary], and look for in library. *)
 Section Auxiliary.
@@ -97,6 +98,7 @@ Definition obj_ext_mor (X X' : obj_ext_structure C)
 Definition obj_ext_mor_TY {X X'} (F : obj_ext_mor X X') : _ ⇒ _
   := pr1 F.
 
+(* TODO: is this actually useful?  Maybe remove. *)
 Notation "F [ A ]" := ((obj_ext_mor_TY F : nat_trans _ _) _ A) (at level 4) : TY_scope.
 Delimit Scope TY_scope with TY.
 Bind Scope TY_scope with TY.
@@ -107,17 +109,19 @@ Definition obj_ext_mor_φ {X X'} (F : obj_ext_mor X X')
   : Γ ◂ A ⇒ Γ ◂ F[ A ]
 := pr1 (pr2 F _ _).
 
+Local Notation φ := obj_ext_mor_φ.
+
 Definition obj_ext_mor_ax {X X'} (F : obj_ext_mor X X')
     {Γ:C} (A : Ty X Γ)
-  : obj_ext_mor_φ F A ;; π _ = π A
+  : φ F A ;; π _ = π A
 := pr2 (pr2 F _ _).
 
 (* TODO: try to speed up? *)
 Lemma obj_ext_mor_eq {X X'} (F F' : obj_ext_mor X X')
   (e_TY : ∀ Γ (A : Ty X Γ), F [ A ] = F' [ A ])
   (e_comp : ∀ Γ (A : Ty X Γ),
-    obj_ext_mor_φ F A ;; @Δ _ _ _ _ _ (e_TY _ _)
-    = obj_ext_mor_φ F' A)
+    φ F A ;; @Δ _ _ _ _ _ (e_TY _ _)
+    = φ F' A)
   : F = F'.
 Proof.
   use total2_paths.
@@ -158,7 +162,7 @@ Proof.
   - intros X X' X'' F G.
     exists ( obj_ext_mor_TY F ;; obj_ext_mor_TY G ).
     intros Γ A.
-    exists ( obj_ext_mor_φ F A ;; obj_ext_mor_φ G _ ); cbn.
+    exists ( φ F A ;; φ G _ ); cbn.
     etrans. apply @pathsinv0, assoc. 
     etrans. apply maponpaths, obj_ext_mor_ax.
     apply obj_ext_mor_ax.
@@ -200,6 +204,14 @@ Qed.
 Definition obj_ext_Precat : Precategory
   := (obj_ext_precat ,, obj_ext_has_homsets).
 
+(** ** Utility lemmas *)
+Lemma Δ_φ {X X' : obj_ext_Precat} (F : X ⇒ X')
+    {Γ : C} {A A' : Ty X Γ} (e : A = A')
+  : Δ e ;; φ F A' = φ F A ;; Δ (maponpaths ((obj_ext_mor_TY F : nat_trans _ _) _) e).
+Proof.
+  destruct e; simpl. etrans. apply id_left. apply pathsinv0, id_right.
+Qed.
+
 End Obj_Ext_Precat.
 
 (* TODO: possibly clear more implicits, in e.g. [object_ext_precat_data], etc. *)
@@ -214,13 +226,90 @@ Section Families_Structure_Precat.
 Context {C : Precategory}.
 Local Notation hsC := (homset_property C).
 
+Local Notation "'Yo'" := (yoneda _ hsC).
+
+Definition families_mor {X X' : obj_ext_Precat C} (F : X ⇒ X')
+    (Y : families_structure hsC X) (Y' : families_structure hsC X') : Type
+  := Σ FF_TM : TM Y ⇒ TM Y',
+         FF_TM ;; pp Y' = pp Y ;; obj_ext_mor_TY F
+       × 
+         ∀ {Γ:C} {A : Ty X Γ}, Q Y A ;; FF_TM = #Yo (φ F A) ;; Q Y' _.
+
+Definition families_mor_TM {X X'} {F : X ⇒ X'}
+    {Y} {Y'} (FF : families_mor F Y Y') : _ ⇒ _
+  := pr1 FF.
+
+Definition families_mor_pp {X X'} {F : X ⇒ X'}
+    {Y} {Y'} (FF : families_mor F Y Y')
+  : _ = _
+:= pr1 (pr2 FF).
+
+Definition families_mor_Q {X X'} {F : X ⇒ X'}
+    {Y} {Y'} (FF : families_mor F Y Y') {Γ} A
+  : _ = _
+:= pr2 (pr2 FF) Γ A.
+
+Lemma families_mor_eq {X X'} {F : X ⇒ X'}
+    {Y} {Y'} (FF FF' : families_mor F Y Y')
+    (e_TM : ∀ Γ (t : Tm Y Γ),
+      (families_mor_TM FF : nat_trans _ _) _ t
+      = (families_mor_TM FF' : nat_trans _ _) _ t)
+  : FF = FF'.
+Proof.
+  apply subtypeEquality.
+  - intros x; apply isapropdirprod.
+    + apply functor_category_has_homsets.
+    + repeat (apply impred_isaprop; intro). apply functor_category_has_homsets.
+  - apply nat_trans_eq. apply has_homsets_HSET. 
+    intros Γ. apply funextsec. apply e_TM.
+Qed.
+
 Definition families_ob_mor : disp_precat_ob_mor (obj_ext_Precat C).
 Proof.
   exists (fun X => families_structure hsC X).
-  intros X X' F Y Y'.
-Abort.
+  exact @families_mor.
+Defined.
 
-(* TODO: complete! *)
+Definition families_id_comp : disp_precat_id_comp _ families_ob_mor.
+Proof.
+  apply tpair.
+  - intros X Y. simpl; unfold families_mor.
+    exists (identity _). apply tpair.
+    + etrans. apply id_left. apply pathsinv0, id_right.
+    + intros Γ A. etrans. apply id_right.
+      apply pathsinv0. refine (_ @ id_left _).
+      refine (maponpaths (fun k => k ;; _) _).
+      apply functor_id.
+  - intros X0 X1 X2 F G Y0 Y1 Y2 FF GG.
+    exists (families_mor_TM FF ;; families_mor_TM GG). apply tpair.
+    + etrans. apply @pathsinv0. apply assoc.
+      etrans. apply maponpaths, families_mor_pp.
+      etrans. apply assoc.
+      etrans. apply cancel_postcomposition, families_mor_pp.
+      apply pathsinv0. apply assoc.
+    + intros Γ A.
+      etrans. apply assoc.
+      etrans. apply cancel_postcomposition, families_mor_Q.
+      etrans. apply @pathsinv0, assoc.
+      etrans. apply maponpaths, families_mor_Q.
+      etrans. apply assoc.
+      apply cancel_postcomposition.
+      apply pathsinv0, functor_comp.
+Defined.
+
+Definition families_data : disp_precat_data (obj_ext_Precat C)
+  := (_ ,, families_id_comp).
+
+Definition families_axioms : disp_precat_axioms _ families_data.
+Proof.
+  repeat apply tpair.
+  - intros X X' F Y Y' FF. apply families_mor_eq. intros Γ t.
+    simpl.
+    admit.
+  - admit.
+  - admit.
+  - admit.
+Admitted.
 
 End Families_Structure_Precat.
 
@@ -246,14 +335,6 @@ Lemma isaprop_qq_structure_mor
   : isaprop (Z ⇒[F] Z').
 Proof.
   repeat (apply impred_isaprop; intro). apply homset_property.
-Qed.
-
-(* TODO: move *)
-Lemma Δ_φ {CC:Precategory} {X X' : obj_ext_Precat CC} (F : X ⇒ X')
-    {Γ : CC} {A A' : Ty X Γ} (e : A = A')
-  : Δ e ;; φ F A' = φ F A ;; Δ (maponpaths ((obj_ext_mor_TY F : nat_trans _ _) _) e).
-Proof.
-  destruct e; simpl. etrans. apply id_left. apply pathsinv0, id_right.
 Qed.
 
 Definition qq_structure_id_comp : disp_precat_id_comp _ qq_structure_ob_mor.
