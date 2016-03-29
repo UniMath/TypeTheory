@@ -14,6 +14,12 @@ Require Import Systems.Bicats.Displayed_Precats.
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
+
+(** Some local notations, *)
+
+Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
+Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
+
 (* TODO: as ever, upstream to [Systems.Auxiliary], and look for in library. *)
 Section Auxiliary.
 
@@ -31,24 +37,60 @@ Lemma maponpaths_apply {A B} {f0 f1 : A -> B} (e : f0 = f1) (x : A)
 Proof.
   destruct e; apply idpath.
 Defined.
-  
+
+(* TODO: upstream following group (and its [Δ] notation) to [Systems.Structures]. *)
+Definition comp_ext_compare {C:precategory} {X : obj_ext_structure C}
+    {Γ : C} {A A' : Ty X Γ} (e : A = A')
+  : Γ ◂ A ⇒ Γ ◂ A'
+:= idtoiso (maponpaths (comp_ext X Γ) e).
+
+Lemma comp_ext_compare_id {C:precategory} {X : obj_ext_structure C}
+    {Γ : C} (A : Ty X Γ)
+  : comp_ext_compare (idpath A) = identity (Γ ◂ A).
+Proof.
+  apply idpath.
+Qed.
+
+Lemma comp_ext_compare_id_general {C:precategory} {X : obj_ext_structure C}
+    {Γ : C} {A : Ty X Γ} (e : A = A)
+  : comp_ext_compare e = identity (Γ ◂ A).
+Proof.
+  apply @pathscomp0 with (comp_ext_compare (idpath _)).
+  apply maponpaths, setproperty.
+  apply idpath.
+Qed.
+
+Lemma comp_ext_compare_comp {C:precategory} {X : obj_ext_structure C}
+    {Γ : C} {A A' A'' : Ty X Γ} (e : A = A') (e' : A' = A'')
+  : comp_ext_compare (e @ e') = comp_ext_compare e ;; comp_ext_compare e'.
+Proof.
+  apply pathsinv0.
+  etrans. apply idtoiso_concat_pr. 
+  unfold comp_ext_compare. apply maponpaths, maponpaths.
+  apply pathsinv0, maponpathscomp0. 
+Qed.
+
+Lemma comp_ext_compare_comp_general {C:precategory} {X : obj_ext_structure C}
+    {Γ : C} {A A' A'' : Ty X Γ} (e : A = A') (e' : A' = A'') (e'' : A = A'')
+  : comp_ext_compare e'' = comp_ext_compare e ;; comp_ext_compare e'.
+Proof.
+  refine (_ @ comp_ext_compare_comp _ _).
+  apply maponpaths, setproperty.
+Qed.
+
 End Auxiliary.
 
+Local Notation Δ := comp_ext_compare.
+ 
+(** * Precategory of object-extension structures *)
+Section Obj_Ext_Precat.
 
-(** Start by redefining some local notations, and then fixing the base category. *)
-
-Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
-
-Section Fix_Base_Category.
-
-Context {C : precategory} {hsC : has_homsets C}.
-
-
-(** * Object-extension structures *)
+Context {C : Precategory}.
+Local Notation hsC := (homset_property C).
 
 Definition obj_ext_mor (X X' : obj_ext_structure C)
   := Σ F_TY : TY X ⇒ TY X',
-       ∀ {Γ:C} {A : (TY X : functor _ _) Γ : hSet},
+       ∀ {Γ:C} {A : Ty X Γ},
          Σ φ : (Γ ◂ A ⇒ Γ ◂ ((F_TY : nat_trans _ _) _ A)),
            φ ;; π _ = π A.
 
@@ -60,23 +102,22 @@ Delimit Scope TY_scope with TY.
 Bind Scope TY_scope with TY.
 Open Scope TY_scope.
 
-Definition obj_ext_mor_ext {X X'} (F : obj_ext_mor X X')
-    {Γ:C} (A : (TY X : functor _ _) Γ : hSet)
+Definition obj_ext_mor_φ {X X'} (F : obj_ext_mor X X')
+    {Γ:C} (A : Ty X Γ)
   : Γ ◂ A ⇒ Γ ◂ F[ A ]
 := pr1 (pr2 F _ _).
 
 Definition obj_ext_mor_ax {X X'} (F : obj_ext_mor X X')
-    {Γ:C} (A : (TY X : functor _ _) Γ : hSet)
-  : obj_ext_mor_ext F A ;; π _ = π A
+    {Γ:C} (A : Ty X Γ)
+  : obj_ext_mor_φ F A ;; π _ = π A
 := pr2 (pr2 F _ _).
 
 (* TODO: try to speed up? *)
 Lemma obj_ext_mor_eq {X X'} (F F' : obj_ext_mor X X')
-  (e_TY : ∀ Γ (A : (TY X : functor _ _) Γ : hSet), 
-              F [ A ] = F' [ A ])
-  (e_comp : ∀ Γ (A : (TY X : functor _ _) Γ : hSet),
-    obj_ext_mor_ext F A ;; idtoiso (maponpaths (comp_ext X' _) (e_TY _ _))
-    = obj_ext_mor_ext F' A)
+  (e_TY : ∀ Γ (A : Ty X Γ), F [ A ] = F' [ A ])
+  (e_comp : ∀ Γ (A : Ty X Γ),
+    obj_ext_mor_φ F A ;; @Δ _ _ _ _ _ (e_TY _ _)
+    = obj_ext_mor_φ F' A)
   : F = F'.
 Proof.
   use total2_paths.
@@ -96,11 +137,10 @@ Proof.
   simpl.
   etrans. refine (@functtransportf (nat_trans _ _) _ _ _ _ _ _ _).
   etrans. apply @pathsinv0, idtoiso_postcompose.
-  apply maponpaths, maponpaths, maponpaths.
-  etrans. apply @pathsinv0.
-    refine (@maponpathscomp (nat_trans _ _) _ _ _ _ _ _ _).
   apply maponpaths.
-  apply setproperty.
+  etrans. apply maponpaths, maponpaths. apply @pathsinv0.
+    refine (@maponpathscomp (nat_trans _ _) _ _ _ _ _ _ _).
+  apply (maponpaths Δ), setproperty.
 Qed.
 
 Definition obj_ext_ob_mor : precategory_ob_mor.
@@ -118,7 +158,7 @@ Proof.
   - intros X X' X'' F G.
     exists ( obj_ext_mor_TY F ;; obj_ext_mor_TY G ).
     intros Γ A.
-    exists ( obj_ext_mor_ext F A ;; obj_ext_mor_ext G _ ); cbn.
+    exists ( obj_ext_mor_φ F A ;; obj_ext_mor_φ G _ ); cbn.
     etrans. apply @pathsinv0, assoc. 
     etrans. apply maponpaths, obj_ext_mor_ax.
     apply obj_ext_mor_ax.
@@ -160,4 +200,105 @@ Qed.
 Definition obj_ext_Precat : Precategory
   := (obj_ext_precat ,, obj_ext_has_homsets).
 
-End Fix_Base_Category.
+End Obj_Ext_Precat.
+
+(* TODO: possibly clear more implicits, in e.g. [object_ext_precat_data], etc. *)
+Arguments obj_ext_Precat _ : clear implicits.
+
+Local Notation φ := obj_ext_mor_φ.
+
+
+(** * Precategory of families-structures *)
+Section Families_Structure_Precat.
+
+Context {C : Precategory}.
+Local Notation hsC := (homset_property C).
+
+Definition families_ob_mor : disp_precat_ob_mor (obj_ext_Precat C).
+Proof.
+  exists (fun X => families_structure hsC X).
+  intros X X' F Y Y'.
+Abort.
+
+(* TODO: complete! *)
+
+End Families_Structure_Precat.
+
+(** * Precategory of cartesian _q_-morphism-structures *)
+Section qq_Structure_Precat.
+
+Context {C : Precategory}.
+Local Notation hsC := (homset_property C).
+
+Definition qq_structure_ob_mor : disp_precat_ob_mor (obj_ext_Precat C).
+Proof.
+  exists (fun X => qq_morphism_structure X).
+  intros X X' F Z Z'.
+  refine (∀ Γ' Γ (f : C ⟦ Γ' , Γ ⟧) (A : Ty X Γ), _).
+  refine (qq Z f A ;; φ F A = _).
+  refine (φ F _ ;; Δ _ ;; qq Z' f _).
+  revert A; apply toforallpaths.
+  refine (nat_trans_ax (obj_ext_mor_TY F) _ _ _).
+Defined.
+
+Lemma isaprop_qq_structure_mor
+  {X X'} F (Z : qq_structure_ob_mor X) (Z' : qq_structure_ob_mor X')
+  : isaprop (Z ⇒[F] Z').
+Proof.
+  repeat (apply impred_isaprop; intro). apply homset_property.
+Qed.
+
+(* TODO: move *)
+Lemma Δ_φ {CC:Precategory} {X X' : obj_ext_Precat CC} (F : X ⇒ X')
+    {Γ : CC} {A A' : Ty X Γ} (e : A = A')
+  : Δ e ;; φ F A' = φ F A ;; Δ (maponpaths ((obj_ext_mor_TY F : nat_trans _ _) _) e).
+Proof.
+  destruct e; simpl. etrans. apply id_left. apply pathsinv0, id_right.
+Qed.
+
+Definition qq_structure_id_comp : disp_precat_id_comp _ qq_structure_ob_mor.
+Proof.
+  apply tpair.
+  - intros X Z; cbn.
+    intros Γ Γ' f A.
+    etrans. apply id_right.
+    apply pathsinv0.
+    etrans. apply @pathsinv0, assoc. 
+    etrans. apply id_left.
+    etrans.
+      apply cancel_postcomposition.
+      apply comp_ext_compare_id_general.
+    apply id_left.
+  - intros X0 X1 X2 F G Z0 Z1 Z2.
+    intros FF GG Γ Γ' f A. cbn.
+    etrans. apply assoc.
+    etrans. apply cancel_postcomposition, FF.
+    etrans. apply @pathsinv0, assoc.
+    etrans. apply maponpaths, GG.
+    etrans. apply @pathsinv0, assoc.
+    etrans. Focus 2. etrans; apply assoc.
+    apply maponpaths.
+    etrans. apply assoc.
+    etrans. Focus 2. apply @pathsinv0, assoc.
+    apply cancel_postcomposition.
+    etrans. apply assoc.
+    etrans. apply cancel_postcomposition, Δ_φ.
+    etrans. apply @pathsinv0, assoc.
+    apply maponpaths.
+    apply pathsinv0, comp_ext_compare_comp_general.
+Qed.
+
+Definition qq_structure_data : disp_precat_data (obj_ext_Precat C)
+  := (_ ,, qq_structure_id_comp).
+
+Definition qq_structure_axioms : disp_precat_axioms _ qq_structure_data.
+Proof.
+  repeat apply tpair; intros;
+    try apply isasetaprop; apply isaprop_qq_structure_mor.
+Qed.
+
+Definition qq_structure_Precat : disp_precat (obj_ext_Precat C)
+  := (_ ,, qq_structure_axioms).
+
+End qq_Structure_Precat.
+

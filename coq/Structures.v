@@ -119,9 +119,9 @@ Definition isPullback_Q_pp (Y : families_structure) {Γ} (A : (TY X : functor _ 
   : isPullback _ _ _ _ (Q_pp Y A)
 := pr2 (pr2 Y _ _ ).
 
-(** * Split type structures 
+(** * Cartesian _q_-morphism structures, split type-categories
 
-On the other hand, _cartesian q-structure_ (over an object-extension structure) is what is required to constitute a _split type-category_.
+On the other hand, _(cartesian) q-morphism structure_ (over an object-extension structure) is what is required to constitute a _split type-category_.
 
 These are essentially the _type-categories_ of Andy Pitts, _Categorical Logic_, 2000, Def. 6.3.3
 #(<a href="https://synrc.com/publications/cat/Category%%20Theory/Categorical%%20Logic/Pitts%%20A.M.%%20Categorical%%20Logic.pdf##page=73">link</a>).#
