@@ -186,6 +186,7 @@ Lemma wtf:
    comp x ≃ fcomprehension C (preShv C) Yo (target x) (source x) x.
 Proof.
   intro x.
+  apply 
   admit.
 Admitted.
 
