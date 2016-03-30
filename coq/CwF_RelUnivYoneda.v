@@ -202,7 +202,17 @@ Proof.
     destruct x as [a m].
     destruct x' as [a' m']. cbn in *.
     simple refine (total2_paths _ _ ).
+    * simpl.
+      apply funextsec; intro Γ.
+      apply funextsec; intro A.
+      
+      unfold comp_prop in H, H'. simpl in H, H'.
 Abort.
+
+(*
+Definition weq_comp_fcomprehension_data (x : arrow (preShv C)):
+   comp_data x ≃ fcomprehension_data C (preShv C) Yo (target x) (source x) x.
+*)
 
 Definition comp_to_fcomprehension (x : arrow (preShv C)):
    comp x → fcomprehension C (preShv C) Yo (target x) (source x) x.
@@ -254,12 +264,36 @@ Proof.
 Defined.     
 
 
+Lemma foobarla (y : arrow (preShv C)):
+   fcomprehension_data C (preShv C) Yo (target y) (source y) ≃ comp_data y.
+Proof.
+  unfold fcomprehension_data.
+  unfold comp_data.
+  simpl.
+  eapply weqcomp. Focus 2.
+    assert (XR := @weqforalltototal C).
+    specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓA : C, ΓA ⇒ X)).
+    simpl in XR.
+    specialize (XR (fun X pX =>  ∀  (A : ((u y : functor _ _ ) X : hSet)),
+              nat_trans (yoneda_ob_functor_data C hsC (pr1 (pX  A))) (tu y : functor _ _ ))).
+    apply XR.
+  apply weqonsecfibers. intro X. simpl.
+  eapply weqcomp. Focus 2.
+    assert (XR := @weqforalltototal ((u y : functor _ _ ) X : hSet)).
+    specialize (XR (fun A =>  Σ ΓA : C, ΓA ⇒ X)). simpl in XR.
+    specialize (XR (fun A pX => nat_trans (yoneda_ob_functor_data C hsC (pr1 (pX))) (tu y : functor _ _ ))).
+    apply XR. simpl. unfold fpullback_data.
+admit.
+Admitted.
 
 Lemma wtf:
  ∀ x : arrow (preShv C),
    comp x ≃ fcomprehension C (preShv C) Yo (target x) (source x) x.
 Proof.
   intro y.
+  apply invweq.
+  eapply weqcomp. apply fcomprehension_weq.
+  use weqbandf.
   exists (comp_to_fcomprehension _ ).
   apply (gradth _ (fcomprehension_to_comp _ )).
   - intro x.

@@ -52,6 +52,23 @@ Coercion fpullback_data_from_fpullback {X : C} {f : D ⟦J X, U⟧} (T : fpullba
 
 Definition fcomprehension := ∀ X (f : D⟦J X, U⟧), fpullback f.
 
+Definition fcomprehension_data := ∀ X (f : D⟦ J X, U⟧), fpullback_data f.
+Definition fcomprehension_prop (Y : fcomprehension_data) :=
+          ∀ X f, fpullback_prop (Y X f). 
+
+Definition fcomprehension_weq :
+   fcomprehension ≃ Σ Y : fcomprehension_data, fcomprehension_prop Y.
+Proof.
+  eapply weqcomp. Focus 2.
+    set (XR:=@weqforalltototal (ob C)).
+    specialize (XR (fun X => ∀ f : D⟦ J X, U⟧, fpullback_data f)). simpl in XR.
+    specialize (XR (fun X pX => ∀ A, fpullback_prop  (pX  A))).
+    apply XR.
+  apply weqonsecfibers.
+  intro X.
+  apply weqforalltototal.
+Defined.
+
 Lemma isaprop_fpullback {X : C} (f : D ⟦J X, U⟧) (is_c : is_category C)(is_d : is_category D) 
     (HJ : fully_faithful J)
   : isaprop (fpullback f).
