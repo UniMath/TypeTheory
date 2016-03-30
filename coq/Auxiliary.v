@@ -56,15 +56,6 @@ Definition maponpaths_2 {X Y Z : Type} (f : X -> Y -> Z) {x x'} (e : x = x') y
   : f x y = f x' y
 := maponpaths (fun x => f x y) e.
 
-(* TODO: SURELY this is in the library!? *)
-Lemma pathscomp0_assoc {A : UU} {a b c d : A}(e : a = b) (e' : b = c) (e'' : c = d) 
-  : (e @ e') @ e'' = e @ (e' @ e'').
-Proof.
-  destruct e.
-  apply idpath.
-Defined.
-  
-
 Lemma transportf_comp_lemma (X : UU) (B : X -> UU) {A A' A'': X} (e : A = A'') (e' : A' = A'')
   (x : B A) (x' : B A')
   : transportf _ (e @ !e') x = x'
@@ -78,12 +69,12 @@ Proof.
   apply (maponpaths (fun p => transportf _ p x)).
   apply pathsinv0.
   eapply pathscomp0.
-  - apply pathscomp0_assoc. 
+  - apply @pathsinv0, path_assoc. 
   - eapply pathscomp0. 
     apply maponpaths.
     apply pathsinv0l.
     apply pathscomp0rid.
-Qed.
+Defined.
 
 Lemma transportf_comp_lemma_hset (X : UU) (B : X -> UU) (A : X) (e : A = A)
   {x x' : B A} (hs : isaset X)
@@ -448,5 +439,5 @@ Arguments Pb_map_commutes_2 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 Tactic Notation "etrans" := eapply pathscomp0.
 Tactic Notation "rew_trans_@" := repeat (etrans ; [ apply transport_f_f |]).
 Tactic Notation "sym" := apply pathsinv0.
-Tactic Notation "assoc" := apply pathscomp0_assoc.
+Tactic Notation "assoc" := apply @pathsinv0, path_assoc.
 Tactic Notation "cancel_postcomposition" := apply cancel_postcomposition.
