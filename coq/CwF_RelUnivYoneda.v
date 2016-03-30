@@ -191,7 +191,7 @@ Proof.
     simple refine (idweq _ ).
 Defined.  
 
-
+(*
 Lemma isaprop_comp (y : arrow (preShv C)) : isaprop (comp y).
 Proof.
   apply invproofirrelevance.
@@ -208,11 +208,91 @@ Proof.
       
       unfold comp_prop in H, H'. simpl in H, H'.
 Abort.
+*)
 
 (*
 Definition weq_comp_fcomprehension_data (x : arrow (preShv C)):
    comp_data x ≃ fcomprehension_data C (preShv C) Yo (target x) (source x) x.
 *)
+
+
+Definition Yo_pullback (x : arrow (preShv C)) : UU :=
+   ∀ X (A : (target x : functor _ _ ) X : hSet),
+      fpullback C (preShv C) Yo (target x) (source x) x (yy A).
+
+Definition weq_fcomprehension_Yo_pullback (x : arrow (preShv C)) :
+   fcomprehension C (preShv C) Yo (target x) (source x) x ≃ Yo_pullback x.
+Proof.
+  apply weqonsecfibers.
+  intro X.
+  apply (weqonsecbase _ (@yy _ _ _ _ )).
+Defined.
+
+
+Definition weq_comp_data (y : arrow (preShv C)) : comp_data y ≃
+      ∀ (Γ : C) (A : (u y : functor _ _ ) Γ : hSet),
+          Σ (ΓA : C) (pi : ΓA ⇒ Γ), Yo ΓA ⇒ tu y.
+Proof.
+  unfold comp_data.
+  eapply weqcomp.
+    set (XR := @weqtotaltoforall C).
+    specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓA : C, ΓA ⇒ X)).
+      simpl in XR.
+    specialize (XR (fun X dpr =>  ∀ (A : (u y : functor _ _ ) X : hSet), Yo (pr1 (dpr A)) ⇒ tu y)).
+    apply XR.
+  apply weqonsecfibers. intro X.
+
+(*
+  Search ( (Σ _ , _ ) ≃ (∀ _ , _ )).
+
+                      (Σ dpr0 : ∀ Γ : C, (u y) Γ → Σ ΓA : C, ΓA ⇒ Γ,
+      ∀ (Γ : C^op) (A : (u y) Γ), Yo (pr1 (dpr0 Γ A)) ⇒ tu y)
+comp_data y.
+Proof.
+  unfold comp_data.
+*)
+
+Lemma wtf:
+ ∀ x : arrow (preShv C),
+   comp x ≃ fcomprehension C (preShv C) Yo (target x) (source x) x.
+Proof.
+  intro y.
+  apply invweq.
+  eapply weqcomp. apply weq_fcomprehension_Yo_pullback.
+  unfold comp.
+  unfold Yo_pullback. unfold fpullback. unfold fpullback_data.
+          unfold comp_data.
+  eapply weqcomp. Focus 2.
+(*
+    use (@weqbandf _ (Σ Y, Σ dpr : ∀ Γ : C, ((u y : functor _ _ ) Γ : hSet) → Σ ΓA : C, ΓA ⇒ Γ,
+          ∀ (Γ : C^op) (A : (u y : functor _ _ ) Γ : hSet), Yo (pr1 (dpr Γ A)) ⇒ tu y)) .
+
+
+
+    apply weqonsecfibers. intro X.
+    apply weqonsecfibers. intro A.
+    unfold fpullback.
+*)
+
+admit.
+Admitted.
+
+
+Definition foobarla : iCwF ≃ CwF.
+Proof.
+  unfold iCwF.
+  unfold CwF. unfold relative_universe_structure.
+  unfold mor_of_presheaves.
+  apply weqfibtototal.
+  apply wtf.
+Defined.   
+
+
+
+Definition comp_to_fcomprehension (x : arrow (preShv C)):
+    fcomprehension C (preShv C) Yo (target x) (source x) x.
+
+
 
 Definition comp_to_fcomprehension (x : arrow (preShv C)):
    comp x → fcomprehension C (preShv C) Yo (target x) (source x) x.
@@ -291,68 +371,6 @@ Proof.
   apply XR.
 Defined.  
 
-Lemma wtf:
- ∀ x : arrow (preShv C),
-   comp x ≃ fcomprehension C (preShv C) Yo (target x) (source x) x.
-Proof.
-  intro y.
-  apply invweq.
-  eapply weqcomp. apply fcomprehension_weq.
-  use weqbandf.
-  - apply foobarla.
-  - intro x.
-    apply weqimplimpl.
-    + intro H.
-      intros X A.
-      assert (XR := H X (yy A)). unfold fpullback_prop in XR.
-      mkpair.
-      * set (XR' := pr1 XR). 
-        etrans. Focus 2. apply XR'.
-    cbn.
-
-
-
-
-Lemma wtf:
- ∀ x : arrow (preShv C),
-   comp x ≃ fcomprehension C (preShv C) Yo (target x) (source x) x.
-Proof.
-  intro y.
-  apply invweq.
-  eapply weqcomp. apply fcomprehension_weq.
-  use weqbandf.
-  exists (comp_to_fcomprehension _ ).
-  apply (gradth _ (fcomprehension_to_comp _ )).
-  - intro x.
-    apply subtypeEquality.
-    intro. apply isaprop_comp_prop.
-    destruct x as [t H]. simpl.
-    destruct t as [t t'].
-    simpl in *.
-    use total2_paths.
-    + simpl.
-      apply funextsec; intro Γ.
-      apply funextsec; intro A.
-      simpl. 
-      use total2_paths.
-      * simpl. 
-        simpl. 
-        unfold comp_to_fcomprehension.
-        apply maponpaths.
-        apply maponpaths.
-        apply (toforallpaths _ _ _ (functor_id (u y) _  )).
-      * simpl. cbn.
-admit.
-Admitted.
-
-Definition foobarla : iCwF ≃ CwF.
-Proof.
-  unfold iCwF.
-  unfold CwF. unfold relative_universe_structure.
-  unfold mor_of_presheaves.
-  apply weqfibtototal.
-  apply wtf.
-Defined.   
 
 End fix_category.
 
