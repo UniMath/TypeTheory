@@ -283,3 +283,17 @@ Proof.
 Defined.
 
 End Discrete_precats.
+
+(** * Miscellaneous *)
+
+(** Useful lemma for binary functions, generalising e.g. [cancel_postcomposition]. 
+
+TODO:
+- move upstream to [Auxiliary];
+- seek in library; 
+- and also sub this in for where it’s been approximated using [toforallpaths] + [maponpaths] (which is a lot slower in some ). *)
+Lemma maponpaths_2 {X Y Z : Type} (f : X -> Y -> Z) {x x'} (e : x = x') y
+  : f x y = f x' y.
+Proof.
+  destruct e; apply idpath.
+Defined.

@@ -213,6 +213,79 @@ Notation "ff ;; gg" := (comp_disp ff gg)
 Delimit Scope mor_disp_scope with mor_disp.
 Bind Scope mor_disp_scope with mor_disp.
 
+(** * Isomorphisms and (saturated) categories *)
+
+Section Isos.
+
+Definition is_iso_disp {C : Precategory} {D : disp_precat_data C}
+    {x y : C} (f : iso x y) {xx : D x} {yy} (ff : xx ⇒[f] yy)
+  : Type
+:= Σ (gg : yy ⇒[inv_from_iso f] xx),
+     (gg ;; ff
+       = transportb (fun g => yy ⇒[g] yy) (iso_after_iso_inv _) (id_disp _)
+     × ff ;; gg
+       = transportb (fun g => xx ⇒[g] xx) (iso_inv_after_iso _) (id_disp _)
+     )%mor_disp.
+
+Definition iso_disp {C : Precategory} {D : disp_precat_data C}
+    {x y : C} (f : iso x y) (xx : D x) (yy : D y)
+  := Σ ff : xx ⇒[f] yy, is_iso_disp f ff.
+
+Definition id_is_iso_disp {C} {D : disp_precat C} {x : C} (xx : D x)
+  : is_iso_disp (identity_iso x) (id_disp xx).
+Proof.
+  exists (id_disp _); split.
+  - etrans. apply id_left_disp.
+    apply maponpaths_2, homset_property.
+  - etrans. apply id_left_disp.
+    apply maponpaths_2, homset_property.
+Defined.
+
+Definition identity_iso_disp {C} {D : disp_precat C} {x : C} (xx : D x)
+  : iso_disp (identity_iso x) xx xx
+:= (_ ,, id_is_iso_disp _).
+
+Lemma idtoiso_disp {C} {D : disp_precat C}
+    {x x' : C} (e : x = x')
+    {xx : D x} {xx' : D x'} (ee : transportf _ e xx = xx')
+  : iso_disp (idtoiso e) xx xx'.
+Proof.
+  destruct e, ee; apply identity_iso_disp.
+Defined.
+
+Lemma idtoiso_fiber_disp {C} {D : disp_precat C} {x : C}
+    {xx xx' : D x} (ee : xx = xx')
+  : iso_disp (identity_iso x) xx xx'.
+Proof.
+  exact (idtoiso_disp (idpath _) ee).
+Defined.
+
+End Isos.
+
+Section Categories.
+
+(** This is certainly the correct definition in the case where [C] is a category.
+
+When [C] is a general precategory, it’s not quite clear if this definition is correct, or if some other definition might be better. *)
+
+Definition is_category_disp {C} (D : disp_precat C)
+  := forall x x' (e : x = x') {xx : D x} {xx' : D x'},
+       isweq (λ ee, @idtoiso_disp _ _ _ _ e xx xx' ee).
+
+
+Lemma is_category_disp_from_fibers {C} {D : disp_precat C}
+  : (∀ x (xx xx' : D x), isweq (fun e : xx = xx' => idtoiso_fiber_disp e))
+  -> is_category_disp D.
+Proof.
+  intros H x x' e. destruct e. apply H.
+Qed.
+
+Definition disp_category {C}
+  := Σ D : disp_precat C, is_category_disp D.
+
+End Categories.
+
+
 (** * Total category *)
 
 (* Any displayed precategory has a total precategory, with a forgetful functor to the base category. *)
@@ -297,6 +370,16 @@ Qed.
 
 Definition pr1_precat : functor total_precat C
   := (pr1_precat_data ,, pr1_precat_is_functor).
+
+(** TODO: add the following lemma!
+
+Sketch proof:
+- lemma first: isos in total cat are equivalent to pairs of isos in base and in displayed cat;
+- now apply [weqbandf] *)
+Lemma is_category_total_category (CC : is_category C) (DD : is_category_disp D)
+  : is_category (total_precat).
+Proof.
+Abort.
 
 End Total_Precat.
 
