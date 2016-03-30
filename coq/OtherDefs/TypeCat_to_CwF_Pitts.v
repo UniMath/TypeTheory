@@ -134,7 +134,7 @@ Proof.
     rewrite idtoiso_postcompose.
     etrans.
     eapply pathsinv0. apply functtransportf.
-    rewrite transportf_pathscomp0.
+    rewrite transport_f_f.
     match goal with |[|- transportf _ ?e _ = _ ] =>
                      assert (He : e = idpath _ )  end .
     apply (pr1 (pr2 C)).
@@ -211,7 +211,7 @@ Proof.
     
     etrans. eapply pathsinv0. cancel_postcomposition.
       cancel_postcomposition. apply functtransportf.
-    rewrite transportf_pathscomp0.
+    rewrite transport_f_f.
 
     match goal with |[|- transportf ?a ?b ?c ;; _ ;; _ = _ ] =>
            set (a':=a); set (b':=b); set (c':=c) end.
@@ -332,7 +332,7 @@ Proof.
                       (@rtype _ tt_reindx_type_struct_of_type_cat _ _ A) _ _ _).
       etrans. apply transportf_reind_type_cat.
       etrans. apply maponpaths, transportf_reind_type_cat.
-      etrans. apply transportf_pathscomp0.
+      etrans. apply transport_f_f.
       match goal with |[ |- transportf _ ?e' _ = _] => set (e:=e') end.
       etrans. symmetry; apply idtoiso_postcompose.
     

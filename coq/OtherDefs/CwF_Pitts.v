@@ -477,7 +477,7 @@ Qed.
 (* A slightly odd statement, but very often useful.
    
    TODO: consider naming!
-   TODO: try to use in proofs, instead of [transportf_pathscomp0] *)
+   TODO: try to use in proofs, instead of [transport_f_f] *)
 Lemma term_typeeq_transport_lemma {Γ} {A A' A'': C ⟨ Γ ⟩} (e : A = A'') (e' : A' = A'')
   (x : C ⟨ Γ ⊢ A ⟩) (x' : C ⟨ Γ ⊢ A' ⟩)
   : transportf _ (e @ !e') x = x'
@@ -610,13 +610,13 @@ Proof.
     apply cwf_law_1.
   eapply pathscomp0. apply (pairing_mapeq _ _ e1).
   apply maponpaths.
-  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0. apply transport_f_f.
   eapply pathscomp0. apply maponpaths. refine (! rterm_typeeq _ _ _).
-  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0. apply transport_f_f.
   eapply pathscomp0. apply maponpaths, pre_cwf_law_2'.
   rew_trans_@.
   eapply pathscomp0. apply maponpaths, transportf_rtype_mapeq.
-  repeat (eapply pathscomp0; [ apply transportf_pathscomp0 | ]).
+  repeat (eapply pathscomp0; [ apply transport_f_f | ]).
   refine (maponpaths (fun e => transportf _ e _) _).
   apply cwf_types_isaset.
 Qed.
@@ -665,10 +665,10 @@ Proof.
     apply maponpaths.
     symmetry. apply reindx_term_comp'.
   apply term_typeeq_transport_lemma.
-  repeat (eapply pathscomp0; [ apply transportf_pathscomp0 |]).
+  repeat (eapply pathscomp0; [ apply transport_f_f |]).
   eapply pathscomp0.
     apply maponpaths, (rterm_mapeq e2).
-  eapply pathscomp0. apply transportf_pathscomp0.
+  eapply pathscomp0. apply transport_f_f.
   eapply pathscomp0.
     Focus 2. symmetry. apply transportf_rtype_mapeq.
   repeat apply term_typeeq_transport_lemma. 

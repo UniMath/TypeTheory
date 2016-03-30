@@ -111,7 +111,7 @@ Proof.
     eapply pathscomp0.
     apply (pairing_mapeq _ _ (id_right _ _ _ _)).
     apply maponpaths. simpl.
-    eapply pathscomp0. apply transportf_pathscomp0.
+    eapply pathscomp0. apply transport_f_f.
     unshelve refine (_ @ _).
       exact (transportf (term C (Γ ◂ reind_type_cat A (identity Γ)))
         (maponpaths (fun B => B [π (A [identity Γ])]) (reindx_type_id C Γ A))
@@ -160,23 +160,23 @@ Proof.
       intros p p'.
       clear X'.
       rewrite  (reindx_term_comp C).
-      rewrite transportf_pathscomp0.
+      rewrite transport_f_f.
       match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
                        generalize e' end.
       clear p.
       intro p.
       rewrite pre_cwf_law_2'.
       unfold transportb.
-      rewrite transportf_pathscomp0.
-      rewrite transportf_pathscomp0.
+      rewrite transport_f_f.
+      rewrite transport_f_f.
       apply term_typeeq_transport_lemma.
       match goal with |[ |- _ = transportf _ ?e _ ⟦ _ ⟧ ] => generalize e end.
       intro q.
       etrans. Focus 2. apply rterm_typeeq.
       rewrite  pre_cwf_law_2'.
-      rewrite transportf_pathscomp0.
+      rewrite transport_f_f.
       unfold transportb.
-      rewrite transportf_pathscomp0.
+      rewrite transport_f_f.
       match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
                        generalize e; generalize e' end.
       intros P P'. clear p q. clear p'.
