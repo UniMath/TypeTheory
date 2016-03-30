@@ -271,7 +271,7 @@ Proof.
   unfold comp_data.
   simpl.
   eapply weqcomp. Focus 2.
-    assert (XR := @weqforalltototal C).
+    set (XR := @weqforalltototal C).
     specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓA : C, ΓA ⇒ X)).
     simpl in XR.
     specialize (XR (fun X pX =>  ∀  (A : ((u y : functor _ _ ) X : hSet)),
@@ -279,12 +279,39 @@ Proof.
     apply XR.
   apply weqonsecfibers. intro X. simpl.
   eapply weqcomp. Focus 2.
-    assert (XR := @weqforalltototal ((u y : functor _ _ ) X : hSet)).
+    set (XR := @weqforalltototal ((u y : functor _ _ ) X : hSet)).
     specialize (XR (fun A =>  Σ ΓA : C, ΓA ⇒ X)). simpl in XR.
     specialize (XR (fun A pX => nat_trans (yoneda_ob_functor_data C hsC (pr1 (pX))) (tu y : functor _ _ ))).
     apply XR. simpl. unfold fpullback_data.
-admit.
-Admitted.
+  eapply weqcomp.
+    eapply weqbfun. apply (invweq (yoneda_weq _ _ _ _ )).
+  apply weqffun.
+  set (XR:= @weqtotal2asstol (ob C) (fun XA => _ ⟦XA, X⟧)). simpl in XR.
+  specialize (XR (fun Q => Yo (pr1 Q) ⇒ source y)).
+  apply XR.
+Defined.  
+
+Lemma wtf:
+ ∀ x : arrow (preShv C),
+   comp x ≃ fcomprehension C (preShv C) Yo (target x) (source x) x.
+Proof.
+  intro y.
+  apply invweq.
+  eapply weqcomp. apply fcomprehension_weq.
+  use weqbandf.
+  - apply foobarla.
+  - intro x.
+    apply weqimplimpl.
+    + intro H.
+      intros X A.
+      assert (XR := H X (yy A)). unfold fpullback_prop in XR.
+      mkpair.
+      * set (XR' := pr1 XR). 
+        etrans. Focus 2. apply XR'.
+    cbn.
+
+
+
 
 Lemma wtf:
  ∀ x : arrow (preShv C),
