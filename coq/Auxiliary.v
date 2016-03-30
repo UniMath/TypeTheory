@@ -49,9 +49,14 @@ Proof.
   apply idpath.
 Defined.
 
+(** Useful lemma for binary functions, generalising e.g. [cancel_postcomposition]. 
 
+TODO: look carefully for this in the library *)
+Definition maponpaths_2 {X Y Z : Type} (f : X -> Y -> Z) {x x'} (e : x = x') y
+  : f x y = f x' y
+:= maponpaths (fun x => f x y) e.
 
-(* (Surprised there’s no library function for this!) *)
+(* TODO: sub out for library function [transport_f_f]. *)
 Lemma transportf_pathscomp0 {A} {B} {a a' a'' : A} (e : a = a') (e' : a' = a'') (b : B a)
   : transportf B e' (transportf B e b) = transportf B (pathscomp0 e e') b.
 Proof.

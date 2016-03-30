@@ -416,16 +416,14 @@ Proof.
     eapply pathscomp0. apply maponpaths, id_left_disp.
     eapply pathscomp0. apply transport_f_b.
     eapply pathscomp0. Focus 2. apply @pathsinv0, (functtransportb (# F)).
-    refine (toforallpaths _ _ _ _ ff). unfold transportb; apply maponpaths.
-    apply homset_property.
+    unfold transportb; apply maponpaths_2, homset_property.
   - intros x y f xx yy ff. 
     eapply pathscomp0. apply maponpaths, compr_disp_transp.
     eapply pathscomp0. apply transport_b_f.
     eapply pathscomp0. apply maponpaths, id_right_disp.
     eapply pathscomp0. apply transport_f_b.
     eapply pathscomp0. Focus 2. apply @pathsinv0, (functtransportb (# F)).
-    refine (toforallpaths _ _ _ _ ff). unfold transportb; apply maponpaths.
-    apply homset_property.
+    unfold transportb; apply maponpaths_2, homset_property.
   - intros x y z w f g h xx yy zz ww ff gg hh.
     eapply pathscomp0. apply maponpaths, compr_disp_transp.
     eapply pathscomp0. apply transport_b_f.
@@ -436,9 +434,7 @@ Proof.
     eapply pathscomp0. apply transport_b_b.
     eapply pathscomp0. apply maponpaths, compl_disp_transp.
     eapply pathscomp0. apply transport_b_f.
-    refine (toforallpaths _ _ _ _ (ff ;; gg ;; hh)%mor_disp).
-    unfold transportb; apply maponpaths.
-    apply homset_property.
+    unfold transportb; apply maponpaths_2, homset_property.
   - intros; apply homsets_disp.
 Qed.
 

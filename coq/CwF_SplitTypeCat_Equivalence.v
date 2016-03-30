@@ -776,7 +776,7 @@ Qed.
   specialize (YH Γ Γ' A (s ;; π _ )). simpl in YH.
   assert (XR := nat_trans_eq_pointwise YH Γ').
   assert (XR2 := toforallpaths _ _ _ XR).
-  simpl in XR2. cbn in XR2.
+  cbn in XR2.
   etrans. apply XR2.
   apply maponpaths.
   unfold yoneda_morphisms_data.
