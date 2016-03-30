@@ -83,16 +83,16 @@ End Record_Preview.
 Section Disp_Precat.
 
 Definition disp_precat_ob_mor (C : precategory_ob_mor)
-  := Σ (obd : C -> Type), (∀ x y:C, (x ⇒ y) -> obd x -> obd y -> Type).
+  := Σ (obd : C -> Type), (∀ x y:C, obd x -> obd y -> (x ⇒ y) -> Type).
 
 Definition ob_disp {C} (D : disp_precat_ob_mor C) := pr1 D.
 Coercion ob_disp : disp_precat_ob_mor >-> Funclass.
 
 Definition mor_disp {C} {D : disp_precat_ob_mor C}
-  {x y} (f : x ⇒ y) xx yy
-:= pr2 D x y f xx yy : Type. 
+  {x y} xx yy (f : x ⇒ y)
+:= pr2 D x y xx yy f : Type. 
 
-Local Notation "xx ⇒[ f ] yy" := (mor_disp f xx yy) (at level 50, yy at next level).
+Local Notation "xx ⇒[ f ] yy" := (mor_disp xx yy f) (at level 50, yy at next level).
 
 Definition disp_precat_id_comp (C : precategory_data)
   (D : disp_precat_ob_mor C)
@@ -129,18 +129,17 @@ Bind Scope mor_disp_scope with mor_disp.
 
 Definition disp_precat_axioms (C : Precategory) (D : disp_precat_data C)
   : Type
-:= (∀ x y (f : x ⇒ y) (xx : D x) yy (ff : xx ⇒[f] yy),
+:= ((∀ x y (f : x ⇒ y) (xx : D x) yy (ff : xx ⇒[f] yy),
      id_disp _ ;; ff
-     = transportb (fun k => mor_disp k _ _) (id_left _) ff)%mor_disp
+     = transportb _ (id_left _) ff)
    × (∀ x y (f : x ⇒ y) (xx : D x) yy (ff : xx ⇒[f] yy),
      ff ;; id_disp _
-     = transportb (fun k => mor_disp k _ _) (id_right _) ff)%mor_disp
+     = transportb _ (id_right _) ff)
    × (∀ x y z w f g h (xx : D x) (yy : D y) (zz : D z) (ww : D w)
         (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz) (hh : zz ⇒[h] ww),
      ff ;; (gg ;; hh)
-     = transportb (fun k => mor_disp k _ _) (assoc _ _ _)
-       ((ff ;; gg) ;; hh))%mor_disp
-   × (∀ x y f (xx : D x) (yy : D y), isaset (xx ⇒[f] yy)).
+     = transportb _ (assoc _ _ _) ((ff ;; gg) ;; hh))
+   × (∀ x y f (xx : D x) (yy : D y), isaset (xx ⇒[f] yy)))%mor_disp.
 
 Definition disp_precat (C : Precategory) := total2 (disp_precat_axioms C).
 
@@ -150,22 +149,18 @@ Coercion disp_precat_data_from_disp_precat : disp_precat >-> disp_precat_data.
 
 Definition id_left_disp {C} {D : disp_precat C} 
   {x y} {f : x ⇒ y} {xx : D x} {yy} {ff : xx ⇒[f] yy}
-: (id_disp _ ;; ff
-  = transportb (fun k => mor_disp k _ _) (id_left _) ff)%mor_disp
+: (id_disp _ ;; ff = transportb _ (id_left _) ff)%mor_disp
 := pr1 (pr2 D) _ _ _ _ _ _.
 
 Definition id_right_disp {C} {D : disp_precat C} 
   {x y} {f : x ⇒ y} {xx : D x} {yy} {ff : xx ⇒[f] yy}
-  : (ff ;; id_disp _
-    = transportb (fun k => mor_disp k _ _) (id_right _) ff)%mor_disp
+  : (ff ;; id_disp _ = transportb _ (id_right _) ff)%mor_disp
 := pr1 (pr2 (pr2 D)) _ _ _ _ _ _.
 
 Definition assoc_disp {C} {D : disp_precat C}
   {x y z w} {f} {g} {h} {xx : D x} {yy : D y} {zz : D z} {ww : D w}
   {ff : xx ⇒[f] yy} {gg : yy ⇒[g] zz} {hh : zz ⇒[h] ww}
-: (ff ;; (gg ;; hh)
-  = transportb (fun k => mor_disp k _ _) (assoc _ _ _)
-      ((ff ;; gg) ;; hh))%mor_disp
+: (ff ;; (gg ;; hh) = transportb _ (assoc _ _ _) ((ff ;; gg) ;; hh))%mor_disp
 := pr1 (pr2 (pr2 (pr2 D))) _ _ _ _ _ _ _ _ _ _ _ _ _ _.
 
 Definition homsets_disp {C} {D :disp_precat C} {x y} {f} {xx : D x} {yy : D y}
@@ -183,9 +178,8 @@ Abort.
 Lemma compl_disp_transp {C : Precategory} {D : disp_precat_data C}
     {x y z : C} {f f' : x ⇒ y} (ef : f = f') {g : y ⇒ z}
     {xx : D x} {yy} {zz} (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
-  : ((transportf (fun k => _ ⇒[k] _) ef ff) ;; gg
-  = transportf (fun k => _ ⇒[k] _)
-    (maponpaths (fun k => k ;; _)%mor ef) (ff ;; gg))%mor_disp.
+  : ((transportf _ ef ff) ;; gg
+  = transportf _ (maponpaths (fun k => k ;; _)%mor ef) (ff ;; gg))%mor_disp.
 Proof.
   destruct ef. apply idpath.
 Qed.
@@ -193,9 +187,8 @@ Qed.
 Lemma compr_disp_transp {C : Precategory} {D : disp_precat_data C}
     {x y z : C} {f : x ⇒ y} {g g' : y ⇒ z} (eg : g = g')
     {xx : D x} {yy} {zz} (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
-  : (ff ;; (transportf (fun k => _ ⇒[k] _) eg gg)
-  = transportf (fun k => _ ⇒[k] _)
-    (maponpaths (fun k => _ ;; k)%mor eg) (ff ;; gg))%mor_disp.
+  : (ff ;; (transportf _ eg gg)
+  = transportf _ (maponpaths (fun k => _ ;; k)%mor eg) (ff ;; gg))%mor_disp.
 Proof.
   destruct eg. apply idpath.
 Qed.
@@ -205,7 +198,7 @@ End Lemmas.
 End Disp_Precat.
 
 (** Redeclare sectional notations globally. *)
-Notation "xx ⇒[ f ] yy" := (mor_disp f xx yy) (at level 50, yy at next level).
+Notation "xx ⇒[ f ] yy" := (mor_disp xx yy f) (at level 50, yy at next level).
 
 Notation "ff ;; gg" := (comp_disp ff gg)
   (at level 50, left associativity, format "ff  ;;  gg")
@@ -221,11 +214,8 @@ Definition is_iso_disp {C : Precategory} {D : disp_precat_data C}
     {x y : C} (f : iso x y) {xx : D x} {yy} (ff : xx ⇒[f] yy)
   : Type
 := Σ (gg : yy ⇒[inv_from_iso f] xx),
-     (gg ;; ff
-       = transportb (fun g => yy ⇒[g] yy) (iso_after_iso_inv _) (id_disp _)
-     × ff ;; gg
-       = transportb (fun g => xx ⇒[g] xx) (iso_inv_after_iso _) (id_disp _)
-     )%mor_disp.
+       (gg ;; ff = transportb _ (iso_after_iso_inv _) (id_disp _)
+     ×  ff ;; gg = transportb _ (iso_inv_after_iso _) (id_disp _))%mor_disp.
 
 Definition iso_disp {C : Precategory} {D : disp_precat_data C}
     {x y : C} (f : iso x y) (xx : D x) (yy : D y)
@@ -325,19 +315,19 @@ Proof.
       apply maponpaths, id_left_disp.
   (* Note: [transportbfinv] is from [UniMath.Ktheory.Utilities.
   We currently can’t import that, due to notation clashes. *)
-    exact (Utilities.transportfbinv _ _ (pr2 ff)).
+    apply Utilities.transportfbinv. 
   - intros xx yy ff; cbn.
     use total2_paths; simpl.
     apply id_right.
     eapply pathscomp0.
       apply maponpaths, id_right_disp.
-    exact (Utilities.transportfbinv _ _ (pr2 ff)).
+    apply Utilities.transportfbinv. 
   - intros xx yy zz ww ff gg hh.
     use total2_paths; simpl.
     apply assoc.
     eapply pathscomp0.
       apply maponpaths, assoc_disp.
-    exact (Utilities.transportfbinv (fun k => _ ⇒[k] _) _ _).
+    apply Utilities.transportfbinv. 
 Qed.
 
 (* The “pre-pre-category” version, without homsets *)
@@ -400,17 +390,17 @@ Context {C' C : Precategory} (F : functor C' C) (D : disp_precat C).
 Definition reindex_disp_precat_ob_mor : disp_precat_ob_mor C'.
 Proof.
   exists (fun c => D (F c)).
-  intros x y f xx yy. exact (xx ⇒[# F f] yy).
+  intros x y xx yy f. exact (xx ⇒[# F f] yy).
 Defined.
 
 Definition reindex_disp_precat_id_comp : disp_precat_id_comp C' reindex_disp_precat_ob_mor.
 Proof.
   apply tpair.
   - simpl; intros x xx.
-    refine (transportb (fun g => _ ⇒[g] _) _ _).
+    refine (transportb _ _ _).
     apply functor_id. apply id_disp.
   - simpl; intros x y z f g xx yy zz ff gg.
-    refine (transportb (fun g => _ ⇒[g] _) _ _).
+    refine (transportb _ _ _).
     apply functor_comp. exact (ff ;; gg)%mor_disp.    
 Defined.
 
@@ -422,33 +412,30 @@ Proof.
   repeat apply tpair; cbn.
   - intros x y f xx yy ff. 
     eapply pathscomp0. apply maponpaths, compl_disp_transp.
-    eapply pathscomp0. refine (transport_b_f (fun g => _ ⇒[g] _) _ _ _).
+    eapply pathscomp0. apply transport_b_f.
     eapply pathscomp0. apply maponpaths, id_left_disp.
-    eapply pathscomp0. refine (transport_f_b (fun g => _ ⇒[g] _) _ _ _).
-    eapply pathscomp0. Focus 2. eapply pathsinv0.
-      refine (functtransportb (# F) (fun g => _ ⇒[g] _) _ _).
+    eapply pathscomp0. apply transport_f_b.
+    eapply pathscomp0. Focus 2. apply @pathsinv0, (functtransportb (# F)).
     refine (toforallpaths _ _ _ _ ff). unfold transportb; apply maponpaths.
     apply homset_property.
   - intros x y f xx yy ff. 
     eapply pathscomp0. apply maponpaths, compr_disp_transp.
-    eapply pathscomp0. refine (transport_b_f (fun g => _ ⇒[g] _) _ _ _).
+    eapply pathscomp0. apply transport_b_f.
     eapply pathscomp0. apply maponpaths, id_right_disp.
-    eapply pathscomp0. refine (transport_f_b (fun g => _ ⇒[g] _) _ _ _).
-    eapply pathscomp0. Focus 2. eapply pathsinv0.
-      refine (functtransportb (# F) (fun g => _ ⇒[g] _) _ _).
+    eapply pathscomp0. apply transport_f_b.
+    eapply pathscomp0. Focus 2. apply @pathsinv0, (functtransportb (# F)).
     refine (toforallpaths _ _ _ _ ff). unfold transportb; apply maponpaths.
     apply homset_property.
   - intros x y z w f g h xx yy zz ww ff gg hh.
     eapply pathscomp0. apply maponpaths, compr_disp_transp.
-    eapply pathscomp0. refine (transport_b_f (fun g => _ ⇒[g] _) _ _ _).
+    eapply pathscomp0. apply transport_b_f.
     eapply pathscomp0. apply maponpaths, assoc_disp.
-    eapply pathscomp0. refine (transport_f_b (fun g => _ ⇒[g] _) _ _ _).
+    eapply pathscomp0. apply transport_f_b.
     apply pathsinv0.
-    eapply pathscomp0.
-      refine (functtransportb (# F) (fun g => _ ⇒[g] _) _ _).
-    eapply pathscomp0. refine (transport_b_b (fun g => _ ⇒[g] _) _ _ _).
+    eapply pathscomp0. apply (functtransportb (# F)).
+    eapply pathscomp0. apply transport_b_b.
     eapply pathscomp0. apply maponpaths, compl_disp_transp.
-    eapply pathscomp0. refine (transport_b_f (fun g => _ ⇒[g] _) _ _ _).
+    eapply pathscomp0. apply transport_b_f.
     refine (toforallpaths _ _ _ _ (ff ;; gg ;; hh)%mor_disp).
     unfold transportb; apply maponpaths.
     apply homset_property.
@@ -540,13 +527,11 @@ Proof.
   - intros x. use total2_paths; simpl.
     apply functor_id.
     eapply pathscomp0. apply maponpaths, (section_disp_id FF).
-    cbn.
-    refine (Utilities.transportfbinv (fun (g : F _ ⇒ F _) => _ ⇒[g] _) _ _).
+    cbn. apply Utilities.transportfbinv.
   - intros x y z f g. use total2_paths; simpl.
     apply functor_comp.
     eapply pathscomp0. apply maponpaths, (section_disp_comp FF).
-    cbn.
-    refine (Utilities.transportfbinv (fun (g : F _ ⇒ F _) => _ ⇒[g] _) _ _).
+    cbn. apply Utilities.transportfbinv.
 Qed.
 
 Definition total_functor {C C' : Precategory} {D : disp_precat C}
@@ -576,7 +561,7 @@ Context (C:Precategory).
 Definition arrow_disp_ob_mor : disp_precat_ob_mor (C × C).
 Proof.
   exists (fun xy : (C × C) => (pr1 xy) ⇒ (pr2 xy)).
-  simpl; intros xx' yy' ff' g h. 
+  simpl; intros xx' yy' g h ff'. 
     exact (pr1 ff' ;; h = g ;; pr2 ff').
 Defined.
 
@@ -621,7 +606,7 @@ Context (C:Precategory).
 Definition NAction_disp_ob_mor : disp_precat_ob_mor C.
 Proof.
   exists (fun c => c ⇒ c).
-  intros x y f xx yy. exact (f ;; yy = xx ;; f).
+  intros x y xx yy f. exact (f ;; yy = xx ;; f).
 Defined.
 
 Definition NAction_id_comp : disp_precat_id_comp C NAction_disp_ob_mor.
@@ -664,7 +649,7 @@ Definition elements_ob_mor : disp_precat_ob_mor SET.
 Proof.
   use tpair.
   - simpl. exact (fun X => X).
-  - simpl. intros X Y f x y. exact (f x = y).
+  - simpl. intros X Y x y f. exact (f x = y).
 Defined.
 
 Lemma elements_id_comp : disp_precat_id_comp SET elements_ob_mor.

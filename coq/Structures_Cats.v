@@ -228,29 +228,28 @@ Local Notation hsC := (homset_property C).
 
 Local Notation "'Yo'" := (yoneda _ hsC).
 
-Definition families_mor {X X' : obj_ext_Precat C} (F : X ⇒ X')
-    (Y : families_structure hsC X) (Y' : families_structure hsC X') : Type
-  := Σ FF_TM : TM Y ⇒ TM Y',
-         FF_TM ;; pp Y' = pp Y ;; obj_ext_mor_TY F
-       × 
-         ∀ {Γ:C} {A : Ty X Γ}, Q Y A ;; FF_TM = #Yo (φ F A) ;; Q Y' _.
+Definition families_mor {X X' : obj_ext_Precat C}
+    (Y : families_structure hsC X) (Y' : families_structure hsC X') (F : X ⇒ X')
+  : Type
+:= Σ FF_TM : TM Y ⇒ TM Y',
+       FF_TM ;; pp Y' = pp Y ;; obj_ext_mor_TY F
+     × 
+       ∀ {Γ:C} {A : Ty X Γ}, Q Y A ;; FF_TM = #Yo (φ F A) ;; Q Y' _.
 
-Definition families_mor_TM {X X'} {F : X ⇒ X'}
-    {Y} {Y'} (FF : families_mor F Y Y') : _ ⇒ _
-  := pr1 FF.
+Definition families_mor_TM {X X'} {Y} {Y'} {F : X ⇒ X'} (FF : families_mor Y Y' F)
+  : _ ⇒ _
+:= pr1 FF.
 
-Definition families_mor_pp {X X'} {F : X ⇒ X'}
-    {Y} {Y'} (FF : families_mor F Y Y')
+Definition families_mor_pp {X X'} {Y} {Y'} {F : X ⇒ X'} (FF : families_mor Y Y' F)
   : _ = _
 := pr1 (pr2 FF).
 
-Definition families_mor_Q {X X'} {F : X ⇒ X'}
-    {Y} {Y'} (FF : families_mor F Y Y') {Γ} A
+Definition families_mor_Q {X X'} {Y} {Y'} {F : X ⇒ X'} (FF : families_mor Y Y' F)
+    {Γ} A
   : _ = _
 := pr2 (pr2 FF) Γ A.
 
-Lemma families_mor_eq {X X'} {F : X ⇒ X'}
-    {Y} {Y'} (FF FF' : families_mor F Y Y')
+Lemma families_mor_eq {X X'} {Y} {Y'} {F : X ⇒ X'} (FF FF' : families_mor Y Y' F)
     (e_TM : ∀ Γ (t : Tm Y Γ),
       (families_mor_TM FF : nat_trans _ _) _ t
       = (families_mor_TM FF' : nat_trans _ _) _ t)
@@ -264,11 +263,10 @@ Proof.
     intros Γ. apply funextsec. apply e_TM.
 Qed.
 
-Lemma families_mor_transportf {X X'} {F F' : X ⇒ X'} (eF : F = F')
-    {Y Y'} (FF : families_mor F Y Y')
+Lemma families_mor_transportf {X X'} {Y Y'}
+    {F F' : X ⇒ X'} (eF : F = F') (FF : families_mor Y Y' F)
     {Γ:C} (t : Tm Y Γ)
-  : (families_mor_TM 
-      (transportf (fun G : X ⇒ X' => _) eF FF) : nat_trans _ _) Γ t
+  : (families_mor_TM (transportf _ eF FF) : nat_trans _ _) Γ t
     = (families_mor_TM FF : nat_trans _ _) Γ t.
 Proof.
   destruct eF. apply idpath.
@@ -345,7 +343,7 @@ Local Notation hsC := (homset_property C).
 Definition qq_structure_ob_mor : disp_precat_ob_mor (obj_ext_Precat C).
 Proof.
   exists (fun X => qq_morphism_structure X).
-  intros X X' F Z Z'.
+  intros X X' Z Z' F.
   refine (∀ Γ' Γ (f : C ⟦ Γ' , Γ ⟧) (A : Ty X Γ), _).
   refine (qq Z f A ;; φ F A = _).
   refine (φ F _ ;; Δ _ ;; qq Z' f _).
