@@ -52,6 +52,23 @@ Coercion fpullback_data_from_fpullback {X : C} {f : D ⟦J X, U⟧} (T : fpullba
 
 Definition fcomprehension := ∀ X (f : D⟦J X, U⟧), fpullback f.
 
+Definition fcomprehension_data := ∀ X (f : D⟦ J X, U⟧), fpullback_data f.
+Definition fcomprehension_prop (Y : fcomprehension_data) :=
+          ∀ X f, fpullback_prop (Y X f). 
+
+Definition fcomprehension_weq :
+   fcomprehension ≃ Σ Y : fcomprehension_data, fcomprehension_prop Y.
+Proof.
+  eapply weqcomp. Focus 2.
+    set (XR:=@weqforalltototal (ob C)).
+    specialize (XR (fun X => ∀ f : D⟦ J X, U⟧, fpullback_data f)). simpl in XR.
+    specialize (XR (fun X pX => ∀ A, fpullback_prop  (pX  A))).
+    apply XR.
+  apply weqonsecfibers.
+  intro X.
+  apply weqforalltototal.
+Defined.
+
 Lemma isaprop_fpullback {X : C} (f : D ⟦J X, U⟧) (is_c : is_category C)(is_d : is_category D) 
     (HJ : fully_faithful J)
   : isaprop (fpullback f).
@@ -192,15 +209,10 @@ Let e {X : C} (f : D ⟦J X, U⟧) (* :  #J(fp _ _ _ X) ;; f = fq X ;; pp *)
   := pr1 (pr1 (pr2 (pr2 (pr2 RUJ)) X f)).
 *)
 
-Definition rel_univ_struct_functor : relative_universe_structure _ _ J'.
-Proof.
-  mkpair.
-  mkpair.
-  exists (S U).
-  exact (S tU).
-  apply (#S pp).
+Definition fcomprehension_induced
+  :  fcomprehension C' D' J' (S U) (S tU) (# S (pr1 RUJ)).
   intros X' g.
-  set (preimg := Res X').
+  set (preimg := Res X'). cbn. simpl.
   apply (squash_to_prop preimg).
   - apply isaprop_fpullback.
     + apply (pr2 isD').
@@ -241,8 +253,7 @@ Proof.
         rewrite functor_comp. 
         repeat rewrite <- assoc. 
         apply maponpaths. repeat rewrite assoc. apply cancel_postcomposition.
-        set (XXX:= nat_trans_eq_pointwise TA'). cbn in XXX.
-
+        assert (XXX:= nat_trans_eq_pointwise TA'). cbn in XXX.
         rewrite XXX. apply pathsinv0. apply id_left.
       * 
         cbn.
@@ -306,8 +317,17 @@ Proof.
             assumption.
         } 
 Qed.
+
+
+Definition rel_univ_struct_functor : relative_universe_structure _ _ J'.
+Proof.
+  mkpair.
+  mkpair.
+  exists (S U).
+  exact (S tU).
+  apply (#S pp). cbn.
+  apply fcomprehension_induced.
+Defined.
   
 
 End rel_univ_structure_and_functors.
-
-Print Assumptions rel_univ_struct_functor.

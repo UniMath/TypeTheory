@@ -14,6 +14,8 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import Systems.RelUnivStructure.
 Require Import Systems.Structures.
 
+Undelimit Scope transport.
+
 Section fix_category.
 
 Variable C : precategory.
@@ -109,6 +111,15 @@ Definition comp_prop (X : mor_of_presheaves) (Y : comp_data X) : UU :=
   ∀ Γ (A : (u X : functor _ _ ) Γ : hSet),
         Σ (e : #Yo (dpr _ A) ;; yy A = QQ Y A ;; p X), isPullback _ _ _ _ e.
 
+Lemma isaprop_comp_prop (X : mor_of_presheaves) (Y : comp_data X) 
+  : isaprop (comp_prop X Y).
+Proof.
+  do 2 (apply impred; intro).
+  apply isofhleveltotal2.
+  - apply functor_category_has_homsets.
+  - intro. apply isaprop_isPullback.
+Qed.
+
 Definition comp (X : mor_of_presheaves) : UU 
   := Σ (Y : comp_data X), comp_prop _ Y.
 
@@ -180,14 +191,92 @@ Proof.
     simple refine (idweq _ ).
 Defined.  
 
+(*
+Lemma isaprop_comp (y : arrow (preShv C)) : isaprop (comp y).
+Proof.
+  apply invproofirrelevance.
+  intros x x'. apply subtypeEquality.
+  - intro t. apply isaprop_comp_prop.
+  - destruct x as [x H]. 
+    destruct x' as [x' H']. cbn.    
+    destruct x as [a m].
+    destruct x' as [a' m']. cbn in *.
+    simple refine (total2_paths _ _ ).
+    * simpl.
+      apply funextsec; intro Γ.
+      apply funextsec; intro A.
+      
+      unfold comp_prop in H, H'. simpl in H, H'.
+Abort.
+*)
+
+(*
+Definition weq_comp_fcomprehension_data (x : arrow (preShv C)):
+   comp_data x ≃ fcomprehension_data C (preShv C) Yo (target x) (source x) x.
+*)
+
+
+Definition Yo_pullback (x : arrow (preShv C)) : UU :=
+   ∀ X (A : (target x : functor _ _ ) X : hSet),
+      fpullback C (preShv C) Yo (target x) (source x) x (yy A).
+
+Definition weq_fcomprehension_Yo_pullback (x : arrow (preShv C)) :
+   fcomprehension C (preShv C) Yo (target x) (source x) x ≃ Yo_pullback x.
+Proof.
+  apply weqonsecfibers.
+  intro X.
+  apply (weqonsecbase _ (@yy _ _ _ _ )).
+Defined.
+
+
+Definition weq_comp_data (y : arrow (preShv C)) : comp_data y ≃
+      ∀ (Γ : C) (A : (u y : functor _ _ ) Γ : hSet),
+          Σ (ΓA : C) (pi : ΓA ⇒ Γ), Yo ΓA ⇒ tu y.
+Proof.
+  unfold comp_data.
+  eapply weqcomp.
+    set (XR := @weqtotaltoforall C).
+    specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓA : C, ΓA ⇒ X)).
+      simpl in XR.
+    specialize (XR (fun X dpr =>  ∀ (A : (u y : functor _ _ ) X : hSet), Yo (pr1 (dpr A)) ⇒ tu y)).
+    apply XR.
+  apply weqonsecfibers. intro X.
+
+(*
+  Search ( (Σ _ , _ ) ≃ (∀ _ , _ )).
+
+                      (Σ dpr0 : ∀ Γ : C, (u y) Γ → Σ ΓA : C, ΓA ⇒ Γ,
+      ∀ (Γ : C^op) (A : (u y) Γ), Yo (pr1 (dpr0 Γ A)) ⇒ tu y)
+comp_data y.
+Proof.
+  unfold comp_data.
+*)
 
 Lemma wtf:
  ∀ x : arrow (preShv C),
    comp x ≃ fcomprehension C (preShv C) Yo (target x) (source x) x.
 Proof.
-  intro x.
-  admit.
+  intro y.
+  apply invweq.
+  eapply weqcomp. apply weq_fcomprehension_Yo_pullback.
+  unfold comp.
+  unfold Yo_pullback. unfold fpullback. unfold fpullback_data.
+          unfold comp_data.
+  eapply weqcomp. Focus 2.
+(*
+    use (@weqbandf _ (Σ Y, Σ dpr : ∀ Γ : C, ((u y : functor _ _ ) Γ : hSet) → Σ ΓA : C, ΓA ⇒ Γ,
+          ∀ (Γ : C^op) (A : (u y : functor _ _ ) Γ : hSet), Yo (pr1 (dpr Γ A)) ⇒ tu y)) .
+
+
+
+    apply weqonsecfibers. intro X.
+    apply weqonsecfibers. intro A.
+    unfold fpullback.
+*)
+
+admit.
 Admitted.
+
 
 Definition foobarla : iCwF ≃ CwF.
 Proof.
@@ -197,6 +286,91 @@ Proof.
   apply weqfibtototal.
   apply wtf.
 Defined.   
+
+
+
+Definition comp_to_fcomprehension (x : arrow (preShv C)):
+    fcomprehension C (preShv C) Yo (target x) (source x) x.
+
+
+
+Definition comp_to_fcomprehension (x : arrow (preShv C)):
+   comp x → fcomprehension C (preShv C) Yo (target x) (source x) x.
+Proof.
+  intro H.
+  set ( t := pr1 H).
+  set (depr := pr1 t).
+  set (Q := pr2 t).
+  set (Hprop := pr2 H).
+  intros Γ A.
+  set (yiA := yoneda_weq _ _ _ _ A).
+  set (XA := depr Γ yiA).
+  mkpair.
+  - mkpair.
+    + exact (pr1 XA).
+    + mkpair. 
+      * exact (pr2 XA).
+      * apply Q.
+  - simpl. unfold fpullback_prop.
+    mkpair.
+    + etrans. Focus 2. apply (pr1 (Hprop Γ yiA)).
+      apply maponpaths. apply pathsinv0. apply homotinvweqweq.
+    + assert (XR := pr2 (Hprop Γ yiA)).
+      assert (XT:= homotinvweqweq (yoneda_weq _ _ _ _ )  A).
+      simpl in XR.
+      assert (XR2 := isPb_morphism_equal _ _ _ _ _ _ _ _ _ _ XR A (!XT) ).
+      apply XR2.
+Defined.
+
+Definition fcomprehension_to_comp (x : arrow (preShv C)):
+  fcomprehension C (preShv C) Yo (target x) (source x) x → comp x.
+Proof.
+  intro H.
+  mkpair.
+  - mkpair.
+    + intros Γ A.
+      set (XR := H Γ (yy A)).
+      exists (fpb_obj _ _ _ _ _ XR).
+      apply (fp _ _ _ _ _ XR).
+    + intros Γ A.
+      set (XR := H Γ (yy A)).
+      apply (fq _ _ _ _ _ XR).
+  - cbn. intros Γ A.
+    set (XR := H Γ (yy A)).
+    assert (XRT := pr2 XR). simpl in XRT. destruct XRT as [t p0]. simpl in t.
+    mkpair.
+    + apply t.
+    + apply p0.
+Defined.     
+
+
+Lemma foobarla (y : arrow (preShv C)):
+   fcomprehension_data C (preShv C) Yo (target y) (source y) ≃ comp_data y.
+Proof.
+  unfold fcomprehension_data.
+  unfold comp_data.
+  simpl.
+  eapply weqcomp. Focus 2.
+    set (XR := @weqforalltototal C).
+    specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓA : C, ΓA ⇒ X)).
+    simpl in XR.
+    specialize (XR (fun X pX =>  ∀  (A : ((u y : functor _ _ ) X : hSet)),
+              nat_trans (yoneda_ob_functor_data C hsC (pr1 (pX  A))) (tu y : functor _ _ ))).
+    apply XR.
+  apply weqonsecfibers. intro X. simpl.
+  eapply weqcomp. Focus 2.
+    set (XR := @weqforalltototal ((u y : functor _ _ ) X : hSet)).
+    specialize (XR (fun A =>  Σ ΓA : C, ΓA ⇒ X)). simpl in XR.
+    specialize (XR (fun A pX => nat_trans (yoneda_ob_functor_data C hsC (pr1 (pX))) (tu y : functor _ _ ))).
+    apply XR. simpl. unfold fpullback_data.
+  eapply weqcomp.
+    eapply weqbfun. apply (invweq (yoneda_weq _ _ _ _ )).
+  apply weqffun.
+  set (XR:= @weqtotal2asstol (ob C) (fun XA => _ ⟦XA, X⟧)). simpl in XR.
+  specialize (XR (fun Q => Yo (pr1 Q) ⇒ source y)).
+  apply XR.
+Defined.  
+
 
 End fix_category.
 

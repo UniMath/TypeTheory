@@ -172,7 +172,22 @@ Section on_pullbacks.
  *)
 
   Variable sqr_comm : f ;; k = g ;; h.
-  Variable Pb : isPullback _ _ _ _ sqr_comm.
+  Variable Pb : isPullback k h f g sqr_comm.
+
+
+  Lemma square_morphism_equal k' (e : k' = k) : f ;; k' = g ;; h.
+  Proof.
+    rewrite e. assumption.
+  Defined.
+  Lemma isPb_morphism_equal k' (e : k' = k) : 
+        isPullback k' h f g (square_morphism_equal _ e).
+  Proof.
+    match goal with |[|- isPullback _ _ _ _ ?HH] => generalize HH end.
+    rewrite e.
+    intro.
+    apply Pb.
+  Defined.
+
 
   Local Definition Pbb : Pullback k h.
   Proof.
