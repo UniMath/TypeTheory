@@ -2,6 +2,11 @@
 
  Ahrens, Lumsdaine, Voevodsky, 2015 - 2016
 
+Main definitions:
+
+- [obj_ext_precat]
+- [families_disp_precat]
+- [qq_disp_precat]
 *)
 
 Require Import Systems.UnicodeNotations.
