@@ -22,6 +22,7 @@ MODULES-CORE := \
 	Bicats/Displayed_Precats \
 	Bicats/Displayed_Bicats \
 	Structures_Cats \
+	CwF_SplitTypeCat_Maps \
 	CwF_SplitTypeCat_Equivalence \
 	Categories/category_of_elements \
 	Categories/category_FAM \
