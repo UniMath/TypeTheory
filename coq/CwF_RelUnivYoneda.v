@@ -309,6 +309,10 @@ Defined.
 Definition weq_Yo_pullback_comp_1 (y : arrow (preShv C))
   : Yo_pullback y ≃ comp_1 y.
 Proof.
+  unfold Yo_pullback.
+  unfold comp_1.
+  eapply weqcomp.
+    set (XR := @weqforalltototal C). simpl in XR.
   admit.
 Admitted.
 
