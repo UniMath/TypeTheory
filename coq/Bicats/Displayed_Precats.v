@@ -623,6 +623,66 @@ Definition functor_over_comp {C' C} {F} {D' : disp_precat C'} {D : disp_precat C
 
 End Functor_Over.
 
+(** * Products of displayed (pre)categories 
+
+We directly define direct products of displayed categories over a base.
+
+An alternative would be to define the direct product as the “Sigma-precategory” of the pullback to either factor.  *)
+Section Dirprod.
+
+Context {C : Precategory} (D1 D2 : disp_precat C).
+
+Definition dirprod_disp_precat_ob_mor : disp_precat_ob_mor C.
+Proof.
+  exists (fun c => (D1 c × D2 c)).
+  intros x y xx yy f.
+  exact (pr1 xx ⇒[f] pr1 yy × pr2 xx ⇒[f] pr2 yy).
+Defined.
+
+Definition dirprod_disp_precat_id_comp
+  : disp_precat_id_comp _ dirprod_disp_precat_ob_mor.
+Proof.
+  apply tpair.
+  - intros x xx. exact (id_disp _,, id_disp _).
+  - intros x y z f g xx yy zz ff gg.
+    exact ((pr1 ff ;; pr1 gg),, (pr2 ff ;; pr2 gg)).
+Defined.
+
+Definition dirprod_disp_precat_data : disp_precat_data C
+  := (_ ,, dirprod_disp_precat_id_comp).
+
+(* TODO: move!  Also consider implicit args of pr1_transportf?? *)
+Lemma pr2_transportf {A} {B1 B2 : A → Type} 
+    {a a' : A} (e : a = a') (xs : B1 a × B2 a)
+  : pr2 (transportf (fun a => B1 a × B2 a) e xs) = transportf _ e (pr2 xs).
+Proof.
+  destruct e. apply idpath.
+Defined.
+
+Definition dirprod_disp_precat_axioms
+  : disp_precat_axioms _ dirprod_disp_precat_data.
+Proof.
+  repeat apply tpair.
+  - intros. apply dirprod_paths; refine (id_left_disp @ !_).
+    + refine (pr1_transportf _ _ _ _ _ _ _).
+    + apply pr2_transportf.
+  - intros. apply dirprod_paths; refine (id_right_disp @ !_).
+    + refine (pr1_transportf _ _ _ _ _ _ _).
+    + apply pr2_transportf.
+  - intros. apply dirprod_paths; refine (assoc_disp @ !_).
+    + refine (pr1_transportf _ _ _ _ _ _ _).
+    + apply pr2_transportf.
+  - intros. apply isaset_dirprod; apply homsets_disp.
+Qed.
+
+Definition dirprod_disp_precat : disp_precat C
+  := (_ ,, dirprod_disp_precat_axioms).
+
+End Dirprod.
+
+Notation "D1 × D2" := (dirprod_disp_precat D1 D2) : disp_precat_scope.
+Delimit Scope disp_precat_scope with disp_precat.
+Bind Scope disp_precat_scope with disp_precat.
 
 (** * Examples 
 
