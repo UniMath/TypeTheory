@@ -307,15 +307,47 @@ Proof.
 Defined. 
 
 Definition weq_Yo_pullback_comp_1 (y : arrow (preShv C))
-  : Yo_pullback y ≃ comp_1 y.
+  : comp_1 y ≃ Yo_pullback y.
 Proof.
   unfold Yo_pullback.
   unfold comp_1.
   eapply weqcomp.
-    set (XR := @weqforalltototal C). simpl in XR.
-  admit.
-Admitted.
+    set (XR := @weqtotaltoforall C). simpl in XR.
+    unfold comp_1_data. unfold comp_1_prop.
+    specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓAp : Σ ΓA : C, ΓA ⇒ X, Yo (pr1 ΓAp) ⇒ tu y)). 
+    unfold dpr_1, QQ_1. Check (tu y).
+    specialize (XR (fun X pp =>  ∀  (A : ((u y : functor _ _ ) X : hSet)),
+       Σ e : # Yo (pr2 (pr1 (pp A))) ;; yy A = (pr2 (pp A) : preShv _ ⟦_,_⟧ );; p y,
+       isPullback (yy A) (p y) (# Yo (pr2 (pr1 (pp A)))) (pr2 (pp A)) e)).
+    apply XR.
+  apply weqonsecfibers. intro X.
+  eapply weqcomp.
+    set (XR := @weqtotaltoforall  ((target y : functor _ _ ) X : hSet)). simpl in XR.
+    specialize (XR (fun _ =>  Σ ΓAp : Σ ΓA : C, ΓA ⇒ X, Yo (pr1 ΓAp) ⇒ tu y)).
 
+    specialize (XR (fun A pp =>  Σ e : # Yo (pr2 (pr1 (pp ))) ;; yy A =
+                                     ((pr2 pp : preShv C ⟦_,_⟧)) ;; p y, 
+    isPullback (yy A) (p y) (# Yo (pr2 (pr1 (pp )))) (pr2 (pp )) e)).
+    apply XR.
+  apply weqonsecfibers. intro A. unfold fpullback.
+(*
+  eapply weqcomp.
+    set (XR := @weqtotal2asstor).
+*)
+
+  transparent assert (HXY :
+      ( (Σ ΓAp : Σ ΓA : C, ΓA ⇒ X, Yo (pr1 ΓAp) ⇒ tu y)
+         ≃
+         fpullback_data C (preShv C) Yo (target y) (source y) (yy A)
+      )).
+     unfold fpullback_data.
+     set (XR := @weqtotal2asstor). apply XR.
+
+  simpl in HXY.
+  apply (weqbandf HXY).
+  intro x.
+  destruct x as [[XA p] Q]. exact (idweq _ ).
+Defined.
 
 Lemma wtf:
  ∀ x : arrow (preShv C),
@@ -325,7 +357,7 @@ Proof.
   apply invweq.
   eapply weqcomp. apply weq_fcomprehension_Yo_pullback.
   eapply weqcomp. Focus 2. eapply invweq. apply weq_comp_comp_1.
-  apply weq_Yo_pullback_comp_1.
+  apply (invweq (weq_Yo_pullback_comp_1 _ )).
 Defined.
 
 Definition foobarla : iCwF ≃ CwF.
@@ -339,6 +371,14 @@ Defined.
  
 Print Assumptions foobarla.
 
+Definition result : CwF ≃ CwF'.
+Proof.
+  eapply weqcomp.
+   apply (invweq foobarla).
+  apply (invweq foobar).
+Defined.
+
+Print Assumptions result.
 
 
 Definition comp_to_fcomprehension (x : arrow (preShv C)):
