@@ -17,11 +17,14 @@ MODULES-CORE := \
 	DM \
 	Structures \
 	CwF_RelUnivYoneda \
-	CwF_SplitTypeCat_Equivalence \
 	Bicats/Auxiliary \
 	Bicats/Bicats \
 	Bicats/Displayed_Precats \
 	Bicats/Displayed_Bicats \
+	Structures_Cats \
+	CwF_SplitTypeCat_Maps \
+	Structures_Equiv_Cats \
+	CwF_SplitTypeCat_Equivalence \
 	Categories/category_of_elements \
 	Categories/category_FAM \
 	OtherDefs/CwF_Pitts \
