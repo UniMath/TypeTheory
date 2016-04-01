@@ -49,7 +49,9 @@ Definition compatible_qq_morphism_structure (Y : families_structure hsC X) : UU
 
 End Compatible_Structures.
 
-(** * Defining a (compatible) families structure, given a _q_-morphism structure *)
+(** * Defining a (compatible) families structure, given a _q_-morphism structure 
+
+Key definitions: [fam_from_qq], [iscompatible_fam_from_qq] *)
 
 Section compatible_fam_structure_from_comp.
 
@@ -451,30 +453,34 @@ Proof.
   apply cQ_compatible_pw.
 Qed.
 
-
-Definition comp_fam_structure_from_comp
-  : compatible_fam_structure (Z,,ZZ).
+Definition fam_from_qq : families_structure hsC X.
 Proof.
   mkpair.
-  - mkpair.
-    + mkpair.
-      * apply tm_functor.
-      * {
-          mkpair.
-          - apply pp_from_comp.
-          - intros. apply Q_from_comp.
-        } 
-    + unfold families_structure_axioms.
-      intros.
-      exists (Q_from_comp_commutes _ _ ).
-      apply isPullback_Q_from_comp_commutes.
-  - unfold compatible_scomp_families. 
-    intros Γ Γ' A f.
-    apply nat_trans_eq. 
-    { apply has_homsets_HSET. }
-    intro Γ''. 
-    apply cQ_commutes.
+  + mkpair.
+    * apply tm_functor.
+    * {
+        mkpair.
+        - apply pp_from_comp.
+        - intros. apply Q_from_comp.
+      } 
+  + unfold families_structure_axioms.
+    intros.
+    exists (Q_from_comp_commutes _ _ ).
+    apply isPullback_Q_from_comp_commutes.
 Defined.
+
+Definition iscompatible_fam_from_qq
+  : compatible_scomp_families fam_from_qq (Z,,ZZ).
+Proof.
+  intros Γ Γ' A f.
+  apply nat_trans_eq. 
+  { apply has_homsets_HSET. }
+  intro Γ''. 
+  apply cQ_commutes.
+Qed.
+
+Definition comp_fam_structure_from_comp : compatible_fam_structure (Z,,ZZ)
+  := (fam_from_qq,, iscompatible_fam_from_qq).
     
 End compatible_fam_structure_from_comp.
 
@@ -636,14 +642,14 @@ Proof.
       apply idtoiso_Q.
 Qed.
 
-Definition split_comp_structure_from_fam
+Definition qq_from_fam
   : qq_morphism_structure X.
 Proof.
   exists comp_from_fam.
   apply is_split_comp_from_fam.
 Defined.
 
-Lemma comp_from_fam_compatible_scomp_families : compatible_scomp_families Y split_comp_structure_from_fam.
+Lemma iscompatible_qq_from_fam : compatible_scomp_families Y qq_from_fam.
 Proof.
   intros Γ Γ' A f.
   assert (XR:= Yo_of_qq_commutes_2).
@@ -652,7 +658,6 @@ Proof.
   apply XR.
 Qed.
 
-      
 End compatible_comp_structure_from_fam.
 
 End Fix_Base_Category.

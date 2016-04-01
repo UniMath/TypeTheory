@@ -20,6 +20,19 @@ Require Import Systems.CwF_SplitTypeCat_Maps.
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
+Section Auxiliary.
+
+(* TODO: seek, move, prove.
+
+ ([isaprop_total2] in library is less convenient to apply.) *)
+Lemma isaprop_total2' {A} {B : A -> Type} 
+  (HA: isaprop A) (HB : forall x:A, isaprop (B x))
+  : isaprop (total2 B).
+Proof.
+Admitted.
+
+End Auxiliary.
+
 Section Fix_Context.
 
 Context {C : Precategory}.
@@ -74,7 +87,9 @@ Section Unique_QQ_From_Fam.
 Lemma qq_from_fam_ob {X : obj_ext_precat} (Y : families_disp_precat C X)
   : Σ (Z : qq_structure_disp_precat C X), strucs_compat_disp_precat (X ,, (Y ,, Z)).
 Proof.
-Abort.
+  exists (qq_from_fam Y).
+  apply iscompatible_qq_from_fam.
+Defined.
 
 Lemma qq_from_fam_mor {X X' : obj_ext_precat} {F : X ⇒ X'}
   {Y : families_disp_precat C X} {Y'} (FY : Y ⇒[F] Y')
@@ -84,37 +99,49 @@ Lemma qq_from_fam_mor {X X' : obj_ext_precat} {F : X ⇒ X'}
   : Σ (FZ : Z ⇒[F] Z'), W ⇒[(F,,(FY,,FZ))] W'.
 Abort.
 
+
 Lemma qq_from_fam_mor_unique {X X' : obj_ext_precat} {F : X ⇒ X'}
   {Y : families_disp_precat C X} {Y'} (FY : Y ⇒[F] Y')
   {Z : qq_structure_disp_precat C X} {Z'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
   : isaprop (Σ (FZ : Z ⇒[F] Z'), W ⇒[(F,,(FY,,FZ))] W').
-Abort.
+Proof.
+  apply isaprop_total2'.
+  - simpl. repeat (apply impred_isaprop; intro). apply hsC.
+  - intros; simpl. apply isapropunit.
+Qed.
 
 End Unique_QQ_From_Fam.
 
 Section Unique_Fam_From_QQ.
 
-Lemma fam_from_qq_ob {X : obj_ext_precat} (Y : families_disp_precat C X)
-  : Σ (Z : qq_structure_disp_precat C X), strucs_compat_disp_precat (X ,, (Y ,, Z)).
-Abort.
+Lemma fam_from_qq_ob {X : obj_ext_precat} (Z : qq_structure_disp_precat C X)
+  : Σ (Y : families_disp_precat C X), strucs_compat_disp_precat (X ,, (Y ,, Z)).
+Proof.
+  exists (fam_from_qq (pr1 Z) (pr2 Z)).
+  apply iscompatible_fam_from_qq.
+Defined.
 
 Lemma fam_from_qq_mor {X X' : obj_ext_precat} {F : X ⇒ X'}
-  {Y : families_disp_precat C X} {Y'} (FY : Y ⇒[F] Y')
-  {Z : qq_structure_disp_precat C X} {Z'}
+  {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
+  {Y : families_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
-  : Σ (FZ : Z ⇒[F] Z'), W ⇒[(F,,(FY,,FZ))] W'.
+  : Σ (FY : Y ⇒[F] Y'), W ⇒[(F,,(FY,,FZ))] W'.
 Abort.
 
 Lemma fam_from_qq_mor_unique {X X' : obj_ext_precat} {F : X ⇒ X'}
-  {Y : families_disp_precat C X} {Y'} (FY : Y ⇒[F] Y')
-  {Z : qq_structure_disp_precat C X} {Z'}
+  {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
+  {Y : families_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
-  : isaprop (Σ (FZ : Z ⇒[F] Z'), W ⇒[(F,,(FY,,FZ))] W').
-Abort.
+  : isaprop (Σ (FY : Y ⇒[F] Y'), W ⇒[(F,,(FY,,FZ))] W').
+Proof.
+  apply isaprop_total2'.
+  - simpl. admit. (* apply [isaprop_families_mor] *)
+  - intros; simpl. apply isapropunit.
+Admitted.
 
 End Unique_Fam_From_QQ.
 

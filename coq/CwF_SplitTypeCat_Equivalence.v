@@ -355,7 +355,7 @@ Lemma compat_split_comp_eq (Y : families_structure _ X) :
 ∀ t : compatible_qq_morphism_structure Y,
    t =
    (comp_from_fam Y,,
-   is_split_comp_from_fam Y),, comp_from_fam_compatible_scomp_families Y.
+   is_split_comp_from_fam Y),, iscompatible_qq_from_fam Y.
 Proof.
   intro t.
     apply subtypeEquality.
@@ -412,7 +412,7 @@ Proof.
   - mkpair.
     + exists (comp_from_fam Y).
       apply is_split_comp_from_fam.
-    + apply comp_from_fam_compatible_scomp_families.
+    + apply iscompatible_qq_from_fam.
   - intro. apply compat_split_comp_eq.
 Defined.
 

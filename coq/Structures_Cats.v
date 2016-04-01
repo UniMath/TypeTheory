@@ -254,6 +254,7 @@ Definition families_mor_Q {X X'} {Y} {Y'} {F : X ⇒ X'} (FF : families_mor Y Y'
   : _ = _
 := pr2 (pr2 FF) Γ A.
 
+(* TODO: inline in [isaprop_families_mor]? *)
 Lemma families_mor_eq {X X'} {Y} {Y'} {F : X ⇒ X'} (FF FF' : families_mor Y Y' F)
     (e_TM : ∀ Γ (t : Tm Y Γ),
       (families_mor_TM FF : nat_trans _ _) _ t
@@ -267,6 +268,28 @@ Proof.
   - apply nat_trans_eq. apply has_homsets_HSET. 
     intros Γ. apply funextsec. apply e_TM.
 Qed.
+
+(* TODO: once proved, replace [families_mor_eq] with this. *)
+Lemma isaprop_families_mor {X X'} {Y} {Y'} {F : X ⇒ X'}
+  : isaprop (families_mor Y Y' F).
+Proof.
+  apply invproofirrelevance; intros FF FF'. apply families_mor_eq.
+  destruct FF as [FTm [Ftm_pp Q_Ftm]], FF' as [FTm' [Ftm'_pp Q_Ftm']]; simpl.
+  intros Γ t.
+  (* Sketch: 
+  - make [t] into a map using [Y];
+  - map this forward under [F];
+  - show [Ftm Γ t] and [FTm' Γ t] are both equal to that.
+
+  This would be easier if the correspondence between terms and sections were abstracted out. *)
+  transparent assert (tmap
+    : ((Yo (Γ ◂ ((pp Y : nat_trans _ _) _ t)) : functor _ _) Γ : hSet)).
+  {
+     admit.
+  }
+  admit.
+Admitted.
+
 
 Lemma families_mor_transportf {X X'} {Y Y'}
     {F F' : X ⇒ X'} (eF : F = F') (FF : families_mor Y Y' F)
