@@ -40,7 +40,8 @@ Definition strucs_compat_ob_mor
 Proof.
   use tpair.
   - intros XYZ. exact (compatible_scomp_families (pr1 (pr2 XYZ)) (pr2 (pr2 XYZ))).
-  - simpl; intros. exact unit. (* todo: WRONG, I think! *)
+  - simpl; intros; exact unit.
+    (* For a given map of object-extension structures, a lifting to a map of either families-structures or _q_-morphism structues is essentially unique; so there is no extra compatibility condition required here on maps. *)
 Defined.
 
 Definition strucs_compat_id_comp
@@ -72,6 +73,7 @@ Section Unique_QQ_From_Fam.
 
 Lemma qq_from_fam_ob {X : obj_ext_precat} (Y : families_disp_precat C X)
   : Σ (Z : qq_structure_disp_precat C X), strucs_compat_disp_precat (X ,, (Y ,, Z)).
+Proof.
 Abort.
 
 Lemma qq_from_fam_mor {X X' : obj_ext_precat} {F : X ⇒ X'}
@@ -94,6 +96,25 @@ End Unique_QQ_From_Fam.
 
 Section Unique_Fam_From_QQ.
 
+Lemma fam_from_qq_ob {X : obj_ext_precat} (Y : families_disp_precat C X)
+  : Σ (Z : qq_structure_disp_precat C X), strucs_compat_disp_precat (X ,, (Y ,, Z)).
+Abort.
+
+Lemma fam_from_qq_mor {X X' : obj_ext_precat} {F : X ⇒ X'}
+  {Y : families_disp_precat C X} {Y'} (FY : Y ⇒[F] Y')
+  {Z : qq_structure_disp_precat C X} {Z'}
+  (W : strucs_compat_disp_precat (X,,(Y,,Z)))
+  (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
+  : Σ (FZ : Z ⇒[F] Z'), W ⇒[(F,,(FY,,FZ))] W'.
+Abort.
+
+Lemma fam_from_qq_mor_unique {X X' : obj_ext_precat} {F : X ⇒ X'}
+  {Y : families_disp_precat C X} {Y'} (FY : Y ⇒[F] Y')
+  {Z : qq_structure_disp_precat C X} {Z'}
+  (W : strucs_compat_disp_precat (X,,(Y,,Z)))
+  (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
+  : isaprop (Σ (FZ : Z ⇒[F] Z'), W ⇒[(F,,(FY,,FZ))] W').
+Abort.
 
 End Unique_Fam_From_QQ.
 
