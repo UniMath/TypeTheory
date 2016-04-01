@@ -9,6 +9,9 @@ Main definitions:
 - [qq_disp_precat]
 *)
 
+Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.limits.more_on_pullbacks.
+
 Require Import Systems.UnicodeNotations.
 Require Import Systems.Auxiliary.
 Require Import Systems.Structures.
@@ -44,6 +47,25 @@ Proof.
   destruct e; apply idpath.
 Defined.
 
+(* TODO: upstream to [Auxiliary], and place with [pullbackHSET_univprop_elements] *)
+Lemma pullback_HSET_elements_unique {P A B C : HSET}
+    {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
+    {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
+    {ep : p1 ;; f = p2 ;; g}
+    (pb : isPullback f g p1 p2 ep)
+    (ab ab' : P : hSet)
+    (e1 : p1 ab = p1 ab') (e2 : p2 ab = p2 ab')
+  : ab = ab'.
+Proof.
+  set (temp := proofirrelevancecontr 
+    (pullback_HSET_univprop_elements _ pb (p1 ab') (p2 ab')
+        (toforallpaths _ _ _ ep ab'))).
+  refine (maponpaths pr1 (temp (ab,, _) (ab',, _))).
+  - split; assumption.
+  - split; apply idpath.
+Qed.
+
+
 (* TODO: upstream following group (and its [Δ] notation) to [Systems.Structures]. *)
 Definition comp_ext_compare {C:precategory} {X : obj_ext_structure C}
     {Γ : C} {A A' : Ty X Γ} (e : A = A')
@@ -76,12 +98,28 @@ Proof.
   apply pathsinv0, maponpathscomp0. 
 Qed.
 
+Lemma comp_ext_compare_π {C:precategory} {X : obj_ext_structure C}
+    {Γ : C} {A A' : Ty X Γ} (e : A = A')
+  : comp_ext_compare e ;; π A' = π A.
+Proof.
+  destruct e; cbn. apply id_left.
+Qed.
+
 Lemma comp_ext_compare_comp_general {C:precategory} {X : obj_ext_structure C}
     {Γ : C} {A A' A'' : Ty X Γ} (e : A = A') (e' : A' = A'') (e'' : A = A'')
   : comp_ext_compare e'' = comp_ext_compare e ;; comp_ext_compare e'.
 Proof.
   refine (_ @ comp_ext_compare_comp _ _).
   apply maponpaths, setproperty.
+Qed.
+
+Lemma Q_comp_ext_compare {C:precategory} {hsC}
+  {X} {Y : families_structure hsC X}
+  {Γ:C} {A A' : Ty X Γ} (e : A = A') (t : Γ ⇒ Γ ◂ A)
+  : (Q Y A' : nat_trans _ _) _ (t ;; comp_ext_compare e)
+  = (Q Y A : nat_trans _ _) _ t.
+Proof.
+  destruct e. apply maponpaths, id_right.
 Qed.
 
 End Auxiliary.
@@ -246,7 +284,7 @@ Definition families_mor_TM {X X'} {Y} {Y'} {F : X ⇒ X'} (FF : families_mor Y Y
 := pr1 FF.
 
 Definition families_mor_pp {X X'} {Y} {Y'} {F : X ⇒ X'} (FF : families_mor Y Y' F)
-  : _ = _
+  : families_mor_TM FF ;; pp Y' = pp Y ;; obj_ext_mor_TY F
 := pr1 (pr2 FF).
 
 Definition families_mor_Q {X X'} {Y} {Y'} {F : X ⇒ X'} (FF : families_mor Y Y' F)
@@ -269,27 +307,57 @@ Proof.
     intros Γ. apply funextsec. apply e_TM.
 Qed.
 
-(* TODO: once proved, replace [families_mor_eq] with this. *)
+
+(* This is not full naturality of [term_to_section]; it is just what is required for [isaprop_families_mor] below. *)
+Lemma term_to_section_naturality {X X'} {Y} {Y'}
+  {F : X ⇒ X'} {FY : families_mor Y Y' F}
+  {Γ : C} (t : Tm Y Γ) (A := (pp Y : nat_trans _ _) _ t)
+  : pr1 (term_to_section ((families_mor_TM FY : nat_trans _ _) _ t))
+  = pr1 (term_to_section t) ;; φ F _
+   ;; Δ (!toforallpaths _ _ _ (nat_trans_eq_pointwise (families_mor_pp FY) Γ) t).
+Proof.
+  set (t' := (families_mor_TM FY : nat_trans _ _) _ t).
+  set (A' := (pp Y' : nat_trans _ _) _ t').
+  set (Pb := isPullback_preShv_to_pointwise hsC (isPullback_Q_pp Y' A') Γ);
+    simpl in Pb.
+  apply (pullback_HSET_elements_unique Pb); clear Pb.
+  - unfold yoneda_morphisms_data; cbn.
+    etrans. refine (pr2 (term_to_section t')). apply pathsinv0.
+    etrans. Focus 2. refine (pr2 (term_to_section t)).
+    etrans. apply @pathsinv0, assoc.
+    etrans. apply @pathsinv0, assoc.
+    apply maponpaths.
+    etrans. Focus 2. apply @obj_ext_mor_ax.
+    apply maponpaths. 
+    apply comp_ext_compare_π.
+  - etrans. apply term_to_section_recover. apply pathsinv0.
+    etrans. apply Q_comp_ext_compare.
+    etrans. apply @pathsinv0.
+      set (H1 := nat_trans_eq_pointwise (families_mor_Q FY A) Γ).
+      exact (toforallpaths _ _ _ H1 _).
+    cbn. apply maponpaths. apply term_to_section_recover.
+Qed.
+
+Lemma families_mor_recover_term {X X'} {Y} {Y'}
+  {F : X ⇒ X'} {FY : families_mor Y Y' F}
+  {Γ : C} (t : Tm Y Γ)
+  : (families_mor_TM FY : nat_trans _ _) Γ t
+  = (Q Y' _ : nat_trans _ _) Γ (pr1 (term_to_section t) ;; φ F _).
+Proof.
+  etrans. apply @pathsinv0, term_to_section_recover.
+  etrans. apply maponpaths, term_to_section_naturality.
+  apply Q_comp_ext_compare.
+Qed.
+
+(* TODO: once all obligations proved, replace [families_mor_eq] with this in subsequent proofs. *)
 Lemma isaprop_families_mor {X X'} {Y} {Y'} {F : X ⇒ X'}
   : isaprop (families_mor Y Y' F).
 Proof.
   apply invproofirrelevance; intros FF FF'. apply families_mor_eq.
-  destruct FF as [FTm [Ftm_pp Q_Ftm]], FF' as [FTm' [Ftm'_pp Q_Ftm']]; simpl.
   intros Γ t.
-  (* Sketch: 
-  - make [t] into a map using [Y];
-  - map this forward under [F];
-  - show [Ftm Γ t] and [FTm' Γ t] are both equal to that.
-
-  This would be easier if the correspondence between terms and sections were abstracted out. *)
-  transparent assert (tmap
-    : ((Yo (Γ ◂ ((pp Y : nat_trans _ _) _ t)) : functor _ _) Γ : hSet)).
-  {
-     admit.
-  }
-  admit.
-Admitted.
-
+  etrans. apply families_mor_recover_term.
+  apply @pathsinv0. apply families_mor_recover_term.
+Qed.
 
 Lemma families_mor_transportf {X X'} {Y Y'}
     {F F' : X ⇒ X'} (eF : F = F') (FF : families_mor Y Y' F)

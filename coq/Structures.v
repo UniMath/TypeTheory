@@ -22,6 +22,20 @@ Require Export UniMath.CategoryTheory.yoneda.
 Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
 
+Section Auxiliary.
+
+(* TODO: upstream to [Auxiliary], and unify with converse direction [pullback_HSET]? *)
+Lemma pullback_HSET_univprop_elements {P A B C : HSET}
+    {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
+    {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
+    (ep : p1 ;; f = p2 ;; g)
+    (pb : isPullback f g p1 p2 ep)
+  : (∀ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b).
+Proof.
+Admitted.
+
+End Auxiliary.
+
 Section Fix_Base_Category.
 
 Context {C : precategory} {hsC : has_homsets C}.
@@ -85,6 +99,7 @@ Definition families_structure_data : UU
 Definition TM (Y : families_structure_data) : preShv C := pr1 Y.
 Definition pp Y : TM Y ⇒ TY X := pr1 (pr2 Y).
 Definition Q Y {Γ} A : _ ⇒ TM Y := pr2 (pr2 Y) Γ A.
+Local Notation "'Tm'" := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
 
 Lemma idtoiso_Q Y Γ (A A' : (TY X : functor _ _ ) Γ : hSet) (e : A = A') : 
   #Yo (idtoiso (maponpaths (fun B => Γ ◂ B) e )) ;; Q Y A' = Q Y A . 
@@ -118,6 +133,41 @@ Definition Q_pp (Y : families_structure) {Γ} (A : (TY X : functor _ _ ) Γ : hS
 Definition isPullback_Q_pp (Y : families_structure) {Γ} (A : (TY X : functor _ _ ) Γ : hSet)
   : isPullback _ _ _ _ (Q_pp Y A)
 := pr2 (pr2 Y _ _ ).
+
+(** ** Terms as sections *)
+
+(* In any families structure, “terms” correspond to sections of dependent projections.  For now, we do not need this full isomorphism, but we construct the beginning of the correspondence. *)
+  
+Lemma term_to_section_aux {Y : families_structure} {Γ:C} (t : Tm Y Γ) 
+  (A := (pp Y : nat_trans _ _) _ t)
+  : iscontr
+    (Σ (f : Γ ⇒ Γ ◂ A), 
+         f ;; π _ = identity Γ
+       × (Q Y A : nat_trans _ _) Γ f = t).
+Proof.
+  set (Pb := isPullback_preShv_to_pointwise hsC (isPullback_Q_pp Y A) Γ).
+  simpl in Pb.
+  apply (pullback_HSET_univprop_elements _ Pb).
+  exact (toforallpaths _ _ _ (functor_id (TY X) _) A).
+Qed.
+
+(* TODO: unify with [bar] in […_Equivalence]? *)
+Lemma term_to_section {Y : families_structure} {Γ:C} (t : Tm Y Γ) 
+  (A := (pp Y : nat_trans _ _) _ t)
+  : Σ (f : Γ ⇒ Γ ◂ A), (f ;; π _ = identity Γ).
+Proof.
+  set (sectionplus := iscontrpr1 (term_to_section_aux t)).
+  exists (pr1 sectionplus).
+  exact (pr1 (pr2 sectionplus)).
+Defined.
+
+(* TODO: again, unify with lemmas following [bar] in […_Equivalence]? *)
+Lemma term_to_section_recover {Y : families_structure}
+  {Γ:C} (t : Tm Y Γ) (A := (pp Y : nat_trans _ _) _ t)
+  : (Q Y A : nat_trans _ _) _ (pr1 (term_to_section t)) = t.
+Proof.
+  exact (pr2 (pr2 (iscontrpr1 (term_to_section_aux t)))).
+Qed.
 
 (** * Cartesian _q_-morphism structures, split type-categories
 
