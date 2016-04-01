@@ -277,7 +277,7 @@ End on_pullbacks.
 Arguments map_into_Pb {_ _ _ _ _ _ _ _ _ } _ _ {_} _ _ _ .
 Arguments map_into_Pb_unique {_ _ _ _ _ _ _ _ _} _ _ {_} _ _ _ _   .
 
-Section Pullback_HSET.
+Section Pullbacks_hSet.
 
 (* TODO: does this already exist?
 
@@ -307,7 +307,30 @@ Proof.
       apply (pr1 (pr2 (H_existence _ _ _))). apply (pr2 (pr2 (H_existence _ _ _))).
 Qed.
 
-End Pullback_HSET.
+(* TODO: upstream this and the following lemma, and unify them with the converse implication about pullbacks. *)
+Lemma square_commutes_preShv_to_pointwise {C : precategory} (hsC : has_homsets C)
+    {X Y Z W : preShv C}
+    {f : Y ⇒ X} {g : Z ⇒ X} {p1 : W ⇒ Y} {p2 : W ⇒ Z}
+    (e : p1 ;; f = p2 ;; g)
+    (c : C)
+  : ((p1 : nat_trans _ _) c) ;; ((f : nat_trans _ _) c)
+  = ((p2 : nat_trans _ _) c) ;; ((g : nat_trans _ _) c).
+Proof.
+Admitted.
+
+(* TODO: unify with the converse implication. *)
+Lemma isPullback_preShv_to_pointwise {C : precategory} (hsC : has_homsets C)
+    {X Y Z W : preShv C}
+    {f : Y ⇒ X} {g : Z ⇒ X} {p1 : W ⇒ Y} {p2 : W ⇒ Z}
+    (e : p1 ;; f = p2 ;; g)
+    (c : C)
+  : isPullback ((f : nat_trans _ _) c) ((g : nat_trans _ _) c)
+      ((p1 : nat_trans _ _) c) ((p2 : nat_trans _ _) c)
+      (square_commutes_preShv_to_pointwise hsC e c).
+Proof.
+Admitted.
+
+End Pullbacks_hSet.
 
 (**
 will be an instance of a general lemma to be proved
