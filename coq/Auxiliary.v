@@ -98,7 +98,7 @@ Defined.
 
 (** * Lemmas/definitions on (pre)categories *)
 
-Definition preShv C := functor_precategory C^op HSET (pr2 is_category_HSET).
+Definition preShv C := functor_precategory C^op HSET has_homsets_HSET.
 
 (* TODO: perhaps rename e.g. [yoneda_eq]? *)
 Definition yy {C : precategory} {hsC : has_homsets C}

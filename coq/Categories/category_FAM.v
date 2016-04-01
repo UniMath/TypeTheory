@@ -552,7 +552,7 @@ Proof.
   apply FAM_obj_weq_3_id.
   apply FAM_obj_weq_4_id.
   apply eq_iso, FAM_obj_weq_5_id.
-Qed.
+Admitted.
 (* TODO: can we improve efficiency here? *)
 
 Theorem FAM_is_category : is_category C -> is_category FAM.
