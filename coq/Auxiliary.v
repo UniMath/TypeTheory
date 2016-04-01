@@ -322,7 +322,7 @@ Admitted.
 Lemma isPullback_preShv_to_pointwise {C : precategory} (hsC : has_homsets C)
     {X Y Z W : preShv C}
     {f : Y ⇒ X} {g : Z ⇒ X} {p1 : W ⇒ Y} {p2 : W ⇒ Z}
-    (e : p1 ;; f = p2 ;; g)
+    {e : p1 ;; f = p2 ;; g} (pb : isPullback _ _ _ _ e)
     (c : C)
   : isPullback ((f : nat_trans _ _) c) ((g : nat_trans _ _) c)
       ((p1 : nat_trans _ _) c) ((p2 : nat_trans _ _) c)
