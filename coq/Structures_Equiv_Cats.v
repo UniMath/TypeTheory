@@ -31,6 +31,19 @@ Lemma isaprop_total2' {A} {B : A -> Type}
 Proof.
 Admitted.
 
+Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
+Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
+
+(* TODO: replace [Q_comp_ext_compare] with this *)
+Lemma Q_comp_ext_compare_general {C:precategory} {hsC}
+  {X} {Y : families_structure hsC X}
+  {Γ Γ':C} {A A' : Ty X Γ} (e : A = A') (t : Γ' ⇒ Γ ◂ A)
+  : (Q Y A' : nat_trans _ _) _ (t ;; comp_ext_compare e)
+  = (Q Y A : nat_trans _ _) _ t.
+Proof.
+  destruct e. apply maponpaths, id_right.
+Qed.
+
 End Auxiliary.
 
 Section Fix_Context.
@@ -44,6 +57,9 @@ Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 Local Notation "A [ f ]" := (# (TY _ : functor _ _ ) f A) (at level 4).
+
+Local Notation Δ := comp_ext_compare.
+Local Notation φ := obj_ext_mor_φ.
 
 Section Compatible_Disp_Cat.
 
@@ -97,7 +113,47 @@ Lemma qq_from_fam_mor {X X' : obj_ext_precat} {F : X ⇒ X'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
   : Σ (FZ : Z ⇒[F] Z'), W ⇒[(F,,(FY,,FZ))] W'.
-Admitted.
+Proof.
+  refine (_,, tt).
+  intros Γ' Γ f A.
+  cbn in W, W', FY. unfold compatible_scomp_families in *. 
+  unfold families_mor in FY.
+  (* Compare [term_to_section_naturality]. Perhaps worth abstracting? *)
+  set (Pb := isPullback_preShv_to_pointwise hsC
+        (isPullback_Q_pp Y' ((obj_ext_mor_TY F : nat_trans _ _) Γ A)) 
+        (Γ' ◂ # (TY X : functor _ _) f A));
+    simpl in Pb.
+  apply (pullback_HSET_elements_unique Pb); clear Pb; unfold yoneda_morphisms_data.
+  - etrans. apply @pathsinv0, assoc.
+    etrans. apply maponpaths, obj_ext_mor_ax.
+      (* TODO: name of [obj_ext_mor_ax] unmemorable.  Rename more like [qq_π]? *)
+    etrans. apply @pathsinv0, qq_π.
+      (* TODO: name of [qq_π] misleading, suggests opposite direction. *)
+    apply pathsinv0.
+    etrans. apply @pathsinv0, assoc.
+    etrans. apply maponpaths, @pathsinv0, qq_π.
+    etrans. apply assoc. apply cancel_postcomposition.
+    etrans. apply @pathsinv0, assoc.
+    etrans. apply maponpaths. apply comp_ext_compare_π.
+    apply obj_ext_mor_ax.
+  - etrans.
+      (* Again, compare [H1] in [term_to_section_naturality].
+      Surely there’s something to abstract! *)
+      exact (!toforallpaths _ _ _
+        (nat_trans_eq_pointwise (families_mor_Q FY _) _) _).
+    etrans. apply maponpaths, @pathsinv0, id_left.
+    etrans. cbn. apply maponpaths.
+      exact (!toforallpaths _ _ _
+        (nat_trans_eq_pointwise (W _ _ _ _) _) _).
+    apply pathsinv0.
+    etrans.
+      exact (!toforallpaths _ _ _
+        (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
+    etrans. apply Q_comp_ext_compare_general.
+    etrans. apply maponpaths, @pathsinv0, id_left.
+    exact (!toforallpaths _ _ _
+      (nat_trans_eq_pointwise (families_mor_Q FY _) _) _).
+Qed.
 
 Lemma qq_from_fam_mor_unique {X X' : obj_ext_precat} {F : X ⇒ X'}
   {Y : families_disp_precat C X} {Y'} (FY : Y ⇒[F] Y')
