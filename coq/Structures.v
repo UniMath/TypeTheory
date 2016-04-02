@@ -227,6 +227,9 @@ Definition pullback_from_comp (Y : qq_morphism_data)
         Σ e : π _ ;; f = qq Y f A ;; π _ , isPullback _ _ _ _ e
 := pr2 Y _ _ f A.
 
+(* TODO: once [ext_comp_compare] upstreamed to this file, use it in this def. *)
+
+(* TODO: access functions! *)
 Definition qq_morphism_axioms (Y : qq_morphism_data) : UU
   := 
     (∀ Γ A,
