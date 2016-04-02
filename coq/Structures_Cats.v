@@ -113,9 +113,18 @@ Proof.
   apply maponpaths, setproperty.
 Qed.
 
+Lemma Q_comp_ext_compare_section {C:precategory} {hsC}
+    {X} {Y : families_structure hsC X}
+    {Γ:C} {A A' : Ty X Γ} (e : A = A') (t : Γ ⇒ Γ ◂ A)
+  : (Q Y A' : nat_trans _ _) _ (t ;; comp_ext_compare e)
+  = (Q Y A : nat_trans _ _) _ t.
+Proof.
+  destruct e. apply maponpaths, id_right.
+Qed.
+
 Lemma Q_comp_ext_compare {C:precategory} {hsC}
-  {X} {Y : families_structure hsC X}
-  {Γ:C} {A A' : Ty X Γ} (e : A = A') (t : Γ ⇒ Γ ◂ A)
+    {X} {Y : families_structure hsC X}
+    {Γ Γ':C} {A A' : Ty X Γ} (e : A = A') (t : Γ' ⇒ Γ ◂ A)
   : (Q Y A' : nat_trans _ _) _ (t ;; comp_ext_compare e)
   = (Q Y A : nat_trans _ _) _ t.
 Proof.
@@ -331,7 +340,7 @@ Proof.
     apply maponpaths. 
     apply comp_ext_compare_π.
   - etrans. apply term_to_section_recover. apply pathsinv0.
-    etrans. apply Q_comp_ext_compare.
+    etrans. apply Q_comp_ext_compare_section.
     etrans. apply @pathsinv0.
       set (H1 := nat_trans_eq_pointwise (families_mor_Q FY A) Γ).
       exact (toforallpaths _ _ _ H1 _).
@@ -346,7 +355,7 @@ Lemma families_mor_recover_term {X X'} {Y} {Y'}
 Proof.
   etrans. apply @pathsinv0, term_to_section_recover.
   etrans. apply maponpaths, term_to_section_naturality.
-  apply Q_comp_ext_compare.
+  apply Q_comp_ext_compare_section.
 Qed.
 
 (* TODO: once all obligations proved, replace [families_mor_eq] with this in subsequent proofs. *)

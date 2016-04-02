@@ -36,16 +36,6 @@ Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 
 Local Notation Δ := comp_ext_compare.
 Local Notation φ := obj_ext_mor_φ.
 
-(* TODO: replace [Q_comp_ext_compare] with this *)
-Lemma Q_comp_ext_compare_general {C:precategory} {hsC}
-    {X} {Y : families_structure hsC X}
-    {Γ Γ':C} {A A' : Ty X Γ} (e : A = A') (t : Γ' ⇒ Γ ◂ A)
-  : (Q Y A' : nat_trans _ _) _ (t ;; comp_ext_compare e)
-  = (Q Y A : nat_trans _ _) _ t.
-Proof.
-  destruct e. apply maponpaths, id_right.
-Qed.
-
 (* TODO: move upstream *)
 Lemma map_from_term_recover {C:Precategory} (hsC := homset_property C)
     {X} {Y} {Z} (W : @compatible_scomp_families _ X Y Z)
@@ -72,7 +62,7 @@ Proof.
     etrans. Focus 2. apply id_left. apply cancel_postcomposition.
     exact (pr2 (term_to_section _)).
   - etrans. refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (W _ _ _ _) _) _).
-    etrans. apply Q_comp_ext_compare.
+    etrans. apply Q_comp_ext_compare_section.
     apply term_to_section_recover.
 Time Qed.
 
@@ -181,7 +171,7 @@ Proof.
     etrans.
       exact (!toforallpaths _ _ _
         (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
-    etrans. apply Q_comp_ext_compare_general.
+    etrans. apply Q_comp_ext_compare.
     etrans. apply maponpaths, @pathsinv0, id_left.
     exact (!toforallpaths _ _ _
       (nat_trans_eq_pointwise (families_mor_Q FY _) _) _).
@@ -250,7 +240,7 @@ Proof.
   equality through [Q]. *)
   etrans.      
     apply @pathsinv0.
-    simple refine (Q_comp_ext_compare _ _); simpl.
+    simple refine (Q_comp_ext_compare_section _ _); simpl.
     Focus 2. etrans. apply maponpaths.
       exact (toforallpaths _ _ _ (nat_trans_ax (pp Y) _ _ _) _).
     exact (toforallpaths _ _ _ (nat_trans_ax (obj_ext_mor_TY F) _ _ _) _).
@@ -302,7 +292,7 @@ Proof.
       apply maponpaths, @pathsinv0, term_to_section_recover.
     etrans.
       refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (W _ _ _ _) _) _).
-    etrans. apply Q_comp_ext_compare.
+    etrans. apply Q_comp_ext_compare_section.
     apply term_to_section_recover.
 Time Qed.
 
@@ -344,7 +334,7 @@ Proof.
     apply funextsec; intros f.
     etrans.
       (* TODO: consider changing direction of [Q_comp_ext_compare]?*)
-      apply @pathsinv0. simple refine (Q_comp_ext_compare _ _); simpl.
+      apply @pathsinv0. simple refine (Q_comp_ext_compare_section _ _); simpl.
         exact ((obj_ext_mor_TY F : nat_trans _ _) _ 
                  (# (TY _ : functor _ _) (f ;; π _) A)). 
       apply maponpaths.
@@ -356,7 +346,7 @@ Proof.
       etrans. apply maponpaths, @pathsinv0, Δ_φ.
       apply assoc.
     etrans. 
-      apply @pathsinv0. simple refine (Q_comp_ext_compare _ _); simpl.
+      apply @pathsinv0. simple refine (Q_comp_ext_compare_section _ _); simpl.
         exact (# (TY _ : functor _ _) (f ;; π _)
                  ((obj_ext_mor_TY F : nat_trans _ _) _ A)).
       exact (toforallpaths _ _ _ (nat_trans_ax (obj_ext_mor_TY F) _ _ _) _).
