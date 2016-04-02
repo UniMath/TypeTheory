@@ -26,23 +26,55 @@ Section Auxiliary.
 
  ([isaprop_total2] in library is less convenient to apply.) *)
 Lemma isaprop_total2' {A} {B : A -> Type} 
-  (HA: isaprop A) (HB : forall x:A, isaprop (B x))
+    (HA: isaprop A) (HB : forall x:A, isaprop (B x))
   : isaprop (total2 B).
 Proof.
 Admitted.
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
+Local Notation Δ := comp_ext_compare.
+Local Notation φ := obj_ext_mor_φ.
 
 (* TODO: replace [Q_comp_ext_compare] with this *)
 Lemma Q_comp_ext_compare_general {C:precategory} {hsC}
-  {X} {Y : families_structure hsC X}
-  {Γ Γ':C} {A A' : Ty X Γ} (e : A = A') (t : Γ' ⇒ Γ ◂ A)
+    {X} {Y : families_structure hsC X}
+    {Γ Γ':C} {A A' : Ty X Γ} (e : A = A') (t : Γ' ⇒ Γ ◂ A)
   : (Q Y A' : nat_trans _ _) _ (t ;; comp_ext_compare e)
   = (Q Y A : nat_trans _ _) _ t.
 Proof.
   destruct e. apply maponpaths, id_right.
 Qed.
+
+(* TODO: move upstream *)
+Lemma map_from_term_recover {C:Precategory} (hsC := homset_property C)
+    {X} {Y} {Z} (W : @compatible_scomp_families _ X Y Z)
+    {Γ' Γ : C} {A : Ty X Γ} (f : Γ' ⇒ Γ ◂ A)
+    {e : (pp Y : nat_trans _ _) Γ' ((Q Y A : nat_trans _ _) Γ' f)
+         = # (TY X : functor _ _) (f ;; π A) A}
+  : pr1 (term_to_section ((Q Y A : nat_trans _ _) Γ' f)) ;; Δ e ;; qq Z (f ;; π A) A
+  = f.
+Proof.
+  unfold compatible_scomp_families in W.
+  (* TODO: definitely abstract this use of pullbacks: *)
+  set (Pb (Δ' Δ:C) (B : Ty X Δ) :=
+        isPullback_preShv_to_pointwise hsC (isPullback_Q_pp Y B) Δ').
+  set (Pb' Δ' Δ B := (pullback_HSET_elements_unique (Pb Δ' Δ B))); cbn in Pb'.
+  apply Pb'; clear Pb Pb'.
+  - unfold yoneda_morphisms_data; cbn.
+    etrans. apply @pathsinv0, assoc.
+    etrans. apply maponpaths, @pathsinv0, qq_π.
+    etrans. apply @pathsinv0, assoc.
+    etrans. apply maponpaths.
+      etrans. apply assoc.
+      apply cancel_postcomposition, comp_ext_compare_π.
+    etrans. apply assoc.
+    etrans. Focus 2. apply id_left. apply cancel_postcomposition.
+    exact (pr2 (term_to_section _)).
+  - etrans. refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (W _ _ _ _) _) _).
+    etrans. apply Q_comp_ext_compare.
+    apply term_to_section_recover.
+Time Qed.
 
 End Auxiliary.
 
@@ -56,7 +88,6 @@ Local Notation "'Yo'" := (yoneda C hsC).
 Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
-Local Notation "A [ f ]" := (# (TY _ : functor _ _ ) f A) (at level 4).
 Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
 
 Local Notation Δ := comp_ext_compare.
@@ -179,46 +210,110 @@ Proof.
   apply iscompatible_fam_from_qq.
 Defined.
 
-(* TODO: move; sub in where possible. *)
-Lemma Q_from_qq {X} {Y} {Z} (W : @compatible_scomp_families _ X Y Z)
-    {Γ' Γ : C} {A : Ty X Γ} (f : Γ' ⇒ Γ ◂ A)
-  : (Q Y A : nat_trans _ _) _ f
-  = # (TM Y : functor _ _) f ((Q Y A : nat_trans _ _) _ (identity _)).
-Proof.
-  etrans. apply maponpaths, @pathsinv0, id_right.
-  refine (toforallpaths _ _ _ (nat_trans_ax (Q _ _) _ _ _) _).
-Qed.
+(** The next main goal is the following statement.  However, the construction of the morphism of families structures is rather large; so we break out the first component (the map of term presheaves) into several independent lemmas, before returning to this in [fam_from_qq_mor] below. *)
+Lemma fam_from_qq_mor {X X' : obj_ext_precat} {F : X ⇒ X'}
+  {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
+  {Y : families_disp_precat C X} {Y'}
+  (W : strucs_compat_disp_precat (X,,(Y,,Z)))
+  (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
+  : Σ (FY : Y ⇒[F] Y'), W ⇒[(F,,(FY,,FZ))] W'.
+Abort.
 
-(* TODO: move *)
-Lemma map_from_term_recover {X} {Y} {Z} (W : @compatible_scomp_families _ X Y Z)
-    {Γ' Γ : C} {A : Ty X Γ} (f : Γ' ⇒ Γ ◂ A)
-    {e : (pp Y : nat_trans _ _) Γ' ((Q Y A : nat_trans _ _) Γ' f)
-         = # (TY X : functor _ _) (f ;; π A) A}
-  : pr1 (term_to_section ((Q Y A : nat_trans _ _) Γ' f)) ;; Δ e ;; qq Z (f ;; π A) A
-  = f.
+Lemma fam_from_qq_mor_TM_data {X X' : obj_ext_precat} {F : X ⇒ X'}
+  {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
+  {Y : families_disp_precat C X} {Y'}
+  (W : strucs_compat_disp_precat (X,,(Y,,Z)))
+  (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
+  : ∀ Γ,
+    ((TM (Y : families_structure _ _) : functor _ _) Γ : hSet)
+    -> ((TM (Y' : families_structure _ _) : functor _ _) Γ : hSet).
 Proof.
-  unfold compatible_scomp_families in W.
+  intros Γ t; simpl in Γ.
+  exact ((Q _ _ : nat_trans _ _) _ (pr1 (term_to_section t) ;; φ F _)).
+Defined.
+
+Lemma fam_from_qq_mor_TM_naturality {X X' : obj_ext_precat} {F : X ⇒ X'}
+  {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
+  {Y : families_disp_precat C X} {Y'}
+  (W : strucs_compat_disp_precat (X,,(Y,,Z)))
+  (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
+  : is_nat_trans (TM _ : functor _ _) _ (fam_from_qq_mor_TM_data FZ W W').
+Proof.
+  simpl in Y, Y'.
+  intros Γ' Γ f; apply funextsec; intros t.
+  (* Part 1: naturality of the section-to-term map back to [Tm Y']. *)
+  etrans. Focus 2. exact (toforallpaths _ _ _ (nat_trans_ax (Q Y' _) _ _ _) _).
+  cbn. simpl in W, W'; unfold compatible_scomp_families in W, W'.
+  (* We want to apply [W'] on the lhs, so we need to munge the type argument
+  of [Q] to a form with the [f] action outermost.  Naturality will show that
+  the type is equal to such a form; [Q_comp_ext_compare] pushes that type
+  equality through [Q]. *)
+  etrans.      
+    apply @pathsinv0.
+    simple refine (Q_comp_ext_compare _ _); simpl.
+    Focus 2. etrans. apply maponpaths.
+      exact (toforallpaths _ _ _ (nat_trans_ax (pp Y) _ _ _) _).
+    exact (toforallpaths _ _ _ (nat_trans_ax (obj_ext_mor_TY F) _ _ _) _).
+  etrans.
+    refine (toforallpaths _ _ _ (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
+  apply (maponpaths ((Q _ _ : nat_trans _ _ ) Γ)).
+  simpl. unfold yoneda_morphisms_data.
+  (* Part 2: naturality of the transfer along [F]. *)
+  etrans. apply @pathsinv0, assoc.
+  etrans. apply @pathsinv0, assoc.
+  etrans. apply maponpaths.
+    etrans. apply assoc. 
+    etrans. apply cancel_postcomposition. Focus 2.
+      apply @pathsinv0. 
+      etrans. Focus 2. apply assoc. 
+      apply maponpaths, FZ.
+    etrans. Focus 2. apply @pathsinv0, assoc.
+    etrans. Focus 2. apply cancel_postcomposition.
+      apply @pathsinv0, Δ_φ.
+    etrans. Focus 2. apply assoc.
+    apply maponpaths. apply comp_ext_compare_comp.
+  etrans. apply assoc.
+  etrans. apply assoc.
+  etrans. Focus 2. apply @pathsinv0, assoc.
+  apply cancel_postcomposition.
+  (* Part 3: naturality in [Γ] of the term-to-section construction from [Tm Y]. *) 
   (* TODO: definitely abstract this use of pullbacks: *)
   set (Pb (Δ' Δ:C) (B : Ty X Δ) :=
         isPullback_preShv_to_pointwise hsC (isPullback_Q_pp Y B) Δ').
   set (Pb' Δ' Δ B := (pullback_HSET_elements_unique (Pb Δ' Δ B))); cbn in Pb'.
   apply Pb'; clear Pb Pb'.
-  - unfold yoneda_morphisms_data; cbn.
-    etrans. apply @pathsinv0, assoc.
-    etrans. apply maponpaths, @pathsinv0, qq_π.
-    etrans. apply @pathsinv0, assoc.
-    etrans. apply maponpaths.
+  + unfold yoneda_morphisms_data. 
+    apply @pathscomp0 with f.
+    * etrans. apply @pathsinv0, assoc.
+      etrans. apply maponpaths, @pathsinv0, qq_π.
       etrans. apply assoc.
-      apply cancel_postcomposition, comp_ext_compare_π.
-    etrans. apply assoc.
-    etrans. Focus 2. apply id_left. apply cancel_postcomposition.
-    exact (pr2 (term_to_section _)).
-  - etrans. refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (W _ _ _ _) _) _).
+      etrans. Focus 2. apply id_left.
+      apply cancel_postcomposition.
+      etrans. apply @pathsinv0, assoc.
+      etrans. apply maponpaths, comp_ext_compare_π.
+      refine (pr2 (term_to_section _)).
+    * etrans. apply @pathsinv0, id_right.
+      etrans. Focus 2. apply assoc.
+      apply maponpaths, pathsinv0.
+      refine (pr2 (term_to_section _)).
+  + etrans. Focus 2.
+      refine (toforallpaths _ _ _ (!nat_trans_ax (Q _ _) _ _ _) _).
+    etrans. Focus 2. cbn.
+      apply maponpaths, @pathsinv0, term_to_section_recover.
+    etrans.
+      refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (W _ _ _ _) _) _).
     etrans. apply Q_comp_ext_compare.
     apply term_to_section_recover.
-Qed.
+Time Qed.
 
-(* TODO: try splitting out [nat_trans] part as lemma; test timing. *)
+Definition fam_from_qq_mor_TM {X X' : obj_ext_precat} {F : X ⇒ X'}
+    {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
+    {Y : families_disp_precat C X} {Y'}
+    (W : strucs_compat_disp_precat (X,,(Y,,Z)))
+    (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
+  : TM (Y : families_structure _ _) ⇒ TM (Y' : families_structure _ _)
+:= (fam_from_qq_mor_TM_data _ _ _,, fam_from_qq_mor_TM_naturality FZ W W').
+
 Lemma fam_from_qq_mor {X X' : obj_ext_precat} {F : X ⇒ X'}
   {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
   {Y : families_disp_precat C X} {Y'}
@@ -226,82 +321,12 @@ Lemma fam_from_qq_mor {X X' : obj_ext_precat} {F : X ⇒ X'}
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
   : Σ (FY : Y ⇒[F] Y'), W ⇒[(F,,(FY,,FZ))] W'.
 Proof.
-  simpl in W, W'; unfold compatible_scomp_families in W, W'.
-  simpl in Y, Y'.
-    (* Makes writing easier, obviating casts [Y : families_structure _].
-    TODO: does it affect timing at all? *)
+  simpl in W, W'; unfold compatible_scomp_families in W, W'. (* Readability *)
+  simpl in Y, Y'.  (* To avoid needing casts [Y : families_structure _]. *)
   refine (_,,tt). simpl; unfold families_mor.
-  simple refine (_,,_); simple refine (_,,_);
-    try (intros Γ A); try apply nat_trans_eq; cbn.
-  (* The use of [nat_trans_eq] and [cbn] above ensures that later subgoals only
-  depend on the data of the natural transformation, not on the naturality proof. *)
-  - revert A; intros t; simpl in Γ.
-    exact ((Q _ _ : nat_trans _ _) _ (pr1 (term_to_section t) ;; φ F _)).
-  - revert Γ A. simpl; intros Γ' Γ f; apply funextsec; intros t.
-    (* Part 1: naturality of the section-to-term map back to [Tm Y']. *)
-    etrans. Focus 2. exact (toforallpaths _ _ _ (nat_trans_ax (Q Y' _) _ _ _) _).
-    cbn. simpl in W, W'; unfold compatible_scomp_families in W, W'.
-    (* We want to apply [W'] on the lhs, so we need to munge the type argument
-    of [Q] to a form with the [f] action outermost.  Naturality will show that
-    the type is equal to such a form; [Q_comp_ext_compare] pushes that type
-    equality through [Q]. *)
-    etrans.      
-      apply @pathsinv0.
-      simple refine (Q_comp_ext_compare _ _); simpl.
-      Focus 2. etrans. apply maponpaths.
-        exact (toforallpaths _ _ _ (nat_trans_ax (pp Y) _ _ _) _).
-      exact (toforallpaths _ _ _ (nat_trans_ax (obj_ext_mor_TY F) _ _ _) _).
-    etrans.
-      refine (toforallpaths _ _ _ (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
-    apply (maponpaths ((Q _ _ : nat_trans _ _ ) Γ)).
-    simpl. unfold yoneda_morphisms_data.
-    (* Part 2: naturality of the transfer along [F]. *)
-    etrans. apply @pathsinv0, assoc.
-    etrans. apply @pathsinv0, assoc.
-    etrans. apply maponpaths.
-      etrans. apply assoc. 
-      etrans. apply cancel_postcomposition. Focus 2.
-        apply @pathsinv0. 
-        etrans. Focus 2. apply assoc. 
-        apply maponpaths, FZ.
-      etrans. Focus 2. apply @pathsinv0, assoc.
-      etrans. Focus 2. apply cancel_postcomposition.
-        apply @pathsinv0, Δ_φ.
-      etrans. Focus 2. apply assoc.
-      apply maponpaths. apply comp_ext_compare_comp.
-    etrans. apply assoc.
-    etrans. apply assoc.
-    etrans. Focus 2. apply @pathsinv0, assoc.
-    apply cancel_postcomposition.
-    (* Part 3: naturality in [Γ] of the term-to-section construction from [Tm Y]. *) 
-    (* TODO: definitely abstract this use of pullbacks: *)
-    set (Pb (Δ' Δ:C) (B : Ty X Δ) :=
-          isPullback_preShv_to_pointwise hsC (isPullback_Q_pp Y B) Δ').
-    set (Pb' Δ' Δ B := (pullback_HSET_elements_unique (Pb Δ' Δ B))); cbn in Pb'.
-    apply Pb'; clear Pb Pb'.
-    + unfold yoneda_morphisms_data. 
-      apply @pathscomp0 with f.
-      * etrans. apply @pathsinv0, assoc.
-        etrans. apply maponpaths, @pathsinv0, qq_π.
-        etrans. apply assoc.
-        etrans. Focus 2. apply id_left.
-        apply cancel_postcomposition.
-        etrans. apply @pathsinv0, assoc.
-        etrans. apply maponpaths, comp_ext_compare_π.
-        refine (pr2 (term_to_section _)).
-      * etrans. apply @pathsinv0, id_right.
-        etrans. Focus 2. apply assoc.
-        apply maponpaths, pathsinv0.
-        refine (pr2 (term_to_section _)).
-    + etrans. Focus 2.
-        refine (toforallpaths _ _ _ (!nat_trans_ax (Q _ _) _ _ _) _).
-      etrans. Focus 2. cbn.
-        apply maponpaths, @pathsinv0, term_to_section_recover.
-      etrans.
-        refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (W _ _ _ _) _) _).
-      etrans. apply Q_comp_ext_compare.
-      apply term_to_section_recover.
-  -  apply has_homsets_HSET.
+  exists (fam_from_qq_mor_TM FZ W W').
+  apply dirprodpair; try intros Γ A; apply nat_trans_eq; cbn.
+  - apply has_homsets_HSET.
   - simpl. intros Γ; apply funextsec; intros t.
     etrans. refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (Q_pp _ _) _) _).
     simpl. unfold yoneda_morphisms_data; cbn.
@@ -317,8 +342,6 @@ Proof.
   - apply has_homsets_HSET.
   - intros Γ'. unfold yoneda_morphisms_data, yoneda_objects_ob; cbn.
     apply funextsec; intros f.
-    (* Like in “Part 1” above, we want to apply [W'] on the lhs, so we need
-    to munge the type argument of [Q] to get the [f] action outermost. *)
     etrans.
       (* TODO: consider changing direction of [Q_comp_ext_compare]?*)
       apply @pathsinv0. simple refine (Q_comp_ext_compare _ _); simpl.
@@ -348,7 +371,7 @@ Proof.
     etrans. apply assoc.
     apply cancel_postcomposition.
   apply (map_from_term_recover W).
-Qed.
+Time Qed.
 
 Lemma fam_from_qq_mor_unique {X X' : obj_ext_precat} {F : X ⇒ X'}
   {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
