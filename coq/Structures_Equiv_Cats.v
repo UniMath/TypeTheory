@@ -215,8 +215,8 @@ Proof.
     exact (pr2 (term_to_section _)).
   - etrans. refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (W _ _ _ _) _) _).
     etrans. apply Q_comp_ext_compare.
-    
-Admitted.
+    apply term_to_section_recover.
+Qed.
 
 (* TODO: try splitting out [nat_trans] part as lemma; test timing. *)
 Lemma fam_from_qq_mor {X X' : obj_ext_precat} {F : X ⇒ X'}
@@ -348,7 +348,7 @@ Proof.
     etrans. apply assoc.
     apply cancel_postcomposition.
   apply (map_from_term_recover W).
-Time Qed.
+Qed.
 
 Lemma fam_from_qq_mor_unique {X X' : obj_ext_precat} {F : X ⇒ X'}
   {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
