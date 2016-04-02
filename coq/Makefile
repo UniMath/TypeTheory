@@ -23,13 +23,11 @@ MODULES-CORE := \
 	Bicats/Displayed_Bicats \
 	Structures_Cats \
 	CwF_SplitTypeCat_Maps \
-	Structures_Equiv_Cats \
-	CwF_SplitTypeCat_Equivalence \
 	Categories/category_of_elements \
 	Categories/category_FAM \
 	OtherDefs/CwF_Pitts \
 	OtherDefs/TypeCat \
-        OtherDefs/CwF_Pitts_to_TypeCat \
+	OtherDefs/CwF_Pitts_to_TypeCat \
 	OtherDefs/TypeCat_to_CwF_Pitts \
 	OtherDefs/DM_to_TypeCat \
 	OtherDefs/CwF_Pitts_to_DM \
@@ -40,6 +38,8 @@ MODULES-CORE := \
 # Remaining modules, included only in “make all”.
 # Useful for leaves that are slow to recompile.
 MODULES-EXTRA := \
+	CwF_SplitTypeCat_Equivalence \
+	Structures_Equiv_Cats \
 	OtherDefs/CwF_Pitts_completion \
 	OtherDefs/DM_to_TypeCat_to_DM \
 
