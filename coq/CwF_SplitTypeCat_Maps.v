@@ -29,7 +29,11 @@ Local Notation "'Yo'" := (yoneda C hsC).
 Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
+Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
 Local Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).
+Local Notation "'Tm'" := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
+
+Local Notation Δ := comp_ext_compare.
 
 (** * Definition of compatibility
 
@@ -48,6 +52,38 @@ Definition compatible_qq_morphism_structure (Y : families_structure hsC X) : UU
   := Σ Z : qq_morphism_structure X, compatible_scomp_families Y Z.
 
 End Compatible_Structures.
+
+(** ** Misc lemmas *)
+
+(* TODO: find more logical home for this below, once file is cleaned up a bit. *)
+Lemma map_from_term_recover
+    {Y} {Z} (W : compatible_scomp_families Y Z)
+    {Γ' Γ : C} {A : Ty X Γ} (f : Γ' ⇒ Γ ◂ A)
+    {e : (pp Y : nat_trans _ _) Γ' ((Q Y A : nat_trans _ _) Γ' f)
+         = A [ f ;; π A ]}
+  : pr1 (term_to_section ((Q Y A : nat_trans _ _) Γ' f)) ;; Δ e ;; qq Z (f ;; π A) A
+  = f.
+Proof.
+  unfold compatible_scomp_families in W.
+  (* TODO: definitely abstract this use of pullbacks: *)
+  set (Pb (Δ' Δ:C) (B : Ty X Δ) :=
+        isPullback_preShv_to_pointwise hsC (isPullback_Q_pp Y B) Δ').
+  set (Pb' Δ' Δ B := (pullback_HSET_elements_unique (Pb Δ' Δ B))); cbn in Pb'.
+  apply Pb'; clear Pb Pb'.
+  - unfold yoneda_morphisms_data; cbn.
+    etrans. apply @pathsinv0, assoc.
+    etrans. apply maponpaths, @pathsinv0, qq_π.
+    etrans. apply @pathsinv0, assoc.
+    etrans. apply maponpaths.
+      etrans. apply assoc.
+      apply cancel_postcomposition, comp_ext_compare_π.
+    etrans. apply assoc.
+    etrans. Focus 2. apply id_left. apply cancel_postcomposition.
+    exact (pr2 (term_to_section _)).
+  - etrans. refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (W _ _ _ _) _) _).
+    etrans. apply Q_comp_ext_compare.
+    apply term_to_section_recover.
+Qed.
 
 (** * Defining a (compatible) families structure, given a _q_-morphism structure 
 

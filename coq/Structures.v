@@ -22,20 +22,6 @@ Require Export UniMath.CategoryTheory.yoneda.
 Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
 
-Section Auxiliary.
-
-(* TODO: upstream to [Auxiliary], and unify with converse direction [pullback_HSET]? *)
-Lemma pullback_HSET_univprop_elements {P A B C : HSET}
-    {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
-    {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
-    (ep : p1 ;; f = p2 ;; g)
-    (pb : isPullback f g p1 p2 ep)
-  : (∀ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b).
-Proof.
-Admitted.
-
-End Auxiliary.
-
 Section Fix_Base_Category.
 
 Context {C : precategory} {hsC : has_homsets C}.
@@ -52,18 +38,73 @@ Components of [X : obj_ext_structure C]:
 - [TY Γ : hSet]
 - [comp_ext X Γ A : C].  Notation: [Γ ◂ A]
 - [π A : Γ ◂ A ⇒  A ⟧ *)
+Section Obj_Ext_Structures.
 
 Definition obj_ext_structure : UU
   := Σ Ty : preShv C,
         ∀ (Γ : C) (A : (Ty : functor _ _ ) Γ : hSet ), Σ (ΓA : C), ΓA ⇒ Γ.
 
 Definition TY (X : obj_ext_structure) : preShv _ := pr1 X.
+Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
 
 Definition comp_ext (X : obj_ext_structure) Γ A : C := pr1 (pr2 X Γ A).
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 
 Definition π {X : obj_ext_structure} {Γ} A : Γ ◂ A ⇒ Γ := pr2 (pr2 X _ A).
 
+(** ** Extensions by equal types *)
+
+(* One frequently needs to deal with isomorphisms between context extensions [Γ ◂ A ≃ Γ ◂ A'] induced by type equalities [e : A = A']; so we collect lemmas for them, and notate them as [Δ e]. *)
+
+Section Comp_Ext_Compare.
+
+Definition comp_ext_compare {X : obj_ext_structure}
+    {Γ : C} {A A' : Ty X Γ} (e : A = A')
+  : Γ ◂ A ⇒ Γ ◂ A'
+:= idtoiso (maponpaths (comp_ext X Γ) e).
+
+Lemma comp_ext_compare_id {X : obj_ext_structure}
+    {Γ : C} (A : Ty X Γ)
+  : comp_ext_compare (idpath A) = identity (Γ ◂ A).
+Proof.
+  apply idpath.
+Qed.
+
+Lemma comp_ext_compare_id_general {X : obj_ext_structure}
+    {Γ : C} {A : Ty X Γ} (e : A = A)
+  : comp_ext_compare e = identity (Γ ◂ A).
+Proof.
+  apply @pathscomp0 with (comp_ext_compare (idpath _)).
+  apply maponpaths, setproperty.
+  apply idpath.
+Qed.
+
+Lemma comp_ext_compare_comp {X : obj_ext_structure}
+    {Γ : C} {A A' A'' : Ty X Γ} (e : A = A') (e' : A' = A'')
+  : comp_ext_compare (e @ e') = comp_ext_compare e ;; comp_ext_compare e'.
+Proof.
+  apply pathsinv0.
+  etrans. apply idtoiso_concat_pr. 
+  unfold comp_ext_compare. apply maponpaths, maponpaths.
+  apply pathsinv0, maponpathscomp0. 
+Qed.
+
+Lemma comp_ext_compare_π {X : obj_ext_structure}
+    {Γ : C} {A A' : Ty X Γ} (e : A = A')
+  : comp_ext_compare e ;; π A' = π A.
+Proof.
+  destruct e; cbn. apply id_left.
+Qed.
+
+Lemma comp_ext_compare_comp_general {X : obj_ext_structure}
+    {Γ : C} {A A' A'' : Ty X Γ} (e : A = A') (e' : A' = A'') (e'' : A = A'')
+  : comp_ext_compare e'' = comp_ext_compare e ;; comp_ext_compare e'.
+Proof.
+  refine (_ @ comp_ext_compare_comp _ _).
+  apply maponpaths, setproperty.
+Qed.
+
+(* TODO: obsolete duplicate of [comp_ext_compare_π].  A little tricky to expunge due to rewriting recognition issues.  Need to first sub in [comp_ext_compare] where possible, then replace [idtoiso_π] with  [comp_ext_compare_π].  *)
 Lemma idtoiso_π {X : obj_ext_structure} (Γ : C) (A A' : (TY X : functor _ _ ) Γ : hSet) (e : A = A')
   :
     idtoiso (maponpaths (λ B, Γ ◂ B) e) ;; π _ = π _ .
@@ -71,6 +112,13 @@ Proof.
   induction e.
   apply id_left.
 Qed.
+
+End Comp_Ext_Compare.
+
+End Obj_Ext_Structures.
+
+Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
+Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
 
 (** The definitions of families structures and split type-category structures will all be relative to a fixed object-extension structure. *)
 
@@ -94,14 +142,14 @@ Components of [Y : families_structure X]:
 Definition families_structure_data : UU
   := Σ Tm : preShv C, 
         (Tm ⇒ TY X)
-        × (∀ Γ (A : (TY X : functor _ _ ) Γ : hSet), Yo (Γ ◂ A) ⇒ Tm).
+        × (∀ Γ (A : Ty X Γ), Yo (Γ ◂ A) ⇒ Tm).
 
 Definition TM (Y : families_structure_data) : preShv C := pr1 Y.
 Definition pp Y : TM Y ⇒ TY X := pr1 (pr2 Y).
 Definition Q Y {Γ} A : _ ⇒ TM Y := pr2 (pr2 Y) Γ A.
 Local Notation "'Tm'" := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
 
-Lemma idtoiso_Q Y Γ (A A' : (TY X : functor _ _ ) Γ : hSet) (e : A = A') : 
+Lemma idtoiso_Q Y Γ (A A' : Ty X Γ) (e : A = A') : 
   #Yo (idtoiso (maponpaths (fun B => Γ ◂ B) e )) ;; Q Y A' = Q Y A . 
 Proof.
   induction e. 
@@ -110,7 +158,7 @@ Proof.
 Defined.
 
 Definition families_structure_axioms (Y : families_structure_data) :=
-  ∀ Γ (A : (TY X : functor _ _ ) Γ : hSet), 
+  ∀ Γ (A : Ty X Γ), 
         Σ (e : #Yo (π A) ;; yy A = Q Y A ;; pp Y), isPullback _ _ _ _ e.
 
 Lemma isaprop_families_structure_axioms Y
@@ -126,11 +174,11 @@ Definition families_structure : UU :=
   Σ Y : families_structure_data, families_structure_axioms Y.
 Coercion families_data_from_families (Y : families_structure) : _ := pr1 Y.
 
-Definition Q_pp (Y : families_structure) {Γ} (A : (TY X : functor _ _ ) Γ : hSet) 
+Definition Q_pp (Y : families_structure) {Γ} (A : Ty X Γ) 
   : #Yo (π A) ;; yy A = Q Y A ;; pp Y
 := pr1 (pr2 Y _ _ ).
 
-Definition isPullback_Q_pp (Y : families_structure) {Γ} (A : (TY X : functor _ _ ) Γ : hSet)
+Definition isPullback_Q_pp (Y : families_structure) {Γ} (A : Ty X Γ)
   : isPullback _ _ _ _ (Q_pp Y A)
 := pr2 (pr2 Y _ _ ).
 
@@ -167,6 +215,14 @@ Lemma term_to_section_recover {Y : families_structure}
   : (Q Y A : nat_trans _ _) _ (pr1 (term_to_section t)) = t.
 Proof.
   exact (pr2 (pr2 (iscontrpr1 (term_to_section_aux t)))).
+Qed.
+
+Lemma Q_comp_ext_compare {Y : families_structure}
+    {Γ Γ':C} {A A' : Ty X Γ} (e : A = A') (t : Γ' ⇒ Γ ◂ A)
+  : (Q Y A' : nat_trans _ _) _ (t ;; comp_ext_compare e)
+  = (Q Y A : nat_trans _ _) _ t.
+Proof.
+  destruct e. apply maponpaths, id_right.
 Qed.
 
 (** * Cartesian _q_-morphism structures, split type-categories
@@ -239,8 +295,8 @@ Definition qq_morphism_axioms (Y : qq_morphism_data) : UU
   ×
     (∀ Γ Γ' Γ'' (f : C⟦Γ', Γ⟧) (g : C ⟦Γ'', Γ'⟧) (A : (TY X:functor _ _ ) Γ : hSet),
     qq Y (g ;; f) A
-    = idtoiso (maponpaths (fun B => Γ'' ◂ B)
-                (toforallpaths _ _ _ (functor_comp (TY X) _ _ _  f g) A))
+    = comp_ext_compare
+           (toforallpaths _ _ _ (functor_comp (TY X) _ _ _ _ _) A)
       ;; qq Y g (A [f]) 
       ;; qq Y f A).
 
@@ -259,13 +315,11 @@ Qed.
 Lemma qq_morphism_structure_comp_general
   {Y : qq_morphism_data} (Z : qq_morphism_axioms Y)
   {Γ Γ' Γ'' : C}
-  {f : C ⟦ Γ', Γ ⟧} {g : C ⟦ Γ'', Γ' ⟧} {A : ((TY X : functor _ _) Γ : hSet)}
+  {f : C ⟦ Γ', Γ ⟧} {g : C ⟦ Γ'', Γ' ⟧} {A : Ty X Γ}
   (p : A [g ;; f]
-       = # (TY X : functor C^op HSET) g (# (TY X : functor C^op HSET) f A)) 
+       = # (TY X : functor _ _) g (# (TY X : functor _ _) f A)) 
 : qq Y (g ;; f) A
-  = idtoiso
-         (maponpaths (λ B : ((pr1 X : functor _ _) Γ'' : hSet), Γ'' ◂ B)
-            p) ;; 
+  = comp_ext_compare p ;;
        qq Y g (A [f]) ;; qq Y f A.
 Proof.
   eapply pathscomp0. apply (pr2 Z).

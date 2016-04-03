@@ -32,105 +32,6 @@ Local Notation "'Tm'" := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 
 (* TODO: as ever, upstream to [Systems.Auxiliary], and look for in library. *)
 Section Auxiliary.
 
-Lemma transportf_forall {A B} (C : A -> B -> Type)
-  {x0 x1 : A} (e : x0 = x1) (f : forall y:B, C x0 y)
-  : transportf (fun x => forall y, C x y) e f
-  = fun y => transportf (fun x => C x y) e (f y).
-Proof.
-  destruct e; apply idpath.
-Defined.
-
-Lemma maponpaths_apply {A B} {f0 f1 : A -> B} (e : f0 = f1) (x : A)
-  : maponpaths (fun f => f x) e
-  = toforallpaths _ _ _ e x.
-Proof.
-  destruct e; apply idpath.
-Defined.
-
-(* TODO: upstream to [Auxiliary], and place with [pullbackHSET_univprop_elements] *)
-Lemma pullback_HSET_elements_unique {P A B C : HSET}
-    {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
-    {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
-    {ep : p1 ;; f = p2 ;; g}
-    (pb : isPullback f g p1 p2 ep)
-    (ab ab' : P : hSet)
-    (e1 : p1 ab = p1 ab') (e2 : p2 ab = p2 ab')
-  : ab = ab'.
-Proof.
-  set (temp := proofirrelevancecontr 
-    (pullback_HSET_univprop_elements _ pb (p1 ab') (p2 ab')
-        (toforallpaths _ _ _ ep ab'))).
-  refine (maponpaths pr1 (temp (ab,, _) (ab',, _))).
-  - split; assumption.
-  - split; apply idpath.
-Qed.
-
-
-(* TODO: upstream following group (and its [Δ] notation) to [Systems.Structures]. *)
-Definition comp_ext_compare {C:precategory} {X : obj_ext_structure C}
-    {Γ : C} {A A' : Ty X Γ} (e : A = A')
-  : Γ ◂ A ⇒ Γ ◂ A'
-:= idtoiso (maponpaths (comp_ext X Γ) e).
-
-Lemma comp_ext_compare_id {C:precategory} {X : obj_ext_structure C}
-    {Γ : C} (A : Ty X Γ)
-  : comp_ext_compare (idpath A) = identity (Γ ◂ A).
-Proof.
-  apply idpath.
-Qed.
-
-Lemma comp_ext_compare_id_general {C:precategory} {X : obj_ext_structure C}
-    {Γ : C} {A : Ty X Γ} (e : A = A)
-  : comp_ext_compare e = identity (Γ ◂ A).
-Proof.
-  apply @pathscomp0 with (comp_ext_compare (idpath _)).
-  apply maponpaths, setproperty.
-  apply idpath.
-Qed.
-
-Lemma comp_ext_compare_comp {C:precategory} {X : obj_ext_structure C}
-    {Γ : C} {A A' A'' : Ty X Γ} (e : A = A') (e' : A' = A'')
-  : comp_ext_compare (e @ e') = comp_ext_compare e ;; comp_ext_compare e'.
-Proof.
-  apply pathsinv0.
-  etrans. apply idtoiso_concat_pr. 
-  unfold comp_ext_compare. apply maponpaths, maponpaths.
-  apply pathsinv0, maponpathscomp0. 
-Qed.
-
-Lemma comp_ext_compare_π {C:precategory} {X : obj_ext_structure C}
-    {Γ : C} {A A' : Ty X Γ} (e : A = A')
-  : comp_ext_compare e ;; π A' = π A.
-Proof.
-  destruct e; cbn. apply id_left.
-Qed.
-
-Lemma comp_ext_compare_comp_general {C:precategory} {X : obj_ext_structure C}
-    {Γ : C} {A A' A'' : Ty X Γ} (e : A = A') (e' : A' = A'') (e'' : A = A'')
-  : comp_ext_compare e'' = comp_ext_compare e ;; comp_ext_compare e'.
-Proof.
-  refine (_ @ comp_ext_compare_comp _ _).
-  apply maponpaths, setproperty.
-Qed.
-
-Lemma Q_comp_ext_compare_section {C:precategory} {hsC}
-    {X} {Y : families_structure hsC X}
-    {Γ:C} {A A' : Ty X Γ} (e : A = A') (t : Γ ⇒ Γ ◂ A)
-  : (Q Y A' : nat_trans _ _) _ (t ;; comp_ext_compare e)
-  = (Q Y A : nat_trans _ _) _ t.
-Proof.
-  destruct e. apply maponpaths, id_right.
-Qed.
-
-Lemma Q_comp_ext_compare {C:precategory} {hsC}
-    {X} {Y : families_structure hsC X}
-    {Γ Γ':C} {A A' : Ty X Γ} (e : A = A') (t : Γ' ⇒ Γ ◂ A)
-  : (Q Y A' : nat_trans _ _) _ (t ;; comp_ext_compare e)
-  = (Q Y A : nat_trans _ _) _ t.
-Proof.
-  destruct e. apply maponpaths, id_right.
-Qed.
-
 End Auxiliary.
 
 Local Notation Δ := comp_ext_compare.
@@ -340,7 +241,7 @@ Proof.
     apply maponpaths. 
     apply comp_ext_compare_π.
   - etrans. apply term_to_section_recover. apply pathsinv0.
-    etrans. apply Q_comp_ext_compare_section.
+    etrans. apply Q_comp_ext_compare.
     etrans. apply @pathsinv0.
       set (H1 := nat_trans_eq_pointwise (families_mor_Q FY A) Γ).
       exact (toforallpaths _ _ _ H1 _).
@@ -355,7 +256,7 @@ Lemma families_mor_recover_term {X X'} {Y} {Y'}
 Proof.
   etrans. apply @pathsinv0, term_to_section_recover.
   etrans. apply maponpaths, term_to_section_naturality.
-  apply Q_comp_ext_compare_section.
+  apply Q_comp_ext_compare.
 Qed.
 
 (* TODO: once all obligations proved, replace [families_mor_eq] with this in subsequent proofs. *)

@@ -29,24 +29,37 @@ Delimit Scope mor_scope with mor.
 Bind Scope mor_scope with precategory_morphisms.
 Open Scope mor_scope.
 
-(** * Lemmas about identity etc *)
+(** * Lemmas about transport, etc *)
 
 Lemma pr1_transportf (A : UU) (B : A -> UU) (P : ∀ a, B a -> UU)
    (a a' : A) (e : a = a') (xs : Σ b : B a, P _ b):
    pr1 (transportf (fun x => Σ b : B x, P _ b) e xs) = 
      transportf (fun x => B x) e (pr1 xs).
 Proof.
-  induction e.
-  apply idpath.
+  destruct e; apply idpath.
 Defined.
 
-Lemma maponpaths_eq_idpath : ∀ (T1 T2 : UU) (f : T1 -> T2) (t1 : T1) (e : t1 = t1)
-          (H : e = idpath _ ), 
-                                 maponpaths f e = idpath _ .
+Lemma transportf_forall {A B} (C : A -> B -> Type)
+  {x0 x1 : A} (e : x0 = x1) (f : forall y:B, C x0 y)
+  : transportf (fun x => forall y, C x y) e f
+  = fun y => transportf (fun x => C x y) e (f y).
+Proof.
+  destruct e; apply idpath.
+Defined.
+
+Lemma maponpaths_apply {A B} {f0 f1 : A -> B} (e : f0 = f1) (x : A)
+  : maponpaths (fun f => f x) e
+  = toforallpaths _ _ _ e x.
+Proof.
+  destruct e; apply idpath.
+Defined.
+
+Lemma maponpaths_eq_idpath
+  : ∀ (T1 T2 : UU) (f : T1 -> T2) (t1 : T1) (e : t1 = t1)
+       (H : e = idpath _ ), maponpaths f e = idpath _ .
 Proof.
   intros.
-  rewrite H.
-  apply idpath.
+  exact (maponpaths (maponpaths f) H).
 Defined.
 
 (** Useful lemma for binary functions, generalising e.g. [cancel_postcomposition]. 
@@ -93,8 +106,6 @@ Lemma transportf_ext (X : UU) (B : X -> UU) (A A' : X) (e e' : A = A') p :
 Proof.
   intro H; induction H; apply idpath.
 Defined.
-
-
 
 (** * Lemmas/definitions on (pre)categories *)
 
@@ -306,6 +317,35 @@ Proof.
       split; apply funextsec; intro x.
       apply (pr1 (pr2 (H_existence _ _ _))). apply (pr2 (pr2 (H_existence _ _ _))).
 Qed.
+
+
+(* unify with [pullback_HSET]? *)
+Lemma pullback_HSET_univprop_elements {P A B C : HSET}
+    {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
+    {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
+    (ep : p1 ;; f = p2 ;; g)
+    (pb : isPullback f g p1 p2 ep)
+  : (∀ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b).
+Proof.
+Admitted.
+
+Lemma pullback_HSET_elements_unique {P A B C : HSET}
+    {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
+    {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
+    {ep : p1 ;; f = p2 ;; g}
+    (pb : isPullback f g p1 p2 ep)
+    (ab ab' : P : hSet)
+    (e1 : p1 ab = p1 ab') (e2 : p2 ab = p2 ab')
+  : ab = ab'.
+Proof.
+  set (temp := proofirrelevancecontr 
+    (pullback_HSET_univprop_elements _ pb (p1 ab') (p2 ab')
+        (toforallpaths _ _ _ ep ab'))).
+  refine (maponpaths pr1 (temp (ab,, _) (ab',, _))).
+  - split; assumption.
+  - split; apply idpath.
+Qed.
+
 
 (* TODO: upstream this and the following lemma, and unify them with the converse implication about pullbacks. *)
 Lemma square_commutes_preShv_to_pointwise {C : precategory} (hsC : has_homsets C)

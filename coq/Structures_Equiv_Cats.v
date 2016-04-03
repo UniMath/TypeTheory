@@ -20,54 +20,6 @@ Require Import Systems.CwF_SplitTypeCat_Maps.
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
-Section Auxiliary.
-
-(* TODO: seek, move, prove.
-
- ([isaprop_total2] in library is less convenient to apply.) *)
-Lemma isaprop_total2' {A} {B : A -> Type} 
-    (HA: isaprop A) (HB : forall x:A, isaprop (B x))
-  : isaprop (total2 B).
-Proof.
-Admitted.
-
-Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
-Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
-Local Notation Δ := comp_ext_compare.
-Local Notation φ := obj_ext_mor_φ.
-
-(* TODO: move upstream *)
-Lemma map_from_term_recover {C:Precategory} (hsC := homset_property C)
-    {X} {Y} {Z} (W : @compatible_scomp_families _ X Y Z)
-    {Γ' Γ : C} {A : Ty X Γ} (f : Γ' ⇒ Γ ◂ A)
-    {e : (pp Y : nat_trans _ _) Γ' ((Q Y A : nat_trans _ _) Γ' f)
-         = # (TY X : functor _ _) (f ;; π A) A}
-  : pr1 (term_to_section ((Q Y A : nat_trans _ _) Γ' f)) ;; Δ e ;; qq Z (f ;; π A) A
-  = f.
-Proof.
-  unfold compatible_scomp_families in W.
-  (* TODO: definitely abstract this use of pullbacks: *)
-  set (Pb (Δ' Δ:C) (B : Ty X Δ) :=
-        isPullback_preShv_to_pointwise hsC (isPullback_Q_pp Y B) Δ').
-  set (Pb' Δ' Δ B := (pullback_HSET_elements_unique (Pb Δ' Δ B))); cbn in Pb'.
-  apply Pb'; clear Pb Pb'.
-  - unfold yoneda_morphisms_data; cbn.
-    etrans. apply @pathsinv0, assoc.
-    etrans. apply maponpaths, @pathsinv0, qq_π.
-    etrans. apply @pathsinv0, assoc.
-    etrans. apply maponpaths.
-      etrans. apply assoc.
-      apply cancel_postcomposition, comp_ext_compare_π.
-    etrans. apply assoc.
-    etrans. Focus 2. apply id_left. apply cancel_postcomposition.
-    exact (pr2 (term_to_section _)).
-  - etrans. refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (W _ _ _ _) _) _).
-    etrans. apply Q_comp_ext_compare_section.
-    apply term_to_section_recover.
-Time Qed.
-
-End Auxiliary.
-
 Section Fix_Context.
 
 Context {C : Precategory}.
@@ -184,7 +136,7 @@ Lemma qq_from_fam_mor_unique {X X' : obj_ext_precat} {F : X ⇒ X'}
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
   : isaprop (Σ (FZ : Z ⇒[F] Z'), W ⇒[(F,,(FY,,FZ))] W').
 Proof.
-  apply isaprop_total2'.
+  apply isofhleveltotal2.
   - simpl. repeat (apply impred_isaprop; intro). apply hsC.
   - intros; simpl. apply isapropunit.
 Qed.
@@ -240,7 +192,7 @@ Proof.
   equality through [Q]. *)
   etrans.      
     apply @pathsinv0.
-    simple refine (Q_comp_ext_compare_section _ _); simpl.
+    simple refine (Q_comp_ext_compare _ _); simpl.
     Focus 2. etrans. apply maponpaths.
       exact (toforallpaths _ _ _ (nat_trans_ax (pp Y) _ _ _) _).
     exact (toforallpaths _ _ _ (nat_trans_ax (obj_ext_mor_TY F) _ _ _) _).
@@ -292,7 +244,7 @@ Proof.
       apply maponpaths, @pathsinv0, term_to_section_recover.
     etrans.
       refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (W _ _ _ _) _) _).
-    etrans. apply Q_comp_ext_compare_section.
+    etrans. apply Q_comp_ext_compare.
     apply term_to_section_recover.
 Time Qed.
 
@@ -334,7 +286,7 @@ Proof.
     apply funextsec; intros f.
     etrans.
       (* TODO: consider changing direction of [Q_comp_ext_compare]?*)
-      apply @pathsinv0. simple refine (Q_comp_ext_compare_section _ _); simpl.
+      apply @pathsinv0. simple refine (Q_comp_ext_compare _ _); simpl.
         exact ((obj_ext_mor_TY F : nat_trans _ _) _ 
                  (# (TY _ : functor _ _) (f ;; π _) A)). 
       apply maponpaths.
@@ -346,7 +298,7 @@ Proof.
       etrans. apply maponpaths, @pathsinv0, Δ_φ.
       apply assoc.
     etrans. 
-      apply @pathsinv0. simple refine (Q_comp_ext_compare_section _ _); simpl.
+      apply @pathsinv0. simple refine (Q_comp_ext_compare _ _); simpl.
         exact (# (TY _ : functor _ _) (f ;; π _)
                  ((obj_ext_mor_TY F : nat_trans _ _) _ A)).
       exact (toforallpaths _ _ _ (nat_trans_ax (obj_ext_mor_TY F) _ _ _) _).
@@ -370,7 +322,7 @@ Lemma fam_from_qq_mor_unique {X X' : obj_ext_precat} {F : X ⇒ X'}
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
   : isaprop (Σ (FY : Y ⇒[F] Y'), W ⇒[(F,,(FY,,FZ))] W').
 Proof.
-  apply isaprop_total2'.
+  apply isofhleveltotal2.
   - simpl. apply isaprop_families_mor.
   - intros; simpl. apply isapropunit.
 Defined.
