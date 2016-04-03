@@ -18,6 +18,7 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 
+Require Import Systems.UnicodeNotations.
 Require Import Systems.Bicats.Auxiliary.
 
 Local Set Automatic Introduction.
@@ -74,29 +75,29 @@ Global Arguments compose1 [BB X Y Z].
 Definition prebicategory_associd (BB : prebicategory_data1) : Type
 := 
   (forall X Y Z W : BB, nat_trans
-    (functor_composite _ _ _
+    (functor_composite 
       (prod_functor (functor_identity _) (@compose1 _ Y Z W))
       (@compose1 _ X Y W))
-    (functor_composite _ _ _
+    (functor_composite
       (prod_precategory_assoc _ _ _)
-      (functor_composite _ _ _
+      (functor_composite
         (prod_functor (@compose1 _ X Y Z) (functor_identity _))
         (@compose1 _ X Z W))))
 × 
   ((forall X Y : BB, nat_trans
-    (functor_composite _ _ _
+    (functor_composite 
       (pair_functor 
-        (functor_composite _ _ _
+        (functor_composite 
            (unit_functor _) (ob_as_functor (identity1 X)))
         (functor_identity _))
       (@compose1 _ X X Y))
     (functor_identity _))
 ×
   (forall X Y : BB, nat_trans
-    (functor_composite _ _ _
+    (functor_composite 
       (pair_functor 
         (functor_identity _)
-        (functor_composite _ _ _
+        (functor_composite 
            (unit_functor _) (ob_as_functor (identity1 Y))))
       (@compose1 _ X Y Y))
     (functor_identity _)))%type.
@@ -186,7 +187,7 @@ Section Comp_Functor.
 
   Definition nat_trans_horiz_comp {F F' : functor C D} {G G' : functor D E}
     (α : nat_trans F F') (β : nat_trans G G')
-    : nat_trans (functor_composite _ _ _ F G) (functor_composite _ _ _ F' G').
+    : nat_trans (functor_composite F G) (functor_composite F' G').
   Proof.
     exists (fun x => functor_on_morphisms G (α x) ;; β (F' x)).
     intros x y f; simpl.
@@ -204,7 +205,7 @@ Section Comp_Functor.
     (functorPrecategory C D × functorPrecategory D E)
     (functorPrecategory C E).
   Proof.
-    (* ob *) exists (fun FG => functor_composite _ _ _ (pr1 FG) (pr2 FG)).
+    (* ob *) exists (fun FG => functor_composite (pr1 FG) (pr2 FG)).
     (* mor *) intros FG FG' αβ. exact (nat_trans_horiz_comp (pr1 αβ) (pr2 αβ)).
   Defined.
 
@@ -245,8 +246,8 @@ Defined.
 
 Definition functor_assoc_nat_trans {X Y Z W : precategory} {HW : has_homsets W} 
   (F : functor X Y) (G : functor Y Z) (H : functor Z W)
-: nat_trans (functor_composite _ _ _ F (functor_composite _ _ _ G H))
-            (functor_composite _ _ _ (functor_composite _ _ _ F G) H).
+: nat_trans (functor_composite F (functor_composite G H))
+            (functor_composite (functor_composite F G) H).
 
 Proof.
   exists (fun x => identity _).
@@ -255,21 +256,21 @@ Defined.
 
 Definition functor_assoc_nat_trans_2 {X Y Z W : Precategory} 
   : nat_trans
-     (functor_composite
+     (@functor_composite
         ((pr1 PRECAT_data1) X Y
          × ((pr1 PRECAT_data1) Y Z × (pr1 PRECAT_data1) Z W))
         ((pr1 PRECAT_data1) X Y × (pr1 PRECAT_data1) Y W)
         ((pr1 PRECAT_data1) X W)
         (prod_functor (functor_identity ((pr1 PRECAT_data1) X Y)) compose1)
         compose1)
-     (functor_composite
+     (@functor_composite
         ((pr1 PRECAT_data1) X Y
          × ((pr1 PRECAT_data1) Y Z × (pr1 PRECAT_data1) Z W))
         (((pr1 PRECAT_data1) X Y × (pr1 PRECAT_data1) Y Z)
          × (pr1 PRECAT_data1) Z W) ((pr1 PRECAT_data1) X W)
         (prod_precategory_assoc ((pr1 PRECAT_data1) X Y)
            ((pr1 PRECAT_data1) Y Z) ((pr1 PRECAT_data1) Z W))
-        (functor_composite
+        (@functor_composite
            (((pr1 PRECAT_data1) X Y × (pr1 PRECAT_data1) Y Z)
             × (pr1 PRECAT_data1) Z W)
            ((pr1 PRECAT_data1) X Z × (pr1 PRECAT_data1) Z W)
@@ -289,11 +290,11 @@ Defined.
 
 Definition functor_id_left_nat_trans (X Y : Precategory)
 : nat_trans
-     (functor_composite ((pr1 PRECAT_data1) X Y)
+     (@functor_composite ((pr1 PRECAT_data1) X Y)
         ((pr1 PRECAT_data1) X X × (pr1 PRECAT_data1) X Y)
         ((pr1 PRECAT_data1) X Y)
         (pair_functor
-           (functor_composite ((pr1 PRECAT_data1) X Y) unit_precategory
+           (@functor_composite ((pr1 PRECAT_data1) X Y) unit_precategory
               ((pr1 PRECAT_data1) X X)
               (unit_functor ((pr1 PRECAT_data1) X Y))
               (ob_as_functor (@identity1 PRECAT_data1 X)))
@@ -311,11 +312,11 @@ Defined.
 
 Definition functor_id_right_nat_trans (X Y : Precategory)
 : nat_trans
-   (functor_composite ((pr1 PRECAT_data1) X Y)
+   (@functor_composite ((pr1 PRECAT_data1) X Y)
       ((pr1 PRECAT_data1) X Y × (pr1 PRECAT_data1) Y Y)
       ((pr1 PRECAT_data1) X Y)
       (pair_functor (functor_identity ((pr1 PRECAT_data1) X Y))
-         (functor_composite ((pr1 PRECAT_data1) X Y) unit_precategory
+         (@functor_composite ((pr1 PRECAT_data1) X Y) unit_precategory
             ((pr1 PRECAT_data1) Y Y) (unit_functor ((pr1 PRECAT_data1) X Y))
             (ob_as_functor (@identity1 PRECAT_data1 Y)))) compose1)
    (functor_identity ((pr1 PRECAT_data1) X Y)).

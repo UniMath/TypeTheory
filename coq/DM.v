@@ -19,6 +19,8 @@ Require Export UniMath.CategoryTheory.limits.pullbacks.
 
 Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 
+Require Import Systems.UnicodeNotations.
+
 (** * A "preview" of the definition *)
 
 Module Record_Preview.

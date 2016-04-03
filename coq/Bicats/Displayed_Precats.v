@@ -27,6 +27,7 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require UniMath.Ktheory.Utilities.
 
 Require Import Systems.Auxiliary.
+Require Import Systems.UnicodeNotations.
 Require Import Systems.Bicats.Auxiliary.
 
 Local Set Automatic Introduction.
