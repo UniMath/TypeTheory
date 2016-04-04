@@ -399,6 +399,10 @@ Proof.
   apply (nat_trans_eq_pointwise e).
 Qed.
 
+Require UniMath.CategoryTheory.limits.graphs.pullbacks.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.category_hset_structures.
+
 (* TODO: unify with the converse implication. *)
 Lemma isPullback_preShv_to_pointwise {C : precategory} (hsC : has_homsets C)
     {X Y Z W : preShv C}
@@ -418,9 +422,11 @@ Proof.
         LimCone
           (colimits.diagram_pointwise C^op HSET has_homsets_HSET
              pullbacks.pushout_graph XT1 a))).
+
     { intro. apply LimConeHSET.  }
     specialize (XR XH).
     specialize (XR W). 
+
     set (XT := graphs.pullbacks.PullbCone _ _ _ _ p1 p2 e).
     specialize (XR XT).
     transparent assert (XTT : (isLimCone XT1 W XT)).
