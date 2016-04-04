@@ -184,7 +184,7 @@ Proof.
     + use (toforallpaths _ _ _ (functor_id (TY X) _ ) A).
     + simpl. 
       etrans.
-        apply maponpaths, @pathsinv0, qq_morphism_structure_id.
+        apply maponpaths, @pathsinv0, qq_id.
       match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => set (XR := HH) end.
       etrans. apply (PullbackArrow_PullbackPr2 XR). apply id_left.
   - intros Γ Γ' Γ'' f g. cbn.
@@ -217,7 +217,7 @@ Proof.
           apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
         + repeat rewrite <- assoc.
           etrans. apply maponpaths. rewrite assoc.
-            apply @pathsinv0, qq_morphism_structure_comp_general.
+            apply @pathsinv0, qq_comp_general.
           etrans. apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
           etrans. apply @pathsinv0, assoc.
           apply (maponpaths (fun h => g ;; h)).
@@ -255,7 +255,7 @@ Proof.
   unfold yoneda_objects_ob in f.
   unfold tm_carrier. mkpair.
   + exact A[f;;π _ ].
-  + apply (section_from_diagonal _ (pr2 (pullback_from_qq Z _ _ ))). 
+  + apply (section_from_diagonal _ (qq_π_Pb Z _ _)). 
     exists f. apply idpath.
 Defined.
 
@@ -281,7 +281,7 @@ Proof.
                           set (XR := HH) end.
           rewrite (PullbackArrow_PullbackPr1 XR). clear XR.
           etrans. apply (!assoc _ _ _).
-          rewrite <- (pr1 (pullback_from_qq Z f _ )).
+          rewrite <- (qq_π Z).
           etrans. apply assoc.
           etrans. apply assoc4.
           rewrite @comp_ext_compare_π.
@@ -414,7 +414,7 @@ Proof.
                        apply (@assoc C).
       etrans. Focus 2. eapply (maponpaths (fun k => #(TY X : functor _ _ ) k A)).
                        apply maponpaths.
-                       apply (pr1 (pullback_from_qq Z _ _ )).
+                       apply qq_π.
       etrans. Focus 2.  eapply (maponpaths (fun k => #(TY X : functor _ _ ) k A)).
                        apply @pathsinv0, (@assoc C).
       apply (toforallpaths _ _ _ (!functor_comp (TY X) _ _ _ _ _ ) A).
