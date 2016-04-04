@@ -43,12 +43,12 @@ Local Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).
 
 Section canonical_TM.
 
-Variable Z : qq_morphism_data X.
-Variable ZZ : qq_morphism_axioms Z.
-Variable Y : compatible_fam_structure (Z,,ZZ).
+Variable Z : qq_morphism_structure X.
+Notation ZZ := (pr2 Z).
+Variable Y : compatible_fam_structure Z.
 
 Lemma is_nat_trans_foo : 
- is_nat_trans (tm_functor Z ZZ) (TM (pr1 Y): functor _ _ )
+ is_nat_trans (tm_functor Z) (TM (pr1 Y): functor _ _ )
      (λ (Γ : C^op) (Ase : tm_carrier Γ),
       (yoneda_weq C hsC Γ (TM (pr1 Y)))
         (# Yo (pr1 (pr2 Ase)) ;; Q (pr1 Y) (pr1 Ase))).
@@ -88,7 +88,7 @@ Proof.
   apply (PullbackArrow_PullbackPr2 XR).
 Qed.
 
-Definition foo : preShv C  ⟦tm_functor Z ZZ, TM (pr1 Y)⟧.
+Definition foo : preShv C  ⟦tm_functor Z, TM (pr1 Y)⟧.
 Proof.
   mkpair.
   - intro Γ. simpl.
@@ -104,7 +104,7 @@ Defined.
           need to show that it is pointwise inverse to [foo] above 
 *)
 
-Definition bar : ∀ Γ, HSET ⟦ (TM (pr1 Y) : functor _ _ ) Γ, tm_functor Z ZZ Γ⟧.
+Definition bar : ∀ Γ, HSET ⟦ (TM (pr1 Y) : functor _ _ ) Γ, tm_functor Z Γ⟧.
 Proof.
   intro Γ. simpl.
   intro s'. set (S' := @yy _ hsC _ _ s').
@@ -205,14 +205,14 @@ Proof.
     + etrans. apply (!assoc _ _ _ ).
       etrans. apply maponpaths. apply (!functor_comp _ _ _ _ _ _ ).
       etrans. apply maponpaths. apply maponpaths.
-              apply idtoiso_π.
+              apply comp_ext_compare_π.
       etrans. apply (PullbackArrow_PullbackPr1 XR).
       etrans. Focus 2. apply functor_comp.
       etrans. Focus 2. apply maponpaths. apply (!e).
       apply pathsinv0. apply (functor_id Yo).
     + etrans. apply (!assoc _ _ _ ).
       etrans. apply maponpaths.
-              apply idtoiso_Q.
+              apply comp_ext_compare_Q.
       etrans. apply (PullbackArrow_PullbackPr2 XR).
       simpl.
       Check yoneda_map_2.
@@ -237,7 +237,7 @@ Proof.
   - apply bar_foo.
 Defined.
 
-Definition foo_iso :  iso (C:=preShv C) (tm_functor Z ZZ) (TM (pr1 Y)).
+Definition foo_iso :  iso (C:=preShv C) (tm_functor Z) (TM (pr1 Y)).
 Proof.
   exists foo.
   apply functor_iso_if_pointwise_iso.
@@ -249,11 +249,11 @@ End canonical_TM.
 Lemma unique (Z : qq_morphism_data X)
              (ZZ : qq_morphism_axioms Z)
              (Y : compatible_fam_structure (Z,,ZZ))
-  : comp_fam_structure_from_comp Z ZZ = Y.
+  : comp_fam_structure_from_qq (Z,,ZZ) = Y.
 Proof.
   set (i := isotoid _
                    (is_category_functor_category _ _ is_category_HSET)
-                   (foo_iso _  ZZ Y)).
+                   (foo_iso (Z,,ZZ) Y)).
   apply subtypeEquality.
   { intro. do 4 (apply impred; intro).
     apply functor_category_has_homsets.
@@ -346,7 +346,7 @@ Defined.
 Lemma iscontr_compatible_fam_structure (Z : qq_morphism_data X) (ZZ : qq_morphism_axioms Z)
 : iscontr (compatible_fam_structure (Z,,ZZ)).
 Proof.
-  exists (comp_fam_structure_from_comp Z ZZ).
+  exists (comp_fam_structure_from_qq (Z,,ZZ)).
   intro t.
   apply pathsinv0. apply unique.
 Defined.

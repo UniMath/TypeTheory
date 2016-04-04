@@ -75,7 +75,7 @@ Global Arguments compose1 [BB X Y Z].
 Definition prebicategory_associd (BB : prebicategory_data1) : Type
 := 
   (forall X Y Z W : BB, nat_trans
-    (functor_composite 
+    (functor_composite
       (prod_functor (functor_identity _) (@compose1 _ Y Z W))
       (@compose1 _ X Y W))
     (functor_composite

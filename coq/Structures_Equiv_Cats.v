@@ -148,7 +148,7 @@ Section Unique_Fam_From_QQ.
 Lemma fam_from_qq_ob {X : obj_ext_precat} (Z : qq_structure_disp_precat C X)
   : Σ (Y : families_disp_precat C X), strucs_compat_disp_precat (X ,, (Y ,, Z)).
 Proof.
-  exists (fam_from_qq (pr1 Z) (pr2 Z)).
+  exists (fam_from_qq Z).
   apply iscompatible_fam_from_qq.
 Defined.
 

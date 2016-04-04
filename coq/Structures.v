@@ -104,7 +104,7 @@ Proof.
   apply maponpaths, setproperty.
 Qed.
 
-(* TODO: obsolete duplicate of [comp_ext_compare_π].  A little tricky to expunge due to rewriting recognition issues.  Need to first sub in [comp_ext_compare] where possible, then replace [idtoiso_π] with  [comp_ext_compare_π].  *)
+(* TODO: replace with [comp_ext_compare_π]. *)
 Lemma idtoiso_π {X : obj_ext_structure} (Γ : C) (A A' : (TY X : functor _ _ ) Γ : hSet) (e : A = A')
   :
     idtoiso (maponpaths (λ B, Γ ◂ B) e) ;; π _ = π _ .
@@ -149,13 +149,13 @@ Definition pp Y : TM Y ⇒ TY X := pr1 (pr2 Y).
 Definition Q Y {Γ} A : _ ⇒ TM Y := pr2 (pr2 Y) Γ A.
 Local Notation "'Tm'" := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
 
-Lemma idtoiso_Q Y Γ (A A' : Ty X Γ) (e : A = A') : 
-  #Yo (idtoiso (maponpaths (fun B => Γ ◂ B) e )) ;; Q Y A' = Q Y A . 
+Lemma comp_ext_compare_Q Y Γ (A A' : Ty X Γ) (e : A = A') : 
+  #Yo (comp_ext_compare e) ;; Q Y A' = Q Y A . 
 Proof.
   induction e. 
   etrans. apply cancel_postcomposition. apply functor_id.
   apply id_left.
-Defined.
+Qed.
 
 Definition families_structure_axioms (Y : families_structure_data) :=
   ∀ Γ (A : Ty X Γ), 
@@ -238,8 +238,8 @@ in calling this notion a _split_ type-category, and reserving _type-category_ (u
 Components of [Z : qq_morphism_structure X]:
 
 - [qq Z f A : Γ' ◂ A[f] ⇒ Γ ◂ A]
-- [qq_π Y f A : π _ ;; f = qq Y f A ;; π A]
-- [qq_π_Pb Y f A : isPullback _ _ _ _ (qq_π Y f A)]
+- [qq_π Z f A : π _ ;; f = qq Y f A ;; π A]
+- [qq_π_Pb Z f A : isPullback _ _ _ _ (qq_π Y f A)]
 - [qq_id], [qq_comp]: functoriality for [qq] (not currently given)
 *)
 
@@ -267,6 +267,16 @@ Proof.
   exact (pr2 (pr2 Y _ _ f A)).
 Qed.
 
+Lemma comp_ext_compare_qq (Y : qq_morphism_data)
+  {Γ Γ'} {f f' : C ⟦Γ', Γ⟧} (e : f = f') (A : Ty X Γ) 
+  : comp_ext_compare (maponpaths (λ k : C⟦Γ', Γ⟧, A [k]) e) ;; qq Y f' A
+  = qq Y f A.
+Proof.
+  induction e.
+  apply id_left.
+Qed.
+
+(* TODO: replace with [comp_ext_compare_qq] *)
 Lemma idtoiso_qq (Y : qq_morphism_data) {Γ Γ'} (f f' : C ⟦Γ', Γ⟧)
               (e : f = f')
               (A : (TY X:functor _ _ ) Γ : hSet) 
@@ -278,20 +288,17 @@ Proof.
   apply id_left.
 Qed.
 
-Definition pullback_from_comp (Y : qq_morphism_data) 
+(* TODO: replace with [qq_π], [qq_π_Pb]? *)
+Definition pullback_from_qq (Y : qq_morphism_data) 
   {Γ Γ'} (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet) : 
         Σ e : π _ ;; f = qq Y f A ;; π _ , isPullback _ _ _ _ e
 := pr2 Y _ _ f A.
 
-(* TODO: once [ext_comp_compare] upstreamed to this file, use it in this def. *)
-
-(* TODO: access functions! *)
 Definition qq_morphism_axioms (Y : qq_morphism_data) : UU
   := 
     (∀ Γ A,
     qq Y (identity Γ) A
-    = idtoiso (maponpaths (fun B => Γ ◂ B) 
-                  (toforallpaths _ _ _ (functor_id (TY X) _ ) _ )) )
+    = comp_ext_compare (toforallpaths _ _ _ (functor_id (TY X) _ ) _ ))
   ×
     (∀ Γ Γ' Γ'' (f : C⟦Γ', Γ⟧) (g : C ⟦Γ'', Γ'⟧) (A : (TY X:functor _ _ ) Γ : hSet),
     qq Y (g ;; f) A
@@ -300,9 +307,32 @@ Definition qq_morphism_axioms (Y : qq_morphism_data) : UU
       ;; qq Y g (A [f]) 
       ;; qq Y f A).
 
-Lemma isaprop_qq_morphism_axioms
-  (Y : qq_morphism_data)
-  : isaprop (qq_morphism_axioms Y).
+
+Definition qq_morphism_structure : UU
+  := Σ Z : qq_morphism_data,
+           qq_morphism_axioms Z.
+
+Definition qq_morphism_data_from_structure :
+   qq_morphism_structure -> qq_morphism_data := pr1.
+Coercion qq_morphism_data_from_structure :
+   qq_morphism_structure >-> qq_morphism_data.
+
+Definition qq_morphism_structure_id (Z : qq_morphism_structure)
+    {Γ} (A : Ty X Γ)
+  : qq Z (identity Γ) A
+  = comp_ext_compare (toforallpaths _ _ _ (functor_id (TY X) _ ) _ )
+:= pr1 (pr2 Z) _ _.
+
+Definition qq_morphism_structure_comp (Z : qq_morphism_structure)
+    {Γ Γ' Γ'' : C}
+    (f : C ⟦ Γ', Γ ⟧) (g : C ⟦ Γ'', Γ' ⟧) (A : Ty X Γ)
+  : qq Z (g ;; f) A
+  = comp_ext_compare (toforallpaths _ _ _ (functor_comp (TY X) _ _ _ _ _) A)
+    ;; qq Z g (A [f]) ;; qq Z f A
+:= pr2 (pr2 Z) _ _ _ _ _ _.
+
+Lemma isaprop_qq_morphism_axioms (Z : qq_morphism_data)
+  : isaprop (qq_morphism_axioms Z).
 Proof.
   apply isofhleveldirprod.
   - do 2 (apply impred; intro).
@@ -312,30 +342,18 @@ Proof.
 Qed.
 
 (* Since [Ty X] is always an hset, the splitness properties hold with any path in place of the canonical ones. This is sometimes handy, as one may want to opacify the canonical equalities in examples. *)
-Lemma qq_morphism_structure_comp_general
-  {Y : qq_morphism_data} (Z : qq_morphism_axioms Y)
+Lemma qq_morphism_structure_comp_general (Z : qq_morphism_structure)
   {Γ Γ' Γ'' : C}
   {f : C ⟦ Γ', Γ ⟧} {g : C ⟦ Γ'', Γ' ⟧} {A : Ty X Γ}
   (p : A [g ;; f]
        = # (TY X : functor _ _) g (# (TY X : functor _ _) f A)) 
-: qq Y (g ;; f) A
-  = comp_ext_compare p ;;
-       qq Y g (A [f]) ;; qq Y f A.
+: qq Z (g ;; f) A
+  = comp_ext_compare p ;; qq Z g (A [f]) ;; qq Z f A.
 Proof.
-  eapply pathscomp0. apply (pr2 Z).
+  eapply pathscomp0. apply qq_morphism_structure_comp.
   repeat apply (maponpaths (fun h => h ;; _)).
-  repeat apply maponpaths. apply uip. exact (pr2 ((TY X : functor _ _) _)).
+  repeat apply maponpaths. apply uip. apply setproperty.
 Qed.
-
-
-Definition qq_morphism_structure : UU
-  := Σ Z : qq_morphism_data,
-           qq_morphism_axioms Z.
-
-Definition qq_morphism_data_from_axioms :
-   qq_morphism_structure -> qq_morphism_data := pr1.
-Coercion qq_morphism_data_from_axioms :
-   qq_morphism_structure >-> qq_morphism_data.
 
 End Fix_Obj_Ext_Structure.
 
