@@ -48,8 +48,8 @@ Notation ZZ := (pr2 Z).
 Variable Y : compatible_fam_structure Z.
 
 Lemma is_nat_trans_foo : 
- is_nat_trans (tm_functor Z) (TM (pr1 Y): functor _ _ )
-     (λ (Γ : C^op) (Ase : tm_carrier Γ),
+ is_nat_trans (tm_from_qq_functor Z) (TM (pr1 Y): functor _ _ )
+     (λ (Γ : C^op) (Ase : tm_from_qq_carrier Γ),
       (yoneda_weq C hsC Γ (TM (pr1 Y)))
         (# Yo (pr1 (pr2 Ase)) ;; Q (pr1 Y) (pr1 Ase))).
 Proof.
@@ -88,7 +88,7 @@ Proof.
   apply (PullbackArrow_PullbackPr2 XR).
 Qed.
 
-Definition foo : preShv C  ⟦tm_functor Z, TM (pr1 Y)⟧.
+Definition foo : preShv C  ⟦tm_from_qq_functor Z, TM (pr1 Y)⟧.
 Proof.
   mkpair.
   - intro Γ. simpl.
@@ -104,7 +104,7 @@ Defined.
           need to show that it is pointwise inverse to [foo] above 
 *)
 
-Definition bar : ∀ Γ, HSET ⟦ (TM (pr1 Y) : functor _ _ ) Γ, tm_functor Z Γ⟧.
+Definition bar : ∀ Γ, HSET ⟦ (TM (pr1 Y) : functor _ _ ) Γ, tm_from_qq_functor Z Γ⟧.
 Proof.
   intro Γ. simpl.
   intro s'. set (S' := @yy _ hsC _ _ s').
@@ -161,14 +161,14 @@ Proof.
   simpl in XR3.
   etrans. apply XR3.
   apply (toforallpaths _ _ _ (functor_id (TM (pr1 Y)) _ )).
-Qed.
+Time Qed.
 
   
 Lemma foo_bar Γ : (foo : nat_trans _ _ )  Γ ;; bar Γ = identity _ .
 Proof.
   apply funextsec; intro Ase.
   destruct Ase as [A [s e]]. 
-  use tm_functor_eq.
+  use tm_from_qq_eq.
   -
     simpl. 
     cbn. unfold yoneda_morphisms_data.  
@@ -227,7 +227,7 @@ Proof.
       assert (XR := nat_trans_ax (Q (pr1 Y) A) _ _ s').
       assert (XR1 := toforallpaths _ _ _ XR).
       apply pathsinv0. simpl in XR1. apply XR1.
-Qed.
+Time Qed.
 
 Lemma foo_pointwise_iso Γ : is_iso ((foo : nat_trans _ _) Γ).
 Proof.
@@ -237,7 +237,7 @@ Proof.
   - apply bar_foo.
 Defined.
 
-Definition foo_iso :  iso (C:=preShv C) (tm_functor Z) (TM (pr1 Y)).
+Definition foo_iso :  iso (C:=preShv C) (tm_from_qq_functor Z) (TM (pr1 Y)).
 Proof.
   exists foo.
   apply functor_iso_if_pointwise_iso.

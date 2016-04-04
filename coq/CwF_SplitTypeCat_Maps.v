@@ -95,11 +95,11 @@ Variable Z : qq_morphism_structure X.
 (* TODO: replaces references to [ZZ] by access functions. *)
 Notation ZZ := (pr2 Z).
 
-Definition tm_carrier (Γ : C) : UU :=
+Definition tm_from_qq_carrier (Γ : C) : UU :=
   Σ A : (TY X : functor _ _ ) Γ : hSet,
   Σ s : C⟦Γ, Γ ◂ A⟧, s ;; π _ = identity _ .
 
-Lemma isaset_tm_carrier Γ : isaset (tm_carrier Γ).
+Lemma isaset_tm_from_qq Γ : isaset (tm_from_qq_carrier Γ).
 Proof.
   apply (isofhleveltotal2 2).
   - apply setproperty.
@@ -108,9 +108,9 @@ Proof.
     + intro. apply isasetaprop. apply hsC.
 Qed.
 
-Definition tm Γ : hSet := hSetpair _ (isaset_tm_carrier Γ).
+Definition tm_from_qq Γ : hSet := hSetpair _ (isaset_tm_from_qq Γ).
 
-Definition tm_on_mor Γ Γ' (f : C⟦Γ',Γ⟧) : tm_carrier Γ → tm_carrier Γ'.
+Definition tm_from_qq_functor_mor Γ Γ' (f : C⟦Γ',Γ⟧) : tm_from_qq_carrier Γ → tm_from_qq_carrier Γ'.
 Proof.
   intro Ase.
   exists ((pr1 Ase) [f]).
@@ -119,21 +119,15 @@ Proof.
   - apply (pr2 (pr2 Ase)).
 Defined.
 
-Definition tm_functor_data : functor_data C^op HSET.
+Definition tm_from_qq_functor_data : functor_data C^op HSET.
 Proof.
-  exists tm.
-  refine tm_on_mor.
+  exists tm_from_qq.
+  refine tm_from_qq_functor_mor.
 Defined.
 
-Lemma type_eq_from_tm_functor_eq {Γ} {t t' : (tm_functor_data Γ : hSet)}
-  : t = t' -> pr1 t = pr1 t'.
-Proof.
-  apply base_paths.
-Qed.
-
-Lemma section_eq_from_tm_functor_eq {Γ} (t t' : (tm_functor_data Γ : hSet)) 
+Lemma section_eq_from_tm_from_qq_eq {Γ} (t t' : (tm_from_qq_functor_data Γ : hSet)) 
   (e : t = t')
-  : pr1 (pr2 t) ;; Δ (type_eq_from_tm_functor_eq e)
+  : pr1 (pr2 t) ;; Δ (maponpaths pr1 e)
     = pr1 (pr2 t').
 Proof.
   destruct e; simpl.
@@ -141,7 +135,7 @@ Proof.
   apply id_right.
 Qed.
 
-Lemma tm_functor_eq {Γ} (t t' : (tm_functor_data Γ : hSet)) 
+Lemma tm_from_qq_eq {Γ} (t t' : (tm_from_qq_functor_data Γ : hSet)) 
   (eA : pr1 t = pr1 t')
   (es : (pr1 (pr2 t)) ;; Δ eA = (pr1 (pr2 t')))
   : t = t'.
@@ -159,12 +153,12 @@ Qed.
 (** A useful more specialised case of equality on terms. *)
 
 (* TODO: rephrase in terms of [Δ] instead of [idtoiso]? *)
-Lemma tm_functor_eq' {Γ : C} (A : (TY X : functor _ _) Γ : hSet)
+Lemma tm_from_qq_eq' {Γ : C} (A : (TY X : functor _ _) Γ : hSet)
   {Γ'} {f f' : Γ' ⇒ Γ} (e_ff' : f = f')
   {s : Γ' ⇒ Γ' ◂ # (TY X : functor _ _) f A} (es : s ;; π _ = identity _)
   {s' : Γ' ⇒ Γ' ◂ # (TY X : functor _ _) f' A} (es' : s' ;; π _ = identity _)
   (e_ss' : s' = s ;; idtoiso (maponpaths (fun f => Γ' ◂ # (TY X : functor _ _) f A) e_ff'))
-: (( A[f] ,, (s,, es)) : tm_functor_data Γ' : hSet)
+: (( A[f] ,, (s,, es)) : tm_from_qq_functor_data Γ' : hSet)
   = (A[f'] ,, (s',, es')).
 Proof.
   destruct e_ff'; simpl in *.
@@ -174,13 +168,13 @@ Proof.
   apply maponpaths. apply hsC.
 Qed.
 
-Lemma is_functor_tm : is_functor tm_functor_data.
+Lemma is_functor_tm_from_qq : is_functor tm_from_qq_functor_data.
 Proof.
   split; [unfold functor_idax | unfold functor_compax].
   - intro Γ. apply funextsec.
     intro t. simpl.
     destruct t as [A [s e]]. cbn.
-    use tm_functor_eq; simpl.
+    use tm_from_qq_eq; simpl.
     + use (toforallpaths _ _ _ (functor_id (TY X) _ ) A).
     + simpl. 
       etrans.
@@ -191,8 +185,8 @@ Proof.
     apply funextsec.
     intro t.
     destruct t as [A [s e]]; simpl in *.
-    unfold tm_on_mor. simpl.
-    use tm_functor_eq; simpl.
+    unfold tm_from_qq_functor_mor. simpl.
+    use tm_from_qq_eq; simpl.
     + abstract (apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ _ _ _) A)).
     + { cbn.
       apply PullbackArrowUnique; cbn.
@@ -224,22 +218,22 @@ Proof.
           apply @pathsinv0. apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). }
 Time Qed.
 
-Definition tm_functor : functor _ _  := tpair _ _ is_functor_tm.
+Definition tm_from_qq_functor : functor _ _  := tpair _ _ is_functor_tm_from_qq.
 
-Arguments tm_functor : simpl never.
+Arguments tm_from_qq_functor : simpl never.
 
-Definition pp_carrier (Γ : C^op) : (tm_functor Γ : hSet) → (TY X : functor _ _ ) Γ : hSet.
+Definition pp_carrier (Γ : C^op) : (tm_from_qq_functor Γ : hSet) → (TY X : functor _ _ ) Γ : hSet.
 Proof.
   exact pr1.
 Defined.
 
-Lemma is_nat_trans_pp_carrier : is_nat_trans tm_functor (TY X : functor _ _ ) pp_carrier.
+Lemma is_nat_trans_pp_carrier : is_nat_trans tm_from_qq_functor (TY X : functor _ _ ) pp_carrier.
 Proof.
   intros Γ Γ' f.
   apply idpath.
 Defined.
 
-Definition pp_from_qq : preShv C ⟦tm_functor, TY X⟧ := tpair _ _ is_nat_trans_pp_carrier.
+Definition pp_from_qq : preShv C ⟦tm_from_qq_functor, TY X⟧ := tpair _ _ is_nat_trans_pp_carrier.
 
 Arguments pp_from_qq : simpl never.
 
@@ -249,11 +243,11 @@ Variable Γ : C.
 Variable A : (TY X : functor _ _ ) Γ : hSet.
 
 Definition Q_from_qq_data :
- ∀ x : C^op, HSET ⟦ (Yo (Γ ◂ A) : functor _ _ ) x, tm_functor x ⟧.
+ ∀ x : C^op, HSET ⟦ (Yo (Γ ◂ A) : functor _ _ ) x, tm_from_qq_functor x ⟧.
 Proof.
   intros Γ' f. simpl in *.
   unfold yoneda_objects_ob in f.
-  unfold tm_carrier. mkpair.
+  unfold tm_from_qq_carrier. mkpair.
   + exact A[f;;π _ ].
   + apply (section_from_diagonal _ (qq_π_Pb Z _ _)). 
     exists f. apply idpath.
@@ -264,7 +258,7 @@ Proof.
   intros Γ' Γ'' f. simpl.
   apply funextsec. intro g.
   unfold yoneda_objects_ob. cbn.    
-  use tm_functor_eq; simpl pr1.
+  use tm_from_qq_eq; simpl pr1.
   + etrans. apply (maponpaths (fun k => #(TY X : functor _ _ ) k A) (assoc _ _ _)).
     apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ _ _ _ )).
   + apply PullbackArrowUnique.
@@ -315,7 +309,7 @@ Proof.
       } 
 Time Qed.
 
-Definition Q_from_qq : _ ⟦ Yo (Γ ◂ A), tm_functor⟧ := tpair _ _ is_nat_trans_Q_from_qq.
+Definition Q_from_qq : _ ⟦ Yo (Γ ◂ A), tm_from_qq_functor⟧ := tpair _ _ is_nat_trans_Q_from_qq.
 
 Arguments Q_from_qq : simpl never.
 
@@ -355,7 +349,7 @@ Proof.
     simpl; unfold yoneda_morphisms_data.
     split.
     + apply (section_qq_π _ _ _ e).
-    + use tm_functor_eq'; simpl.
+    + use tm_from_qq_eq'; simpl.
       apply (section_qq_π _ _ _ e).
       use (map_into_Pb_unique _ (qq_π_Pb Z _ _  )).
       * etrans. apply e.
@@ -380,7 +374,7 @@ Proof.
     etrans. apply Q_from_qq_reconstruction.
     etrans.
        apply cancel_postcomposition, @pathsinv0.
-       use (section_eq_from_tm_functor_eq _ _ (!e2)).
+       use (section_eq_from_tm_from_qq_eq _ _ (!e2)).
     simpl. etrans. apply @pathsinv0, assoc.
     apply maponpaths.
     etrans. Focus 2. apply comp_ext_compare_qq.
@@ -393,11 +387,11 @@ End Q_from_qq.
 
 Notation "'cQ'" := Q_from_qq_data.
 Notation "'cQ'" := Q_from_qq.
-Notation "'cTm'":= tm_functor.
+Notation "'cTm'":= tm_from_qq_functor.
 Notation "'cp'" := pp_from_qq.
 Arguments Q_from_qq_data { _ } _ _ _ : simpl never.
 Arguments Q_from_qq { _ } _ : simpl never.
-Arguments tm_functor : simpl never.
+Arguments tm_from_qq_functor : simpl never.
 Arguments pp_from_qq : simpl never.
 
 
@@ -408,7 +402,7 @@ Lemma cQ_compatible_pw (Γ Γ' : C) (A : (TY X : functor _ _ ) Γ : hSet) (f : C
    Q_from_qq_data A Γ'' (g ;; qq Z f A).
 Proof.
     simpl. cbn.
-    use tm_functor_eq. 
+    use tm_from_qq_eq. 
     + unfold yoneda_morphisms_data.
       etrans. Focus 2. eapply (maponpaths (fun k => #(TY X : functor _ _ ) k A)).
                        apply (@assoc C).
@@ -487,7 +481,7 @@ Definition fam_from_qq : families_structure hsC X.
 Proof.
   mkpair.
   + mkpair.
-    * apply tm_functor.
+    * apply tm_from_qq_functor.
     * {
         mkpair.
         - apply pp_from_qq.
@@ -516,14 +510,14 @@ End compatible_fam_structure_from_qq.
 
 Notation "'cQ'" := Q_from_qq_data.
 Notation "'cQ'" := Q_from_qq.
-Notation "'cTm'":= tm_carrier.
-Notation "'cTm'":= (tm_on_mor _ _ _ ).
+Notation "'cTm'":= tm_from_qq_carrier.
+Notation "'cTm'":= (tm_from_qq_functor_mor _ _ _ ).
 Notation "'cp'" := pp_from_qq.
 Arguments Q_from_qq_data _ {_} _ _ _ : simpl never.
 Arguments Q_from_qq _ {_} _ : simpl never.
-Arguments tm_functor : simpl never.
+Arguments tm_from_qq_functor : simpl never.
 Arguments pp_from_qq : simpl never.
-Arguments tm_on_mor : simpl never.
+Arguments tm_from_qq_functor_mor : simpl never.
 
 (** * Defining a (compatible) _q_-morphism structure, given a families structure *)
 
