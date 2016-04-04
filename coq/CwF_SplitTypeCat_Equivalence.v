@@ -249,7 +249,7 @@ End canonical_TM.
 Lemma unique (Z : qq_morphism_data X)
              (ZZ : qq_morphism_axioms Z)
              (Y : compatible_fam_structure (Z,,ZZ))
-  : comp_fam_structure_from_qq (Z,,ZZ) = Y.
+  : compatible_fam_from_qq (Z,,ZZ) = Y.
 Proof.
   set (i := isotoid _
                    (is_category_functor_category _ _ is_category_HSET)
@@ -346,16 +346,14 @@ Defined.
 Lemma iscontr_compatible_fam_structure (Z : qq_morphism_data X) (ZZ : qq_morphism_axioms Z)
 : iscontr (compatible_fam_structure (Z,,ZZ)).
 Proof.
-  exists (comp_fam_structure_from_qq (Z,,ZZ)).
+  exists (compatible_fam_from_qq (Z,,ZZ)).
   intro t.
   apply pathsinv0. apply unique.
 Defined.
 
 Lemma compat_split_comp_eq (Y : families_structure _ X) :
-∀ t : compatible_qq_morphism_structure Y,
-   t =
-   (comp_from_fam Y,,
-   is_split_comp_from_fam Y),, iscompatible_qq_from_fam Y.
+  ∀ t : compatible_qq_morphism_structure Y,
+  t = compatible_qq_from_fam Y.
 Proof.
   intro t.
     apply subtypeEquality.
@@ -402,19 +400,15 @@ Proof.
     + etrans. apply maponpaths. cbn. apply idpath.
       apply pathsinv0.
       apply H2.
-Qed.
+Time Qed.
   
 
 Lemma iscontr_compatible_split_comp_structure (Y : families_structure hsC X)
 : iscontr (compatible_qq_morphism_structure Y).
 Proof.
-  mkpair.
-  - mkpair.
-    + exists (comp_from_fam Y).
-      apply is_split_comp_from_fam.
-    + apply iscompatible_qq_from_fam.
-  - intro. apply compat_split_comp_eq.
-Defined.
+  exists (compatible_qq_from_fam Y).
+  apply compat_split_comp_eq.
+Qed.
 
 End compatible_structures.
 
@@ -443,7 +437,7 @@ Proof.
   specialize (XR (families_structure hsC X)).
   specialize (XR (fun _ => qq_morphism_structure X)).
   simpl in XR.
-  specialize (XR (fun YZ => compatible_scomp_families (pr1 YZ) (pr2 YZ))).
+  specialize (XR (fun YZ => iscompatible_fam_qq (pr1 YZ) (pr2 YZ))).
   apply XR.
   eapply weqcomp. Focus 2.
   unfold T2. unfold compatible_fam_structure.
@@ -451,7 +445,7 @@ Proof.
   specialize (XR (qq_morphism_structure X)).
   specialize (XR (fun _ => families_structure hsC X)).
   simpl in XR.
-  specialize (XR (fun YZ => compatible_scomp_families (pr2 YZ) (pr1 YZ))).
+  specialize (XR (fun YZ => iscompatible_fam_qq (pr2 YZ) (pr1 YZ))).
   apply XR.
   use weqbandf.
   - apply weqdirprodcomm.

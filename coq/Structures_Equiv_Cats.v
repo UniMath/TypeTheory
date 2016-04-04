@@ -42,7 +42,7 @@ Definition strucs_compat_ob_mor
       (families_disp_precat C × qq_structure_disp_precat C)).
 Proof.
   use tpair.
-  - intros XYZ. exact (compatible_scomp_families (pr1 (pr2 XYZ)) (pr2 (pr2 XYZ))).
+  - intros XYZ. exact (iscompatible_fam_qq (pr1 (pr2 XYZ)) (pr2 (pr2 XYZ))).
   - simpl; intros; exact unit.
     (* For a given map of object-extension structures, a lifting to a map of either families-structures or _q_-morphism structues is essentially unique; so there is no extra compatibility condition required here on maps. *)
 Defined.
@@ -90,7 +90,7 @@ Lemma qq_from_fam_mor {X X' : obj_ext_precat} {F : X ⇒ X'}
 Proof.
   refine (_,, tt).
   intros Γ' Γ f A.
-  cbn in W, W', FY. unfold compatible_scomp_families in *. 
+  cbn in W, W', FY. unfold iscompatible_fam_qq in *. 
   unfold families_mor in FY.
   (* Compare [term_to_section_naturality]. Perhaps worth abstracting? *)
   set (Pb := isPullback_preShv_to_pointwise hsC
@@ -185,7 +185,7 @@ Proof.
   intros Γ' Γ f; apply funextsec; intros t.
   (* Part 1: naturality of the section-to-term map back to [Tm Y']. *)
   etrans. Focus 2. exact (toforallpaths _ _ _ (nat_trans_ax (Q Y' _) _ _ _) _).
-  cbn. simpl in W, W'; unfold compatible_scomp_families in W, W'.
+  cbn. simpl in W, W'; unfold iscompatible_fam_qq in W, W'.
   (* We want to apply [W'] on the lhs, so we need to munge the type argument
   of [Q] to a form with the [f] action outermost.  Naturality will show that
   the type is equal to such a form; [Q_comp_ext_compare] pushes that type
@@ -263,7 +263,7 @@ Lemma fam_from_qq_mor {X X' : obj_ext_precat} {F : X ⇒ X'}
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
   : Σ (FY : Y ⇒[F] Y'), W ⇒[(F,,(FY,,FZ))] W'.
 Proof.
-  simpl in W, W'; unfold compatible_scomp_families in W, W'. (* Readability *)
+  simpl in W, W'; unfold iscompatible_fam_qq in W, W'. (* Readability *)
   simpl in Y, Y'.  (* To avoid needing casts [Y : families_structure _]. *)
   refine (_,,tt). simpl; unfold families_mor.
   exists (fam_from_qq_mor_TM FZ W W').
