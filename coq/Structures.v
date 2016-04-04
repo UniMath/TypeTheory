@@ -169,9 +169,19 @@ Definition Q_pp (Y : families_structure) {Γ} (A : Ty X Γ)
   : #Yo (π A) ;; yy A = Q Y A ;; pp Y
 := pr1 (pr2 Y _ _ ).
 
+(* TODO: rename this to [Q_pp_Pb], or [qq_π_Pb] to [isPullback_qq_π]? *)
 Definition isPullback_Q_pp (Y : families_structure) {Γ} (A : Ty X Γ)
   : isPullback _ _ _ _ (Q_pp Y A)
 := pr2 (pr2 Y _ _ ).
+
+Definition Q_pp_Pb_pointwise (Y : families_structure) (Γ' Γ : C) (A : Ty X Γ)
+  := isPullback_preShv_to_pointwise hsC (isPullback_Q_pp Y A) Γ'.
+
+Definition Q_pp_Pb_univprop (Y : families_structure) (Γ' Γ : C) (A : Ty X Γ)
+  := pullback_HSET_univprop_elements _ (Q_pp_Pb_pointwise Y Γ' Γ A).
+
+Definition Q_pp_Pb_unique (Y : families_structure) (Γ' Γ : C) (A : Ty X Γ)
+  := pullback_HSET_elements_unique (Q_pp_Pb_pointwise Y Γ' Γ A).
 
 (** ** Terms as sections *)
 

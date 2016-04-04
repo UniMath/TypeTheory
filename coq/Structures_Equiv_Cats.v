@@ -92,12 +92,7 @@ Proof.
   intros Γ' Γ f A.
   cbn in W, W', FY. unfold iscompatible_fam_qq in *. 
   unfold families_mor in FY.
-  (* Compare [term_to_section_naturality]. Perhaps worth abstracting? *)
-  set (Pb := isPullback_preShv_to_pointwise hsC
-        (isPullback_Q_pp Y' ((obj_ext_mor_TY F : nat_trans _ _) Γ A)) 
-        (Γ' ◂ # (TY X : functor _ _) f A));
-    simpl in Pb.
-  apply (pullback_HSET_elements_unique Pb); clear Pb; unfold yoneda_morphisms_data.
+  apply (Q_pp_Pb_unique Y'); simpl; unfold yoneda_morphisms_data.
   - etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths, obj_ext_mor_ax.
       (* TODO: name of [obj_ext_mor_ax] unmemorable.  Rename more like [qq_π]? *)
@@ -110,9 +105,9 @@ Proof.
     etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths. apply comp_ext_compare_π.
     apply obj_ext_mor_ax.
+  (* Maybe worth abstracting the following pointwise application of [W],
+   [families_mor_Q], etc. as lemmas? *)
   - etrans.
-      (* Again, compare [H1] in [term_to_section_naturality].
-      Surely there’s something to abstract! *)
       exact (!toforallpaths _ _ _
         (nat_trans_eq_pointwise (families_mor_Q FY _) _) _).
     etrans. apply maponpaths, @pathsinv0, id_left.
@@ -127,7 +122,7 @@ Proof.
     etrans. apply maponpaths, @pathsinv0, id_left.
     exact (!toforallpaths _ _ _
       (nat_trans_eq_pointwise (families_mor_Q FY _) _) _).
-Qed.
+Time Qed.
 
 Lemma qq_from_fam_mor_unique {X X' : obj_ext_precat} {F : X ⇒ X'}
   {Y : families_disp_precat C X} {Y'} (FY : Y ⇒[F] Y')
@@ -190,14 +185,14 @@ Proof.
   of [Q] to a form with the [f] action outermost.  Naturality will show that
   the type is equal to such a form; [Q_comp_ext_compare] pushes that type
   equality through [Q]. *)
-  etrans.      
+  etrans. 
     apply @pathsinv0.
     simple refine (Q_comp_ext_compare _ _); simpl.
     Focus 2. etrans. apply maponpaths.
       exact (toforallpaths _ _ _ (nat_trans_ax (pp Y) _ _ _) _).
     exact (toforallpaths _ _ _ (nat_trans_ax (obj_ext_mor_TY F) _ _ _) _).
   etrans.
-    refine (toforallpaths _ _ _ (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
+    exact (toforallpaths _ _ _ (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
   apply (maponpaths ((Q _ _ : nat_trans _ _ ) Γ)).
   simpl. unfold yoneda_morphisms_data.
   (* Part 2: naturality of the transfer along [F]. *)
@@ -213,17 +208,13 @@ Proof.
     etrans. Focus 2. apply cancel_postcomposition.
       apply @pathsinv0, Δ_φ.
     etrans. Focus 2. apply assoc.
-    apply maponpaths. apply comp_ext_compare_comp.
+    apply maponpaths, comp_ext_compare_comp.
   etrans. apply assoc.
   etrans. apply assoc.
   etrans. Focus 2. apply @pathsinv0, assoc.
   apply cancel_postcomposition.
-  (* Part 3: naturality in [Γ] of the term-to-section construction from [Tm Y]. *) 
-  (* TODO: definitely abstract this use of pullbacks: *)
-  set (Pb (Δ' Δ:C) (B : Ty X Δ) :=
-        isPullback_preShv_to_pointwise hsC (isPullback_Q_pp Y B) Δ').
-  set (Pb' Δ' Δ B := (pullback_HSET_elements_unique (Pb Δ' Δ B))); cbn in Pb'.
-  apply Pb'; clear Pb Pb'.
+  (* Part 3: naturality in [Γ] of the term-to-section construction from [Tm Y]. *)
+  apply (Q_pp_Pb_unique Y).
   + unfold yoneda_morphisms_data. 
     apply @pathscomp0 with f.
     * etrans. apply @pathsinv0, assoc.
@@ -233,17 +224,17 @@ Proof.
       apply cancel_postcomposition.
       etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, comp_ext_compare_π.
-      refine (pr2 (term_to_section _)).
+      exact (pr2 (term_to_section _)).
     * etrans. apply @pathsinv0, id_right.
       etrans. Focus 2. apply assoc.
       apply maponpaths, pathsinv0.
-      refine (pr2 (term_to_section _)).
+      exact (pr2 (term_to_section _)).
   + etrans. Focus 2.
-      refine (toforallpaths _ _ _ (!nat_trans_ax (Q _ _) _ _ _) _).
+      exact (toforallpaths _ _ _ (!nat_trans_ax (Q _ _) _ _ _) _).
     etrans. Focus 2. cbn.
       apply maponpaths, @pathsinv0, term_to_section_recover.
     etrans.
-      refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (W _ _ _ _) _) _).
+      exact (!toforallpaths _ _ _ (nat_trans_eq_pointwise (W _ _ _ _) _) _).
     etrans. apply Q_comp_ext_compare.
     apply term_to_section_recover.
 Time Qed.

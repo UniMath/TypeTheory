@@ -65,11 +65,7 @@ Lemma map_from_term_recover
   = f.
 Proof.
   unfold iscompatible_fam_qq in W.
-  (* TODO: definitely abstract this use of pullbacks: *)
-  set (Pb (Δ' Δ:C) (B : Ty X Δ) :=
-        isPullback_preShv_to_pointwise hsC (isPullback_Q_pp Y B) Δ').
-  set (Pb' Δ' Δ B := (pullback_HSET_elements_unique (Pb Δ' Δ B))); cbn in Pb'.
-  apply Pb'; clear Pb Pb'.
+  apply (Q_pp_Pb_unique Y).
   - unfold yoneda_morphisms_data; cbn.
     etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths, @pathsinv0, qq_π.
@@ -539,7 +535,7 @@ Qed.
 
 End qq_from_fam.
 
-Definition comp_from_fam : qq_morphism_data X.
+Definition qq_from_fam_data : qq_morphism_data X.
 Proof.
   mkpair.
   - intros. apply qq_fam.
@@ -549,7 +545,7 @@ Proof.
 Defined.
 
 
-Lemma is_split_comp_from_fam : qq_morphism_axioms comp_from_fam.
+Lemma is_split_qq_from_fam : qq_morphism_axioms qq_from_fam_data.
 Proof.
   split.
   - intros Γ A. simpl.
@@ -596,8 +592,8 @@ Time Qed.
 Definition qq_from_fam
   : qq_morphism_structure X.
 Proof.
-  exists comp_from_fam.
-  apply is_split_comp_from_fam.
+  exists qq_from_fam_data.
+  apply is_split_qq_from_fam.
 Defined.
 
 Lemma iscompatible_qq_from_fam : iscompatible_fam_qq Y qq_from_fam.
