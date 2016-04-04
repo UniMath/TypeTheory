@@ -413,6 +413,7 @@ Lemma isPullback_preShv_to_pointwise {C : precategory} (hsC : has_homsets C)
       ((p1 : nat_trans _ _) c) ((p2 : nat_trans _ _) c)
       (square_commutes_preShv_to_pointwise hsC e c).
 Proof.
+
   set (XR := isLimFunctor_is_pointwise_Lim C^op HSET has_homsets_HSET
             graphs.pullbacks.pushout_graph).
   set (XT1 := graphs.pullbacks.pullback_diagram _ f g).
@@ -435,6 +436,7 @@ Proof.
       assumption.
     }
     specialize (XR XTT c).
+
     
     intros S h k H.
     specialize (XR S).
