@@ -48,7 +48,7 @@ Notation ZZ := (pr2 Z).
 Variable Y : compatible_fam_structure Z.
 
 Lemma is_nat_trans_foo : 
- is_nat_trans (tm_from_qq_functor Z) (TM (pr1 Y): functor _ _ )
+ is_nat_trans (tm_from_qq Z) (TM (pr1 Y): functor _ _ )
      (λ (Γ : C^op) (Ase : tm_from_qq_carrier Γ),
       (yoneda_weq C hsC Γ (TM (pr1 Y)))
         (# Yo (pr1 (pr2 Ase)) ;; Q (pr1 Y) (pr1 Ase))).
@@ -88,7 +88,7 @@ Proof.
   apply (PullbackArrow_PullbackPr2 XR).
 Qed.
 
-Definition foo : preShv C  ⟦tm_from_qq_functor Z, TM (pr1 Y)⟧.
+Definition foo : preShv C  ⟦tm_from_qq Z, TM (pr1 Y)⟧.
 Proof.
   mkpair.
   - intro Γ. simpl.
@@ -104,7 +104,7 @@ Defined.
           need to show that it is pointwise inverse to [foo] above 
 *)
 
-Definition bar : ∀ Γ, HSET ⟦ (TM (pr1 Y) : functor _ _ ) Γ, tm_from_qq_functor Z Γ⟧.
+Definition bar : ∀ Γ, HSET ⟦ (TM (pr1 Y) : functor _ _ ) Γ, tm_from_qq Z Γ⟧.
 Proof.
   intro Γ. simpl.
   intro s'. set (S' := @yy _ hsC _ _ s').
@@ -237,7 +237,7 @@ Proof.
   - apply bar_foo.
 Defined.
 
-Definition foo_iso :  iso (C:=preShv C) (tm_from_qq_functor Z) (TM (pr1 Y)).
+Definition foo_iso :  iso (C:=preShv C) (tm_from_qq Z) (TM (pr1 Y)).
 Proof.
   exists foo.
   apply functor_iso_if_pointwise_iso.
