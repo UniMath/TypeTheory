@@ -157,7 +157,7 @@ Lemma tm_from_qq_eq' {Γ : C} (A : Ty X Γ)
   {Γ'} {f f' : Γ' ⇒ Γ} (e_ff' : f = f')
   {s : Γ' ⇒ Γ' ◂ A[f]} (es : s ;; π _ = identity _)
   {s' : Γ' ⇒ Γ' ◂ A[f']} (es' : s' ;; π _ = identity _)
-  (e_ss' : s' = s ;; idtoiso (maponpaths (fun f => Γ' ◂ A[f]) e_ff'))
+  (e_ss' : s' = s ;; Δ (maponpaths (fun f => A[f]) e_ff'))
 : (( A[f] ,, (s,, es)) : tm_from_qq_functor_data Γ' : hSet)
   = (A[f'] ,, (s',, es')).
 Proof.
@@ -327,7 +327,7 @@ Proof.
   etrans. apply @pathsinv0, assoc.
   etrans. apply @maponpaths, @pathsinv0, qq_π.
   etrans. apply assoc.
-  etrans. eapply (maponpaths (fun g => g ;; f)). exact e.
+  etrans. apply cancel_postcomposition. exact e.
   apply id_left.
 Qed.
 
@@ -344,7 +344,7 @@ Proof.
   apply pb_if_pointwise_pb. intros Γ'.
   apply isPullback_HSET. intros f [A' [s e]] e_A_A'; simpl in e_A_A'.
   destruct e_A_A'.
-  mkpair.
+  use tpair.
   - exists (s ;; qq Z f A).
     simpl; unfold yoneda_morphisms_data.
     split.
@@ -355,18 +355,10 @@ Proof.
       * etrans. apply e.
         apply pathsinv0.
         etrans. apply @pathsinv0, assoc.
-        etrans. apply @maponpaths.
-          etrans. Focus 2. eapply comp_ext_compare_π.
-          eapply cancel_postcomposition.
-          unfold Δ; apply pathsinv0, maponpaths, maponpaths.
-          apply (maponpathscomp (fun f => A[f])).
+        etrans. apply @maponpaths, comp_ext_compare_π.
         apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
       * apply pathsinv0. etrans. apply @pathsinv0, assoc.
-        etrans. apply @maponpaths.
-          etrans. Focus 2. eapply comp_ext_compare_qq.
-          apply cancel_postcomposition.
-          unfold Δ; apply pathsinv0, maponpaths, maponpaths.
-          apply (maponpathscomp (fun f => A[f])).
+        etrans. apply @maponpaths, comp_ext_compare_qq.
         apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
   - intros ft.
     apply subtypeEquality. intro. apply isapropdirprod. apply hsC. apply setproperty.
@@ -374,133 +366,73 @@ Proof.
     etrans. apply Q_from_qq_reconstruction.
     etrans.
        apply cancel_postcomposition, @pathsinv0.
-       use (section_eq_from_tm_from_qq_eq _ _ (!e2)).
+       exact (section_eq_from_tm_from_qq_eq _ _ (!e2)).
     simpl. etrans. apply @pathsinv0, assoc.
     apply maponpaths.
-    etrans. Focus 2. apply comp_ext_compare_qq.
-    apply cancel_postcomposition.
-    apply maponpaths, setproperty.
-    Unshelve. apply pathsinv0, e1.
+    etrans. Focus 2. apply (comp_ext_compare_qq _ (!e1)).
+    apply cancel_postcomposition, maponpaths, setproperty.
 Time Qed.
 
 End Q_from_qq.
 
-Notation "'cQ'" := Q_from_qq_data.
-Notation "'cQ'" := Q_from_qq.
-Notation "'cTm'":= tm_from_qq.
-Notation "'cp'" := pp_from_qq.
 Arguments Q_from_qq_data { _ } _ _ _ : simpl never.
 Arguments Q_from_qq { _ } _ : simpl never.
 Arguments tm_from_qq : simpl never.
 Arguments pp_from_qq : simpl never.
 
-
-Lemma cQ_compatible_pw (Γ Γ' : C) (A : Ty X Γ) (f : C ⟦ Γ', Γ ⟧) (Γ'' : C)
-          (g : C ⟦ Γ'', Γ' ◂ A[f] ⟧)
-   :
-   Q_from_qq_data A[f] Γ'' g =
-   Q_from_qq_data A Γ'' (g ;; qq Z f A).
-Proof.
-    simpl. cbn.
-    use tm_from_qq_eq. 
-    + unfold yoneda_morphisms_data.
-      etrans. Focus 2. eapply (maponpaths (fun k => A[k])).
-                       apply (@assoc C).
-      etrans. Focus 2. eapply (maponpaths (fun k => A[k])).
-                       apply maponpaths.
-                       apply qq_π.
-      etrans. Focus 2.  eapply (maponpaths (fun k => A[k])).
-                       apply @pathsinv0, (@assoc C).
-      apply (toforallpaths _ _ _ (!functor_comp (TY X) _ _ _ _ _ ) A).
-    + simpl.
-      apply PullbackArrowUnique.
-      * simpl. cbn.
-        etrans. apply @pathsinv0, (@assoc C).
-        etrans. apply maponpaths, comp_ext_compare_π.
-        match goal with [|- PullbackArrow ?HH _ _ _ _ ;; _  = _ ] =>
-                            set (XR := HH) end.
-        apply (PullbackArrow_PullbackPr1 XR). 
-      * simpl. cbn.
-        etrans. apply @pathsinv0, (@assoc C).
-        unfold yoneda_morphisms_data.
-        rewrite @comp_ext_compare_comp.
-        rewrite @comp_ext_compare_comp.
-        rewrite @comp_ext_compare_comp.
-        simpl.
-        etrans. apply maponpaths. apply assoc4.
-        etrans. apply maponpaths. apply cancel_postcomposition. apply assoc. 
-        etrans. apply maponpaths. apply (!assoc _ _ _ ).
-        etrans. apply maponpaths. apply maponpaths. apply comp_ext_compare_qq.
-        etrans. apply maponpaths. apply (!assoc _ _ _ ).  
-        etrans. apply maponpaths. apply maponpaths.
-                apply comp_ext_compare_qq.
-        etrans. apply maponpaths. apply (!assoc _ _ _ ).
-        etrans. apply maponpaths. apply maponpaths.
-                apply comp_ext_compare_qq.
-        etrans. apply maponpaths. apply maponpaths. apply (pr2 ZZ).
-        
-        etrans. apply maponpaths. apply maponpaths. apply (!assoc _ _ _ ).
-        etrans. apply maponpaths. apply assoc.
-        
-        match goal with [|- _ ;; (?I ;; _ ) = _ ] => set (i := I) end.
-        assert (XR : i = identity _ ).
-        {
-          unfold i; clear i.
-          etrans. apply @pathsinv0, comp_ext_compare_comp.
-          apply comp_ext_compare_id_general.
-        }
-        rewrite XR. rewrite id_left.
-        rewrite assoc.
-        match goal with |[ |- PullbackArrow ?HH _ _ _ _  ;; _ ;; _  = _ ] => set (XT:=HH) end.
-        
-        etrans. apply cancel_postcomposition. apply (PullbackArrow_PullbackPr2 XT).
-        apply idpath.
-Time Qed.
-
-
-
-(* 
-  the next statement morally reads
-
-  cQ Γ' (# (TY X) f A) Γ'' =
-  (λ g : C ⟦ Γ'', Γ' ◂ # (TY X) f A ⟧, g ;; qq Z f A) ;; cQ Γ A Γ''
-
-  but needs many type annotations to trigger coercions
-*)
-
-Lemma cQ_commutes (Γ Γ' : C) (A : Ty X Γ) (f : C ⟦ Γ', Γ ⟧) (Γ'' : C)
-  :   (cQ A[f] : nat_trans _ _ ) Γ'' =
-      ((λ g : hSetpair (C ⟦ Γ'', Γ' ◂ A[f] ⟧) (hsC _ _ ), g ;; qq Z f A) : HSET ⟦ _ , hSetpair _ (hsC _ _ ) ⟧) ;; (cQ A : nat_trans _ _ ) Γ''.
-Proof.
-  simpl.
-  apply funextsec. 
-  apply cQ_compatible_pw.
-Qed.
-
 Definition fam_from_qq : families_structure hsC X.
 Proof.
   mkpair.
-  + mkpair.
-    * apply tm_from_qq.
-    * {
-        mkpair.
-        - apply pp_from_qq.
-        - intros. apply Q_from_qq.
-      } 
-  + unfold families_structure_axioms.
-    intros.
+  + exists tm_from_qq.
+    exists pp_from_qq.
+    intros; apply Q_from_qq.
+  + unfold families_structure_axioms; intros.
     exists (Q_pp_from_qq _ _ ).
     apply isPullback_Q_pp_from_qq.
 Defined.
 
+Lemma fam_from_qq_pointwise_compatible
+    {Γ Γ' : C} (A : Ty X Γ) (f : Γ'⇒ Γ)
+    {Γ'' : C} (g : Γ''⇒ Γ' ◂ A[f])
+  : Q_from_qq_data A[f] Γ'' g
+  = Q_from_qq_data A Γ'' (g ;; qq Z f A).
+Proof.
+  use tm_from_qq_eq.
+  + unfold yoneda_morphisms_data; simpl.
+    etrans. apply (toforallpaths _ _ _ (!functor_comp (TY X) _ _ _ _ _ ) A).
+    eapply (maponpaths (fun k => A[k])).
+      etrans. apply @pathsinv0, (@assoc C).
+      etrans. apply maponpaths, qq_π.
+      apply (@assoc C).
+  + simpl.
+    apply PullbackArrowUnique.
+    * etrans. apply @pathsinv0, assoc.
+      etrans. apply maponpaths, comp_ext_compare_π.
+      apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)). 
+    * etrans. apply @pathsinv0, assoc.
+      etrans. apply maponpaths.
+        rewrite @comp_ext_compare_comp.
+        etrans. apply @pathsinv0, assoc. 
+        etrans. apply maponpaths, comp_ext_compare_qq.
+        etrans. apply maponpaths, qq_comp.
+        etrans. apply assoc.
+        apply cancel_postcomposition.
+        etrans. apply assoc.
+        etrans. Focus 2. apply id_left.
+        apply cancel_postcomposition.
+        etrans. apply @pathsinv0, comp_ext_compare_comp.
+        apply comp_ext_compare_id_general.
+      etrans. apply assoc.
+      apply cancel_postcomposition.
+      apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). 
+Time Qed.
+
 Definition iscompatible_fam_from_qq
   : iscompatible_fam_qq fam_from_qq Z.
 Proof.
-  intros Γ Γ' A f.
-  apply nat_trans_eq. 
-  { apply has_homsets_HSET. }
-  intro Γ''. 
-  apply cQ_commutes.
+  intros Γ Γ' A f; apply nat_trans_eq. 
+  - apply has_homsets_HSET.
+  - intro; apply funextsec, fam_from_qq_pointwise_compatible.
 Qed.
 
 Definition compatible_fam_from_qq : compatible_fam_structure Z
@@ -508,11 +440,6 @@ Definition compatible_fam_from_qq : compatible_fam_structure Z
     
 End compatible_fam_structure_from_qq.
 
-Notation "'cQ'" := Q_from_qq_data.
-Notation "'cQ'" := Q_from_qq.
-Notation "'cTm'":= tm_from_qq_carrier.
-Notation "'cTm'":= (tm_from_qq_functor_mor _ _ _ ).
-Notation "'cp'" := pp_from_qq.
 Arguments Q_from_qq_data _ {_} _ _ _ : simpl never.
 Arguments Q_from_qq _ {_} _ : simpl never.
 Arguments tm_from_qq : simpl never.
