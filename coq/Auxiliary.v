@@ -31,6 +31,24 @@ Open Scope mor_scope.
 
 (** * Lemmas about transport, etc *)
 
+Lemma idtoiso_transportf_family_of_morphisms (D : precategory)
+      (A : UU) (B : A -> UU)
+      (F : ∀ a, B a -> D)
+      (d d' : D) (deq : d = d')
+      (R : ∀ a (b : B a), D⟦ F a b, d⟧)
+     
+: transportf (λ x, ∀ a b, D⟦ F a b, x⟧)
+             deq R =
+  λ a b, R a b ;; idtoiso deq.
+Proof.
+  destruct deq.
+  apply funextsec.
+  intro. apply funextsec. intro.
+  apply pathsinv0.
+  apply id_right.
+Qed.
+
+
 Lemma pr1_transportf (A : UU) (B : A -> UU) (P : ∀ a, B a -> UU)
    (a a' : A) (e : a = a') (xs : Σ b : B a, P _ b):
    pr1 (transportf (fun x => Σ b : B x, P _ b) e xs) = 

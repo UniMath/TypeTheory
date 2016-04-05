@@ -190,7 +190,6 @@ Proof.
               apply comp_ext_compare_Q.
       etrans. apply (PullbackArrow_PullbackPr2 XR).
       simpl.
-      Check yoneda_map_2.
       clear XR. clear ee.
       unfold yoneda_morphisms. unfold yoneda_morphisms_data.
       apply nat_trans_eq. apply (has_homsets_HSET).
@@ -251,40 +250,15 @@ Proof.
       etrans. eapply pathsinv0.
       apply  (idtoiso_precompose (preShv C)).
       unfold i.
- 
-      Search (idtoiso (! _ ) = _).
-
       rewrite idtoiso_inv.
       rewrite idtoiso_isotoid.
       simpl.
       apply nat_trans_eq. apply has_homsets_HSET.
       intro Γ. apply idpath.
     + cbn. simpl.
-(*
-      apply funextsec. intro c.
-*)
 
-Lemma idtoiso_transportf_wtf (D : precategory)
-      (A : UU) (B : A -> UU)
-      (F : ∀ a, B a -> D)
-      (d d' : D) (deq : d = d')
-      (R : ∀ a (b : B a), D⟦ F a b, d⟧)
-     
-: transportf (λ x, ∀ a b, D⟦ F a b, x⟧)
-             deq R =
-  λ a b, R a b ;; idtoiso deq.
-Proof.
-  destruct deq.
-  apply funextsec.
-  intro. apply funextsec. intro.
-  apply pathsinv0.
-  apply id_right.
-Qed.
-
-
-  idtac.
   assert (XR := 
-          (idtoiso_transportf_wtf (preShv C))).
+          (idtoiso_transportf_family_of_morphisms (preShv C))).
   specialize (XR C (λ B, (TY X : functor _ _ ) B : hSet)).
   specialize (XR (λ Γ' B, (yoneda C hsC (Γ' ◂ B)))).
   etrans. apply XR.
@@ -389,9 +363,6 @@ Qed.
 
 End compatible_structures.
 
-Print Assumptions iscontr_compatible_split_comp_structure.
-Print Assumptions iscontr_compatible_fam_structure.
-
 Section Equivalence.
 
 Definition T1 : UU :=
@@ -445,17 +416,14 @@ Proof.
   apply iscontr_compatible_split_comp_structure.
 Defined.
 
-Definition result : families_structure hsC X ≃ qq_morphism_structure X.
+Definition weq_CwF_SplitTypeCat : families_structure hsC X ≃ qq_morphism_structure X.
 Proof.
   eapply weqcomp.
-  eapply invweq.
-  apply forget_comp.
+    eapply invweq. apply forget_comp.
   eapply weqcomp.
-  apply shuffle.
+    apply shuffle.
   apply forget_fam.
 Defined.
-
-Print Assumptions result.
 
 End Equivalence.
 

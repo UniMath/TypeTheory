@@ -3,6 +3,16 @@
 
  Ahrens, Lumsdaine, Voevodsky, 2015 - 2016
 
+Contents:
+
+- Main result: construction of an equivalence
+  [weq_RelUnivYo_CwF]
+  between relative universe structures on Yoneda
+  and families structures on a fixed precategory
+
+- Intermediate structure [iCwF] obtained by 
+  shuffling the components of a [CwF] structure
+
 *)
 
 Require Import Systems.Auxiliary.
@@ -24,7 +34,7 @@ Variable hsC : has_homsets C.
 Local Notation "'Yo'" := (yoneda _ hsC).
 Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
 
-(** a CwF as a relative univ structure on Yo is
+(** a [RelUnivYo] as a relative univ structure on Yo is
     - two presheaves tU, U
     - a morphism of presheaves p : tU -> U
     - for any X : C and f : Yo X -> U
@@ -38,7 +48,7 @@ Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _
 
 *)
 
-Local Definition CwF : UU
+Local Definition RelUnivYo : UU
  := relative_universe_structure C (preShv C) Yo.
 
 
@@ -57,7 +67,7 @@ Local Definition CwF : UU
 
 *)
 
-Local Definition CwF' : UU
+Local Definition CwF : UU
  := Σ (X : obj_ext_structure C), families_structure hsC X.
 
 
@@ -92,6 +102,9 @@ Definition tu (X : mor_of_presheaves) : preShv C := source X.
 Definition p (X : mor_of_presheaves) : preShv C ⟦tu X, u X⟧
   :=  morphism_from_arrow X.
 
+
+(** * Definition of intermediate structure [comp] *)
+
 Definition comp_data (X : mor_of_presheaves) : UU
   := 
    Σ (dpr : ∀ (Γ : C) (A : (u X : functor _ _ ) Γ : hSet ), Σ (ΓA : C), C⟦ΓA, Γ⟧),
@@ -125,11 +138,14 @@ Definition comp (X : mor_of_presheaves) : UU
 
 Definition iCwF := Σ (X : mor_of_presheaves), comp X.
 
+(** * Construction of an equivalence between [CwF] and [iCwF] *)
+
+
 (** the next lemma might be proved more easily with the specialized lemmas
     [weqtotal2dirprodassoc] and [weqtotal2dirprodassoc']
 *)
 
-Definition foo : 
+Definition weq_comp_fam_data : 
  (Σ X : obj_ext_structure C, families_structure_data hsC X)
    ≃ 
  Σ X : mor_of_presheaves, comp_data X.
@@ -149,37 +165,33 @@ Proof.
     specialize (XR (fun Tmp =>  (∀ (Γ : C^op) (A : (TY (Ty,, depr):functor _ _ ) Γ : hSet), 
                                         Yo (comp_ext (Ty,,depr) Γ A) ⇒ pr1 Tmp)) ).       
     apply XR. simpl.
-
-
-
- eapply weqcomp.
-     set (XR:= @weqtotal2asstol (∀ Γ : C, (Ty Γ : hSet) → Σ ΓA : C, ΓA ⇒ Γ)).
-     specialize (XR (fun _ =>  Σ x0 : functor (opp_precat_data C) hset_precategory_data,
-                                           nat_trans x0 Ty)).
+  eapply weqcomp.
+    set (XR:= @weqtotal2asstol (∀ Γ : C, (Ty Γ : hSet) → Σ ΓA : C, ΓA ⇒ Γ)).
+     specialize (XR (fun _ =>  Σ x0 : functor (opp_precat_data C) hset_precategory_data, nat_trans x0 Ty)).
      simpl in *.
      specialize (XR (fun deprTmp =>  ∀ (Γ : C) (A : (Ty Γ : hSet)),
                     nat_trans (yoneda_ob_functor_data C hsC (comp_ext (Ty,,pr1 deprTmp) Γ A)) (pr1 (pr2 deprTmp) ))).
      apply XR.
-   simpl. 
+  simpl. 
   eapply weqcomp. use weqtotal2dirprodcomm. simpl.
   eapply weqcomp; apply weqtotal2asstor. (* this looks like magic *)
 Defined.
 
 
-Definition foobar : CwF' ≃ iCwF.
+Definition weq_CwF_iCwF : CwF ≃ iCwF.
 Proof.
   unfold iCwF.  
   eapply weqcomp. Focus 2. 
     set (XR:= @weqtotal2asstor mor_of_presheaves (fun X => comp_data X) ).
     specialize (XR (fun XY => comp_prop (pr1 XY) (pr2 XY))).
     apply XR.
-  unfold CwF'. 
+  unfold CwF. 
   eapply weqcomp.
     set (XR:= @weqtotal2asstol (obj_ext_structure C) (fun X => families_structure_data hsC X) ).
     specialize (XR (fun XY => families_structure_axioms hsC (pr1 XY) (pr2 XY))).
     apply XR.
   use weqbandf.
-  - apply foo.
+  - apply weq_comp_fam_data.
   - intro x.
     unfold families_structure_axioms.
     unfold comp_prop.
@@ -187,12 +199,14 @@ Proof.
     intro. 
     destruct x as [Tydepr [Tm [p Q]]].
     destruct Tydepr as [Ty depr].
-
     simple refine (idweq _ ).
 Defined.  
-Print totaltoforall.
-Print foralltototal.
 
+
+(* This is more complicated than to show that 
+   [comp] is equivalent to fcomprehension
+*)
+(*
 Lemma isaprop_comp (y : arrow (preShv C)) : isaprop (comp y).
 Proof.
   apply invproofirrelevance.
@@ -205,16 +219,11 @@ Proof.
     simple refine (total2_paths _ _ ).
     * simpl.
       apply funextsec; intro Γ.
-      apply funextsec; intro A.
-      
+      apply funextsec; intro A.      
       unfold comp_prop in H, H'. simpl in H, H'.
 Abort.
-
-
-(*
-Definition weq_comp_fcomprehension_data (x : arrow (preShv C)):
-   comp_data x ≃ fcomprehension_data C (preShv C) Yo (target x) (source x) x.
 *)
+
 
 
 Definition Yo_pullback (x : arrow (preShv C)) : UU :=
@@ -234,14 +243,13 @@ Definition comp_1_data (y : arrow (preShv C)) : UU
            (Σ ΓAp : Σ ΓA : C, ΓA ⇒ Γ, Yo (pr1 ΓAp) ⇒ tu y).
 
 
-
 Definition weq_comp_data (y : arrow (preShv C)) : comp_data y ≃ comp_1_data y.
 Proof.
   unfold comp_data.
   eapply weqcomp.
     set (XR := @weqtotaltoforall C).
     specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓA : C, ΓA ⇒ X)).
-      simpl in XR.
+    simpl in XR.
     specialize (XR (fun X dpr =>  ∀ (A : (u y : functor _ _ ) X : hSet), Yo (pr1 (dpr A)) ⇒ tu y)).
     apply XR.
   apply weqonsecfibers. intro X.
@@ -252,7 +260,6 @@ Proof.
     apply XR.
   apply weqonsecfibers.
   intro A. apply idweq.
-(*  apply weqtotal2asstor. *)
 Defined.
 
 Definition ext_1 {X : mor_of_presheaves} (Y : comp_1_data X) {Γ} A 
@@ -275,19 +282,11 @@ Definition comp_1 (X : mor_of_presheaves) : UU
 
 Definition weq_comp_comp_1 x : comp x ≃ comp_1 x.
 Proof.
-(*
-  Search (weq (Σ _ , _ ) (Σ _ , _ )).
-  eapply weqcomp.
-     Focus 2.
-         set (XR := weqfp (invweq (weq_comp_data x))).
-*)
   set (XR := weqfp (weq_comp_data x)).
   eapply weqcomp. Focus 2. apply XR.
-
   apply weqfibtototal. intro y.
   apply weqonsecfibers. intro X. apply weqonsecfibers. intro A.
   apply weqimplimpl.
-
   -  intro H.
      destruct y as [extdepr Q].
      mkpair.
@@ -315,7 +314,7 @@ Proof.
     set (XR := @weqtotaltoforall C). simpl in XR.
     unfold comp_1_data. unfold comp_1_prop.
     specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓAp : Σ ΓA : C, ΓA ⇒ X, Yo (pr1 ΓAp) ⇒ tu y)). 
-    unfold dpr_1, QQ_1. Check (tu y).
+    unfold dpr_1, QQ_1.
     specialize (XR (fun X pp =>  ∀  (A : ((u y : functor _ _ ) X : hSet)),
        Σ e : # Yo (pr2 (pr1 (pp A))) ;; yy A = (pr2 (pp A) : preShv _ ⟦_,_⟧ );; p y,
        isPullback (yy A) (p y) (# Yo (pr2 (pr1 (pp A)))) (pr2 (pp A)) e)).
@@ -330,26 +329,19 @@ Proof.
     isPullback (yy A) (p y) (# Yo (pr2 (pr1 (pp )))) (pr2 (pp )) e)).
     apply XR.
   apply weqonsecfibers. intro A. unfold fpullback.
-(*
-  eapply weqcomp.
-    set (XR := @weqtotal2asstor).
-*)
-
   transparent assert (HXY :
       ( (Σ ΓAp : Σ ΓA : C, ΓA ⇒ X, Yo (pr1 ΓAp) ⇒ tu y)
          ≃
          fpullback_data C (preShv C) Yo (target y) (source y) (yy A)
       )).
-     unfold fpullback_data.
-     set (XR := @weqtotal2asstor). apply XR.
-
+  { apply weqtotal2asstor. }
   simpl in HXY.
   apply (weqbandf HXY).
   intro x.
   destruct x as [[XA p] Q]. exact (idweq _ ).
 Defined.
 
-Lemma wtf:
+Lemma weq_comp_fcomprehension:
  ∀ x : arrow (preShv C),
    comp x ≃ fcomprehension C (preShv C) Yo (target x) (source x) x.
 Proof.
@@ -360,26 +352,28 @@ Proof.
   apply (invweq (weq_Yo_pullback_comp_1 _ )).
 Defined.
 
-Definition foobarla : iCwF ≃ CwF.
+Definition weq_iCwF_RelUnivYo : iCwF ≃ RelUnivYo.
 Proof.
   unfold iCwF.
-  unfold CwF. unfold relative_universe_structure.
+  unfold RelUnivYo. unfold relative_universe_structure.
   unfold mor_of_presheaves.
   apply weqfibtototal.
-  apply wtf.
+  apply weq_comp_fcomprehension.
 Defined.   
  
-Print Assumptions foobarla.
 
-Definition result : CwF ≃ CwF'.
+
+Definition weq_RelUnivYo_CwF : RelUnivYo ≃ CwF.
 Proof.
   eapply weqcomp.
-   apply (invweq foobarla).
-  apply (invweq foobar).
+   apply (invweq weq_iCwF_RelUnivYo).
+  apply (invweq weq_CwF_iCwF).
 Defined.
 
-Print Assumptions result.
 
+(** The results below are not used anywhere, 
+    but we keep them because, well, why shouldn't we?
+*)
 
 Definition comp_to_fcomprehension (x : arrow (preShv C)):
    comp x → fcomprehension C (preShv C) Yo (target x) (source x) x.
@@ -432,7 +426,7 @@ Proof.
 Defined.     
 
 
-Lemma foobarfuck (y : arrow (preShv C)):
+Lemma weq_fcomprehension_comp_data (y : arrow (preShv C)):
    fcomprehension_data C (preShv C) Yo (target y) (source y) ≃ comp_data y.
 Proof.
   unfold fcomprehension_data.

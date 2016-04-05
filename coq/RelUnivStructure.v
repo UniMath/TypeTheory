@@ -3,6 +3,19 @@
 
  Ahrens, Lumsdaine, Voevodsky, 2015 - 2016
 
+Contents:
+
+- Definition of comprehension structure relative to 
+  a functor, see [fcomprehension]
+- Proof that [fcomprehension] is a proposition when
+  target precategory is univalent, 
+  see [isaprop_fcomprehension]
+- Definition of a relative universe structure,
+  see [relative_universe_structure]
+- Transfer of a relative universe structure along
+  two functors and a natural isomorphism, 
+  see [rel_univ_struct_functor]
+
 *)
 
 Require Export Systems.Auxiliary.
