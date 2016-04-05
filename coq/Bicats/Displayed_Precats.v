@@ -16,6 +16,7 @@ Two major motivations for displayed categories:
 - Total precategories (and their forgetful functors)
   - [total_precat D]
   - [pr1_functor]
+- Direct products of displayed precategories
 - Examples
 
 *)
@@ -390,7 +391,6 @@ Section Reindexing.
 
 Context {C' C : Precategory} (F : functor C' C) (D : disp_precat C).
 
-(* TODO: search/replace [disp_precat] to [disp_precat] once done *)
 Definition reindex_disp_precat_ob_mor : disp_precat_ob_mor C'.
 Proof.
   exists (fun c => D (F c)).
@@ -509,9 +509,9 @@ Identity Coercion section_from_functor_lifting
   : functor_lifting >-> section_disp.
 
 (** Note: perhaps it would be better to define [functor_lifting] directly? 
-  Reindexed displayed-precats are a bit confusing to work in, since a term like [id_disp xx] is ambiguous: it can mean both the identity in the original displayed category, or the identity in the reindexing, which is nearly but not quite the same.  This shows up already in the proofs of [total_functor_axioms] below. *)
+  Reindexed displayed-precats are a bit confusing to work in, since a term like [id_disp xx] is ambiguous: it can mean both the identity in the original displayed category, or the identity in the reindexing, which is nearly but not quite the same.  This shows up already in the proofs of [lifted_functor_axioms] below. *)
 
-Definition total_functor_data {C C' : Precategory} {D : disp_precat C}
+Definition lifted_functor_data {C C' : Precategory} {D : disp_precat C}
   {F : functor C' C} (FF : functor_lifting D F)
   : functor_data C' (total_precat D).
 Proof.
@@ -519,9 +519,9 @@ Proof.
   intros x y f. exists (# F f)%mor. exact (# FF f).
 Defined.
 
-Definition total_functor_axioms {C C' : Precategory} {D : disp_precat C}
+Definition lifted_functor_axioms {C C' : Precategory} {D : disp_precat C}
   {F : functor C' C} (FF : functor_lifting D F)
-  : is_functor (total_functor_data FF).
+  : is_functor (lifted_functor_data FF).
 Proof.
   split.
   - intros x. use total2_paths; simpl.
@@ -534,10 +534,10 @@ Proof.
     cbn. apply Utilities.transportfbinv.
 Qed.
 
-Definition total_functor {C C' : Precategory} {D : disp_precat C}
+Definition lifted_functor {C C' : Precategory} {D : disp_precat C}
   {F : functor C' C} (FF : functor_lifting D F)
   : functor C' (total_precat D)
-:= (_ ,, total_functor_axioms FF).
+:= (_ ,, lifted_functor_axioms FF).
 
 End Functor_Lifting.
 
@@ -622,6 +622,35 @@ Definition functor_over_comp {C' C} {F} {D' : disp_precat C'} {D : disp_precat C
     = transportb _ (functor_comp F _ _ _ f g) (# FF ff ;; # FF gg)
 := pr2 (pr2 FF) _ _ _ _ _ _ _ _ ff gg.
 
+Definition total_functor_data {C' C} {F}
+    {D' : disp_precat C'} {D : disp_precat C} (FF : functor_over F D' D)
+  : functor_data (total_precat D') (total_precat D).
+Proof.
+  mkpair.
+  - intros xx. exists (F (pr1 xx)). exact (FF _ (pr2 xx)).
+  - intros xx yy ff. exists (# F (pr1 ff))%mor. exact (# FF (pr2 ff)).
+Defined.
+
+Definition total_functor_axioms {C' C} {F}
+    {D' : disp_precat C'} {D : disp_precat C} (FF : functor_over F D' D)
+  : is_functor (total_functor_data FF).
+Proof.
+  split.
+  - intros xx; use total2_paths.
+      apply functor_id.
+    etrans. apply maponpaths, functor_over_id.
+    apply Utilities.transportfbinv.
+  - intros xx yy zz ff gg; use total2_paths; simpl.
+      apply functor_comp.
+    etrans. apply maponpaths, functor_over_comp.
+    apply Utilities.transportfbinv.
+Qed.
+
+Definition total_functor {C' C} {F}
+    {D' : disp_precat C'} {D : disp_precat C} (FF : functor_over F D' D)
+  : functor (total_precat D') (total_precat D)
+:= (total_functor_data FF,, total_functor_axioms FF).
+
 End Functor_Over.
 
 (** * Products of displayed (pre)categories 
@@ -678,6 +707,47 @@ Qed.
 
 Definition dirprod_disp_precat : disp_precat C
   := (_ ,, dirprod_disp_precat_axioms).
+
+Definition dirprodpr1_disp_functor_data
+  : functor_over_data (functor_identity C) dirprod_disp_precat (D1).
+Proof.
+  mkpair.
+  - intros x xx; exact (pr1 xx).
+  - intros x y xx yy f ff; exact (pr1 ff).
+Defined.
+
+Definition dirprodpr1_disp_functor_axioms
+  : functor_over_axioms dirprodpr1_disp_functor_data.
+Proof.
+  split. 
+  - intros; apply idpath.
+  - intros; apply idpath.
+Qed.
+
+Definition dirprodpr1_disp_functor
+  : functor_over (functor_identity C) dirprod_disp_precat (D1)
+:= (dirprodpr1_disp_functor_data,, dirprodpr1_disp_functor_axioms).
+
+
+Definition dirprodpr2_disp_functor_data
+  : functor_over_data (functor_identity C) dirprod_disp_precat (D2).
+Proof.
+  mkpair.
+  - intros x xx; exact (pr2 xx).
+  - intros x y xx yy f ff; exact (pr2 ff).
+Defined.
+
+Definition dirprodpr2_disp_functor_axioms
+  : functor_over_axioms dirprodpr2_disp_functor_data.
+Proof.
+  split. 
+  - intros; apply idpath.
+  - intros; apply idpath.
+Qed.
+
+Definition dirprodpr2_disp_functor
+  : functor_over (functor_identity C) dirprod_disp_precat (D2)
+:= (dirprodpr2_disp_functor_data,, dirprodpr2_disp_functor_axioms).
 
 End Dirprod.
 
