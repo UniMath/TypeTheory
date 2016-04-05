@@ -15,8 +15,13 @@ Two major motivations for displayed categories:
 - Displayed precategories: [disp_precat C]
 - Total precategories (and their forgetful functors)
   - [total_precat D]
-  - [pr1_functor]
-- Direct products of displayed precategories
+  - [pr1_precat D]
+- Functors between precategories, over functors between their bases
+  - [functor_lifting], [lifted_functor]
+  - [functor_over], [total_functor]
+- Direct products of displayed precategories (and their projections)
+  - [dirprod_precat D1 D2]
+  - [dirprodpr1_functor], [dirprodpr2_functor]
 - Examples
 
 *)

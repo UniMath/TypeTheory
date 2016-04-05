@@ -5,8 +5,8 @@
 Main definitions:
 
 - [obj_ext_precat]
-- [families_disp_precat]
-- [qq_disp_precat]
+- [families_disp_precat], [families_structure_precat]
+- [qq_structure_disp_precat], [qq_structure_precat]
 *)
 
 Require Import UniMath.CategoryTheory.limits.pullbacks.
@@ -336,9 +336,13 @@ Qed.
 Definition families_disp_precat : disp_precat (obj_ext_Precat C)
   := (_ ,, families_axioms).
 
+Definition families_structure_precat : precategory
+  := total_precat families_disp_precat.
+
 End Families_Structure_Precat.
 
 Arguments families_disp_precat _ : clear implicits.
+Arguments families_structure_precat _ : clear implicits.
 
 (** * Precategory of cartesian _q_-morphism-structures *)
 Section qq_Structure_Precat.
@@ -408,7 +412,11 @@ Qed.
 Definition qq_structure_disp_precat : disp_precat (obj_ext_Precat C)
   := (_ ,, qq_structure_axioms).
 
+Definition qq_structure_precat : precategory
+  := total_precat (qq_structure_disp_precat).
+
 End qq_Structure_Precat.
 
 Arguments qq_structure_disp_precat _ : clear implicits.
+Arguments qq_structure_precat _ : clear implicits.
 
