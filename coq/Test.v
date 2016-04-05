@@ -3,6 +3,12 @@
 
  Ahrens, Lumsdaine, Voevodsky, 2015 - 2016
 
+Contents:
+
+- Import of all the files containing important results
+- Checking the types of main constructions and 
+  of their assumptions
+
 *)
 
 Require Import Systems.Auxiliary.
@@ -26,7 +32,7 @@ Require Import Systems.CwF_SplitTypeCat_Equivalence.
 Check Rezk_on_RelUnivYoneda.
 Print Assumptions Rezk_on_RelUnivYoneda.
 
-Check weq_CwF_RelUnivYo.
+Check weq_RelUnivYo_CwF.
 Print Assumptions Rezk_on_RelUnivYoneda.
 
 Check weq_CwF_SplitTypeCat.

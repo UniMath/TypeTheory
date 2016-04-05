@@ -3,6 +3,16 @@
 
  Ahrens, Lumsdaine, Voevodsky, 2015 - 2016
 
+Contents:
+
+- Main result: construction of an equivalence
+  [weq_RelUnivYo_CwF]
+  between relative universe structures on Yoneda
+  and families structures on a fixed precategory
+
+- Intermediate structure [iCwF] obtained by 
+  shuffling the components of a [CwF] structure
+
 *)
 
 Require Import Systems.Auxiliary.
@@ -24,7 +34,7 @@ Variable hsC : has_homsets C.
 Local Notation "'Yo'" := (yoneda _ hsC).
 Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
 
-(** a CwF as a relative univ structure on Yo is
+(** a [RelUnivYo] as a relative univ structure on Yo is
     - two presheaves tU, U
     - a morphism of presheaves p : tU -> U
     - for any X : C and f : Yo X -> U
@@ -38,7 +48,7 @@ Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _
 
 *)
 
-Local Definition CwF : UU
+Local Definition RelUnivYo : UU
  := relative_universe_structure C (preShv C) Yo.
 
 
@@ -57,7 +67,7 @@ Local Definition CwF : UU
 
 *)
 
-Local Definition CwF' : UU
+Local Definition CwF : UU
  := Σ (X : obj_ext_structure C), families_structure hsC X.
 
 
@@ -92,6 +102,9 @@ Definition tu (X : mor_of_presheaves) : preShv C := source X.
 Definition p (X : mor_of_presheaves) : preShv C ⟦tu X, u X⟧
   :=  morphism_from_arrow X.
 
+
+(** * Definition of intermediate structure [comp] *)
+
 Definition comp_data (X : mor_of_presheaves) : UU
   := 
    Σ (dpr : ∀ (Γ : C) (A : (u X : functor _ _ ) Γ : hSet ), Σ (ΓA : C), C⟦ΓA, Γ⟧),
@@ -124,6 +137,9 @@ Definition comp (X : mor_of_presheaves) : UU
   := Σ (Y : comp_data X), comp_prop _ Y.
 
 Definition iCwF := Σ (X : mor_of_presheaves), comp X.
+
+(** * Construction of an equivalence between [CwF] and [iCwF] *)
+
 
 (** the next lemma might be proved more easily with the specialized lemmas
     [weqtotal2dirprodassoc] and [weqtotal2dirprodassoc']
@@ -162,14 +178,14 @@ Proof.
 Defined.
 
 
-Definition weq_RelUnivYo_iCwF : CwF' ≃ iCwF.
+Definition weq_CwF_iCwF : CwF ≃ iCwF.
 Proof.
   unfold iCwF.  
   eapply weqcomp. Focus 2. 
     set (XR:= @weqtotal2asstor mor_of_presheaves (fun X => comp_data X) ).
     specialize (XR (fun XY => comp_prop (pr1 XY) (pr2 XY))).
     apply XR.
-  unfold CwF'. 
+  unfold CwF. 
   eapply weqcomp.
     set (XR:= @weqtotal2asstol (obj_ext_structure C) (fun X => families_structure_data hsC X) ).
     specialize (XR (fun XY => families_structure_axioms hsC (pr1 XY) (pr2 XY))).
@@ -298,7 +314,7 @@ Proof.
     set (XR := @weqtotaltoforall C). simpl in XR.
     unfold comp_1_data. unfold comp_1_prop.
     specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓAp : Σ ΓA : C, ΓA ⇒ X, Yo (pr1 ΓAp) ⇒ tu y)). 
-    unfold dpr_1, QQ_1. Check (tu y).
+    unfold dpr_1, QQ_1.
     specialize (XR (fun X pp =>  ∀  (A : ((u y : functor _ _ ) X : hSet)),
        Σ e : # Yo (pr2 (pr1 (pp A))) ;; yy A = (pr2 (pp A) : preShv _ ⟦_,_⟧ );; p y,
        isPullback (yy A) (p y) (# Yo (pr2 (pr1 (pp A)))) (pr2 (pp A)) e)).
@@ -336,10 +352,10 @@ Proof.
   apply (invweq (weq_Yo_pullback_comp_1 _ )).
 Defined.
 
-Definition weq_iCwF_CwF : iCwF ≃ CwF.
+Definition weq_iCwF_RelUnivYo : iCwF ≃ RelUnivYo.
 Proof.
   unfold iCwF.
-  unfold CwF. unfold relative_universe_structure.
+  unfold RelUnivYo. unfold relative_universe_structure.
   unfold mor_of_presheaves.
   apply weqfibtototal.
   apply weq_comp_fcomprehension.
@@ -347,11 +363,11 @@ Defined.
  
 
 
-Definition weq_CwF_RelUnivYo : CwF ≃ CwF'.
+Definition weq_RelUnivYo_CwF : RelUnivYo ≃ CwF.
 Proof.
   eapply weqcomp.
-   apply (invweq weq_iCwF_CwF).
-  apply (invweq weq_RelUnivYo_iCwF).
+   apply (invweq weq_iCwF_RelUnivYo).
+  apply (invweq weq_CwF_iCwF).
 Defined.
 
 
