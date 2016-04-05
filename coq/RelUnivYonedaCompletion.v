@@ -45,16 +45,29 @@ Let YoR_ff : fully_faithful YoR := yoneda_fully_faithful _ hsRC.
 
 Definition R1 := rel_univ_struct_functor _ _ Yo X _ _ YoR YoR_ff (pr2 RC).
 
+Lemma is_category_preShv D : is_category (preShv D).
+Proof.
+    apply (is_category_functor_category _ _ is_category_HSET).
+Defined.
+
+(*
 Lemma foo : is_category
                  (functor_precategory RC^op HSET (pr2 is_category_HSET)).
 Proof.
   apply is_category_functor_category.
 Defined.
+*)
 
-Definition R2 :=  R1 foo (Rezk_eta _ _ ).
+Definition R2 :=  R1 (is_category_preShv RC) (Rezk_eta _ _ ).
 
-Check R2.
+Definition ext : functor (preShv C) (preShv RC).
+Proof.
+  simpl.
+  set (T:= Rezk_op_adj_equiv C hsC HSET is_category_HSET).
+  apply (equivalences.right_adjoint (pr1 T)).
+Defined.
 
+(*
 Definition ext :
  functor (functor_precategory C^op HSET (pr2 is_category_HSET))
               (functor_precategory RC^op HSET (pr2 is_category_HSET)).
@@ -63,38 +76,30 @@ Proof.
   set (T:= Rezk_op_adj_equiv C hsC HSET is_category_HSET).
   apply (equivalences.right_adjoint (pr1 T)).
 Defined.
-Definition R3 := R2 ext.
-
-Check R3.
-
-
-(* TODO 
-
-Definition foo : (forall c : C, F c ≃ G c) -> iso F G 
-
-Definition bla : (forall c : C, iso (F c) (G c)) -> iso F G
-
-
 *)
 
+Let R3 := R2 ext.
 
-Definition nat_iso_from_pointwise_iso (D E : precategory) (hsE : has_homsets E)
-                   (F G : [D, E, hsE])
-                   (a : ∀ d, iso ((F : functor _ _) d) ((G : functor _ _) d))
-                   (H : is_nat_trans _ _ a)
-   : iso F G.
+Definition nat_iso_from_pointwise_iso (D E : precategory)
+  (hsE : has_homsets E)
+  (F G : [D, E, hsE])
+  (a : ∀ d, iso ((F : functor _ _) d) ((G : functor _ _) d))
+  (H : is_nat_trans _ _ a)
+  : iso F G.
 Proof.
   use functor_iso_from_pointwise_iso .
   mkpair.
-  intro d. apply a.
-  apply H.
-  intro d. apply (pr2 (a d)).
+  - intro d. apply a.
+  - apply H.
+  - intro d. apply (pr2 (a d)).
 Defined.
 
-Lemma iso_from_iso_with_postcomp (D E E' : precategory) hsE hsE' (F G : functor D E) (H : functor E E')
-          (Hff : fully_faithful H) : 
-          iso (C:=[D, E', hsE']) (functor_composite F H) (functor_composite G H)
-          -> iso (C:=[D, E, hsE]) F G.
+Lemma iso_from_iso_with_postcomp (D E E' : precategory) hsE hsE'
+  (F G : functor D E) (H : functor E E')
+  (Hff : fully_faithful H) : 
+  iso (C:=[D, E', hsE']) (functor_composite F H) (functor_composite G H)
+  ->
+  iso (C:=[D, E, hsE]) F G.
 Proof.
   intro a.
   use nat_iso_from_pointwise_iso.
@@ -121,12 +126,18 @@ Defined.
 
 Definition functor_assoc_iso (D1 D2 D3 D4 : precategory) hsD4
      (F : functor D1 D2) (G : functor D2 D3) (H : functor D3 D4) :
-  iso (C:=[D1,D4,hsD4]) (functor_composite (functor_composite F G) H)
-                        (functor_composite F (functor_composite G H)).
+    iso (C:=[D1,D4,hsD4])
+         (functor_composite (functor_composite F G) H)
+         (functor_composite F (functor_composite G H)).
 Proof.
   use nat_iso_from_pointwise_iso.
-  intro d. apply identity_iso.
-  intros x x' f. rewrite id_left. rewrite id_right. apply idpath.
+  - intro d. apply identity_iso.
+  - abstract (
+        intros x x' f;
+        rewrite id_left;
+        rewrite id_right;
+        apply idpath
+     ).
 Defined.
 
 Definition functor_comp_id_iso (D1 D2 : precategory) hsD2
@@ -135,7 +146,12 @@ Definition functor_comp_id_iso (D1 D2 : precategory) hsD2
 Proof.
   use nat_iso_from_pointwise_iso.
   - intro. apply identity_iso.
-  - intros x x' f. rewrite id_left. rewrite id_right. apply idpath.
+  - abstract (
+       intros x x' f;
+       rewrite id_left;
+       rewrite id_right;
+       apply idpath
+    ).
 Defined.
 
 Definition functor_precomp_iso (D1 D2 D3 : precategory)  hsD3
@@ -147,7 +163,7 @@ Proof.
   intro a.
   use nat_iso_from_pointwise_iso.
   - intro d. apply (functor_iso_pointwise_if_iso _ _ _ _ _ a (pr2 a)).
-  - intros x x' f. simpl. apply (nat_trans_ax (pr1 a)).
+  - abstract (intros x x' f; apply (nat_trans_ax (pr1 a))).
 Defined.
 
 
@@ -170,7 +186,6 @@ Let ε := counit_from_left_adjoint GG.
 Let ηinv a := iso_inv_from_iso (unit_pointwise_iso_from_adj_equivalence GG a).
 Let εinv a := iso_inv_from_iso (counit_pointwise_iso_from_adj_equivalence GG a).
 
-Check εinv.
 
 Lemma right_adj_equiv_is_ff : fully_faithful G.
 Proof.
@@ -207,7 +222,6 @@ Proof.
                        assert (XRR := maponpaths pr1 (iso_inv_of_iso_comp _ _ _ _ f e)) end. 
       simpl in XRR.
       etrans. apply (! XRR). clear XRR.
-      Search ( _ = identity _ ).
       apply pathsinv0, inv_iso_unique'.
       simpl. cbn. unfold precomp_with.
       rewrite id_right. apply XR.
@@ -226,8 +240,8 @@ End about_equivalences.
     
 
 Definition fi : iso (C:=[C, preShv RC, functor_category_has_homsets _ _ _ ])
-                        (functor_composite Yo ext)
-                                  (functor_composite (Rezk_eta C hsC) YoR).
+          (functor_composite Yo ext)
+          (functor_composite (Rezk_eta C hsC) YoR).
 Proof.
   set (T:= @iso_from_fully_faithful_reflection _ _ 
               (pre_composition_functor C^op _ HSET hsRCop has_homsets_HSET (functor_opp (Rezk_eta C hsC)))
@@ -255,10 +269,9 @@ Defined.
 Let R4 := R3 fi (pr2 fi).
 Let R5 := R4 (Rezk_eta_essentially_surjective _ _ ).
 Let R6 := R5 (right_adj_equiv_is_ff _ _ _ _ ).
-Check R6.
 
-Lemma foobar : maps_pb_squares_to_pb_squares [C^op, HSET, pr2 is_category_HSET]
-         [RC^op, HSET, pr2 is_category_HSET] ext.
+Lemma preserves_pullbacks_ext
+  : maps_pb_squares_to_pb_squares (preShv C) (preShv RC) ext.
 Proof.
   intros ? ? ? ? ? ? ? ? ? ?.
   apply isPullback_image_square.
@@ -268,8 +281,8 @@ Proof.
   assumption.
 Defined.
 
-Definition CwF_on_YoR := R6 foobar.
-Print Assumptions CwF_on_YoR.
+Definition Rezk_on_RelUnivYoneda := R6 preserves_pullbacks_ext.
+Print Assumptions Rezk_on_RelUnivYoneda.
 
 End fix_category.
 

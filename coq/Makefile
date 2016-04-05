@@ -17,6 +17,7 @@ MODULES-CORE := \
 	DM \
 	Structures \
 	CwF_RelUnivYoneda \
+	RelUnivYonedaCompletion \
 	Bicats/Auxiliary \
 	Bicats/Bicats \
 	Bicats/Displayed_Precats \
@@ -42,6 +43,7 @@ MODULES-EXTRA := \
 	Structures_Equiv_Cats \
 	OtherDefs/CwF_Pitts_completion \
 	OtherDefs/DM_to_TypeCat_to_DM \
+	Test
 
 # Modules that have gone out-of-date with upstream changes,
 # and don’t currently compile.
