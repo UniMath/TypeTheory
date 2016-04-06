@@ -37,6 +37,7 @@ Theorem is_category_obj_ext
   : is_category (obj_ext_Precat C).
 Proof.
   split. Focus 2. apply homset_property.
+  intros a b. simpl in *. unfold obj_ext_structure in a, b.
   admit.
   (* Probably the hardest *)
 Admitted.
@@ -49,18 +50,96 @@ Proof.
   (* Probably also not easy; [isaprop_families_mor] should be helpful. *)
 Admitted.
 
+
+Lemma isaset_qq_morphism_structure (x : obj_ext_structure C) 
+  : isaset (qq_morphism_structure x).
+Proof.
+  apply (isofhleveltotal2 2).
+  - apply (isofhleveltotal2 2).
+    + do 4 (apply impred; intro).
+      apply Precategories.homset_property.
+    + intros. do 4 (apply impred; intro).
+      apply (isofhleveltotal2 2).
+      * apply hlevelntosn.
+        apply Precategories.homset_property.
+      * intro. apply hlevelntosn.
+        apply pullbacks.isaprop_isPullback.
+  - intro d. unfold qq_morphism_axioms.
+    apply isofhleveldirprod.
+    + do 2 (apply impred; intro).
+      apply hlevelntosn.
+      apply Precategories.homset_property.
+    + do 6 (apply impred; intro).
+      apply hlevelntosn.
+      apply Precategories.homset_property.
+Qed. 
+
+Lemma isaprop_iso_disp_qq_morphism_structure 
+  (x : obj_ext_Precat C)
+  (d d' : (qq_structure_disp_precat C) x)
+  : isaprop (iso_disp (identity_iso x) d d').
+Proof.
+  apply (isofhleveltotal2 1).
+  - do 4 (apply impred; intro).
+    apply Precategories.homset_property.
+  - intro. apply isaprop_is_iso_disp.
+Qed.
+
+Lemma qq_structure_eq 
+  (x : obj_ext_Precat C)
+  (d d' : qq_morphism_structure x)
+  (H : ∀ (Γ Γ' : C) (f : Γ' ⇒ Γ) (A : (TY x : functor _ _ ) Γ : hSet), 
+           qq d f A = qq d' f A)
+  : d = d'.
+Proof.
+  apply subtypeEquality.
+  { intro. apply (@isaprop_qq_morphism_axioms _  (Precategories.homset_property _ )). }
+  apply subtypeEquality.
+  { intro. do 4 (apply impred; intro). 
+           apply isofhleveltotal2.
+     + apply Precategories.homset_property.
+     + intro. apply pullbacks.isaprop_isPullback.
+  } 
+  do 4 (apply funextsec; intro).
+  apply H.
+Defined.
+
+Definition qq_structure_iso_disp_to_id
+  (x : obj_ext_Precat C)
+  (d d' : (qq_structure_disp_precat C) x)
+  : iso_disp (identity_iso x) d d' → d = d'.
+Proof.
+  intro H. 
+  apply qq_structure_eq.
+  intros Γ Γ' f A.
+  assert (XR := pr1 H); clear H.
+  specialize (XR _ _ f A).
+  rewrite id_right in XR.
+  rewrite id_left in XR.
+  etrans. apply XR.
+  match goal with [|- Δ ?ee ;; _ = _ ] => set (e := ee) end.  
+  simpl in e; unfold identity in e; simpl in e.
+  assert (X : e = idpath _ ).
+  { apply setproperty. }
+  rewrite X. apply id_left.
+Defined.  
+  
 Theorem is_category_qq_morphism
   : is_category_disp (qq_structure_disp_precat C).
 Proof.
   apply is_category_disp_from_fibers.
-  admit.
-  (* Hopefully easier, since both sides of this equivalence are obviously hprops. *)
-Admitted.
+  intros x d d'. 
+  use isweqimplimpl. 
+  - apply qq_structure_iso_disp_to_id.
+  - apply isaset_qq_morphism_structure.
+  - apply isaprop_iso_disp_qq_morphism_structure.
+Defined.
 
 Theorem is_category_strucs_compat
   : is_category_disp (@strucs_compat_disp_precat C).
 Proof.
   apply is_category_disp_from_fibers.
+  intros x d d'.
   admit.
   (* Should be very easy. *)
 Admitted.
