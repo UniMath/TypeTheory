@@ -264,7 +264,7 @@ End Isos.
 
 Section Categories.
 
-(** This is certainly the correct definition in the case where [C] is a category.
+(** The current [is_category_disp] is certainly the correct definition in the case where the base precategory [C] is a category.
 
 When [C] is a general precategory, it’s not quite clear if this definition is correct, or if some other definition might be better. *)
 
@@ -371,15 +371,162 @@ Qed.
 Definition pr1_precat : functor total_precat C
   := (pr1_precat_data ,, pr1_precat_is_functor).
 
-(** TODO: add the following lemma!
+(** ** Isomorphisms and saturation in the total category *)
 
-Sketch proof:
-- lemma first: isos in total cat are equivalent to pairs of isos in base and in displayed cat;
-- now apply [weqbandf] *)
+(* TODO: define, and sub in, [inv_from_iso_disp], and other access functions. *)
+
+Definition is_iso_total {xx yy : total_precat} (ff : xx ⇒ yy)
+  (i : is_iso (pr1 ff))
+  (fi := isopair (pr1 ff) i)
+  (ii : is_iso_disp fi (pr2 ff))
+  : is_iso ff.
+Proof.
+  apply (@is_iso_qinv total_precat xx yy _ 
+           (inv_from_iso fi,, pr1 ii)).
+  split.
+  - use total2_paths.
+    apply (iso_inv_after_iso fi).
+    etrans. apply maponpaths. apply (pr2 (pr2 ii)).
+    apply Utilities.transportfbinv.
+  - use total2_paths.
+    apply (iso_after_iso_inv fi).
+    etrans. apply maponpaths. apply (pr1 (pr2 ii)).
+    apply Utilities.transportfbinv.
+Qed.
+
+Definition is_iso_base_from_total {xx yy : total_precat} {ff : xx ⇒ yy} (i : is_iso ff)
+  : is_iso (pr1 ff).
+Proof.  
+  set (ffi := isopair ff i).
+  apply (is_iso_qinv _ (pr1 (inv_from_iso ffi))).
+  split.
+  - exact (maponpaths pr1 (iso_inv_after_iso ffi)).
+  - exact (maponpaths pr1 (iso_after_iso_inv ffi)).
+Qed.
+
+Definition iso_base_from_total {xx yy : total_precat} (ffi : iso xx yy)
+  : iso (pr1 xx) (pr1 yy)
+:= isopair _ (is_iso_base_from_total (pr2 ffi)).
+
+Definition inv_iso_base_from_total {xx yy : total_precat} (ffi : iso xx yy)
+  : inv_from_iso (iso_base_from_total ffi) = pr1 (inv_from_iso ffi).
+Proof.
+  apply pathsinv0, inv_iso_unique'. unfold precomp_with.
+  exact (maponpaths pr1 (iso_inv_after_iso ffi)).
+Qed.
+
+(* TODO: move *)
+Lemma mor_disp_transportf_postwhisker
+    {x y z : C} {f f' : x ⇒ y} (e : f = f') {g : y ⇒ z}
+    {xx : D x} {yy} {zz} (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
+  : (transportf _ e ff) ;; gg
+  = transportf _ (cancel_postcomposition _ _ g e) (ff ;; gg).
+Proof.
+  destruct e; apply idpath.
+Qed.
+
+(* TODO: move *)
+Lemma mor_disp_transportf_prewhisker
+    {x y z : C} {f : x ⇒ y} {g g' : y ⇒ z} (e : g = g')
+    {xx : D x} {yy} {zz} (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
+  : ff ;; (transportf _ e gg)
+  = transportf _ (maponpaths (compose f) e) (ff ;; gg).
+Proof.
+  destruct e; apply idpath.
+Qed.
+
+Definition is_iso_disp_from_total {xx yy : total_precat}
+    {ff : xx ⇒ yy} (i : is_iso ff)
+    (ffi := isopair ff i)
+  : is_iso_disp (iso_base_from_total (ff,,i)) (pr2 ff).
+Proof.  
+  mkpair; [ | split].
+  - eapply transportb. apply inv_iso_base_from_total.
+    exact (pr2 (inv_from_iso ffi)).
+  - etrans. apply mor_disp_transportf_postwhisker.
+    etrans. apply maponpaths, @pathsinv0.
+      exact (fiber_paths (!iso_after_iso_inv ffi)).
+    etrans. apply transport_f_f.
+    refine (toforallpaths _ _ _ _ (id_disp _)).
+    unfold transportb; apply maponpaths, homset_property.
+  - etrans. apply mor_disp_transportf_prewhisker.
+    etrans. apply maponpaths, @pathsinv0.
+      exact (fiber_paths (!iso_inv_after_iso ffi)).
+    etrans. apply transport_f_f.
+    refine (toforallpaths _ _ _ _ (id_disp _)).
+    unfold transportb; apply maponpaths, homset_property.
+Qed.
+
+Definition iso_disp_from_total {xx yy : total_precat}
+    (ff : iso xx yy)
+  : iso_disp (iso_base_from_total ff) (pr2 xx) (pr2 yy). 
+Proof.
+  exact (_,, is_iso_disp_from_total (pr2 ff)).
+Defined.
+
+Definition total_iso {xx yy : total_precat}
+  (f : iso (pr1 xx) (pr1 yy)) (ff : iso_disp f (pr2 xx) (pr2 yy))
+  : iso xx yy.
+Proof.
+  exists (pr1 f,, pr1 ff).
+  apply (is_iso_total (pr1 f,, pr1 ff) (pr2 f) (pr2 ff)).
+Defined.
+
+(* TODO: move *)
+Lemma eq_iso_disp {x y : C} (f : iso x y) 
+    {xx : D x} {yy} (ff ff' : iso_disp f xx yy)
+  : pr1 ff = pr1 ff' -> ff = ff'.
+Proof.
+Admitted.
+
+Definition total_iso_equiv_map {xx yy : total_precat}
+  : (Σ f : iso (pr1 xx) (pr1 yy), iso_disp f (pr2 xx) (pr2 yy))
+  -> iso xx yy
+:= fun ff => total_iso (pr1 ff) (pr2 ff).
+
+Definition total_iso_isweq (xx yy : total_precat)
+  : isweq (@total_iso_equiv_map xx yy).
+Proof.
+  use gradth.
+  - intros ff. exists (iso_base_from_total ff). apply iso_disp_from_total.
+  - intros [f ff]. use total2_paths.
+    + apply eq_iso, idpath.
+    + apply eq_iso_disp. admit. (* transport lemma. *)
+  - intros f. apply eq_iso; simpl.
+    destruct f as [[f ff] w]; apply idpath.
+Qed.
+
+Definition total_iso_equiv (xx yy : total_precat)
+  : (Σ f : iso (pr1 xx) (pr1 yy), iso_disp f (pr2 xx) (pr2 yy))
+  ≃ iso xx yy
+:= weqpair _ (total_iso_isweq xx yy).
+
 Lemma is_category_total_category (CC : is_category C) (DD : is_category_disp D)
   : is_category (total_precat).
 Proof.
-Abort.
+  split. Focus 2. apply homset_property.
+  intros xs ys.
+ (* destruct xx as [x xx], yy as [y yy]. *)
+  set (x := pr1 xs). set (xx := pr2 xs).  
+  set (y := pr1 ys). set (yy := pr2 ys). 
+  assert (lemma : 
+   ∀ (A B : Type) (f : A -> B) (w : A ≃ B) (H : w ~ f), isweq f).
+  {
+    intros A B f w H. apply isweqhomot with w. apply H. apply weqproperty.
+  }
+  use lemma.
+  apply (@weqcomp _ (Σ e : x = y, transportf _ e xx = yy) _).
+    apply total2_paths_equiv.
+  apply (@weqcomp _ (Σ e : x = y, iso_disp (idtoiso e) xx yy) _).
+    apply weqfibtototal. 
+    intros e. exists (fun ee => idtoiso_disp e ee). 
+    apply DD.
+  apply (@weqcomp _ (Σ f : iso x y, iso_disp f xx yy) _).
+    refine (weqfp (weqpair _ _) _). apply CC.
+  apply total_iso_equiv.
+  intros e; destruct e; apply eq_iso; cbn.
+    apply idpath.
+Qed.
 
 End Total_Precat.
 
