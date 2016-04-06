@@ -193,6 +193,28 @@ Proof.
   destruct ef. apply idpath.
 Qed.
 
+(* TODO: consider naming of following few transport lemmas *)
+Lemma mor_disp_transportf_postwhisker
+    {C : precategory} {D : disp_precat_data C}
+    {x y z : C} {f f' : x ⇒ y} (ef : f = f') {g : y ⇒ z}
+    {xx : D x} {yy} {zz} (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
+  : (transportf _ ef ff) ;; gg
+  = transportf _ (cancel_postcomposition _ _ g ef) (ff ;; gg).
+Proof.
+  destruct ef; apply idpath.
+Qed.
+
+Lemma mor_disp_transportf_prewhisker
+    {C : precategory} {D : disp_precat_data C}
+    {x y z : C} {f : x ⇒ y} {g g' : y ⇒ z} (eg : g = g')
+    {xx : D x} {yy} {zz} (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
+  : ff ;; (transportf _ eg gg)
+  = transportf _ (maponpaths (compose f) eg) (ff ;; gg).
+Proof.
+  destruct eg; apply idpath.
+Qed.
+
+(* TODO: unify with [mor_disp_transportf_prewhisker] *)
 Lemma compr_disp_transp {C : Precategory} {D : disp_precat_data C}
     {x y z : C} {f : x ⇒ y} {g g' : y ⇒ z} (eg : g = g')
     {xx : D x} {yy} {zz} (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
@@ -230,6 +252,43 @@ Definition is_iso_disp {C : Precategory} {D : disp_precat_data C}
 Definition iso_disp {C : Precategory} {D : disp_precat_data C}
     {x y : C} (f : iso x y) (xx : D x) (yy : D y)
   := Σ ff : xx ⇒[f] yy, is_iso_disp f ff.
+
+Lemma isaprop_is_iso_disp {C : Precategory} {D : disp_precat C}
+    {x y : C} (f : iso x y) {xx : D x} {yy} (ff : xx ⇒[f] yy)
+  : isaprop (is_iso_disp f ff).
+Proof.
+  apply invproofirrelevance; intros i i'.
+  apply subtypeEquality.
+  - intros gg. apply isapropdirprod; apply homsets_disp.
+  (* uniqueness of inverses *)
+  (* TODO: think about better lemmas for this sort of calculation?
+  e.g. all that repeated application of [transport_f_f], etc. *)
+  - destruct i as [gg [gf fg]], i' as [gg' [gf' fg']]; simpl.
+    etrans. eapply pathsinv0, Utilities.transportfbinv.
+    etrans. apply maponpaths, @pathsinv0, id_right_disp.
+    etrans. apply maponpaths, maponpaths.
+      etrans. eapply pathsinv0, Utilities.transportfbinv.
+      apply maponpaths, @pathsinv0, fg'.
+    etrans. apply maponpaths, mor_disp_transportf_prewhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths, assoc_disp.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths, maponpaths_2, gf.
+    etrans. apply maponpaths, mor_disp_transportf_postwhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths, id_left_disp.
+    etrans. apply transport_f_f.
+    refine (@maponpaths_2 _ _ _ (transportf _) _ (idpath _) _ _).
+    apply homset_property.
+Qed.
+
+Lemma eq_iso_disp {C : Precategory} {D : disp_precat C}
+    {x y : C} (f : iso x y) 
+    {xx : D x} {yy} (ff ff' : iso_disp f xx yy)
+  : pr1 ff = pr1 ff' -> ff = ff'.
+Proof.
+  apply subtypeEquality; intro; apply isaprop_is_iso_disp.
+Qed.
 
 Definition id_is_iso_disp {C} {D : disp_precat C} {x : C} (xx : D x)
   : is_iso_disp (identity_iso x) (id_disp xx).
@@ -415,26 +474,6 @@ Proof.
   exact (maponpaths pr1 (iso_inv_after_iso ffi)).
 Qed.
 
-(* TODO: move *)
-Lemma mor_disp_transportf_postwhisker
-    {x y z : C} {f f' : x ⇒ y} (e : f = f') {g : y ⇒ z}
-    {xx : D x} {yy} {zz} (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
-  : (transportf _ e ff) ;; gg
-  = transportf _ (cancel_postcomposition _ _ g e) (ff ;; gg).
-Proof.
-  destruct e; apply idpath.
-Qed.
-
-(* TODO: move *)
-Lemma mor_disp_transportf_prewhisker
-    {x y z : C} {f : x ⇒ y} {g g' : y ⇒ z} (e : g = g')
-    {xx : D x} {yy} {zz} (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
-  : ff ;; (transportf _ e gg)
-  = transportf _ (maponpaths (compose f) e) (ff ;; gg).
-Proof.
-  destruct e; apply idpath.
-Qed.
-
 Definition is_iso_disp_from_total {xx yy : total_precat}
     {ff : xx ⇒ yy} (i : is_iso ff)
     (ffi := isopair ff i)
@@ -472,17 +511,20 @@ Proof.
   apply (is_iso_total (pr1 f,, pr1 ff) (pr2 f) (pr2 ff)).
 Defined.
 
-(* TODO: move *)
-Lemma eq_iso_disp {x y : C} (f : iso x y) 
-    {xx : D x} {yy} (ff ff' : iso_disp f xx yy)
-  : pr1 ff = pr1 ff' -> ff = ff'.
-Proof.
-Admitted.
-
 Definition total_iso_equiv_map {xx yy : total_precat}
   : (Σ f : iso (pr1 xx) (pr1 yy), iso_disp f (pr2 xx) (pr2 yy))
   -> iso xx yy
 := fun ff => total_iso (pr1 ff) (pr2 ff).
+
+(* TODO: make an uncurried version of this above, as [transportf_iso_disp]? *)
+Lemma transportf_iso_disp' {xx yy : total_precat} 
+    {f f' : iso (pr1 xx) (pr1 yy)} (e : f = f')
+    (ff : iso_disp f (pr2 xx) (pr2 yy))
+  : pr1 (transportf (fun g => iso_disp g _ _) e ff)
+  = transportf _ (base_paths _ _ e) (pr1 ff).
+Proof.
+  destruct e; apply idpath.
+Qed.
 
 Definition total_iso_isweq (xx yy : total_precat)
   : isweq (@total_iso_equiv_map xx yy).
@@ -491,7 +533,11 @@ Proof.
   - intros ff. exists (iso_base_from_total ff). apply iso_disp_from_total.
   - intros [f ff]. use total2_paths.
     + apply eq_iso, idpath.
-    + apply eq_iso_disp. admit. (* transport lemma. *)
+    + apply eq_iso_disp.
+      etrans. apply transportf_iso_disp'.
+      simpl pr2. simpl (pr1 (iso_disp_from_total _)).
+      refine (@maponpaths_2 _ _ _ (transportf _) _ (idpath _) _ _). 
+      apply homset_property.
   - intros f. apply eq_iso; simpl.
     destruct f as [[f ff] w]; apply idpath.
 Qed.
@@ -506,7 +552,6 @@ Lemma is_category_total_category (CC : is_category C) (DD : is_category_disp D)
 Proof.
   split. Focus 2. apply homset_property.
   intros xs ys.
- (* destruct xx as [x xx], yy as [y yy]. *)
   set (x := pr1 xs). set (xx := pr2 xs).  
   set (y := pr1 ys). set (yy := pr2 ys). 
   assert (lemma : 
