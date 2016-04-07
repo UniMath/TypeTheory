@@ -72,7 +72,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition foo
+Definition iso_disp_to_TM_eq
   (x : obj_ext_Precat C)
   (d d' : (families_disp_precat C) x)
   : iso_disp (identity_iso x) d d' -> TM (d : families_structure _ x) = TM (d' : families_structure _ x) .
@@ -83,23 +83,15 @@ Proof.
   - exists (pr1 (pr1 i)).
     apply is_iso_from_is_z_iso.
     exists (pr1 (pr1 (pr2 i))).
-    destruct i as [f g]. simpl in *.
     split.
-    + destruct f as [f  H]. simpl in *.
-      destruct H as [H1 H2].
-      destruct g as [g H']. simpl in *. unfold families_mor in g.
-      destruct g as [g [Hg1 Hg2]]. simpl in *.
-      destruct H' as [H3 H4]. simpl in *.
-      assert (XR' := maponpaths pr1 H4). cbn in XR'.
+    + set (XR' := maponpaths pr1 (pr2 (pr2 (pr2 i)))).
       etrans. apply XR'. clear XR'.
       simpl.  unfold transportb.     
       match goal with |[|- pr1 (transportf ?PP ?HH ?ee) = _ ] => 
            set (P := PP); set (eq := HH); set (e := ee) end.
-
       etrans.
-      assert (XR:= pr1_transportf_prime _ _ _ eq). simpl in *.
+      set (XR:= pr1_transportf_prime _ _ _ eq). simpl in *.
       set (XR' := mor_disp (d : (families_disp_precat C) x) d).
-      simpl in XR'. unfold mor_disp in XR'. cbn in XR'. unfold families_mor in XR'.
       specialize (XR (λ f : obj_ext_mor x x, TM d ⇒ TM d)). simpl in XR.
       specialize (XR (fun (f :  obj_ext_mor x x) (tm : (TM d) ⇒ (TM d)) 
                         =>
@@ -108,15 +100,32 @@ Proof.
             Q d A ;; tm =
             # (yoneda C hsC) (φ f A) ;; Q d ((obj_ext_mor_TY f : nat_trans _ _ ) Γ A)))).
       apply XR.
-      unfold e. clear e.
-      simpl. apply transportf_const.
-    + admit.
-Abort.      
+      apply transportf_const.
+    + set (XR' := maponpaths pr1 (pr1 (pr2 (pr2 i)))).
+      etrans. apply XR'.
+      clear XR'.
+      unfold transportb.     
+      match goal with |[|- pr1 (transportf ?PP ?HH ?ee) = _ ] => 
+           set (P := PP); set (eq := HH); set (e := ee) end.
+      etrans.
+      set (XR:= pr1_transportf_prime _ _ _ eq).
+      set (XR' := mor_disp (d' : (families_disp_precat C) x) d').
+      simpl in d'.
+      specialize (XR (λ f : obj_ext_mor x x, TM (d' : families_structure _ x) ⇒ TM (d' : families_structure _ _ ))). 
+      specialize (XR (fun (f :  obj_ext_mor x x) (tm : (TM d') ⇒ (TM d')) 
+                        =>
+                          tm ;; pp d' = pp d' ;; obj_ext_mor_TY f
+         × (∀ (Γ : C) (A : (TY x : functor _ _ ) Γ : hSet),
+            Q d' A ;; tm =
+            # (yoneda C hsC) (φ f A) ;; Q d' ((obj_ext_mor_TY f : nat_trans _ _ ) Γ A)))).
+      apply XR.
+      apply transportf_const.
+Defined.
 
     
     
 
-Definition foo
+Definition iso_to_id__families_disp_precat
   (x : obj_ext_Precat C)
   (d d' : (families_disp_precat C) x)
   : iso_disp (identity_iso x) d d' -> d = d'.
@@ -124,13 +133,21 @@ Proof.
   intro i.
   apply subtypeEquality.
   { intro. apply isaprop_families_structure_axioms. }
-  destruct d as [d H].
-  destruct d' as [d' H'].
-  unfold iso_disp in i. simpl in i. cbn in i.
-  unfold families_mor in i.
-  simpl.
   use total2_paths.
-  admit.
+  - apply (iso_disp_to_TM_eq _ _ _ i).
+  - etrans.
+    set (XR:= transportf_dirprod).
+    specialize (XR (preShv C)).
+    specialize (XR (fun x0 => x0 ⇒ TY x)).
+    apply XR.
+(* not necessary, found automatically
+  specialize (XR (fun x0 =>
+           (∀ (Γ : C^op) (A : (TY x : functor _ _ ) Γ : hSet),
+                 (yoneda C hsC) (comp_ext x Γ  A) ⇒ x0))).
+*)
+    apply dirprodeq.
+    +  (* rewrite <- idtoiso_precompose. *)
+      simpl.
 Abort.  
 
 Theorem is_category_families_structure
