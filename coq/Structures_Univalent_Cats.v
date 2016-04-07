@@ -18,6 +18,8 @@ Require Import Systems.Structures_Equiv_Cats.
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
+Undelimit Scope transport.
+
 Section Fix_Context.
 
 Context {C : Precategory}.
@@ -53,7 +55,83 @@ Proof.
   - intro. apply isaprop_is_iso_disp.
 Qed.
 
+Definition pr1_transportf_prime :
+ ∀ (A : UU) (a a' : A) (e : a = a') (B : A → UU) (P : ∀ a : A, B a → UU) 
+        (xs : Σ b : B a, P a b),
+       pr1 (transportf (λ x : A, Σ b : B x, P x b) e xs) =
+       transportf (λ x : A, B x) e (pr1 xs).
+Proof.
+  intros.
+  apply pr1_transportf.
+Defined.
 
+Lemma transportf_const (A B : UU) (a a' : A) (e : a = a') (b : B) :
+   transportf (fun _ => B) e b = b.
+Proof.
+  induction e.
+  apply idpath.
+Qed.
+
+Definition foo
+  (x : obj_ext_Precat C)
+  (d d' : (families_disp_precat C) x)
+  : iso_disp (identity_iso x) d d' -> TM (d : families_structure _ x) = TM (d' : families_structure _ x) .
+Proof.
+  intro i.
+  use isotoid.
+  - apply (is_category_functor_category _ _ is_category_HSET).
+  - exists (pr1 (pr1 i)).
+    apply is_iso_from_is_z_iso.
+    exists (pr1 (pr1 (pr2 i))).
+    destruct i as [f g]. simpl in *.
+    split.
+    + destruct f as [f  H]. simpl in *.
+      destruct H as [H1 H2].
+      destruct g as [g H']. simpl in *. unfold families_mor in g.
+      destruct g as [g [Hg1 Hg2]]. simpl in *.
+      destruct H' as [H3 H4]. simpl in *.
+      assert (XR' := maponpaths pr1 H4). cbn in XR'.
+      etrans. apply XR'. clear XR'.
+      simpl.  unfold transportb.     
+      match goal with |[|- pr1 (transportf ?PP ?HH ?ee) = _ ] => 
+           set (P := PP); set (eq := HH); set (e := ee) end.
+
+      etrans.
+      assert (XR:= pr1_transportf_prime _ _ _ eq). simpl in *.
+      set (XR' := mor_disp (d : (families_disp_precat C) x) d).
+      simpl in XR'. unfold mor_disp in XR'. cbn in XR'. unfold families_mor in XR'.
+      specialize (XR (λ f : obj_ext_mor x x, TM d ⇒ TM d)). simpl in XR.
+      specialize (XR (fun (f :  obj_ext_mor x x) (tm : (TM d) ⇒ (TM d)) 
+                        =>
+                          tm ;; pp d = pp d ;; obj_ext_mor_TY f
+         × (∀ (Γ : C) (A : (TY x : functor _ _ ) Γ : hSet),
+            Q d A ;; tm =
+            # (yoneda C hsC) (φ f A) ;; Q d ((obj_ext_mor_TY f : nat_trans _ _ ) Γ A)))).
+      apply XR.
+      unfold e. clear e.
+      simpl. apply transportf_const.
+    + admit.
+Abort.      
+
+    
+    
+
+Definition foo
+  (x : obj_ext_Precat C)
+  (d d' : (families_disp_precat C) x)
+  : iso_disp (identity_iso x) d d' -> d = d'.
+Proof.
+  intro i.
+  apply subtypeEquality.
+  { intro. apply isaprop_families_structure_axioms. }
+  destruct d as [d H].
+  destruct d' as [d' H'].
+  unfold iso_disp in i. simpl in i. cbn in i.
+  unfold families_mor in i.
+  simpl.
+  use total2_paths.
+  admit.
+Abort.  
 
 Theorem is_category_families_structure
   : is_category_disp (families_disp_precat C).
