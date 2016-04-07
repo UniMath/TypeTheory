@@ -42,10 +42,26 @@ Proof.
   (* Probably the hardest *)
 Admitted.
 
+
+Lemma isaprop_whatever
+  (x : obj_ext_Precat C)
+  (d d' : (families_disp_precat C) x)
+  : isaprop (iso_disp (identity_iso x) d d').
+Proof.
+  apply isofhleveltotal2.
+  - apply isaprop_families_mor.
+  - intro. apply isaprop_is_iso_disp.
+Qed.
+
+
+
 Theorem is_category_families_structure
   : is_category_disp (families_disp_precat C).
 Proof.
   apply is_category_disp_from_fibers.
+  intros x d d'.
+  match goal with [|- @isweq ?XX ?YY ?ff ] =>
+      set (X:=XX); set (Y := YY); set (f := ff) end.
   admit.
   (* Probably also not easy; [isaprop_families_mor] should be helpful. *)
 Admitted.
