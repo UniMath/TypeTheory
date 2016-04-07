@@ -135,13 +135,41 @@ Proof.
   - apply isaprop_iso_disp_qq_morphism_structure.
 Defined.
 
+
+Lemma isaprop_iso_disp_strucs_compat_disp_precat
+  (x : total_precat (families_disp_precat C × qq_structure_disp_precat C))
+  (d d' : strucs_compat_disp_precat x)
+  : isaprop (iso_disp (identity_iso x) d d').
+Proof.
+  unfold iso_disp.
+  apply isofhleveltotal2.
+  - apply hlevelntosn.
+    apply iscontrunit.
+  - intro.
+    apply isaprop_is_iso_disp.
+Qed.
+
+
+Definition  strucs_compat_iso_disp_to_id
+  (x : total_precat (families_disp_precat C × qq_structure_disp_precat C))
+  (d d' : strucs_compat_disp_precat x)
+  : iso_disp (identity_iso x) d d' → d = d'.
+Proof.
+  intro H.
+  do 4 (apply funextsec; intro).
+  apply functor_category_has_homsets.
+Defined.
+
 Theorem is_category_strucs_compat
   : is_category_disp (@strucs_compat_disp_precat C).
 Proof.
   apply is_category_disp_from_fibers.
   intros x d d'.
-  admit.
-  (* Should be very easy. *)
-Admitted.
+  use isweqimplimpl.
+  - apply strucs_compat_iso_disp_to_id.
+  - apply hlevelntosn.
+    apply CwF_SplitTypeCat_Maps.isaprop_iscompatible_fam_qq.
+  - apply isaprop_iso_disp_strucs_compat_disp_precat.
+Defined.
 
 End Fix_Context.

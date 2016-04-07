@@ -45,6 +45,15 @@ Definition iscompatible_fam_qq (Y : families_structure hsC X)
          (Z : qq_morphism_structure X) : UU
   := ∀ Γ Γ' A (f : C⟦Γ', Γ⟧) , Q Y A[f] = #(yoneda _ hsC) (qq Z f A) ;; Q Y A.
 
+Lemma isaprop_iscompatible_fam_qq
+  (Y : families_structure hsC X)
+  (Z : qq_morphism_structure X)
+  : isaprop (iscompatible_fam_qq Y Z).
+Proof.
+  do 4 (apply impred; intro).
+  apply functor_category_has_homsets.
+Qed.
+
 Definition compatible_fam_structure (Z : qq_morphism_structure X) : UU
   := Σ Y : families_structure hsC X, iscompatible_fam_qq Y Z.
 
