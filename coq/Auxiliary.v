@@ -337,7 +337,7 @@ Proof.
 Qed.
 
 
-(* unify with [pullback_HSET]? *)
+(* TODO: unify with [isPullback_HSET]? *)
 Lemma pullback_HSET_univprop_elements {P A B C : HSET}
     {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
     {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
@@ -345,7 +345,27 @@ Lemma pullback_HSET_univprop_elements {P A B C : HSET}
     (pb : isPullback f g p1 p2 ep)
   : (∀ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b).
 Proof.
-Admitted.
+  intros a b e.
+  set (Pb := (mk_Pullback _ _ _ _ _ _ pb)).
+  apply iscontraprop1.
+  - apply invproofirrelevance; intros [ab [ea eb]] [ab' [ea' eb']].
+    apply subtypeEquality; simpl.
+      intros x; apply isapropdirprod; apply setproperty.
+    refine (@toforallpaths unitset _ (fun _ => ab) (fun _ => ab') _ tt).
+    refine (MorphismsIntoPullbackEqual pb _ _ _ _ );
+    apply funextsec; intros []; cbn;
+    (eapply @pathscomp0; [ eassumption | apply pathsinv0; eassumption]).
+  - simple refine (_,,_).
+    refine (_ tt).
+    refine (PullbackArrow Pb (unitset : HSET)
+      (fun _ => a) (fun _ => b) _).
+    apply funextsec; intro; exact e.
+    simpl; split.
+    + generalize tt; apply toforallpaths.
+      apply (PullbackArrow_PullbackPr1 Pb unitset).
+    + generalize tt; apply toforallpaths.
+      apply (PullbackArrow_PullbackPr2 Pb unitset).
+Defined.
 
 Lemma pullback_HSET_elements_unique {P A B C : HSET}
     {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
