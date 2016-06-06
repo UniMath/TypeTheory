@@ -13,10 +13,12 @@ Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.category_hset.
+Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.yoneda.
 
 Require Import Systems.UnicodeNotations.
@@ -201,7 +203,7 @@ Section on_pullbacks.
  *)
 
   Variable sqr_comm : f ;; k = g ;; h.
-  Variable Pb : isPullback k h f g sqr_comm.
+  Variable Pb : limits.pullbacks.isPullback k h f g sqr_comm.
 
 
   Lemma square_morphism_equal k' (e : k' = k) : f ;; k' = g ;; h.
@@ -394,7 +396,8 @@ Lemma square_commutes_preShv_to_pointwise {C : precategory} (hsC : has_homsets C
   : ((p1 : nat_trans _ _) c) ;; ((f : nat_trans _ _) c)
   = ((p2 : nat_trans _ _) c) ;; ((g : nat_trans _ _) c).
 Proof.
-Admitted.
+  apply (nat_trans_eq_pointwise e).
+Qed.
 
 (* TODO: unify with the converse implication. *)
 Lemma isPullback_preShv_to_pointwise {C : precategory} (hsC : has_homsets C)
@@ -406,7 +409,66 @@ Lemma isPullback_preShv_to_pointwise {C : precategory} (hsC : has_homsets C)
       ((p1 : nat_trans _ _) c) ((p2 : nat_trans _ _) c)
       (square_commutes_preShv_to_pointwise hsC e c).
 Proof.
-Admitted.
+  set (XR := isLimFunctor_is_pointwise_Lim C^op HSET has_homsets_HSET
+            graphs.pullbacks.pushout_graph).
+  set (XT1 := graphs.pullbacks.pullback_diagram _ f g).
+  specialize (XR XT1).
+  transparent assert
+       (XH : (∀ a : C^op,
+        LimCone
+          (colimits.diagram_pointwise C^op HSET has_homsets_HSET
+             pullbacks.pushout_graph XT1 a))).
+    { intro. apply LimConeHSET.  }
+    specialize (XR XH).
+    specialize (XR W). 
+    set (XT := graphs.pullbacks.PullbCone _ _ _ _ p1 p2 e).
+    specialize (XR XT).
+    transparent assert (XTT : (isLimCone XT1 W XT)).
+    { apply @graphs.pullbacks.equiv_isPullback_1.
+      apply functor_category_has_homsets.
+      assumption.
+    }
+    specialize (XR XTT c).
+    
+    intros S h k H.
+    specialize (XR S).
+    simpl in XR.
+    transparent assert (
+        HC :  (cone
+              (colimits.diagram_pointwise C^op HSET has_homsets_HSET
+                                               pushout_graph (pullback_diagram (preShv C) f g) c) S)).
+    { use mk_cone.
+      intro v.
+      destruct v.
+      - apply h.
+      - simpl. apply (h ;; (pr1 f c)).
+      - apply k.
+      - intros u v e0; induction u; induction v; try induction e0.
+        + apply idpath.
+        + apply pathsinv0. apply H.
+    }
+
+    specialize (XR HC).
+    mkpair.
+  - exists (pr1 (iscontrpr1 XR)).
+    cbn.
+    split.
+    + apply (pr2 (pr1 XR) One).
+    + apply (pr2 (pr1 XR) Three).
+  - intro t.
+    apply subtypeEquality.
+    + intro. apply isapropdirprod; apply has_homsets_HSET.
+    + simpl.
+      apply path_to_ctr.
+      destruct t as [t [H1 H2]].
+      intro v; destruct v; simpl.
+      * apply H1.
+      * rewrite  (assoc HSET).
+        apply (@cancel_postcomposition HSET).
+        apply H1.
+      * apply H2.
+Qed.      
+
 
 End Pullbacks_hSet.
 
