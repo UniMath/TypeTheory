@@ -20,6 +20,59 @@ Local Set Automatic Introduction.
 
 Undelimit Scope transport.
 
+Section move_upstream.
+
+
+Definition isweqpathscomp0l {X : UU} {x x' : X} (x'' : X) (e: x = x') :
+   isweq (fun (e' : x' = x'') => e @ e').
+Proof.
+  intros.
+  apply (gradth _ (fun e'' => !e @ e'')).
+  - intro p. rewrite path_assoc. rewrite pathsinv0l.
+    apply idpath.
+  - intro p. rewrite path_assoc. rewrite pathsinv0r.
+    apply idpath.
+Defined.
+
+  
+Definition rewrite_in_equivalence (A X : UU) (a a' b : A) :
+  a = a' → (a' = b) ≃ X → (a = b) ≃ X.
+Proof.
+  intros.
+  set  (H:= weqpair _ (isweqpathscomp0l b (!X0))).
+  eapply weqcomp. apply H.
+  apply X1.
+Defined.
+
+Definition transportf_forall_var :
+  ∀ (A : UU) (B : A -> UU) (C : UU)
+    (a1 a2 : A) (e : a1 = a2)
+(f : B a1 -> C),
+transportf (λ x : A, ∀ y : B x, C) e f =
+(λ y : B a2 ,  f (transportb B e y)).
+Proof.
+  intros A B D a1 a2 e f.
+  induction e.
+  apply idpath.
+Defined.
+
+(* transportf_forall *)
+
+Definition transportf_forall_var2 :
+  ∀ (A : UU) (B C : A -> UU) 
+    (a1 a2 : A) (e : a1 = a2)
+    (f : B a1 -> C a1),
+transportf (λ x : A, ∀ y : B x, C x) e f =  
+(λ y : B a2 , transportf _ e (f (transportb B e y))).
+Proof.
+  intros A B D a1 a2 e f.
+  induction e.
+  apply idpath.
+Defined.
+
+End move_upstream.
+
+
 Section Fix_Context.
 
 Context {C : Precategory}.
@@ -34,6 +87,70 @@ Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 
 
 Local Notation Δ := comp_ext_compare.
 Local Notation φ := obj_ext_mor_φ.
+
+(* does not line up with identity 
+Definition obj_ext_iso_alt (X X' : obj_ext_Precat C) : UU :=
+  Σ F_TY : iso (TY X) (TY X'),
+        ∀ {Γ:C} {A : Ty X Γ},
+         Σ φ : iso (Γ ◂ A) (Γ ◂ ((pr1 F_TY : nat_trans _ _) _ A)),
+           φ ;; π _ = π A.
+ *)
+
+Definition obj_ext_iso_alt (X X' : obj_ext_Precat C) : UU :=
+  Σ F_TY : iso (TY X) (TY X'),
+        ∀ {Γ:C} {A' : Ty X' Γ},
+         Σ φ : iso (Γ ◂ ((inv_from_iso F_TY) : nat_trans _ _ ) _ A') (Γ ◂  A'),
+           φ ;; π _ = π _ .
+
+Search (is_category _ ).
+
+Definition is_saturated_preShv (F G : preShv C) : F = G ≃ iso F G.
+Proof.
+  apply (weqpair idtoiso (pr1
+                            (is_category_functor_category _ _ is_category_HSET) _ _ )).
+Defined.  
+
+
+
+
+
+Definition weq_eq_obj_ext_iso_alt (X X' : obj_ext_Precat C) :
+  (X = X') ≃ obj_ext_iso_alt X X'.
+Proof.
+  eapply weqcomp. apply total2_paths_equiv.
+  
+  set (H := is_saturated_preShv (TY X) (TY X')).
+  use (weqbandf H).
+  intro F. simpl.
+(*  rewrite transportf_forall. (* do better *) *)
+  Search ( ( _ = _ ) ≃ (∀ _ ,  _ )).
+  eapply weqcomp. apply weqtoforallpaths.
+  Search ( (forall _ , _ ) ≃ (forall _ , _ )).
+  apply weqonsecfibers.
+  intro Γ.
+  eapply weqcomp. apply weqtoforallpaths. simpl.
+  apply weqonsecfibers.
+  intro A'.
+  eapply weqcomp. apply total2_paths_equiv.
+  simpl.
+(*  rewrite transportf_forall. *)
+  use weqbandf. simpl.
+  - 
+    set (RX := @transportf_forall).
+    specialize (RX (preShv C) C).
+    specialize (RX (fun F Γ' => ((F:functor _ _ ) Γ' : hSet) → Σ ΓA : C, ΓA ⇒ Γ')).
+    simpl in RX.
+    specialize (RX _ _ F).
+    rewrite RX.
+    simpl.
+    clear RX.
+    rewrite transportf_forall_var.
+
+    simpl. cbn.
+ 
+  admit.
+Admitted.
+  
 
 Theorem is_category_obj_ext
   : is_category (obj_ext_Precat C).
