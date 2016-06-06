@@ -150,7 +150,7 @@ Proof.
 Qed.
 
 Definition iso_to_id__families_disp_precat
-  (X : obj_ext_Precat C)
+  {X : obj_ext_Precat C}
   (Y Y' : families_disp_precat C X)
   : iso_disp (identity_iso _) Y Y' -> Y = Y'.
 Proof.
@@ -172,17 +172,35 @@ Proof.
     apply maponpaths_2. apply functor_id.
 Qed.
 
+(* A slightly surprising but very useful lemma for characterising identity types.
+
+Concisely: to show that a family of functions [w : forall a b, a = b -> P a b] are equivalences, it’s enough to show they have a retraction; the retraction is then automatically a quasi-inverse, because of the fact that the coconut is contractible.
+ 
+Often one can save a bit of work with this (since the other direction of inverseness may not be so obvious in individual cases).
+
+TODO: move; consider naming; see if this can be used to simplify other proofs of [is_category] and similar? *)
+Lemma eq_equiv_from_retraction {A} {P : A -> A -> UU} 
+    (w : forall a b, a = b -> P a b)
+    (v : forall a b, P a b -> a = b)
+  : (forall a b (p : P a b), w _ _ (v _ _ p) = p)
+  -> forall a b, isweq (w a b).
+Proof.
+  intros wv a.
+  apply isweqtotaltofib. (* first of the two key steps *)
+  use gradth.
+  - intros bp. exists (pr1 bp). apply v, (pr2 bp).
+  - intros be; apply connectedcoconusfromt. (* the second key step *)
+  - intros bp. use total2_paths. apply idpath. apply wv.
+Qed.
+
 Theorem is_category_families_structure
   : is_category_disp (families_disp_precat C).
 Proof.
   apply is_category_disp_from_fibers.
-  intros x d d'.
-  match goal with [|- @isweq ?XX ?YY ?ff ] =>
-      set (X:=XX); set (Y := YY); set (f := ff) end.
-  admit.
-  (* Probably also not easy; [isaprop_families_mor] should be helpful. *)
-Admitted.
-
+  intros X.
+  apply eq_equiv_from_retraction with iso_to_id__families_disp_precat.
+  - intros. apply eq_iso_disp, isaprop_families_mor.
+Qed.
 
 Lemma isaset_qq_morphism_structure (x : obj_ext_structure C) 
   : isaset (qq_morphism_structure x).
