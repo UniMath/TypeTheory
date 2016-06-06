@@ -150,7 +150,59 @@ Proof.
  
   admit.
 Admitted.
-  
+
+(* TODO: above here and below here are two mostly separate approaches to [is_category_obj_ext].  Once one is complete, most of the other can probably be pruned *)
+
+(* TODO: move*)
+Definition obj_ext_to_preShv_functor_data
+  : functor_data (obj_ext_Precat C) (preShv C).
+Proof.
+  use tpair.
+  apply pr1.
+  simpl; intros X X'; apply pr1.
+Defined.
+
+(* TODO: move *)
+Definition obj_ext_to_preShv_functor_axioms
+  : is_functor obj_ext_to_preShv_functor_data.
+Proof.
+  split; intro; intros; apply idpath.
+Qed.
+
+(* TODO: move *)
+Definition obj_ext_to_preShv_functor
+  : functor (obj_ext_Precat C) (preShv C)
+:= (_ ,, obj_ext_to_preShv_functor_axioms).
+
+(* TODO: move *)
+Lemma preShv_is_category : is_category (preShv C).
+Proof.
+  apply (is_category_functor_category _ _ is_category_HSET).
+Defined.
+
+(*
+Definition transportf_obj_ext
+  {T T' : preShv C} (e : T = T')
+  (extn : ∀ Γ : C, (T Γ : hSet) → Σ ΓA : C, ΓA ⇒ Γ) 
+:  
+transportf (λ x : preShv C, ∀ Γ : C, (x Γ : hSet) → Σ ΓA : C, ΓA ⇒ Γ)
+     (isotoid (preShv C) preShv_is_category
+        (functor_on_iso obj_ext_to_preShv_functor F)) 
+     extn = ???
+*)
+
+Definition iso_to_obj_ext_eq (X X' : obj_ext_Precat C) :
+  (iso X X') -> (X = X').
+Proof.
+  intros F.
+  use total2_paths.
+  - apply isotoid.
+    apply preShv_is_category.
+  (* inlining the proof of [preShv_is_category] here seems to hang indefinitely!  I have absolutely no idea why. *)
+    apply (functor_on_iso obj_ext_to_preShv_functor).
+    exact F.
+  - admit.  (* TODO: transport lemmas! *)
+Admitted.
 
 Theorem is_category_obj_ext
   : is_category (obj_ext_Precat C).
