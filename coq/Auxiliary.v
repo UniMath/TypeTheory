@@ -399,10 +399,6 @@ Proof.
   apply (nat_trans_eq_pointwise e).
 Qed.
 
-Require UniMath.CategoryTheory.limits.graphs.pullbacks.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.category_hset_structures.
-
 (* TODO: unify with the converse implication. *)
 Lemma isPullback_preShv_to_pointwise {C : precategory} (hsC : has_homsets C)
     {X Y Z W : preShv C}
