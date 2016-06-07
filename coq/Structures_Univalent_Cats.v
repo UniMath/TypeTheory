@@ -70,6 +70,15 @@ Proof.
   apply idpath.
 Defined.
 
+(* TODO: check more thoroughly if this is provided in the library; if so, use the library version, otherwise move this upstream.  Cf. also https://github.com/UniMath/UniMath/issues/279 *)
+Lemma inv_from_iso_from_is_z_iso {D: precategory} {a b : D}
+  (f: a --> b) (g : b --> a) (H : is_inverse_in_precat f g)
+: inv_from_iso (f ,, (is_iso_from_is_z_iso _ (g ,, H))) 
+  = g.
+Proof.
+  cbn. apply id_right.
+Qed.
+
 End move_upstream.
 
 
@@ -185,11 +194,12 @@ Proof.
   destruct e; cbn. apply idpath.
 Defined.
 
-Definition iso_to_obj_ext_eq (X X' : obj_ext_Precat C) :
-  (iso X X') -> (X = X').
+Definition iso_to_obj_ext_eq (H : is_category C)
+  (X X' : obj_ext_Precat C)
+  : (iso X X') -> (X = X').
 Proof.
   intros F.
-  use total2_paths.
+use total2_paths.
   - apply isotoid.
     exact (is_category_functor_category _ _ is_category_HSET).
     apply (functor_on_iso obj_ext_to_preShv_functor).
@@ -203,13 +213,28 @@ Proof.
       refine (toforallpaths _ _ _ _ Γ).
       eapply pathsinv0, maponpaths.
       refine (maponpaths pr1 (functor_on_iso_inv _ _ obj_ext_to_preShv_functor _ _ _)).
-    simpl.
-    (* plan from here:
-    - add assumption (maybe for whole section context) that C is univalent;
-    - use [idtoiso] here;
-    - get the required iso from the φ maps of F and its inverse
-    *)
-    admit.
+    set (F' := inv_from_iso F).
+    set (FF' := iso_after_iso_inv F).
+    set (F'F := iso_inv_after_iso F).
+    simpl. use total2_paths.
+    use isotoid. assumption.
+    simple refine (_ ,, _).
+    + refine (_ ;; _).
+      apply (φ (F : _ ⇒ _)).
+      apply Δ.
+      generalize A; apply toforallpaths.
+      generalize Γ; apply toforallpaths.
+      exact (maponpaths pr1 (maponpaths (obj_ext_mor_TY) FF')).
+    + simpl. apply is_iso_from_is_z_iso.
+      simple refine (_ ,, _).
+      apply φ. split.
+    (* TODO: lemmas saying how equality of [obj_ext_mor] induces equality of their φ, modulo a delta. Then apply those lemmas, on FF' and F'F, to get the next two admits. *)
+      * admit.
+      * admit.
+    + etrans. apply transportf_isotoid.
+      etrans. apply maponpaths_2. 
+        apply inv_from_iso_from_is_z_iso.
+      apply obj_ext_mor_ax.
 Admitted.
 
 Theorem is_category_obj_ext
@@ -282,15 +307,6 @@ Proof.
       etrans. apply XR'. clear XR'.
       apply transportf_families_mor_TM.
 Defined.
-
-(* TODO: check more thoroughly if this is provided in the library; if so, use the library version, otherwise move this upstream.  Cf. also https://github.com/UniMath/UniMath/issues/279 *)
-Lemma inv_from_iso_from_is_z_iso {D: precategory} {a b : D}
-  (f: a --> b) (g : b --> a) (H : is_inverse_in_precat f g)
-: inv_from_iso (f ,, (is_iso_from_is_z_iso _ (g ,, H))) 
-  = g.
-Proof.
-  cbn. apply id_right.
-Qed.
 
 (* Left-handed counterpart to [transportf_isotoid], which could be called [prewhisker_isotoid] analogously — neither of these is a fully general transport lemma, they’re about specific cases.
 
