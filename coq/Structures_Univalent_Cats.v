@@ -174,22 +174,16 @@ Definition obj_ext_to_preShv_functor
   : functor (obj_ext_Precat C) (preShv C)
 := (_ ,, obj_ext_to_preShv_functor_axioms).
 
-(* TODO: move *)
-Lemma preShv_is_category : is_category (preShv C).
-Proof.
-  apply (is_category_functor_category _ _ is_category_HSET).
-Defined.
 
-(*
+
 Definition transportf_obj_ext
   {T T' : preShv C} (e : T = T')
-  (extn : ∀ Γ : C, (T Γ : hSet) → Σ ΓA : C, ΓA ⇒ Γ) 
-:  
-transportf (λ x : preShv C, ∀ Γ : C, (x Γ : hSet) → Σ ΓA : C, ΓA ⇒ Γ)
-     (isotoid (preShv C) preShv_is_category
-        (functor_on_iso obj_ext_to_preShv_functor F)) 
-     extn = ???
-*)
+  (extn : ∀ Γ : C, ((T : functor _ _) Γ : hSet) → Σ ΓA : C, ΓA ⇒ Γ) 
+: transportf _ e extn
+  = fun Γ A => extn Γ ((inv_from_iso (idtoiso e) : nat_trans _ _) Γ A).
+Proof.
+  destruct e; cbn. apply idpath.
+Defined.
 
 Definition iso_to_obj_ext_eq (X X' : obj_ext_Precat C) :
   (iso X X') -> (X = X').
@@ -197,11 +191,25 @@ Proof.
   intros F.
   use total2_paths.
   - apply isotoid.
-    apply preShv_is_category.
-  (* inlining the proof of [preShv_is_category] here seems to hang indefinitely!  I have absolutely no idea why. *)
+    exact (is_category_functor_category _ _ is_category_HSET).
     apply (functor_on_iso obj_ext_to_preShv_functor).
     exact F.
-  - admit.  (* TODO: transport lemmas! *)
+  - etrans. apply transportf_obj_ext.
+    apply funextsec; intro Γ; apply funextsec; intro A.
+    rewrite idtoiso_isotoid.
+    etrans.
+      apply maponpaths.
+      refine (toforallpaths _ _ _ _ A).
+      refine (toforallpaths _ _ _ _ Γ).
+      eapply pathsinv0, maponpaths.
+      refine (maponpaths pr1 (functor_on_iso_inv _ _ obj_ext_to_preShv_functor _ _ _)).
+    simpl.
+    (* plan from here:
+    - add assumption (maybe for whole section context) that C is univalent;
+    - use [idtoiso] here;
+    - get the required iso from the φ maps of F and its inverse
+    *)
+    admit.
 Admitted.
 
 Theorem is_category_obj_ext
