@@ -194,48 +194,64 @@ Proof.
   destruct e; cbn. apply idpath.
 Defined.
 
+Lemma obj_ext_mor_TY_eq {X X' : obj_ext_Precat C}
+  {F F' : X ⇒ X'} (E : F = F')
+  {Γ} (A : Ty X Γ)
+: (obj_ext_mor_TY F : nat_trans _ _) _ A
+  = (obj_ext_mor_TY F' : nat_trans _ _) _ A.
+Proof.
+  destruct E; apply idpath.
+Qed.
+
+Lemma obj_ext_mor_φ_eq {X X' : obj_ext_Precat C}
+  {F F' : X ⇒ X'} (E : F = F')
+  {Γ} (A : Ty X Γ)
+: φ F A ;; Δ (obj_ext_mor_TY_eq E A)
+  = φ F' A.
+Proof.
+  destruct E.
+  etrans. apply maponpaths, comp_ext_compare_id_general.
+  apply id_right.
+Qed.
+
 Definition iso_to_obj_ext_eq (H : is_category C)
-  (X X' : obj_ext_Precat C)
-  : (iso X X') -> (X = X').
+  {X X' : obj_ext_Precat C}
+: (iso X X') -> (X = X').
 Proof.
   intros F.
-use total2_paths.
-  - apply isotoid.
-    exact (is_category_functor_category _ _ is_category_HSET).
-    apply (functor_on_iso obj_ext_to_preShv_functor).
-    exact F.
-  - etrans. apply transportf_obj_ext.
-    apply funextsec; intro Γ; apply funextsec; intro A.
-    rewrite idtoiso_isotoid.
-    etrans.
-      apply maponpaths.
-      refine (toforallpaths _ _ _ _ A).
-      refine (toforallpaths _ _ _ _ Γ).
-      eapply pathsinv0, maponpaths.
-      refine (maponpaths pr1 (functor_on_iso_inv _ _ obj_ext_to_preShv_functor _ _ _)).
-    set (F' := inv_from_iso F).
-    set (FF' := iso_after_iso_inv F).
-    set (F'F := iso_inv_after_iso F).
-    simpl. use total2_paths.
-    use isotoid. assumption.
-    simple refine (_ ,, _).
-    + refine (_ ;; _).
-      apply (φ (F : _ ⇒ _)).
-      apply Δ.
-      generalize A; apply toforallpaths.
-      generalize Γ; apply toforallpaths.
-      exact (maponpaths pr1 (maponpaths (obj_ext_mor_TY) FF')).
-    + simpl. apply is_iso_from_is_z_iso.
-      simple refine (_ ,, _).
-      apply φ. split.
-    (* TODO: lemmas saying how equality of [obj_ext_mor] induces equality of their φ, modulo a delta. Then apply those lemmas, on FF' and F'F, to get the next two admits. *)
-      * admit.
-      * admit.
-    + etrans. apply transportf_isotoid.
-      etrans. apply maponpaths_2. 
-        apply inv_from_iso_from_is_z_iso.
-      apply obj_ext_mor_ax.
-Admitted.
+  apply (total2_paths (isotoid _
+    (is_category_functor_category _ _ is_category_HSET)
+    (functor_on_iso obj_ext_to_preShv_functor F))).
+  etrans. apply transportf_obj_ext.
+  apply funextsec; intro Γ; apply funextsec; intro A.
+  rewrite idtoiso_isotoid.
+  etrans.
+    apply maponpaths.
+    refine (toforallpaths _ _ _ _ A).
+    refine (toforallpaths _ _ _ _ Γ).
+    eapply pathsinv0, maponpaths.
+    refine (maponpaths pr1 (functor_on_iso_inv _ _ obj_ext_to_preShv_functor _ _ _)).
+  set (F' := inv_from_iso F).
+  set (FF' := iso_after_iso_inv F).
+  set (F'F := iso_inv_after_iso F).
+  simpl. use total2_paths.
+  use isotoid. assumption.
+  exists (φ (F : _ ⇒ _) _ ;; Δ (obj_ext_mor_TY_eq FF' _)).
+  + simpl. apply is_iso_from_is_z_iso.
+    exists (φ _ _). split.
+    * etrans. eapply pathsinv0, assoc.
+      etrans. apply maponpaths, Δ_φ.
+      etrans. apply assoc.
+      etrans. Focus 2. apply (obj_ext_mor_φ_eq F'F).
+      cbn. apply maponpaths.
+      apply maponpaths, setproperty.
+    * etrans. apply assoc.
+      apply (obj_ext_mor_φ_eq FF').
+  + etrans. apply transportf_isotoid.
+    etrans. apply maponpaths_2. 
+      apply inv_from_iso_from_is_z_iso.
+    apply obj_ext_mor_ax.
+Time Defined.
 
 Theorem is_category_obj_ext
   : is_category (obj_ext_Precat C).
