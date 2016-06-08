@@ -100,6 +100,20 @@ Proof.
   apply (maponpaths Δ), setproperty.
 Qed.
 
+(* The type of the [e_comp] argument of [obj_ext_mor_eq] depends on the [e_TY] argument.  However, the type of [e_TY] is an hset; so we generally don’t need to know what it is, so we can give this in a form where the [e_comp] just assumes _some_ [e_TY] is available, thereby making these two arguments independent.
+
+TODO: see if using this instead of [obj_ext_mor_eq] speeds up any proofs. *)
+Lemma obj_ext_mor_eq' {X X'} (F F' : obj_ext_mor X X')
+  (e_TY : ∀ Γ (A : Ty X Γ), F [ A ] = F' [ A ])
+  (e_comp_gen : ∀ (e_TY : ∀ Γ (A : Ty X Γ), F [ A ] = F' [ A ]),
+    ∀ Γ (A : Ty X Γ),
+    φ F A ;; @Δ _ _ _ _ _ (e_TY _ _)
+    = φ F' A)
+  : F = F'.
+Proof.
+  exact (obj_ext_mor_eq F F' e_TY (e_comp_gen e_TY)).
+Qed.
+
 Definition obj_ext_ob_mor : precategory_ob_mor.
 Proof.
   exists (obj_ext_structure C).

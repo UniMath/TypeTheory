@@ -79,6 +79,28 @@ Proof.
   cbn. apply id_right.
 Qed.
 
+
+(* A slightly surprising but very useful lemma for characterising identity types.
+
+Concisely: to show that a family of functions [w : forall a b, a = b -> P a b] are equivalences, it’s enough to show they have a retraction; the retraction is then automatically a quasi-inverse, because of the fact that the coconut is contractible.
+ 
+Often one can save a bit of work with this (since the other direction of inverseness may not be so obvious in individual cases).
+
+TODO: move; consider naming; see if this can be used to simplify other proofs of [is_category] and similar? *)
+Lemma eq_equiv_from_retraction {A} {P : A -> A -> UU} 
+    (w : forall a b, a = b -> P a b)
+    (v : forall a b, P a b -> a = b)
+  : (forall a b (p : P a b), w _ _ (v _ _ p) = p)
+  -> forall a b, isweq (w a b).
+Proof.
+  intros wv a.
+  apply isweqtotaltofib. (* first of the two key steps *)
+  use gradth.
+  - intros bp. exists (pr1 bp). apply v, (pr2 bp).
+  - intros be; apply connectedcoconusfromt. (* the second key step *)
+  - intros bp. use total2_paths. apply idpath. apply wv.
+Qed.
+
 End move_upstream.
 
 
@@ -178,7 +200,7 @@ Proof.
   split; intro; intros; apply idpath.
 Qed.
 
-(* TODO: move *)
+(* TODO: move; rename to [obj_ext_TY_functor]? *)
 Definition obj_ext_to_preShv_functor
   : functor (obj_ext_Precat C) (preShv C)
 := (_ ,, obj_ext_to_preShv_functor_axioms).
@@ -226,19 +248,24 @@ Proof.
   apply funextsec; intro Γ; apply funextsec; intro A.
   rewrite idtoiso_isotoid.
   etrans.
-    apply maponpaths.
+  { apply maponpaths.
     refine (toforallpaths _ _ _ _ A).
     refine (toforallpaths _ _ _ _ Γ).
     eapply pathsinv0, maponpaths.
     refine (maponpaths pr1 (functor_on_iso_inv _ _ obj_ext_to_preShv_functor _ _ _)).
+  }
   set (F' := inv_from_iso F).
   set (FF' := iso_after_iso_inv F).
   set (F'F := iso_inv_after_iso F).
-  simpl. use total2_paths.
-  use isotoid. assumption.
-  exists (φ (F : _ ⇒ _) _ ;; Δ (obj_ext_mor_TY_eq FF' _)).
-  + simpl. apply is_iso_from_is_z_iso.
-    exists (φ _ _). split.
+  simpl.
+  (* Now we break out a proof-irrelevant subproof needed later.  By breaking it out _before_ [use total2_paths], we ensure that this large subterm only occurs once in the proof term; this saves c.30s at the [Defined.] 
+
+  For reading: skip this subproof block for now, then imagine it inlined at [exact H'] below. *)
+  assert (H' : is_inverse_in_precat
+     (φ _ ((obj_ext_mor_TY (inv_from_iso F) : nat_trans _ _) Γ A)
+       ;; Δ (obj_ext_mor_TY_eq FF' A))
+     (φ (inv_from_iso F) A)).
+  { split.
     * etrans. eapply pathsinv0, assoc.
       etrans. apply maponpaths, Δ_φ.
       etrans. apply assoc.
@@ -247,19 +274,57 @@ Proof.
       apply maponpaths, setproperty.
     * etrans. apply assoc.
       apply (obj_ext_mor_φ_eq FF').
+  }
+  use total2_paths.
+  use isotoid. assumption.
+  exists (φ (F : _ ⇒ _) _ ;; Δ (obj_ext_mor_TY_eq FF' _)).
+  + simpl. apply is_iso_from_is_z_iso.
+    exists (φ _ _). exact H'.
   + etrans. apply transportf_isotoid.
     etrans. apply maponpaths_2. 
       apply inv_from_iso_from_is_z_iso.
     apply obj_ext_mor_ax.
-Time Defined.
+Defined.
 
-Theorem is_category_obj_ext
+(* TODO: inline *)
+Lemma foo {X X' : obj_ext_Precat C} (e : X = X')
+  {Γ} (A : Ty X Γ)
+: comp_ext X Γ A
+  ⇒ comp_ext X' Γ ((obj_ext_mor_TY (idtoiso e : X ⇒ X') : nat_trans _ _) _ A).
+Proof.
+  Unset Printing Notations.
+  apply idtoiso.
+  set (e' := (fiber_paths e)).
+  Set Printing Notations.
+Admitted.
+
+(* TODO: name *)
+Lemma foo2 {X X' : obj_ext_Precat C} (e : X = X')
+  {Γ} (A : Ty X Γ)
+: φ (idtoiso e : _ ⇒ _) A = foo e A.
+Proof.
+  (* should be trivial once [foo] is defined correctly: *)
+  try (destruct E; apply idpath).
+Admitted.
+
+Theorem is_category_obj_ext (H : is_category C)
   : is_category (obj_ext_Precat C).
 Proof.
   split. Focus 2. apply homset_property.
-  intros a b. simpl in *. unfold obj_ext_structure in a, b.
-  admit.
-  (* Probably the hardest *)
+  apply (eq_equiv_from_retraction _ (@iso_to_obj_ext_eq H)). 
+  intros X X' F.
+  apply eq_iso.
+  apply obj_ext_mor_eq'.
+  - intros Γ; apply toforallpaths; revert Γ; apply toforallpaths.
+    apply maponpaths.
+    refine (@maponpaths _ _ pr1
+      (functor_on_iso (obj_ext_to_preShv_functor) _)
+      (functor_on_iso _ _) _).
+    etrans. apply @pathsinv0, maponpaths_idtoiso.
+    etrans. apply maponpaths, base_total2_paths.
+    apply (idtoiso_isotoid _ _ _ _ _).
+  - intros e_TY Γ A. revert e_TY.
+    (* lemma foo2 above: [φ] of an [idtoiso] is… what? *) 
 Admitted.
 
 (* TODO: move *) 
@@ -379,27 +444,6 @@ Proof.
     etrans. apply families_mor_Q.
     etrans. Focus 2. exact (id_left (Q _ A)).
     apply maponpaths_2. apply functor_id.
-Qed.
-
-(* A slightly surprising but very useful lemma for characterising identity types.
-
-Concisely: to show that a family of functions [w : forall a b, a = b -> P a b] are equivalences, it’s enough to show they have a retraction; the retraction is then automatically a quasi-inverse, because of the fact that the coconut is contractible.
- 
-Often one can save a bit of work with this (since the other direction of inverseness may not be so obvious in individual cases).
-
-TODO: move; consider naming; see if this can be used to simplify other proofs of [is_category] and similar? *)
-Lemma eq_equiv_from_retraction {A} {P : A -> A -> UU} 
-    (w : forall a b, a = b -> P a b)
-    (v : forall a b, P a b -> a = b)
-  : (forall a b (p : P a b), w _ _ (v _ _ p) = p)
-  -> forall a b, isweq (w a b).
-Proof.
-  intros wv a.
-  apply isweqtotaltofib. (* first of the two key steps *)
-  use gradth.
-  - intros bp. exists (pr1 bp). apply v, (pr2 bp).
-  - intros be; apply connectedcoconusfromt. (* the second key step *)
-  - intros bp. use total2_paths. apply idpath. apply wv.
 Qed.
 
 Theorem is_category_families_structure
