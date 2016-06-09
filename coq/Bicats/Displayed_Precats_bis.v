@@ -42,12 +42,26 @@ Local Set Automatic Introduction.
 
 Local Open Scope type_scope.
 
+Undelimit Scope transport.
+
 Notation "# F" := (functor_over_on_morphisms F)
   (at level 3) : mor_disp_scope.
 
 Local Open Scope mor_disp_scope.
 
-Section fix_a_base.
+Section move_elsewhere.
+
+Definition assoc_disp_var {C} {D : disp_precat C}
+  {x y z w} {f} {g} {h} {xx : D x} {yy : D y} {zz : D z} {ww : D w}
+  {ff : xx ⇒[f] yy} {gg : yy ⇒[g] zz} {hh : zz ⇒[h] ww}
+: (ff ;; gg) ;; hh = transportf _ (assoc _ _ _) (ff ;; (gg ;; hh)).
+Proof.
+  apply pathsinv0, Utilities.transportf_pathsinv0.
+  apply pathsinv0, assoc_disp.
+Defined.
+
+End move_elsewhere.
+
 
 Definition nat_trans_over_data
   {C' C : precategory_data} 
@@ -95,9 +109,129 @@ Definition nat_trans_over
   Σ b : nat_trans_over_data a R' R,
     nat_trans_over_axioms _ b.
 
+Definition nat_trans_over_pr1 
+  {C' C : precategory_data} 
+  {F' F : functor_data C' C}
+  {a : nat_trans F' F}
+  {D' : disp_precat_data C'}
+  {D : disp_precat_data C}
+  {R' : functor_over_data F' D' D}
+  {R : functor_over_data F D' D}
+  (b : nat_trans_over a R' R) 
+  {x : C'}  (xx : D' x):
+    R' x  xx ⇒[ a x ] R x xx
+  := pr1 b x xx.
+
+Coercion nat_trans_over_pr1 : nat_trans_over >-> Funclass.
+
+Definition nat_trans_over_ax
+  {C' C : precategory_data} 
+  {F' F : functor_data C' C}
+  {a : nat_trans F' F}
+  {D' : disp_precat_data C'}
+  {D : disp_precat_data C}
+  {R' : functor_over_data F' D' D}
+  {R : functor_over_data F D' D}
+  (b : nat_trans_over a R' R)
+  {x' x : C'} 
+  {f : x' ⇒ x}
+  {xx' : D' x'} 
+  {xx : D' x}
+  (ff : xx' ⇒[ f ] xx):
+  # R'  ff ;; b _ xx = 
+  transportb _ (nat_trans_ax a _ _ f ) (b _ xx' ;; # R ff)
+  := 
+  pr2 b _ _ f _ _ ff.
+
+Lemma nat_trans_over_ax_var
+  {C' C : precategory_data} 
+  {F' F : functor_data C' C}
+  {a : nat_trans F' F}
+  {D' : disp_precat_data C'}
+  {D : disp_precat_data C}
+  {R' : functor_over_data F' D' D}
+  {R : functor_over_data F D' D}
+  (b : nat_trans_over a R' R)
+  {x' x : C'} 
+  {f : x' ⇒ x}
+  {xx' : D' x'} 
+  {xx : D' x}
+  (ff : xx' ⇒[ f ] xx):
+  b _ xx' ;; # R ff =
+  transportf _ (nat_trans_ax a _ _ f) (# R'  ff ;; b _ xx).
+Proof.
+  apply pathsinv0, Utilities.transportf_pathsinv0.
+  apply pathsinv0, nat_trans_over_ax.
+Defined.
+
+
 (** identity nat_trans_over *)
+
+Definition nat_trans_over_id
+  {C' C : Precategory} 
+  {F': functor_data C' C}
+  {D' : disp_precat_data C'}
+  {D : disp_precat C}
+  (R' : functor_over_data F' D' D)
+  : nat_trans_over (nat_trans_id F') R' R'.
+Proof.
+  mkpair.
+  - intros x xx.
+    apply id_disp.
+  - abstract (
+    intros x' x f xx' xx ff;
+    etrans; [ apply id_right_disp |];
+    apply transportf_comp_lemma;
+    apply pathsinv0;
+    etrans; [apply id_left_disp |];
+    apply transportf_ext;
+    apply (pr2 C) ).
+Defined.    
+    
 
 (** composition of nat_trans_over *)
 
+
+
+Definition nat_trans_over_comp
+  {C' C : Precategory} 
+  {F'' F' F : functor_data C' C}
+  (a' : nat_trans F'' F')
+  (a : nat_trans F' F)
+  {D' : disp_precat_data C'}
+  {D : disp_precat C}
+  (R'' : functor_over_data F'' D' D)
+  (R' : functor_over_data F' D' D)
+  (R : functor_over_data F D' D)
+  (b' : nat_trans_over a' R'' R')
+  (b : nat_trans_over a R' R)
+  : nat_trans_over (nat_trans_comp _ _ _ a' a) R'' R.
+Proof.
+  mkpair.
+  - intros x xx.
+    apply (comp_disp (b' _ _ )  (b _ _ )).
+  - abstract ( 
+    intros x' x f xx' xx ff;
+    etrans; [ apply assoc_disp |];
+    apply transportf_comp_lemma;
+    apply Utilities.transportf_pathsinv0; apply pathsinv0;
+    rewrite (nat_trans_over_ax b');
+    etrans; [ apply compl_disp_transp |];
+    apply transportf_comp_lemma;
+    apply pathsinv0;
+    etrans; [ apply assoc_disp_var |];
+    apply pathsinv0;
+    apply transportf_comp_lemma;
+    apply pathsinv0;
+    rewrite (nat_trans_over_ax_var b);
+    rewrite mor_disp_transportf_prewhisker;
+    apply transportf_comp_lemma;
+    apply pathsinv0;
+    etrans; [ apply assoc_disp_var |];
+    apply transportf_comp_lemma;
+    apply transportf_comp_lemma_hset;
+     [ apply (pr2 C) | apply idpath]
+   ).
+Defined.
+
   
-End fix_a_base.
