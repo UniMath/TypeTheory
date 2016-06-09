@@ -293,9 +293,31 @@ Lemma foo {X X' : obj_ext_Precat C} (e : X = X')
   ⇒ comp_ext X' Γ ((obj_ext_mor_TY (idtoiso e : X ⇒ X') : nat_trans _ _) _ A).
 Proof.
   Unset Printing Notations.
-  apply idtoiso.
-  set (e' := (fiber_paths e)).
+  revert Γ A.
+  set (e' := (fiber_paths e)). simpl in e'.
+  assert (H : (fun Γ (A : Ty X' Γ)
+                => pr2 X Γ (transportb (fun (T : functor C^op hset_precategory) => T Γ : hSet) (base_paths X X' e) A))
+              = pr2 X').
+  { etrans. Focus 2. apply e'.
+    apply pathsinv0.
+    etrans. refine (transportf_forall _ _ _). simpl.
+    apply funextsec; intros Γ.
+    apply (transportf_forall_var _
+     (fun (T : functor C^op hset_precategory) => T Γ : hSet)).
+  }
+  intros Γ A; simpl in A. 
+  refine (_ ;; _).
+    Focus 2. eapply idtoiso.
+    refine (maponpaths pr1 (toforallpaths _ _ _
+              (toforallpaths _ _ _ H Γ) _)).
+  apply Δ. destruct e; apply idpath.
   Set Printing Notations.
+Defined.
+
+Lemma funextsec_idpath (T : UU) (P : T -> UU) (f : forall t, P t)
+  : funextsec P f f (fun t => idpath _) = idpath _.
+Proof.
+  (* equal since they become equal after applying [toforallpaths], which is an equivalence and hence injective *)
 Admitted.
 
 (* TODO: name *)
@@ -304,8 +326,11 @@ Lemma foo2 {X X' : obj_ext_Precat C} (e : X = X')
 : φ (idtoiso e : _ ⇒ _) A = foo e A.
 Proof.
   (* should be trivial once [foo] is defined correctly: *)
-  try (destruct E; apply idpath).
-Admitted.
+  destruct e. cbn. apply pathsinv0.
+  unfold foo. cbn. 
+  etrans. apply id_left. 
+  rewrite funextsec_idpath; apply idpath.
+Qed.
 
 Theorem is_category_obj_ext (H : is_category C)
   : is_category (obj_ext_Precat C).
@@ -323,7 +348,11 @@ Proof.
     etrans. apply @pathsinv0, maponpaths_idtoiso.
     etrans. apply maponpaths, base_total2_paths.
     apply (idtoiso_isotoid _ _ _ _ _).
-  - intros e_TY Γ A. revert e_TY.
+  - intros e_TY Γ A.
+    etrans. apply maponpaths_2. apply foo2. unfold foo.
+    etrans. apply maponpaths_2. apply maponpaths.
+    eapply (maponpaths pr1).
+    generalize (idtoiso (iso_to_obj_ext_eq H F)).
     (* lemma foo2 above: [φ] of an [idtoiso] is… what? *) 
 Admitted.
 
