@@ -93,7 +93,7 @@ Section Disp_Precat.
 Definition disp_precat_ob_mor (C : precategory_ob_mor)
   := Σ (obd : C -> Type), (∀ x y:C, obd x -> obd y -> (x ⇒ y) -> Type).
 
-Definition ob_disp {C} (D : disp_precat_ob_mor C) := pr1 D.
+Definition ob_disp {C} (D : disp_precat_ob_mor C) : C -> UU := pr1 D.
 Coercion ob_disp : disp_precat_ob_mor >-> Funclass.
 
 Definition mor_disp {C} {D : disp_precat_ob_mor C}
@@ -179,11 +179,22 @@ Definition homsets_disp {C} {D :disp_precat C} {x y} {f} {xx : D x} {yy : D y}
 (** ** Some utility lemmas *)
 Section Lemmas.
 
-(** TODO: prove this lemma!  Probably not needed, but would be nice to know. *)
 Lemma isaprop_disp_precat_axioms (C : Precategory) (D : disp_precat_data C)
   : isaprop (disp_precat_axioms C D).
-Abort.
-
+Proof.
+  apply isofhlevelsn.
+  intro X.
+  set (XR := ( _ ,, X) : disp_precat C).
+  apply isofhleveltotal2.
+  - repeat (apply impred; intro).
+    apply (@homsets_disp _ XR).
+  - intros x.
+    repeat (apply isofhleveldirprod); repeat (apply impred; intro).
+    + apply (@homsets_disp _ XR).
+    + apply (@homsets_disp _ XR).
+    + apply isapropiscontr.
+Qed.
+      
 Lemma compl_disp_transp {C : Precategory} {D : disp_precat_data C}
     {x y z : C} {f f' : x ⇒ y} (ef : f = f') {g : y ⇒ z}
     {xx : D x} {yy} {zz} (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
@@ -221,7 +232,7 @@ Lemma compr_disp_transp {C : Precategory} {D : disp_precat_data C}
   : ff ;; (transportf _ eg gg)
   = transportf _ (maponpaths (fun k => _ ;; k)%mor eg) (ff ;; gg).
 Proof.
-  destruct eg. apply idpath.
+  apply mor_disp_transportf_prewhisker.
 Qed.
 
 End Lemmas.
