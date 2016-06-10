@@ -85,7 +85,7 @@ Check @nat_trans_ax.
 Definition nat_trans_over_axioms
   {C' C : precategory_data} 
   {F' F : functor_data C' C}
-  (a : nat_trans F' F)
+  {a : nat_trans F' F}
   {D' : disp_precat_data C'}
   {D : disp_precat_data C}
   {R' : functor_over_data F' D' D}
@@ -98,6 +98,22 @@ Definition nat_trans_over_axioms
      # R'  ff ;; b _ xx = 
      transportb _ (nat_trans_ax a _ _ f ) (b _ xx' ;; # R ff).
 
+Lemma isaprop_nat_trans_over_axioms
+  {C' C : Precategory} 
+  {F' F : functor_data C' C}
+  (a : nat_trans F' F)
+  {D' : disp_precat_data C'}
+  {D : disp_precat C}
+  {R' : functor_over_data F' D' D}
+  {R : functor_over_data F D' D}
+  (b : nat_trans_over_data a R' R) 
+  : 
+    isaprop (nat_trans_over_axioms b).
+Proof.
+  repeat (apply impred; intro).
+  apply homsets_disp.
+Qed.
+
 Definition nat_trans_over
   {C' C : precategory_data} 
   {F' F : functor_data C' C}
@@ -107,7 +123,7 @@ Definition nat_trans_over
   (R' : functor_over_data F' D' D)
   (R : functor_over_data F D' D) : UU :=
   Σ b : nat_trans_over_data a R' R,
-    nat_trans_over_axioms _ b.
+    nat_trans_over_axioms b.
 
 Definition nat_trans_over_pr1 
   {C' C : precategory_data} 
@@ -234,4 +250,99 @@ Proof.
    ).
 Defined.
 
-  
+
+(** Displayed precategory of displayed functors and 
+    displayed natural transformations 
+    
+*)
+
+
+Section displayed_functor_precategory.
+
+Variables C' C : Precategory.
+Variable D' : disp_precat C'.
+Variable D : disp_precat C.
+
+Search (_  -> Precategory).
+
+Let FunctorsC'C := Precategories.functorPrecategory C' C.
+
+Lemma foo
+  (F' F : functor C' C)
+  (a' a : nat_trans F' F)
+  (p : a' = a )
+  (FF' : functor_over F' D' D)
+  (FF : functor_over F D' D)
+  (b : nat_trans_over a' FF' FF)
+  (c' : C')
+  (xx' : D' c')
+  :
+  pr1 (transportf (fun x => nat_trans_over x FF' FF) p b) c' xx' =
+      transportf (mor_disp (FF' c' xx') (FF c' xx')) 
+           (nat_trans_eq_pointwise p _ )  (b c' xx'). 
+Proof.
+  induction p.
+  simpl. cbn. simpl.
+  cbn.
+  unfold idfun.
+  assert (XR : nat_trans_eq_pointwise (idpath a') c' = idpath _ ).
+  { apply (pr2 C). }
+  rewrite XR.
+  apply idpath.
+Qed.
+
+Definition disp_functor_precat : 
+  disp_precat (FunctorsC'C).
+Proof.
+  mkpair.
+  - mkpair.
+    + mkpair.
+      * intro F.
+        apply (functor_over F D' D).
+      * simpl. intros F' F FF' FF a.
+        apply (nat_trans_over a FF' FF).
+    + mkpair.
+      * intros x xx.
+        apply nat_trans_over_id.
+      * intros. apply (nat_trans_over_comp _ _ _ _ _ X X0).
+  - repeat split.
+    + (* TODO : find suitable lemmas to make this less painful *)
+      simpl.
+      intros F' F a FF' FF b.
+      apply subtypeEquality.
+      { intro. apply isaprop_nat_trans_over_axioms. }
+      apply funextsec; intro c'.
+      apply funextsec; intro xx'.
+      apply pathsinv0. 
+      etrans. 
+        assert (XR := foo).
+        specialize (XR F' F a _ (! (id_left (a : FunctorsC'C ⟦ _ , _ ⟧)))).
+        apply XR; clear XR.
+      apply pathsinv0.
+      etrans. apply id_left_disp.
+      apply transportf_ext. apply (pr2 C).
+    + simpl.
+      intros F' F a FF' FF b.
+      apply subtypeEquality.
+      { intro. apply isaprop_nat_trans_over_axioms. }
+      apply funextsec; intro c'.
+      apply funextsec; intro xx'.
+      apply pathsinv0. 
+      etrans. 
+        assert (XR := foo).
+        specialize (XR F' F a _ (! (id_right (a : FunctorsC'C ⟦ _ , _ ⟧)))).
+        apply XR; clear XR.
+      apply pathsinv0.
+      etrans. apply id_right_disp.
+      apply transportf_ext. apply (pr2 C).
+    + simpl.
+      admit.
+    + simpl.
+      intros.
+      apply (isofhleveltotal2 2).
+      * do 2 (apply impred; intro).
+        apply homsets_disp.
+      * intro d. 
+        do 6 (apply impred; intro).
+        apply hlevelntosn. apply homsets_disp.
+Abort.
