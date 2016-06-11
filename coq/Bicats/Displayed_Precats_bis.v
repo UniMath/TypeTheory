@@ -403,4 +403,25 @@ Proof.
     + apply isaset_nat_trans_over.      
 Defined.
 
+(** TODO : characterize isos in the displayed functor precat *)
+
+Definition pointwise_iso_from_nat_iso {A X : precategory} {hsX : has_homsets X}
+  {F G : functor_precategory A X hsX}
+  (b : iso F G) (a : A) : iso (pr1 F a) (pr1 G a)
+  :=
+  functor_iso_pointwise_if_iso _ _ _ _ _ b (pr2 b)_ .
+
+Definition is_disp_functor_precat_iso_if_pointwise_iso 
+  (x y : FunctorsC'C)
+  (f : iso x y)
+  (xx : disp_functor_precat x)
+  (yy : disp_functor_precat y)
+  (FF : xx ⇒[ f ] yy)
+  (H : forall x' (xx' : D' x') , is_iso_disp (pointwise_iso_from_nat_iso f _ )
+                          (pr1 FF _ xx' ))
+  : is_iso_disp f FF.
+Proof.  
+  admit.
+Abort.
+
 End displayed_functor_precategory.
