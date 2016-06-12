@@ -411,6 +411,14 @@ Definition pointwise_iso_from_nat_iso {A X : precategory} {hsX : has_homsets X}
   :=
   functor_iso_pointwise_if_iso _ _ _ _ _ b (pr2 b)_ .
 
+
+
+(** 
+    It seems to be better to work on 
+    https://github.com/UniMath/UniMath/issues/362
+    first
+*)
+
 Definition is_disp_functor_precat_iso_if_pointwise_iso 
   (x y : FunctorsC'C)
   (f : iso x y)
@@ -421,6 +429,18 @@ Definition is_disp_functor_precat_iso_if_pointwise_iso
                           (pr1 FF _ xx' ))
   : is_iso_disp f FF.
 Proof.  
+  mkpair.
+  - mkpair.
+    + intros x' xx'.
+      simpl in xx. simpl in yy.
+      
+      assert (XR : inv_from_iso (pointwise_iso_from_nat_iso f x') =
+                                       pr1 (inv_from_iso f) x').
+      Print Ktheory.Precategories.Precategory.
+      { apply id_right. }
+      (* apply (pr1 (H x' xx')). *)
+      try refine (transportf (fun f' =>  yy x' xx' ⇒[ f'] xx x' xx') 
+                   (eq_iso _ _ (idpath _ )) (pr1 (H x' xx'))).
   admit.
 Abort.
 
