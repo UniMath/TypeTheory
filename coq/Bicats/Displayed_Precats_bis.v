@@ -280,9 +280,6 @@ Lemma foo
            (nat_trans_eq_pointwise p _ )  (b c' xx'). 
 Proof.
   induction p.
-  simpl. cbn. simpl.
-  cbn.
-  unfold idfun.
   assert (XR : nat_trans_eq_pointwise (idpath a') c' = idpath _ ).
   { apply (pr2 C). }
   rewrite XR.
@@ -412,12 +409,83 @@ Definition pointwise_iso_from_nat_iso {A X : precategory} {hsX : has_homsets X}
   functor_iso_pointwise_if_iso _ _ _ _ _ b (pr2 b)_ .
 
 
+Definition pointwise_inv_is_inv_on {A X : precategory} {hsX : has_homsets X}
+  {F G : functor_precategory A X hsX}
+  (b : iso F G) (a : A) : 
+  
+  inv_from_iso (pointwise_iso_from_nat_iso b a) =
+                                       pr1 (inv_from_iso b) a. 
+Proof.
+  apply id_right.
+Defined.
+
+
 
 (** 
     It seems to be better to work on 
     https://github.com/UniMath/UniMath/issues/362
     first
 *)
+
+(** TODO : write a few lemmas about isos in 
+    the disp functor precat, 
+    to make the following sane
+*)
+
+Definition is_pointwise_iso_if_is_disp_functor_precat_iso
+  (x y : FunctorsC'C)
+  (f : iso x y)
+  (xx : disp_functor_precat x)
+  (yy : disp_functor_precat y)
+  (FF : xx ⇒[ f ] yy)
+  (H : is_iso_disp f FF)
+  :
+  forall x' (xx' : D' x') , is_iso_disp (pointwise_iso_from_nat_iso f _ )
+                          (pr1 FF _ xx' ).
+Proof.
+  intros x' xx'.
+  mkpair.
+  - set (X:= pr1 H). simpl in X.
+    apply (transportb _ (pointwise_inv_is_inv_on f _ ) (X x' xx')).
+  - simpl. repeat split.
+    + etrans. apply compl_disp_transp.
+      apply pathsinv0.
+      apply transportf_comp_lemma.
+      assert (XR:= pr1 (pr2 H)).
+      assert (XRT :=  (maponpaths pr1 XR)). 
+      assert (XRT' :=  toforallpaths _ _ _  (toforallpaths _ _ _ XRT x')).
+      apply pathsinv0.
+      etrans. apply XRT'. 
+      clear XRT' XRT XR.
+      assert (XR := foo). 
+      specialize (XR _ _ _ _ (! iso_after_iso_inv f)).
+      etrans. apply XR.
+      apply transportf_comp_lemma.
+      Search (transportf _ _ ?x = ?y).
+      apply transportf_comp_lemma_hset.
+      apply (pr2 C).
+      apply idpath.
+    + etrans. apply mor_disp_transportf_prewhisker.      
+      apply pathsinv0.
+      apply transportf_comp_lemma.
+      assert (XR:= pr2 (pr2 H)).
+      assert (XRT :=  (maponpaths pr1 XR)). 
+      assert (XRT' :=  toforallpaths _ _ _  (toforallpaths _ _ _ XRT x')).
+      apply pathsinv0.
+      etrans. apply XRT'. 
+      clear XRT' XRT XR.
+      assert (XR := foo). 
+      specialize (XR _ _ _ _ (! iso_inv_after_iso f)).
+      etrans. apply XR.
+      apply transportf_comp_lemma.
+      Search (transportf _ _ ?x = ?y).
+      apply transportf_comp_lemma_hset.
+      apply (pr2 C).
+      apply idpath.
+Defined.
+      
+      
+      
 
 Definition is_disp_functor_precat_iso_if_pointwise_iso 
   (x y : FunctorsC'C)
