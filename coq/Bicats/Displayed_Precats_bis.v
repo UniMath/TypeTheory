@@ -517,8 +517,89 @@ Proof.
       apply (pr2 C).
       apply idpath.
 Defined.
-      
-Definition is_disp_functor_precat_iso_if_pointwise_iso 
+
+Lemma is_nat_trans_over_pointwise_inv
+  (x y : FunctorsC'C)
+  (f : iso x y)
+  (xx : disp_functor_precat x)
+  (yy : disp_functor_precat y)
+  (FF : xx ⇒[ f] yy)
+  (H : ∀ (x' : C') (xx' : D' x'),
+      is_iso_disp (pointwise_iso_from_nat_iso f x') (pr1 FF x' xx'))
+  (x' x0 : C')
+  (f0 : x' ⇒ x0)
+  (xx' : D' x')
+  (xx0 : D' x0)
+  (ff : xx' ⇒[ f0] xx0)
+  :
+   # (yy : functor_over _ _ _)  ff ;; (let RT := pr1 (H x0 xx0) in
+               transportf (mor_disp (pr1 yy x0 xx0) (pr1 xx x0 xx0))
+                 (id_right (pr1 (inv_from_iso f) x0)) RT) =
+   transportb (mor_disp (pr1 yy x' xx') (pr1 xx x0 xx0))
+     (nat_trans_ax (inv_from_iso f) x' x0 f0)
+     ((let RT := pr1 (H x' xx') in
+       transportf (mor_disp (pr1 yy x' xx') (pr1 xx x' xx'))
+         (id_right (pr1 (inv_from_iso f) x')) RT) ;; 
+      # (xx : functor_over _ _ _) ff).
+Proof.
+ etrans. apply mor_disp_transportf_prewhisker.
+    apply pathsinv0.
+    etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
+    Search (transportf _ _ _ = transportf _ _ _ ).
+    Search (?e = ?e' -> ?w = ?w' -> _ ?e ?w = _ ?e' ?w').
+    etrans. apply transport_f_f.
+    Search (transportf _ _ _ = transportf _ _ _ ).
+    apply transportf_comp_lemma.
+    set (Hx := H x' xx').
+    assert (Hx1 := pr2 (pr2 Hx)).
+    set (XR:= iso_disp_precomp (pointwise_iso_from_nat_iso f x' ) (_ ,,Hx)).
+    Check (# (pr1 yy) ff ;; pr1 (H x0 xx0)).
+    specialize (XR _  
+       (
+        ((# (y : functor _ _ ))%mor f0 ;; inv_from_iso (pointwise_iso_from_nat_iso f x0))
+          %mor
+         ) 
+       ).
+    specialize (XR ((xx : functor_over _ _ _  ) x0 xx0)).
+    set (Xweq := weqpair _ XR).
+    apply (invmaponpathsweq Xweq).
+    unfold Xweq. clear Xweq.
+    etrans.  apply mor_disp_transportf_prewhisker.
+    etrans. apply maponpaths. apply assoc_disp.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply maponpaths_2. apply Hx1.
+    etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
+    etrans. apply transport_f_f.
+    apply pathsinv0.
+    etrans. apply assoc_disp.
+    assert (XRO := @nat_trans_over_ax _ _ _ _ _ _ _ _ _ FF).
+    specialize (XRO _ _ _ xx'  _ ff).
+    assert (XR' := ! (Utilities.transportf_pathsinv0 _ _ _ _  (!XRO))).
+    clear XRO.
+    clear XR. clear Hx1.
+    etrans. apply maponpaths. apply maponpaths_2.
+            apply XR'.
+    etrans. apply maponpaths.  apply mor_disp_transportf_postwhisker. 
+    etrans. apply transport_f_f.
+    apply pathsinv0. 
+    etrans. apply maponpaths. apply id_left_disp.
+    etrans. apply transport_f_f.
+    apply pathsinv0.
+    
+    etrans. apply maponpaths. 
+            apply assoc_disp_var.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply maponpaths.
+            apply (pr2 (pr2 (H _ _ ))).
+    etrans. apply maponpaths. apply mor_disp_transportf_prewhisker. 
+    etrans. apply maponpaths. apply maponpaths.
+            apply id_right_disp.
+    etrans. apply transport_f_f.
+    etrans. apply transport_f_f.
+    apply transportf_ext. apply (pr2 C).
+Qed.
+
+Definition inv_disp_from_pointwise_iso 
   (x y : FunctorsC'C)
   (f : iso x y)
   (xx : disp_functor_precat x)
@@ -537,60 +618,9 @@ Proof.
     { apply id_right. }
     set (RT := pr1 (H x' xx')).
     apply (transportf _ XR RT).
-  + simpl.
-    unfold nat_trans_over_axioms. 
-    intros x' x0 f0 xx' xx0 ff.
-    etrans. apply mor_disp_transportf_prewhisker.
-    apply pathsinv0.
-    etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
-    Search (transportf _ _ _ = transportf _ _ _ ).
-    Search (?e = ?e' -> ?w = ?w' -> _ ?e ?w = _ ?e' ?w').
-    unfold transportb.
-    etrans. apply transport_f_f.
-    Search (transportf _ _ _ = transportf _ _ _ ).
-    apply transportf_comp_lemma.
-    set (Hx := H x' xx').
-    assert (Hx1 := pr2 (pr2 Hx)).
-    set (XR:= iso_disp_precomp (pointwise_iso_from_nat_iso f x' ) (_ ,,H x' xx')).
-    Check (# (pr1 yy) ff ;; pr1 (H x0 xx0)).
-    specialize (XR _  
-       (
-        ((# (y : functor _ _ ))%mor f0 ;; inv_from_iso (pointwise_iso_from_nat_iso f x0))
-          %mor
-         ) 
-       ).
-    specialize (XR ((xx : functor_over _ _ _  ) x0 xx0)).
-    set (Xweq := weqpair _ XR).
-    apply (invmaponpathsweq Xweq).
-    unfold Xweq. cbn.
-    etrans.  apply mor_disp_transportf_prewhisker.
-    etrans. apply maponpaths. apply assoc_disp.
-    etrans. apply transport_f_f.
-    etrans. apply maponpaths. apply maponpaths_2. apply Hx1.
-    etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
-    clear Xweq XR. clear Hx1.
-    etrans. apply transport_f_f.
-
-    assert (XR := @nat_trans_over_ax _ _ _ _ _ _ _ _ _ FF).
-    apply pathsinv0.
-    
-            apply (pr2 (pr2 (H x' xx'))).
-    app
-          (((# (pr1 y))%mor f0 ;; inv_from_iso (pointwise_iso_from_nat_iso f x0)%mor))).
-
-    invmaponpathsweq
-    Search ( ?w _ = ?w _ -> _ = _  ).
-
-    assert (XR:+ 
-    apply transportf_comp_lemma_hset.
-    match goal with | [|- ?f _ _ = ?f _ _ ] => 
-          set (F:= f) end.
-    apply (map_on_two_paths F).
-    apply transportf_ext.
-    Search ( _ = transportf _ _ (transportf _ _ _ )).
-    apply functtransportf.
-    apply transportf_comp_lemma.
-    apply transportf_comp_lemma.
+  + intros x' x0 f0 xx' xx0 ff.
+    apply is_nat_trans_over_pointwise_inv.
+Defined.
     
     
 
@@ -605,18 +635,32 @@ Definition is_disp_functor_precat_iso_if_pointwise_iso
   : is_iso_disp f FF.
 Proof.  
   mkpair.
-  - mkpair.
-    + intros x' xx'.
-      simpl in xx. simpl in yy.
-      
-      assert (XR : inv_from_iso (pointwise_iso_from_nat_iso f x') =
-                                       pr1 (inv_from_iso f) x').
-      Print Ktheory.Precategories.Precategory.
-      { apply id_right. }
-      (* apply (pr1 (H x' xx')). *)
-      try refine (transportf (fun f' =>  yy x' xx' ⇒[ f'] xx x' xx') 
-                   (eq_iso _ _ (idpath _ )) (pr1 (H x' xx'))).
-  admit.
-Abort.
+  - apply (inv_disp_from_pointwise_iso _ _ _ _ _ FF H).
+  - split.
+    + apply subtypeEquality.
+      { intro. apply isaprop_nat_trans_over_axioms. }
+      apply funextsec; intro c'.
+      apply funextsec; intro xx'.
+      apply pathsinv0.
+      etrans. apply foo.
+      cbn.
+      apply pathsinv0.
+      etrans. apply mor_disp_transportf_postwhisker.
+      etrans. apply maponpaths. apply (pr1 (pr2 (H c' xx'))).
+      etrans. apply transport_f_f.
+      apply transportf_ext. apply (pr2 C).
+    + apply subtypeEquality.
+      { intro. apply isaprop_nat_trans_over_axioms. }
+      apply funextsec; intro c'.
+      apply funextsec; intro xx'.
+      apply pathsinv0.
+      etrans. apply foo.
+      cbn.
+      apply pathsinv0.
+      etrans. apply mor_disp_transportf_prewhisker.
+      etrans. apply maponpaths. apply (pr2 (pr2 (H c' xx'))).
+      etrans. apply transport_f_f.
+      apply transportf_ext. apply (pr2 C).
+Defined.      
 
 End displayed_functor_precategory.
