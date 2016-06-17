@@ -72,7 +72,7 @@ Proof.
   + intro X.
     set (XR := (pr1 (pr2 ff)) ;; X).
     set (XR' := transportf _ (assoc _ _ _   ) XR).
-    Search (inv_from_iso _  ).
+(*    Search (inv_from_iso _  ). *)
     set (XRRT := transportf _ 
            (maponpaths (fun xyz => (xyz ;; f')%mor) (iso_after_iso_inv f)) 
            XR').
@@ -91,8 +91,22 @@ Proof.
     etrans. apply transport_f_f.
     apply transportf_comp_lemma_hset.
     apply (pr2 C). apply idpath.
-  + admit.
-Admitted.
+  + intros; simpl.
+    etrans. apply maponpaths. apply transport_f_f.
+    etrans. apply mor_disp_transportf_prewhisker.
+    etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply assoc_disp.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply maponpaths_2. 
+    assert (XR := pr2 (pr2 (pr2 ff))). simpl in XR. apply XR.
+    etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply id_left_disp.
+    etrans. apply transport_f_f.
+    apply transportf_comp_lemma_hset.
+    apply (pr2 C). apply idpath.
+Defined.
 
 End move_elsewhere.
 
@@ -495,7 +509,7 @@ Proof.
       specialize (XR _ _ _ _ (! iso_after_iso_inv f)).
       etrans. apply XR.
       apply transportf_comp_lemma.
-      Search (transportf _ _ ?x = ?y).
+(*      Search (transportf _ _ ?x = ?y). *)
       apply transportf_comp_lemma_hset.
       apply (pr2 C).
       apply idpath.
@@ -512,7 +526,7 @@ Proof.
       specialize (XR _ _ _ _ (! iso_inv_after_iso f)).
       etrans. apply XR.
       apply transportf_comp_lemma.
-      Search (transportf _ _ ?x = ?y).
+(*      Search (transportf _ _ ?x = ?y). *)
       apply transportf_comp_lemma_hset.
       apply (pr2 C).
       apply idpath.
@@ -545,15 +559,15 @@ Proof.
  etrans. apply mor_disp_transportf_prewhisker.
     apply pathsinv0.
     etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
-    Search (transportf _ _ _ = transportf _ _ _ ).
-    Search (?e = ?e' -> ?w = ?w' -> _ ?e ?w = _ ?e' ?w').
+(*    Search (transportf _ _ _ = transportf _ _ _ ). *)
+(*    Search (?e = ?e' -> ?w = ?w' -> _ ?e ?w = _ ?e' ?w'). *)
     etrans. apply transport_f_f.
-    Search (transportf _ _ _ = transportf _ _ _ ).
+(*    Search (transportf _ _ _ = transportf _ _ _ ). *)
     apply transportf_comp_lemma.
     set (Hx := H x' xx').
     assert (Hx1 := pr2 (pr2 Hx)).
     set (XR:= iso_disp_precomp (pointwise_iso_from_nat_iso f x' ) (_ ,,Hx)).
-    Check (# (pr1 yy) ff ;; pr1 (H x0 xx0)).
+(*    Check (# (pr1 yy) ff ;; pr1 (H x0 xx0)). *)
     specialize (XR _  
        (
         ((# (y : functor _ _ ))%mor f0 ;; inv_from_iso (pointwise_iso_from_nat_iso f x0))
@@ -662,5 +676,6 @@ Proof.
       etrans. apply transport_f_f.
       apply transportf_ext. apply (pr2 C).
 Defined.      
+
 
 End displayed_functor_precategory.
