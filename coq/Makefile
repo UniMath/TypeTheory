@@ -22,6 +22,7 @@ MODULES-CORE := \
 	Bicats/Bicats \
 	Bicats/Displayed_Precats \
 	Bicats/Displayed_Precats_bis \
+	Bicats/Displayed_Equivalences \
 	Bicats/Displayed_Bicats \
 	Structures_Cats \
 	CwF_SplitTypeCat_Maps \
