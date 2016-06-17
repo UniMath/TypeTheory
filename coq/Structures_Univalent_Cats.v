@@ -352,7 +352,6 @@ Proof.
     etrans. apply maponpaths_2. apply foo2. unfold foo.
     etrans. apply maponpaths_2. apply maponpaths.
     eapply (maponpaths pr1).
-    generalize (idtoiso (iso_to_obj_ext_eq H F)).
     (* lemma foo2 above: [φ] of an [idtoiso] is… what? *) 
 Admitted.
 
