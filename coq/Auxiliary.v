@@ -409,6 +409,7 @@ Lemma isPullback_preShv_to_pointwise {C : precategory} (hsC : has_homsets C)
       ((p1 : nat_trans _ _) c) ((p2 : nat_trans _ _) c)
       (square_commutes_preShv_to_pointwise hsC e c).
 Proof.
+
   set (XR := isLimFunctor_is_pointwise_Lim C^op HSET has_homsets_HSET
             graphs.pullbacks.pushout_graph).
   set (XT1 := graphs.pullbacks.pullback_diagram _ f g).
@@ -418,9 +419,11 @@ Proof.
         LimCone
           (colimits.diagram_pointwise C^op HSET has_homsets_HSET
              pullbacks.pushout_graph XT1 a))).
+
     { intro. apply LimConeHSET.  }
     specialize (XR XH).
     specialize (XR W). 
+
     set (XT := graphs.pullbacks.PullbCone _ _ _ _ p1 p2 e).
     specialize (XR XT).
     transparent assert (XTT : (isLimCone XT1 W XT)).
@@ -429,6 +432,7 @@ Proof.
       assumption.
     }
     specialize (XR XTT c).
+
     
     intros S h k H.
     specialize (XR S).
