@@ -52,6 +52,19 @@ Notation "# F" := (functor_over_on_morphisms F)
 Local Open Scope mor_disp_scope.
 
 
+
+Section move_upstream.
+
+Lemma transportf_pathsinv0_var :
+∀ {X : UU} {P : X → UU} {x y : X} {p : x = y} {u : P x} 
+{v : P y}, transportf P p u = v → transportf P (!p) v = u.
+Proof.
+  intros. induction p. apply (!X0).
+Defined.
+
+End move_upstream.
+
+
 Lemma functor_over_transportf {C' C : Precategory}
   {D' : disp_precat C'} {D : disp_precat C}
   (F : functor C' C) (FF : functor_over F D' D)
@@ -112,12 +125,7 @@ Proof.
   intros x y. apply homsets_disp.
 Qed.
 
-Lemma transportf_pathsinv0_var :
-∀ {X : UU} {P : X → UU} {x y : X} {p : x = y} {u : P x} 
-{v : P y}, transportf P p u = v → transportf P (!p) v = u.
-Proof.
-  intros. induction p. apply (!X0).
-Defined.
+
 
 Definition iso_disp_from_iso_fibre (a b : fibre_precategory) :
   iso a b -> iso_disp (identity_iso c) a b.
@@ -216,6 +224,55 @@ Proof.
 Defined.
 
 End fibre_precategory.
+
+Arguments fibre_precategory {_} _ _ .
+
+Notation "D [[ x ]]" := (fibre_precategory D x)(at level 3,format "D [[ x ]]").
+
+Section fibre_functor.
+
+Variables C' C : Precategory.
+Variable F : functor C' C.
+Variable D' : disp_precat C'.
+Variable D : disp_precat C.
+Variable FF : functor_over F D' D.
+
+Variable x' : C'.
+
+Definition fibre_functor_data : functor_data D'[[x']] D[[F x']].
+Proof.
+  mkpair.
+  - apply (fun xx' => FF xx').
+  - intros xx' xx ff.
+    apply (transportf _ (functor_id _ _ ) (# FF ff)).
+Defined.
+
+Lemma is_functor_fibre : is_functor fibre_functor_data.
+Proof.
+  split; unfold functor_idax, functor_compax; cbn.
+  - intros.
+    apply Utilities.transportf_pathsinv0.
+    apply pathsinv0. apply functor_over_id.
+  - intros.
+    etrans. apply maponpaths. apply functor_over_transportf.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply functor_over_comp.
+    etrans. apply transport_f_f.
+    apply pathsinv0.
+    etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
+    etrans. apply transport_f_f.
+    apply transportf_comp_lemma.
+    apply transportf_comp_lemma_hset.
+    + apply homset_property.
+    + apply idpath.
+Qed.
+
+Definition fibre_functor : functor _ _ := ( _ ,, is_functor_fibre).
+
+
+End fibre_functor.
 
 
 
