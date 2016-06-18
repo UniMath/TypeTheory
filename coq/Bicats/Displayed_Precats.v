@@ -264,6 +264,33 @@ Definition iso_disp {C : Precategory} {D : disp_precat_data C}
     {x y : C} (f : iso x y) (xx : D x) (yy : D y)
   := Σ ff : xx ⇒[f] yy, is_iso_disp f ff.
 
+Definition mor_disp_from_iso {C : Precategory} {D : disp_precat_data C}
+    {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
+    (i : iso_disp f xx yy) : _ ⇒[ _ ] _ := pr1 i.
+Coercion mor_disp_from_iso : iso_disp >-> mor_disp.
+
+Definition inv_mor_disp_from_iso {C : Precategory} {D : disp_precat_data C}
+    {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
+    (i : iso_disp f xx yy) : _ ⇒[ _ ] _ := pr1 (pr2 i).
+
+Definition iso_disp_after_inv_mor {C : Precategory} {D : disp_precat_data C}
+    {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
+    (i : iso_disp f xx yy) 
+    : 
+    inv_mor_disp_from_iso i ;; i = transportb _ (iso_after_iso_inv _) (id_disp _).
+Proof.
+  apply (pr2 (pr2 i)).
+Qed.
+Definition inv_mor_after_iso_disp {C : Precategory} {D : disp_precat_data C}
+    {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
+    (i : iso_disp f xx yy) 
+    : 
+    i ;; inv_mor_disp_from_iso i = transportb _ (iso_inv_after_iso _) (id_disp _).
+Proof.
+  apply (pr2 (pr2 (pr2 i))).
+Qed.
+
+
 Lemma isaprop_is_iso_disp {C : Precategory} {D : disp_precat C}
     {x y : C} (f : iso x y) {xx : D x} {yy} (ff : xx ⇒[f] yy)
   : isaprop (is_iso_disp f ff).
