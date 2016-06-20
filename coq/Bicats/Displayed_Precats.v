@@ -857,6 +857,26 @@ Definition functor_over_comp {C' C} {F} {D' : disp_precat C'} {D : disp_precat C
     = transportb _ (functor_comp F _ _ _ f g) (# FF ff ;; # FF gg)
 := pr2 (pr2 FF) _ _ _ _ _ _ _ _ ff gg.
 
+Definition functor_over_identity_ff {C} 
+  {D' D: disp_precat C} (FF : functor_over (functor_identity _ ) D' D) : UU
+  :=
+    forall (x' x : C) (xx' : D' x') (xx : D' x) (f : x' ⇒ x),
+           isweq (fun ff : xx' ⇒[f] xx => # FF ff).
+
+Definition functor_over_ff {C' C} {F} {D' : disp_precat C'} {D : disp_precat C}
+    (FF : functor_over F D' D)
+    :=
+      ∀ {x y} {xx : D' x} {yy : D' y} {f : x ⇒ y},
+           isweq (fun ff : xx ⇒[f] yy => # FF ff).
+
+(*
+Definition functor_over_identity_ess_split {C} 
+  {D' D: disp_precat C} (FF : functor_over (functor_identity _ ) D' D) : UU
+  :=
+    forall (x' x : C) (xx' : D' x') (xx : D' x) (f : x' ⇒ x),
+           isweq (fun ff : xx' ⇒[f] xx => # FF ff).
+*)
+
 Definition total_functor_data {C' C} {F}
     {D' : disp_precat C'} {D : disp_precat C} (FF : functor_over F D' D)
   : functor_data (total_precat D') (total_precat D).

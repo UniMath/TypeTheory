@@ -271,10 +271,41 @@ Qed.
 
 Definition fibre_functor : functor _ _ := ( _ ,, is_functor_fibre).
 
-
 End fibre_functor.
 
+Section fibre_functor_identity_ff.
 
+Variables C : Precategory.
+Variables D' D : disp_precat C.
+Variable FF : functor_over (functor_identity _ ) D' D.
+Hypothesis H : functor_over_identity_ff FF.
+
+Lemma fibre_functor_identity_ff (x : C) : fully_faithful (fibre_functor _ _ _ _ _ FF x).
+Proof.
+  intros xx yy. apply H.
+Defined.
+
+End fibre_functor_identity_ff.
+
+Section fibre_functor_ff.
+Variables C' C : Precategory.
+Variable F : functor C' C.
+Variable D' : disp_precat C'.
+Variable D : disp_precat C.
+Variable FF : functor_over F D' D.
+
+Hypothesis H : functor_over_ff FF.
+
+Lemma fibre_functor_ff (x : C') : fully_faithful (fibre_functor _ _ _ _ _ FF x).
+Proof.
+  intros xx yy; cbn.
+  set (XR := H _ _ xx yy (identity _ )).
+  apply twooutof3c.
+  - apply XR.
+  - apply isweqtransportf.
+Defined.
+
+End fibre_functor_ff.
 
 (** Composite and  identity displayed functors *)
 
