@@ -305,6 +305,32 @@ Proof.
   - apply isweqtransportf.
 Defined.
 
+Variable X : functor_over_ess_split_surj _ FF.
+Variable Y : iso_fibration D'.
+
+Definition fibre_functor_ess_split_surj (x' : C') : 
+   forall yy : D[[F x']], Σ xx : D'[[x']], 
+                iso (fibre_functor _ _ _ _ _ FF x' xx) yy.
+Proof.
+  intro yy.
+  set (XR := X _ yy).
+  destruct XR as [c'' [i [xx' ii] ] ].
+  set (YY := Y _ _ i xx').
+  destruct YY as [ dd pe ].
+  mkpair.
+  - apply dd.
+  - 
+    (* now need functor_disp_on_iso *)
+(*
+    set (Beurk := inv_from_iso_disp
+    unfold iso.
+    cbn. simpl.
+    unfold iso.
+    apply pe.
+  exists xx'.
+*)
+Abort.
+
 End fibre_functor_ff.
 
 (** Composite and  identity displayed functors *)
