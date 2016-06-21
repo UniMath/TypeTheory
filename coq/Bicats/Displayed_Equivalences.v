@@ -320,16 +320,26 @@ Proof.
   mkpair.
   - apply dd.
   - 
-    (* now need functor_disp_on_iso *)
-(*
-    set (Beurk := inv_from_iso_disp
-    unfold iso.
-    cbn. simpl.
-    unfold iso.
-    apply pe.
-  exists xx'.
-*)
-Abort.
+    (* now need functor_over_on_iso_disp *)
+    set (XR := functor_over_on_iso_disp FF pe).
+    set (XR' := iso_inv_from_iso_disp XR).
+    (* now need composition of iso_disps *)
+    apply  (invweq (iso_disp_iso_fibre _ _ _ _ _ )).
+    set (XRt := iso_disp_comp XR' ii).
+    transparent assert (XH : 
+           (iso_comp (iso_inv_from_iso (functor_on_iso F i))
+             (functor_on_iso F i) = identity_iso _ )).
+    { apply eq_iso. cbn. simpl. unfold precomp_with.
+      etrans. apply maponpaths_2. apply id_right.
+      etrans. eapply pathsinv0. apply functor_comp. 
+      etrans. Focus 2. apply functor_id. 
+      apply maponpaths. apply iso_after_iso_inv.
+   } 
+    set (XRT := transportf (fun r => iso_disp r (FF x' dd) yy ) 
+                           XH).
+    apply XRT.
+    assumption.
+Defined.
 
 End fibre_functor_ff.
 
