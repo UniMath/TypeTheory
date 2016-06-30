@@ -41,6 +41,7 @@ Local Set Automatic Introduction.
 
 Local Open Scope type_scope.
 
+Undelimit Scope transport.
 
 (** * Displayed precategories *)
 
@@ -171,6 +172,15 @@ Definition assoc_disp {C} {D : disp_precat C}
   {ff : xx ⇒[f] yy} {gg : yy ⇒[g] zz} {hh : zz ⇒[h] ww}
 : ff ;; (gg ;; hh) = transportb _ (assoc _ _ _) ((ff ;; gg) ;; hh)
 := pr1 (pr2 (pr2 (pr2 D))) _ _ _ _ _ _ _ _ _ _ _ _ _ _.
+
+Definition assoc_disp_var {C} {D : disp_precat C}
+  {x y z w} {f} {g} {h} {xx : D x} {yy : D y} {zz : D z} {ww : D w}
+  (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz) (hh : zz ⇒[h] ww)
+: (ff ;; gg) ;; hh = transportf _ (assoc _ _ _) (ff ;; (gg ;; hh)).
+Proof.
+  apply pathsinv0, Utilities.transportf_pathsinv0.
+  apply pathsinv0, assoc_disp.
+Defined.
 
 Definition homsets_disp {C} {D :disp_precat C} {x y} {f} {xx : D x} {yy : D y}
   : isaset (xx ⇒[f] yy)
@@ -328,6 +338,94 @@ Proof.
   apply subtypeEquality; intro; apply isaprop_is_iso_disp.
 Qed.
 
+
+Definition iso_inv_from_iso_disp {C : Precategory} {D : disp_precat_data C}
+    {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
+    (i : iso_disp f xx yy) 
+    :
+    iso_disp (iso_inv_from_iso f) yy xx.
+Proof.
+  exists (inv_mor_disp_from_iso i).
+  mkpair.
+  - change ( xx ⇒[ iso_inv_from_iso (iso_inv_from_iso f)] yy).    
+    set (XR := transportb (mor_disp xx yy ) 
+                          (maponpaths pr1 (iso_inv_iso_inv _ _ _ f))).
+    apply XR. apply i.
+  - cbn.
+    split.
+    + abstract (
+      etrans ;[ apply mor_disp_transportf_postwhisker |];
+      etrans ;[ apply maponpaths; apply inv_mor_after_iso_disp |];
+      etrans ;[ apply transport_f_f |];
+      apply transportf_comp_lemma; apply transportf_comp_lemma_hset;
+      try apply homset_property; apply idpath ).
+    + abstract (
+      etrans ;[ apply mor_disp_transportf_prewhisker |];
+      etrans ;[ apply maponpaths; apply iso_disp_after_inv_mor |];
+      etrans ;[ apply transport_f_f |];
+      apply transportf_comp_lemma; apply transportf_comp_lemma_hset;
+      try apply homset_property; apply idpath ).
+Defined.
+
+Definition iso_disp_comp {C : Precategory} {D : disp_precat C}
+    {x y z : C} {f : iso x y} {g : iso y z} {xx : D x} {yy : D y} {zz : D z}
+    (ff : iso_disp f xx yy) (gg : iso_disp g yy zz) 
+    :
+    iso_disp (iso_comp f g) xx zz.
+Proof.
+  mkpair.
+  - apply (ff ;; gg).
+  - mkpair.
+    + Search (iso_inv_from_iso (iso_comp _ _ ) = _ ).
+      apply (transportb (mor_disp zz xx) (maponpaths pr1 (iso_inv_of_iso_comp _ _ _ _ f g))).
+      cbn.
+      apply (inv_mor_disp_from_iso gg ;; inv_mor_disp_from_iso ff).
+    + split.
+      * etrans.  apply mor_disp_transportf_postwhisker.
+        etrans. apply maponpaths. apply assoc_disp_var.
+        etrans. apply maponpaths, maponpaths, maponpaths.
+                apply assoc_disp.
+        etrans. apply maponpaths, maponpaths, maponpaths, maponpaths.
+                eapply (maponpaths (fun x => x ;; gg)).
+                apply iso_disp_after_inv_mor.
+        etrans. apply transport_f_f.
+        etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
+        etrans.  apply transport_f_f. 
+        etrans. apply maponpaths, maponpaths. 
+          apply mor_disp_transportf_postwhisker.
+        etrans. apply maponpaths. apply mor_disp_transportf_prewhisker. 
+        etrans. apply transport_f_f. 
+        etrans. apply maponpaths, maponpaths. apply id_left_disp.
+        etrans. apply maponpaths. apply mor_disp_transportf_prewhisker. 
+        etrans. apply transport_f_f. 
+        etrans. apply maponpaths.        apply iso_disp_after_inv_mor.
+        etrans. apply transport_f_f. 
+        apply transportf_comp_lemma; apply transportf_comp_lemma_hset;
+        try apply homset_property; apply idpath.
+      * cbn. simpl.
+        etrans. apply assoc_disp_var. 
+        etrans. apply maponpaths, maponpaths.
+                 apply mor_disp_transportf_prewhisker. 
+        etrans. apply maponpaths, maponpaths, maponpaths.
+                apply assoc_disp.
+        etrans. apply maponpaths, maponpaths, maponpaths, maponpaths.
+                eapply (maponpaths (fun x => x ;; inv_mor_disp_from_iso ff )).
+                apply inv_mor_after_iso_disp.
+        etrans. apply maponpaths, maponpaths, maponpaths, maponpaths.
+                 apply mor_disp_transportf_postwhisker. 
+        etrans. apply maponpaths, maponpaths, maponpaths, maponpaths, maponpaths.
+                apply id_left_disp.
+        etrans. apply maponpaths, maponpaths. apply transport_f_f.
+        etrans. apply maponpaths, maponpaths. apply transport_f_f.
+        etrans.  apply maponpaths, maponpaths. apply transport_f_f.
+        etrans. apply maponpaths. apply mor_disp_transportf_prewhisker. 
+        etrans. apply transport_f_f.
+        etrans. apply maponpaths.                apply inv_mor_after_iso_disp.
+        etrans. apply transport_f_f.
+        apply transportf_comp_lemma; apply transportf_comp_lemma_hset;
+        try apply homset_property; apply idpath.
+Defined.
+
 Definition id_is_iso_disp {C} {D : disp_precat C} {x : C} (xx : D x)
   : is_iso_disp (identity_iso x) (id_disp xx).
 Proof.
@@ -356,6 +454,17 @@ Lemma idtoiso_fiber_disp {C} {D : disp_precat C} {x : C}
 Proof.
   exact (idtoiso_disp (idpath _) ee).
 Defined.
+
+(** TODO: define isofibrations
+whenever you have an iso φ : c =~ c' in C, and an object d in D c,
+there’s some object d' in D c', and an iso φbar : d =~ d' over φ
+*)
+
+Definition iso_fibration {C : Precategory} (D : disp_precat C) : UU
+  := 
+  forall (c c' : C) (i : iso c c') (d : D c),
+          Σ d' : D c', iso_disp i d d'.
+
 
 End Isos.
 
@@ -856,6 +965,128 @@ Definition functor_over_comp {C' C} {F} {D' : disp_precat C'} {D : disp_precat C
   : # FF (ff ;; gg)
     = transportb _ (functor_comp F _ _ _ f g) (# FF ff ;; # FF gg)
 := pr2 (pr2 FF) _ _ _ _ _ _ _ _ ff gg.
+
+Definition functor_over_comp_var {C' C} {F} {D' : disp_precat C'} {D : disp_precat C}
+    (FF : functor_over F D' D)
+    {x y z} {xx : D' x} {yy} {zz} {f : x ⇒ y} {g : y ⇒ z}
+    (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
+  : transportf _ (functor_comp F _ _ _ f g) (# FF (ff ;; gg)) 
+     = # FF ff ;; # FF gg.
+Proof.
+  apply Utilities.transportf_pathsinv0.
+  apply pathsinv0, functor_over_comp.
+Defined.
+
+
+Lemma functor_over_transportf {C' C : Precategory}
+  {D' : disp_precat C'} {D : disp_precat C}
+  (F : functor C' C) (FF : functor_over F D' D)
+  (x' x : C') (f' f : x' ⇒ x) (p : f' = f)
+  (xx' : D' x') (xx : D' x)
+  (ff : xx' ⇒[ f' ] xx) 
+  :
+  # FF (transportf (mor_disp _ _ ) p ff)
+  = 
+  transportf _ (maponpaths (#F)%mor p) (#FF ff) .
+Proof.
+  induction p.
+  apply idpath.
+Defined.
+
+(** Let's see how [functor_over]s behave on [iso_disp]s *)
+(** TODO: opacify *)
+Undelimit Scope transport.
+Definition functor_over_iso_disp_is_iso {C' C} {F} 
+    {D' : disp_precat C'} {D : disp_precat C}
+    (FF : functor_over F D' D)
+    {x y} {xx : D' x} {yy} {f : iso x y} 
+    (ff : iso_disp f xx  yy)
+    : is_iso_disp (functor_on_iso F f) (# FF ff).
+Proof.
+  mkpair.
+  - set (XR := #FF (inv_mor_disp_from_iso ff)).
+(*    Search (_ (inv_from_iso _ ) = inv_from_iso _ ). *)
+    apply (transportf _ (functor_on_inv_from_iso _ _ F _ _ f) XR).
+  - abstract ( split ;
+               [
+      etrans; [ apply mor_disp_transportf_postwhisker |] ;
+      etrans; [ apply maponpaths; eapply pathsinv0;
+                    apply functor_over_comp_var |];
+      etrans ;[ apply transport_f_f |];
+      etrans ;[ apply maponpaths, maponpaths, iso_disp_after_inv_mor |];
+      etrans ;[ apply maponpaths, functor_over_transportf |];
+      etrans ;[ apply transport_f_f |];
+      etrans ;[ apply maponpaths, functor_over_id |];
+      etrans ;[ apply transport_f_f |];
+      apply transportf_comp_lemma;
+      apply transportf_comp_lemma_hset;
+       try apply homset_property; apply idpath
+              |
+      etrans ;[ apply mor_disp_transportf_prewhisker |];
+      etrans ;[ apply maponpaths; eapply pathsinv0; apply functor_over_comp_var |];
+      etrans ;[ apply transport_f_f |];
+      etrans ;[ apply maponpaths, maponpaths, inv_mor_after_iso_disp |];
+      etrans ;[ apply maponpaths, functor_over_transportf |];
+      etrans ;[ apply transport_f_f |];
+      etrans ;[ apply maponpaths, functor_over_id |];
+      etrans ;[ apply transport_f_f|];
+      apply transportf_comp_lemma;
+      apply transportf_comp_lemma_hset;
+      try apply homset_property; apply idpath
+             ]).
+Defined.
+
+Definition functor_over_on_iso_disp {C' C} {F} 
+    {D' : disp_precat C'} {D : disp_precat C}
+    (FF : functor_over F D' D)
+    {x y} {xx : D' x} {yy} {f : iso x y} 
+    (ff : iso_disp f xx  yy)
+    : iso_disp (functor_on_iso F f) (FF _ xx) (FF _ yy)
+    := (_ ,,  functor_over_iso_disp_is_iso _ ff).
+
+
+
+(* not needed, let's remove it *)
+Definition functor_over_identity_ff {C} 
+  {D' D: disp_precat C} (FF : functor_over (functor_identity _ ) D' D) : UU
+  :=
+    forall (x' x : C) (xx' : D' x') (xx : D' x) (f : x' ⇒ x),
+           isweq (fun ff : xx' ⇒[f] xx => # FF ff).
+
+Definition functor_over_ff {C' C} {F} {D' : disp_precat C'} {D : disp_precat C}
+    (FF : functor_over F D' D)
+    :=
+      ∀ {x y} {xx : D' x} {yy : D' y} {f : x ⇒ y},
+           isweq (fun ff : xx ⇒[f] yy => # FF ff).
+
+
+(* 
+F : C' —> C
+and FF : D' —> D' over it
+then FF is essentially surjective (relative to F)
+if for any c' in C'
+and d in D (F c')
+there’s some dbar in D' c
+and an iso FF (dbar) =~ d in D' (F c), over the identity?
+alternatively,
+actually I guess this is probably better,
+given the same inputs,
+there’s some c' in C',
+an iso φ : c' =~ c in C',
+some dbar in D' c',
+and an iso FF dbar =~ d
+over F φ.
+*)
+
+Definition functor_over_ess_split_surj {C' C : Precategory} (F : functor C' C)
+  {D' : disp_precat C'} {D : disp_precat C} 
+  (FF : functor_over F D' D) : UU
+  :=
+    forall (c' : C') (d : D (F c')),
+      Σ c'' : C', 
+      Σ i : iso c'' c', 
+      Σ dbar : D' c'',
+      iso_disp (functor_on_iso F i) (FF _ dbar) d.
 
 Definition total_functor_data {C' C} {F}
     {D' : disp_precat C'} {D : disp_precat C} (FF : functor_over F D' D)

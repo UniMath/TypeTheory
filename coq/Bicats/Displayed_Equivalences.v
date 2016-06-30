@@ -271,10 +271,77 @@ Qed.
 
 Definition fibre_functor : functor _ _ := ( _ ,, is_functor_fibre).
 
-
 End fibre_functor.
 
+Section fibre_functor_identity_ff.
 
+Variables C : Precategory.
+Variables D' D : disp_precat C.
+Variable FF : functor_over (functor_identity _ ) D' D.
+Hypothesis H : functor_over_identity_ff FF.
+
+Lemma fibre_functor_identity_ff (x : C) : fully_faithful (fibre_functor _ _ _ _ _ FF x).
+Proof.
+  intros xx yy. apply H.
+Defined.
+
+End fibre_functor_identity_ff.
+
+Section fibre_functor_ff.
+Variables C' C : Precategory.
+Variable F : functor C' C.
+Variable D' : disp_precat C'.
+Variable D : disp_precat C.
+Variable FF : functor_over F D' D.
+
+Hypothesis H : functor_over_ff FF.
+
+Lemma fibre_functor_ff (x : C') : fully_faithful (fibre_functor _ _ _ _ _ FF x).
+Proof.
+  intros xx yy; cbn.
+  set (XR := H _ _ xx yy (identity _ )).
+  apply twooutof3c.
+  - apply XR.
+  - apply isweqtransportf.
+Defined.
+
+Variable X : functor_over_ess_split_surj _ FF.
+Variable Y : iso_fibration D'.
+
+Definition fibre_functor_ess_split_surj (x' : C') : 
+   forall yy : D[[F x']], Σ xx : D'[[x']], 
+                iso (fibre_functor _ _ _ _ _ FF x' xx) yy.
+Proof.
+  intro yy.
+  set (XR := X _ yy).
+  destruct XR as [c'' [i [xx' ii] ] ].
+  set (YY := Y _ _ i xx').
+  destruct YY as [ dd pe ].
+  mkpair.
+  - apply dd.
+  - 
+    (* now need functor_over_on_iso_disp *)
+    set (XR := functor_over_on_iso_disp FF pe).
+    set (XR' := iso_inv_from_iso_disp XR).
+    (* now need composition of iso_disps *)
+    apply  (invweq (iso_disp_iso_fibre _ _ _ _ _ )).
+    set (XRt := iso_disp_comp XR' ii).
+    transparent assert (XH : 
+           (iso_comp (iso_inv_from_iso (functor_on_iso F i))
+             (functor_on_iso F i) = identity_iso _ )).
+    { apply eq_iso. cbn. simpl. unfold precomp_with.
+      etrans. apply maponpaths_2. apply id_right.
+      etrans. eapply pathsinv0. apply functor_comp. 
+      etrans. Focus 2. apply functor_id. 
+      apply maponpaths. apply iso_after_iso_inv.
+   } 
+    set (XRT := transportf (fun r => iso_disp r (FF x' dd) yy ) 
+                           XH).
+    apply XRT.
+    assumption.
+Defined.
+
+End fibre_functor_ff.
 
 (** Composite and  identity displayed functors *)
 
