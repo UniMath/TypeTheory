@@ -378,7 +378,7 @@ Section lemmas.
         apply funextsec; intro.
         apply funextsec; intro.
         apply funextsec; intro f.
-        apply univalenceaxiom.
+        apply univalenceAxiom.
         exists (X _ _ _).
         apply isweqimplimpl.
         * apply X'.

@@ -61,7 +61,7 @@ Lemma funextsec_idpath (A : UU) (B : A → UU) (f : ∀ a : A, B a)
   : funextsec _ _ _ H = idpath f.
 Proof.
   eapply pathscomp0.
-    eapply maponpaths. apply funextsec. apply H'.
+    eapply maponpaths. apply funextsec. unfold homot; apply H'.
   refine (homotinvweqweq _ (idpath f)).
 Defined.
 
@@ -136,7 +136,7 @@ Definition FAM_obj_UU_weq (A B : obj_UU) : (A = B) ≃ FAM_obj_eq_type A B.
 Proof.
   eapply weqcomp.
   - apply total2_paths_equiv.
-  - apply (weqbandf (weqpair _ (univalenceaxiom _  _ ))).
+  - apply (weqbandf (weqpair _ (univalenceAxiom _  _ ))).
     simpl.
     intro p.
     destruct A as [A x].

@@ -437,7 +437,7 @@ Definition iscompatible_fam_from_qq
 Proof.
   intros Γ Γ' A f; apply nat_trans_eq. 
   - apply has_homsets_HSET.
-  - intro; apply funextsec, fam_from_qq_pointwise_compatible.
+  - intro; apply funextsec; unfold homot; apply fam_from_qq_pointwise_compatible.
 Qed.
 
 Definition compatible_fam_from_qq : compatible_fam_structure Z

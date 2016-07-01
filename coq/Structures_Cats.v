@@ -228,7 +228,7 @@ Proof.
     + apply functor_category_has_homsets.
     + repeat (apply impred_isaprop; intro). apply functor_category_has_homsets.
   - apply nat_trans_eq. apply has_homsets_HSET. 
-    intros Γ. apply funextsec. apply e_TM.
+    intros Γ. apply funextsec. unfold homot. apply e_TM.
 Qed.
 
 
