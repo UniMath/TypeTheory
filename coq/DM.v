@@ -38,14 +38,14 @@ Reserved Notation "γ ⋆ f" (at level 25).
 
 Record CwDM := {
   C : precategory ;
-  DM : ∀ {Δ Γ : C}, Δ ⇒ Γ → hProp ;
-  pb : ∀ {Δ Γ : C} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ), C  where "γ ⋆ f" := (pb γ f) ;
-  pb_DM_of_DM : ∀  {Δ Γ} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ),  Σ f : (γ⋆f) ⇒ Γ', DM f ;
-  pb_arrow_of_arrow : ∀ {Δ Γ} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ),  γ⋆f ⇒ Δ ;
-  sqr_comm_of_DM : ∀ {Δ Γ} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ),
+  DM : Π {Δ Γ : C}, Δ ⇒ Γ → hProp ;
+  pb : Π {Δ Γ : C} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ), C  where "γ ⋆ f" := (pb γ f) ;
+  pb_DM_of_DM : Π  {Δ Γ} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ),  Σ f : (γ⋆f) ⇒ Γ', DM f ;
+  pb_arrow_of_arrow : Π {Δ Γ} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ),  γ⋆f ⇒ Δ ;
+  sqr_comm_of_DM : Π {Δ Γ} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ),
                       pb_arrow_of_arrow _ _  ;; pr1 γ = pr1 (pb_DM_of_DM γ f)  ;; f ;
 
-  isPullback_of_DM : ∀ {Δ Γ} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ),
+  isPullback_of_DM : Π {Δ Γ} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ),
                        isPullback _ _ _ _ (sqr_comm_of_DM γ f)
 
 }.
@@ -59,7 +59,7 @@ End Record_Preview.
 
 Definition dm_sub_struct (CC : precategory)
   : UU
-  := ∀ {Δ Γ : CC} , Δ ⇒ Γ → UU.
+  := Π {Δ Γ : CC} , Δ ⇒ Γ → UU.
 
 Definition DM_type {C : precategory} (H : dm_sub_struct C) {Δ Γ} (γ : Δ ⇒ Γ)
            := H Δ Γ γ.
@@ -89,9 +89,9 @@ Coercion arrow_from_DM {C : precategory} (H : dm_sub_struct C)(Δ Γ : C) (δ : 
 
 Definition dm_sub_closed_under_iso {CC : precategory} (C : dm_sub_struct CC)
   : UU
-  := ∀ Δ Γ (γ : DM C Δ Γ),
-                          ∀ Δ' (δ : Δ' ⇒ Γ), 
-                          ∀ (h : iso Δ Δ'), h ;; δ = γ → DM_type C δ.
+  := Π Δ Γ (γ : DM C Δ Γ),
+                          Π Δ' (δ : Δ' ⇒ Γ), 
+                          Π (h : iso Δ Δ'), h ;; δ = γ → DM_type C δ.
 
 
 (** ** Display maps are closed under pullback *)
@@ -114,7 +114,7 @@ Definition dm_sub_closed_under_iso {CC : precategory} (C : dm_sub_struct CC)
 
 Definition pb_of_DM_struct {CC : precategory} (H : dm_sub_struct CC)
 : UU
-  := ∀ Δ Γ (γ : DM H Δ Γ), ∀ Γ' (f : Γ' ⇒ Γ),
+  := Π Δ Γ (γ : DM H Δ Γ), Π Γ' (f : Γ' ⇒ Γ),
        Σ P : Pullback γ f, DM_type H (PullbackPr2 P).
 
 (*
@@ -146,7 +146,7 @@ Search (isofhlevel _ _ -> isofhlevel _ _ ).
 (*
 Definition pb_type_of_DM_weq_Pb {CC : precategory} (sat : is_category CC) (H : dm_sub_struct CC)
       {Δ Γ} (γ : DM H Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
-:  (∀ Γ Γ' (γ : Γ ⇒ Γ'), isaprop (DM_type H γ)) →
+:  (Π Γ Γ' (γ : Γ ⇒ Γ'), isaprop (DM_type H γ)) →
    isaprop (pb_type_of_DM _ γ f).
 Proof.
   intros.
@@ -175,7 +175,7 @@ Proof.
 (*
 Definition pb_type_of_DM_weq_Pb {CC : precategory} (sat : is_category CC) (H : dm_sub_struct CC)
       {Δ Γ} (γ : DM H Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
-:  (∀ Γ Γ' (γ : Γ ⇒ Γ'), isaprop (DM_type H γ)) →
+:  (Π Γ Γ' (γ : Γ ⇒ Γ'), isaprop (DM_type H γ)) →
    isaprop (pb_type_of_DM _ γ f).
 Proof.
   intros.
@@ -254,7 +254,7 @@ Proof.
 (*
 Definition pb_of_DM_struct {CC : precategory} (H : dm_sub_struct CC)
 : UU
-  := ∀ Δ Γ (γ : DM H Δ Γ) Γ' (f : Γ' ⇒ Γ), pb_type_of_DM H γ f.
+  := Π Δ Γ (γ : DM H Δ Γ) Γ' (f : Γ' ⇒ Γ), pb_type_of_DM H γ f.
 *)
 (*
     Σ (pfg : Σ Δ' : CC, Δ' ⇒ Δ × DM H Δ' Γ') (H : pr1 (pr2 pfg);; γ = pr2 (pr2 pfg);; f),
@@ -305,7 +305,7 @@ isPullback_Pullback (pr1 (pr2 C _ _ γ _ f )).
 (*
 Definition dm_closed_under_pb {CC : precategory} (C : dm_sub_pb CC)
 : UU
-    := ∀ Δ Γ (γ : DM C Δ Γ) Γ' (f : Γ' ⇒ Γ), DM_type C (pb_mor_of_DM γ f).
+    := Π Δ Γ (γ : DM C Δ Γ) Γ' (f : Γ' ⇒ Γ), DM_type C (pb_mor_of_DM γ f).
 *)
 
 (** ** DM structure: putting the pieces together *)
@@ -314,7 +314,7 @@ Definition DM_structure (CC : precategory) : UU
   := Σ C : dm_sub_pb CC,
    (*        dm_closed_under_pb C *)
           dm_sub_closed_under_iso C
-        ×  ∀ Γ Γ' (γ : Γ ⇒ Γ'), isaprop (DM_type C γ).
+        ×  Π Γ Γ' (γ : Γ ⇒ Γ'), isaprop (DM_type C γ).
 
 (** ** Some access functions *)
 (** Names are chosen as for the preview above *)
@@ -362,8 +362,8 @@ Defined.
 Section lemmas.
 
   Definition DM_equal {CC} (H : is_category CC) (D D' : DM_structure CC)
-             (X : ∀ Δ Γ (f : Δ ⇒ Γ), DM_type D f → DM_type D' f)
-             (X' : ∀ Δ Γ (f : Δ ⇒ Γ), DM_type D' f → DM_type D f)
+             (X : Π Δ Γ (f : Δ ⇒ Γ), DM_type D f → DM_type D' f)
+             (X' : Π Δ Γ (f : Δ ⇒ Γ), DM_type D' f → DM_type D f)
   : D = D'.
   Proof.
     apply subtypeEquality'.

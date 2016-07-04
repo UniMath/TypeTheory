@@ -63,19 +63,19 @@ Definition fpullback {X : C} (f : D ⟦J X, U⟧) :=
 Coercion fpullback_data_from_fpullback {X : C} {f : D ⟦J X, U⟧} (T : fpullback f) :
    fpullback_data f := pr1 T.
 
-Definition fcomprehension := ∀ X (f : D⟦J X, U⟧), fpullback f.
+Definition fcomprehension := Π X (f : D⟦J X, U⟧), fpullback f.
 
-Definition fcomprehension_data := ∀ X (f : D⟦ J X, U⟧), fpullback_data f.
+Definition fcomprehension_data := Π X (f : D⟦ J X, U⟧), fpullback_data f.
 Definition fcomprehension_prop (Y : fcomprehension_data) :=
-          ∀ X f, fpullback_prop (Y X f). 
+          Π X f, fpullback_prop (Y X f). 
 
 Definition fcomprehension_weq :
    fcomprehension ≃ Σ Y : fcomprehension_data, fcomprehension_prop Y.
 Proof.
   eapply weqcomp. Focus 2.
     set (XR:=@weqforalltototal (ob C)).
-    specialize (XR (fun X => ∀ f : D⟦ J X, U⟧, fpullback_data f)). simpl in XR.
-    specialize (XR (fun X pX => ∀ A, fpullback_prop  (pX  A))).
+    specialize (XR (fun X => Π f : D⟦ J X, U⟧, fpullback_data f)). simpl in XR.
+    specialize (XR (fun X pX => Π A, fpullback_prop  (pX  A))).
     apply XR.
   apply weqonsecfibers.
   intro X.

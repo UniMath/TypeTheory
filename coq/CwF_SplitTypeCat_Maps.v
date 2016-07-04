@@ -43,7 +43,7 @@ Section Compatible_Structures.
 
 Definition iscompatible_fam_qq (Y : families_structure hsC X)
          (Z : qq_morphism_structure X) : UU
-  := ∀ Γ Γ' A (f : C⟦Γ', Γ⟧) , Q Y A[f] = #(yoneda _ hsC) (qq Z f A) ;; Q Y A.
+  := Π Γ Γ' A (f : C⟦Γ', Γ⟧) , Q Y A[f] = #(yoneda _ hsC) (qq Z f A) ;; Q Y A.
 
 Lemma isaprop_iscompatible_fam_qq
   (Y : families_structure hsC X)
@@ -246,7 +246,7 @@ Variable Γ : C.
 Variable A : Ty X Γ.
 
 Definition Q_from_qq_data
-  : ∀ Γ', HSET ⟦ (Yo (Γ ◂ A) : functor _ _ ) Γ', tm_from_qq Γ' ⟧.
+  : Π Γ', HSET ⟦ (Yo (Γ ◂ A) : functor _ _ ) Γ', tm_from_qq Γ' ⟧.
 Proof.
   intros Γ' f. simpl in *.
   unfold yoneda_objects_ob in f.

@@ -92,7 +92,7 @@ End Record_Preview.
 Section Disp_Precat.
 
 Definition disp_precat_ob_mor (C : precategory_ob_mor)
-  := Σ (obd : C -> Type), (∀ x y:C, obd x -> obd y -> (x ⇒ y) -> Type).
+  := Σ (obd : C -> Type), (Π x y:C, obd x -> obd y -> (x ⇒ y) -> Type).
 
 Definition ob_disp {C} (D : disp_precat_ob_mor C) : C -> UU := pr1 D.
 Coercion ob_disp : disp_precat_ob_mor >-> Funclass.
@@ -139,17 +139,17 @@ Local Open Scope mor_disp_scope.
 
 Definition disp_precat_axioms (C : Precategory) (D : disp_precat_data C)
   : Type
-:= (∀ x y (f : x ⇒ y) (xx : D x) yy (ff : xx ⇒[f] yy),
+:= (Π x y (f : x ⇒ y) (xx : D x) yy (ff : xx ⇒[f] yy),
      id_disp _ ;; ff
      = transportb _ (id_left _) ff)
-   × (∀ x y (f : x ⇒ y) (xx : D x) yy (ff : xx ⇒[f] yy),
+   × (Π x y (f : x ⇒ y) (xx : D x) yy (ff : xx ⇒[f] yy),
      ff ;; id_disp _
      = transportb _ (id_right _) ff)
-   × (∀ x y z w f g h (xx : D x) (yy : D y) (zz : D z) (ww : D w)
+   × (Π x y z w f g h (xx : D x) (yy : D y) (zz : D z) (ww : D w)
         (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz) (hh : zz ⇒[h] ww),
      ff ;; (gg ;; hh)
      = transportb _ (assoc _ _ _) ((ff ;; gg) ;; hh))
-   × (∀ x y f (xx : D x) (yy : D y), isaset (xx ⇒[f] yy)).
+   × (Π x y f (xx : D x) (yy : D y), isaset (xx ⇒[f] yy)).
 
 Definition disp_precat (C : Precategory) := total2 (disp_precat_axioms C).
 
@@ -480,7 +480,7 @@ Definition is_category_disp {C} (D : disp_precat C)
 
 
 Lemma is_category_disp_from_fibers {C} {D : disp_precat C}
-  : (∀ x (xx xx' : D x), isweq (fun e : xx = xx' => idtoiso_fiber_disp e))
+  : (Π x (xx xx' : D x), isweq (fun e : xx = xx' => idtoiso_fiber_disp e))
   -> is_category_disp D.
 Proof.
   intros H x x' e. destruct e. apply H.
@@ -702,7 +702,7 @@ Proof.
   set (x := pr1 xs). set (xx := pr2 xs).  
   set (y := pr1 ys). set (yy := pr2 ys). 
   assert (lemma : 
-   ∀ (A B : Type) (f : A -> B) (w : A ≃ B) (H : w ~ f), isweq f).
+   Π (A B : Type) (f : A -> B) (w : A ≃ B) (H : w ~ f), isweq f).
   {
     intros A B f w H. apply isweqhomot with w. apply H. apply weqproperty.
   }
@@ -903,8 +903,8 @@ Section Functor_Over.
 
 Definition functor_over_data {C' C : precategory_data} (F : functor_data C' C)
   (D' : disp_precat_data C') (D : disp_precat_data C)
-:= Σ (Fob : ∀ x, D' x -> D (F x)),
-     ∀ x y (xx : D' x) (yy : D' y) (f : x ⇒ y),
+:= Σ (Fob : Π x, D' x -> D (F x)),
+     Π x y (xx : D' x) (yy : D' y) (f : x ⇒ y),
        (xx ⇒[f] yy) -> (Fob _ xx ⇒[ # F f ] Fob _ yy).
 
 Definition functor_over_on_objects {C' C : precategory_data} {F : functor_data C' C}
@@ -932,9 +932,9 @@ Notation "# F" := (functor_over_on_morphisms F)
 
 Definition functor_over_axioms {C' C : Precategory} {F : functor C' C}
   {D' : disp_precat C'} {D : disp_precat C} (FF : functor_over_data F D' D)
-:=  (∀ x (xx : D' x),
+:=  (Π x (xx : D' x),
       # FF (id_disp xx) = transportb _ (functor_id F x) (id_disp (FF _ xx)))
-  × (∀ x y z (xx : D' x) yy zz (f : x ⇒ y) (g : y ⇒ z)
+  × (Π x y z (xx : D' x) yy zz (f : x ⇒ y) (g : y ⇒ z)
         (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz),
       # FF (ff ;; gg)
       = transportb _ (functor_comp F _ _ _ f g) (# FF ff ;; # FF gg)).
@@ -1056,7 +1056,7 @@ Definition functor_over_identity_ff {C}
 Definition functor_over_ff {C' C} {F} {D' : disp_precat C'} {D : disp_precat C}
     (FF : functor_over F D' D)
     :=
-      ∀ {x y} {xx : D' x} {yy : D' y} {f : x ⇒ y},
+      Π {x y} {xx : D' x} {yy : D' y} {f : x ⇒ y},
            isweq (fun ff : xx ⇒[f] yy => # FF ff).
 
 

@@ -42,7 +42,7 @@ Section Obj_Ext_Structures.
 
 Definition obj_ext_structure : UU
   := Σ Ty : preShv C,
-        ∀ (Γ : C) (A : (Ty : functor _ _ ) Γ : hSet ), Σ (ΓA : C), ΓA ⇒ Γ.
+        Π (Γ : C) (A : (Ty : functor _ _ ) Γ : hSet ), Σ (ΓA : C), ΓA ⇒ Γ.
 
 Definition TY (X : obj_ext_structure) : preShv _ := pr1 X.
 Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
@@ -133,7 +133,7 @@ Components of [Y : families_structure X]:
 Definition families_structure_data : UU
   := Σ Tm : preShv C, 
         (Tm ⇒ TY X)
-        × (∀ Γ (A : Ty X Γ), Yo (Γ ◂ A) ⇒ Tm).
+        × (Π Γ (A : Ty X Γ), Yo (Γ ◂ A) ⇒ Tm).
 
 Definition TM (Y : families_structure_data) : preShv C := pr1 Y.
 Definition pp Y : TM Y ⇒ TY X := pr1 (pr2 Y).
@@ -149,7 +149,7 @@ Proof.
 Qed.
 
 Definition families_structure_axioms (Y : families_structure_data) :=
-  ∀ Γ (A : Ty X Γ), 
+  Π Γ (A : Ty X Γ), 
         Σ (e : #Yo (π A) ;; yy A = Q Y A ;; pp Y), isPullback _ _ _ _ e.
 
 Lemma isaprop_families_structure_axioms Y
@@ -247,9 +247,9 @@ Components of [Z : qq_morphism_structure X]:
 Local Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).
 
 Definition qq_morphism_data : UU :=
-  Σ q : ∀ {Γ Γ'} (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet), 
+  Σ q : Π {Γ Γ'} (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet), 
            C ⟦Γ' ◂ A [ f ], Γ ◂ A⟧, 
-    (∀ Γ Γ' (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet), 
+    (Π Γ Γ' (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet), 
         Σ e :  π _ ;; f = q f A ;; π _ , isPullback _ _ _ _ e).
 
 Definition qq (Y : qq_morphism_data) {Γ Γ'} (f : C ⟦Γ', Γ⟧)
@@ -279,11 +279,11 @@ Qed.
 
 Definition qq_morphism_axioms (Y : qq_morphism_data) : UU
   := 
-    (∀ Γ A,
+    (Π Γ A,
     qq Y (identity Γ) A
     = comp_ext_compare (toforallpaths _ _ _ (functor_id (TY X) _ ) _ ))
   ×
-    (∀ Γ Γ' Γ'' (f : C⟦Γ', Γ⟧) (g : C ⟦Γ'', Γ'⟧) (A : (TY X:functor _ _ ) Γ : hSet),
+    (Π Γ Γ' Γ'' (f : C⟦Γ', Γ⟧) (g : C ⟦Γ'', Γ'⟧) (A : (TY X:functor _ _ ) Γ : hSet),
     qq Y (g ;; f) A
     = comp_ext_compare
            (toforallpaths _ _ _ (functor_comp (TY X) _ _ _ _ _) A)

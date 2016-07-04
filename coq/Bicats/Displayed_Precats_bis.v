@@ -125,7 +125,7 @@ forall (x : C')  (xx : D' x),
 Check @nat_trans_ax.
 
 @nat_trans_ax
-     : ∀ (C C' : precategory_data) (F F' : functor_data C C')
+     : Π (C C' : precategory_data) (F F' : functor_data C C')
        (a : nat_trans F F') (x x' : C) (f : x ⇒ x'),
        (# F f ;; a x')%mor = (a x ;; # F' f)%mor
 *)
@@ -538,7 +538,7 @@ Lemma is_nat_trans_over_pointwise_inv
   (xx : disp_functor_precat x)
   (yy : disp_functor_precat y)
   (FF : xx ⇒[ f] yy)
-  (H : ∀ (x' : C') (xx' : D' x'),
+  (H : Π (x' : C') (xx' : D' x'),
       is_iso_disp (pointwise_iso_from_nat_iso f x') (pr1 FF x' xx'))
   (x' x0 : C')
   (f0 : x' ⇒ x0)

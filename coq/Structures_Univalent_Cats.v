@@ -45,10 +45,10 @@ Proof.
 Defined.
 
 Definition transportf_forall_var :
-  ∀ (A : UU) (B : A -> UU) (C : UU)
+  Π (A : UU) (B : A -> UU) (C : UU)
     (a1 a2 : A) (e : a1 = a2)
 (f : B a1 -> C),
-transportf (λ x : A, ∀ y : B x, C) e f =
+transportf (λ x : A, Π y : B x, C) e f =
 (λ y : B a2 ,  f (transportb B e y)).
 Proof.
   intros A B D a1 a2 e f.
@@ -59,10 +59,10 @@ Defined.
 (* transportf_forall *)
 
 Definition transportf_forall_var2 :
-  ∀ (A : UU) (B C : A -> UU) 
+  Π (A : UU) (B C : A -> UU) 
     (a1 a2 : A) (e : a1 = a2)
     (f : B a1 -> C a1),
-transportf (λ x : A, ∀ y : B x, C x) e f =  
+transportf (λ x : A, Π y : B x, C x) e f =  
 (λ y : B a2 , transportf _ e (f (transportb B e y))).
 Proof.
   intros A B D a1 a2 e f.
@@ -122,14 +122,14 @@ Local Notation φ := obj_ext_mor_φ.
 (* does not line up with identity 
 Definition obj_ext_iso_alt (X X' : obj_ext_Precat C) : UU :=
   Σ F_TY : iso (TY X) (TY X'),
-        ∀ {Γ:C} {A : Ty X Γ},
+        Π {Γ:C} {A : Ty X Γ},
          Σ φ : iso (Γ ◂ A) (Γ ◂ ((pr1 F_TY : nat_trans _ _) _ A)),
            φ ;; π _ = π A.
  *)
 
 Definition obj_ext_iso_alt (X X' : obj_ext_Precat C) : UU :=
   Σ F_TY : iso (TY X) (TY X'),
-        ∀ {Γ:C} {A' : Ty X' Γ},
+        Π {Γ:C} {A' : Ty X' Γ},
          Σ φ : iso (Γ ◂ ((inv_from_iso F_TY) : nat_trans _ _ ) _ A') (Γ ◂  A'),
            φ ;; π _ = π _ .
 
@@ -154,7 +154,7 @@ Proof.
   use (weqbandf H).
   intro F. simpl.
 (*  rewrite transportf_forall. (* do better *) *)
-  Search ( ( _ = _ ) ≃ (∀ _ ,  _ )).
+  Search ( ( _ = _ ) ≃ (Π _ ,  _ )).
   eapply weqcomp. apply weqtoforallpaths.
   Search ( (forall _ , _ ) ≃ (forall _ , _ )).
   apply weqonsecfibers.
@@ -209,7 +209,7 @@ Definition obj_ext_to_preShv_functor
 
 Definition transportf_obj_ext
   {T T' : preShv C} (e : T = T')
-  (extn : ∀ Γ : C, ((T : functor _ _) Γ : hSet) → Σ ΓA : C, ΓA ⇒ Γ) 
+  (extn : Π Γ : C, ((T : functor _ _) Γ : hSet) → Σ ΓA : C, ΓA ⇒ Γ) 
 : transportf _ e extn
   = fun Γ A => extn Γ ((inv_from_iso (idtoiso e) : nat_trans _ _) Γ A).
 Proof.
@@ -368,7 +368,7 @@ Qed.
 
 (* TODO: move *) 
 Definition pr1_transportf_prime :
- ∀ (A : UU) (a a' : A) (e : a = a') (B : A → UU) (P : ∀ a : A, B a → UU) 
+ Π (A : UU) (a a' : A) (e : a = a') (B : A → UU) (P : Π a : A, B a → UU) 
         (xs : Σ b : B a, P a b),
        pr1 (transportf (λ x : A, Σ b : B x, P x b) e xs) =
        transportf (λ x : A, B x) e (pr1 xs).
@@ -520,7 +520,7 @@ Qed.
 Lemma qq_structure_eq 
   (x : obj_ext_Precat C)
   (d d' : qq_morphism_structure x)
-  (H : ∀ (Γ Γ' : C) (f : Γ' ⇒ Γ) (A : (TY x : functor _ _ ) Γ : hSet), 
+  (H : Π (Γ Γ' : C) (f : Γ' ⇒ Γ) (A : (TY x : functor _ _ ) Γ : hSet), 
            qq d f A = qq d' f A)
   : d = d'.
 Proof.
