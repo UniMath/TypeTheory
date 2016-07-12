@@ -64,6 +64,24 @@ Defined.
 
 End move_upstream.
 
+(*
+
+we have F : C -> C',
+and FF : D -> D' over F,
+then dses says:
+for any c:C and d : D' (F c),
+there’s some “lift” [ dbar : D c ]
+and some iso [ d <~> d' ] over [ id (F c) ].
+*)
+
+Definition ses_disp {C' C : Precategory}
+  {D' : disp_precat C'} {D : disp_precat C}
+  {F : functor C' C} (FF : functor_over F D' D) : UU
+  := 
+  Π (c' : C') (d' : D (F c')),
+   Σ (dbar : D' c'), iso_disp (identity_iso _ ) (FF _ dbar) d'.
+
+
 
 Lemma functor_over_transportf {C' C : Precategory}
   {D' : disp_precat C'} {D : disp_precat C}
@@ -405,14 +423,80 @@ Section foo.
 Variable C : Precategory.
 Variables D' D : disp_precat C.
 
-Definition quasi_equiv_disp (F : functor_over (functor_identity _ ) D' D) : UU
+
+Definition equiv_disp (FF : functor_over (functor_identity _ ) D' D) : UU
   :=
-  Σ G : functor_over (functor_identity _ ) D D', 
-        nat_trans_over (nat_trans_id _ ) 
-                (functor_composite_over F G)  (functor_identity_over _ )
-     × nat_trans_over (nat_trans_id _ ) (functor_composite_over G F) (functor_identity_over _ ).
+  Σ (GG : functor_over (functor_identity _ ) D D') 
+    (η : nat_trans_over (nat_trans_id _ ) 
+                (functor_identity_over _ ) (functor_composite_over FF GG)  )
+    (ε : nat_trans_over (nat_trans_id _ ) (functor_composite_over GG FF) (functor_identity_over _ ))
+  , 
+    (Π x xx, #FF ( η x xx) ;;  ε _ (FF _ xx) = 
+               transportb _ (id_left _ ) (id_disp _) ) × 
+    (Π x xx, η _ (GG x xx) ;; # GG (ε _ xx) = 
+               transportb _ (id_left _ ) (id_disp _) ) ×  
+    (Π x xx, is_iso_disp (identity_iso _ ) (η x xx) × 
+    (Π x xx, is_iso_disp (identity_iso _ ) (ε x xx))). 
+
+
+Section equiv_from_ses_ff.
+
+(* now construct an [equiv_disp] from a s.e.s. and ff functor *)
+
+
+
+Variable FF : functor_over (functor_identity _ ) D' D.
+Hypothesis FFses : ses_disp FF.
+Hypothesis FFff : functor_over_ff FF.
+
+Let FFinv {x y} xx yy f := invmap (weqpair _ (FFff x y xx yy f)).
+
+Lemma FFinv_transportf x y (f f' : x ⇒ y) (p : f = f') xx yy 
+   (ff : FF _ xx ⇒[f] FF _ yy) :
+    FFinv _ _ _ (transportf _ p ff) = 
+     transportf _ p (FFinv _ _ _ ff).
+Proof.
+  induction p.
+  apply idpath.
+Defined.
+
+(*
+Variable X : iso_fibration D'.
+*)
+
+Local Definition GG : functor_over (functor_identity _ ) D D'.
+Proof.
+  mkpair.
+  - mkpair.
+    + intros x xx.
+      apply (pr1 (FFses x xx)).
+    + intros x y xx yy f X. simpl.
+      set (Hxx := FFses x xx).
+      set (Hyy := FFses y yy).
+
+      set ( HHH:= 
+        transportf _ (id_left _ )   
+                   (transportf _ (id_right _ ) ((pr2 Hxx ;; X) ;; inv_mor_disp_from_iso (pr2 Hyy)))).
+      set (HF := FFinv  (* (pr1 Hxx) (pr1 Hyy) f *) _ _ _  HHH).
+      apply HF.
+   - split; simpl.
+     + intros x xx.
+       etrans. apply FFinv_transportf.
+       etrans. apply maponpaths. apply FFinv_transportf.
+       Search (transportf _ _ (transportf _ _ _ )).
+       etrans. apply transport_f_f.
+       apply transportf_comp_lemma.
+       admit.
+     + intros.
+Abort.
+
+
+End equiv_from_ses_ff.
 
 End foo.
+
+
+(* *)
 
 
 
