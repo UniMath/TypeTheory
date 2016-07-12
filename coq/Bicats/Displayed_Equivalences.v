@@ -405,14 +405,25 @@ Section foo.
 Variable C : Precategory.
 Variables D' D : disp_precat C.
 
-Definition quasi_equiv_disp (F : functor_over (functor_identity _ ) D' D) : UU
+
+Definition equiv_disp (FF : functor_over (functor_identity _ ) D' D) : UU
   :=
-  Σ G : functor_over (functor_identity _ ) D D', 
-        nat_trans_over (nat_trans_id _ ) 
-                (functor_composite_over F G)  (functor_identity_over _ )
-     × nat_trans_over (nat_trans_id _ ) (functor_composite_over G F) (functor_identity_over _ ).
+  Σ (GG : functor_over (functor_identity _ ) D D') 
+    (η : nat_trans_over (nat_trans_id _ ) 
+                (functor_identity_over _ ) (functor_composite_over FF GG)  )
+    (ε : nat_trans_over (nat_trans_id _ ) (functor_composite_over GG FF) (functor_identity_over _ ))
+  , 
+    (Π x xx, #FF ( η x xx) ;;  ε _ (FF _ xx) = 
+               transportb _ (id_left _ ) (id_disp _) ) × 
+    (Π x xx, η _ (GG x xx) ;; # GG (ε _ xx) = 
+               transportb _ (id_left _ ) (id_disp _) ) ×  
+    (Π x xx, is_iso_disp (identity_iso _ ) (η x xx) × 
+    (Π x xx, is_iso_disp (identity_iso _ ) (ε x xx))). 
+
 
 End foo.
+
+(* *)
 
 
 
