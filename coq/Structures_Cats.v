@@ -44,7 +44,7 @@ Local Notation hsC := (homset_property C).
 
 Definition obj_ext_mor (X X' : obj_ext_structure C)
   := Σ F_TY : TY X ⇒ TY X',
-       ∀ {Γ:C} {A : Ty X Γ},
+       Π {Γ:C} {A : Ty X Γ},
          Σ φ : (Γ ◂ A ⇒ Γ ◂ ((F_TY : nat_trans _ _) _ A)),
            φ ;; π _ = π A.
 
@@ -71,8 +71,8 @@ Definition obj_ext_mor_ax {X X'} (F : obj_ext_mor X X')
 
 (* TODO: try to speed up? *)
 Lemma obj_ext_mor_eq {X X'} (F F' : obj_ext_mor X X')
-  (e_TY : ∀ Γ (A : Ty X Γ), F [ A ] = F' [ A ])
-  (e_comp : ∀ Γ (A : Ty X Γ),
+  (e_TY : Π Γ (A : Ty X Γ), F [ A ] = F' [ A ])
+  (e_comp : Π Γ (A : Ty X Γ),
     φ F A ;; @Δ _ _ _ _ _ (e_TY _ _)
     = φ F' A)
   : F = F'.
@@ -104,9 +104,9 @@ Qed.
 
 TODO: see if using this instead of [obj_ext_mor_eq] speeds up any proofs. *)
 Lemma obj_ext_mor_eq' {X X'} (F F' : obj_ext_mor X X')
-  (e_TY : ∀ Γ (A : Ty X Γ), F [ A ] = F' [ A ])
-  (e_comp_gen : ∀ (e_TY : ∀ Γ (A : Ty X Γ), F [ A ] = F' [ A ]),
-    ∀ Γ (A : Ty X Γ),
+  (e_TY : Π Γ (A : Ty X Γ), F [ A ] = F' [ A ])
+  (e_comp_gen : Π (e_TY : Π Γ (A : Ty X Γ), F [ A ] = F' [ A ]),
+    Π Γ (A : Ty X Γ),
     φ F A ;; @Δ _ _ _ _ _ (e_TY _ _)
     = φ F' A)
   : F = F'.
@@ -201,7 +201,7 @@ Definition families_mor {X X' : obj_ext_Precat C}
 := Σ FF_TM : TM Y ⇒ TM Y',
        FF_TM ;; pp Y' = pp Y ;; obj_ext_mor_TY F
      × 
-       ∀ {Γ:C} {A : Ty X Γ}, Q Y A ;; FF_TM = #Yo (φ F A) ;; Q Y' _.
+       Π {Γ:C} {A : Ty X Γ}, Q Y A ;; FF_TM = #Yo (φ F A) ;; Q Y' _.
 
 Definition families_mor_TM {X X'} {Y} {Y'} {F : X ⇒ X'} (FF : families_mor Y Y' F)
   : _ ⇒ _
@@ -218,7 +218,7 @@ Definition families_mor_Q {X X'} {Y} {Y'} {F : X ⇒ X'} (FF : families_mor Y Y'
 
 (* TODO: inline in [isaprop_families_mor]? *)
 Lemma families_mor_eq {X X'} {Y} {Y'} {F : X ⇒ X'} (FF FF' : families_mor Y Y' F)
-    (e_TM : ∀ Γ (t : Tm Y Γ),
+    (e_TM : Π Γ (t : Tm Y Γ),
       (families_mor_TM FF : nat_trans _ _) _ t
       = (families_mor_TM FF' : nat_trans _ _) _ t)
   : FF = FF'.
@@ -228,7 +228,7 @@ Proof.
     + apply functor_category_has_homsets.
     + repeat (apply impred_isaprop; intro). apply functor_category_has_homsets.
   - apply nat_trans_eq. apply has_homsets_HSET. 
-    intros Γ. apply funextsec. apply e_TM.
+    intros Γ. apply funextsec. unfold homot. apply e_TM.
 Qed.
 
 
@@ -368,7 +368,7 @@ Definition qq_structure_ob_mor : disp_precat_ob_mor (obj_ext_Precat C).
 Proof.
   exists (fun X => qq_morphism_structure X).
   intros X X' Z Z' F.
-  refine (∀ Γ' Γ (f : C ⟦ Γ' , Γ ⟧) (A : Ty X Γ), _).
+  refine (Π Γ' Γ (f : C ⟦ Γ' , Γ ⟧) (A : Ty X Γ), _).
   refine (qq Z f A ;; φ F A = _).
   refine (φ F _ ;; Δ _ ;; qq Z' f _).
   revert A; apply toforallpaths.

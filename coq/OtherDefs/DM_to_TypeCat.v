@@ -82,7 +82,7 @@ Proof.
       (λ A : DM_over C Γ,
       tpair (λ X : CC, X ⇒ Γ) (ob_from_DM_over A) (pr2 (pr1 A)))
       = pr1).
-  { apply funextfunax.
+  { apply funextfun.
     intro x.
     destruct x. simpl.
     destruct t.

@@ -56,7 +56,7 @@ Local Open Scope mor_disp_scope.
 Section move_upstream.
 
 Lemma transportf_pathsinv0_var :
-∀ {X : UU} {P : X → UU} {x y : X} {p : x = y} {u : P x} 
+Π {X : UU} {P : X → UU} {x y : X} {p : x = y} {u : P x} 
 {v : P y}, transportf P p u = v → transportf P (!p) v = u.
 Proof.
   intros. induction p. apply (!X0).
@@ -195,7 +195,7 @@ Let idto2 (a b : fibre_precategory) : a = b -> iso_disp (identity_iso c) a b
   funcomp (λ p : a = b, idtoiso p) (iso_disp_iso_fibre a b).
 
 Lemma eq_idto1_idto2 (a b : fibre_precategory) 
-  : ∀ p : a = b, idto1 _ _ p = idto2 _ _ p.
+  : Π p : a = b, idto1 _ _ p = idto2 _ _ p.
 Proof.
   intro p. induction p.
   apply eq_iso_disp.

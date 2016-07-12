@@ -171,8 +171,8 @@ Proof.
   destruct XYZW' as [[X' [Y' Z']] W'].
   unfold compat_structures_pr1_functor; simpl.
   assert (structural_lemma :
-    ∀ A (B C : A -> Type) (D : ∀ a, B a -> C a -> Type)
-      (H : ∀ a b, iscontr (Σ c, D a b c)),
+    Π A (B C : A -> Type) (D : Π a, B a -> C a -> Type)
+      (H : Π a b, iscontr (Σ c, D a b c)),
     isweq (fun abcd : Σ (abc : Σ a, (B a × C a)),
                         D (pr1 abc) (pr1 (pr2 abc)) (pr2 (pr2 abc))
             => (pr1 (pr1 abcd),, pr1 (pr2 (pr1 abcd))))).
@@ -221,7 +221,7 @@ Lemma fam_from_qq_mor_TM_data {X X' : obj_ext_precat} {F : X ⇒ X'}
   {Y : families_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
-  : ∀ Γ,
+  : Π Γ,
     ((TM (Y : families_structure _ _) : functor _ _) Γ : hSet)
     -> ((TM (Y' : families_structure _ _) : functor _ _) Γ : hSet).
 Proof.
@@ -396,8 +396,8 @@ Proof.
   destruct XYZW' as [[X' [Y' Z']] W'].
   unfold compat_structures_pr2_functor; simpl.
   assert (structural_lemma :
-    ∀ A (B C : A -> Type) (D : ∀ a, B a -> C a -> Type)
-      (H : ∀ a c, iscontr (Σ b, D a b c)),
+    Π A (B C : A -> Type) (D : Π a, B a -> C a -> Type)
+      (H : Π a c, iscontr (Σ b, D a b c)),
     isweq (fun abcd : Σ (abc : Σ a, (B a × C a)),
                         D (pr1 abc) (pr1 (pr2 abc)) (pr2 (pr2 abc))
             => (pr1 (pr1 abcd),, pr2 (pr2 (pr1 abcd))))).

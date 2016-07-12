@@ -83,7 +83,7 @@ Let R3 := R2 ext.
 Definition nat_iso_from_pointwise_iso (D E : precategory)
   (hsE : has_homsets E)
   (F G : [D, E, hsE])
-  (a : ∀ d, iso ((F : functor _ _) d) ((G : functor _ _) d))
+  (a : Π d, iso ((F : functor _ _) d) ((G : functor _ _) d))
   (H : is_nat_trans _ _ a)
   : iso F G.
 Proof.

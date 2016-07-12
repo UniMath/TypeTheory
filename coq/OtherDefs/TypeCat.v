@@ -55,14 +55,14 @@ Reserved Notation "'π' A" (at level 5).
 Record type_precat_record : Type := {
   C : precategory ;
   ty : C -> Type                                        where "C ⟨ Γ ⟩" := (ty Γ);
-  ext : ∀ Γ, C⟨Γ⟩ -> C                                  where "Γ ◂ A" := (ext Γ A);
-  dpr : ∀ Γ (A : C⟨Γ⟩), Γ ◂ A ⇒ Γ                       where "'π' A" := (dpr _ A);
-  reind : ∀ Γ (A : C⟨Γ⟩) Γ' (f : Γ' ⇒ Γ), C⟨Γ'⟩         where "A [ f ]" := (reind _ A _ f)  ;
-  q : ∀ {Γ} (A : ty Γ) {Γ'} (f : Γ' ⇒ Γ),
+  ext : Π Γ, C⟨Γ⟩ -> C                                  where "Γ ◂ A" := (ext Γ A);
+  dpr : Π Γ (A : C⟨Γ⟩), Γ ◂ A ⇒ Γ                       where "'π' A" := (dpr _ A);
+  reind : Π Γ (A : C⟨Γ⟩) Γ' (f : Γ' ⇒ Γ), C⟨Γ'⟩         where "A [ f ]" := (reind _ A _ f)  ;
+  q : Π {Γ} (A : ty Γ) {Γ'} (f : Γ' ⇒ Γ),
           (Γ' ◂ (A [ f ]) ⇒ Γ ◂ A) ;
-  dpr_q : ∀ Γ (A : C⟨Γ⟩) Γ' (f : Γ' ⇒ Γ), 
+  dpr_q : Π Γ (A : C⟨Γ⟩) Γ' (f : Γ' ⇒ Γ), 
           (q A f) ;; (π A) = (π (A[f])) ;; f ;
-  reind_pb : ∀ Γ (A : ty Γ) Γ' (f : Γ' ⇒ Γ),
+  reind_pb : Π Γ (A : ty Γ) Γ' (f : Γ' ⇒ Γ),
       isPullback _ _ _ _ (dpr_q _ A _ f)
 }.
 
@@ -92,8 +92,8 @@ Section Type_Precats.
 
 Definition type_cat_struct1 (C : precategory) :=
   Σ (ty : C -> UU)
-    (ext : ∀ Γ, ty Γ -> C),
-      ∀ Γ (A : ty Γ) Γ' (f : Γ' ⇒ Γ), ty Γ'.
+    (ext : Π Γ, ty Γ -> C),
+      Π Γ (A : ty Γ) Γ' (f : Γ' ⇒ Γ), ty Γ'.
 (*
 Definition type_precat1 := Σ (C : precategory), type_precat_structure1 C.
 
@@ -126,11 +126,11 @@ Notation "A [ f ]" := (reind_type_cat A f) (at level 40).
 (** * Pullback of dependent projections *)
 
 Definition type_cat_struct2 {CC : precategory} (C : type_cat_struct1 CC) :=
-  Σ (dpr : ∀ Γ (A : C Γ), Γ◂A ⇒ Γ)
-    (q : ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ), (Γ'◂A[f]) ⇒ Γ◂A )
-    (dpr_q : ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ), 
+  Σ (dpr : Π Γ (A : C Γ), Γ◂A ⇒ Γ)
+    (q : Π Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ), (Γ'◂A[f]) ⇒ Γ◂A )
+    (dpr_q : Π Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ), 
       (q _ A _ f) ;; (dpr _ A) = (dpr _ (A[f])) ;; f),
-    ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ),
+    Π Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ),
       isPullback (dpr _ A) f (q _ A _ f) (dpr _ (A[f])) (dpr_q _ A _ f).
 (* TODO: change name [dpr_q] to [q_dpr] throughout, now that composition is diagrammatic order? *)
 
@@ -164,20 +164,20 @@ Definition reind_pb_type_cat {CC : precategory} {C : type_cat_struct CC} {Γ} (A
 (** * Type-saturation *)
 
 Definition is_type_saturated_type_cat {CC : precategory} (C : type_cat_struct CC) : UU
-  := ∀ Γ, isincl (λ A : C Γ, tpair (λ X, X ⇒ Γ) (Γ ◂ A) (dpr_type_cat A)).
+  := Π Γ, isincl (λ A : C Γ, tpair (λ X, X ⇒ Γ) (Γ ◂ A) (dpr_type_cat A)).
 
 
 (** * Splitness *)
 
 (** A type-precategory [C] is _split_ if each collection of types [C Γ] is a set, reindexing is strictly functorial, and the [q] maps satisfy the evident functoriality axioms *) 
 Definition is_split_type_cat {CC : precategory} (C : type_cat_struct CC)
-  := (∀ Γ:CC, isaset (C Γ))
-     × (Σ (reind_id : ∀ Γ (A : C Γ), A [identity Γ] = A),
-         ∀ Γ (A : C Γ), q_type_cat A (identity Γ)
+  := (Π Γ:CC, isaset (C Γ))
+     × (Σ (reind_id : Π Γ (A : C Γ), A [identity Γ] = A),
+         Π Γ (A : C Γ), q_type_cat A (identity Γ)
                         = idtoiso (maponpaths (fun b => Γ◂b) (reind_id Γ A)))
-     × (Σ (reind_comp : ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'),
+     × (Σ (reind_comp : Π Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'),
                          A [g;;f] = A[f][g]),
-          ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'),
+          Π Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'),
             q_type_cat A (g ;; f)
             =  idtoiso (maponpaths (fun b => Γ''◂b) (reind_comp _ A _ f _ g))
                ;; q_type_cat (A[f]) g
@@ -209,12 +209,12 @@ Coercion is_split_from_split_type_cat (CC : precategory) (C : split_type_struct 
 
 Definition reind_comp_type_cat {CC : precategory} {C : type_cat_struct CC}
            (H : is_split_type_cat C)
-  : ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'),
+  : Π Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'),
       A [g;;f] = A[f][g]
   := pr1 (pr2 (pr2 H)).
 
 Definition q_q_type_cat {CC : precategory} {C : split_type_struct CC}
-  : ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'),
+  : Π Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'),
             q_type_cat A (g ;; f)
             =  idtoiso (maponpaths (fun b => Γ''◂b) (reind_comp_type_cat C _ A _ f _ g))
                ;; q_type_cat (A[f]) g
@@ -233,21 +233,21 @@ Section access_functions.
 
 Context {CC : precategory} {C : type_cat_struct CC} (T : is_split_type_cat C).
 
-Definition isaset_types_typecat : ∀ Γ:CC, isaset (C Γ) := pr1 T.
+Definition isaset_types_typecat : Π Γ:CC, isaset (C Γ) := pr1 T.
 
-Definition reind_id_type_typecat :  ∀ Γ (A : C Γ), A [identity Γ] = A := pr1 (pr1 (pr2 T)).
+Definition reind_id_type_typecat :  Π Γ (A : C Γ), A [identity Γ] = A := pr1 (pr1 (pr2 T)).
 
 Definition reind_id_term_typecat : 
-  ∀ Γ (A : C Γ), q_type_cat A (identity Γ)
+  Π Γ (A : C Γ), q_type_cat A (identity Γ)
                         = idtoiso (maponpaths (fun b => Γ◂b) (reind_id_type_typecat Γ A)) :=
  pr2 (pr1 (pr2 T)).
 
 Definition reind_comp_type_typecat : 
-  ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'), A [g;;f] = A[f][g] 
+  Π Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'), A [g;;f] = A[f][g] 
  := pr1 (pr2 (pr2 T)).
 
 Definition reind_comp_term_typecat : 
-   ∀ Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'),
+   Π Γ (A : C Γ) Γ' (f : Γ' ⇒ Γ) Γ'' (g : Γ'' ⇒ Γ'),
             q_type_cat A (g ;; f)
             =  idtoiso (maponpaths (fun b => Γ''◂b) (reind_comp_type_typecat _ A _ f _ g))
                ;; q_type_cat (A[f]) g

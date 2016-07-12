@@ -81,7 +81,7 @@ Local Definition CwF : UU
      - is logically equivalent to the q-morphism structure
        of a CwF 
 
-    Alternatively, we can fiddle with interchanging Σ and ∀ and
+    Alternatively, we can fiddle with interchanging Σ and Π and
     the yoneda isomorphism in two places, but maybe that's 
     more cumbersome? Those two places are quantifications in
     - Q
@@ -107,8 +107,8 @@ Definition p (X : mor_of_presheaves) : preShv C ⟦tu X, u X⟧
 
 Definition comp_data (X : mor_of_presheaves) : UU
   := 
-   Σ (dpr : ∀ (Γ : C) (A : (u X : functor _ _ ) Γ : hSet ), Σ (ΓA : C), C⟦ΓA, Γ⟧),
-     ∀ Γ (A : (u X : functor _ _ ) Γ : hSet), _ ⟦Yo (pr1 (dpr Γ A)) , tu X⟧.
+   Σ (dpr : Π (Γ : C) (A : (u X : functor _ _ ) Γ : hSet ), Σ (ΓA : C), C⟦ΓA, Γ⟧),
+     Π Γ (A : (u X : functor _ _ ) Γ : hSet), _ ⟦Yo (pr1 (dpr Γ A)) , tu X⟧.
 
 Definition ext {X : mor_of_presheaves} (Y : comp_data X) {Γ} A 
   : C 
@@ -121,7 +121,7 @@ Definition QQ {X : mor_of_presheaves} (Y : comp_data X) {Γ} A
   := pr2 Y Γ A.
 
 Definition comp_prop (X : mor_of_presheaves) (Y : comp_data X) : UU :=
-  ∀ Γ (A : (u X : functor _ _ ) Γ : hSet),
+  Π Γ (A : (u X : functor _ _ ) Γ : hSet),
         Σ (e : #Yo (dpr _ A) ;; yy A = QQ Y A ;; p X), isPullback _ _ _ _ e.
 
 Lemma isaprop_comp_prop (X : mor_of_presheaves) (Y : comp_data X) 
@@ -162,14 +162,14 @@ Proof.
     set (XR := @weqtotal2asstol). unfold families_structure_data.
     specialize (XR (preShv C)
                    (fun x =>  x ⇒ TY (Ty,, depr))). simpl in XR.
-    specialize (XR (fun Tmp =>  (∀ (Γ : C^op) (A : (TY (Ty,, depr):functor _ _ ) Γ : hSet), 
+    specialize (XR (fun Tmp =>  (Π (Γ : C^op) (A : (TY (Ty,, depr):functor _ _ ) Γ : hSet), 
                                         Yo (comp_ext (Ty,,depr) Γ A) ⇒ pr1 Tmp)) ).       
     apply XR. simpl.
   eapply weqcomp.
-    set (XR:= @weqtotal2asstol (∀ Γ : C, (Ty Γ : hSet) → Σ ΓA : C, ΓA ⇒ Γ)).
+    set (XR:= @weqtotal2asstol (Π Γ : C, (Ty Γ : hSet) → Σ ΓA : C, ΓA ⇒ Γ)).
      specialize (XR (fun _ =>  Σ x0 : functor (opp_precat_data C) hset_precategory_data, nat_trans x0 Ty)).
      simpl in *.
-     specialize (XR (fun deprTmp =>  ∀ (Γ : C) (A : (Ty Γ : hSet)),
+     specialize (XR (fun deprTmp =>  Π (Γ : C) (A : (Ty Γ : hSet)),
                     nat_trans (yoneda_ob_functor_data C hsC (comp_ext (Ty,,pr1 deprTmp) Γ A)) (pr1 (pr2 deprTmp) ))).
      apply XR.
   simpl. 
@@ -227,7 +227,7 @@ Abort.
 
 
 Definition Yo_pullback (x : arrow (preShv C)) : UU :=
-   ∀ X (A : (target x : functor _ _ ) X : hSet),
+   Π X (A : (target x : functor _ _ ) X : hSet),
       fpullback C (preShv C) Yo (target x) (source x) x (yy A).
 
 Definition weq_fcomprehension_Yo_pullback (x : arrow (preShv C)) :
@@ -239,7 +239,7 @@ Proof.
 Defined.
 
 Definition comp_1_data (y : arrow (preShv C)) : UU
-  := ∀ (Γ : C) (A : (u y : functor _ _ ) Γ : hSet),
+  := Π (Γ : C) (A : (u y : functor _ _ ) Γ : hSet),
            (Σ ΓAp : Σ ΓA : C, ΓA ⇒ Γ, Yo (pr1 ΓAp) ⇒ tu y).
 
 
@@ -250,7 +250,7 @@ Proof.
     set (XR := @weqtotaltoforall C).
     specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓA : C, ΓA ⇒ X)).
     simpl in XR.
-    specialize (XR (fun X dpr =>  ∀ (A : (u y : functor _ _ ) X : hSet), Yo (pr1 (dpr A)) ⇒ tu y)).
+    specialize (XR (fun X dpr =>  Π (A : (u y : functor _ _ ) X : hSet), Yo (pr1 (dpr A)) ⇒ tu y)).
     apply XR.
   apply weqonsecfibers. intro X.
   eapply weqcomp.
@@ -273,7 +273,7 @@ Definition QQ_1 {X : mor_of_presheaves} (Y : comp_1_data X) {Γ} A
   := (pr2 (Y Γ A)).
 
 Definition comp_1_prop (X : mor_of_presheaves) (Y : comp_1_data X) : UU :=
-  ∀ Γ (A : (u X : functor _ _ ) Γ : hSet),
+  Π Γ (A : (u X : functor _ _ ) Γ : hSet),
         Σ (e : #Yo (dpr_1 _ A) ;; yy A = QQ_1 Y A ;; p X), isPullback _ _ _ _ e.
 
 Definition comp_1 (X : mor_of_presheaves) : UU 
@@ -315,7 +315,7 @@ Proof.
     unfold comp_1_data. unfold comp_1_prop.
     specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓAp : Σ ΓA : C, ΓA ⇒ X, Yo (pr1 ΓAp) ⇒ tu y)). 
     unfold dpr_1, QQ_1.
-    specialize (XR (fun X pp =>  ∀  (A : ((u y : functor _ _ ) X : hSet)),
+    specialize (XR (fun X pp =>  Π  (A : ((u y : functor _ _ ) X : hSet)),
        Σ e : # Yo (pr2 (pr1 (pp A))) ;; yy A = (pr2 (pp A) : preShv _ ⟦_,_⟧ );; p y,
        isPullback (yy A) (p y) (# Yo (pr2 (pr1 (pp A)))) (pr2 (pp A)) e)).
     apply XR.
@@ -342,7 +342,7 @@ Proof.
 Defined.
 
 Lemma weq_comp_fcomprehension:
- ∀ x : arrow (preShv C),
+ Π x : arrow (preShv C),
    comp x ≃ fcomprehension C (preShv C) Yo (target x) (source x) x.
 Proof.
   intro y.
@@ -436,7 +436,7 @@ Proof.
     set (XR := @weqforalltototal C).
     specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓA : C, ΓA ⇒ X)).
     simpl in XR.
-    specialize (XR (fun X pX =>  ∀  (A : ((u y : functor _ _ ) X : hSet)),
+    specialize (XR (fun X pX =>  Π  (A : ((u y : functor _ _ ) X : hSet)),
               nat_trans (yoneda_ob_functor_data C hsC (pr1 (pX  A))) (tu y : functor _ _ ))).
     apply XR.
   apply weqonsecfibers. intro X. simpl.

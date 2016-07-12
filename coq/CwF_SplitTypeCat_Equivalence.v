@@ -53,7 +53,7 @@ Notation ZZ := (pr2 Z).
 Variable Y : compatible_fam_structure Z.
 
 Definition canonical_TM_to_given_data
-  : ∀ Γ, (tm_from_qq Z Γ) ⇒ (Tm (pr1 Y) Γ)
+  : Π Γ, (tm_from_qq Z Γ) ⇒ (Tm (pr1 Y) Γ)
 := (λ (Γ : C^op) (t : tm_from_qq_carrier Γ),
        (yoneda_weq C hsC Γ (TM (pr1 Y)))
          (# Yo (pr1 (pr2 t)) ;; Q (pr1 Y) (pr1 t))).
@@ -92,7 +92,7 @@ Proof.
 Defined.
 
 Definition given_TM_to_canonical
-  : ∀ Γ, HSET ⟦ Tm (pr1 Y) Γ, tm_from_qq Z Γ⟧.
+  : Π Γ, HSET ⟦ Tm (pr1 Y) Γ, tm_from_qq Z Γ⟧.
 Proof.
   intro Γ. simpl.
   intro s'. set (S' := @yy _ hsC _ _ s').
@@ -303,7 +303,7 @@ Proof.
 Defined.
 
 Lemma compat_split_comp_eq (Y : families_structure _ X) :
-  ∀ t : compatible_qq_morphism_structure Y,
+  Π t : compatible_qq_morphism_structure Y,
   t = compatible_qq_from_fam Y.
 Proof.
   intro t.

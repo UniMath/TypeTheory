@@ -35,11 +35,11 @@ Open Scope mor_scope.
 
 Lemma idtoiso_transportf_family_of_morphisms (D : precategory)
       (A : UU) (B : A -> UU)
-      (F : ∀ a, B a -> D)
+      (F : Π a, B a -> D)
       (d d' : D) (deq : d = d')
-      (R : ∀ a (b : B a), D⟦ F a b, d⟧)
+      (R : Π a (b : B a), D⟦ F a b, d⟧)
      
-: transportf (λ x, ∀ a b, D⟦ F a b, x⟧)
+: transportf (λ x, Π a b, D⟦ F a b, x⟧)
              deq R =
   λ a b, R a b ;; idtoiso deq.
 Proof.
@@ -51,7 +51,7 @@ Proof.
 Qed.
 
 
-Lemma pr1_transportf (A : UU) (B : A -> UU) (P : ∀ a, B a -> UU)
+Lemma pr1_transportf (A : UU) (B : A -> UU) (P : Π a, B a -> UU)
    (a a' : A) (e : a = a') (xs : Σ b : B a, P _ b):
    pr1 (transportf (fun x => Σ b : B x, P _ b) e xs) = 
      transportf (fun x => B x) e (pr1 xs).
@@ -75,7 +75,7 @@ Proof.
 Defined.
 
 Lemma maponpaths_eq_idpath
-  : ∀ (T1 T2 : UU) (f : T1 -> T2) (t1 : T1) (e : t1 = t1)
+  : Π (T1 T2 : UU) (f : T1 -> T2) (t1 : T1) (e : t1 = t1)
        (H : e = idpath _ ), maponpaths f e = idpath _ .
 Proof.
   intros.
@@ -315,7 +315,7 @@ Section Pullbacks_hSet.
   If we had the standard pullback of hsets defined, this could be maybe better stated as the fact that P is a pullback if the map from P to the standard pullback is an iso. *)
 Lemma isPullback_HSET {P A B C : HSET}
   (p1 : P ⇒ A) (p2 : P ⇒ B) (f : A ⇒ C) (g : B ⇒ C) (ep : p1 ;; f = p2 ;; g) 
-  : (∀ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b)
+  : (Π a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b)
   -> isPullback _ _ _ _ ep.
 Proof.
   intros H X h k ehk.
@@ -345,7 +345,7 @@ Lemma pullback_HSET_univprop_elements {P A B C : HSET}
     {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
     (ep : p1 ;; f = p2 ;; g)
     (pb : isPullback f g p1 p2 ep)
-  : (∀ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b).
+  : (Π a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b).
 Proof.
   intros a b e.
   set (Pb := (mk_Pullback _ _ _ _ _ _ pb)).
@@ -415,7 +415,7 @@ Proof.
   set (XT1 := graphs.pullbacks.pullback_diagram _ f g).
   specialize (XR XT1).
   transparent assert
-       (XH : (∀ a : C^op,
+       (XH : (Π a : C^op,
         LimCone
           (colimits.diagram_pointwise C^op HSET has_homsets_HSET
              pullbacks.pushout_graph XT1 a))).

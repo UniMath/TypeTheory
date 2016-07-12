@@ -123,9 +123,9 @@ Defined.
 Definition type_is_functor : is_functor type_functor_data.
 Proof.
   split; intros; simpl.
-  - intros Γ. apply funextfunax; intro A. apply reindx_type_id. 
+  - intros Γ. apply funextfun; intro A. apply reindx_type_id. 
     apply reindx_laws_from_cwf_struct.
-  - intros Γ Γ' Γ'' f g. apply funextfunax; intro A.
+  - intros Γ Γ' Γ'' f g. apply funextfun; intro A.
     apply reindx_type_comp.
     apply reindx_laws_from_cwf_struct.
 Qed.

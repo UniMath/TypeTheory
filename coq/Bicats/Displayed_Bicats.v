@@ -40,7 +40,7 @@ Section Disp_Bicat_Definition.
 
 Definition disp_bicat_obmor (C : prebicategory_obmor) : Type
   := Σ (Dob : C -> Type),
-         (∀ (X Y : C) (XX : Dob X) (YY : Dob Y), disp_precat (hom1 X Y)).
+         (Π (X Y : C) (XX : Dob X) (YY : Dob Y), disp_precat (hom1 X Y)).
 
 Definition ob_disp_bicat {C} (D : disp_bicat_obmor C) := pr1 D.
 Coercion ob_disp_bicat : disp_bicat_obmor >-> Funclass.

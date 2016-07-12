@@ -47,21 +47,21 @@ Proof.
 Defined.  
 
 Lemma transportf_toforallpaths {A B : UU} {f g : A → B} (H : f = g) 
-   (P : A → B → UU) (x : ∀ a, P a (f a)) (a : A) : 
+   (P : A → B → UU) (x : Π a, P a (f a)) (a : A) : 
   transportf (λ b : B, P a b) (toforallpaths _ _ _ H a) (x a)
-  = transportf (λ x0 : A → B, ∀ a0 : A, _ ) H x a.
+  = transportf (λ x0 : A → B, Π a0 : A, _ ) H x a.
 Proof.
   intros.
   induction H.
   apply idpath.
 Defined.
 
-Lemma funextsec_idpath (A : UU) (B : A → UU) (f : ∀ a : A, B a)
-  (H : ∀ x, f x = f x) (H' : ∀ x, H x = idpath _ ) 
+Lemma funextsec_idpath (A : UU) (B : A → UU) (f : Π a : A, B a)
+  (H : Π x, f x = f x) (H' : Π x, H x = idpath _ ) 
   : funextsec _ _ _ H = idpath f.
 Proof.
   eapply pathscomp0.
-    eapply maponpaths. apply funextsec. apply H'.
+    eapply maponpaths. apply funextsec. unfold homot; apply H'.
   refine (homotinvweqweq _ (idpath f)).
 Defined.
 
@@ -101,11 +101,11 @@ Notation "A ₂" := (pr2 (pr1 A))(at level 3).
  *)
 
 Definition mor (A B : obj_UU) : UU := Σ f : pr1 A → pr1 B,
-      ∀ a : pr1 A, pr2 A a ⇒ pr2 B (f a).
+      Π a : pr1 A, pr2 A a ⇒ pr2 B (f a).
 
 Definition FAM_obj_eq_type (A B : obj_UU) : UU 
   := 
-  Σ f : pr1 A ≃ pr1 B, ∀ a : pr1 A, pr2 A a = pr2 B (f a).
+  Σ f : pr1 A ≃ pr1 B, Π a : pr1 A, pr2 A a = pr2 B (f a).
 
 Definition FAM_obj_eq_inv {A B : obj_UU} : A = B → FAM_obj_eq_type A B.
 Proof.
@@ -122,7 +122,7 @@ Proof.
 Defined.
 
 Definition FAM_obj_UU_eq_sigma {A B : obj_UU} (f : pr1 A ≃ pr1 B) 
-   (H : ∀ a : pr1 A, pr2 A a = pr2 B (f a)) : A = B.
+   (H : Π a : pr1 A, pr2 A a = pr2 B (f a)) : A = B.
 Proof.
   apply (total2_paths (weqtopaths f)).
   apply funextsec; intro b.
@@ -136,7 +136,7 @@ Definition FAM_obj_UU_weq (A B : obj_UU) : (A = B) ≃ FAM_obj_eq_type A B.
 Proof.
   eapply weqcomp.
   - apply total2_paths_equiv.
-  - apply (weqbandf (weqpair _ (univalenceaxiom _  _ ))).
+  - apply (weqbandf (weqpair _ (univalenceAxiom _  _ ))).
     simpl.
     intro p.
     destruct A as [A x].
@@ -156,8 +156,8 @@ Defined.
 
 Definition FAM_mor_eq_type {A B : obj} (f g : mor A B) : UU 
   := 
-  Σ H : ∀ a : A ₁, pr1 f a = pr1 g a,
-  (∀ a : A ₁, transportf (λ b, A ₂ a ⇒ B ₂ b) (H a) (pr2 f a) = pr2 g a).
+  Σ H : Π a : A ₁, pr1 f a = pr1 g a,
+  (Π a : A ₁, transportf (λ b, A ₂ a ⇒ B ₂ b) (H a) (pr2 f a) = pr2 g a).
 
 Definition FAM_mor_equiv {A B : obj} (f g : mor A B) : 
    f = g ≃ FAM_mor_eq_type f g.
@@ -180,7 +180,7 @@ Definition FAM_ob_mor : precategory_ob_mor.
 Proof.
   exists obj.  
   exact (λ A B, Σ f : A ₁ → B ₁,
-        ∀ a : A ₁, A ₂ a ⇒ B ₂ (f a)).
+        Π a : A ₁, A ₂ a ⇒ B ₂ (f a)).
 Defined.
 
 Definition FAM_precategory_data : precategory_data.
@@ -231,7 +231,7 @@ Qed.
 
 Definition FAM_obj_eq_type_2 (A B : obj_UU) : UU 
   := 
-  Σ f : pr1 A ≃ pr1 B, ∀ a : pr1 A, iso (pr2 A a) (pr2 B (f a)).
+  Σ f : pr1 A ≃ pr1 B, Π a : pr1 A, iso (pr2 A a) (pr2 B (f a)).
 
 Lemma FAM_obj_weq_2 (A B : obj) (H : is_category C) :
   FAM_obj_eq_type A B ≃ FAM_obj_eq_type_2 A B.
@@ -249,7 +249,7 @@ Defined.
 Lemma FAM_obj_weq_3 (A B : obj) : 
   FAM_obj_eq_type_2 A B ≃
           Σ f : pr1 (pr1 A) → pr1 (pr1 B), 
-             Σ i : ∀ a : pr1 (pr1 A), pr2 (pr1 A) a ⇒ pr2 (pr1 B) (f a), isweq f × ∀ a, is_iso (i a).
+             Σ i : Π a : pr1 (pr1 A), pr2 (pr1 A) a ⇒ pr2 (pr1 B) (f a), isweq f × Π a, is_iso (i a).
 Proof.
   unfold FAM_obj_eq_type_2.
   simpl.
@@ -277,7 +277,7 @@ Proof.
      apply weqfibtototal.
      intro T.
 
-     (* Search ( (∀ _ , _ ) ≃ (Σ _ , _ )). *)
+     (* Search ( (Π _ , _ ) ≃ (Σ _ , _ )). *)
      apply weqforalltototal.
 Defined.
   
@@ -300,7 +300,7 @@ Proof.
 Defined.
 
 Definition FAM_is_iso {A B : FAM} (f : A ⇒ B) : UU := 
-   isweq (pr1 f) × (∀ x, is_iso (pr2 f x)).
+   isweq (pr1 f) × (Π x, is_iso (pr2 f x)).
 
 Definition inv_from_FAM_is_iso {A B : FAM} {f : A ⇒ B} (H : FAM_is_iso f) : B ⇒ A.
 Proof.
@@ -437,8 +437,8 @@ End isos.
 
 Lemma FAM_obj_weq_4 (A B : ob FAM) : 
   (Σ f1 : pr1 (pr1 A) → pr1 (pr1 B), 
-   Σ f2 : ∀ a : pr1 (pr1 A), pr2 (pr1 A) a ⇒ pr2 (pr1 B) (f1 a),
-     isweq f1 × ∀ a, is_iso (f2 a))
+   Σ f2 : Π a : pr1 (pr1 A), pr2 (pr1 A) a ⇒ pr2 (pr1 B) (f1 a),
+     isweq f1 × Π a, is_iso (f2 a))
   ≃ Σ (f : A ⇒ B), FAM_is_iso f.
 Proof.
   unshelve refine (weqgradth _ _ _ _).
@@ -498,8 +498,8 @@ Proof.
 Qed.
 
 Definition FAM_id3 (A : ob FAM)
-  : Σ (f : A ₁ → A ₁) (i : ∀ a : A ₁, A ₂ a ⇒ A ₂ (f a)),
-          isweq f × (∀ a : A ₁, is_iso (i a)).
+  : Σ (f : A ₁ → A ₁) (i : Π a : A ₁, A ₂ a ⇒ A ₂ (f a)),
+          isweq f × (Π a : A ₁, is_iso (i a)).
 Proof.
   exists (idfun _). exists (fun a => identity _).
   split. apply idisweq. intros; apply identity_is_iso.
