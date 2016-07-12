@@ -1046,7 +1046,7 @@ Definition functor_over_on_iso_disp {C' C} {F}
 
 
 
-(* not needed, let's remove it *)
+(* TODO: not needed, let's remove it *)
 Definition functor_over_identity_ff {C} 
   {D' D: disp_precat C} (FF : functor_over (functor_identity _ ) D' D) : UU
   :=
@@ -1220,6 +1220,123 @@ End Dirprod.
 Notation "D1 × D2" := (dirprod_disp_precat D1 D2) : disp_precat_scope.
 Delimit Scope disp_precat_scope with disp_precat.
 Bind Scope disp_precat_scope with disp_precat.
+
+(** * Sigmas of displayed (pre)categories *)
+Section Sigma.
+
+Context {C : Precategory}
+        {D : disp_precat C}
+        (E : disp_precat (total_precat D)).
+
+Definition sigma_disp_precat_ob_mor : disp_precat_ob_mor C.
+Proof.
+  exists (fun c => Σ (d : D c), (E (c,,d))).
+  intros x y xx yy f.
+  exact (Σ (fD : pr1 xx ⇒[f] pr1 yy), 
+                (pr2 xx ⇒[f,,fD] pr2 yy)).
+Defined.
+
+Definition sigma_disp_precat_id_comp
+  : disp_precat_id_comp _ sigma_disp_precat_ob_mor.
+Proof.
+  apply tpair.
+  - intros x xx.
+    exists (id_disp _). exact (id_disp (pr2 xx)).
+  - intros x y z f g xx yy zz ff gg.
+    exists (pr1 ff ;; pr1 gg). exact (pr2 ff ;; pr2 gg).
+Defined.
+
+Definition sigma_disp_precat_data : disp_precat_data C
+  := (_ ,, sigma_disp_precat_id_comp).
+
+(* TODO: move; consider name; change CC to C (once out of section scope of) *)
+Lemma total2_reassoc_paths {A} {B : A → Type} {CC : (Σ a, B a) -> Type}
+    (BC : A -> Type := fun a => Σ b, CC (a,,b))
+    {a1 a2 : A} (bc1 : BC a1) (bc2 : BC a2)
+    (ea : a1 = a2)
+    (eb : transportf _ ea (pr1 bc1) = pr1 bc2)
+    (ec : transportf CC (total2_paths2 ea eb) (pr2 bc1) = pr2 bc2)
+  : transportf _ ea bc1 = bc2.
+Proof.
+  destruct ea, bc1 as [b1 c1], bc2 as [b2 c2].
+  cbn in *; destruct eb, ec.
+  apply idpath.
+Defined.
+
+(** Compare [total2_paths2], [total2_paths_b]. *)
+(* TODO: move. *)
+Lemma total2_paths2_b {A : UU} {B : A → UU} 
+    {a1 : A} {b1 : B a1} {a2 : A} {b2 : B a2}
+    (p : a1 = a2) (q : b1 = transportb B p b2)
+  : (a1,,b1) = (a2,,b2).
+Proof.
+  exact (@total2_paths_b _ _ (_,,_) (_,,_) p q).
+Defined.
+
+(* TODO: as for non-primed version above *)
+Lemma total2_reassoc_paths' {A} {B : A → Type} {CC : (Σ a, B a) -> Type}
+    (BC : A -> Type := fun a => Σ b, CC (a,,b))
+    {a1 a2 : A} (bc1 : BC a1) (bc2 : BC a2)
+    (ea : a1 = a2)
+    (eb : pr1 bc1 = transportb _ ea (pr1 bc2))
+    (ec : pr2 bc1 = transportb CC (total2_paths2_b ea eb) (pr2 bc2))
+  : bc1 = transportb _ ea bc2.
+Proof.
+  destruct ea, bc1 as [b1 c1], bc2 as [b2 c2].
+  cbn in eb; destruct eb; cbn in ec; destruct ec.
+  apply idpath.
+Defined.
+
+Definition sigma_disp_precat_axioms
+  : disp_precat_axioms _ sigma_disp_precat_data.
+Proof.
+  repeat apply tpair.
+  - intros. use total2_reassoc_paths'.
+    + apply id_left_disp.
+    + etrans. exact (@id_left_disp _ _ _ _ _ _ _ (pr2 ff)).
+    (* TODO: why doesn’t [apply homsets_disp] work here,
+       and in the other parts of this proof? *)
+      apply maponpaths_2, homset_property.
+  - intros. use total2_reassoc_paths'.
+    + apply id_right_disp.
+    + etrans. exact (@id_right_disp _ _ _ _ _ _ _ (pr2 ff)).
+      apply maponpaths_2, homset_property.
+  - intros. use total2_reassoc_paths'.
+    + apply assoc_disp.
+    + etrans. 
+        exact (@assoc_disp _ _ 
+                 _ _ _ _  _ _ _ 
+                 _ _ _ _ (pr2 ff) (pr2 gg) (pr2 hh)).
+      apply maponpaths_2, homset_property.
+  - intros. apply isaset_total2; intros; apply homsets_disp.
+Qed.
+
+Definition sigma_disp_precat : disp_precat C
+  := (_ ,, sigma_disp_precat_axioms).
+
+Definition sigmapr1_disp_functor_data
+  : functor_over_data (functor_identity C) sigma_disp_precat D.
+Proof.
+  mkpair.
+  - intros x xx; exact (pr1 xx).
+  - intros x y xx yy f ff; exact (pr1 ff).
+Defined.
+
+Definition sigmapr1_disp_functor_axioms
+  : functor_over_axioms sigmapr1_disp_functor_data.
+Proof.
+  split. 
+  - intros; apply idpath.
+  - intros; apply idpath.
+Qed.
+
+Definition sigmapr1_disp_functor
+  : functor_over (functor_identity C) sigma_disp_precat D
+:= (sigmapr1_disp_functor_data,, sigmapr1_disp_functor_axioms).
+
+(* TODO: complete [sigmapr2_disp]; will be a [functor_lifting], not a [functor_over]. *)
+
+End Sigma.
 
 (** * Examples 
 
