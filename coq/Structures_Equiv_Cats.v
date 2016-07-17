@@ -20,6 +20,61 @@ Require Import Systems.CwF_SplitTypeCat_Maps.
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
+(* TODO: globalise upstream? *)
+Notation "# F" := (functor_over_on_morphisms F)
+  (at level 3) : mor_disp_scope.
+
+(* TODO: as ever, upstream when possible. *)
+Section Auxiliary.
+
+Definition functor_over_composite_data
+  {C D E : Precategory}
+  {CC : disp_precat C} {DD : disp_precat D} {EE : disp_precat E}
+  {F} {G} (FF : functor_over F CC DD) (GG : functor_over G DD EE)
+: functor_over_data (functor_composite F G) CC EE.
+Proof.
+  exists (fun c cc => GG _ (FF _ cc)).
+  intros c c' cc cc' f ff.
+  exact (# GG (# FF ff))%mor_disp.
+Defined.
+
+Definition is_functor_over_composite
+  {C D E : Precategory}
+  {CC : disp_precat C} {DD : disp_precat D} {EE : disp_precat E}
+  {F} {G} (FF : functor_over F CC DD) (GG : functor_over G DD EE)
+: functor_over_axioms (functor_over_composite_data FF GG).
+Proof.
+  split; intros; simpl.
+  - etrans. apply maponpaths, functor_over_id.
+    use @pathscomp0.
+        refine (transportb _ _ ((#GG)%mor_disp (id_disp (FF x xx)))).
+        apply maponpaths, functor_id.
+      apply @pathsinv0. admit.
+    etrans. apply maponpaths, functor_over_id.
+    etrans. apply transport_b_b.
+    apply maponpaths_2, homset_property.
+  - admit. (*TODO: complete!*)
+Admitted.
+
+Definition functor_over_composite
+  {C D E : Precategory}
+  {CC : disp_precat C} {DD : disp_precat D} {EE : disp_precat E}
+  {F} {G} (FF : functor_over F CC DD) (GG : functor_over G DD EE)
+: functor_over (functor_composite F G) CC EE
+:= (_ ,, is_functor_over_composite FF GG).
+
+(* The following definition takes unfair advantage of the fact that  [functor_composite (functor_identity _) (functor_identity _)]
+  is judgementally(!) equal to [functor_identity _]. *)
+Definition functor_over_id_composite
+  {C : Precategory}
+  {CC DD EE : disp_precat C}
+  (FF : functor_over (functor_identity _) CC DD)
+  (GG : functor_over (functor_identity _) DD EE)
+: functor_over (functor_identity _) CC EE
+:= functor_over_composite FF GG.
+
+End Auxiliary.
+
 Section Fix_Context.
 
 Context {C : Precategory}.
@@ -66,6 +121,23 @@ Definition strucs_compat_disp_precat
       (families_disp_precat C × qq_structure_disp_precat C))
 := ( _ ,, strucs_compat_axioms).
 
+
+Definition compat_structures_disp_precat
+  := sigma_disp_precat strucs_compat_disp_precat.
+
+Definition compat_structures_pr1_disp_functor
+  : functor_over (functor_identity _)
+      compat_structures_disp_precat (families_disp_precat C)
+:= functor_over_id_composite
+     (sigmapr1_disp_functor _) (dirprodpr1_disp_functor _ _).
+
+Definition compat_structures_pr2_disp_functor
+  : functor_over (functor_identity _)
+      compat_structures_disp_precat (qq_structure_disp_precat C)
+:= functor_over_id_composite
+     (sigmapr1_disp_functor _) (dirprodpr2_disp_functor _ _).
+
+(* TODO: once the equivalence has been redone at the displayed level, the following are probably redundant/obsolete and should be removed. *)
 Definition compat_structures_precat
   := total_precat (strucs_compat_disp_precat).
 
