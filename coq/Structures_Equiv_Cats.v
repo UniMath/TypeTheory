@@ -13,6 +13,7 @@ Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
 Require Import Systems.Bicats.Auxiliary.
 Require Import Systems.Bicats.Displayed_Precats.
+Require Import Systems.Bicats.Displayed_Equivalences.
 Require Import Systems.Structures.
 Require Import Systems.Structures_Cats.
 Require Import Systems.CwF_SplitTypeCat_Maps.
@@ -409,7 +410,9 @@ Defined.
 
 End Unique_Fam_From_QQ.
 
-(** We show, in this section, that the (non-displayed) projection functors from the (total) precategory of compatible-pairs-of-structures on C to the precategories of qq-structures and of families-structures are each equivalences. *) 
+(** We show, in this section, that the (non-displayed) projection functors from the (total) precategory of compatible-pairs-of-structures on C to the precategories of qq-structures and of families-structures are each equivalences. 
+
+TODO: scrap this section, and recover it from the displayed version. *) 
 Section Strucs_Equiv_Precats.
 
 (* TODO: could strengthen to “explicitly essentially surjective” *)
@@ -425,9 +428,9 @@ Qed.
 Lemma compat_structures_pr1_fully_faithful
   : fully_faithful (compat_structures_pr1_functor).
 Proof.
-  intros XYZW XYZW';
-  destruct XYZW as [[X [Y Z]] W];
-  destruct XYZW' as [[X' [Y' Z']] W'].
+  intros XYZW XYZW'.
+  destruct XYZW as [ [X [Y Z] ] W].
+  destruct XYZW' as [ [X' [Y' Z'] ] W'].
   unfold compat_structures_pr1_functor; simpl.
   assert (structural_lemma :
     Π A (B C : A -> Type) (D : Π a, B a -> C a -> Type)
@@ -441,7 +444,7 @@ Proof.
     + intros ab.
       set (cd := iscontrpr1 (H (pr1 ab) (pr2 ab))). 
         exact ((pr1 ab,, (pr2 ab,, pr1 cd)),, pr2 cd).
-    + intros abcd; destruct abcd as [[a [b c]] d]; simpl.
+    + intros abcd; destruct abcd as [ [a [b c] ] d]; simpl.
       refine (@maponpaths _ _ 
         (fun cd : Σ c' : C a, (D a b c') => (a,, b,, (pr1 cd)),, (pr2 cd))
         _ (_,, _) _).
@@ -454,7 +457,6 @@ Proof.
     exact (qq_from_fam_mor_unique FY W W').
     exact (qq_from_fam_mor FY W W').
 Qed.
-
 
 (* TODO: could strengthen to “explicitly essentially surjective” *)
 Lemma compat_structures_pr2_ess_surj
@@ -470,8 +472,8 @@ Lemma compat_structures_pr2_fully_faithful
   : fully_faithful (compat_structures_pr2_functor).
 Proof.
   intros XYZW XYZW';
-  destruct XYZW as [[X [Y Z]] W];
-  destruct XYZW' as [[X' [Y' Z']] W'].
+  destruct XYZW as [ [X [Y Z] ] W];
+  destruct XYZW' as [ [X' [Y' Z'] ] W'].
   unfold compat_structures_pr2_functor; simpl.
   assert (structural_lemma :
     Π A (B C : A -> Type) (D : Π a, B a -> C a -> Type)
@@ -485,7 +487,7 @@ Proof.
     + intros ac.
       set (bd := iscontrpr1 (H (pr1 ac) (pr2 ac))). 
         exact ((pr1 ac,, (pr1 bd,, pr2 ac)),, pr2 bd).
-    + intros abcd; destruct abcd as [[a [b c]] d]; simpl.
+    + intros abcd; destruct abcd as [ [a [b c] ] d]; simpl.
       refine (@maponpaths _ _ 
         (fun bd : Σ b' : B a, (D a b' c) => (a,, (pr1 bd),, c),, (pr2 bd))
         _ (_,, _) _).
@@ -500,5 +502,93 @@ Proof.
 Qed.
 
 End Strucs_Equiv_Precats.
+
+Section Strucs_Disp_Equiv.
+
+Lemma compat_structures_pr1_ses_disp
+  : ses_disp (compat_structures_pr1_disp_functor).
+Proof.
+  unfold ses_disp.
+  intros X Y.
+  exists ((Y,, qq_from_fam Y),,iscompatible_qq_from_fam Y).
+  apply identity_iso_disp.
+Defined.
+
+Lemma compat_structures_pr1_ff_disp
+  : functor_over_identity_ff (compat_structures_pr1_disp_functor).
+Proof.
+  intros X X' YZW YZW'.
+  destruct YZW as [ [Y Z] W].
+  destruct YZW' as [ [Y' Z'] W'].
+  unfold compat_structures_pr1_functor; simpl.
+  intros FX.
+  assert (structural_lemma :
+    Π (B C : Type) (D : B -> C -> Type)
+      (H : Π b, iscontr (Σ c, D b c)),
+    isweq (fun bcd : Σ (bc : B × C), D (pr1 bc) (pr2 bc)
+            => pr1 (pr1 bcd))).
+    clear C X Y Z W X' Y' Z' W' FX.
+  { intros B C D H.
+    use gradth.
+    + intros b.
+      set (cd := iscontrpr1 (H b)). 
+        exact ((b,,pr1 cd),, pr2 cd).
+    + intros bcd; destruct bcd as [ [b c] d]; simpl.
+      refine (@maponpaths _ _ 
+        (fun cd : Σ c', (D b c') => (b,, (pr1 cd)),, (pr2 cd))
+        _ (_,, _) _).
+      apply proofirrelevancecontr, H.
+    + intros b; apply idpath. }
+  simple refine (structural_lemma _ _ _ _).
+  - intros FY FZ.
+      exists (W ⇒[FX,,(FY,,FZ)] W').
+  - intros FY. apply iscontraprop1.
+    exact (qq_from_fam_mor_unique FY W W').
+    exact (qq_from_fam_mor FY W W').
+Qed.
+
+Lemma compat_structures_pr2_ses_disp
+  : ses_disp (compat_structures_pr2_disp_functor).
+Proof.
+  unfold ses_disp.
+  intros X Z.
+  exists ((fam_from_qq Z,, Z),,iscompatible_fam_from_qq Z).
+  apply identity_iso_disp.
+Defined.
+
+Lemma compat_structures_pr2_ff_disp
+  : functor_over_identity_ff (compat_structures_pr2_disp_functor).
+Proof.
+  intros X X' YZW YZW'.
+  destruct YZW as [ [Y Z] W].
+  destruct YZW' as [ [Y' Z'] W'].
+  unfold compat_structures_pr1_functor; simpl.
+  intros FX.
+  assert (structural_lemma :
+    Π (B C : Type) (D : B -> C -> Type)
+      (H : Π c, iscontr (Σ b, D b c)),
+    isweq (fun bcd : Σ (bc : B × C), D (pr1 bc) (pr2 bc)
+            => pr2 (pr1 bcd))).
+    clear C X Y Z W X' Y' Z' W' FX.
+  { intros B C D H.
+    use gradth.
+    + intros c.
+      set (bd := iscontrpr1 (H c)). 
+        exact ((pr1 bd,,c),, pr2 bd).
+    + intros bcd; destruct bcd as [ [b c] d]; simpl.
+      refine (@maponpaths _ _ 
+        (fun bd : Σ b', (D b' c) => ((pr1 bd),, c),, (pr2 bd))
+        _ (_,, _) _).
+      apply proofirrelevancecontr, H.
+    + intros c; apply idpath. }
+  simple refine (structural_lemma _ _ _ _).
+  - intros FY FZ.
+      exists (W ⇒[FX,,(FY,,FZ)] W').
+  - intros FY. apply iscontraprop1.
+    exact (fam_from_qq_mor_unique FY W W').
+    exact (fam_from_qq_mor FY W W').
+Qed.
+
+End Strucs_Disp_Equiv.
 
 End Fix_Context.

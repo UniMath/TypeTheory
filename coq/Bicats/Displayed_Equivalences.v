@@ -1,29 +1,5 @@
 (**
-A module for “displayed precategories”, based over UniMath’s [CategoryTheory] library.
-
-Roughly, a “displayed category _D_ over a precategory _C_” is analogous to “a family of types _Y_ indexed over a type _X_”.  A displayed category has a “total category” Σ _C_ _D_, with a functor to _D_; and indeed displayed categories should be equivalent to categories over _D_, by taking fibres.
-
-In a little more detail: if [D] is a displayed precategory over [C], then [D] has a type of objects indexed over [ob C], and for each [x y : C, f : x ⇒ y, xx : D x, yy : D y], a type of “morphisms over [f] from [xx] to [yy]”.  The identity and composition (and axioms) for [D] all overlie the corresponding structure on [C].
-
-Two major motivations for displayed categories:
-
-- Pragmatically, they give a convenient tool for building categories of “structured objects”, and functors into such categories, encapsulating a lot of frequently-used contstructions.
-- More conceptually, they give a setting for defining Grothendieck fibrations and isofibrations without mentioning equality of objects.
-
-** Contents:
-
-- Displayed precategories: [disp_precat C]
-- Total precategories (and their forgetful functors)
-  - [total_precat D]
-  - [pr1_precat D]
-- Functors between precategories, over functors between their bases
-  - [functor_lifting], [lifted_functor]
-  - [functor_over], [total_functor]
-- Direct products of displayed precategories (and their projections)
-  - [dirprod_precat D1 D2]
-  - [dirprodpr1_functor], [dirprodpr2_functor]
-- Examples
-
+“Displayed equivalences” of displayed (pre)categories
 *)
 
 Require Import UniMath.Foundations.Basics.Sets.
@@ -74,6 +50,7 @@ there’s some “lift” [ dbar : D c ]
 and some iso [ d <~> d' ] over [ id (F c) ].
 *)
 
+(* TODO: consider changing this identifier, since “SES” is such a well-established abbreviation for “short exact sequence”. *)
 Definition ses_disp {C' C : Precategory}
   {D' : disp_precat C'} {D : disp_precat C}
   {F : functor C' C} (FF : functor_over F D' D) : UU
@@ -245,6 +222,8 @@ End fibre_precategory.
 
 Arguments fibre_precategory {_} _ _ .
 
+(* TODO: this notation interferes with the parsing of elim patterns,
+  e.g. [ destruct XYZ as [[X Y] Z] ].  Perhaps find alternative notation. *)
 Notation "D [[ x ]]" := (fibre_precategory D x)(at level 3,format "D [[ x ]]").
 
 Section fibre_functor.
