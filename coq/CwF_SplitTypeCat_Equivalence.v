@@ -18,7 +18,7 @@ Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
 Require Export Systems.Structures.
 Require Import Systems.CwF_SplitTypeCat_Maps.
-Require Import Systems.Bicats.Auxiliary.
+Require Import Systems.Displayed_Cats.Auxiliary.
 
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)

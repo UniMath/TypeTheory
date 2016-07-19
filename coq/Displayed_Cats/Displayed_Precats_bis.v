@@ -34,8 +34,8 @@ Require UniMath.Ktheory.Utilities.
 
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
-Require Import Systems.Bicats.Auxiliary.
-Require Import Systems.Bicats.Displayed_Precats.
+Require Import Systems.Displayed_Cats.Auxiliary.
+Require Import Systems.Displayed_Cats.Displayed_Precats.
 
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)

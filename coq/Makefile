@@ -18,11 +18,11 @@ MODULES-CORE := \
 	Structures \
 	CwF_RelUnivYoneda \
 	RelUnivYonedaCompletion \
-	Bicats/Auxiliary \
+	Displayed_Cats/Auxiliary \
+	Displayed_Cats/Displayed_Precats \
+	Displayed_Cats/Displayed_Precats_bis \
+	Displayed_Cats/Displayed_Equivalences \
 	Bicats/Bicats \
-	Bicats/Displayed_Precats \
-	Bicats/Displayed_Precats_bis \
-	Bicats/Displayed_Equivalences \
 	Bicats/Displayed_Bicats \
 	Structures_Cats \
 	CwF_SplitTypeCat_Maps \

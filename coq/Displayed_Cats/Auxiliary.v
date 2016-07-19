@@ -10,6 +10,7 @@ Contents:
   - Direct products of precategories
   - Pregroupoids
   - Discrete precategories
+
 *)
 
 
