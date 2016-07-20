@@ -460,6 +460,8 @@ Proof.
   apply idpath.
 Defined.
 
+(* TODO: write a lemma about FF_inv and composition *)
+
 Lemma FFinv_transportf x y (f f' : x ⇒ y) (p : f = f') xx yy 
    (ff : FF _ xx ⇒[f] FF _ yy) :
     FFinv _ _ _ (transportf _ p ff) = 
@@ -473,21 +475,24 @@ Defined.
 Variable X : iso_fibration D'.
 *)
 
-Local Definition GG : functor_over (functor_identity _ ) D D'.
+Local Definition GG_data : functor_over_data (functor_identity _ ) D D'.
 Proof.
   mkpair.
-  - mkpair.
-    + intros x xx.
-      apply (pr1 (FFses x xx)).
-    + intros x y xx yy f X. simpl.
-      set (Hxx := FFses x xx).
-      set (Hyy := FFses y yy).
+  + intros x xx.
+    apply (pr1 (FFses x xx)).
+  + intros x y xx yy f X. simpl.
+    set (Hxx := FFses x xx).
+    set (Hyy := FFses y yy).
+    
+    set ( HHH:= 
+            transportf _ (id_left _ )   
+                       (transportf _ (id_right _ ) ((pr2 Hxx ;; X) ;; inv_mor_disp_from_iso (pr2 Hyy)))).
+    set (HF := FFinv  (* (pr1 Hxx) (pr1 Hyy) f *) _ _ _  HHH).
+    apply HF.
+Defined.
 
-      set ( HHH:= 
-        transportf _ (id_left _ )   
-                   (transportf _ (id_right _ ) ((pr2 Hxx ;; X) ;; inv_mor_disp_from_iso (pr2 Hyy)))).
-      set (HF := FFinv  (* (pr1 Hxx) (pr1 Hyy) f *) _ _ _  HHH).
-      apply HF.
+Local Lemma GG_ax : functor_over_axioms GG_data.
+Proof.
    - split; simpl.
      + intros x xx.
        etrans. apply FFinv_transportf.
@@ -508,9 +513,13 @@ Proof.
        etrans. apply maponpaths. apply FFinv_identity.
        apply transportf_comp_lemma_hset. apply (pr2 C). apply idpath.
      + intros.
+       etrans. apply FFinv_transportf.
+       etrans. apply maponpaths. apply FFinv_transportf.
+       etrans. apply transport_f_f.       
        admit.
-Abort.
+Admitted.
 
+Definition GG : functor_over _ _ _ := (_ ,, GG_ax).
 
 End equiv_from_ses_ff.
 
