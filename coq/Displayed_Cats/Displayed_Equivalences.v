@@ -4,6 +4,7 @@
 
 Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Require UniMath.Ktheory.Utilities.
@@ -420,7 +421,7 @@ Section foo.
 Variable C : Precategory.
 Variables D' D : disp_precat C.
 
-
+(* TODO: rename to [is_equiv_disp]? *)
 Definition equiv_disp (FF : functor_over (functor_identity _ ) D' D) : UU
   :=
   Σ (GG : functor_over (functor_identity _ ) D D') 
@@ -533,7 +534,42 @@ End Displayed_Equiv_Compose.
 
 Section Equiv_Fibres.
 
-(* TODO: show a displayed equivalence induces equivalences of fibre categories. *)
+(* TODO: move the next few*)
+Definition fibre_nat_trans {C C' : Precategory}
+  {F : functor C C'}
+  {D D'} {FF FF' : functor_over F D D'}
+  (α : nat_trans_over (nat_trans_id F) FF FF')
+  (c : C)
+: nat_trans
+    (fibre_functor _ _ _ _ _ FF c)
+    (fibre_functor _ _ _ _ _ FF' c).
+Proof.
+  use tpair; simpl.
+  - intro d. exact (α c d).
+  - unfold is_nat_trans; intros d d' ff; simpl.
+    set (αff := pr2 α _ _ _ _ _ ff); simpl in αff.
+    cbn.
+    etrans. apply maponpaths, mor_disp_transportf_postwhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths, αff.
+    etrans. apply transport_f_b.
+    apply @pathsinv0.
+    etrans. apply maponpaths, mor_disp_transportf_prewhisker.
+    etrans. apply transport_f_f.
+    apply maponpaths_2, homset_property.
+Defined.
+
+Context {C : Precategory}.
+
+Definition fibre_equiv {D D' : disp_precat C}
+  {FF : functor_over (functor_identity _) D D'}
+  (EFF : equiv_disp _ _ _ FF)
+  (c : C)
+: adj_equivalence_of_precats (fibre_functor _ _ _ _ _ FF c).
+Proof.
+  destruct EFF as [GG [ε [η axs] ] ]; simpl in axs.
+  unfold adj_equivalence_of_precats, equiv_disp in *.
+Abort.
 
 End Equiv_Fibres.
 
