@@ -38,6 +38,15 @@ Proof.
   intros. induction p. apply (!X0).
 Defined.
 
+Lemma invmap_eq {A B : UU} (f : A ≃ B) (b : B) (a : A)
+  : b = f a → invmap f b = a.
+Proof.
+  intro H.
+  apply (invmaponpathsweq f).
+  etrans. apply homotweqinvweq. apply H.
+Defined.  
+
+
 End move_upstream.
 
 (*
@@ -355,14 +364,15 @@ Variable FF' : functor_over F' D'' D'.
 Variable FF : functor_over F D' D.
 
 
-(** TODO : split this for opacification *)
-Definition functor_composite_over : functor_over (functor_composite F' F) D'' D.
+Definition functor_over_composite_data : functor_over_data (functor_composite F' F) D'' D.
 Proof.
   mkpair.
-  - mkpair.
     + intros x'' xx''. apply (FF _ (FF' _ xx'')).
     + intros. apply (# FF  (# FF' X )).
-  - split; simpl.
+Defined.
+Lemma functor_over_composite_axioms :  functor_over_axioms functor_over_composite_data.
+Proof.
+  split; simpl.
     + intros x'' xx''.
       etrans. apply maponpaths. apply functor_over_id.
       etrans. apply functor_over_transportf.
@@ -375,7 +385,15 @@ Proof.
       etrans. apply maponpaths. apply functor_over_comp.
       etrans. apply transport_f_f.
       apply transportf_ext. apply (pr2 C).
-Defined.      
+Qed.      
+
+(** TODO : split this for opacification *)
+Definition functor_composite_over : functor_over (functor_composite F' F) D'' D.
+Proof.
+  mkpair.
+  - apply functor_over_composite_data.
+  - apply functor_over_composite_axioms.
+Defined.
 
 Definition functor_identity_over : functor_over (functor_identity _ ) D D.
 Proof.
@@ -430,6 +448,20 @@ Hypothesis FFff : functor_over_ff FF.
 
 Let FFinv {x y} xx yy f := invmap (weqpair _ (FFff x y xx yy f)).
 
+Lemma FFinv_identity (x : C) (xx : D' x) :
+  FFinv _ _ 
+    (identity ((functor_identity C) x)) (id_disp (FF x xx)) =
+           id_disp _ .
+Proof.
+  apply invmap_eq.  
+  cbn.
+  apply pathsinv0. 
+  etrans. apply (functor_over_id FF). (* why arg needed? *)
+  apply idpath.
+Defined.
+
+(* TODO: write a lemma about FF_inv and composition *)
+
 Lemma FFinv_transportf x y (f f' : x ⇒ y) (p : f = f') xx yy 
    (ff : FF _ xx ⇒[f] FF _ yy) :
     FFinv _ _ _ (transportf _ p ff) = 
@@ -443,21 +475,24 @@ Defined.
 Variable X : iso_fibration D'.
 *)
 
-Local Definition GG : functor_over (functor_identity _ ) D D'.
+Local Definition GG_data : functor_over_data (functor_identity _ ) D D'.
 Proof.
   mkpair.
-  - mkpair.
-    + intros x xx.
-      apply (pr1 (FFses x xx)).
-    + intros x y xx yy f X. simpl.
-      set (Hxx := FFses x xx).
-      set (Hyy := FFses y yy).
+  + intros x xx.
+    apply (pr1 (FFses x xx)).
+  + intros x y xx yy f X. simpl.
+    set (Hxx := FFses x xx).
+    set (Hyy := FFses y yy).
+    
+    set ( HHH:= 
+            transportf _ (id_left _ )   
+                       (transportf _ (id_right _ ) ((pr2 Hxx ;; X) ;; inv_mor_disp_from_iso (pr2 Hyy)))).
+    set (HF := FFinv  (* (pr1 Hxx) (pr1 Hyy) f *) _ _ _  HHH).
+    apply HF.
+Defined.
 
-      set ( HHH:= 
-        transportf _ (id_left _ )   
-                   (transportf _ (id_right _ ) ((pr2 Hxx ;; X) ;; inv_mor_disp_from_iso (pr2 Hyy)))).
-      set (HF := FFinv  (* (pr1 Hxx) (pr1 Hyy) f *) _ _ _  HHH).
-      apply HF.
+Local Lemma GG_ax : functor_over_axioms GG_data.
+Proof.
    - split; simpl.
      + intros x xx.
        etrans. apply FFinv_transportf.
@@ -465,10 +500,26 @@ Proof.
        Search (transportf _ _ (transportf _ _ _ )).
        etrans. apply transport_f_f.
        apply transportf_comp_lemma.
-       admit.
+       etrans. apply maponpaths. apply maponpaths.
+               apply maponpaths_2.
+               apply id_right_disp.
+       etrans. apply maponpaths. apply maponpaths.
+               apply mor_disp_transportf_postwhisker.
+       etrans. apply maponpaths. apply FFinv_transportf.
+       etrans. apply transport_f_f.
+       etrans. apply maponpaths. apply maponpaths.
+         apply (inv_mor_after_iso_disp (pr2 (FFses x xx))). (* why is the argument needed? *)      etrans. apply maponpaths. apply FFinv_transportf.
+       etrans. apply transport_f_f.
+       etrans. apply maponpaths. apply FFinv_identity.
+       apply transportf_comp_lemma_hset. apply (pr2 C). apply idpath.
      + intros.
-Abort.
+       etrans. apply FFinv_transportf.
+       etrans. apply maponpaths. apply FFinv_transportf.
+       etrans. apply transport_f_f.       
+       admit.
+Admitted.
 
+Definition GG : functor_over _ _ _ := (_ ,, GG_ax).
 
 End equiv_from_ses_ff.
 

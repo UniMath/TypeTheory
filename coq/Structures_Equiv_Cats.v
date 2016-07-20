@@ -38,7 +38,7 @@ Proof.
   intros c c' cc cc' f ff.
   exact (# GG (# FF ff))%mor_disp.
 Defined.
-
+(* TODO: remove 
 Definition is_functor_over_composite
   {C D E : Precategory}
   {CC : disp_precat C} {DD : disp_precat D} {EE : disp_precat E}
@@ -56,13 +56,14 @@ Proof.
     apply maponpaths_2, homset_property.
   - admit. (*TODO: complete!*)
 Admitted.
+*)
 
 Definition functor_over_composite
   {C D E : Precategory}
   {CC : disp_precat C} {DD : disp_precat D} {EE : disp_precat E}
   {F} {G} (FF : functor_over F CC DD) (GG : functor_over G DD EE)
 : functor_over (functor_composite F G) CC EE
-:= (_ ,, is_functor_over_composite FF GG).
+:= functor_composite_over FF GG.
 
 (* The following definition takes unfair advantage of the fact that  [functor_composite (functor_identity _) (functor_identity _)]
   is judgementally(!) equal to [functor_identity _]. *)
