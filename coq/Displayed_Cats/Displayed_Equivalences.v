@@ -525,6 +525,17 @@ End equiv_from_ses_ff.
 
 End foo.
 
+Section Displayed_Equiv_Compose.
+
+(* TODO: give composites of equivalences *)
+
+End Displayed_Equiv_Compose.
+
+Section Equiv_Fibres.
+
+(* TODO: show a displayed equivalence induces equivalences of fibre categories. *)
+
+End Equiv_Fibres.
 
 (* *)
 
