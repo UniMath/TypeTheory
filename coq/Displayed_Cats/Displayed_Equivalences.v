@@ -447,10 +447,11 @@ Variable FF : functor_over (functor_identity _ ) D' D.
 Hypothesis FFses : ses_disp FF.
 Hypothesis FFff : functor_over_ff FF.
 
-Let FFinv {x y} xx yy f := invmap (weqpair _ (FFff x y xx yy f)).
+Let FFweq {x y} {xx yy} f := weqpair _ (FFff x y xx yy f).
+Let FFinv {x y} {xx yy} f := invmap (@FFweq x y xx yy f).
 
 Lemma FFinv_identity (x : C) (xx : D' x) :
-  FFinv _ _ 
+  FFinv  
     (identity ((functor_identity C) x)) (id_disp (FF x xx)) =
            id_disp _ .
 Proof.
@@ -463,10 +464,26 @@ Defined.
 
 (* TODO: write a lemma about FF_inv and composition *)
 
+Lemma FFinv_compose (x y z : C) (f : x ⇒ y) (g : y ⇒ z)
+    (xx : D' x) (yy : D' y) (zz : D' z) 
+    (ff : FF _ xx ⇒[f] FF _ yy) (gg : FF _ yy ⇒[g] FF _ zz)
+  : FFinv (f ;; g) (ff ;; gg) = FFinv f ff ;; FFinv _ gg.
+Proof.
+  apply invmap_eq.
+  cbn.
+  apply pathsinv0.
+  etrans. apply (functor_over_comp FF).
+  etrans. apply maponpaths. apply maponpaths.
+          apply (homotweqinvweq (FFweq _ )).
+  etrans. apply maponpaths. apply maponpaths_2.
+          apply (homotweqinvweq (FFweq _ )).
+  apply idpath.
+Qed.
+
 Lemma FFinv_transportf x y (f f' : x ⇒ y) (p : f = f') xx yy 
    (ff : FF _ xx ⇒[f] FF _ yy) :
-    FFinv _ _ _ (transportf _ p ff) = 
-     transportf _ p (FFinv _ _ _ ff).
+    FFinv  _ (transportf _ p ff) = 
+     transportf _ p (FFinv _ ff).
 Proof.
   induction p.
   apply idpath.
@@ -488,7 +505,7 @@ Proof.
     set ( HHH:= 
             transportf _ (id_left _ )   
                        (transportf _ (id_right _ ) ((pr2 Hxx ;; X) ;; inv_mor_disp_from_iso (pr2 Hyy)))).
-    set (HF := FFinv  (* (pr1 Hxx) (pr1 Hyy) f *) _ _ _  HHH).
+    set (HF := FFinv  (* (pr1 Hxx) (pr1 Hyy) f *) _  HHH).
     apply HF.
 Defined.
 
@@ -517,6 +534,36 @@ Proof.
        etrans. apply FFinv_transportf.
        etrans. apply maponpaths. apply FFinv_transportf.
        etrans. apply transport_f_f.       
+       apply transportf_comp_lemma.
+       etrans. Focus 2. apply FFinv_compose.
+       apply pathsinv0.
+       etrans. apply maponpaths.
+               apply mor_disp_transportf_postwhisker.
+       etrans. apply FFinv_transportf.
+       etrans. apply maponpaths. apply maponpaths.
+               apply mor_disp_transportf_postwhisker.
+       etrans. apply maponpaths. apply maponpaths. apply maponpaths.
+               apply mor_disp_transportf_prewhisker.
+       etrans. apply maponpaths. apply FFinv_transportf.
+       etrans. apply maponpaths. apply maponpaths. apply FFinv_transportf.
+       etrans. apply transport_f_f. 
+       etrans. apply transport_f_f. 
+       etrans. apply maponpaths. apply maponpaths. 
+               apply mor_disp_transportf_prewhisker.
+       etrans. apply maponpaths. apply FFinv_transportf. 
+       etrans. apply transport_f_f. 
+
+(*
+       etrans. apply maponpaths.
+               apply mor_disp_transportf_postwhisker.
+       apply FFinv_transportf.
+       
+       apply maponpaths. apply maponpaths. apply FFinv_transportf.
+
+               apply maponpaths.
+       etrans.
+       etrans. apply maponpaths. apply FFinv_compose.
+*)
        admit.
 Admitted.
 
