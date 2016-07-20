@@ -355,14 +355,15 @@ Variable FF' : functor_over F' D'' D'.
 Variable FF : functor_over F D' D.
 
 
-(** TODO : split this for opacification *)
-Definition functor_composite_over : functor_over (functor_composite F' F) D'' D.
+Definition functor_over_composite_data : functor_over_data (functor_composite F' F) D'' D.
 Proof.
   mkpair.
-  - mkpair.
     + intros x'' xx''. apply (FF _ (FF' _ xx'')).
     + intros. apply (# FF  (# FF' X )).
-  - split; simpl.
+Defined.
+Lemma functor_over_composite_axioms :  functor_over_axioms functor_over_composite_data.
+Proof.
+  split; simpl.
     + intros x'' xx''.
       etrans. apply maponpaths. apply functor_over_id.
       etrans. apply functor_over_transportf.
@@ -375,7 +376,15 @@ Proof.
       etrans. apply maponpaths. apply functor_over_comp.
       etrans. apply transport_f_f.
       apply transportf_ext. apply (pr2 C).
-Defined.      
+Qed.      
+
+(** TODO : split this for opacification *)
+Definition functor_composite_over : functor_over (functor_composite F' F) D'' D.
+Proof.
+  mkpair.
+  - apply functor_over_composite_data.
+  - apply functor_over_composite_axioms.
+Defined.
 
 Definition functor_identity_over : functor_over (functor_identity _ ) D D.
 Proof.
