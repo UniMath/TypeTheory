@@ -38,6 +38,15 @@ Proof.
   intros. induction p. apply (!X0).
 Defined.
 
+Lemma invmap_eq {A B : UU} (f : A ≃ B) (b : B) (a : A)
+  : b = f a → invmap f b = a.
+Proof.
+  intro H.
+  apply (invmaponpathsweq f).
+  etrans. apply homotweqinvweq. apply H.
+Defined.  
+
+
 End move_upstream.
 
 (*
@@ -439,6 +448,18 @@ Hypothesis FFff : functor_over_ff FF.
 
 Let FFinv {x y} xx yy f := invmap (weqpair _ (FFff x y xx yy f)).
 
+Lemma FFinv_identity (x : C) (xx : D' x) :
+  FFinv _ _ 
+    (identity ((functor_identity C) x)) (id_disp (FF x xx)) =
+           id_disp _ .
+Proof.
+  apply invmap_eq.  
+  cbn.
+  apply pathsinv0. 
+  etrans. apply (functor_over_id FF). (* why arg needed? *)
+  apply idpath.
+Defined.
+
 Lemma FFinv_transportf x y (f f' : x ⇒ y) (p : f = f') xx yy 
    (ff : FF _ xx ⇒[f] FF _ yy) :
     FFinv _ _ _ (transportf _ p ff) = 
@@ -474,8 +495,20 @@ Proof.
        Search (transportf _ _ (transportf _ _ _ )).
        etrans. apply transport_f_f.
        apply transportf_comp_lemma.
-       admit.
+       etrans. apply maponpaths. apply maponpaths.
+               apply maponpaths_2.
+               apply id_right_disp.
+       etrans. apply maponpaths. apply maponpaths.
+               apply mor_disp_transportf_postwhisker.
+       etrans. apply maponpaths. apply FFinv_transportf.
+       etrans. apply transport_f_f.
+       etrans. apply maponpaths. apply maponpaths.
+         apply (inv_mor_after_iso_disp (pr2 (FFses x xx))). (* why is the argument needed? *)      etrans. apply maponpaths. apply FFinv_transportf.
+       etrans. apply transport_f_f.
+       etrans. apply maponpaths. apply FFinv_identity.
+       apply transportf_comp_lemma_hset. apply (pr2 C). apply idpath.
      + intros.
+       admit.
 Abort.
 
 
