@@ -686,7 +686,15 @@ Definition fibre_equiv {D D' : disp_precat C}
 : adj_equivalence_of_precats (fibre_functor _ _ _ _ _ FF c).
 Proof.
   destruct EFF as [GG [ε [η axs] ] ]; simpl in axs.
-  unfold adj_equivalence_of_precats, equiv_disp in *.
+  mkpair.
+  - mkpair.
+    + cbn.
+      apply (fibre_functor _ _ _ _ _ GG).
+    + { mkpair.
+        - mkpair.
+          admit.
+      admit.
+  - admit.
 Abort.
 
 End Equiv_Fibres.
