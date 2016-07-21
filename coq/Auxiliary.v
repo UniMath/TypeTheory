@@ -34,6 +34,21 @@ Bind Scope mor_scope with precategory_morphisms.
 Open Scope mor_scope.
 
 
+(** * Some tactics *)
+
+Tactic Notation "etrans" := eapply pathscomp0.
+Tactic Notation "rew_trans_@" := repeat (etrans ; [ apply transport_f_f |]).
+Tactic Notation "sym" := apply pathsinv0.
+Tactic Notation "assoc" := apply @pathsinv0, path_assoc.
+Tactic Notation "cancel_postcomposition" := apply cancel_postcomposition.
+
+
+(*TODO: look carefully for this in the library *)
+Definition maponpaths_2 {X Y Z : Type} (f : X -> Y -> Z) {x x'} (e : x = x') y
+  : f x y = f x' y
+:= maponpaths (fun x => f x y) e.
+
+
 Lemma is_iso_comp_is_iso {C : precategory} {a b c : ob C}
   (f : C⟦a, b⟧) (g : C⟦b, c⟧) 
   : is_iso f -> is_iso g -> is_iso (f ;; g).
@@ -97,7 +112,14 @@ Lemma form_adjunction_comp :
  form_adjunction (functor_composite F F') (functor_composite G' G) unit_comp
     counit_comp.
 Proof.
-  admit.
+  assert (X1 :=  triangle_id_left_ad _ _ _ adF).
+  assert (X2 :=  triangle_id_left_ad _ _ _ adF').
+  assert (X3 :=  triangle_id_right_ad _ _ _ adF).
+  assert (X4 :=  triangle_id_right_ad _ _ _ adF').
+  cbn. clear XR' X' XR X.
+  mkpair; cbn in *; simpl in *; intro a.
+  - admit.
+  - admit.
 Admitted.
 
 
@@ -215,12 +237,8 @@ Proof.
   exact (maponpaths (maponpaths f) H).
 Defined.
 
-(** Useful lemma for binary functions, generalising e.g. [cancel_postcomposition]. 
+(** Useful lemma for binary functions, generalising e.g. [cancel_postcomposition]. *)
 
-TODO: look carefully for this in the library *)
-Definition maponpaths_2 {X Y Z : Type} (f : X -> Y -> Z) {x x'} (e : x = x') y
-  : f x y = f x' y
-:= maponpaths (fun x => f x y) e.
 
 Lemma transportf_comp_lemma (X : UU) (B : X -> UU) {A A' A'': X} (e : A = A'') (e' : A' = A'')
   (x : B A) (x' : B A')
@@ -749,10 +767,3 @@ Arguments map_into_Pb {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 Arguments Pb_map_commutes_1 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 Arguments Pb_map_commutes_2 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 
-(** * Some tactics *)
-
-Tactic Notation "etrans" := eapply pathscomp0.
-Tactic Notation "rew_trans_@" := repeat (etrans ; [ apply transport_f_f |]).
-Tactic Notation "sym" := apply pathsinv0.
-Tactic Notation "assoc" := apply @pathsinv0, path_assoc.
-Tactic Notation "cancel_postcomposition" := apply cancel_postcomposition.
