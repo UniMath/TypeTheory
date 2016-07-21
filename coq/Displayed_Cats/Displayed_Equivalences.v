@@ -552,7 +552,78 @@ Proof.
                apply mor_disp_transportf_prewhisker.
        etrans. apply maponpaths. apply FFinv_transportf. 
        etrans. apply transport_f_f. 
+       etrans. apply maponpaths. apply maponpaths.
+               apply assoc_disp_var.               
+       etrans. apply maponpaths. apply FFinv_transportf.
+       etrans. apply transport_f_f.
+       etrans. apply maponpaths. apply maponpaths.
+               apply maponpaths. apply maponpaths.
+               apply assoc_disp_var.
+       etrans. apply maponpaths. apply maponpaths. apply maponpaths.
+               apply mor_disp_transportf_prewhisker.
+       etrans. apply maponpaths. apply maponpaths. 
+               apply assoc_disp_var.
+       etrans. apply maponpaths. apply FFinv_transportf.
+       etrans. apply transport_f_f.
+       etrans. apply maponpaths. apply maponpaths.
+               apply maponpaths.
+               apply mor_disp_transportf_prewhisker.
+       etrans. apply maponpaths. apply maponpaths.
+               apply maponpaths. apply maponpaths. apply maponpaths.
+               apply assoc_disp.
+       etrans. apply maponpaths. apply maponpaths. apply maponpaths.
+               apply maponpaths. apply maponpaths. apply maponpaths.
+               apply maponpaths_2.
+               apply (iso_disp_after_inv_mor (pr2 (FFses y yy))).
+       etrans. apply maponpaths. apply maponpaths.
+               apply mor_disp_transportf_prewhisker.
+       etrans. apply maponpaths. apply FFinv_transportf.
+       etrans. apply transport_f_f.
+       etrans. apply maponpaths. apply maponpaths.
+               apply maponpaths. 
+               apply mor_disp_transportf_prewhisker.
+       etrans. apply maponpaths. apply maponpaths.
+               apply mor_disp_transportf_prewhisker.
+       etrans. apply maponpaths. apply FFinv_transportf.
+       etrans. apply transport_f_f.
+       etrans. apply maponpaths. apply maponpaths.
+               apply maponpaths. apply maponpaths. 
+               apply mor_disp_transportf_postwhisker.
+       etrans. apply maponpaths. apply maponpaths. apply maponpaths.
+               apply maponpaths. apply maponpaths.
+               apply id_left_disp.
+       etrans. apply maponpaths. apply maponpaths. apply maponpaths.
+               apply mor_disp_transportf_prewhisker.
+       etrans. do 2 (apply maponpaths). 
+                      apply mor_disp_transportf_prewhisker.
+       etrans. apply maponpaths. apply FFinv_transportf.
+       etrans. apply transport_f_f.
+       etrans. apply maponpaths. apply maponpaths. 
+               apply assoc_disp.        
+       etrans. apply maponpaths. apply FFinv_transportf. 
+       etrans. apply transport_f_f.
+       etrans. apply maponpaths. apply maponpaths. 
+                      apply mor_disp_transportf_prewhisker.
+       etrans. apply maponpaths. 
+             apply FFinv_transportf.
+       etrans. apply transport_f_f.
+(*      
+       etrans. apply maponpaths.
+       apply transportf_comp_lemma_hset.
+       etrans. apply maponpaths. 
+       apply maponpaths. 
+               apply assoc_disp.        
 
+       apply maponpaths.
+               apply        
+       do 2 (apply maponpaths). 
+       apply FFinv_transportf.
+       etrans. 
+               apply 
+               apply maponpaths_2.
+               apply maponpaths.
+               apply assoc_disp_var.
+*)
 (*
        etrans. apply maponpaths.
                apply mor_disp_transportf_postwhisker.
@@ -614,8 +685,19 @@ Definition fibre_equiv {D D' : disp_precat C}
   (c : C)
 : adj_equivalence_of_precats (fibre_functor _ _ _ _ _ FF c).
 Proof.
-  destruct EFF as [GG [ε [η axs] ] ]; simpl in axs.
-  unfold adj_equivalence_of_precats, equiv_disp in *.
+  destruct EFF as [GG [η [ε axs] ] ]; simpl in axs.
+  mkpair.
+  - mkpair.
+    + cbn.
+      apply (fibre_functor _ _ _ _ _ GG).
+    + { mkpair.
+        - mkpair.
+          + apply (fibre_nat_trans η).
+          + apply (fibre_nat_trans ε).
+        - 
+          admit.
+      }
+  - admit.
 Abort.
 
 End Equiv_Fibres.
