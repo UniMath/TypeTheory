@@ -433,7 +433,7 @@ Definition equiv_disp (FF : functor_over (functor_identity _ ) D' D) : UU
                transportb _ (id_left _ ) (id_disp _) ) × 
     (Π x xx, η _ (GG x xx) ;; # GG (ε _ xx) = 
                transportb _ (id_left _ ) (id_disp _) ) ×  
-    (Π x xx, is_iso_disp (identity_iso _ ) (η x xx) × 
+    ((Π x xx, is_iso_disp (identity_iso _ ) (η x xx)) × 
     (Π x xx, is_iso_disp (identity_iso _ ) (ε x xx))). 
 
 
@@ -652,7 +652,7 @@ End Displayed_Equiv_Compose.
 
 Section Equiv_Fibres.
 
-(* TODO: move the next few*)
+(* TODO: move *)
 Definition fibre_nat_trans {C C' : Precategory}
   {F : functor C C'}
   {D D'} {FF FF' : functor_over F D D'}
@@ -677,6 +677,29 @@ Proof.
     apply maponpaths_2, homset_property.
 Defined.
 
+(* TODO: move *)
+Definition is_iso_fibre_from_is_iso_disp
+  {C : Precategory} {D : disp_precat C}
+  {c : C} {d d' : D c} (ff : d ⇒[identity c] d')
+  (Hff : is_iso_disp (identity_iso c) ff)
+: @is_iso (fibre_precategory D c) _ _ ff.
+Proof.
+  apply is_iso_from_is_z_iso.
+  exists (pr1 Hff).
+  mkpair; cbn.
+  + set (H := pr2 (pr2 Hff)).
+    etrans. apply maponpaths, H.
+    etrans. apply transport_f_b.
+    (* TODO: the following slightly cumbersome step is used in several spots.  Is there a lemma for it?  If not, make one? *) 
+    refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
+    apply homset_property.      
+  + set (H := pr1 (pr2 Hff)).
+    etrans. apply maponpaths, H.
+    etrans. apply transport_f_b.
+    refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
+    apply homset_property.
+Qed.
+
 Context {C : Precategory}.
 
 Definition fibre_equiv {D D' : disp_precat C}
@@ -687,18 +710,27 @@ Definition fibre_equiv {D D' : disp_precat C}
 Proof.
   destruct EFF as [GG [η [ε axs] ] ]; simpl in axs.
   mkpair.
-  - mkpair.
-    + cbn.
-      apply (fibre_functor _ _ _ _ _ GG).
-    + { mkpair.
-        - mkpair.
-          + apply (fibre_nat_trans η).
-          + apply (fibre_nat_trans ε).
-        - 
-          admit.
-      }
-  - admit.
-Abort.
+  - exists (fibre_functor _ _ _ _ _ GG _).
+    exists (fibre_nat_trans η _, fibre_nat_trans ε _).
+    mkpair; cbn.
+    + intros d.
+      set (thisax := pr1 axs c d); clearbody thisax; clear axs.
+      etrans. apply maponpaths, thisax.
+      etrans. apply transport_f_b.
+      refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
+      apply homset_property.
+    + intros d.
+      set (thisax := pr1 (pr2 axs) c d); clearbody thisax; clear axs.
+      etrans. apply maponpaths, thisax.
+      etrans. apply transport_f_b.
+      refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
+      apply homset_property.      
+  - cbn; mkpair.
+    + intros d. set (thisax := pr1 (pr2 (pr2 axs)) c d).
+      apply is_iso_fibre_from_is_iso_disp, thisax.
+    + intros d. set (thisax := pr2 (pr2 (pr2 axs)) c d).
+      apply is_iso_fibre_from_is_iso_disp, thisax.
+Qed.
 
 End Equiv_Fibres.
 
