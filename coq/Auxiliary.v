@@ -34,6 +34,14 @@ Bind Scope mor_scope with precategory_morphisms.
 Open Scope mor_scope.
 
 
+Lemma is_iso_comp_is_iso {C : precategory} {a b c : ob C}
+  (f : C⟦a, b⟧) (g : C⟦b, c⟧) 
+  : is_iso f -> is_iso g -> is_iso (f ;; g).
+Proof.
+  intros Hf Hg.
+  apply (is_iso_comp_of_isos (isopair f Hf) (isopair g Hg)).
+Defined.
+
 (** * Categorical equivalence *)
 
 Section fix_stuff.
@@ -50,41 +58,48 @@ Section adj_comp.
 Hypothesis adF : is_left_adjoint F.
 Hypothesis adF' : is_left_adjoint F'.
 
-Let η := unit_from_left_adjoint adF.
-Let η' := unit_from_left_adjoint adF'.
-Let ε := counit_from_left_adjoint adF.
-Let ε' := counit_from_left_adjoint adF'.
+Let η : functor_precategory A A hsA ⟦ _ , _ ⟧ := unit_from_left_adjoint adF.
+Let η' : functor_precategory _ _  hsB ⟦ _ , _ ⟧ := unit_from_left_adjoint adF'.
+Let ε : functor_precategory _ _ hsB ⟦ _ , _ ⟧ := counit_from_left_adjoint adF.
+Let ε' : functor_precategory _ _ hsC ⟦ _ , _ ⟧ := counit_from_left_adjoint adF'.
 Let G := right_adjoint adF.
 Let G' := right_adjoint adF'.
 
-Definition unit_comp : nat_trans (functor_identity A)
-    (functor_composite (functor_composite F F') (functor_composite G' G)).
+Let X := # (pre_composition_functor _ _ _ hsB hsB F) η'.
+Let XR := # (post_composition_functor _ _ _ _ hsA G) X.
+Let X' := # (pre_composition_functor _ _ _ hsB hsB G') ε.
+Let XR' := # (post_composition_functor _ _ _ _ hsC F') X'. 
+
+
+Definition unit_comp : (functor_precategory A A hsA) 
+   ⟦ functor_identity A,
+     functor_composite (functor_composite F F') (functor_composite G' G) ⟧.
 Proof.
-  set (X := # (pre_composition_functor _ _ _ hsB hsB F) η').
-  set (XR := # (post_composition_functor _ _ _ _ hsA G) X).
-  apply (nat_trans_comp _ _ _ η  XR).
+  apply (η ;;  XR).
 Defined.
 
-Definition counit_comp : nat_trans
-    (functor_composite (functor_composite G' G)
-       (functor_composite F F')) (functor_identity C).
+Definition counit_comp : (functor_precategory C C hsC) 
+    ⟦functor_composite (functor_composite G' G)
+       (functor_composite F F'), 
+     functor_identity C⟧.
 Proof.
-  cbn.
-  set (X := # (pre_composition_functor _ _ _ hsB hsB G') ε).
-  set (XR := # (post_composition_functor _ _ _ _ hsC F') X). 
-  apply (nat_trans_comp _ _ _  XR ε').
+  apply (XR' ;; ε').
 Defined.
+
+Lemma form_adjunction_comp : 
+ form_adjunction (functor_composite F F') (functor_composite G' G) unit_comp
+    counit_comp.
+Proof.
+  admit.
+Admitted.
 
 
 Definition comp_adjunction : is_left_adjoint (functor_composite F F').
 Proof.
   exists (functor_composite G' G).
   exists (unit_comp ,, counit_comp).
-  split.
-  - intro a. cbn.
-    admit.
-  - admit.
-Admitted.
+  apply form_adjunction_comp.
+Defined.
 
 End adj_comp.
 
@@ -97,12 +112,17 @@ Definition left_adj_from_adj_equiv (X Y : precategory) (K : functor X Y)
          (HK : adj_equivalence_of_precats K) : is_left_adjoint K := pr1 HK.
 Coercion left_adj_from_adj_equiv : adj_equivalence_of_precats >-> is_left_adjoint.
 
-Let η := unit_from_left_adjoint HF.
-Let η' := unit_from_left_adjoint HF'.
-Let ε := counit_from_left_adjoint HF.
-Let ε' := counit_from_left_adjoint HF'.
+
+Let η : functor_precategory A A hsA ⟦ _ , _ ⟧ := unit_from_left_adjoint HF.
+Let η' : functor_precategory _ _  hsB ⟦ _ , _ ⟧ := unit_from_left_adjoint HF'.
+Let ε : functor_precategory _ _ hsB ⟦ _ , _ ⟧ := counit_from_left_adjoint HF.
+Let ε' : functor_precategory _ _ hsC ⟦ _ , _ ⟧ := counit_from_left_adjoint HF'.
 Let G := right_adjoint HF.
 Let G' := right_adjoint HF'.
+Let X := # (pre_composition_functor _ _ _ hsB hsB F) η'.
+Let XR := # (post_composition_functor _ _ _ _ hsA G) X.
+Let X' := # (pre_composition_functor _ _ _ hsB hsB G') ε.
+Let XR' := # (post_composition_functor _ _ _ _ hsC F') X'. 
 
 
 
@@ -110,11 +130,17 @@ Definition comp_adj_equivalence_of_precats
   : adj_equivalence_of_precats (functor_composite F F').
 Proof.
   exists (comp_adjunction HF HF').
-  admit.
-     (* should use that compositions of isos are isos, and that 
-              functors preserves isos
-              also needs that a nat trans is iso iff it is pointwise iso
-           *)
+  mkpair.
+  - apply (@is_functor_iso_pointwise_if_iso _ _ hsA).
+    set (slsl := is_iso_comp_is_iso η XR). 
+    apply slsl.
+    + admit. (* by hyp *)
+    + admit. (* by hyp and functors preserve isos *)
+  - apply (@is_functor_iso_pointwise_if_iso _ _ hsC _ _ (XR';; ε')).
+    set (slsl := is_iso_comp_is_iso XR' ε'). 
+    apply slsl.
+    + admit. (* by hyp and functors preserve isos *)
+    + admit. (* by hyp *)
 Admitted.
 
 End eqv_comp.
