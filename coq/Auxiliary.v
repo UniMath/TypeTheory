@@ -42,6 +42,13 @@ Proof.
   apply (is_iso_comp_of_isos (isopair f Hf) (isopair g Hg)).
 Defined.
 
+Lemma functor_is_iso_is_iso {C C' : precategory} (F : functor C C')
+    {a b : ob C} (f : C ⟦a,b⟧) (fH : is_iso f) : is_isomorphism (#F f).
+Proof.
+  apply (functor_on_iso_is_iso _ _ F _ _ (isopair f fH)).
+Defined.
+
+
 (** * Categorical equivalence *)
 
 Section fix_stuff.
@@ -133,15 +140,23 @@ Proof.
   mkpair.
   - apply (@is_functor_iso_pointwise_if_iso _ _ hsA).
     set (slsl := is_iso_comp_is_iso η XR). 
-    apply slsl.
-    + admit. (* by hyp *)
-    + admit. (* by hyp and functors preserve isos *)
+    apply slsl; clear slsl.
+    + apply functor_iso_if_pointwise_iso. 
+      apply (pr1 (pr2 HF)).
+    + apply functor_iso_if_pointwise_iso.
+      intro a. simpl.
+      apply functor_is_iso_is_iso.
+      apply (pr1 (pr2 HF')).
   - apply (@is_functor_iso_pointwise_if_iso _ _ hsC _ _ (XR';; ε')).
     set (slsl := is_iso_comp_is_iso XR' ε'). 
     apply slsl.
-    + admit. (* by hyp and functors preserve isos *)
-    + admit. (* by hyp *)
-Admitted.
+    + apply functor_iso_if_pointwise_iso.
+      intro a. simpl.
+      apply functor_is_iso_is_iso.
+      apply (pr2 (pr2 HF)).
+    + apply functor_iso_if_pointwise_iso.
+      apply (pr2 (pr2 HF')).
+Defined.
 
 End eqv_comp.
 
