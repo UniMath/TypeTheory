@@ -702,35 +702,46 @@ Qed.
 
 Context {C : Precategory}.
 
+(* TODO: restructure definition of [equiv_disp], so that it’s built over a left adjoint, and then weaken the hypothesis of this lemma to just a [left_adjoint_disp]. *)
+Definition fibre_is_left_adj {D D' : disp_precat C}
+  {FF : functor_over (functor_identity _) D D'}
+  (EFF : equiv_disp _ _ _ FF)
+  (c : C)
+: is_left_adjoint (fibre_functor _ _ _ _ _ FF c).
+Proof.
+  destruct EFF as [GG [η [ε axs] ] ]; simpl in axs.
+  exists (fibre_functor _ _ _ _ _ GG _).
+  exists (fibre_nat_trans η _,
+          fibre_nat_trans ε _).
+  mkpair; cbn.
+  + intros d.
+    set (thisax := pr1 axs c d); clearbody thisax; clear axs.
+    etrans. apply maponpaths, thisax.
+    etrans. apply transport_f_b.
+    refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
+    apply homset_property.
+  + intros d.
+    set (thisax := pr1 (pr2 axs) c d); clearbody thisax; clear axs.
+    etrans. apply maponpaths, thisax.
+    etrans. apply transport_f_b.
+    refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
+    apply homset_property.
+Defined.
+
 Definition fibre_equiv {D D' : disp_precat C}
   {FF : functor_over (functor_identity _) D D'}
   (EFF : equiv_disp _ _ _ FF)
   (c : C)
 : adj_equivalence_of_precats (fibre_functor _ _ _ _ _ FF c).
 Proof.
-  destruct EFF as [GG [η [ε axs] ] ]; simpl in axs.
+  exists (fibre_is_left_adj EFF c).
+  destruct EFF as [GG [η [ε axs] ] ]; cbn in axs; cbn.
   mkpair.
-  - exists (fibre_functor _ _ _ _ _ GG _).
-    exists (fibre_nat_trans η _, fibre_nat_trans ε _).
-    mkpair; cbn.
-    + intros d.
-      set (thisax := pr1 axs c d); clearbody thisax; clear axs.
-      etrans. apply maponpaths, thisax.
-      etrans. apply transport_f_b.
-      refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
-      apply homset_property.
-    + intros d.
-      set (thisax := pr1 (pr2 axs) c d); clearbody thisax; clear axs.
-      etrans. apply maponpaths, thisax.
-      etrans. apply transport_f_b.
-      refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
-      apply homset_property.      
-  - cbn; mkpair.
-    + intros d. set (thisax := pr1 (pr2 (pr2 axs)) c d).
-      apply is_iso_fibre_from_is_iso_disp, thisax.
-    + intros d. set (thisax := pr2 (pr2 (pr2 axs)) c d).
-      apply is_iso_fibre_from_is_iso_disp, thisax.
-Qed.
+  + intros d. set (thisax := pr1 (pr2 (pr2 axs)) c d).
+    apply is_iso_fibre_from_is_iso_disp, thisax.
+  + intros d. set (thisax := pr2 (pr2 (pr2 axs)) c d).
+    apply is_iso_fibre_from_is_iso_disp, thisax.
+Defined.
 
 End Equiv_Fibres.
 
