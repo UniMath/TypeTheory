@@ -20,6 +20,8 @@ Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.yoneda.
+Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.equivalences.
 
 Require Import Systems.UnicodeNotations.
 
@@ -30,6 +32,96 @@ Notation "ff ;; gg" := (compose ff gg)
 Delimit Scope mor_scope with mor.
 Bind Scope mor_scope with precategory_morphisms.
 Open Scope mor_scope.
+
+
+(** * Categorical equivalence *)
+
+Section fix_stuff.
+
+Variables A B C : precategory.
+Hypothesis hsA : has_homsets A.
+Hypothesis hsB : has_homsets B.
+Hypothesis hsC : has_homsets C.
+Variable F : functor A B.
+Variable F' : functor B C.
+
+Section adj_comp.
+
+Hypothesis adF : is_left_adjoint F.
+Hypothesis adF' : is_left_adjoint F'.
+
+Let η := unit_from_left_adjoint adF.
+Let η' := unit_from_left_adjoint adF'.
+Let ε := counit_from_left_adjoint adF.
+Let ε' := counit_from_left_adjoint adF'.
+Let G := right_adjoint adF.
+Let G' := right_adjoint adF'.
+
+Definition unit_comp : nat_trans (functor_identity A)
+    (functor_composite (functor_composite F F') (functor_composite G' G)).
+Proof.
+  set (X := # (pre_composition_functor _ _ _ hsB hsB F) η').
+  set (XR := # (post_composition_functor _ _ _ _ hsA G) X).
+  apply (nat_trans_comp _ _ _ η  XR).
+Defined.
+
+Definition counit_comp : nat_trans
+    (functor_composite (functor_composite G' G)
+       (functor_composite F F')) (functor_identity C).
+Proof.
+  cbn.
+  set (X := # (pre_composition_functor _ _ _ hsB hsB G') ε).
+  set (XR := # (post_composition_functor _ _ _ _ hsC F') X). 
+  apply (nat_trans_comp _ _ _  XR ε').
+Defined.
+
+
+Definition comp_adjunction : is_left_adjoint (functor_composite F F').
+Proof.
+  exists (functor_composite G' G).
+  exists (unit_comp ,, counit_comp).
+  split.
+  - intro a. cbn.
+    admit.
+  - admit.
+Admitted.
+
+End adj_comp.
+
+Section eqv_comp.
+
+Hypothesis HF : adj_equivalence_of_precats F.
+Hypothesis HF' : adj_equivalence_of_precats F'.
+
+Definition left_adj_from_adj_equiv (X Y : precategory) (K : functor X Y)
+         (HK : adj_equivalence_of_precats K) : is_left_adjoint K := pr1 HK.
+Coercion left_adj_from_adj_equiv : adj_equivalence_of_precats >-> is_left_adjoint.
+
+Let η := unit_from_left_adjoint HF.
+Let η' := unit_from_left_adjoint HF'.
+Let ε := counit_from_left_adjoint HF.
+Let ε' := counit_from_left_adjoint HF'.
+Let G := right_adjoint HF.
+Let G' := right_adjoint HF'.
+
+
+
+Definition comp_adj_equivalence_of_precats 
+  : adj_equivalence_of_precats (functor_composite F F').
+Proof.
+  exists (comp_adjunction HF HF').
+  admit.
+     (* should use that compositions of isos are isos, and that 
+              functors preserves isos
+              also needs that a nat trans is iso iff it is pointwise iso
+           *)
+Admitted.
+
+End eqv_comp.
+
+End fix_stuff.
+
+
 
 (** * Lemmas about transport, etc *)
 
