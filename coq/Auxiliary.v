@@ -68,60 +68,113 @@ Defined.
 
 Section fix_stuff.
 
-Variables A B C : precategory.
-Hypothesis hsA : has_homsets A.
-Hypothesis hsB : has_homsets B.
-Hypothesis hsC : has_homsets C.
-Variable F : functor A B.
-Variable F' : functor B C.
+Context {A B C : precategory}
+        {hsA : has_homsets A}
+        {hsB : has_homsets B}
+        {hsC : has_homsets C}
+        {F : functor A B}
+        {F' : functor B C}.
 
 Section adj_comp.
 
 Hypothesis adF : is_left_adjoint F.
 Hypothesis adF' : is_left_adjoint F'.
 
-Let η : functor_precategory A A hsA ⟦ _ , _ ⟧ := unit_from_left_adjoint adF.
+Let η : functor_precategory _ _ hsA ⟦ _ , _ ⟧ := unit_from_left_adjoint adF.
 Let η' : functor_precategory _ _  hsB ⟦ _ , _ ⟧ := unit_from_left_adjoint adF'.
 Let ε : functor_precategory _ _ hsB ⟦ _ , _ ⟧ := counit_from_left_adjoint adF.
 Let ε' : functor_precategory _ _ hsC ⟦ _ , _ ⟧ := counit_from_left_adjoint adF'.
 Let G := right_adjoint adF.
 Let G' := right_adjoint adF'.
 
-Let X := # (pre_composition_functor _ _ _ hsB hsB F) η'.
-Let XR := # (post_composition_functor _ _ _ _ hsA G) X.
-Let X' := # (pre_composition_functor _ _ _ hsB hsB G') ε.
-Let XR' := # (post_composition_functor _ _ _ _ hsC F') X'. 
-
 
 Definition unit_comp : (functor_precategory A A hsA) 
    ⟦ functor_identity A,
-     functor_composite (functor_composite F F') (functor_composite G' G) ⟧.
-Proof.
-  apply (η ;;  XR).
-Defined.
+     functor_composite (functor_composite F F') (functor_composite G' G) ⟧
+:=
+    let Fη' := # (pre_composition_functor _ _ _ hsB hsB F) η' in
+    let Fη'G := # (post_composition_functor _ _ _ _ hsA G) Fη' in
+  (η ;; Fη'G).
+
 
 Definition counit_comp : (functor_precategory C C hsC) 
-    ⟦functor_composite (functor_composite G' G)
-       (functor_composite F F'), 
-     functor_identity C⟧.
-Proof.
-  apply (XR' ;; ε').
-Defined.
+    ⟦functor_composite (functor_composite G' G) (functor_composite F F'), 
+     functor_identity C⟧
+:= 
+    let G'ε := # (pre_composition_functor _ _ _ hsB hsB G') ε in
+    let G'εF' := # (post_composition_functor _ _ _ _ hsC F') G'ε in 
+  (G'εF' ;; ε').
 
-Lemma form_adjunction_comp : 
- form_adjunction (functor_composite F F') (functor_composite G' G) unit_comp
-    counit_comp.
+Lemma form_adjunction_comp
+  : form_adjunction
+      (functor_composite F F') (functor_composite G' G)
+      unit_comp counit_comp.
 Proof.
-  assert (X1 :=  triangle_id_left_ad _ _ _ adF).
-  assert (X2 :=  triangle_id_left_ad _ _ _ adF').
-  assert (X3 :=  triangle_id_right_ad _ _ _ adF).
-  assert (X4 :=  triangle_id_right_ad _ _ _ adF').
-  cbn. clear XR' X' XR X.
-  mkpair; cbn in *; simpl in *; intro a.
-  - admit.
-  - admit.
-Admitted.
+  mkpair; cbn in *; simpl in *.
+  (* The proof of each triangle identity roughly goes as follows:
+     - overall, we have a composite of four arrows;
+     - apply naturality to pull the middle two past each other;
+     - use the triangle identity from one adjunction to collapse the first pair, and from the other adjunction to collapse the second pair.
 
+    Everything else consists of associativity, functoriality, etc. in order to get to these key steps.
+
+    Written more algebraically, and suppressing associavity, the proof of the first identity is:
+
+      F' F ( η ;; (G η' F) ) ) ;; (F' ε G' F' F) ;; (ε' F' F)
+    =   (functoriality)
+      F' ( F (η ;; (G η' F) ) ;; (ε G' F' F) ) ;; (ε' F' F)
+    =   (functoriality)
+      F' ( F η ;; F G η' F ;; ε G' F' F ) ;; (ε' F' F)
+    =   (naturality)
+      F' ( F η ;; ε F ;; η' F ) ;; (ε' F' F)
+    =   (triangle identity for first adjunction)
+      F' ( 1 F ;; η' F ) ;; (ε' F' F)
+    =   (id_left, distributing over postcomposition)
+      (F' η' ;; ε' F') F
+    =   (triangle identity of second adjunction)
+      1 F' F
+
+    The second is completely dual: the same steps in the same order, only with pre- and post-composition switched.
+*)
+  - intro a.
+    assert (T1 := triangle_id_left_ad _ _ _ adF a).
+    assert (T1' := triangle_id_left_ad _ _ _ adF' (F a)).
+    (* Burrow in to get to the naturality. *)
+    etrans.
+    + etrans. apply assoc.
+      apply maponpaths_2.
+      etrans. apply @pathsinv0, functor_comp.
+      apply maponpaths.
+      etrans. apply maponpaths_2, functor_comp.
+      etrans. apply @pathsinv0, assoc.
+      apply maponpaths, (nat_trans_ax ε).
+    (* Now apply T1 from each of the original adjunctions. *)
+    + cbn. etrans.
+      * apply maponpaths_2, maponpaths.
+        etrans. apply assoc.
+        etrans. apply maponpaths_2, T1.
+        apply id_left.
+      * apply T1'.
+  - intro c.
+    assert (T2 := triangle_id_right_ad _ _ _ adF (G' c)).
+    assert (T2' := triangle_id_right_ad _ _ _ adF' c).
+    (* Burrow in to get to the naturality. *)
+    etrans.
+    + etrans. apply @pathsinv0, assoc.
+      apply maponpaths.
+      etrans. apply @pathsinv0, functor_comp.
+      apply maponpaths.
+      etrans. apply maponpaths, functor_comp.
+      etrans. apply assoc.
+      apply maponpaths_2, @pathsinv0, (nat_trans_ax η').
+    (* Now apply T2 from each of the original adjunctions. *)
+    + cbn. etrans.
+      * apply maponpaths, maponpaths.
+        etrans. apply @pathsinv0, assoc.
+        etrans. apply maponpaths, T2'.
+        apply id_right.
+      * apply T2.
+Qed.
 
 Definition comp_adjunction : is_left_adjoint (functor_composite F F').
 Proof.
@@ -137,53 +190,27 @@ Section eqv_comp.
 Hypothesis HF : adj_equivalence_of_precats F.
 Hypothesis HF' : adj_equivalence_of_precats F'.
 
-Definition left_adj_from_adj_equiv (X Y : precategory) (K : functor X Y)
-         (HK : adj_equivalence_of_precats K) : is_left_adjoint K := pr1 HK.
-Coercion left_adj_from_adj_equiv : adj_equivalence_of_precats >-> is_left_adjoint.
-
-
-Let η : functor_precategory A A hsA ⟦ _ , _ ⟧ := unit_from_left_adjoint HF.
-Let η' : functor_precategory _ _  hsB ⟦ _ , _ ⟧ := unit_from_left_adjoint HF'.
-Let ε : functor_precategory _ _ hsB ⟦ _ , _ ⟧ := counit_from_left_adjoint HF.
-Let ε' : functor_precategory _ _ hsC ⟦ _ , _ ⟧ := counit_from_left_adjoint HF'.
-Let G := right_adjoint HF.
-Let G' := right_adjoint HF'.
-Let X := # (pre_composition_functor _ _ _ hsB hsB F) η'.
-Let XR := # (post_composition_functor _ _ _ _ hsA G) X.
-Let X' := # (pre_composition_functor _ _ _ hsB hsB G') ε.
-Let XR' := # (post_composition_functor _ _ _ _ hsC F') X'. 
-
-
+Coercion left_adj_from_adj_equiv (X Y : precategory) (K : functor X Y)
+         (HK : adj_equivalence_of_precats K)
+  : is_left_adjoint K
+:= pr1 HK.
 
 Definition comp_adj_equivalence_of_precats 
   : adj_equivalence_of_precats (functor_composite F F').
 Proof.
   exists (comp_adjunction HF HF').
   mkpair.
-  - apply (@is_functor_iso_pointwise_if_iso _ _ hsA).
-    set (slsl := is_iso_comp_is_iso η XR). 
-    apply slsl; clear slsl.
-    + apply functor_iso_if_pointwise_iso. 
-      apply (pr1 (pr2 HF)).
-    + apply functor_iso_if_pointwise_iso.
-      intro a. simpl.
-      apply functor_is_iso_is_iso.
-      apply (pr1 (pr2 HF')).
-  - apply (@is_functor_iso_pointwise_if_iso _ _ hsC _ _ (XR';; ε')).
-    set (slsl := is_iso_comp_is_iso XR' ε'). 
-    apply slsl.
-    + apply functor_iso_if_pointwise_iso.
-      intro a. simpl.
-      apply functor_is_iso_is_iso.
-      apply (pr2 (pr2 HF)).
-    + apply functor_iso_if_pointwise_iso.
-      apply (pr2 (pr2 HF')).
+  - intro. apply is_iso_comp_is_iso.
+    + apply (pr1 (pr2 HF)).
+    + simpl. apply functor_is_iso_is_iso, (pr1 (pr2 HF')).
+  - intro. apply is_iso_comp_is_iso.
+    + apply functor_is_iso_is_iso, (pr2 (pr2 HF)).
+    + apply (pr2 (pr2 HF')).
 Defined.
 
 End eqv_comp.
 
 End fix_stuff.
-
 
 
 (** * Lemmas about transport, etc *)
