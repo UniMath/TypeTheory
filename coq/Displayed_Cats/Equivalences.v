@@ -626,9 +626,43 @@ Proof.
 (* Time Qed. *)
 Admitted. (* is proved, but for quicker checking we admit *)
 
-
-
 Definition GG : functor_over _ _ _ := (_ ,, GG_ax).
+
+
+Definition ε_ses_ff : nat_trans_over (nat_trans_id _ )
+     (functor_composite_over GG FF) (functor_identity_over _ ).
+Proof.
+  mkpair.
+  - intros x xx. cbn.
+    apply (pr2 (FFses x xx)).
+  - intros x y f xx yy ff. cbn.
+    etrans. apply maponpaths_2. apply (homotweqinvweq (FFweq _ )).
+    etrans. apply mor_disp_transportf_postwhisker.
+    apply transportf_comp_lemma.
+    etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. 
+            apply assoc_disp_var.
+    etrans. apply transport_f_f. 
+    etrans. apply maponpaths. apply maponpaths.
+            apply (iso_disp_after_inv_mor (pr2 (FFses y yy))).
+    etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply id_right_disp.
+    etrans. apply transport_f_f.
+    apply transportf_comp_lemma_hset.
+    + apply homset_property.
+    + apply idpath.
+Defined.
+
+Definition η_ses_ff : nat_trans_over (nat_trans_id _ ) (functor_identity_over _ ) 
+                                     (functor_composite_over FF GG).
+Proof.
+  mkpair.
+  - intros x xx. cbn.
+    apply FFinv.
+    (* should one here take [ε_ses_ff^{-1} (FF x xx)] ? *)
+Abort.
 
 End equiv_from_ses_ff.
 
@@ -680,7 +714,11 @@ Proof.
   + set (H := pr2 (pr2 Hff)).
     etrans. apply maponpaths, H.
     etrans. apply transport_f_b.
-    (* TODO: the following slightly cumbersome step is used in several spots.  Is there a lemma for it?  If not, make one? *) 
+    (* TODO: the following slightly cumbersome step is used in several spots.  Is there a lemma for it?  If not, make one? *)
+(*    apply transportf_comp_lemma_hset. 
+      is a lemma crafted by PLL that might be applied here; 
+      a variant with only [x] would be useful
+                    *)
     refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
     apply homset_property.      
   + set (H := pr1 (pr2 Hff)).
