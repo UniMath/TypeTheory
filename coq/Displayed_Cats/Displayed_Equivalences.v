@@ -13,7 +13,7 @@ Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
 Require Import Systems.Displayed_Cats.Auxiliary.
 Require Import Systems.Displayed_Cats.Displayed_Precats.
-Require Import Systems.Displayed_Cats.Displayed_Precats_bis.
+Require Import Systems.Displayed_Cats.Constructions.
 
 
 Local Set Automatic Introduction.
@@ -313,7 +313,7 @@ Proof.
 Defined.
 
 Variable X : functor_over_ess_split_surj _ FF.
-Variable Y : iso_fibration D'.
+Variable Y : isofibration D'.
 
 Definition fibre_functor_ess_split_surj (x' : C') : 
    forall yy : D[[F x']], Σ xx : D'[[x']], 
@@ -490,7 +490,7 @@ Proof.
 Defined.
 
 (*
-Variable X : iso_fibration D'.
+Variable X : isofibration D'.
 *)
 
 Local Definition GG_data : functor_over_data (functor_identity _ ) D D'.

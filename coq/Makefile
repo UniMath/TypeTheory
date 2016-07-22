@@ -20,7 +20,6 @@ MODULES-CORE := \
 	RelUnivYonedaCompletion \
 	Displayed_Cats/Auxiliary \
 	Displayed_Cats/Displayed_Precats \
-	Displayed_Cats/Displayed_Precats_bis \
 	Displayed_Cats/Displayed_Equivalences \
 	Displayed_Cats/Constructions \
 	Displayed_Cats/Examples \

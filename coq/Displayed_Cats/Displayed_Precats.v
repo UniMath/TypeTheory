@@ -287,6 +287,7 @@ Definition iso_disp_after_inv_mor {C : Precategory} {D : disp_precat_data C}
 Proof.
   apply (pr2 (pr2 i)).
 Qed.
+
 Definition inv_mor_after_iso_disp {C : Precategory} {D : disp_precat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
     (i : iso_disp f xx yy) 
@@ -451,16 +452,53 @@ Proof.
   exact (idtoiso_disp (idpath _) ee).
 Defined.
 
-(** TODO: define isofibrations
-whenever you have an iso φ : c =~ c' in C, and an object d in D c,
-there’s some object d' in D c', and an iso φbar : d =~ d' over φ
-*)
 
-Definition iso_fibration {C : Precategory} (D : disp_precat C) : UU
-  := 
-  forall (c c' : C) (i : iso c c') (d : D c),
-          Σ d' : D c', iso_disp i d d'.
-
+Lemma iso_disp_precomp {C : Precategory} {D : disp_precat C}
+    {x y : C} (f : iso x y) 
+    {xx : D x} {yy} (ff : iso_disp f xx yy)
+  : forall (y' : C) (f' : y ⇒ y') (yy' : D y'), 
+          isweq (fun ff' : yy ⇒[ f' ] yy' => pr1 ff ;; ff').
+Proof.
+  intros y' f' yy'.
+  use gradth.
+  + intro X.
+    set (XR := (pr1 (pr2 ff)) ;; X).
+    set (XR' := transportf _ (assoc _ _ _   ) XR).
+(*    Search (inv_from_iso _  ). *)
+    set (XRRT := transportf _ 
+           (maponpaths (fun xyz => (xyz ;; f')%mor) (iso_after_iso_inv f)) 
+           XR').
+    set (XRRT' := transportf _ (id_left _ )                   
+           XRRT).
+    apply XRRT'.
+  + intros. simpl.
+    etrans. apply transport_f_f.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply assoc_disp.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply maponpaths_2. apply (pr2 (pr2 ff)). 
+    etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply id_left_disp.
+    etrans. apply transport_f_f.
+    apply transportf_comp_lemma_hset.
+    apply (pr2 C). apply idpath.
+  + intros; simpl.
+    etrans. apply maponpaths. apply transport_f_f.
+    etrans. apply mor_disp_transportf_prewhisker.
+    etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply assoc_disp.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply maponpaths_2. 
+    assert (XR := pr2 (pr2 (pr2 ff))). simpl in XR. apply XR.
+    etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply id_left_disp.
+    etrans. apply transport_f_f.
+    apply transportf_comp_lemma_hset.
+    apply (pr2 C). apply idpath.
+Defined.
 
 End Isos.
 
@@ -722,8 +760,10 @@ Arguments pr1_precat [C] D.
 
 (** * Functors 
 
-- Reindexing of displayed precats along functors
-- Functors into displayed precategories *)
+- Reindexing of displayed precats along functors: [reindex_disp_precat]
+- Functors into displayed precats, lifting functors into the base: [functor_lifting]
+- Functors between displayed precats, over functors between the bases: [functor_over]
+- Natural transformations between these: [nat_trans_over] *)
 
 (** ** Reindexing *)
 
@@ -1115,10 +1155,222 @@ Definition total_functor {C' C} {F}
 
 End Functor_Over.
 
+Notation "# F" := (functor_over_on_morphisms F)
+  (at level 3) : mor_disp_scope.
+
+Section Nat_Trans_Over.
+
+
+Definition nat_trans_over_data
+  {C' C : precategory_data} 
+  {F' F : functor_data C' C}
+  (a : forall x, F' x ⇒ F x)
+  {D' : disp_precat_data C'}
+  {D : disp_precat_data C}
+  (R' : functor_over_data F' D' D)
+  (R : functor_over_data F D' D) :=
+forall (x : C')  (xx : D' x), 
+      R' x  xx ⇒[ a x ] R x xx .
+(*
+Check @nat_trans_ax.
+
+@nat_trans_ax
+     : Π (C C' : precategory_data) (F F' : functor_data C C')
+       (a : nat_trans F F') (x x' : C) (f : x ⇒ x'),
+       (# F f ;; a x')%mor = (a x ;; # F' f)%mor
+*)
+
+Definition nat_trans_over_axioms
+  {C' C : precategory_data} 
+  {F' F : functor_data C' C}
+  {a : nat_trans F' F}
+  {D' : disp_precat_data C'}
+  {D : disp_precat_data C}
+  {R' : functor_over_data F' D' D}
+  {R : functor_over_data F D' D}
+  (b : nat_trans_over_data a R' R) : UU
+ := 
+   forall (x' x : C') (f : x' ⇒ x)
+          (xx' : D' x') (xx : D' x) 
+          (ff : xx' ⇒[ f ] xx), 
+     # R'  ff ;; b _ xx = 
+     transportb _ (nat_trans_ax a _ _ f ) (b _ xx' ;; # R ff).
+
+Lemma isaprop_nat_trans_over_axioms
+  {C' C : Precategory} 
+  {F' F : functor_data C' C}
+  (a : nat_trans F' F)
+  {D' : disp_precat_data C'}
+  {D : disp_precat C}
+  {R' : functor_over_data F' D' D}
+  {R : functor_over_data F D' D}
+  (b : nat_trans_over_data a R' R) 
+  : 
+    isaprop (nat_trans_over_axioms b).
+Proof.
+  repeat (apply impred; intro).
+  apply homsets_disp.
+Qed.
+
+Definition nat_trans_over
+  {C' C : precategory_data} 
+  {F' F : functor_data C' C}
+  (a : nat_trans F' F)
+  {D' : disp_precat_data C'}
+  {D : disp_precat_data C}
+  (R' : functor_over_data F' D' D)
+  (R : functor_over_data F D' D) : UU :=
+  Σ b : nat_trans_over_data a R' R,
+    nat_trans_over_axioms b.
+
+Definition nat_trans_over_pr1 
+  {C' C : precategory_data} 
+  {F' F : functor_data C' C}
+  {a : nat_trans F' F}
+  {D' : disp_precat_data C'}
+  {D : disp_precat_data C}
+  {R' : functor_over_data F' D' D}
+  {R : functor_over_data F D' D}
+  (b : nat_trans_over a R' R) 
+  {x : C'}  (xx : D' x):
+    R' x  xx ⇒[ a x ] R x xx
+  := pr1 b x xx.
+
+Coercion nat_trans_over_pr1 : nat_trans_over >-> Funclass.
+
+Definition nat_trans_over_ax
+  {C' C : precategory_data} 
+  {F' F : functor_data C' C}
+  {a : nat_trans F' F}
+  {D' : disp_precat_data C'}
+  {D : disp_precat_data C}
+  {R' : functor_over_data F' D' D}
+  {R : functor_over_data F D' D}
+  (b : nat_trans_over a R' R)
+  {x' x : C'} 
+  {f : x' ⇒ x}
+  {xx' : D' x'} 
+  {xx : D' x}
+  (ff : xx' ⇒[ f ] xx):
+  # R'  ff ;; b _ xx = 
+  transportb _ (nat_trans_ax a _ _ f ) (b _ xx' ;; # R ff)
+  := 
+  pr2 b _ _ f _ _ ff.
+
+Lemma nat_trans_over_ax_var
+  {C' C : precategory_data} 
+  {F' F : functor_data C' C}
+  {a : nat_trans F' F}
+  {D' : disp_precat_data C'}
+  {D : disp_precat_data C}
+  {R' : functor_over_data F' D' D}
+  {R : functor_over_data F D' D}
+  (b : nat_trans_over a R' R)
+  {x' x : C'} 
+  {f : x' ⇒ x}
+  {xx' : D' x'} 
+  {xx : D' x}
+  (ff : xx' ⇒[ f ] xx):
+  b _ xx' ;; # R ff =
+  transportf _ (nat_trans_ax a _ _ f) (# R'  ff ;; b _ xx).
+Proof.
+  apply pathsinv0, Utilities.transportf_pathsinv0.
+  apply pathsinv0, nat_trans_over_ax.
+Defined.
+
+
+(** identity nat_trans_over *)
+
+Definition nat_trans_over_id
+  {C' C : Precategory} 
+  {F': functor_data C' C}
+  {D' : disp_precat_data C'}
+  {D : disp_precat C}
+  (R' : functor_over_data F' D' D)
+  : nat_trans_over (nat_trans_id F') R' R'.
+Proof.
+  mkpair.
+  - intros x xx.
+    apply id_disp.
+  - abstract (
+    intros x' x f xx' xx ff;
+    etrans; [ apply id_right_disp |];
+    apply transportf_comp_lemma;
+    apply pathsinv0;
+    etrans; [apply id_left_disp |];
+    apply transportf_ext;
+    apply (pr2 C) ).
+Defined.    
+    
+
+(** composition of nat_trans_over *)
+
+
+
+Definition nat_trans_over_comp
+  {C' C : Precategory} 
+  {F'' F' F : functor_data C' C}
+  {a' : nat_trans F'' F'}
+  {a : nat_trans F' F}
+  {D' : disp_precat_data C'}
+  {D : disp_precat C}
+  {R'' : functor_over_data F'' D' D}
+  {R' : functor_over_data F' D' D}
+  {R : functor_over_data F D' D}
+  (b' : nat_trans_over a' R'' R')
+  (b : nat_trans_over a R' R)
+  : nat_trans_over (nat_trans_comp _ _ _ a' a) R'' R.
+Proof.
+  mkpair.
+  - intros x xx.
+    apply (comp_disp (b' _ _ )  (b _ _ )).
+  - abstract ( 
+    intros x' x f xx' xx ff;
+    etrans; [ apply assoc_disp |];
+    apply transportf_comp_lemma;
+    apply Utilities.transportf_pathsinv0; apply pathsinv0;
+    rewrite (nat_trans_over_ax b');
+    etrans; [ apply compl_disp_transp |];
+    apply transportf_comp_lemma;
+    apply pathsinv0;
+    etrans; [ apply assoc_disp_var |];
+    apply pathsinv0;
+    apply transportf_comp_lemma;
+    apply pathsinv0;
+    rewrite (nat_trans_over_ax_var b);
+    rewrite mor_disp_transportf_prewhisker;
+    apply transportf_comp_lemma;
+    apply pathsinv0;
+    etrans; [ apply assoc_disp_var |];
+    apply transportf_comp_lemma;
+    apply transportf_comp_lemma_hset;
+     [ apply (pr2 C) | apply idpath]
+   ).
+Defined.
+
+End Nat_Trans_Over.
+
+(** * Fibrations *)
+
+(** Fibratons, opfibrations, and isofibrations are all displayed categories with extra lifting conditions. *)
+
+(* TODO: flesh out this section; probably break it out into its own file. *)
+Section Fibrations.
+
+(** whenever you have an iso φ : c =~ c' in C, and an object d in D c,
+there’s some object d' in D c', and an iso φbar : d =~ d' over φ
+*)
+
+Definition isofibration {C : Precategory} (D : disp_precat C) : UU
+  := 
+  forall (c c' : C) (i : iso c c') (d : D c),
+          Σ d' : D c', iso_disp i d d'.
+
+
+End Fibrations.
 
 (** some TODOs for the displayed-cats library:
 
-- add definitions of fibrations/isofibrations
 - add lemmas connecting with products of precats (as required for displayed bicats)
 - add more applications of the displayed arrow category: slices; equalisers, inserters; hence groups etc.
 
