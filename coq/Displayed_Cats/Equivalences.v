@@ -629,13 +629,20 @@ Admitted. (* is proved, but for quicker checking we admit *)
 Definition GG : functor_over _ _ _ := (_ ,, GG_ax).
 
 
-Definition ε_ses_ff : nat_trans_over (nat_trans_id _ )
-     (functor_composite_over GG FF) (functor_identity_over _ ).
+Definition ε_ses_ff : 
+     (*
+      nat_trans_over (nat_trans_id _ )
+     (functor_composite_over GG FF) (functor_identity_over _ ) 
+     *)
+     (functor_composite_over GG FF : (disp_functor_precat _ _ D D) _ ) 
+    ⇒[ @identity_iso (functor_precategory C C (homset_property C)) _ ] 
+     functor_identity_over _ .
 Proof.
   mkpair.
   - intros x xx. cbn.
     apply (pr2 (FFses x xx)).
-  - intros x y f xx yy ff. cbn.
+  - (* should/could be opacified *)
+    intros x y f xx yy ff. cbn.
     etrans. apply maponpaths_2. apply (homotweqinvweq (FFweq _ )).
     etrans. apply mor_disp_transportf_postwhisker.
     apply transportf_comp_lemma.
@@ -654,6 +661,28 @@ Proof.
     + apply homset_property.
     + apply idpath.
 Defined.
+
+Definition ε_inv_ses_ff : 
+    (functor_identity_over _ : (disp_functor_precat _ _ D D) _ )
+    ⇒[ @identity_iso (functor_precategory C C (homset_property C)) _ ] 
+    (functor_composite_over GG FF : (disp_functor_precat _ _ D D) _ ).
+Proof.
+  simple refine (inv_disp_from_pointwise_iso _ _ _ _ _ _ _ _ _ ε_ses_ff  _ ).
+  intros x' xx'. 
+  set ( H:= (pr2 (pr2 (FFses x' xx')))). 
+  cbn in H. 
+  transparent assert (XR : ((pointwise_iso_from_nat_iso
+       (identity_iso
+          (functor_composite (functor_identity C) (functor_identity C) : functor_precategory _ _ (homset_property C) )) x') = 
+              identity_iso x' )).
+  { apply eq_iso. apply idpath. }
+Abort.
+
+Definition is_iso_ε_ses_ff : is_iso_disp _ ε_ses_ff.
+Proof.
+  apply is_disp_functor_precat_iso_if_pointwise_iso.
+  intros x' xx'. 
+Abort.
 
 Definition η_ses_ff : nat_trans_over (nat_trans_id _ ) (functor_identity_over _ ) 
                                      (functor_composite_over FF GG).
