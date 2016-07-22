@@ -20,6 +20,8 @@ Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.yoneda.
+Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.equivalences.
 
 Require Import Systems.UnicodeNotations.
 
@@ -30,6 +32,159 @@ Notation "ff ;; gg" := (compose ff gg)
 Delimit Scope mor_scope with mor.
 Bind Scope mor_scope with precategory_morphisms.
 Open Scope mor_scope.
+
+
+(** * Some tactics *)
+
+Tactic Notation "etrans" := eapply pathscomp0.
+Tactic Notation "rew_trans_@" := repeat (etrans ; [ apply transport_f_f |]).
+Tactic Notation "sym" := apply pathsinv0.
+Tactic Notation "assoc" := apply @pathsinv0, path_assoc.
+Tactic Notation "cancel_postcomposition" := apply cancel_postcomposition.
+
+
+(*TODO: look carefully for this in the library *)
+Definition maponpaths_2 {X Y Z : Type} (f : X -> Y -> Z) {x x'} (e : x = x') y
+  : f x y = f x' y
+:= maponpaths (fun x => f x y) e.
+
+
+Lemma is_iso_comp_is_iso {C : precategory} {a b c : ob C}
+  (f : C⟦a, b⟧) (g : C⟦b, c⟧) 
+  : is_iso f -> is_iso g -> is_iso (f ;; g).
+Proof.
+  intros Hf Hg.
+  apply (is_iso_comp_of_isos (isopair f Hf) (isopair g Hg)).
+Defined.
+
+Lemma functor_is_iso_is_iso {C C' : precategory} (F : functor C C')
+    {a b : ob C} (f : C ⟦a,b⟧) (fH : is_iso f) : is_isomorphism (#F f).
+Proof.
+  apply (functor_on_iso_is_iso _ _ F _ _ (isopair f fH)).
+Defined.
+
+
+(** * Categorical equivalence *)
+
+Section fix_stuff.
+
+Variables A B C : precategory.
+Hypothesis hsA : has_homsets A.
+Hypothesis hsB : has_homsets B.
+Hypothesis hsC : has_homsets C.
+Variable F : functor A B.
+Variable F' : functor B C.
+
+Section adj_comp.
+
+Hypothesis adF : is_left_adjoint F.
+Hypothesis adF' : is_left_adjoint F'.
+
+Let η : functor_precategory A A hsA ⟦ _ , _ ⟧ := unit_from_left_adjoint adF.
+Let η' : functor_precategory _ _  hsB ⟦ _ , _ ⟧ := unit_from_left_adjoint adF'.
+Let ε : functor_precategory _ _ hsB ⟦ _ , _ ⟧ := counit_from_left_adjoint adF.
+Let ε' : functor_precategory _ _ hsC ⟦ _ , _ ⟧ := counit_from_left_adjoint adF'.
+Let G := right_adjoint adF.
+Let G' := right_adjoint adF'.
+
+Let X := # (pre_composition_functor _ _ _ hsB hsB F) η'.
+Let XR := # (post_composition_functor _ _ _ _ hsA G) X.
+Let X' := # (pre_composition_functor _ _ _ hsB hsB G') ε.
+Let XR' := # (post_composition_functor _ _ _ _ hsC F') X'. 
+
+
+Definition unit_comp : (functor_precategory A A hsA) 
+   ⟦ functor_identity A,
+     functor_composite (functor_composite F F') (functor_composite G' G) ⟧.
+Proof.
+  apply (η ;;  XR).
+Defined.
+
+Definition counit_comp : (functor_precategory C C hsC) 
+    ⟦functor_composite (functor_composite G' G)
+       (functor_composite F F'), 
+     functor_identity C⟧.
+Proof.
+  apply (XR' ;; ε').
+Defined.
+
+Lemma form_adjunction_comp : 
+ form_adjunction (functor_composite F F') (functor_composite G' G) unit_comp
+    counit_comp.
+Proof.
+  assert (X1 :=  triangle_id_left_ad _ _ _ adF).
+  assert (X2 :=  triangle_id_left_ad _ _ _ adF').
+  assert (X3 :=  triangle_id_right_ad _ _ _ adF).
+  assert (X4 :=  triangle_id_right_ad _ _ _ adF').
+  cbn. clear XR' X' XR X.
+  mkpair; cbn in *; simpl in *; intro a.
+  - admit.
+  - admit.
+Admitted.
+
+
+Definition comp_adjunction : is_left_adjoint (functor_composite F F').
+Proof.
+  exists (functor_composite G' G).
+  exists (unit_comp ,, counit_comp).
+  apply form_adjunction_comp.
+Defined.
+
+End adj_comp.
+
+Section eqv_comp.
+
+Hypothesis HF : adj_equivalence_of_precats F.
+Hypothesis HF' : adj_equivalence_of_precats F'.
+
+Definition left_adj_from_adj_equiv (X Y : precategory) (K : functor X Y)
+         (HK : adj_equivalence_of_precats K) : is_left_adjoint K := pr1 HK.
+Coercion left_adj_from_adj_equiv : adj_equivalence_of_precats >-> is_left_adjoint.
+
+
+Let η : functor_precategory A A hsA ⟦ _ , _ ⟧ := unit_from_left_adjoint HF.
+Let η' : functor_precategory _ _  hsB ⟦ _ , _ ⟧ := unit_from_left_adjoint HF'.
+Let ε : functor_precategory _ _ hsB ⟦ _ , _ ⟧ := counit_from_left_adjoint HF.
+Let ε' : functor_precategory _ _ hsC ⟦ _ , _ ⟧ := counit_from_left_adjoint HF'.
+Let G := right_adjoint HF.
+Let G' := right_adjoint HF'.
+Let X := # (pre_composition_functor _ _ _ hsB hsB F) η'.
+Let XR := # (post_composition_functor _ _ _ _ hsA G) X.
+Let X' := # (pre_composition_functor _ _ _ hsB hsB G') ε.
+Let XR' := # (post_composition_functor _ _ _ _ hsC F') X'. 
+
+
+
+Definition comp_adj_equivalence_of_precats 
+  : adj_equivalence_of_precats (functor_composite F F').
+Proof.
+  exists (comp_adjunction HF HF').
+  mkpair.
+  - apply (@is_functor_iso_pointwise_if_iso _ _ hsA).
+    set (slsl := is_iso_comp_is_iso η XR). 
+    apply slsl; clear slsl.
+    + apply functor_iso_if_pointwise_iso. 
+      apply (pr1 (pr2 HF)).
+    + apply functor_iso_if_pointwise_iso.
+      intro a. simpl.
+      apply functor_is_iso_is_iso.
+      apply (pr1 (pr2 HF')).
+  - apply (@is_functor_iso_pointwise_if_iso _ _ hsC _ _ (XR';; ε')).
+    set (slsl := is_iso_comp_is_iso XR' ε'). 
+    apply slsl.
+    + apply functor_iso_if_pointwise_iso.
+      intro a. simpl.
+      apply functor_is_iso_is_iso.
+      apply (pr2 (pr2 HF)).
+    + apply functor_iso_if_pointwise_iso.
+      apply (pr2 (pr2 HF')).
+Defined.
+
+End eqv_comp.
+
+End fix_stuff.
+
+
 
 (** * Lemmas about transport, etc *)
 
@@ -82,12 +237,8 @@ Proof.
   exact (maponpaths (maponpaths f) H).
 Defined.
 
-(** Useful lemma for binary functions, generalising e.g. [cancel_postcomposition]. 
+(** Useful lemma for binary functions, generalising e.g. [cancel_postcomposition]. *)
 
-TODO: look carefully for this in the library *)
-Definition maponpaths_2 {X Y Z : Type} (f : X -> Y -> Z) {x x'} (e : x = x') y
-  : f x y = f x' y
-:= maponpaths (fun x => f x y) e.
 
 Lemma transportf_comp_lemma (X : UU) (B : X -> UU) {A A' A'': X} (e : A = A'') (e' : A' = A'')
   (x : B A) (x' : B A')
@@ -616,10 +767,3 @@ Arguments map_into_Pb {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 Arguments Pb_map_commutes_1 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 Arguments Pb_map_commutes_2 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 
-(** * Some tactics *)
-
-Tactic Notation "etrans" := eapply pathscomp0.
-Tactic Notation "rew_trans_@" := repeat (etrans ; [ apply transport_f_f |]).
-Tactic Notation "sym" := apply pathsinv0.
-Tactic Notation "assoc" := apply @pathsinv0, path_assoc.
-Tactic Notation "cancel_postcomposition" := apply cancel_postcomposition.
