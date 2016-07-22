@@ -22,6 +22,8 @@ MODULES-CORE := \
 	Displayed_Cats/Displayed_Precats \
 	Displayed_Cats/Displayed_Precats_bis \
 	Displayed_Cats/Displayed_Equivalences \
+	Displayed_Cats/Constructions \
+	Displayed_Cats/Examples \
 	Bicats/Bicats \
 	Bicats/Displayed_Bicats \
 	Structures_Cats \

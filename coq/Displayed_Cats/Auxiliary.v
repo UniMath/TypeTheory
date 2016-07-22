@@ -45,7 +45,8 @@ Bind Scope precategory_scope with precategory_data.
 Bind Scope precategory_scope with Precategory.
 Bind Scope precategory_scope with precategory.
 Delimit Scope precategory_scope with precat.
-(** Many scopes, following the many coercions on precategories. *)
+(** Many binding sorts for this scope, following the many coercions on precategories. *)
+
 
 (** * Direct products of types.
 
@@ -288,3 +289,14 @@ Proof.
 Defined.
 
 End Discrete_precats.
+
+(** * Miscellaneous lemmas *)
+
+(* TODO: upstream; also perhaps reconsider implicit args of pr1_transportf to match this? *)
+Lemma pr2_transportf {A} {B1 B2 : A → Type} 
+    {a a' : A} (e : a = a') (xs : B1 a × B2 a)
+  : pr2 (transportf (fun a => B1 a × B2 a) e xs) = transportf _ e (pr2 xs).
+Proof.
+  destruct e. apply idpath.
+Defined.
+

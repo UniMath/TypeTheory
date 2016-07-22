@@ -13,6 +13,7 @@ Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
 Require Import Systems.Displayed_Cats.Auxiliary.
 Require Import Systems.Displayed_Cats.Displayed_Precats.
+Require Import Systems.Displayed_Cats.Constructions.
 Require Import Systems.Displayed_Cats.Displayed_Equivalences.
 Require Import Systems.Structures.
 Require Import Systems.Structures_Cats.
@@ -28,43 +29,6 @@ Notation "# F" := (functor_over_on_morphisms F)
 (* TODO: as ever, upstream when possible. *)
 Section Auxiliary.
 
-Definition functor_over_composite_data
-  {C D E : Precategory}
-  {CC : disp_precat C} {DD : disp_precat D} {EE : disp_precat E}
-  {F} {G} (FF : functor_over F CC DD) (GG : functor_over G DD EE)
-: functor_over_data (functor_composite F G) CC EE.
-Proof.
-  exists (fun c cc => GG _ (FF _ cc)).
-  intros c c' cc cc' f ff.
-  exact (# GG (# FF ff))%mor_disp.
-Defined.
-(* TODO: remove 
-Definition is_functor_over_composite
-  {C D E : Precategory}
-  {CC : disp_precat C} {DD : disp_precat D} {EE : disp_precat E}
-  {F} {G} (FF : functor_over F CC DD) (GG : functor_over G DD EE)
-: functor_over_axioms (functor_over_composite_data FF GG).
-Proof.
-  split; intros; simpl.
-  - etrans. apply maponpaths, functor_over_id.
-    use @pathscomp0.
-        refine (transportb _ _ ((#GG)%mor_disp (id_disp (FF x xx)))).
-        apply maponpaths, functor_id.
-      apply @pathsinv0. admit.
-    etrans. apply maponpaths, functor_over_id.
-    etrans. apply transport_b_b.
-    apply maponpaths_2, homset_property.
-  - admit. (*TODO: complete!*)
-Admitted.
-*)
-
-Definition functor_over_composite
-  {C D E : Precategory}
-  {CC : disp_precat C} {DD : disp_precat D} {EE : disp_precat E}
-  {F} {G} (FF : functor_over F CC DD) (GG : functor_over G DD EE)
-: functor_over (functor_composite F G) CC EE
-:= functor_composite_over FF GG.
-
 (* The following definition takes unfair advantage of the fact that  [functor_composite (functor_identity _) (functor_identity _)]
   is judgementally(!) equal to [functor_identity _]. *)
 Definition functor_over_id_composite
@@ -73,7 +37,7 @@ Definition functor_over_id_composite
   (FF : functor_over (functor_identity _) CC DD)
   (GG : functor_over (functor_identity _) DD EE)
 : functor_over (functor_identity _) CC EE
-:= functor_over_composite FF GG.
+:= functor_composite_over FF GG.
 
 End Auxiliary.
 
