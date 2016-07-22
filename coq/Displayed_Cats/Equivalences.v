@@ -529,7 +529,7 @@ Proof.
          apply (inv_mor_after_iso_disp (pr2 (FFses x xx))). (* why is the argument needed? *)      etrans. apply maponpaths. apply FFinv_transportf.
        etrans. apply transport_f_f.
        etrans. apply maponpaths. apply FFinv_identity.
-       apply transportf_comp_lemma_hset. apply (pr2 C). apply idpath.
+       apply transportf_comp_lemma_hset. apply homset_property. apply idpath.
      + intros.
        etrans. apply FFinv_transportf.
        etrans. apply maponpaths. apply FFinv_transportf.
@@ -607,38 +607,91 @@ Proof.
        etrans. apply maponpaths. 
              apply FFinv_transportf.
        etrans. apply transport_f_f.
-(*      
-       etrans. apply maponpaths.
-       apply transportf_comp_lemma_hset.
-       etrans. apply maponpaths. 
-       apply maponpaths. 
-               apply assoc_disp.        
-
-       apply maponpaths.
-               apply        
-       do 2 (apply maponpaths). 
-       apply FFinv_transportf.
-       etrans. 
-               apply 
-               apply maponpaths_2.
-               apply maponpaths.
+       Search (transportf _ _ _ = transportf _ _ _ ).
+       apply transportf_comp_lemma.
+       etrans. apply maponpaths. apply maponpaths.
+               apply assoc_disp.
+       etrans. apply maponpaths. apply FFinv_transportf. 
+       etrans. apply transport_f_f.
+       etrans. apply maponpaths. apply maponpaths. apply maponpaths_2.
                apply assoc_disp_var.
-*)
-(*
-       etrans. apply maponpaths.
-               apply mor_disp_transportf_postwhisker.
-       apply FFinv_transportf.
-       
-       apply maponpaths. apply maponpaths. apply FFinv_transportf.
-
-               apply maponpaths.
-       etrans.
-       etrans. apply maponpaths. apply FFinv_compose.
-*)
-       admit.
-Admitted.
+       etrans. apply maponpaths. 
+               apply maponpaths. apply mor_disp_transportf_postwhisker.
+       etrans. apply maponpaths. 
+               apply FFinv_transportf.
+       etrans. apply transport_f_f.
+       apply transportf_comp_lemma_hset. 
+       * apply homset_property.
+       *  apply idpath.
+(* Time Qed. *)
+Admitted. (* is proved, but for quicker checking we admit *)
 
 Definition GG : functor_over _ _ _ := (_ ,, GG_ax).
+
+
+Definition ε_ses_ff : 
+     (*
+      nat_trans_over (nat_trans_id _ )
+     (functor_composite_over GG FF) (functor_identity_over _ ) 
+     *)
+     (functor_composite_over GG FF : (disp_functor_precat _ _ D D) _ ) 
+    ⇒[ @identity_iso (functor_precategory C C (homset_property C)) _ ] 
+     functor_identity_over _ .
+Proof.
+  mkpair.
+  - intros x xx. cbn.
+    apply (pr2 (FFses x xx)).
+  - (* should/could be opacified *)
+    intros x y f xx yy ff. cbn.
+    etrans. apply maponpaths_2. apply (homotweqinvweq (FFweq _ )).
+    etrans. apply mor_disp_transportf_postwhisker.
+    apply transportf_comp_lemma.
+    etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. 
+            apply assoc_disp_var.
+    etrans. apply transport_f_f. 
+    etrans. apply maponpaths. apply maponpaths.
+            apply (iso_disp_after_inv_mor (pr2 (FFses y yy))).
+    etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply id_right_disp.
+    etrans. apply transport_f_f.
+    apply transportf_comp_lemma_hset.
+    + apply homset_property.
+    + apply idpath.
+Defined.
+
+Definition ε_inv_ses_ff : 
+    (functor_identity_over _ : (disp_functor_precat _ _ D D) _ )
+    ⇒[ @identity_iso (functor_precategory C C (homset_property C)) _ ] 
+    (functor_composite_over GG FF : (disp_functor_precat _ _ D D) _ ).
+Proof.
+  simple refine (inv_disp_from_pointwise_iso _ _ _ _ _ _ _ _ _ ε_ses_ff  _ ).
+  intros x' xx'. 
+  set ( H:= (pr2 (pr2 (FFses x' xx')))). 
+  cbn in H. 
+  transparent assert (XR : ((pointwise_iso_from_nat_iso
+       (identity_iso
+          (functor_composite (functor_identity C) (functor_identity C) : functor_precategory _ _ (homset_property C) )) x') = 
+              identity_iso x' )).
+  { apply eq_iso. apply idpath. }
+Abort.
+
+Definition is_iso_ε_ses_ff : is_iso_disp _ ε_ses_ff.
+Proof.
+  apply is_disp_functor_precat_iso_if_pointwise_iso.
+  intros x' xx'. 
+Abort.
+
+Definition η_ses_ff : nat_trans_over (nat_trans_id _ ) (functor_identity_over _ ) 
+                                     (functor_composite_over FF GG).
+Proof.
+  mkpair.
+  - intros x xx. cbn.
+    apply FFinv.
+    (* should one here take [ε_ses_ff^{-1} (FF x xx)] ? *)
+Abort.
 
 End equiv_from_ses_ff.
 
@@ -646,7 +699,7 @@ End foo.
 
 Section Displayed_Equiv_Compose.
 
-(* TODO: give composites of equivalences *)
+(* TODO: give composites of equivalences DONE in Auxiliary *)
 
 End Displayed_Equiv_Compose.
 
@@ -690,7 +743,11 @@ Proof.
   + set (H := pr2 (pr2 Hff)).
     etrans. apply maponpaths, H.
     etrans. apply transport_f_b.
-    (* TODO: the following slightly cumbersome step is used in several spots.  Is there a lemma for it?  If not, make one? *) 
+    (* TODO: the following slightly cumbersome step is used in several spots.  Is there a lemma for it?  If not, make one? *)
+(*    apply transportf_comp_lemma_hset. 
+      is a lemma crafted by PLL that might be applied here; 
+      a variant with only [x] would be useful
+                    *)
     refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
     apply homset_property.      
   + set (H := pr1 (pr2 Hff)).
