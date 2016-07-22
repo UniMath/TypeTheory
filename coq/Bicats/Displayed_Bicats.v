@@ -8,7 +8,7 @@ In particular, we aim to use displayed bicategories to construct and work with t
 
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-Require Import Systems.Displayed_Cats.Displayed_Precats.
+Require Import Systems.Displayed_Cats.Core.
 Require Import Systems.Bicats.Bicats.
 
 (** * Displayed (pre)bicategories 

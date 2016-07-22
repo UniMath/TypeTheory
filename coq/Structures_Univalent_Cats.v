@@ -10,7 +10,7 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
 Require Import Systems.Displayed_Cats.Auxiliary.
-Require Import Systems.Displayed_Cats.Displayed_Precats.
+Require Import Systems.Displayed_Cats.Core.
 Require Import Systems.Displayed_Cats.Constructions.
 Require Import Systems.Structures.
 Require Import Systems.Structures_Cats.

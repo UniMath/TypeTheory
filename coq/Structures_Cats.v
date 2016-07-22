@@ -17,7 +17,7 @@ Require Import Systems.Auxiliary.
 Require Import Systems.Structures.
 
 Require Import Systems.Displayed_Cats.Auxiliary.
-Require Import Systems.Displayed_Cats.Displayed_Precats.
+Require Import Systems.Displayed_Cats.Core.
 
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)

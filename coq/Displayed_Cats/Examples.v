@@ -17,7 +17,7 @@ Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
 
 Require Import Systems.Displayed_Cats.Auxiliary.
-Require Import Systems.Displayed_Cats.Displayed_Precats.
+Require Import Systems.Displayed_Cats.Core.
 
 Local Open Scope mor_disp_scope.
 

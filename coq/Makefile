@@ -19,8 +19,8 @@ MODULES-CORE := \
 	CwF_RelUnivYoneda \
 	RelUnivYonedaCompletion \
 	Displayed_Cats/Auxiliary \
-	Displayed_Cats/Displayed_Precats \
-	Displayed_Cats/Displayed_Equivalences \
+	Displayed_Cats/Core \
+	Displayed_Cats/Equivalences \
 	Displayed_Cats/Constructions \
 	Displayed_Cats/Examples \
 	Bicats/Bicats \
