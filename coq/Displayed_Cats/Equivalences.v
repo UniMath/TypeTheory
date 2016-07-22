@@ -529,7 +529,7 @@ Proof.
          apply (inv_mor_after_iso_disp (pr2 (FFses x xx))). (* why is the argument needed? *)      etrans. apply maponpaths. apply FFinv_transportf.
        etrans. apply transport_f_f.
        etrans. apply maponpaths. apply FFinv_identity.
-       apply transportf_comp_lemma_hset. apply (pr2 C). apply idpath.
+       apply transportf_comp_lemma_hset. apply homset_property. apply idpath.
      + intros.
        etrans. apply FFinv_transportf.
        etrans. apply maponpaths. apply FFinv_transportf.
@@ -607,36 +607,26 @@ Proof.
        etrans. apply maponpaths. 
              apply FFinv_transportf.
        etrans. apply transport_f_f.
-(*      
-       etrans. apply maponpaths.
-       apply transportf_comp_lemma_hset.
-       etrans. apply maponpaths. 
-       apply maponpaths. 
-               apply assoc_disp.        
-
-       apply maponpaths.
-               apply        
-       do 2 (apply maponpaths). 
-       apply FFinv_transportf.
-       etrans. 
-               apply 
-               apply maponpaths_2.
-               apply maponpaths.
+       Search (transportf _ _ _ = transportf _ _ _ ).
+       apply transportf_comp_lemma.
+       etrans. apply maponpaths. apply maponpaths.
+               apply assoc_disp.
+       etrans. apply maponpaths. apply FFinv_transportf. 
+       etrans. apply transport_f_f.
+       etrans. apply maponpaths. apply maponpaths. apply maponpaths_2.
                apply assoc_disp_var.
-*)
-(*
-       etrans. apply maponpaths.
-               apply mor_disp_transportf_postwhisker.
-       apply FFinv_transportf.
-       
-       apply maponpaths. apply maponpaths. apply FFinv_transportf.
+       etrans. apply maponpaths. 
+               apply maponpaths. apply mor_disp_transportf_postwhisker.
+       etrans. apply maponpaths. 
+               apply FFinv_transportf.
+       etrans. apply transport_f_f.
+       apply transportf_comp_lemma_hset. 
+       * apply homset_property.
+       *  apply idpath.
+(* Time Qed. *)
+Admitted. (* is proved, but for quicker checking we admit *)
 
-               apply maponpaths.
-       etrans.
-       etrans. apply maponpaths. apply FFinv_compose.
-*)
-       admit.
-Admitted.
+
 
 Definition GG : functor_over _ _ _ := (_ ,, GG_ax).
 
@@ -646,7 +636,7 @@ End foo.
 
 Section Displayed_Equiv_Compose.
 
-(* TODO: give composites of equivalences *)
+(* TODO: give composites of equivalences DONE in Auxiliary *)
 
 End Displayed_Equiv_Compose.
 
