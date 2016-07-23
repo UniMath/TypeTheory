@@ -20,24 +20,9 @@ Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
 Local Open Scope type_scope.
-
-Undelimit Scope transport.
-
-Notation "# F" := (functor_over_on_morphisms F)
-  (at level 3) : mor_disp_scope.
-
 Local Open Scope mor_disp_scope.
 
-
-
-Section move_upstream.
-
-Lemma transportf_pathsinv0_var :
-Π {X : UU} {P : X → UU} {x y : X} {p : x = y} {u : P x} 
-{v : P y}, transportf P p u = v → transportf P (!p) v = u.
-Proof.
-  intros. induction p. apply (!X0).
-Defined.
+Section Auxiliary.
 
 Lemma invmap_eq {A B : UU} (f : A ≃ B) (b : B) (a : A)
   : b = f a → invmap f b = a.
@@ -47,29 +32,7 @@ Proof.
   etrans. apply homotweqinvweq. apply H.
 Defined.  
 
-
-End move_upstream.
-
-(*
-
-we have F : C -> C',
-and FF : D -> D' over F,
-then dses says:
-for any c:C and d : D' (F c),
-there’s some “lift” [ dbar : D c ]
-and some iso [ d <~> d' ] over [ id (F c) ].
-*)
-
-(* TODO: consider changing this identifier, since “SES” is such a well-established abbreviation for “short exact sequence”. *)
-Definition ses_disp {C' C : Precategory}
-  {D' : disp_precat C'} {D : disp_precat C}
-  {F : functor C' C} (FF : functor_over F D' D) : UU
-  := 
-  Π (c' : C') (d' : D (F c')),
-   Σ (dbar : D' c'), iso_disp (identity_iso _ ) (FF _ dbar) d'.
-
-
-
+(* TODO: isn’t this a special case of a lemma in the library?  Search for that… *)
 Lemma functor_over_transportf {C' C : Precategory}
   {D' : disp_precat C'} {D : disp_precat C}
   (F : functor C' C) (FF : functor_over F D' D)
@@ -85,243 +48,43 @@ Proof.
   apply idpath.
 Defined.
 
-(** Fibre precategory *)
 
-Section fibre_precategory.
+End Auxiliary.
 
-Variable C : Precategory.
-Variable D : disp_precat C.
-Variable c : C.
+Section Essential_Surjectivity.
 
-Definition fibre_precategory_data : precategory_data.
-Proof.
-  mkpair.
-  - mkpair.
-    + apply (ob_disp D c).
-    + intros xx xx'. apply (mor_disp xx xx' (identity c)).
-  - mkpair.
-    + intros. apply id_disp.
-    + intros. apply (transportf _ (id_right _ ) (comp_disp X X0)).
-Defined.
+(* “Displayed split essentially surjective”:
 
-Lemma fibre_is_precategory : is_precategory fibre_precategory_data.
-Proof.
-  repeat split; intros; cbn.
-  - etrans. apply maponpaths. apply id_left_disp.
-    etrans. apply transport_f_f. apply transportf_comp_lemma_hset. 
-    apply (homset_property). apply idpath.
-  - etrans. apply maponpaths. apply id_right_disp.
-    etrans. apply transport_f_f. apply transportf_comp_lemma_hset. 
-    apply (homset_property). apply idpath.
-  - etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
-    etrans. apply transport_f_f.
-    etrans. apply maponpaths. apply assoc_disp.
-    etrans. apply transport_f_f.
-    apply pathsinv0. 
-    etrans. apply maponpaths.  apply mor_disp_transportf_postwhisker.
-    etrans. apply transport_f_f.
-    apply transportf_ext. apply homset_property.
-Qed.
+we have F : C -> C',
+and FF : D -> D' over F,
+then dses says:
+for any c:C and d : D' (F c),
+there’s some “lift” [ dbar : D c ]
+and some iso [ d <~> d' ] over [ id (F c) ].
+*)
 
-Definition fibre_precategory : precategory := ( _ ,, fibre_is_precategory).
+(* TODO: consider changing this identifier, since “SES” is such a well-established abbreviation for “short exact sequence”. *)
+Definition ses_disp
+    {C C' : Precategory} {D} {D'}
+    {F : functor C C'} (FF : functor_over F D D')
+  : UU
+:= 
+  Π (c : C) (d' : D' (F c)),
+   Σ (dbar : D c), iso_disp (identity_iso _ ) (FF _ dbar) d'.
 
-Lemma has_homsets_fibre : has_homsets fibre_precategory.
-Proof.
-  intros x y. apply homsets_disp.
-Qed.
-
-
-
-Definition iso_disp_from_iso_fibre (a b : fibre_precategory) :
-  iso a b -> iso_disp (identity_iso c) a b.
-Proof.
- intro i.
- mkpair.
- + apply (pr1 i).
- + cbn. 
-   mkpair. 
-   * apply (inv_from_iso i).
-   * abstract (  split;
-       [ assert (XR := iso_after_iso_inv i);
-        cbn in *;
-        assert (XR' := transportf_pathsinv0_var XR);
-        etrans; [ apply (!XR') |];
-        apply transportf_ext; apply homset_property
-       |assert (XR := iso_inv_after_iso i);
-        cbn in *;
-        assert (XR' := transportf_pathsinv0_var XR);
-        etrans; [ apply (!XR') | ];
-        apply transportf_ext; apply homset_property ] ).
-Defined.
-
-Definition iso_fibre_from_iso_disp (a b : fibre_precategory) :
-  iso a b <- iso_disp (identity_iso c) a b.
-Proof.
-  intro i.
-  mkpair.
-  + apply (pr1 i).
-  + cbn in *. 
-    apply (@is_iso_from_is_z_iso fibre_precategory).
-    mkpair.
-    apply (inv_mor_disp_from_iso i).
-    abstract (split; cbn;
-              [
-                assert (XR := inv_mor_after_iso_disp i);
-                etrans; [ apply maponpaths , XR |];
-                etrans; [ apply transport_f_f |];
-                apply transportf_comp_lemma_hset;
-                  try apply homset_property; apply idpath
-              | assert (XR := iso_disp_after_inv_mor i);
-                etrans; [ apply maponpaths , XR |] ;
-                etrans; [ apply transport_f_f |];
-                apply transportf_comp_lemma_hset;
-                try apply homset_property; apply idpath
-              ]). 
-Defined.
-
-Lemma iso_disp_iso_fibre (a b : fibre_precategory) :
-  iso a b ≃ iso_disp (identity_iso c) a b.
-Proof.
-  exists (iso_disp_from_iso_fibre a b).
-  use (gradth _ (iso_fibre_from_iso_disp _ _ )).
-  - intro. apply eq_iso. apply idpath.
-  - intro. apply eq_iso_disp. apply idpath.
-Defined.
-    
-
-Variable H : is_category_disp D.
-
-Let idto1 (a b : fibre_precategory) : a = b ≃ iso_disp (identity_iso c) a b 
-  := 
-  weqpair (@idtoiso_fiber_disp _ _ _ a b) (H _ _ (idpath _ ) a b).
-
-Let idto2 (a b : fibre_precategory) : a = b -> iso_disp (identity_iso c) a b 
-  := 
-  funcomp (λ p : a = b, idtoiso p) (iso_disp_iso_fibre a b).
-
-Lemma eq_idto1_idto2 (a b : fibre_precategory) 
-  : Π p : a = b, idto1 _ _ p = idto2 _ _ p.
-Proof.
-  intro p. induction p.
-  apply eq_iso_disp.
-  apply idpath.
-Qed.
-
-Lemma is_univalent_fibre_precat 
-  (a b : fibre_precategory)
-  :
-  isweq (λ p : a = b, idtoiso p).
-Proof.
-  use (twooutof3a _ (iso_disp_iso_fibre a b)). 
-  - use (isweqhomot (idto1 a b)).
-    + intro p.
-      apply eq_idto1_idto2.
-    + apply weqproperty.
-  - apply weqproperty.
-Defined.    
-
-
-Lemma is_category_fibre : is_category fibre_precategory.
-Proof.
-  split.
-  - apply is_univalent_fibre_precat.
-  - apply has_homsets_fibre.
-Defined.
-
-End fibre_precategory.
-
-Arguments fibre_precategory {_} _ _ .
-
-(* TODO: this notation interferes with the parsing of elim patterns,
-  e.g. [ destruct XYZ as [[X Y] Z] ].  Perhaps find alternative notation. *)
-Notation "D [[ x ]]" := (fibre_precategory D x)(at level 3,format "D [[ x ]]").
-
-Section fibre_functor.
-
-Variables C' C : Precategory.
-Variable F : functor C' C.
-Variable D' : disp_precat C'.
-Variable D : disp_precat C.
-Variable FF : functor_over F D' D.
-
-Variable x' : C'.
-
-Definition fibre_functor_data : functor_data D'[[x']] D[[F x']].
-Proof.
-  mkpair.
-  - apply (fun xx' => FF xx').
-  - intros xx' xx ff.
-    apply (transportf _ (functor_id _ _ ) (# FF ff)).
-Defined.
-
-Lemma is_functor_fibre : is_functor fibre_functor_data.
-Proof.
-  split; unfold functor_idax, functor_compax; cbn.
-  - intros.
-    apply Utilities.transportf_pathsinv0.
-    apply pathsinv0. apply functor_over_id.
-  - intros.
-    etrans. apply maponpaths. apply functor_over_transportf.
-    etrans. apply transport_f_f.
-    etrans. apply maponpaths. apply functor_over_comp.
-    etrans. apply transport_f_f.
-    apply pathsinv0.
-    etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
-    etrans. apply transport_f_f.
-    etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
-    etrans. apply transport_f_f.
-    apply transportf_comp_lemma.
-    apply transportf_comp_lemma_hset.
-    + apply homset_property.
-    + apply idpath.
-Qed.
-
-Definition fibre_functor : functor _ _ := ( _ ,, is_functor_fibre).
-
-End fibre_functor.
-
-Section fibre_functor_identity_ff.
-
-Variables C : Precategory.
-Variables D' D : disp_precat C.
-Variable FF : functor_over (functor_identity _ ) D' D.
-Hypothesis H : functor_over_identity_ff FF.
-
-Lemma fibre_functor_identity_ff (x : C) : fully_faithful (fibre_functor _ _ _ _ _ FF x).
-Proof.
-  intros xx yy. apply H.
-Defined.
-
-End fibre_functor_identity_ff.
-
-Section fibre_functor_ff.
-Variables C' C : Precategory.
-Variable F : functor C' C.
-Variable D' : disp_precat C'.
-Variable D : disp_precat C.
-Variable FF : functor_over F D' D.
-
-Hypothesis H : functor_over_ff FF.
-
-Lemma fibre_functor_ff (x : C') : fully_faithful (fibre_functor _ _ _ _ _ FF x).
-Proof.
-  intros xx yy; cbn.
-  set (XR := H _ _ xx yy (identity _ )).
-  apply twooutof3c.
-  - apply XR.
-  - apply isweqtransportf.
-Defined.
-
-Variable X : functor_over_ess_split_surj _ FF.
-Variable Y : isofibration D'.
-
-Definition fibre_functor_ess_split_surj (x' : C') : 
-   forall yy : D[[F x']], Σ xx : D'[[x']], 
-                iso (fibre_functor _ _ _ _ _ FF x' xx) yy.
+Definition fibre_functor_ess_split_surj 
+    {C C' : Precategory} {D} {D'}
+    {F : functor C C'} (FF : functor_over F D D')
+    (H : functor_over_ff FF)
+    {X : functor_over_ess_split_surj _ FF}
+    {Y : isofibration D}
+    (x : C)
+  : Π yy : D'[{F x}], Σ xx : D[{x}], 
+                iso (fibre_functor FF _ xx) yy.
 Proof.
   intro yy.
   set (XR := X _ yy).
-  destruct XR as [c'' [i [xx' ii] ] ].
+  destruct XR as [c'' [i [xx' ii]]].
   set (YY := Y _ _ i xx').
   destruct YY as [ dd pe ].
   mkpair.
@@ -331,7 +94,7 @@ Proof.
     set (XR := functor_over_on_iso_disp FF pe).
     set (XR' := iso_inv_from_iso_disp XR).
     (* now need composition of iso_disps *)
-    apply  (invweq (iso_disp_iso_fibre _ _ _ _ _ )).
+    apply  (invweq (iso_disp_iso_fibre _ _ _ _)).
     set (XRt := iso_disp_comp XR' ii).
     transparent assert (XH : 
            (iso_comp (iso_inv_from_iso (functor_on_iso F i))
@@ -342,15 +105,16 @@ Proof.
       etrans. Focus 2. apply functor_id. 
       apply maponpaths. apply iso_after_iso_inv.
    } 
-    set (XRT := transportf (fun r => iso_disp r (FF x' dd) yy ) 
+    set (XRT := transportf (fun r => iso_disp r (FF x dd) yy ) 
                            XH).
     apply XRT.
     assumption.
 Defined.
 
-End fibre_functor_ff.
+End Essential_Surjectivity.
 
 (** Composite and  identity displayed functors *)
+(* TODO: upstream to Core; clean up variable naming conventions. *)
 
 Section bla.
 
@@ -711,9 +475,7 @@ Definition fibre_nat_trans {C C' : Precategory}
   {D D'} {FF FF' : functor_over F D D'}
   (α : nat_trans_over (nat_trans_id F) FF FF')
   (c : C)
-: nat_trans
-    (fibre_functor _ _ _ _ _ FF c)
-    (fibre_functor _ _ _ _ _ FF' c).
+: nat_trans (fibre_functor FF c) (fibre_functor FF' c).
 Proof.
   use tpair; simpl.
   - intro d. exact (α c d).
@@ -764,10 +526,10 @@ Definition fibre_is_left_adj {D D' : disp_precat C}
   {FF : functor_over (functor_identity _) D D'}
   (EFF : equiv_disp _ _ _ FF)
   (c : C)
-: is_left_adjoint (fibre_functor _ _ _ _ _ FF c).
+: is_left_adjoint (fibre_functor FF c).
 Proof.
   destruct EFF as [GG [η [ε axs] ] ]; simpl in axs.
-  exists (fibre_functor _ _ _ _ _ GG _).
+  exists (fibre_functor GG _).
   exists (fibre_nat_trans η _,
           fibre_nat_trans ε _).
   mkpair; cbn.
@@ -789,7 +551,7 @@ Definition fibre_equiv {D D' : disp_precat C}
   {FF : functor_over (functor_identity _) D D'}
   (EFF : equiv_disp _ _ _ FF)
   (c : C)
-: adj_equivalence_of_precats (fibre_functor _ _ _ _ _ FF c).
+: adj_equivalence_of_precats (fibre_functor FF c).
 Proof.
   exists (fibre_is_left_adj EFF c).
   destruct EFF as [GG [η [ε axs] ] ]; cbn in axs; cbn.

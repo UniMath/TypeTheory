@@ -8,6 +8,7 @@ Partial contents:
   - [dirprodpr1_functor], [dirprodpr2_functor]
 - Sigmas of displayed precategories
 - Displayed functor precat
+- Fibre precats
 *)
 
 Require Import UniMath.Foundations.Basics.Sets.
@@ -63,6 +64,13 @@ Proof.
   destruct ea, bc1 as [b1 c1], bc2 as [b2 c2].
   cbn in eb; destruct eb; cbn in ec; destruct ec.
   apply idpath.
+Defined.
+
+Lemma transportf_pathsinv0_var :
+Π {X : UU} {P : X → UU} {x y : X} {p : x = y} {u : P x} 
+{v : P y}, transportf P p u = v → transportf P (!p) v = u.
+Proof.
+  intros. induction p. apply (!X0).
 Defined.
 
 End Auxiliary.
@@ -616,4 +624,218 @@ Proof.
 Defined.      
 
 End Functor.
+
+(** * Fibre precategories *)
+
+(** A displayed category gives a _fibre_ category over each object of the base.  These are most interesting in the case where the displayed category is an isofibration. *)
+Section Fibre.
+
+Context {C : Precategory}
+        (D : disp_precat C)
+        (c : C).
+
+Definition fibre_precategory_data : precategory_data.
+Proof.
+  mkpair.
+  - mkpair.
+    + apply (ob_disp D c).
+    + intros xx xx'. apply (mor_disp xx xx' (identity c)).
+  - mkpair.
+    + intros. apply id_disp.
+    + intros. apply (transportf _ (id_right _ ) (comp_disp X X0)).
+Defined.
+
+Lemma fibre_is_precategory : is_precategory fibre_precategory_data.
+Proof.
+  repeat split; intros; cbn.
+  - etrans. apply maponpaths. apply id_left_disp.
+    etrans. apply transport_f_f. apply transportf_comp_lemma_hset. 
+    apply (homset_property). apply idpath.
+  - etrans. apply maponpaths. apply id_right_disp.
+    etrans. apply transport_f_f. apply transportf_comp_lemma_hset. 
+    apply (homset_property). apply idpath.
+  - etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply assoc_disp.
+    etrans. apply transport_f_f.
+    apply pathsinv0. 
+    etrans. apply maponpaths.  apply mor_disp_transportf_postwhisker.
+    etrans. apply transport_f_f.
+    apply transportf_ext. apply homset_property.
+Qed.
+
+Definition fibre_precategory : precategory := ( _ ,, fibre_is_precategory).
+
+Lemma has_homsets_fibre : has_homsets fibre_precategory.
+Proof.
+  intros x y. apply homsets_disp.
+Qed.
+
+
+
+Definition iso_disp_from_iso_fibre (a b : fibre_precategory) :
+  iso a b -> iso_disp (identity_iso c) a b.
+Proof.
+ intro i.
+ mkpair.
+ + apply (pr1 i).
+ + cbn. 
+   mkpair. 
+   * apply (inv_from_iso i).
+   * abstract (  split;
+       [ assert (XR := iso_after_iso_inv i);
+        cbn in *;
+        assert (XR' := transportf_pathsinv0_var XR);
+        etrans; [ apply (!XR') |];
+        apply transportf_ext; apply homset_property
+       |assert (XR := iso_inv_after_iso i);
+        cbn in *;
+        assert (XR' := transportf_pathsinv0_var XR);
+        etrans; [ apply (!XR') | ];
+        apply transportf_ext; apply homset_property ] ).
+Defined.
+
+Definition iso_fibre_from_iso_disp (a b : fibre_precategory) :
+  iso a b <- iso_disp (identity_iso c) a b.
+Proof.
+  intro i.
+  mkpair.
+  + apply (pr1 i).
+  + cbn in *. 
+    apply (@is_iso_from_is_z_iso fibre_precategory).
+    mkpair.
+    apply (inv_mor_disp_from_iso i).
+    abstract (split; cbn;
+              [
+                assert (XR := inv_mor_after_iso_disp i);
+                etrans; [ apply maponpaths , XR |];
+                etrans; [ apply transport_f_f |];
+                apply transportf_comp_lemma_hset;
+                  try apply homset_property; apply idpath
+              | assert (XR := iso_disp_after_inv_mor i);
+                etrans; [ apply maponpaths , XR |] ;
+                etrans; [ apply transport_f_f |];
+                apply transportf_comp_lemma_hset;
+                try apply homset_property; apply idpath
+              ]). 
+Defined.
+
+Lemma iso_disp_iso_fibre (a b : fibre_precategory) :
+  iso a b ≃ iso_disp (identity_iso c) a b.
+Proof.
+  exists (iso_disp_from_iso_fibre a b).
+  use (gradth _ (iso_fibre_from_iso_disp _ _ )).
+  - intro. apply eq_iso. apply idpath.
+  - intro. apply eq_iso_disp. apply idpath.
+Defined.
+    
+
+Variable H : is_category_disp D.
+
+Let idto1 (a b : fibre_precategory) : a = b ≃ iso_disp (identity_iso c) a b 
+  := 
+  weqpair (@idtoiso_fiber_disp _ _ _ a b) (H _ _ (idpath _ ) a b).
+
+Let idto2 (a b : fibre_precategory) : a = b -> iso_disp (identity_iso c) a b 
+  := 
+  funcomp (λ p : a = b, idtoiso p) (iso_disp_iso_fibre a b).
+
+Lemma eq_idto1_idto2 (a b : fibre_precategory) 
+  : Π p : a = b, idto1 _ _ p = idto2 _ _ p.
+Proof.
+  intro p. induction p.
+  apply eq_iso_disp.
+  apply idpath.
+Qed.
+
+Lemma is_univalent_fibre_precat 
+  (a b : fibre_precategory)
+  :
+  isweq (λ p : a = b, idtoiso p).
+Proof.
+  use (twooutof3a _ (iso_disp_iso_fibre a b)). 
+  - use (isweqhomot (idto1 a b)).
+    + intro p.
+      apply eq_idto1_idto2.
+    + apply weqproperty.
+  - apply weqproperty.
+Defined.    
+
+
+Lemma is_category_fibre : is_category fibre_precategory.
+Proof.
+  split.
+  - apply is_univalent_fibre_precat.
+  - apply has_homsets_fibre.
+Defined.
+
+End Fibre.
+
+Arguments fibre_precategory {_} _ _ .
+
+(* TODO: is this a terrible notation?  Probably. *)
+Notation "D [{ x }]" := (fibre_precategory D x)(at level 3,format "D [{ x }]").
+
+(** ** Fibre functors
+
+Functors between displayed categories induce functors between their fibres. *)
+Section Fibre_Functors.
+
+Section fix_context.
+
+Context {C C' : Precategory} {D} {D'}
+        {F : functor C C'} (FF : functor_over F D D')
+        (x : C).
+
+Definition fibre_functor_data : functor_data D[{x}] D'[{F x}].
+Proof.
+  mkpair.
+  - apply (fun xx' => FF xx').
+  - intros xx' xx ff.
+    apply (transportf _ (functor_id _ _ ) (# FF ff)).
+Defined.
+
+Lemma is_functor_fibre_functor : is_functor fibre_functor_data.
+Proof.
+  split; unfold functor_idax, functor_compax; cbn.
+  - intros.
+    apply Utilities.transportf_pathsinv0.
+    apply pathsinv0. apply functor_over_id.
+  - intros.
+    etrans. apply maponpaths. apply functor_over_transportf.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply functor_over_comp.
+    etrans. apply transport_f_f.
+    apply pathsinv0.
+    etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
+    etrans. apply transport_f_f.
+    apply transportf_comp_lemma.
+    apply transportf_comp_lemma_hset.
+    + apply homset_property.
+    + apply idpath.
+Qed.
+
+Definition fibre_functor : functor D[{x}] D'[{F x}]
+  := ( _ ,, is_functor_fibre_functor).
+
+End fix_context.
+
+Lemma fibre_functor_ff
+    {C C' : Precategory} {D} {D'}
+    {F : functor C C'} (FF : functor_over F D D')
+    (H : functor_over_ff FF)
+    (c : C)
+: fully_faithful (fibre_functor FF c).
+Proof.
+  intros xx yy; cbn.
+  set (XR := H _ _ xx yy (identity _ )).
+  apply twooutof3c.
+  - apply XR.
+  - apply isweqtransportf.
+Defined.
+
+End Fibre_Functors.
+
 
