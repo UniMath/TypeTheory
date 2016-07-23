@@ -79,13 +79,187 @@ Defined.
 End Essential_Surjectivity.
 
 
+
+Section Adjunctions.
+
+(** In general, one can define displayed equivalences/adjunctions over any equivalences/adjunctions between the bases (and probably more generally still).  For now we just give the case over a single base precategory — i.e. over an identity functor. 
+
+We give the “bidirectional” version first, and then the “handed” versions afterwards, with enough coercions between the two to (hopefully) make it easy to work with both versions. *)
+
+Definition adjunction_over_id_data {C} (D D' : disp_precat C) : UU
+:= Σ (FF : functor_over (functor_identity _) D D')
+     (GG : functor_over (functor_identity _) D' D),
+     (nat_trans_over (nat_trans_id _) 
+            (functor_over_identity _) (functor_over_composite FF GG))
+   × (nat_trans_over (nat_trans_id _ )
+            (functor_over_composite GG FF) (functor_over_identity _)).
+
+(* TODO: consider naming of these access functions *)
+Definition left_adj_over_id {C} {D D' : disp_precat C}
+  (A : adjunction_over_id_data D D')
+  : functor_over _ D D'
+:= pr1 A.
+
+Definition right_adj_over_id {C} {D D' : disp_precat C}
+  (A : adjunction_over_id_data D D')
+  : functor_over _ D' D
+:= pr1 (pr2 A).
+
+Definition unit_over_id {C} {D D' : disp_precat C}
+  (A : adjunction_over_id_data D D')
+:= pr1 (pr2 (pr2 A)).
+
+Definition counit_over_id {C} {D D' : disp_precat C}
+  (A : adjunction_over_id_data D D')
+:= pr2 (pr2 (pr2 A)).
+
+(** Triangle identies for an adjunction *)
+
+(** TODO: currently the statements of these axioms include [_stmt_] to distinguish them from the _instances_ of these statements given by the access functions of [form_adjunction].  Does UniMath have an established naming convention for this distinction anywhere? *)
+
+Definition triangle_1_stmt_over_id  {C} {D D' : disp_precat C}
+    (A : adjunction_over_id_data D D')
+    (FF := left_adj_over_id A)
+    (η := unit_over_id A)
+    (ε := counit_over_id A)
+  : UU
+:= Π x xx, #FF ( η x xx) ;;  ε _ (FF _ xx) 
+            = transportb _ (id_left _ ) (id_disp _) .
+
+Definition triangle_2_stmt_over_id  {C} {D D' : disp_precat C}
+    (A : adjunction_over_id_data D D')
+    (GG := right_adj_over_id A)
+    (η := unit_over_id A)
+    (ε := counit_over_id A)
+  : UU
+:= Π x xx, η _ (GG x xx) ;; # GG (ε _ xx)
+           = transportb _ (id_left _ ) (id_disp _).
+
+Definition form_adjunction_over_id {C} {D D' : disp_precat C}
+    (A : adjunction_over_id_data D D')
+  : UU
+:= triangle_1_stmt_over_id A × triangle_2_stmt_over_id A.
+
+Definition adjunction_over_id {C} (D D' : disp_precat C) : UU
+:= Σ A : adjunction_over_id_data D D', form_adjunction_over_id A.
+
+Definition data_of_adjunction_over_id {C} {D D' : disp_precat C}
+  (A : adjunction_over_id D D')
+:= pr1 A.
+Coercion data_of_adjunction_over_id
+  : adjunction_over_id >-> adjunction_over_id_data.
+
+Definition triangle_1_over_id {C} {D D' : disp_precat C}
+  (A : adjunction_over_id D D')
+:= pr1 (pr2 A).
+
+Definition triangle_2_over_id {C} {D D' : disp_precat C}
+  (A : adjunction_over_id D D')
+:= pr1 (pr2 A).
+
+(** ** Left- and right- adjoints to a given functor *)
+
+(** The terminology is difficult to choose here: the proposition “F is a left adjoint” is the same as this type of “right adjoints to F”, so should this type be called something more like [left_adjoint F] or [right_adjoint F]?
+
+Our choice here does _not_ agree with that of the base UniMath category theory library. TODO: consider these conventions, and eventually harmonise them by changing it either here or in UniMath. *)
+
+Definition right_adjoint_over_id_data {C} {D D' : disp_precat C}
+  (FF : functor_over (functor_identity _) D D') : UU
+:= Σ (GG : functor_over (functor_identity _) D' D),
+     (nat_trans_over (nat_trans_id _) 
+            (functor_over_identity _) (functor_over_composite FF GG))
+   × (nat_trans_over (nat_trans_id _ )
+            (functor_over_composite GG FF) (functor_over_identity _)).
+
+Definition functor_of_right_adjoint_over_id {C} {D D' : disp_precat C}
+  {FF : functor_over _ D D'}
+  (GG : right_adjoint_over_id_data FF)
+:= pr1 GG.
+Coercion functor_of_right_adjoint_over_id
+  : right_adjoint_over_id_data >-> functor_over.
+
+Definition adjunction_of_right_adjoint_over_id_data {C} {D D' : disp_precat C}
+    {FF : functor_over _ D D'}
+    (GG : right_adjoint_over_id_data FF)
+  : adjunction_over_id_data D D'
+:= (FF,, GG). 
+Coercion adjunction_of_right_adjoint_over_id_data
+  : right_adjoint_over_id_data >-> adjunction_over_id_data.
+
+Definition right_adjoint_over_id {C} {D D' : disp_precat C}
+  (FF : functor_over (functor_identity _) D D') : UU
+:= Σ GG : right_adjoint_over_id_data FF,
+   form_adjunction_over_id GG.
+
+Definition data_of_right_adjoint_over_id {C} {D D' : disp_precat C}
+  {FF : functor_over _ D D'}
+  (GG : right_adjoint_over_id FF)
+:= pr1 GG.
+Coercion data_of_right_adjoint_over_id
+  : right_adjoint_over_id >-> right_adjoint_over_id_data.
+
+Definition adjunction_of_right_adjoint_over_id {C} {D D' : disp_precat C}
+    {FF : functor_over _ D D'}
+    (GG : right_adjoint_over_id FF)
+  : adjunction_over_id D D'
+:= (adjunction_of_right_adjoint_over_id_data GG ,, pr2 GG). 
+Coercion adjunction_of_right_adjoint_over_id
+  : right_adjoint_over_id >-> adjunction_over_id.
+(* Don’t worry about the ambiguous path generated here: the two ways round are equal. *)
+
+(* TODO: add the dual-handedness version, i.e. indexed over GG instead of FF. *)
+End Adjunctions.
+
+Section Equivalences.
+(** ** Equivalences (adjoint and quasi) *)
+Definition form_equiv_over_id {C} {D D' : disp_precat C}
+    (A : adjunction_over_id_data D D')
+    (η := unit_over_id A)
+    (ε := counit_over_id A)
+  : UU
+:= (Π x xx, is_iso_disp (identity_iso _ ) (η x xx)) 
+ × (Π x xx, is_iso_disp (identity_iso _ ) (ε x xx)).
+
+Definition equiv_over_id {C} (D D' : disp_precat C) : UU
+:= Σ A : adjunction_over_id D D', form_equiv_over_id A.
+
+Definition adjunction_of_equiv_over_id {C} {D D' : disp_precat C}
+  (A : equiv_over_id D D')
+:= pr1 A.
+Coercion adjunction_of_equiv_over_id
+  : equiv_over_id >-> adjunction_over_id.
+
+Definition is_equiv_over_id {C} {D D' : disp_precat C}
+  (FF : functor_over (functor_identity _) D D') : UU
+:= Σ GG : right_adjoint_over_id FF,
+   form_equiv_over_id GG.
+
+Definition right_adjoint_of_is_equiv_over_id {C} {D D' : disp_precat C}
+  {FF : functor_over _ D D'}
+  (GG : is_equiv_over_id FF)
+:= pr1 GG.
+Coercion right_adjoint_of_is_equiv_over_id
+  : is_equiv_over_id >-> right_adjoint_over_id.
+
+Definition equiv_of_is_equiv_over_id {C} {D D' : disp_precat C}
+    {FF : functor_over _ D D'}
+  (GG : is_equiv_over_id FF)
+  : equiv_over_id D D'
+:= (adjunction_of_right_adjoint_over_id GG ,, pr2 GG). 
+Coercion equiv_of_is_equiv_over_id
+  : is_equiv_over_id >-> equiv_over_id.
+(* Again, don’t worry about the ambiguous path generated here. *)
+
+(* TODO: handed versions *)
+(* TODO: lemmas that given [form_equiv_over_id], each triangle identity implies the other. *)
+
+(* TODO: [quasi_equiv_over_id] (without triangle identities). *)
+
+End Equivalences.
+
 Section Fix_context.
 
-Variable C : Precategory.
-Variables D' D : disp_precat C.
-
-(** definition of displayed (quasi-)equivalence *)
-(** In general, one can define displayed equivalences over any equivalence between the bases (and probably more generally still).  For now we just give the case over a single base precategory — i.e. over an identity functor. *)
+Context {C : Precategory} (D' D : disp_precat C).
 
 (* TODO: refactor as data + axioms.*)
 Definition equiv_disp (FF : functor_over (functor_identity _ ) D' D) : UU
@@ -426,7 +600,7 @@ Context {C : Precategory}.
 (* TODO: restructure definition of [equiv_disp], so that it’s built over a left adjoint, and then weaken the hypothesis of this lemma to just a [left_adjoint_disp]. *)
 Definition fibre_is_left_adj {D D' : disp_precat C}
   {FF : functor_over (functor_identity _) D D'}
-  (EFF : equiv_disp _ _ _ FF)
+  (EFF : equiv_disp _ _ FF)
   (c : C)
 : is_left_adjoint (fibre_functor FF c).
 Proof.
@@ -451,7 +625,7 @@ Defined.
 
 Definition fibre_equiv {D D' : disp_precat C}
   {FF : functor_over (functor_identity _) D D'}
-  (EFF : equiv_disp _ _ _ FF)
+  (EFF : equiv_disp _ _ FF)
   (c : C)
 : adj_equivalence_of_precats (fibre_functor FF c).
 Proof.
