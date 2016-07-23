@@ -1209,6 +1209,8 @@ Definition functor_over_disp_ess_split_surj {C' C} {F}
     Σ (yy : D x), 
       iso_disp (identity_iso _) (FF _ yy) xx.
 
+(* TODO: add access functions for these. *)
+
 End Functor_Properties.
 
 (** ** Total functors of displayed functors*)
