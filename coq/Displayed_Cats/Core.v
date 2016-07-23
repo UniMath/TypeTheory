@@ -19,7 +19,9 @@ Two major motivations for displayed categories:
 - Functors between precategories, over functors between their bases
   - [functor_lifting], [lifted_functor]
   - [functor_over], [total_functor]
-
+  - properties of functors: [functor_over_ff], …
+  - natural transformations: [nat_trans_over], …
+- Fibrations
 *)
 
 Require Import UniMath.Foundations.Basics.Sets.
@@ -275,28 +277,33 @@ Definition mor_disp_from_iso {C : Precategory} {D : disp_precat_data C}
     (i : iso_disp f xx yy) : _ ⇒[ _ ] _ := pr1 i.
 Coercion mor_disp_from_iso : iso_disp >-> mor_disp.
 
+Definition is_iso_disp_from_iso {C : Precategory} {D : disp_precat_data C}
+    {x y : C} {f : iso x y}{xx : D x} {yy : D y}
+    (i : iso_disp f xx yy) : is_iso_disp f i := pr2 i.
+Coercion is_iso_disp_from_iso : iso_disp >-> is_iso_disp.
+
 Definition inv_mor_disp_from_iso {C : Precategory} {D : disp_precat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
-    (i : iso_disp f xx yy) : _ ⇒[ _ ] _ := pr1 (pr2 i).
+    {ff : xx ⇒[f] yy} (i : is_iso_disp f ff)
+  : _ ⇒[ _ ] _ := pr1 i.
 
 Definition iso_disp_after_inv_mor {C : Precategory} {D : disp_precat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
-    (i : iso_disp f xx yy) 
-    : 
-    inv_mor_disp_from_iso i ;; i = transportb _ (iso_after_iso_inv _) (id_disp _).
+    {ff : xx ⇒[f] yy} (i : is_iso_disp f ff)
+  : inv_mor_disp_from_iso i ;; ff
+    = transportb _ (iso_after_iso_inv _) (id_disp _).
 Proof.
-  apply (pr2 (pr2 i)).
+  apply (pr2 i).
 Qed.
 
 Definition inv_mor_after_iso_disp {C : Precategory} {D : disp_precat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
-    (i : iso_disp f xx yy) 
-    : 
-    i ;; inv_mor_disp_from_iso i = transportb _ (iso_inv_after_iso _) (id_disp _).
+    {ff : xx ⇒[f] yy} (i : is_iso_disp f ff)
+  : ff ;; inv_mor_disp_from_iso i
+    = transportb _ (iso_inv_after_iso _) (id_disp _).
 Proof.
-  apply (pr2 (pr2 (pr2 i))).
+  apply (pr2 (pr2 i)).
 Qed.
-
 
 Lemma isaprop_is_iso_disp {C : Precategory} {D : disp_precat C}
     {x y : C} (f : iso x y) {xx : D x} {yy} (ff : xx ⇒[f] yy)
@@ -334,7 +341,6 @@ Lemma eq_iso_disp {C : Precategory} {D : disp_precat C}
 Proof.
   apply subtypeEquality; intro; apply isaprop_is_iso_disp.
 Qed.
-
 
 Definition iso_inv_from_iso_disp {C : Precategory} {D : disp_precat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
@@ -1002,6 +1008,7 @@ Definition functor_over_comp {C' C} {F} {D' : disp_precat C'} {D : disp_precat C
     = transportb _ (functor_comp F _ _ _ f g) (# FF ff ;; # FF gg)
 := pr2 (pr2 FF) _ _ _ _ _ _ _ _ ff gg.
 
+(** variant access function *)
 Definition functor_over_comp_var {C' C} {F} {D' : disp_precat C'} {D : disp_precat C}
     (FF : functor_over F D' D)
     {x y z} {xx : D' x} {yy} {zz} {f : x ⇒ y} {g : y ⇒ z}
@@ -1013,7 +1020,7 @@ Proof.
   apply pathsinv0, functor_over_comp.
 Defined.
 
-
+(** Useful transport lemma for [functor_over]. *)
 Lemma functor_over_transportf {C' C : Precategory}
   {D' : disp_precat C'} {D : disp_precat C}
   (F : functor C' C) (FF : functor_over F D' D)
@@ -1021,7 +1028,7 @@ Lemma functor_over_transportf {C' C : Precategory}
   (xx' : D' x') (xx : D' x)
   (ff : xx' ⇒[ f' ] xx) 
   :
-  # FF (transportf (mor_disp _ _ ) p ff)
+  # FF (transportf _ p ff)
   = 
   transportf _ (maponpaths (#F)%mor p) (#FF ff) .
 Proof.
@@ -1029,100 +1036,183 @@ Proof.
   apply idpath.
 Defined.
 
-(** Let's see how [functor_over]s behave on [iso_disp]s *)
-(** TODO: opacify *)
-Undelimit Scope transport.
-Definition functor_over_iso_disp_is_iso {C' C} {F} 
-    {D' : disp_precat C'} {D : disp_precat C}
-    (FF : functor_over F D' D)
-    {x y} {xx : D' x} {yy} {f : iso x y} 
-    (ff : iso_disp f xx  yy)
-    : is_iso_disp (functor_on_iso F f) (# FF ff).
+(** ** Composite and identity functors. *)
+
+Definition functor_over_composite_data
+    {C C' C'' : Precategory} {D} {D'} {D''}
+    {F : functor C C'} {F' : functor C' C''}
+    (FF : functor_over F D D')
+    (FF' : functor_over F' D' D'')
+  : functor_over_data (functor_composite F F') D D''.
 Proof.
   mkpair.
-  - set (XR := #FF (inv_mor_disp_from_iso ff)).
-(*    Search (_ (inv_from_iso _ ) = inv_from_iso _ ). *)
-    apply (transportf _ (functor_on_inv_from_iso _ _ F _ _ f) XR).
-  - abstract ( split ;
-               [
-      etrans; [ apply mor_disp_transportf_postwhisker |] ;
-      etrans; [ apply maponpaths; eapply pathsinv0;
-                    apply functor_over_comp_var |];
-      etrans ;[ apply transport_f_f |];
-      etrans ;[ apply maponpaths, maponpaths, iso_disp_after_inv_mor |];
-      etrans ;[ apply maponpaths, functor_over_transportf |];
-      etrans ;[ apply transport_f_f |];
-      etrans ;[ apply maponpaths, functor_over_id |];
-      etrans ;[ apply transport_f_f |];
-      apply transportf_comp_lemma;
-      apply transportf_comp_lemma_hset;
-       try apply homset_property; apply idpath
-              |
-      etrans ;[ apply mor_disp_transportf_prewhisker |];
-      etrans ;[ apply maponpaths; eapply pathsinv0; apply functor_over_comp_var |];
-      etrans ;[ apply transport_f_f |];
-      etrans ;[ apply maponpaths, maponpaths, inv_mor_after_iso_disp |];
-      etrans ;[ apply maponpaths, functor_over_transportf |];
-      etrans ;[ apply transport_f_f |];
-      etrans ;[ apply maponpaths, functor_over_id |];
-      etrans ;[ apply transport_f_f|];
-      apply transportf_comp_lemma;
-      apply transportf_comp_lemma_hset;
-      try apply homset_property; apply idpath
-             ]).
+  + intros x xx. exact (FF' _ (FF _ xx)).
+  + intros x y xx yy f ff. exact (# FF' (# FF ff)).
 Defined.
 
-Definition functor_over_on_iso_disp {C' C} {F} 
-    {D' : disp_precat C'} {D : disp_precat C}
-    (FF : functor_over F D' D)
-    {x y} {xx : D' x} {yy} {f : iso x y} 
-    (ff : iso_disp f xx  yy)
-    : iso_disp (functor_on_iso F f) (FF _ xx) (FF _ yy)
-    := (_ ,,  functor_over_iso_disp_is_iso _ ff).
+Lemma functor_over_composite_axioms
+    {C C' C'' : Precategory} {D} {D'} {D''}
+    {F : functor C C'} {F' : functor C' C''}
+    (FF : functor_over F D D')
+    (FF' : functor_over F' D' D'')
+: functor_over_axioms (functor_over_composite_data FF FF').
+Proof.
+  split; simpl.
+  + intros x xx.
+    etrans. apply maponpaths. apply functor_over_id.
+    etrans. apply functor_over_transportf.
+    etrans. apply maponpaths. apply functor_over_id.
+    etrans. apply transport_f_f.
+    apply transportf_ext, homset_property.
+  + intros.
+    etrans. apply maponpaths. apply functor_over_comp.
+    etrans. apply functor_over_transportf.
+    etrans. apply maponpaths. apply functor_over_comp.
+    etrans. apply transport_f_f.
+    apply transportf_ext, homset_property.
+Qed.
+
+Definition functor_over_composite
+    {C C' C'' : Precategory} {D} {D'} {D''}
+    {F : functor C C'} {F' : functor C' C''}
+    (FF : functor_over F D D')
+    (FF' : functor_over F' D' D'')
+  : functor_over (functor_composite F F') D D''.
+Proof.
+  mkpair.
+  - apply (functor_over_composite_data FF FF').
+  - apply functor_over_composite_axioms.
+Defined.
+
+Definition functor_over_identity
+    {C : Precategory} (D : disp_precat C)
+  : functor_over (functor_identity _ ) D D.
+Proof.
+  mkpair.
+  - mkpair. 
+    + intros; assumption.
+    + intros; assumption.
+  - split; simpl.      
+    + intros; apply idpath.
+    + intros; apply idpath.
+Defined.
+
+(** ** Action of functors on isos. *)
+Section Functors_on_isos.
+
+(* TODO: functor_on_inv_from_iso should have implicit arguments *)
+
+Lemma functor_over_on_iso_disp_aux1 {C C'} {F} 
+    {D : disp_precat C} {D' : disp_precat C'}
+    (FF : functor_over F D D')
+    {x y} {xx : D x} {yy} {f : iso x y} 
+    (ff : xx ⇒[f] yy)
+    (Hff : is_iso_disp f ff)
+  : transportf _ (functor_on_inv_from_iso _ _ F _ _ f)
+      (# FF (inv_mor_disp_from_iso Hff))
+    ;; # FF ff 
+  = transportb _ (iso_after_iso_inv _) (id_disp _).
+Proof.
+  etrans. apply mor_disp_transportf_postwhisker.
+  etrans. apply maponpaths, @pathsinv0, functor_over_comp_var.
+  etrans. apply transport_f_f.
+  etrans. apply maponpaths, maponpaths, iso_disp_after_inv_mor.
+  etrans. apply maponpaths, functor_over_transportf.
+  etrans. apply transport_f_f.
+  etrans. apply maponpaths, functor_over_id.
+  etrans. apply transport_f_b.
+  unfold transportb. apply maponpaths_2, homset_property.
+Qed.
+
+Lemma functor_over_on_iso_disp_aux2 {C C'} {F} 
+    {D : disp_precat C} {D' : disp_precat C'}
+    (FF : functor_over F D D')
+    {x y} {xx : D x} {yy} {f : iso x y} 
+    (ff : xx ⇒[f] yy)
+    (Hff : is_iso_disp f ff)
+  : # FF ff
+    ;; transportf _ (functor_on_inv_from_iso _ _ F _ _ f)
+         (# FF (inv_mor_disp_from_iso Hff))
+  =
+    transportb _ (iso_inv_after_iso (functor_on_iso _ _)) (id_disp (FF x xx)).
+Proof.
+  etrans. apply mor_disp_transportf_prewhisker.
+  etrans. apply maponpaths, @pathsinv0, functor_over_comp_var.
+  etrans. apply transport_f_f.
+  etrans. apply maponpaths, maponpaths, inv_mor_after_iso_disp.
+  etrans. apply maponpaths, functor_over_transportf.
+  etrans. apply transport_f_f.
+  etrans. apply maponpaths, functor_over_id.
+  etrans. apply transport_f_f.
+  unfold transportb. apply maponpaths_2, homset_property.
+Qed.
+
+(** Let's see how [functor_over]s behave on [iso_disp]s *)
+(** TODO: consider naming *)
+Undelimit Scope transport.
+Definition functor_over_on_is_iso_disp {C C'} {F} 
+    {D : disp_precat C} {D' : disp_precat C'}
+    (FF : functor_over F D D')
+    {x y} {xx : D x} {yy} {f : iso x y} 
+    {ff : xx ⇒[f] yy} (Hff : is_iso_disp f ff)
+    : is_iso_disp (functor_on_iso F f) (# FF ff).
+Proof.
+  exists (transportf _ (functor_on_inv_from_iso _ _ F _ _ f)
+           (# FF (inv_mor_disp_from_iso Hff))); split. 
+  - apply functor_over_on_iso_disp_aux1.
+  - apply functor_over_on_iso_disp_aux2.
+Defined.
+
+Definition functor_over_on_iso_disp {C C'} {F} 
+    {D : disp_precat C} {D' : disp_precat C'}
+    (FF : functor_over F D D')
+    {x y} {xx : D x} {yy} {f : iso x y} 
+    (ff : iso_disp f xx yy)
+  : iso_disp (functor_on_iso F f) (FF _ xx) (FF _ yy)
+:= (_ ,, functor_over_on_is_iso_disp _ ff).
+
+End Functors_on_isos.
 
 
+(** ** Properties of functors *)
 
-(* TODO: not needed, let's remove it *)
-Definition functor_over_identity_ff {C} 
-  {D' D: disp_precat C} (FF : functor_over (functor_identity _ ) D' D) : UU
-  :=
-    forall (x' x : C) (xx' : D' x') (xx : D' x) (f : x' ⇒ x),
-           isweq (fun ff : xx' ⇒[f] xx => # FF ff).
+Section Functor_Properties.
 
-Definition functor_over_ff {C' C} {F} {D' : disp_precat C'} {D : disp_precat C}
-    (FF : functor_over F D' D)
-    :=
-      Π {x y} {xx : D' x} {yy : D' y} {f : x ⇒ y},
-           isweq (fun ff : xx ⇒[f] yy => # FF ff).
+Definition functor_over_ff {C C'} {F}
+  {D : disp_precat C} {D' : disp_precat C'} (FF : functor_over F D D')
+:=
+  Π {x y} {xx : D x} {yy : D y} {f : x ⇒ y},
+    isweq (fun ff : xx ⇒[f] yy => # FF ff).
 
+(** Given a base functor [F : C —> C'] and a displayed functor [FF : D' -> D] over it, there are two different “essential surjectivity” conditions one can put on [FF].
 
-(* 
-F : C' —> C
-and FF : D' —> D' over it
-then FF is essentially surjective (relative to F)
-if for any c' in C'
-and d in D (F c')
-there’s some dbar in D' c
-and an iso FF (dbar) =~ d in D' (F c), over the identity?
-alternatively,
-actually I guess this is probably better,
-given the same inputs,
-there’s some c' in C',
-an iso φ : c' =~ c in C',
-some dbar in D' c',
-and an iso FF dbar =~ d
-over F φ.
+Given [c : C] and [d : D' (F c)], one can ask for a lift of [d] either in [D c] itself, or more generally in some fibre [D c'] with [c'] isomorphic to [c].
+
+The second version is better-behaved in general; but the stricter first version is equivalent when [D] is an isofibration, and is simpler to work with.  So we call the second version “essentially split surjective”, [functor_over_ess_split_surj], and the first “displayed ess. split surj.”, [functor_over_disp_ess_split_surj].
 *)
 
-Definition functor_over_ess_split_surj {C' C : Precategory} (F : functor C' C)
-  {D' : disp_precat C'} {D : disp_precat C} 
-  (FF : functor_over F D' D) : UU
-  :=
-    forall (c' : C') (d : D (F c')),
-      Σ c'' : C', 
-      Σ i : iso c'' c', 
-      Σ dbar : D' c'',
-      iso_disp (functor_on_iso F i) (FF _ dbar) d.
+Definition functor_over_ess_split_surj {C' C} {F}
+  {D' : disp_precat C'} {D : disp_precat C} (FF : functor_over F D D')
+  : UU
+:=
+  Π {x} {xx : D' (F x)},
+    Σ y : C, 
+    Σ i : iso y x, 
+    Σ yy : D y,
+      iso_disp (functor_on_iso F i) (FF _ yy) xx.
+
+Definition functor_over_disp_ess_split_surj {C' C} {F}
+  {D' : disp_precat C'} {D : disp_precat C} (FF : functor_over F D D')
+  : UU
+:= 
+  Π {x} {xx : D' (F x)},
+    Σ (yy : D x), 
+      iso_disp (identity_iso _) (FF _ yy) xx.
+
+End Functor_Properties.
+
+(** ** Total functors of displayed functors*)
+Section Total_Functors.
 
 Definition total_functor_data {C' C} {F}
     {D' : disp_precat C'} {D : disp_precat C} (FF : functor_over F D' D)
@@ -1153,13 +1243,17 @@ Definition total_functor {C' C} {F}
   : functor (total_precat D') (total_precat D)
 := (total_functor_data FF,, total_functor_axioms FF).
 
+End Total_Functors.
+
 End Functor_Over.
+
+(* Redeclare notations globally: *)
 
 Notation "# F" := (functor_over_on_morphisms F)
   (at level 3) : mor_disp_scope.
 
+(** ** Natural Transformations *)
 Section Nat_Trans_Over.
-
 
 Definition nat_trans_over_data
   {C' C : precategory_data} 

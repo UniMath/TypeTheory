@@ -32,51 +32,16 @@ Proof.
   etrans. apply homotweqinvweq. apply H.
 Defined.  
 
-(* TODO: isn’t this a special case of a lemma in the library?  Search for that… *)
-Lemma functor_over_transportf {C' C : Precategory}
-  {D' : disp_precat C'} {D : disp_precat C}
-  (F : functor C' C) (FF : functor_over F D' D)
-  (x' x : C') (f' f : x' ⇒ x) (p : f' = f)
-  (xx' : D' x') (xx : D' x)
-  (ff : xx' ⇒[ f' ] xx) 
-  :
-  # FF (transportf (mor_disp _ _ ) p ff)
-  = 
-  transportf _ (maponpaths (#F)%mor p) (#FF ff) .
-Proof.
-  induction p.
-  apply idpath.
-Defined.
-
-
 End Auxiliary.
 
+(* TODO: move somewhere.  Not sure where? [Constructions]? *)
 Section Essential_Surjectivity.
-
-(* “Displayed split essentially surjective”:
-
-we have F : C -> C',
-and FF : D -> D' over F,
-then dses says:
-for any c:C and d : D' (F c),
-there’s some “lift” [ dbar : D c ]
-and some iso [ d <~> d' ] over [ id (F c) ].
-*)
-
-(* TODO: consider changing this identifier, since “SES” is such a well-established abbreviation for “short exact sequence”. *)
-Definition ses_disp
-    {C C' : Precategory} {D} {D'}
-    {F : functor C C'} (FF : functor_over F D D')
-  : UU
-:= 
-  Π (c : C) (d' : D' (F c)),
-   Σ (dbar : D c), iso_disp (identity_iso _ ) (FF _ dbar) d'.
 
 Definition fibre_functor_ess_split_surj 
     {C C' : Precategory} {D} {D'}
     {F : functor C C'} (FF : functor_over F D D')
     (H : functor_over_ff FF)
-    {X : functor_over_ess_split_surj _ FF}
+    {X : functor_over_ess_split_surj FF}
     {Y : isofibration D}
     (x : C)
   : Π yy : D'[{F x}], Σ xx : D[{x}], 
@@ -113,85 +78,22 @@ Defined.
 
 End Essential_Surjectivity.
 
-(** Composite and  identity displayed functors *)
-(* TODO: upstream to Core; clean up variable naming conventions. *)
 
-Section bla.
-
-Variables C'' C' C : Precategory.
-Variable D'' : disp_precat C''.
-Variable D' : disp_precat C'.
-Variable D : disp_precat C.
-Variable F' : functor C'' C'.
-Variable F : functor C' C.
-
-Variable FF' : functor_over F' D'' D'.
-Variable FF : functor_over F D' D.
-
-
-Definition functor_over_composite_data : functor_over_data (functor_composite F' F) D'' D.
-Proof.
-  mkpair.
-    + intros x'' xx''. apply (FF _ (FF' _ xx'')).
-    + intros. apply (# FF  (# FF' X )).
-Defined.
-Lemma functor_over_composite_axioms :  functor_over_axioms functor_over_composite_data.
-Proof.
-  split; simpl.
-    + intros x'' xx''.
-      etrans. apply maponpaths. apply functor_over_id.
-      etrans. apply functor_over_transportf.
-      etrans. apply maponpaths. apply functor_over_id.
-      etrans. apply transport_f_f.
-      apply transportf_ext. apply (pr2 C).
-    + intros.
-      etrans. apply maponpaths. apply functor_over_comp.
-      etrans. apply functor_over_transportf.
-      etrans. apply maponpaths. apply functor_over_comp.
-      etrans. apply transport_f_f.
-      apply transportf_ext. apply (pr2 C).
-Qed.      
-
-(** TODO : split this for opacification *)
-Definition functor_composite_over : functor_over (functor_composite F' F) D'' D.
-Proof.
-  mkpair.
-  - apply functor_over_composite_data.
-  - apply functor_over_composite_axioms.
-Defined.
-
-Definition functor_identity_over : functor_over (functor_identity _ ) D D.
-Proof.
-  mkpair.
-  - mkpair. 
-    + intros; assumption.
-    + intros; assumption.
-  - split; simpl.      
-    + intros; apply idpath.
-    + intros; apply idpath.
-Defined.
-      
-End bla.
-
-Arguments functor_composite_over {_ _ _ _ _ _ _ _ } _ _.
-Arguments functor_identity_over {_ }_ .
-(** definition of displayed quasi-equivalence *)
-(** for now a specialized version for displayed precats over
-    the same base cat
-*)
-
-Section foo.
+Section Fix_context.
 
 Variable C : Precategory.
 Variables D' D : disp_precat C.
 
-(* TODO: rename to [is_equiv_disp]? *)
+(** definition of displayed (quasi-)equivalence *)
+(** In general, one can define displayed equivalences over any equivalence between the bases (and probably more generally still).  For now we just give the case over a single base precategory — i.e. over an identity functor. *)
+
+(* TODO: refactor as data + axioms.*)
 Definition equiv_disp (FF : functor_over (functor_identity _ ) D' D) : UU
   :=
   Σ (GG : functor_over (functor_identity _ ) D D') 
     (η : nat_trans_over (nat_trans_id _ ) 
-                (functor_identity_over _ ) (functor_composite_over FF GG)  )
-    (ε : nat_trans_over (nat_trans_id _ ) (functor_composite_over GG FF) (functor_identity_over _ ))
+                (functor_over_identity _ ) (functor_over_composite FF GG)  )
+    (ε : nat_trans_over (nat_trans_id _ ) (functor_over_composite GG FF) (functor_over_identity _ ))
   , 
     (Π x xx, #FF ( η x xx) ;;  ε _ (FF _ xx) = 
                transportb _ (id_left _ ) (id_disp _) ) × 
@@ -208,7 +110,7 @@ Section equiv_from_ses_ff.
 
 
 Variable FF : functor_over (functor_identity _ ) D' D.
-Hypothesis FFses : ses_disp FF.
+Hypothesis FFses : functor_over_disp_ess_split_surj FF.
 Hypothesis FFff : functor_over_ff FF.
 
 Let FFweq {x y} {xx yy} f := weqpair _ (FFff x y xx yy f).
@@ -396,11 +298,11 @@ Definition GG : functor_over _ _ _ := (_ ,, GG_ax).
 Definition ε_ses_ff : 
      (*
       nat_trans_over (nat_trans_id _ )
-     (functor_composite_over GG FF) (functor_identity_over _ ) 
+     (functor_over_composite GG FF) (functor_over_identity _ ) 
      *)
-     (functor_composite_over GG FF : (disp_functor_precat _ _ D D) _ ) 
+     (functor_over_composite GG FF : (disp_functor_precat _ _ D D) _ ) 
     ⇒[ @identity_iso (functor_precategory C C (homset_property C)) _ ] 
-     functor_identity_over _ .
+     functor_over_identity _ .
 Proof.
   mkpair.
   - intros x xx. cbn.
@@ -427,9 +329,9 @@ Proof.
 Defined.
 
 Definition ε_inv_ses_ff : 
-    (functor_identity_over _ : (disp_functor_precat _ _ D D) _ )
+    (functor_over_identity _ : (disp_functor_precat _ _ D D) _ )
     ⇒[ @identity_iso (functor_precategory C C (homset_property C)) _ ] 
-    (functor_composite_over GG FF : (disp_functor_precat _ _ D D) _ ).
+    (functor_over_composite GG FF : (disp_functor_precat _ _ D D) _ ).
 Proof.
   simple refine (inv_disp_from_pointwise_iso _ _ _ _ _ _ _ _ _ ε_ses_ff  _ ).
   intros x' xx'. 
@@ -448,8 +350,8 @@ Proof.
   intros x' xx'. 
 Abort.
 
-Definition η_ses_ff : nat_trans_over (nat_trans_id _ ) (functor_identity_over _ ) 
-                                     (functor_composite_over FF GG).
+Definition η_ses_ff : nat_trans_over (nat_trans_id _ ) (functor_over_identity _ ) 
+                                     (functor_over_composite FF GG).
 Proof.
   mkpair.
   - intros x xx. cbn.
@@ -459,11 +361,11 @@ Abort.
 
 End equiv_from_ses_ff.
 
-End foo.
+End Fix_context.
 
 Section Displayed_Equiv_Compose.
 
-(* TODO: give composites of equivalences DONE in Auxiliary *)
+(* TODO: give composites of displayed equivalences. *)
 
 End Displayed_Equiv_Compose.
 

@@ -37,7 +37,7 @@ Definition functor_over_id_composite
   (FF : functor_over (functor_identity _) CC DD)
   (GG : functor_over (functor_identity _) DD EE)
 : functor_over (functor_identity _) CC EE
-:= functor_composite_over FF GG.
+:= functor_over_composite FF GG.
 
 End Auxiliary.
 
@@ -470,17 +470,17 @@ End Strucs_Equiv_Precats.
 
 Section Strucs_Disp_Equiv.
 
-Lemma compat_structures_pr1_ses_disp
-  : ses_disp (compat_structures_pr1_disp_functor).
+Lemma compat_structures_pr1_ess_split
+  : functor_over_disp_ess_split_surj (compat_structures_pr1_disp_functor).
 Proof.
-  unfold ses_disp.
+  unfold functor_over_disp_ess_split_surj.
   intros X Y.
   exists ((Y,, qq_from_fam Y),,iscompatible_qq_from_fam Y).
   apply identity_iso_disp.
 Defined.
 
-Lemma compat_structures_pr1_ff_disp
-  : functor_over_identity_ff (compat_structures_pr1_disp_functor).
+Lemma compat_structures_pr1_ff
+  : functor_over_ff (compat_structures_pr1_disp_functor).
 Proof.
   intros X X' YZW YZW'.
   destruct YZW as [ [Y Z] W].
@@ -512,17 +512,17 @@ Proof.
     exact (qq_from_fam_mor FY W W').
 Qed.
 
-Lemma compat_structures_pr2_ses_disp
-  : ses_disp (compat_structures_pr2_disp_functor).
+Lemma compat_structures_pr2_ess_split
+  : functor_over_disp_ess_split_surj (compat_structures_pr2_disp_functor).
 Proof.
-  unfold ses_disp.
+  unfold functor_over_disp_ess_split_surj.
   intros X Z.
   exists ((fam_from_qq Z,, Z),,iscompatible_fam_from_qq Z).
   apply identity_iso_disp.
 Defined.
 
-Lemma compat_structures_pr2_ff_disp
-  : functor_over_identity_ff (compat_structures_pr2_disp_functor).
+Lemma compat_structures_pr2_ff
+  : functor_over_ff (compat_structures_pr2_disp_functor).
 Proof.
   intros X X' YZW YZW'.
   destruct YZW as [ [Y Z] W].
