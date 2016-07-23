@@ -392,42 +392,44 @@ Qed.
 Definition GG : functor_over _ _ _ := (_ ,, GG_ax).
 
 
-Definition ε_ses_ff : 
-     (*
-      nat_trans_over (nat_trans_id _ )
-     (functor_over_composite GG FF) (functor_over_identity _ ) 
-     *)
+(* Alternate typing for ε, using the displayed functor category:
+
      (functor_over_composite GG FF : (disp_functor_precat _ _ D D) _ ) 
     ⇒[ @identity_iso (functor_precategory C C (homset_property C)) _ ] 
-     functor_over_identity _ .
-Proof.
-  mkpair.
-  - intros x xx. cbn.
-    apply (pr2 (FF_split x xx)).
-  - (* should/could be opacified *)
-    intros x y f xx yy ff. cbn.
-    admit.
-(* TODO: clean up to match new def of GG.
-    etrans. apply maponpaths_2. apply (homotweqinvweq (FFweq _ )).
-    etrans. apply mor_disp_transportf_postwhisker.
-    apply transportf_comp_lemma.
-    etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
-    etrans. apply transport_f_f.
-    etrans. apply maponpaths. 
-            apply assoc_disp_var.
-    etrans. apply transport_f_f. 
-    etrans. apply maponpaths. apply maponpaths.
-            apply (iso_disp_after_inv_mor (pr2 (FF_split y yy))).
-    etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
-    etrans. apply transport_f_f.
-    etrans. apply maponpaths. apply id_right_disp.
-    etrans. apply transport_f_f.
-    apply transportf_comp_lemma_hset.
-    + apply homset_property.
-    + apply idpath.
-*)
-Admitted.
+     functor_over_identity _ 
 
+*)
+
+Definition ε_ses_ff_data
+  : nat_trans_over_data (nat_trans_id _ )
+      (functor_over_composite GG FF) (functor_over_identity _ )
+:= fun x xx => (pr2 (FF_split x xx)).
+
+Lemma ε_ses_ff_ax : nat_trans_over_axioms ε_ses_ff_data.
+Proof.
+  intros x y f xx yy ff. cbn. unfold ε_ses_ff_data.
+  etrans. apply maponpaths_2, (homotweqinvweq (FFweq _ )).
+  etrans. apply mor_disp_transportf_postwhisker.
+  etrans. apply maponpaths.
+    etrans. apply assoc_disp_var.
+    apply maponpaths.
+    etrans. apply maponpaths.
+      apply (iso_disp_after_inv_mor (pr2 (FF_split _ _))).
+    etrans. apply mor_disp_transportf_prewhisker.
+    apply maponpaths, id_right_disp.
+  etrans. apply transport_f_f.
+  etrans. apply transport_f_f.
+  etrans. apply transport_f_f.
+  unfold transportb. apply maponpaths_2, homset_property.
+Qed.
+
+Definition ε_ses_ff
+  : nat_trans_over (nat_trans_id _ )
+      (functor_over_composite GG FF) (functor_over_identity _ )
+:= (ε_ses_ff_data,, ε_ses_ff_ax).
+
+(* TODO: the next two lemmas ([ε_inv], [is_iso_ε]) are probably unnecessary , since the definition of equivalence just asks for pointwise iso-ness.
+ 
 Definition ε_inv_ses_ff : 
     (functor_over_identity _ : (disp_functor_precat _ _ D D) _ )
     ⇒[ @identity_iso (functor_precategory C C (homset_property C)) _ ] 
@@ -449,6 +451,7 @@ Proof.
   apply is_disp_functor_precat_iso_if_pointwise_iso.
   intros x' xx'. 
 Abort.
+*)
 
 Definition η_ses_ff : nat_trans_over (nat_trans_id _ ) (functor_over_identity _ ) 
                                      (functor_over_composite FF GG).
