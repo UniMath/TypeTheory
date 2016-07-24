@@ -405,59 +405,82 @@ Proof.
   = 1                                            [by inverses, 7]
 
   It’s very readable when written with string diagrams. *)
-  etrans_disp.
-    etrans_dep. apply id_left_disp_var.
+  etrans. apply id_left_disp_var.
+  etrans. eapply transportf_bind.
     eapply cancel_postcomposition_disp.
-    etrans_dep. eapply transportb_transpose. apply @pathsinv0.
+    etrans. eapply transportb_transpose. apply @pathsinv0.
       refine (iso_disp_after_inv_mor _).
       refine (functor_over_on_is_iso_disp GG _).
       apply Hε. (*1a*)
+    eapply transportf_bind.
     eapply cancel_postcomposition_disp.
-    etrans_dep. apply id_right_disp_var.
-    etrans_dep. eapply cancel_precomposition_disp.
-      eapply transportb_transpose. apply @pathsinv0.
+    etrans. apply id_right_disp_var.
+    eapply transportf_bind.
+    etrans. eapply cancel_precomposition_disp.
+    eapply transportb_transpose. apply @pathsinv0.
       refine (iso_disp_after_inv_mor _).
-      apply Hη. (*1b*)
-    eapply assoc_disp.
-  etrans_dep.
-    etrans_dep. apply assoc_disp_var.
-    etrans_dep. apply assoc_disp_var.
+      apply (Hη). (*1b*)
+    eapply transportf_bind, assoc_disp.
+  etrans. eapply transportf_bind.
+    etrans. apply assoc_disp_var.
+    eapply transportf_bind.
+    etrans. apply assoc_disp_var.
+    eapply transportf_bind.
     eapply cancel_precomposition_disp.
-    etrans_dep. eapply cancel_precomposition_disp.
-      etrans_dep. apply assoc_disp.
-      etrans_dep. eapply cancel_postcomposition_disp.
-        exact (nat_trans_over_ax η (# GG (ε x yy))). (*2*)
-      etrans_dep. apply assoc_disp_var.
+    etrans. eapply cancel_precomposition_disp.
+      etrans. apply assoc_disp.
+      eapply transportf_bind.
+      etrans. eapply cancel_postcomposition_disp.
+        refine (nat_trans_over_ax η (# GG (ε x yy))). (*2*)
+      eapply transportf_bind.
+      etrans. apply assoc_disp_var.
+      eapply transportf_bind.
       eapply cancel_precomposition_disp.
       cbn.
-      etrans_dep. eapply transportf_transpose.
+      etrans. eapply transportf_transpose.
         apply @pathsinv0, (functor_over_comp GG).
+      eapply transportf_bind.
       etrans. apply maponpaths.
         apply (nat_trans_over_ax ε). (*3*)
-      etrans_dep. apply (functor_over_transportf _ GG).
+      cbn.
+      etrans. apply (functor_over_transportf _ GG).
+      eapply transportf_bind.
       apply (functor_over_comp GG).
-    etrans_dep. apply assoc_disp.
-    etrans_dep. eapply cancel_postcomposition_disp.
+    eapply transportf_bind.
+    etrans. apply assoc_disp.
+    eapply transportf_bind.
+    etrans. eapply cancel_postcomposition_disp.
       apply (nat_trans_over_ax η (η x (GG x yy))). (*4*)
-    etrans_dep. apply assoc_disp_var.
+    cbn. 
+    eapply transportf_bind.
+    etrans. apply assoc_disp_var.
+    eapply transportf_bind. 
     eapply cancel_precomposition_disp.
-    etrans_dep. apply assoc_disp.
-    etrans_dep. eapply cancel_postcomposition_disp.
-      etrans_dep. eapply transportf_transpose.
+    etrans. apply assoc_disp.
+    eapply transportf_bind.
+    etrans. eapply cancel_postcomposition_disp.
+      etrans. eapply transportf_transpose.
         apply @pathsinv0, (functor_over_comp GG). (*5*)
+      eapply transportf_bind.
       etrans. apply maponpaths, T1. (*6*)
-      etrans_dep. apply (functor_over_transportf _ GG).
-      apply (functor_over_id GG).
-    apply id_left_disp.
-  etrans_dep. apply assoc_disp_var.
-  etrans_dep. eapply cancel_precomposition_disp.
-    etrans_dep. apply assoc_disp.
-    etrans_dep. eapply cancel_postcomposition_disp.
-      exact (iso_disp_after_inv_mor (Hη _ (GG x yy))). (*7a*)
-    apply id_left_disp.
-  exact (iso_disp_after_inv_mor _). (*7b*)
-(* Time Qed. *)  (* this version takes about a minute! it was shorter without [etrans_dep], [etrans_disp]. *)
+      etrans. apply (functor_over_transportf _ GG).
+      eapply transportf_bind. apply (functor_over_id GG).
+    eapply transportf_bind. apply id_left_disp.
+  etrans. eapply transportf_bind.
+    etrans. apply assoc_disp_var.
+    eapply transportf_bind.
+    etrans. eapply cancel_precomposition_disp.
+      etrans. apply assoc_disp.
+      eapply transportf_bind. 
+      etrans. eapply cancel_postcomposition_disp.
+        exact (iso_disp_after_inv_mor _). (*7a*)
+      eapply transportf_bind. apply id_left_disp.
+    apply maponpaths. exact (iso_disp_after_inv_mor _). (*7b*)
+  etrans. apply transport_f_f.
+  unfold transportb. apply maponpaths_2, homset_property.
+(* Time Qed. *)
 Admitted.
+(* TODO: [Qed.] takes about 30sec!  [etrans_dep] + [etrans_disp] make it shorter and more readable (see commit 7c1f411a), but make the typechecking time even worse. *) 
 
 Lemma triangle_1_from_2_for_equiv_over_id
   {C} {D D' : disp_precat C}
