@@ -277,17 +277,26 @@ Lemma transportb_transpose {X : UU} {P : X → UU}
   {x x' : X} (e : x = x') (y : P x) (y' : P x')
 : transportf P e y = y' -> y = transportb P e y'.
 Proof.
-  destruct e; auto.
+  intro H; destruct e; exact H.
 Defined.
 
 Lemma transportf_transpose {X : UU} {P : X → UU}
   {x x' : X} (e : x = x') (y : P x) (y' : P x')
 : transportb P e y' = y -> y' = transportf P e y.
 Proof.
-  destruct e; auto.
+  intro H; destruct e; exact H.
 Defined.
 
-(* TODO: move these two lemmas, and this documentation lone, to CORE.*)
+(* TODO: consider name! *)
+Lemma transportf_bind {X : UU} {P : X → UU}
+  {x x' x'' : X} (e : x' = x) (e' : x = x'')
+  y y'
+: y = transportf P e y' -> transportf _ e' y = transportf _ (e @ e') y'.
+Proof.
+  intro H; destruct e, e'; exact H.
+Defined.
+
+(* TODO: move these two lemmas, and this documentation line, to CORE.*)
 (** All the axioms are given in two versions, with the transport on different sides, so that they can be invoked easily when either side is known. *) 
 Lemma id_left_disp_var {C} {D : disp_precat C} 
   {x y} {f : x ⇒ y} {xx : D x} {yy} {ff : xx ⇒[f] yy}
@@ -337,112 +346,88 @@ Proof.
 
   It’s very readable when written with string diagrams. *)
   etrans. apply id_left_disp_var.
-  etrans. apply maponpaths.
+  etrans. eapply transportf_bind.
     etrans. apply maponpaths_2.
       etrans. eapply transportb_transpose. apply @pathsinv0.
         refine (iso_disp_after_inv_mor _).
         refine (functor_over_on_is_iso_disp GG _).
         apply Hε. (*1a*)
-      etrans. apply maponpaths, maponpaths_2.
+      eapply transportf_bind.
+      etrans. apply maponpaths_2.
         etrans. apply id_right_disp_var.
+        eapply transportf_bind.
         etrans. apply maponpaths.
-          etrans. apply maponpaths.
-            eapply transportb_transpose. apply @pathsinv0.
-            refine (iso_disp_after_inv_mor _).
-            apply (Hη). (*1b*)
-          etrans. apply mor_disp_transportf_prewhisker.
-          etrans. apply maponpaths, assoc_disp.
-          apply transport_f_f.
-        apply transport_f_f.
-      etrans. apply maponpaths, mor_disp_transportf_postwhisker.
-      apply transport_f_f.
-    apply mor_disp_transportf_postwhisker. 
-  etrans. apply transport_f_f.
-  etrans. apply maponpaths.
-    etrans. apply assoc_disp_var.
-    etrans. apply maponpaths.
-      etrans. apply assoc_disp_var.
-      etrans. apply maponpaths.
-        etrans. apply maponpaths.
-          etrans. apply maponpaths.
-            etrans. apply assoc_disp.
-            etrans. apply maponpaths.
-              etrans. apply maponpaths_2.
-                refine (nat_trans_over_ax η (# GG (ε x yy))). (*2*)
-              etrans. apply mor_disp_transportf_postwhisker.
-              etrans. apply maponpaths.
-                etrans. apply assoc_disp_var.
-                etrans. apply maponpaths.
-                  etrans. apply maponpaths.
-                    cbn.
-                    etrans. eapply transportf_transpose.
-                      apply @pathsinv0, (functor_over_comp GG).
-                    etrans. apply maponpaths, maponpaths.
-                      apply (nat_trans_over_ax ε). (*3*)
-                    cbn. unfold idfun.
-                    etrans. apply (functor_over_transportf _ GG).
-                    etrans. apply maponpaths.
-                      apply functor_over_comp.
-                    apply transport_f_f.
-                  cbn. apply mor_disp_transportf_prewhisker.
-                apply transport_f_f.
-              apply transport_f_f.
-            apply transport_f_f.
-          etrans. apply mor_disp_transportf_prewhisker.
-          etrans. apply maponpaths.
-            etrans. apply assoc_disp.
-            etrans. apply maponpaths.
-              etrans. apply maponpaths_2.
-                apply (nat_trans_over_ax η (η x (GG x yy))). (*4*)
-              cbn. apply mor_disp_transportf_postwhisker.
-            etrans. apply transport_f_f.
-            etrans. apply maponpaths.
-              etrans. apply assoc_disp_var.
-              etrans. apply maponpaths.
-                etrans. apply maponpaths.
-                  etrans. apply assoc_disp.
-                  etrans. apply maponpaths.
-                    etrans. apply maponpaths_2.
-                      etrans. eapply transportf_transpose.
-                        apply @pathsinv0, (functor_over_comp GG). (*5*)
-                      etrans. apply maponpaths.
-                        etrans. apply maponpaths.
-                          apply T1. (*6*)
-                        etrans. apply (functor_over_transportf _ GG).
-                        etrans. apply maponpaths, functor_over_id.
-                        apply transport_f_f.
-                      apply transport_f_f.
-                    etrans. apply mor_disp_transportf_postwhisker.
-                    etrans. apply maponpaths.
-                      apply id_left_disp.
-                    apply transport_f_f.
-                  apply transport_f_f.
-                apply mor_disp_transportf_prewhisker.
-              apply transport_f_f.
-            apply transport_f_f.
-          apply transport_f_f.
+          eapply transportb_transpose. apply @pathsinv0.
+          refine (iso_disp_after_inv_mor _).
+          apply (Hη). (*1b*)
         etrans. apply mor_disp_transportf_prewhisker.
+        eapply transportf_bind, assoc_disp.
+      apply mor_disp_transportf_postwhisker.
+    apply mor_disp_transportf_postwhisker. 
+  etrans. eapply transportf_bind.
+    etrans. apply assoc_disp_var.
+    eapply transportf_bind.
+    etrans. apply assoc_disp_var.
+    eapply transportf_bind.
+    etrans. apply maponpaths.
+      etrans. apply maponpaths.
+        etrans. apply assoc_disp.
+        eapply transportf_bind.
+        etrans. apply maponpaths_2.
+          refine (nat_trans_over_ax η (# GG (ε x yy))). (*2*)
+        etrans. apply mor_disp_transportf_postwhisker.
+        eapply transportf_bind.
+        etrans. apply assoc_disp_var.
+        eapply transportf_bind.
         etrans. apply maponpaths.
-          etrans. apply assoc_disp_var.
+          cbn.
+          etrans. eapply transportf_transpose.
+            apply @pathsinv0, (functor_over_comp GG).
+          eapply transportf_bind.
           etrans. apply maponpaths.
-            etrans. apply maponpaths.
-              etrans. apply assoc_disp.
-              etrans. apply maponpaths.
-                etrans. apply maponpaths_2.
-                  refine (iso_disp_after_inv_mor _). (*7a*)
-                etrans. apply mor_disp_transportf_postwhisker.
-                etrans. apply maponpaths.
-                  apply id_left_disp.
-                apply transport_f_f.
-              apply transport_f_f.
-            etrans. apply mor_disp_transportf_prewhisker.
-            etrans. apply maponpaths.
-              refine (iso_disp_after_inv_mor _). (*7b*)
-            apply transport_f_f.
-          apply transport_f_f.
-        apply transport_f_f.
-      apply transport_f_f.
-    apply transport_f_f.
+            apply (nat_trans_over_ax ε). (*3*)
+          cbn.
+          etrans. apply (functor_over_transportf _ GG).
+          eapply transportf_bind.
+          apply (functor_over_comp GG).
+        cbn. apply mor_disp_transportf_prewhisker.
+      etrans. apply mor_disp_transportf_prewhisker.
+      eapply transportf_bind.
+      etrans. apply assoc_disp.
+      eapply transportf_bind.
+      etrans. apply maponpaths_2.
+        apply (nat_trans_over_ax η (η x (GG x yy))). (*4*)
+      cbn. 
+      etrans. apply mor_disp_transportf_postwhisker.
+      eapply transportf_bind.
+      etrans. apply assoc_disp_var.
+      eapply transportf_bind. 
+      etrans. apply maponpaths.
+        etrans. apply assoc_disp.
+        eapply transportf_bind.
+        etrans. apply maponpaths_2.
+          etrans. eapply transportf_transpose.
+            apply @pathsinv0, (functor_over_comp GG). (*5*)
+          eapply transportf_bind.
+          etrans. apply maponpaths, T1. (*6*)
+          etrans. apply (functor_over_transportf _ GG).
+          eapply transportf_bind. apply (functor_over_id GG).
+        etrans. apply mor_disp_transportf_postwhisker.
+        eapply transportf_bind. apply id_left_disp.
+      apply mor_disp_transportf_prewhisker.
+    apply mor_disp_transportf_prewhisker.
+  etrans. eapply transportf_bind.
+    etrans. apply assoc_disp_var.
+    eapply transportf_bind.
+    etrans. apply maponpaths.
+      etrans. apply assoc_disp.
+      eapply transportf_bind. 
+      etrans. apply maponpaths_2.
+        refine (iso_disp_after_inv_mor _). (*7a*)
+      etrans. apply mor_disp_transportf_postwhisker.
+      eapply transportf_bind. apply id_left_disp.
+    etrans. apply mor_disp_transportf_prewhisker.
+    apply maponpaths. refine (iso_disp_after_inv_mor _).
   etrans. apply transport_f_f.
   unfold transportb. apply maponpaths_2, homset_property.
 (* Time Qed. *)
