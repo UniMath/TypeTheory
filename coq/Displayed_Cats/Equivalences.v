@@ -272,27 +272,212 @@ Coercion equiv_of_is_equiv_over_id
 
 (** ** Lemmas on the triangle identities *)
 
+(* TODO: search in library!  I’m sure I’ve seen it there before, but can’t find it now. If not: upstream. *)
+Lemma transportb_transpose {X : UU} {P : X → UU}
+  {x x' : X} (e : x = x') (y : P x) (y' : P x')
+: transportf P e y = y' -> y = transportb P e y'.
+Proof.
+  destruct e; auto.
+Defined.
+
+Lemma transportf_transpose {X : UU} {P : X → UU}
+  {x x' : X} (e : x = x') (y : P x) (y' : P x')
+: transportb P e y' = y -> y' = transportf P e y.
+Proof.
+  destruct e; auto.
+Defined.
+
+(* TODO: move these two lemmas, and this documentation lone, to CORE.*)
+(** All the axioms are given in two versions, with the transport on different sides, so that they can be invoked easily when either side is known. *) 
+Lemma id_left_disp_var {C} {D : disp_precat C} 
+  {x y} {f : x ⇒ y} {xx : D x} {yy} {ff : xx ⇒[f] yy}
+: ff = transportf _ (id_left _) (id_disp _ ;; ff).
+Proof.
+  apply transportf_transpose.
+  apply @pathsinv0, id_left_disp.
+Qed.
+
+Definition id_right_disp_var {C} {D : disp_precat C} 
+  {x y} {f : x ⇒ y} {xx : D x} {yy} {ff : xx ⇒[f] yy}
+  : ff = transportf _ (id_right _) (ff ;; id_disp _).
+Proof.
+  apply transportf_transpose.
+  apply @pathsinv0, id_right_disp.
+Qed.
+
+(* A useful notation for hiding the huge irrelevant equalities that occur in algebra of displayed categories.
+
+TODO: move and document! 
+
+Level is chosen to bind *tighter* than categorical composition. *)
+Notation "?# x" := (transportf _ _ x) (at level 45) : short_transport.
+Notation "?#' x" := (transportb _ _ x) (at level 45) : short_transport.
+Delimit Scope short_transport with short.
+Local Open Scope short_transport.
+
 Lemma triangle_2_from_1_for_equiv_over_id
   {C} {D D' : disp_precat C}
   (A : adjunction_over_id_data D D')
   (E : form_equiv_over_id A)
 : triangle_1_stmt_over_id A -> triangle_2_stmt_over_id A.
 Proof.
+  destruct A as [FF [GG [η ε]]].
+  destruct E as [Hη Hε]; cbn in Hη, Hε.
   unfold triangle_1_stmt_over_id, triangle_2_stmt_over_id; cbn.
   intros T1 x yy.
-  (* algebraically, with traditional composition, this should go:
-  G ε . η G
-  = G ε . η G . G ε . η G . η^ G . G ε^          [by inverses]
-  = G ε . G F G ε . η G F G . η G . η^ G . G ε^  [by naturality]
-  = G ε . G ε F G . η G F G . η G . η^ G . G ε^  [by naturality]
-  = G ε . G ε F G . G F η G . η G . η^ G . G ε^  [by naturality]
-  = G ε . G (ε F . F η) G . η G . η^ G . G ε^    [by functoriality]
-  = G ε .η G . η^ G . G ε^                       [by T1]
-  = 1                                            [by inverses]
+  (* Algebraically, this goes as follows:
+  η G ; G ε
+  = G ε^ ; η^ G ; η G ; G ε ; η G ; G ε          [by inverses, 1]
+  = G ε^ ; η^ G ; η G ; η G F G ; G F G ε ; G ε  [by naturality, 2]
+  = G ε^ ; η^ G ; η G ; η G F G ; G ε F G ; G ε  [by naturality, 3]
+  = G ε^ ; η^ G ; η G ; G F η G ; G ε F G ; G ε  [by naturality, 4]
+  = G ε^ ; η^ G ; η G ; G (F η ; ε F ) G ; G ε   [by functoriality, 5]
+  = G ε^ ; η^ G ; η G ; G ε                      [by T1, 6]
+  = 1                                            [by inverses, 7]
 
-  It’s easiest to see with string diagrams.
-  *)
+  It’s very readable when written with string diagrams. *)
+  etrans. apply id_left_disp_var.
+  etrans. apply maponpaths.
+    etrans. apply maponpaths_2.
+      etrans. eapply transportb_transpose. apply @pathsinv0.
+        refine (iso_disp_after_inv_mor _).
+        refine (functor_over_on_is_iso_disp GG _).
+        apply Hε. (*1a*)
+      etrans. apply maponpaths, maponpaths_2.
+        etrans. apply id_right_disp_var.
+        etrans. apply maponpaths.
+          etrans. apply maponpaths.
+            eapply transportb_transpose. apply @pathsinv0.
+            refine (iso_disp_after_inv_mor _).
+            apply (Hη). (*1b*)
+          etrans. apply mor_disp_transportf_prewhisker.
+          etrans. apply maponpaths, assoc_disp.
+          apply transport_f_f.
+        apply transport_f_f.
+      etrans. apply maponpaths, mor_disp_transportf_postwhisker.
+      apply transport_f_f.
+    apply mor_disp_transportf_postwhisker. 
+  etrans. apply transport_f_f.
+  etrans. apply maponpaths.
+    etrans. apply assoc_disp_var.
+    etrans. apply maponpaths.
+      etrans. apply assoc_disp_var.
+      etrans. apply maponpaths.
+        etrans. apply maponpaths.
+          etrans. apply maponpaths.
+            etrans. apply assoc_disp.
+            etrans. apply maponpaths.
+              etrans. apply maponpaths_2.
+                refine (nat_trans_over_ax η (# GG (ε x yy))). (*2*)
+              etrans. apply mor_disp_transportf_postwhisker.
+              etrans. apply maponpaths.
+                etrans. apply assoc_disp_var.
+                etrans. apply maponpaths.
+                  etrans. apply maponpaths.
+                    cbn.
+                    etrans. eapply transportf_transpose.
+                      apply @pathsinv0, (functor_over_comp GG).
+                    etrans. apply maponpaths, maponpaths.
+                      apply (nat_trans_over_ax ε). (*3*)
+                    cbn. unfold idfun.
+                    etrans. apply (functor_over_transportf _ GG).
+                    etrans. apply maponpaths.
+                      apply functor_over_comp.
+                    apply transport_f_f.
+                  cbn. apply mor_disp_transportf_prewhisker.
+                apply transport_f_f.
+              apply transport_f_f.
+            apply transport_f_f.
+          etrans. apply mor_disp_transportf_prewhisker.
+          etrans. apply maponpaths.
+            etrans. apply assoc_disp.
+            etrans. apply maponpaths.
+              etrans. apply maponpaths_2.
+                apply (nat_trans_over_ax η (η x (GG x yy))). (*4*)
+              cbn. apply mor_disp_transportf_postwhisker.
+            etrans. apply transport_f_f.
+            etrans. apply maponpaths.
+              etrans. apply assoc_disp_var.
+              etrans. apply maponpaths.
+                etrans. apply maponpaths.
+                  etrans. apply assoc_disp.
+                  etrans. apply maponpaths.
+                    etrans. apply maponpaths_2.
+                      etrans. eapply transportf_transpose.
+                        apply @pathsinv0, (functor_over_comp GG). (*5*)
+                      etrans. apply maponpaths.
+                        etrans. apply maponpaths.
+                          apply T1. (*6*)
+                        etrans. apply (functor_over_transportf _ GG).
+                        etrans. apply maponpaths, functor_over_id.
+                        apply transport_f_f.
+                      apply transport_f_f.
+                    etrans. apply mor_disp_transportf_postwhisker.
+                    etrans. apply maponpaths.
+                      apply id_left_disp.
+                    apply transport_f_f.
+                  apply transport_f_f.
+                apply mor_disp_transportf_prewhisker.
+              apply transport_f_f.
+            apply transport_f_f.
+          apply transport_f_f.
+        etrans. apply mor_disp_transportf_prewhisker.
+        etrans. apply maponpaths.
+          etrans. apply assoc_disp_var.
+          etrans. apply maponpaths.
+            etrans. apply maponpaths.
+              etrans. apply assoc_disp.
+              etrans. apply maponpaths.
+                etrans. apply maponpaths_2.
+                  refine (iso_disp_after_inv_mor _). (*7a*)
+                etrans. apply mor_disp_transportf_postwhisker.
+                etrans. apply maponpaths.
+                  apply id_left_disp.
+                apply transport_f_f.
+              apply transport_f_f.
+            etrans. apply mor_disp_transportf_prewhisker.
+            etrans. apply maponpaths.
+              refine (iso_disp_after_inv_mor _). (*7b*)
+            apply transport_f_f.
+          apply transport_f_f.
+        apply transport_f_f.
+      apply transport_f_f.
+    apply transport_f_f.
+  etrans. apply transport_f_f.
+  unfold transportb. apply maponpaths_2, homset_property.
+(* Time Qed. *)
 Admitted.
+(* TODO: [Qed.] takes about 30sec!  Try to find some lemmas to simplify this + speed it up.
+
+TODO: implement the following lemmas, and see how they help above (and elsewhere).
+Some particularly recurring patterns (using the ?# notation for transport):
+
+Goal: [ ?# (T1) = ? ]
+  etrans. maponpaths.
+    (long proof of [ T1 = ?# T2 ]).
+  apply transport_f_f.
+
+So make this as:
+
+Lemma that [ T1 = ?# T2 -> ?# T1 = ?# T2 ].  Hah: it’s like Klesli bind of a monad in Haskell…  What to call this?  [transportf_bind]?
+
+Two more common patterns: the mor_disp versions of cancel_precomposition and cancel_postcomposition, which go like
+
+Goal: [ T1 ;; T2 = ? ]
+  etrans. maponpaths_2.
+    (proof of [ T1 = ?# T1'])
+  apply mor_disp_transportf_postwhisker.
+
+or else
+
+  etrans. maponpaths.
+    (proof of [ T2 = ?# T2'])
+  apply mor_disp_transportf_prewhisker.
+
+So: lemmas
+[cancel_precomposition_disp : T1 = ?# T2' -> T1 ;; T2 = ?# (T1 ;; T2') ]
+and dually [cancel_precomposition_disp].
+ *)
 
 Lemma triangle_1_from_2_for_equiv_over_id
   {C} {D D' : disp_precat C}
