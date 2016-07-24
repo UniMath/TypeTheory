@@ -43,6 +43,14 @@ Tactic Notation "assoc" := apply @pathsinv0, path_assoc.
 Tactic Notation "cancel_postcomposition" := apply cancel_postcomposition.
 
 
+Lemma invmap_eq {A B : UU} (f : A ≃ B) (b : B) (a : A)
+  : b = f a → invmap f b = a.
+Proof.
+  intro H.
+  apply (invmaponpathsweq f).
+  etrans. apply homotweqinvweq. apply H.
+Defined.
+
 (*TODO: look carefully for this in the library *)
 Definition maponpaths_2 {X Y Z : Type} (f : X -> Y -> Z) {x x'} (e : x = x') y
   : f x y = f x' y

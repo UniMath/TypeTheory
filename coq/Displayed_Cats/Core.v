@@ -342,13 +342,25 @@ Proof.
   apply subtypeEquality; intro; apply isaprop_is_iso_disp.
 Qed.
 
-Definition iso_inv_from_iso_disp {C : Precategory} {D : disp_precat_data C}
+Lemma is_iso_disp_base_eq {C : Precategory} {D : disp_precat C}
+    {x y : C} (f f' : iso x y) 
+    (e : f = f')
+    {xx : D x} {yy} 
+    (ff : xx ⇒[f] yy)
+    (is : is_iso_disp _ ff) 
+    : 
+    is_iso_disp f' (transportf _ (maponpaths _ e) ff).
+Proof.
+  induction e.
+  apply is.
+Defined.
+
+Definition is_iso_inv_from_iso_disp {C : Precategory} {D : disp_precat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
     (i : iso_disp f xx yy) 
     :
-    iso_disp (iso_inv_from_iso f) yy xx.
+    is_iso_disp (iso_inv_from_iso f) (inv_mor_disp_from_iso i).
 Proof.
-  exists (inv_mor_disp_from_iso i).
   mkpair.
   - change ( xx ⇒[ iso_inv_from_iso (iso_inv_from_iso f)] yy).    
     set (XR := transportb (mor_disp xx yy ) 
@@ -368,6 +380,26 @@ Proof.
       etrans ;[ apply transport_f_f |];
       apply transportf_comp_lemma; apply transportf_comp_lemma_hset;
       try apply homset_property; apply idpath ).
+Defined.
+
+Definition is_iso_inv_from_is_iso_disp {C : Precategory} {D : disp_precat_data C}
+    {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
+    (ff : xx ⇒[f] yy)
+    (i : is_iso_disp f ff) 
+    :
+    is_iso_disp (iso_inv_from_iso f) (inv_mor_disp_from_iso i).
+Proof.
+  apply (is_iso_inv_from_iso_disp (ff ,, i)).
+Defined.
+
+Definition iso_inv_from_iso_disp {C : Precategory} {D : disp_precat_data C}
+    {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
+    (i : iso_disp f xx yy) 
+    :
+    iso_disp (iso_inv_from_iso f) yy xx.
+Proof.
+  exists (inv_mor_disp_from_iso i).
+  apply is_iso_inv_from_iso_disp.
 Defined.
 
 Definition iso_disp_comp {C : Precategory} {D : disp_precat C}
@@ -1183,6 +1215,80 @@ Definition functor_over_ff {C C'} {F}
 :=
   Π {x y} {xx : D x} {yy : D y} {f : x ⇒ y},
     isweq (fun ff : xx ⇒[f] yy => # FF ff).
+
+Section ff_reflects_isos.
+
+Context {C C' : Precategory}
+        {F : functor C C'}
+        {D : disp_precat C}
+        {D' : disp_precat C'}
+        (FF : functor_over F D D')
+        (FF_ff : functor_over_ff FF).
+
+Definition functor_over_ff_weq {x y} {xx yy} f := weqpair _ (FF_ff x y xx yy f).
+Definition functor_over_ff_inv {x y} {xx yy} f 
+  := invmap (@functor_over_ff_weq x y xx yy f).
+
+
+(** TODO: in the following lemma, it is better to 
+          compute a proof of [f = f'] from a given
+          proof of [#F f = #F f'], using [invmaponpathsweq]
+*)
+
+Lemma functor_over_ff_inv_transportf
+    {x y : C} {f f' : x ⇒ y} (e : f = f')
+    {xx : D x} {yy : D y} (ff : FF _ xx ⇒[#F f] FF _ yy)
+  : functor_over_ff_inv _ (transportf _ (maponpaths (# F )%mor e) ff) 
+    = 
+    transportf _ e (functor_over_ff_inv _ ff).
+Proof.
+  induction e.
+  apply idpath.
+Qed.
+
+Lemma functor_over_ff_inv_identity {x : C} (xx : D x)
+  : 
+    (functor_over_ff_inv _  (transportb _ (functor_id F _ ) (id_disp (FF _ xx))))
+  = id_disp xx.
+Proof.
+  apply invmap_eq. 
+  apply pathsinv0.
+  apply (functor_over_id FF).
+Qed.
+
+Lemma functor_over_ff_inv_compose (x y z : C) (f : x ⇒ y) (g : y ⇒ z)
+    (xx : D x) (yy : D y) (zz : D z)
+    (ff : FF _ xx ⇒[#F f] FF _ yy) (gg : FF _ yy ⇒[#F g] FF _ zz)
+  : functor_over_ff_inv (f ;; g) 
+                        (transportb _ (functor_comp F _ _ _ _ _ ) (ff ;; gg)) 
+    = 
+    functor_over_ff_inv f ff ;; functor_over_ff_inv _ gg.
+Proof.
+  apply invmap_eq. cbn.
+  apply pathsinv0.
+  etrans. apply (functor_over_comp FF).
+  apply maponpaths.
+  etrans. apply maponpaths. apply (homotweqinvweq (functor_over_ff_weq _ )).
+  etrans. apply maponpaths_2. apply (homotweqinvweq (functor_over_ff_weq _ )).
+  apply idpath.
+Qed.
+
+Definition functor_over_ff_reflects_isos 
+  {x y} {xx : D x} {yy : D y} {f : iso x y}
+  (ff : xx ⇒[f] yy) (isiso: is_iso_disp (functor_on_iso F f) (# FF ff)) 
+  : is_iso_disp _ ff.
+Proof.
+  set (FFffinv := inv_mor_disp_from_iso isiso). 
+  set (FFffinv' := transportb _ (functor_on_inv_from_iso _ _ _ _ _ _ ) FFffinv).
+  set (ffinv := functor_over_ff_inv _ FFffinv').
+  exists ffinv.
+  split.
+  - unfold ffinv. unfold FFffinv'.
+    admit.
+  - admit.
+Abort.
+
+End ff_reflects_isos.
 
 (** Given a base functor [F : C —> C'] and a displayed functor [FF : D' -> D] over it, there are two different “essential surjectivity” conditions one can put on [FF].
 

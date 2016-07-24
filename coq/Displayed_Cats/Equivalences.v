@@ -22,18 +22,6 @@ Local Set Automatic Introduction.
 Local Open Scope type_scope.
 Local Open Scope mor_disp_scope.
 
-Section Auxiliary.
-
-Lemma invmap_eq {A B : UU} (f : A ≃ B) (b : B) (a : A)
-  : b = f a → invmap f b = a.
-Proof.
-  intro H.
-  apply (invmaponpathsweq f).
-  etrans. apply homotweqinvweq. apply H.
-Defined.  
-
-End Auxiliary.
-
 (* TODO: move somewhere.  Not sure where? [Constructions]? *)
 Section Essential_Surjectivity.
 
@@ -116,6 +104,13 @@ Definition counit_over_id {C} {D D' : disp_precat C}
 (** Triangle identies for an adjunction *)
 
 (** TODO: currently the statements of these axioms include [_stmt_] to distinguish them from the _instances_ of these statements given by the access functions of [form_adjunction].  Does UniMath have an established naming convention for this distinction anywhere? *)
+
+(**  maybe this is a beginning of a convention: 
+Check univalenceAxiom.
+univalenceAxiom
+     : univalenceStatement
+*)
+
 
 Definition triangle_1_stmt_over_id  {C} {D D' : disp_precat C}
     (A : adjunction_over_id_data D D')
@@ -273,6 +268,15 @@ Coercion equiv_of_is_equiv_over_id
 (** ** Lemmas on the triangle identities *)
 
 (* TODO: search in library!  I’m sure I’ve seen it there before, but can’t find it now. If not: upstream. *)
+(*
+Search ( _ = _ -> transportf _ _ _  = _ ).
+transportf_pathsinv0_var:
+  Π (X : UU) (P : X → UU) (x y : X) (p : x = y) (u : P x) 
+  (v : P y), transportf P p u = v → transportf P (! p) v = u
+Utilities.transportf_pathsinv0':
+  Π (X : Type) (P : X → UU) (x y : X) (p : x = y) 
+  (u : P x) (v : P y), transportf P p u = v → transportf P (! p) v = u
+*)
 Lemma transportb_transpose {X : UU} {P : X → UU}
   {x x' : X} (e : x = x') (y : P x) (y' : P x')
 : transportf P e y = y' -> y = transportb P e y'.
@@ -539,6 +543,54 @@ Proof.
   apply idpath.
 Qed.
 
+
+(** TODO: opacify proof part **)
+Definition functor_over_id_ff_reflects_isos 
+  {x y} {xx : D' x} {yy : D' y} {f : iso x y}
+  (ff : xx ⇒[ f ] yy) (isiso: is_iso_disp f (# FF ff)) 
+  : is_iso_disp _ ff.
+Proof.
+  set (FFffinv := inv_mor_disp_from_iso isiso). 
+  set (ffinv := FFinv _ FFffinv).
+  exists ffinv.
+  split.
+  - unfold ffinv. unfold FFffinv.
+    apply (invmaponpathsweq (@FFweq _ _ _ _ _ )). cbn.
+    etrans. apply (functor_over_comp FF).
+    etrans. apply maponpaths. apply maponpaths_2. apply (homotweqinvweq (@FFweq _ _ _ _ _ )).
+    etrans. apply maponpaths. apply iso_disp_after_inv_mor.
+    etrans. apply transport_f_f.
+    apply pathsinv0.
+    etrans. apply (functor_over_transportf _ FF).
+    etrans. apply maponpaths. apply functor_over_id.
+    etrans. apply transport_f_f.
+    apply transportf_ext. apply homset_property.
+  - apply (invmaponpathsweq (@FFweq _ _ _ _ _ )). cbn.
+    etrans. apply (functor_over_comp FF).
+    etrans. apply maponpaths. apply maponpaths. apply (homotweqinvweq (@FFweq _ _ _ _ _ )).
+    etrans. apply maponpaths. apply inv_mor_after_iso_disp.
+    etrans. apply transport_f_f.
+    apply pathsinv0.
+    etrans. apply (functor_over_transportf _ FF).
+    etrans. apply maponpaths. apply functor_over_id.
+    etrans. apply transport_f_f.
+    apply transportf_ext. apply homset_property.
+Defined.
+
+Definition FFinv_on_iso_is_iso   {x y} {xx : D' x} {yy : D' y} {f : iso x y}
+  (ff : FF _ xx ⇒[ f ] FF _ yy) (isiso: is_iso_disp f ff) 
+  : is_iso_disp _ (FFinv _ ff).
+Proof.
+  apply functor_over_id_ff_reflects_isos.
+  assert (XR := homotweqinvweq (@FFweq _ _ xx yy f)).
+  specialize (XR ff).
+  match goal with |[ H : is_iso_disp f ?FF |- is_iso_disp f ?EE] => 
+             assert (XRTT : EE = FF) end.
+  { apply XR. }
+  rewrite XRTT. 
+  assumption.
+Qed.
+
 (** ** Converse functor *)
 
 Local Definition GG_data : functor_over_data (functor_identity _ ) D D'.
@@ -702,15 +754,33 @@ Definition η_ses_ff
 Definition GGεη : right_adjoint_over_id_data FF
   := (GG,, (η_ses_ff,, ε_ses_ff)).
 
+(** TODO: this might be the worst proof one can write **)
 Lemma form_equiv_GGεη : form_equiv_over_id GGεη.
 Proof.
   split; intros x xx; cbn.
   - unfold η_ses_ff_data.
-    (* TODO: FFinv preserves isos; or, roughly equivalently, ff functors reflect isos.  Then use that plus [is_iso_disp_from_iso]. *)
-     admit.
+    set (XR:= @FFinv_on_iso_is_iso).
+    apply (XR _ _ _ _ (identity_iso _ )); clear XR.
+    set (XT := is_iso_inv_from_iso_disp (pr2 (FF_split x (FF x xx)))).
+    Search (iso_inv_from_iso (identity_iso _ )).
+    match goal with |[ XT : is_iso_disp ?EE _ |- is_iso_disp ?FF _ ]
+         => assert (XX : EE = FF) end.
+    { apply iso_inv_of_iso_id. }
+    set (XR := @is_iso_disp_base_eq _ D _ _ _ _ XX _ _ _ XT).
+    Check ( (maponpaths
+               (morphism_from_iso C ((functor_identity C) x)
+                  ((functor_identity C) x)) XX)).
+    assert ( TT : (maponpaths
+               (morphism_from_iso C ((functor_identity C) x)
+                  ((functor_identity C) x)) XX) = idpath _ ).
+    { apply homset_property. }
+    rewrite TT in XR.
+    Search (transportf _ (idpath _ ) _ = _ ).
+    rewrite idpath_transportf in XR.
+    apply XR.
   - unfold ε_ses_ff_data.
     apply is_iso_disp_from_iso.
-Admitted.
+Qed.
 
 Lemma tri_1_GGεη : triangle_1_stmt_over_id GGεη.
 Proof.
