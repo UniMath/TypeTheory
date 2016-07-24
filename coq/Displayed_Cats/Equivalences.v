@@ -308,12 +308,12 @@ Proof.
   - apply maponpaths_2, (homotweqinvweq (FFweq _ )).
 Qed.
 
-Lemma FFinv_transportf x y (f f' : x ⇒ y) (p : f = f') xx yy 
-   (ff : FF _ xx ⇒[f] FF _ yy) :
-    FFinv  _ (transportf _ p ff) = 
-     transportf _ p (FFinv _ ff).
+Lemma FFinv_transportf
+    {x y : C} {f f' : x ⇒ y} (e : f = f')
+    {xx : D' x} {yy : D' y} (ff : FF _ xx ⇒[f] FF _ yy)
+  : FFinv _ (transportf _ e ff) = transportf _ e (FFinv _ ff).
 Proof.
-  induction p.
+  induction e.
   apply idpath.
 Qed.
 
@@ -453,14 +453,54 @@ Proof.
 Abort.
 *)
 
-Definition η_ses_ff : nat_trans_over (nat_trans_id _ ) (functor_over_identity _ ) 
-                                     (functor_over_composite FF GG).
+Definition η_ses_ff_data
+  : nat_trans_over_data (nat_trans_id _)
+      (functor_over_identity _ ) (functor_over_composite FF GG).
 Proof.
-  mkpair.
-  - intros x xx. cbn.
-    apply FFinv.
-    (* should one here take [ε_ses_ff^{-1} (FF x xx)] ? *)
-Abort.
+  intros x xx. cbn.
+  apply FFinv.
+  refine (inv_mor_disp_from_iso (pr2 (FF_split _ _))).
+Defined.
+
+Definition η_ses_ff_ax
+  : nat_trans_over_axioms η_ses_ff_data.
+Proof.
+  intros x y f xx yy ff. cbn. unfold η_ses_ff_data.
+  (* This feels a bit roundabout.  Can it be simplified? *)
+  apply @pathsinv0.
+  etrans. apply maponpaths.
+    etrans. apply @pathsinv0, FFinv_compose.
+    apply maponpaths.
+    etrans. apply mor_disp_transportf_prewhisker.
+    apply maponpaths.
+    etrans. apply assoc_disp.
+    apply maponpaths.
+    etrans. apply maponpaths_2. 
+      etrans. apply assoc_disp.
+      apply maponpaths. 
+      etrans.
+        apply maponpaths_2, (iso_disp_after_inv_mor (pr2 (FF_split _ _))).
+      etrans. apply mor_disp_transportf_postwhisker.
+      etrans. apply maponpaths, id_left_disp.
+      apply transport_f_f.
+    etrans. apply maponpaths_2, transport_f_f. 
+    apply mor_disp_transportf_postwhisker.
+  etrans. apply maponpaths.
+    etrans. apply maponpaths. 
+      etrans. apply transport_f_f.
+      apply transport_f_f.
+    apply FFinv_transportf.
+  etrans. apply transport_f_f.
+  apply transportf_comp_lemma_hset.
+    apply homset_property.
+  etrans. apply FFinv_compose.
+  apply maponpaths_2, homotinvweqweq.
+Qed.
+
+Definition η_ses_ff
+  : nat_trans_over (nat_trans_id _)
+      (functor_over_identity _ ) (functor_over_composite FF GG)
+:= (_ ,, η_ses_ff_ax).
 
 End Equiv_from_ff_plus_ess_split.
 
