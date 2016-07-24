@@ -344,7 +344,9 @@ Proof.
   apply idpath.
 Qed.
 
-(* Seems to be an exact duplicate of a library lemma.  TODO: remove; or, if it’s not a duplicate, document the difference!*)
+(* Seems to be an exact duplicate of a library lemma.  TODO: remove; or, if it’s not a duplicate, document the difference!
+
+Really it’s just the *arguments* that we want to change (and for [cancel_precomposition] too. *)
 Lemma cancel_postcomposition {C : precategory} {a b c : C} (f f' : a ⇒ b) (g : b ⇒ c)
 : f = f' -> f ;; g = f' ;; g.
 Proof.
