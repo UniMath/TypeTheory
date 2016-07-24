@@ -259,17 +259,51 @@ Coercion right_adjoint_of_is_equiv_over_id
 
 Definition equiv_of_is_equiv_over_id {C} {D D' : disp_precat C}
     {FF : functor_over _ D D'}
-  (GG : is_equiv_over_id FF)
+    (GG : is_equiv_over_id FF)
   : equiv_over_id D D'
 := (adjunction_of_right_adjoint_over_id GG ,, pr2 GG). 
 Coercion equiv_of_is_equiv_over_id
   : is_equiv_over_id >-> equiv_over_id.
 (* Again, don’t worry about the ambiguous path generated here. *)
 
-(* TODO: handed versions *)
-(* TODO: lemmas that given [form_equiv_over_id], each triangle identity implies the other. *)
+(* TODO: right-handed versions *)
 
 (* TODO: [quasi_equiv_over_id] (without triangle identities). *)
+
+(** ** Lemmas on the triangle identities *)
+
+Lemma triangle_2_from_1_for_equiv_over_id
+  {C} {D D' : disp_precat C}
+  (A : adjunction_over_id_data D D')
+  (E : form_equiv_over_id A)
+: triangle_1_stmt_over_id A -> triangle_2_stmt_over_id A.
+Proof.
+  unfold triangle_1_stmt_over_id, triangle_2_stmt_over_id; cbn.
+  intros T1 x yy.
+  (* algebraically, with traditional composition, this should go:
+  G ε . η G
+  = G ε . η G . G ε . η G . η^ G . G ε^          [by inverses]
+  = G ε . G F G ε . η G F G . η G . η^ G . G ε^  [by naturality]
+  = G ε . G ε F G . η G F G . η G . η^ G . G ε^  [by naturality]
+  = G ε . G ε F G . G F η G . η G . η^ G . G ε^  [by naturality]
+  = G ε . G (ε F . F η) G . η G . η^ G . G ε^    [by functoriality]
+  = G ε .η G . η^ G . G ε^                       [by T1]
+  = 1                                            [by inverses]
+
+  It’s easiest to see with string diagrams.
+  *)
+Admitted.
+
+Lemma triangle_1_from_2_for_equiv_over_id
+  {C} {D D' : disp_precat C}
+  (A : adjunction_over_id_data D D')
+  (E : form_equiv_over_id A)
+: triangle_2_stmt_over_id A -> triangle_1_stmt_over_id A.
+Proof.
+  (* dual to previous lemma *)
+Admitted.
+
+(* TODO: adjointification of a quasi-equivalence. *)
 
 End Equivalences.
 
@@ -428,31 +462,6 @@ Definition ε_ses_ff
       (functor_over_composite GG FF) (functor_over_identity _ )
 := (ε_ses_ff_data,, ε_ses_ff_ax).
 
-(* TODO: the next two lemmas ([ε_inv], [is_iso_ε]) are probably unnecessary , since the definition of equivalence just asks for pointwise iso-ness.
- 
-Definition ε_inv_ses_ff : 
-    (functor_over_identity _ : (disp_functor_precat _ _ D D) _ )
-    ⇒[ @identity_iso (functor_precategory C C (homset_property C)) _ ] 
-    (functor_over_composite GG FF : (disp_functor_precat _ _ D D) _ ).
-Proof.
-  simple refine (inv_disp_from_pointwise_iso _ _ _ _ _ _ _ _ _ ε_ses_ff  _ ).
-  intros x' xx'. 
-  set ( H:= (pr2 (pr2 (FF_split x' xx')))). 
-  cbn in H. 
-  transparent assert (XR : ((pointwise_iso_from_nat_iso
-       (identity_iso
-          (functor_composite (functor_identity C) (functor_identity C) : functor_precategory _ _ (homset_property C) )) x') = 
-              identity_iso x' )).
-  { apply eq_iso. apply idpath. }
-Abort.
-
-Definition is_iso_ε_ses_ff : is_iso_disp _ ε_ses_ff.
-Proof.
-  apply is_disp_functor_precat_iso_if_pointwise_iso.
-  intros x' xx'. 
-Abort.
-*)
-
 Definition η_ses_ff_data
   : nat_trans_over_data (nat_trans_id _)
       (functor_over_identity _ ) (functor_over_composite FF GG).
@@ -501,6 +510,38 @@ Definition η_ses_ff
   : nat_trans_over (nat_trans_id _)
       (functor_over_identity _ ) (functor_over_composite FF GG)
 := (_ ,, η_ses_ff_ax).
+
+Definition GGεη : right_adjoint_over_id_data FF
+  := (GG,, (η_ses_ff,, ε_ses_ff)).
+
+Lemma form_equiv_GGεη : form_equiv_over_id GGεη.
+Proof.
+  split; intros x xx; cbn.
+  - unfold η_ses_ff_data.
+    (* TODO: FFinv preserves isos; or, roughly equivalently, ff functors reflect isos.  Then use that plus [is_iso_disp_from_iso]. *)
+     admit.
+  - unfold ε_ses_ff_data.
+    apply is_iso_disp_from_iso.
+Admitted.
+
+Lemma tri_1_GGεη : triangle_1_stmt_over_id GGεη.
+Proof.
+  (* TODO: complete this. *)
+Admitted.
+
+Lemma tri_2_GGεη : triangle_2_stmt_over_id GGεη.
+Proof.
+  apply triangle_2_from_1_for_equiv_over_id.
+  apply form_equiv_GGεη.
+  apply tri_1_GGεη.
+Qed.
+
+Theorem is_equiv_from_ff_ess_over_id : is_equiv_over_id FF.
+Proof.
+  simple refine ((GGεη,, _) ,, _).
+  split. apply tri_1_GGεη. apply tri_2_GGεη.
+  apply form_equiv_GGεη.
+Defined.
 
 End Equiv_from_ff_plus_ess_split.
 
