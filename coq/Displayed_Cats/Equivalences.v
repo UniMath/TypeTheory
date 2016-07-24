@@ -287,7 +287,9 @@ Proof.
   intro H; destruct e; exact H.
 Defined.
 
-(* TODO: consider name! *)
+(* For use when proving a goal of the form [transportf _ e' y = ?], where [?] is an existential variable, and we want to “compute” in [y], but expect the result of that computing to itself end with a transported term.
+
+TODO: consider name!  Currently named by analogy with monad binding operation (e.g. Haskell’s [ >>= ]), to which it has a curious formal similarity. *)
 Lemma transportf_bind {X : UU} {P : X → UU}
   {x x' x'' : X} (e : x' = x) (e' : x = x'')
   y y'
@@ -296,7 +298,42 @@ Proof.
   intro H; destruct e, e'; exact H.
 Defined.
 
-(* TODO: move these two lemmas, and this documentation line, to CORE.*)
+(* TODO: consider name! Current name sees this as composition of “dependent paths”.
+
+(Unfortunately there’s a variance issue: it’s currently backwards over paths in the base.  However, this is unavoidable given that:
+
+- we want the LHS of the input equalities to be an aribtrary term, *not* a transported term, from the “compute left-to-right” point of view;
+- we want an arbitrary [transportf] on the RHS of the input equalities, so that whatever “computation” produces can be used.
+
+If [transportf] were derived from [transportb], instead of vice versa, then we could use [transportb] on the RHS and this would look much nicer… *)
+Lemma pathscomp0_dep {X : UU} {P : X → UU}
+  {x x' x'' : X} {e : x' = x} {e' : x'' = x'}
+  {y} {y'} {y''}
+: (y = transportf P e y') -> (y' = transportf _ e' y'')
+  -> y = transportf _ (e' @ e) y''.
+Proof.
+  intros ee ee'. refine (ee @ _).
+  apply transportf_bind, ee'.
+Qed.
+
+Tactic Notation "etrans_dep" := eapply @pathscomp0_dep.
+
+(* [etrans_disp]: a version of [etrans_dep] for use when the equality transport in the RHS of the goal is already present, and not of the form produced by [etrans_dep], so [etrans_dep] doesn’t apply.  Where possible, [etrans_dep] should still be used, since it *produces* a RHS, whereas this does not. *)
+Lemma pathscomp0_disp {C} {D : disp_precat C} 
+  {x y} {f f' f'' : x ⇒ y} {e : f' = f} {e' : f'' = f'} {e'' : f'' = f}
+  {xx : D x} {yy}
+  {ff : xx ⇒[f] yy} {ff' : xx ⇒[f'] yy} {ff'' : xx ⇒[f''] yy}
+: (ff = transportf _ e ff') -> (ff' = transportf _ e' ff'')
+  -> ff = transportf _ e'' ff''.
+Proof.
+  intros ee ee'.
+  etrans. eapply pathscomp0_dep. apply ee. apply ee'.
+  apply maponpaths_2, homset_property.
+Qed.
+
+Tactic Notation "etrans_disp" := eapply @pathscomp0_disp.
+
+(* TODO: move these two lemmas, and this documentation line, to [Core].*)
 (** All the axioms are given in two versions, with the transport on different sides, so that they can be invoked easily when either side is known. *) 
 Lemma id_left_disp_var {C} {D : disp_precat C} 
   {x y} {f : x ⇒ y} {xx : D x} {yy} {ff : xx ⇒[f] yy}
@@ -368,84 +405,59 @@ Proof.
   = 1                                            [by inverses, 7]
 
   It’s very readable when written with string diagrams. *)
-  etrans. apply id_left_disp_var.
-  etrans. eapply transportf_bind.
+  etrans_disp.
+    etrans_dep. apply id_left_disp_var.
     eapply cancel_postcomposition_disp.
-    etrans. eapply transportb_transpose. apply @pathsinv0.
+    etrans_dep. eapply transportb_transpose. apply @pathsinv0.
       refine (iso_disp_after_inv_mor _).
       refine (functor_over_on_is_iso_disp GG _).
       apply Hε. (*1a*)
-    eapply transportf_bind.
     eapply cancel_postcomposition_disp.
-    etrans. apply id_right_disp_var.
-    eapply transportf_bind.
-    etrans. eapply cancel_precomposition_disp.
-    eapply transportb_transpose. apply @pathsinv0.
+    etrans_dep. apply id_right_disp_var.
+    etrans_dep. eapply cancel_precomposition_disp.
+      eapply transportb_transpose. apply @pathsinv0.
       refine (iso_disp_after_inv_mor _).
-      apply (Hη). (*1b*)
-    eapply transportf_bind, assoc_disp.
-  etrans. eapply transportf_bind.
-    etrans. apply assoc_disp_var.
-    eapply transportf_bind.
-    etrans. apply assoc_disp_var.
-    eapply transportf_bind.
+      apply Hη. (*1b*)
+    eapply assoc_disp.
+  etrans_dep.
+    etrans_dep. apply assoc_disp_var.
+    etrans_dep. apply assoc_disp_var.
     eapply cancel_precomposition_disp.
-    etrans. eapply cancel_precomposition_disp.
-      etrans. apply assoc_disp.
-      eapply transportf_bind.
-      etrans. eapply cancel_postcomposition_disp.
-        refine (nat_trans_over_ax η (# GG (ε x yy))). (*2*)
-      eapply transportf_bind.
-      etrans. apply assoc_disp_var.
-      eapply transportf_bind.
+    etrans_dep. eapply cancel_precomposition_disp.
+      etrans_dep. apply assoc_disp.
+      etrans_dep. eapply cancel_postcomposition_disp.
+        exact (nat_trans_over_ax η (# GG (ε x yy))). (*2*)
+      etrans_dep. apply assoc_disp_var.
       eapply cancel_precomposition_disp.
       cbn.
-      etrans. eapply transportf_transpose.
+      etrans_dep. eapply transportf_transpose.
         apply @pathsinv0, (functor_over_comp GG).
-      eapply transportf_bind.
       etrans. apply maponpaths.
         apply (nat_trans_over_ax ε). (*3*)
-      cbn.
-      etrans. apply (functor_over_transportf _ GG).
-      eapply transportf_bind.
+      etrans_dep. apply (functor_over_transportf _ GG).
       apply (functor_over_comp GG).
-    eapply transportf_bind.
-    etrans. apply assoc_disp.
-    eapply transportf_bind.
-    etrans. eapply cancel_postcomposition_disp.
+    etrans_dep. apply assoc_disp.
+    etrans_dep. eapply cancel_postcomposition_disp.
       apply (nat_trans_over_ax η (η x (GG x yy))). (*4*)
-    cbn. 
-    eapply transportf_bind.
-    etrans. apply assoc_disp_var.
-    eapply transportf_bind. 
+    etrans_dep. apply assoc_disp_var.
     eapply cancel_precomposition_disp.
-    etrans. apply assoc_disp.
-    eapply transportf_bind.
-    etrans. eapply cancel_postcomposition_disp.
-      etrans. eapply transportf_transpose.
+    etrans_dep. apply assoc_disp.
+    etrans_dep. eapply cancel_postcomposition_disp.
+      etrans_dep. eapply transportf_transpose.
         apply @pathsinv0, (functor_over_comp GG). (*5*)
-      eapply transportf_bind.
       etrans. apply maponpaths, T1. (*6*)
-      etrans. apply (functor_over_transportf _ GG).
-      eapply transportf_bind. apply (functor_over_id GG).
-    eapply transportf_bind. apply id_left_disp.
-  etrans. eapply transportf_bind.
-    etrans. apply assoc_disp_var.
-    eapply transportf_bind.
-    etrans. eapply cancel_precomposition_disp.
-      etrans. apply assoc_disp.
-      eapply transportf_bind. 
-      etrans. eapply cancel_postcomposition_disp.
-        refine (iso_disp_after_inv_mor _). (*7a*)
-      eapply transportf_bind. apply id_left_disp.
-    apply maponpaths. refine (iso_disp_after_inv_mor _).
-  etrans. apply transport_f_f.
-  unfold transportb. apply maponpaths_2, homset_property.
-Time Qed.
+      etrans_dep. apply (functor_over_transportf _ GG).
+      apply (functor_over_id GG).
+    apply id_left_disp.
+  etrans_dep. apply assoc_disp_var.
+  etrans_dep. eapply cancel_precomposition_disp.
+    etrans_dep. apply assoc_disp.
+    etrans_dep. eapply cancel_postcomposition_disp.
+      exact (iso_disp_after_inv_mor (Hη _ (GG x yy))). (*7a*)
+    apply id_left_disp.
+  exact (iso_disp_after_inv_mor _). (*7b*)
+(* Time Qed. *)  (* this version takes about a minute! it was shorter without [etrans_dep], [etrans_disp]. *)
 Admitted.
-(* TODO: [Qed.] takes about 30sec!  Any ways to speed it up??
-
-Maybe one further idiom: a version of [etrans] that includes a [transportf_bind], i.e.: [ff = ?# ff' -> ff' = ?# ff'' -> ff = ?# ff'']  *)
 
 Lemma triangle_1_from_2_for_equiv_over_id
   {C} {D D' : disp_precat C}
