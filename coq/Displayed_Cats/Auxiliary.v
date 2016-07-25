@@ -18,10 +18,13 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import Systems.UnicodeNotations.
 
 Require UniMath.Ktheory.Precategories.
 Require Import UniMath.Ktheory.StandardCategories.
+
+Require Import Systems.UnicodeNotations.
+Require Import Systems.Auxiliary.
+
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
@@ -291,6 +294,7 @@ Defined.
 End Discrete_precats.
 
 (** * Miscellaneous lemmas *)
+Section Miscellaneous.
 
 (* TODO: upstream; also perhaps reconsider implicit args of pr1_transportf to match this? *)
 Lemma pr2_transportf {A} {B1 B2 : A → Type} 
@@ -299,4 +303,54 @@ Lemma pr2_transportf {A} {B1 B2 : A → Type}
 Proof.
   destruct e. apply idpath.
 Defined.
+
+
+(* Very handy for reasoning with “dependent paths” — e.g. for algebra in displayed categories.  TODO: perhaps upstream to UniMath?
+
+Note: similar to [transportf_pathsinv0_var], [transportf_pathsinv0'], but not quite a special case of them, or (as far as I can find) any other library lemma.
+*)
+Lemma transportf_transpose {X : UU} {P : X → UU}
+  {x x' : X} (e : x = x') (y : P x) (y' : P x')
+: transportb P e y' = y -> y' = transportf P e y.
+Proof.
+  intro H; destruct e; exact H.
+Defined.
+
+
+(* For use when proving a goal of the form [transportf _ e' y = ?], where [?] is an existential variable, and we want to “compute” in [y], but expect the result of that computing to itself end with a transported term.
+
+TODO: consider name!  Currently named by analogy with monad binding operation (e.g. Haskell’s [ >>= ]), to which it has a curious formal similarity. *)
+Lemma transportf_bind {X : UU} {P : X → UU}
+  {x x' x'' : X} (e : x' = x) (e' : x = x'')
+  y y'
+: y = transportf P e y' -> transportf _ e' y = transportf _ (e @ e') y'.
+Proof.
+  intro H; destruct e, e'; exact H.
+Defined.
+
+(** Composition of dependent paths.
+
+NOTE 1: unfortunately, proofs using this seem to typecheck much more slowly than proofs inlining it as [etrans] plus [transportf_bind] explicitly — a shame, since proofs with this are much cleaner to read.
+
+NOTE 2: unfortunately there’s a variance issue: this is currently backwards over paths in the base.  However, this is unavoidable given that:
+
+- we want the LHS of the input equalities to be an aribtrary term, *not* a transported term, so that proofs can work in “compute left-to-right” style;
+- we want an arbitrary [transportf] on the RHS of the input equalities, so that this lemma can accept whatever the “computation” produces.
+
+If [transportf] were derived from [transportb], instead of vice versa, then we could use [transportb] on the RHS and this would look much nicer… *)
+Lemma pathscomp0_dep {X : UU} {P : X → UU}
+  {x x' x'' : X} {e : x' = x} {e' : x'' = x'}
+  {y} {y'} {y''}
+: (y = transportf P e y') -> (y' = transportf _ e' y'')
+  -> y = transportf _ (e' @ e) y''.
+Proof.
+  intros ee ee'.
+  etrans. apply ee.
+  apply transportf_bind, ee'.
+Defined.
+
+Tactic Notation "etrans_dep" := eapply @pathscomp0_dep.
+
+
+End Miscellaneous.
 

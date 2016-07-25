@@ -822,6 +822,51 @@ Definition fibre_functor : functor D[{x}] D'[{F x}]
 
 End fix_context.
 
+(* TODO: consider lemma organisation in this file *)
+
+Definition is_iso_fibre_from_is_iso_disp
+  {C : Precategory} {D : disp_precat C}
+  {c : C} {d d' : D c} (ff : d ⇒[identity c] d')
+  (Hff : is_iso_disp (identity_iso c) ff)
+: @is_iso (fibre_precategory D c) _ _ ff.
+Proof.
+  apply is_iso_from_is_z_iso.
+  exists (pr1 Hff).
+  mkpair; cbn.
+  + set (H := pr2 (pr2 Hff)).
+    etrans. apply maponpaths, H.
+    etrans. apply transport_f_b.
+    refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
+    apply homset_property.      
+  + set (H := pr1 (pr2 Hff)).
+    etrans. apply maponpaths, H.
+    etrans. apply transport_f_b.
+    refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
+    apply homset_property.
+Qed.
+
+Definition fibre_nat_trans {C C' : Precategory}
+  {F : functor C C'}
+  {D D'} {FF FF' : functor_over F D D'}
+  (α : nat_trans_over (nat_trans_id F) FF FF')
+  (c : C)
+: nat_trans (fibre_functor FF c) (fibre_functor FF' c).
+Proof.
+  use tpair; simpl.
+  - intro d. exact (α c d).
+  - unfold is_nat_trans; intros d d' ff; simpl.
+    set (αff := pr2 α _ _ _ _ _ ff); simpl in αff.
+    cbn.
+    etrans. apply maponpaths, mor_disp_transportf_postwhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths, αff.
+    etrans. apply transport_f_b.
+    apply @pathsinv0.
+    etrans. apply maponpaths, mor_disp_transportf_prewhisker.
+    etrans. apply transport_f_f.
+    apply maponpaths_2, homset_property.
+Defined.
+
 Lemma fibre_functor_ff
     {C C' : Precategory} {D} {D'}
     {F : functor C C'} (FF : functor_over F D D')

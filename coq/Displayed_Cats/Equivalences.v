@@ -24,19 +24,6 @@ Local Open Scope mor_disp_scope.
 
 Section Auxiliary.
 
-(* TODO: upstream to Core. *)
-(* Useful when you want to prove [is_iso_disp], and you have some lemma [awesome_lemma] which gives that, but over a different (or just opaque) of [is_iso].  Then you can use [eapply is_iso_disp_independent_of_is_iso. apply awesome_lemma.]. *)  
-Lemma is_iso_disp_independent_of_is_iso
-    {C : Precategory} {D : disp_precat_data C}
-    {x y : C} (f : iso x y) {xx : D x} {yy} (ff : xx ⇒[f] yy)
-    {H'f : is_iso f} (Hff : is_iso_disp ((f : _ ⇒ _),,H'f) ff)
-  : is_iso_disp f ff.
-Proof.
-  destruct f as [F Hf].
-  assert (E : Hf = H'f). apply isaprop_is_iso.
-  destruct E. exact Hff.
-Qed.
-
 End Auxiliary.
 
 (* TODO: move somewhere.  Not sure where? [Constructions]? *)
@@ -120,16 +107,13 @@ Definition counit_over_id {C} {D D' : disp_precat C}
 
 (** Triangle identies for an adjunction *)
 
-(** TODO: currently the statements of these axioms include [_stmt_] to distinguish them from the _instances_ of these statements given by the access functions of [form_adjunction].  Does UniMath have an established naming convention for this distinction anywhere? *)
+(** Note: the statements of these axioms include [_statement_] to distinguish them from the _instances_ of these statements given by the access functions of [form_adjunction].  
 
-(**  maybe this is a beginning of a convention: 
-Check univalenceAxiom.
-univalenceAxiom
-     : univalenceStatement
+This roughly follows the pattern of [univalenceStatement], [funextfunStatement], etc., but departs from it slightly to follow our more general convention of using underscores instead of camelcase.
 *)
 
 
-Definition triangle_1_stmt_over_id  {C} {D D' : disp_precat C}
+Definition triangle_1_statement_over_id  {C} {D D' : disp_precat C}
     (A : adjunction_over_id_data D D')
     (FF := left_adj_over_id A)
     (η := unit_over_id A)
@@ -138,7 +122,7 @@ Definition triangle_1_stmt_over_id  {C} {D D' : disp_precat C}
 := Π x xx, #FF ( η x xx) ;;  ε _ (FF _ xx) 
             = transportb _ (id_left _ ) (id_disp _) .
 
-Definition triangle_2_stmt_over_id  {C} {D D' : disp_precat C}
+Definition triangle_2_statement_over_id  {C} {D D' : disp_precat C}
     (A : adjunction_over_id_data D D')
     (GG := right_adj_over_id A)
     (η := unit_over_id A)
@@ -150,7 +134,7 @@ Definition triangle_2_stmt_over_id  {C} {D D' : disp_precat C}
 Definition form_adjunction_over_id {C} {D D' : disp_precat C}
     (A : adjunction_over_id_data D D')
   : UU
-:= triangle_1_stmt_over_id A × triangle_2_stmt_over_id A.
+:= triangle_1_statement_over_id A × triangle_2_statement_over_id A.
 
 Definition adjunction_over_id {C} (D D' : disp_precat C) : UU
 := Σ A : adjunction_over_id_data D D', form_adjunction_over_id A.
@@ -284,136 +268,17 @@ Coercion equiv_of_is_equiv_over_id
 
 (** ** Lemmas on the triangle identities *)
 
-(* TODO: search in library!  I’m sure I’ve seen it there before, but can’t find it now. If not: upstream. *)
-(*
-Search ( _ = _ -> transportf _ _ _  = _ ).
-transportf_pathsinv0_var:
-  Π (X : UU) (P : X → UU) (x y : X) (p : x = y) (u : P x) 
-  (v : P y), transportf P p u = v → transportf P (! p) v = u
-Utilities.transportf_pathsinv0':
-  Π (X : Type) (P : X → UU) (x y : X) (p : x = y) 
-  (u : P x) (v : P y), transportf P p u = v → transportf P (! p) v = u
-*)
-Lemma transportb_transpose {X : UU} {P : X → UU}
-  {x x' : X} (e : x = x') (y : P x) (y' : P x')
-: transportf P e y = y' -> y = transportb P e y'.
-Proof.
-  intro H; destruct e; exact H.
-Defined.
-
-Lemma transportf_transpose {X : UU} {P : X → UU}
-  {x x' : X} (e : x = x') (y : P x) (y' : P x')
-: transportb P e y' = y -> y' = transportf P e y.
-Proof.
-  intro H; destruct e; exact H.
-Defined.
-
-(* For use when proving a goal of the form [transportf _ e' y = ?], where [?] is an existential variable, and we want to “compute” in [y], but expect the result of that computing to itself end with a transported term.
-
-TODO: consider name!  Currently named by analogy with monad binding operation (e.g. Haskell’s [ >>= ]), to which it has a curious formal similarity. *)
-Lemma transportf_bind {X : UU} {P : X → UU}
-  {x x' x'' : X} (e : x' = x) (e' : x = x'')
-  y y'
-: y = transportf P e y' -> transportf _ e' y = transportf _ (e @ e') y'.
-Proof.
-  intro H; destruct e, e'; exact H.
-Defined.
-
-(* TODO: consider name! Current name sees this as composition of “dependent paths”.
-
-(Unfortunately there’s a variance issue: it’s currently backwards over paths in the base.  However, this is unavoidable given that:
-
-- we want the LHS of the input equalities to be an aribtrary term, *not* a transported term, from the “compute left-to-right” point of view;
-- we want an arbitrary [transportf] on the RHS of the input equalities, so that whatever “computation” produces can be used.
-
-If [transportf] were derived from [transportb], instead of vice versa, then we could use [transportb] on the RHS and this would look much nicer… *)
-Lemma pathscomp0_dep {X : UU} {P : X → UU}
-  {x x' x'' : X} {e : x' = x} {e' : x'' = x'}
-  {y} {y'} {y''}
-: (y = transportf P e y') -> (y' = transportf _ e' y'')
-  -> y = transportf _ (e' @ e) y''.
-Proof.
-  intros ee ee'. refine (ee @ _).
-  apply transportf_bind, ee'.
-Qed.
-
-Tactic Notation "etrans_dep" := eapply @pathscomp0_dep.
-
-(* [etrans_disp]: a version of [etrans_dep] for use when the equality transport in the RHS of the goal is already present, and not of the form produced by [etrans_dep], so [etrans_dep] doesn’t apply.  Where possible, [etrans_dep] should still be used, since it *produces* a RHS, whereas this does not. *)
-Lemma pathscomp0_disp {C} {D : disp_precat C} 
-  {x y} {f f' f'' : x ⇒ y} {e : f' = f} {e' : f'' = f'} {e'' : f'' = f}
-  {xx : D x} {yy}
-  {ff : xx ⇒[f] yy} {ff' : xx ⇒[f'] yy} {ff'' : xx ⇒[f''] yy}
-: (ff = transportf _ e ff') -> (ff' = transportf _ e' ff'')
-  -> ff = transportf _ e'' ff''.
-Proof.
-  intros ee ee'.
-  etrans. eapply pathscomp0_dep. apply ee. apply ee'.
-  apply maponpaths_2, homset_property.
-Qed.
-
-Tactic Notation "etrans_disp" := eapply @pathscomp0_disp.
-
-(* TODO: move these two lemmas, and this documentation line, to [Core].*)
-(** All the axioms are given in two versions, with the transport on different sides, so that they can be invoked easily when either side is known. *) 
-Lemma id_left_disp_var {C} {D : disp_precat C} 
-  {x y} {f : x ⇒ y} {xx : D x} {yy} {ff : xx ⇒[f] yy}
-: ff = transportf _ (id_left _) (id_disp _ ;; ff).
-Proof.
-  apply transportf_transpose.
-  apply @pathsinv0, id_left_disp.
-Qed.
-
-Definition id_right_disp_var {C} {D : disp_precat C} 
-  {x y} {f : x ⇒ y} {xx : D x} {yy} {ff : xx ⇒[f] yy}
-  : ff = transportf _ (id_right _) (ff ;; id_disp _).
-Proof.
-  apply transportf_transpose.
-  apply @pathsinv0, id_right_disp.
-Qed.
-
-(* TODO: consider naming.  This follows the UniMath established lemmas, but those are bad names — cancellation properties normally means things like like [ ax = ay -> x = y ], whereas these lemmas are the converse of that. *)
-Lemma cancel_postcomposition_disp {C} {D : disp_precat C} 
-  {x y z} {f f' : x ⇒ y} {e : f' = f} {g : y ⇒ z}
-  {xx : D x} {yy} {zz}
-  {ff : xx ⇒[f] yy} {ff' : xx ⇒[f'] yy} (gg : yy ⇒[g] zz) 
-  (ee : ff = transportf _ e ff')
-: ff ;; gg = transportf _ (cancel_postcomposition _ _ g e) (ff' ;; gg).
-Proof.
-  etrans. apply maponpaths_2, ee.
-  apply mor_disp_transportf_postwhisker.
-Qed.
-
-Lemma cancel_precomposition_disp {C} {D : disp_precat C} 
-  {x y z} {f : x ⇒ y} {g g' : y ⇒ z} {e : g' = g}
-  {xx : D x} {yy} {zz}
-  (ff : xx ⇒[f] yy) {gg : yy ⇒[g] zz} {gg' : yy ⇒[g'] zz}  
-  (ee : gg = transportf _ e gg')
-: ff ;; gg = transportf _ (cancel_precomposition _ _ _ _ _ _ f e) (ff ;; gg').
-Proof.
-  etrans. apply maponpaths, ee.
-  apply mor_disp_transportf_prewhisker.
-Qed.
-
-(* A useful notation for hiding the huge irrelevant equalities that occur in algebra of displayed categories.
-
-TODO: move and document! 
-
-Level is chosen to bind *tighter* than categorical composition. *)
-Notation "?# x" := (transportf _ _ x) (at level 45) : short_transport.
-Notation "?#' x" := (transportb _ _ x) (at level 45) : short_transport.
-Delimit Scope short_transport with short.
-Local Open Scope short_transport.
+Local Open Scope hide_transport_scope.
 
 Lemma triangle_2_from_1_for_equiv_over_id
   {C} {D D' : disp_precat C}
   (A : adjunction_over_id_data D D')
   (E : form_equiv_over_id A)
-: triangle_1_stmt_over_id A -> triangle_2_stmt_over_id A.
+: triangle_1_statement_over_id A -> triangle_2_statement_over_id A.
 Proof.
   destruct A as [FF [GG [η ε]]].
   destruct E as [Hη Hε]; cbn in Hη, Hε.
-  unfold triangle_1_stmt_over_id, triangle_2_stmt_over_id; cbn.
+  unfold triangle_1_statement_over_id, triangle_2_statement_over_id; cbn.
   intros T1 x yy.
   (* Algebraically, this goes as follows:
   η G ; G ε
@@ -425,11 +290,11 @@ Proof.
   = G ε^ ; η^ G ; η G ; G ε                      [by T1, 6]
   = 1                                            [by inverses, 7]
 
-  It’s very readable when written with string diagrams. *)
+  It’s perhaps most readable when written in string diagrams. *)
   etrans. apply id_left_disp_var.
   etrans. eapply transportf_bind.
     eapply cancel_postcomposition_disp.
-    etrans. eapply transportb_transpose. apply @pathsinv0.
+    etrans. eapply transportf_transpose. apply @pathsinv0.
       refine (iso_disp_after_inv_mor _).
       refine (functor_over_on_is_iso_disp GG _).
       apply Hε. (*1a*)
@@ -438,7 +303,7 @@ Proof.
     etrans. apply id_right_disp_var.
     eapply transportf_bind.
     etrans. eapply cancel_precomposition_disp.
-    eapply transportb_transpose. apply @pathsinv0.
+    eapply transportf_transpose. apply @pathsinv0.
       refine (iso_disp_after_inv_mor _).
       apply (Hη). (*1b*)
     eapply transportf_bind, assoc_disp.
@@ -507,7 +372,7 @@ Lemma triangle_1_from_2_for_equiv_over_id
   {C} {D D' : disp_precat C}
   (A : adjunction_over_id_data D D')
   (E : form_equiv_over_id A)
-: triangle_2_stmt_over_id A -> triangle_1_stmt_over_id A.
+: triangle_2_statement_over_id A -> triangle_1_statement_over_id A.
 Proof.
   (* dual to previous lemma *)
 Admitted.
@@ -526,7 +391,7 @@ Context {C : Precategory} {D' D : disp_precat C}
 
 (** ** Utility lemmas from fullness+faithfulness *)
 
-(* TODO: replace with general ones from core *) 
+(* TODO: inline throughout? *) 
 Let FFweq {x y} xx yy (f : x ⇒ y) := functor_over_ff_weq _ FF_ff xx yy f. 
 Let FFinv {x y} {xx} {yy} {f}
   := @functor_over_ff_inv _ _ _ _ _ _ FF_ff x y xx yy f.
@@ -747,12 +612,12 @@ Proof.
     apply is_iso_disp_from_iso.
 Qed.
 
-Lemma tri_1_GGεη : triangle_1_stmt_over_id GGεη.
+Lemma tri_1_GGεη : triangle_1_statement_over_id GGεη.
 Proof.
   (* TODO: complete this. *)
 Admitted.
 
-Lemma tri_2_GGεη : triangle_2_stmt_over_id GGεη.
+Lemma tri_2_GGεη : triangle_2_statement_over_id GGεη.
 Proof.
   apply triangle_2_from_1_for_equiv_over_id.
   apply form_equiv_GGεη.
@@ -774,52 +639,8 @@ Section Displayed_Equiv_Compose.
 
 End Displayed_Equiv_Compose.
 
+(** * Induced adjunctions/equivalences between fibre precats *)
 Section Equiv_Fibres.
-
-(* TODO: move *)
-Definition fibre_nat_trans {C C' : Precategory}
-  {F : functor C C'}
-  {D D'} {FF FF' : functor_over F D D'}
-  (α : nat_trans_over (nat_trans_id F) FF FF')
-  (c : C)
-: nat_trans (fibre_functor FF c) (fibre_functor FF' c).
-Proof.
-  use tpair; simpl.
-  - intro d. exact (α c d).
-  - unfold is_nat_trans; intros d d' ff; simpl.
-    set (αff := pr2 α _ _ _ _ _ ff); simpl in αff.
-    cbn.
-    etrans. apply maponpaths, mor_disp_transportf_postwhisker.
-    etrans. apply transport_f_f.
-    etrans. apply maponpaths, αff.
-    etrans. apply transport_f_b.
-    apply @pathsinv0.
-    etrans. apply maponpaths, mor_disp_transportf_prewhisker.
-    etrans. apply transport_f_f.
-    apply maponpaths_2, homset_property.
-Defined.
-
-(* TODO: move *)
-Definition is_iso_fibre_from_is_iso_disp
-  {C : Precategory} {D : disp_precat C}
-  {c : C} {d d' : D c} (ff : d ⇒[identity c] d')
-  (Hff : is_iso_disp (identity_iso c) ff)
-: @is_iso (fibre_precategory D c) _ _ ff.
-Proof.
-  apply is_iso_from_is_z_iso.
-  exists (pr1 Hff).
-  mkpair; cbn.
-  + set (H := pr2 (pr2 Hff)).
-    etrans. apply maponpaths, H.
-    etrans. apply transport_f_b.
-    refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
-    apply homset_property.      
-  + set (H := pr1 (pr2 Hff)).
-    etrans. apply maponpaths, H.
-    etrans. apply transport_f_b.
-    refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
-    apply homset_property.
-Qed.
 
 Context {C : Precategory}.
 

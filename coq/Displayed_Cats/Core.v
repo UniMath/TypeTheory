@@ -13,6 +13,10 @@ Two major motivations for displayed categories:
 ** Contents:
 
 - Displayed precategories: [disp_precat C]
+  - various access functions, etc.
+  - utility lemmas
+  - isomorphisms
+  - saturation
 - Total precategories (and their forgetful functors)
   - [total_precat D]
   - [pr1_precat D]
@@ -23,6 +27,8 @@ Two major motivations for displayed categories:
   - natural transformations: [nat_trans_over], …
 - Fibrations
 *)
+
+(* TODO: this file has become large and unwieldy; should probably be split up.  Displayed functors and fibration-ness can certainly be happily split off.  Should total precats stay here, or also be split out? *)
 
 Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
@@ -155,15 +161,36 @@ Definition disp_precat_data_from_disp_precat {C} (D : disp_precat C)
  := pr1 D : disp_precat_data C.
 Coercion disp_precat_data_from_disp_precat : disp_precat >-> disp_precat_data.
 
+(** All the axioms are given in two versions, [foo : T1 = transportb e T2] and [foo_var : T2 = transportf e T1], so that either direction can be invoked easily in “compute left-to-right” style. *)
+
+(* TODO: consider naming conventions? *)
+(* TODO: maybe would be better to have a single [pathsinv0_dep] lemma, or something. *)
+
 Definition id_left_disp {C} {D : disp_precat C} 
   {x y} {f : x ⇒ y} {xx : D x} {yy} {ff : xx ⇒[f] yy}
 : id_disp _ ;; ff = transportb _ (id_left _) ff
 := pr1 (pr2 D) _ _ _ _ _ _.
 
+Lemma id_left_disp_var {C} {D : disp_precat C} 
+  {x y} {f : x ⇒ y} {xx : D x} {yy} {ff : xx ⇒[f] yy}
+: ff = transportf _ (id_left _) (id_disp _ ;; ff).
+Proof.
+  apply transportf_transpose.
+  apply @pathsinv0, id_left_disp.
+Qed.
+
 Definition id_right_disp {C} {D : disp_precat C} 
   {x y} {f : x ⇒ y} {xx : D x} {yy} {ff : xx ⇒[f] yy}
   : ff ;; id_disp _ = transportb _ (id_right _) ff
 := pr1 (pr2 (pr2 D)) _ _ _ _ _ _.
+
+Definition id_right_disp_var {C} {D : disp_precat C} 
+  {x y} {f : x ⇒ y} {xx : D x} {yy} {ff : xx ⇒[f] yy}
+  : ff = transportf _ (id_right _) (ff ;; id_disp _).
+Proof.
+  apply transportf_transpose.
+  apply @pathsinv0, id_right_disp.
+Qed.
 
 Definition assoc_disp {C} {D : disp_precat C}
   {x y z w} {f} {g} {h} {xx : D x} {yy : D y} {zz : D z} {ww : D w}
@@ -186,6 +213,23 @@ Definition homsets_disp {C} {D :disp_precat C} {x y} {f} {xx : D x} {yy : D y}
 
 (** ** Some utility lemmas *)
 Section Lemmas.
+
+(** [etrans_disp]: a version of [etrans_dep] for use when the equality transport in the RHS of the goal is already present, and not of the form produced by [etrans_dep], so [etrans_dep] doesn’t apply.  Where possible, [etrans_dep] should still be used, since it *produces* a RHS, whereas this does not (and so leads to lots of unsolved existentials if used where not needed). 
+
+NOTE: as with [etrans_dep], proofs using [etrans_disp] seem to typecheck more slowly than proofs using [etrans] plus other lemmas directly. *)
+Lemma pathscomp0_disp {C} {D : disp_precat C} 
+  {x y} {f f' f'' : x ⇒ y} {e : f' = f} {e' : f'' = f'} {e'' : f'' = f}
+  {xx : D x} {yy}
+  {ff : xx ⇒[f] yy} {ff' : xx ⇒[f'] yy} {ff'' : xx ⇒[f''] yy}
+: (ff = transportf _ e ff') -> (ff' = transportf _ e' ff'')
+  -> ff = transportf _ e'' ff''.
+Proof.
+  intros ee ee'.
+  etrans. eapply pathscomp0_dep. apply ee. apply ee'.
+  apply maponpaths_2, homset_property.
+Qed.
+
+Tactic Notation "etrans_disp" := eapply @pathscomp0_disp.
 
 Lemma isaprop_disp_precat_axioms (C : Precategory) (D : disp_precat_data C)
   : isaprop (disp_precat_axioms C D).
@@ -243,6 +287,29 @@ Proof.
   apply mor_disp_transportf_prewhisker.
 Qed.
 
+(* TODO: consider naming of [cancel_Xcomposition_disp].  Currently follows the UniMath base lemmas, but those are bad names — cancellation properties traditionally mean things like like [ ax = ay -> x = y ], whereas these lemmas are the converse of that. *)
+Lemma cancel_postcomposition_disp {C} {D : disp_precat C} 
+  {x y z} {f f' : x ⇒ y} {e : f' = f} {g : y ⇒ z}
+  {xx : D x} {yy} {zz}
+  {ff : xx ⇒[f] yy} {ff' : xx ⇒[f'] yy} (gg : yy ⇒[g] zz) 
+  (ee : ff = transportf _ e ff')
+: ff ;; gg = transportf _ (cancel_postcomposition _ _ g e) (ff' ;; gg).
+Proof.
+  etrans. apply maponpaths_2, ee.
+  apply mor_disp_transportf_postwhisker.
+Qed.
+
+Lemma cancel_precomposition_disp {C} {D : disp_precat C} 
+  {x y z} {f : x ⇒ y} {g g' : y ⇒ z} {e : g' = g}
+  {xx : D x} {yy} {zz}
+  (ff : xx ⇒[f] yy) {gg : yy ⇒[g] zz} {gg' : yy ⇒[g'] zz}  
+  (ee : gg = transportf _ e gg')
+: ff ;; gg = transportf _ (cancel_precomposition _ _ _ _ _ _ f e) (ff ;; gg').
+Proof.
+  etrans. apply maponpaths, ee.
+  apply mor_disp_transportf_prewhisker.
+Qed.
+
 End Lemmas.
 
 End Disp_Precat.
@@ -256,6 +323,13 @@ Notation "ff ;; gg" := (comp_disp ff gg)
 Delimit Scope mor_disp_scope with mor_disp.
 Bind Scope mor_disp_scope with mor_disp.
 Local Open Scope mor_disp_scope.
+
+(** A useful notation for hiding the huge irrelevant equalities that occur in algebra of displayed categories.  For individual proofs, use [Open Scope hide_transport_scope.] at the start, and then [Close Scope hide_transport_scope.] afterwards.  For whole files/sections, use [Local Open Scope hide_transport_scope.]
+
+Level is chosen to bind *tighter* than categorical composition, for readability. *)
+(* TODO: consider symbol(s) used. *)
+Notation "#? x" := (transportf _ _ x) (at level 45) : hide_transport_scope.
+Notation "#?' x" := (transportb _ _ x) (at level 45) : hide_transport_scope.
 
 (** * Isomorphisms and (saturated) categories *)
 
@@ -534,6 +608,18 @@ Proof.
     apply transportf_comp_lemma_hset.
     apply (pr2 C). apply idpath.
 Defined.
+
+(* Useful when you want to prove [is_iso_disp], and you have some lemma [awesome_lemma] which gives that, but over a different (or just opaque) proof of [is_iso] in the base.  Then you can use [eapply is_iso_disp_independent_of_is_iso; apply awesome_lemma.]. *)  
+Lemma is_iso_disp_independent_of_is_iso
+    {C : Precategory} {D : disp_precat_data C}
+    {x y : C} (f : iso x y) {xx : D x} {yy} (ff : xx ⇒[f] yy)
+    {H'f : is_iso f} (Hff : is_iso_disp ((f : _ ⇒ _),,H'f) ff)
+  : is_iso_disp f ff.
+Proof.
+  destruct f as [F Hf].
+  assert (E : Hf = H'f). apply isaprop_is_iso.
+  destruct E. exact Hff.
+Qed.
 
 End Isos.
 
@@ -1215,6 +1301,7 @@ Definition functor_over_ff {C C'} {F}
 
 Section ff_reflects_isos.
 
+(* TODO: Try making FF implicit, since it can be inferred from [FF_ff]. *)
 Context {C C' : Precategory}
         {F : functor C C'}
         {D : disp_precat C}
