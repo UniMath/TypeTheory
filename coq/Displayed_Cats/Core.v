@@ -246,15 +246,6 @@ Proof.
     + apply (@homsets_disp _ XR).
     + apply isapropiscontr.
 Qed.
-      
-Lemma compl_disp_transp {C : Precategory} {D : disp_precat_data C}
-    {x y z : C} {f f' : x ⇒ y} (ef : f = f') {g : y ⇒ z}
-    {xx : D x} {yy} {zz} (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
-  : (transportf _ ef ff) ;; gg
-  = transportf _ (maponpaths (fun k => k ;; _)%mor ef) (ff ;; gg).
-Proof.
-  destruct ef. apply idpath.
-Qed.
 
 (* TODO: consider naming of following few transport lemmas *)
 Lemma mor_disp_transportf_postwhisker
@@ -277,7 +268,17 @@ Proof.
   destruct eg; apply idpath.
 Qed.
 
-(* TODO: unify with [mor_disp_transportf_prewhisker] *)
+(* TODO: deprecated; replace with [mor_disp_transportf_postwhisker] throughout, then kill this. *)
+Lemma compl_disp_transp {C : Precategory} {D : disp_precat_data C}
+    {x y z : C} {f f' : x ⇒ y} (ef : f = f') {g : y ⇒ z}
+    {xx : D x} {yy} {zz} (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
+  : (transportf _ ef ff) ;; gg
+  = transportf _ (maponpaths (fun k => k ;; _)%mor ef) (ff ;; gg).
+Proof.
+  destruct ef. apply idpath.
+Qed.
+
+(* TODO: deprecated; replace with [mor_disp_transportf_prewhisker] throughout, then kill this. *)
 Lemma compr_disp_transp {C : Precategory} {D : disp_precat_data C}
     {x y z : C} {f : x ⇒ y} {g g' : y ⇒ z} (eg : g = g')
     {xx : D x} {yy} {zz} (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
@@ -287,6 +288,8 @@ Proof.
   apply mor_disp_transportf_prewhisker.
 Qed.
 
+(* TODO: use the following lemmas in more of the displayed category proofs. Most instances of [mor_disp_transportf_Xwhisker] are places that can be simplified with these. *)
+ 
 (* TODO: consider naming of [cancel_Xcomposition_disp].  Currently follows the UniMath base lemmas, but those are bad names — cancellation properties traditionally mean things like like [ ax = ay -> x = y ], whereas these lemmas are the converse of that. *)
 Lemma cancel_postcomposition_disp {C} {D : disp_precat C} 
   {x y z} {f f' : x ⇒ y} {e : f' = f} {g : y ⇒ z}
@@ -1586,7 +1589,7 @@ Defined.
 (** composition of nat_trans_over *)
 
 
-
+(* TODO: split out data from axioms? *)
 Definition nat_trans_over_comp
   {C' C : Precategory} 
   {F'' F' F : functor_data C' C}

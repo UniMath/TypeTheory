@@ -305,7 +305,7 @@ Proof.
 Defined.
 
 
-(* Very handy for reasoning with “dependent paths” — e.g. for algebra in displayed categories.  TODO: perhaps upstream to UniMath?
+(** Very handy for reasoning with “dependent paths” — e.g. for algebra in displayed categories.  TODO: perhaps upstream to UniMath?
 
 Note: similar to [transportf_pathsinv0_var], [transportf_pathsinv0'], but not quite a special case of them, or (as far as I can find) any other library lemma.
 *)
@@ -317,9 +317,11 @@ Proof.
 Defined.
 
 
-(* For use when proving a goal of the form [transportf _ e' y = ?], where [?] is an existential variable, and we want to “compute” in [y], but expect the result of that computing to itself end with a transported term.
+(** For use when proving a goal of the form [transportf _ e' y = ?], where [?] is an existential variable, and we want to “compute” in [y], but expect the result of that computing to itself end with a transported term.
 
-TODO: consider name!  Currently named by analogy with monad binding operation (e.g. Haskell’s [ >>= ]), to which it has a curious formal similarity. *)
+Currently named by analogy with monad binding operation (e.g. Haskell’s [ >>= ]), to which it has a curious formal similarity. *)
+(* TODO: consider name! *)
+(* TODO: try using this in more of the algebraic displayed categories proofs. Frequent use of [transport_f_f] is a sure sign that this would be helpful. *)
 Lemma transportf_bind {X : UU} {P : X → UU}
   {x x' x'' : X} (e : x' = x) (e' : x = x'')
   y y'
