@@ -442,7 +442,7 @@ Proof.
   - set (X:= pr1 H). simpl in X.
     apply (transportb _ (pointwise_inv_is_inv_on f _ ) (X x' xx')).
   - simpl. repeat split.
-    + etrans. apply compl_disp_transp.
+    + etrans. apply mor_disp_transportf_postwhisker.
       apply pathsinv0.
       apply transportf_comp_lemma.
       assert (XR:= pr1 (pr2 H)).

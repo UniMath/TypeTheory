@@ -268,28 +268,7 @@ Proof.
   destruct eg; apply idpath.
 Qed.
 
-(* TODO: deprecated; replace with [mor_disp_transportf_postwhisker] throughout, then kill this. *)
-Lemma compl_disp_transp {C : Precategory} {D : disp_precat_data C}
-    {x y z : C} {f f' : x ⇒ y} (ef : f = f') {g : y ⇒ z}
-    {xx : D x} {yy} {zz} (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
-  : (transportf _ ef ff) ;; gg
-  = transportf _ (maponpaths (fun k => k ;; _)%mor ef) (ff ;; gg).
-Proof.
-  destruct ef. apply idpath.
-Qed.
-
-(* TODO: deprecated; replace with [mor_disp_transportf_prewhisker] throughout, then kill this. *)
-Lemma compr_disp_transp {C : Precategory} {D : disp_precat_data C}
-    {x y z : C} {f : x ⇒ y} {g g' : y ⇒ z} (eg : g = g')
-    {xx : D x} {yy} {zz} (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
-  : ff ;; (transportf _ eg gg)
-  = transportf _ (maponpaths (fun k => _ ;; k)%mor eg) (ff ;; gg).
-Proof.
-  apply mor_disp_transportf_prewhisker.
-Qed.
-
-(* TODO: use the following lemmas in more of the displayed category proofs. Most instances of [mor_disp_transportf_Xwhisker] are places that can be simplified with these. *)
- 
+(* TODO: use the following lemmas in more of the displayed category proofs. Most instances of [mor_disp_transportf_Xwhisker] are places that can be simplified with these. *) 
 (* TODO: consider naming of [cancel_Xcomposition_disp].  Currently follows the UniMath base lemmas, but those are bad names — cancellation properties traditionally mean things like like [ ax = ay -> x = y ], whereas these lemmas are the converse of that. *)
 Lemma cancel_postcomposition_disp {C} {D : disp_precat C} 
   {x y z} {f f' : x ⇒ y} {e : f' = f} {g : y ⇒ z}
@@ -919,28 +898,28 @@ Definition reindex_disp_precat_axioms : disp_precat_axioms C' reindex_disp_preca
 Proof.
   repeat apply tpair; cbn.
   - intros x y f xx yy ff. 
-    eapply pathscomp0. apply maponpaths, compl_disp_transp.
+    eapply pathscomp0. apply maponpaths, mor_disp_transportf_postwhisker.
     eapply pathscomp0. apply transport_b_f.
     eapply pathscomp0. apply maponpaths, id_left_disp.
     eapply pathscomp0. apply transport_f_b.
     eapply pathscomp0. Focus 2. apply @pathsinv0, (functtransportb (# F)).
     unfold transportb; apply maponpaths_2, homset_property.
   - intros x y f xx yy ff. 
-    eapply pathscomp0. apply maponpaths, compr_disp_transp.
+    eapply pathscomp0. apply maponpaths, mor_disp_transportf_prewhisker.
     eapply pathscomp0. apply transport_b_f.
     eapply pathscomp0. apply maponpaths, id_right_disp.
     eapply pathscomp0. apply transport_f_b.
     eapply pathscomp0. Focus 2. apply @pathsinv0, (functtransportb (# F)).
     unfold transportb; apply maponpaths_2, homset_property.
   - intros x y z w f g h xx yy zz ww ff gg hh.
-    eapply pathscomp0. apply maponpaths, compr_disp_transp.
+    eapply pathscomp0. apply maponpaths, mor_disp_transportf_prewhisker.
     eapply pathscomp0. apply transport_b_f.
     eapply pathscomp0. apply maponpaths, assoc_disp.
     eapply pathscomp0. apply transport_f_b.
     apply pathsinv0.
     eapply pathscomp0. apply (functtransportb (# F)).
     eapply pathscomp0. apply transport_b_b.
-    eapply pathscomp0. apply maponpaths, compl_disp_transp.
+    eapply pathscomp0. apply maponpaths, mor_disp_transportf_postwhisker.
     eapply pathscomp0. apply transport_b_f.
     unfold transportb; apply maponpaths_2, homset_property.
   - intros; apply homsets_disp.
@@ -1613,7 +1592,7 @@ Proof.
     apply transportf_comp_lemma;
     apply Utilities.transportf_pathsinv0; apply pathsinv0;
     rewrite (nat_trans_over_ax b');
-    etrans; [ apply compl_disp_transp |];
+    etrans; [ apply mor_disp_transportf_postwhisker |];
     apply transportf_comp_lemma;
     apply pathsinv0;
     etrans; [ apply assoc_disp_var |];
