@@ -645,6 +645,50 @@ Section Displayed_Equiv_Compose.
 
 End Displayed_Equiv_Compose.
 
+Section Displayed_Equiv_Inv.
+
+Context {C : Precategory} {D' D : disp_precat C}
+        (FF : functor_over (functor_identity _) D' D)
+        (isEquiv : is_equiv_over_id FF).
+
+Let GG : functor_over _ D D' := right_adjoint_of_is_equiv_over_id isEquiv.
+Let η : nat_trans_over (nat_trans_id (functor_identity C)) 
+                       (functor_over_identity D')
+                       (functor_over_composite FF GG)
+  := unit_over_id isEquiv.
+
+Let ε :  nat_trans_over
+           (nat_trans_id (functor_identity C))
+           (functor_over_composite GG FF)
+           (functor_over_identity D)
+  := counit_over_id isEquiv.
+
+Definition η_inv : nat_trans_over (nat_trans_id (functor_identity C))
+    (functor_over_identity D) (functor_over_composite GG FF).
+Proof.
+  mkpair.
+  - intros x xx. cbn.
+    set (eps := is_iso_counit_over_id isEquiv). cbn in eps.
+    specialize (eps x xx).
+    apply (inv_mor_disp_from_iso eps).
+  - intros x y f xx yy ff. simpl.
+    cbn.
+    apply pathsinv0.
+    set (XR := @mor_disp_transportf_postwhisker).
+    admit.
+Abort.
+
+Definition equiv_inv : is_equiv_over_id GG.
+Proof.
+  mkpair.
+  - mkpair. 
+    + exists FF.
+      mkpair.
+      * cbn.
+Abort.
+
+End Displayed_Equiv_Inv.
+
 (** * Induced adjunctions/equivalences between fibre precats *)
 Section Equiv_Fibres.
 
