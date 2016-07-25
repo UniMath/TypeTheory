@@ -375,7 +375,7 @@ Lemma triangle_1_from_2_for_equiv_over_id
 : triangle_2_statement_over_id A -> triangle_1_statement_over_id A.
 Proof.
   (* dual to previous lemma *)
-Admitted.
+Abort.
 
 (* TODO: adjointification of a quasi-equivalence. *)
 
@@ -383,6 +383,7 @@ End Equivalences.
 
 (** * Full + faithful + ess split => equivalence *)
 Section Equiv_from_ff_plus_ess_split.
+(* TODO: consider naming throughout this section!  Especially: anything with [ses] should be fixed. *)
 
 Context {C : Precategory} {D' D : disp_precat C}
         (FF : functor_over (functor_identity _) D' D)
@@ -449,6 +450,7 @@ Qed.
 
 (** ** Converse functor *)
 
+(* TODO: does [Local Definition] actually keep it local?  It seems not — e.g. [Print GG_data] still works after the section closes. Is there a way to actually keep them local?  If not, find less generic names for [GG] and its components. *) 
 Local Definition GG_data : functor_over_data (functor_identity _ ) D D'.
 Proof.
   mkpair.
@@ -614,8 +616,12 @@ Qed.
 
 Lemma tri_1_GGεη : triangle_1_statement_over_id GGεη.
 Proof.
-  (* TODO: complete this. *)
-Admitted.
+  intros x xx; cbn.
+  unfold ε_ses_ff_data, η_ses_ff_data.
+  etrans. apply maponpaths_2; use homotweqinvweq. 
+  etrans. exact (iso_disp_after_inv_mor (pr2 (FF_split _ _))).
+  apply maponpaths_2, homset_property.
+Qed.
 
 Lemma tri_2_GGεη : triangle_2_statement_over_id GGεη.
 Proof.
