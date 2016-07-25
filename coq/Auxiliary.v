@@ -307,6 +307,7 @@ Proof.
   exact ex.
 Qed.
 
+(* TODO: redundant: replace with general-purpose [maponpaths_2]. *)
 Lemma transportf_ext (X : UU) (B : X -> UU) (A A' : X) (e e' : A = A') p :
   e = e' -> transportf _ e p = transportf B e' p.
 Proof.

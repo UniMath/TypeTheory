@@ -22,6 +22,23 @@ Local Set Automatic Introduction.
 Local Open Scope type_scope.
 Local Open Scope mor_disp_scope.
 
+Section Auxiliary.
+
+(* TODO: upstream to Core. *)
+(* Useful when you want to prove [is_iso_disp], and you have some lemma [awesome_lemma] which gives that, but over a different (or just opaque) of [is_iso].  Then you can use [eapply is_iso_disp_independent_of_is_iso. apply awesome_lemma.]. *)  
+Lemma is_iso_disp_independent_of_is_iso
+    {C : Precategory} {D : disp_precat_data C}
+    {x y : C} (f : iso x y) {xx : D x} {yy} (ff : xx ⇒[f] yy)
+    {H'f : is_iso f} (Hff : is_iso_disp ((f : _ ⇒ _),,H'f) ff)
+  : is_iso_disp f ff.
+Proof.
+  destruct f as [F Hf].
+  assert (E : Hf = H'f). apply isaprop_is_iso.
+  destruct E. exact Hff.
+Qed.
+
+End Auxiliary.
+
 (* TODO: move somewhere.  Not sure where? [Constructions]? *)
 Section Essential_Surjectivity.
 
@@ -508,50 +525,29 @@ Context {C : Precategory} {D' D : disp_precat C}
         (FF_ff : functor_over_ff FF).
 
 (** ** Utility lemmas from fullness+faithfulness *)
- 
-Let FFweq {x y} {xx yy} f := weqpair _ (FF_ff x y xx yy f).
-Let FFinv {x y} {xx yy} f := invmap (@FFweq x y xx yy f).
 
-Lemma FFinv_identity {x : C} (xx : D' x)
-  : FFinv (identity _) (id_disp (FF _ xx))
-  = id_disp xx.
-Proof.
-  apply invmap_eq. cbn.
-  apply pathsinv0. 
-  apply (functor_over_id FF).
-Qed.
+(* TODO: replace with general ones from core *) 
+Let FFweq {x y} xx yy (f : x ⇒ y) := functor_over_ff_weq _ FF_ff xx yy f. 
+Let FFinv {x y} {xx} {yy} {f}
+  := @functor_over_ff_inv _ _ _ _ _ _ FF_ff x y xx yy f.
 
-Lemma FFinv_compose (x y z : C) (f : x ⇒ y) (g : y ⇒ z)
-    (xx : D' x) (yy : D' y) (zz : D' z) 
-    (ff : FF _ xx ⇒[f] FF _ yy) (gg : FF _ yy ⇒[g] FF _ zz)
-  : FFinv (f ;; g) (ff ;; gg) = FFinv f ff ;; FFinv _ gg.
-Proof.
-  apply invmap_eq. cbn.
-  apply pathsinv0.
-  etrans. apply (functor_over_comp FF).
-  cbn; unfold idfun. etrans.
-  - apply maponpaths, (homotweqinvweq (FFweq _ )).
-  - apply maponpaths_2, (homotweqinvweq (FFweq _ )).
-Qed.
-
+(* TODO: once [functor_over_ff_transportf_gen] is done, replace this with that. *) 
 Lemma FFinv_transportf
     {x y : C} {f f' : x ⇒ y} (e : f = f')
     {xx : D' x} {yy : D' y} (ff : FF _ xx ⇒[f] FF _ yy)
-  : FFinv _ (transportf _ e ff) = transportf _ e (FFinv _ ff).
+  : FFinv (transportf _ e ff) = transportf _ e (FFinv ff).
 Proof.
-  induction e.
-  apply idpath.
+  destruct e. apply idpath.
 Qed.
 
-
-(** TODO: opacify proof part **)
+(* TODO: once more general [functor_over_ff_reflects_isos] is done, kill this and replace it with that. *)
 Definition functor_over_id_ff_reflects_isos 
   {x y} {xx : D' x} {yy : D' y} {f : iso x y}
   (ff : xx ⇒[ f ] yy) (isiso: is_iso_disp f (# FF ff)) 
   : is_iso_disp _ ff.
 Proof.
   set (FFffinv := inv_mor_disp_from_iso isiso). 
-  set (ffinv := FFinv _ FFffinv).
+  set (ffinv := FFinv FFffinv).
   exists ffinv.
   split.
   - unfold ffinv. unfold FFffinv.
@@ -575,20 +571,15 @@ Proof.
     etrans. apply maponpaths. apply functor_over_id.
     etrans. apply transport_f_f.
     apply transportf_ext. apply homset_property.
-Defined.
+Qed.
 
 Definition FFinv_on_iso_is_iso   {x y} {xx : D' x} {yy : D' y} {f : iso x y}
-  (ff : FF _ xx ⇒[ f ] FF _ yy) (isiso: is_iso_disp f ff) 
-  : is_iso_disp _ (FFinv _ ff).
+  (ff : FF _ xx ⇒[ f ] FF _ yy) (Hff: is_iso_disp f ff) 
+  : is_iso_disp _ (FFinv ff).
 Proof.
   apply functor_over_id_ff_reflects_isos.
-  assert (XR := homotweqinvweq (@FFweq _ _ xx yy f)).
-  specialize (XR ff).
-  match goal with |[ H : is_iso_disp f ?FF |- is_iso_disp f ?EE] => 
-             assert (XRTT : EE = FF) end.
-  { apply XR. }
-  rewrite XRTT. 
-  assumption.
+  refine (transportf _ _ Hff).
+  apply @pathsinv0. use homotweqinvweq.
 Qed.
 
 (** ** Converse functor *)
@@ -624,8 +615,8 @@ Proof.
     etrans. Focus 2. apply @pathsinv0.
       etrans. apply (functor_over_comp FF).
       etrans. apply maponpaths.
-        etrans. apply maponpaths, (homotweqinvweq (FFweq _ )).
-        apply maponpaths_2, (homotweqinvweq (FFweq _ )).
+        etrans. apply maponpaths; use homotweqinvweq.
+        apply maponpaths_2; use homotweqinvweq.
       etrans. apply maponpaths.
         etrans. apply mor_disp_transportf_prewhisker.
         apply maponpaths.
@@ -665,15 +656,6 @@ Qed.
 
 Definition GG : functor_over _ _ _ := (_ ,, GG_ax).
 
-
-(* Alternate typing for ε, using the displayed functor category:
-
-     (functor_over_composite GG FF : (disp_functor_precat _ _ D D) _ ) 
-    ⇒[ @identity_iso (functor_precategory C C (homset_property C)) _ ] 
-     functor_over_identity _ 
-
-*)
-
 Definition ε_ses_ff_data
   : nat_trans_over_data (nat_trans_id _ )
       (functor_over_composite GG FF) (functor_over_identity _ )
@@ -682,7 +664,7 @@ Definition ε_ses_ff_data
 Lemma ε_ses_ff_ax : nat_trans_over_axioms ε_ses_ff_data.
 Proof.
   intros x y f xx yy ff. cbn. unfold ε_ses_ff_data.
-  etrans. apply maponpaths_2, (homotweqinvweq (FFweq _ )).
+  etrans. apply maponpaths_2; use homotweqinvweq.
   etrans. apply mor_disp_transportf_postwhisker.
   etrans. apply maponpaths.
     etrans. apply assoc_disp_var.
@@ -717,8 +699,8 @@ Proof.
   intros x y f xx yy ff. cbn. unfold η_ses_ff_data.
   (* This feels a bit roundabout.  Can it be simplified? *)
   apply @pathsinv0.
-  etrans. apply maponpaths.
-    etrans. apply @pathsinv0, FFinv_compose.
+  etrans. eapply maponpaths.
+    etrans. apply @pathsinv0, functor_over_ff_inv_compose.
     apply maponpaths.
     etrans. apply mor_disp_transportf_prewhisker.
     apply maponpaths.
@@ -742,7 +724,7 @@ Proof.
   etrans. apply transport_f_f.
   apply transportf_comp_lemma_hset.
     apply homset_property.
-  etrans. apply FFinv_compose.
+  etrans. apply (functor_over_ff_inv_compose _ FF_ff).
   apply maponpaths_2, homotinvweqweq.
 Qed.
 
@@ -754,30 +736,13 @@ Definition η_ses_ff
 Definition GGεη : right_adjoint_over_id_data FF
   := (GG,, (η_ses_ff,, ε_ses_ff)).
 
-(** TODO: this might be the worst proof one can write **)
 Lemma form_equiv_GGεη : form_equiv_over_id GGεη.
 Proof.
   split; intros x xx; cbn.
   - unfold η_ses_ff_data.
-    set (XR:= @FFinv_on_iso_is_iso).
-    apply (XR _ _ _ _ (identity_iso _ )); clear XR.
-    set (XT := is_iso_inv_from_iso_disp (pr2 (FF_split x (FF x xx)))).
-    Search (iso_inv_from_iso (identity_iso _ )).
-    match goal with |[ XT : is_iso_disp ?EE _ |- is_iso_disp ?FF _ ]
-         => assert (XX : EE = FF) end.
-    { apply iso_inv_of_iso_id. }
-    set (XR := @is_iso_disp_base_eq _ D _ _ _ _ XX _ _ _ XT).
-    Check ( (maponpaths
-               (morphism_from_iso C ((functor_identity C) x)
-                  ((functor_identity C) x)) XX)).
-    assert ( TT : (maponpaths
-               (morphism_from_iso C ((functor_identity C) x)
-                  ((functor_identity C) x)) XX) = idpath _ ).
-    { apply homset_property. }
-    rewrite TT in XR.
-    Search (transportf _ (idpath _ ) _ = _ ).
-    rewrite idpath_transportf in XR.
-    apply XR.
+    apply (@FFinv_on_iso_is_iso _ _ _ _ (identity_iso _)).
+    eapply is_iso_disp_independent_of_is_iso. 
+    exact (@is_iso_inv_from_iso_disp _ _ _ _ (identity_iso _) _ _ _).
   - unfold ε_ses_ff_data.
     apply is_iso_disp_from_iso.
 Qed.
@@ -847,11 +812,6 @@ Proof.
   + set (H := pr2 (pr2 Hff)).
     etrans. apply maponpaths, H.
     etrans. apply transport_f_b.
-    (* TODO: the following slightly cumbersome step is used in several spots.  Is there a lemma for it?  If not, make one? *)
-(*    apply transportf_comp_lemma_hset. 
-      is a lemma crafted by PLL that might be applied here; 
-      a variant with only [x] would be useful
-                    *)
     refine (@maponpaths_2 _ _ _ _ _ (paths_refl _) _ _).
     apply homset_property.      
   + set (H := pr1 (pr2 Hff)).

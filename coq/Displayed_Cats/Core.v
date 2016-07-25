@@ -342,18 +342,15 @@ Proof.
   apply subtypeEquality; intro; apply isaprop_is_iso_disp.
 Qed.
 
-Lemma is_iso_disp_base_eq {C : Precategory} {D : disp_precat C}
-    {x y : C} (f f' : iso x y) 
-    (e : f = f')
-    {xx : D x} {yy} 
-    (ff : xx ⇒[f] yy)
-    (is : is_iso_disp _ ff) 
-    : 
-    is_iso_disp f' (transportf _ (maponpaths _ e) ff).
+Lemma is_iso_disp_transportf {C : Precategory} {D : disp_precat C}
+    {x y : C} {f f' : iso x y} (e : f = f')
+    {xx : D x} {yy} {ff : xx ⇒[f] yy}
+    (is : is_iso_disp _ ff)
+  : is_iso_disp f' (transportf _ (maponpaths _ e) ff).
 Proof.
   induction e.
   apply is.
-Defined.
+Qed.
 
 Definition is_iso_inv_from_iso_disp {C : Precategory} {D : disp_precat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
@@ -1225,30 +1222,26 @@ Context {C C' : Precategory}
         (FF : functor_over F D D')
         (FF_ff : functor_over_ff FF).
 
-Definition functor_over_ff_weq {x y} {xx yy} f := weqpair _ (FF_ff x y xx yy f).
-Definition functor_over_ff_inv {x y} {xx yy} f 
-  := invmap (@functor_over_ff_weq x y xx yy f).
+Definition functor_over_ff_weq {x y} xx yy f
+  := weqpair _ (FF_ff x y xx yy f).
+Definition functor_over_ff_inv {x y} {xx} {yy} {f : x ⇒ y}  
+  := invmap (functor_over_ff_weq xx yy f).
 
-
-(** TODO: in the following lemma, it is better to 
-          compute a proof of [f = f'] from a given
-          proof of [#F f = #F f'], using [invmaponpathsweq]
-*)
-
+(* TODO: add a general version [functor_over_ff_inv_transportf], where the transportf on the LHS is arbitrary. *) 
 Lemma functor_over_ff_inv_transportf
     {x y : C} {f f' : x ⇒ y} (e : f = f')
     {xx : D x} {yy : D y} (ff : FF _ xx ⇒[#F f] FF _ yy)
-  : functor_over_ff_inv _ (transportf _ (maponpaths (# F )%mor e) ff) 
+  : functor_over_ff_inv (transportf _ (maponpaths (# F )%mor e) ff) 
     = 
-    transportf _ e (functor_over_ff_inv _ ff).
+    transportf _ e (functor_over_ff_inv ff).
 Proof.
   induction e.
   apply idpath.
 Qed.
 
+(* TODO: move the transport to the RHS. *)
 Lemma functor_over_ff_inv_identity {x : C} (xx : D x)
-  : 
-    (functor_over_ff_inv _  (transportb _ (functor_id F _ ) (id_disp (FF _ xx))))
+  : functor_over_ff_inv (transportb _ (functor_id F _ ) (id_disp (FF _ xx)))
   = id_disp xx.
 Proof.
   apply invmap_eq. 
@@ -1256,21 +1249,19 @@ Proof.
   apply (functor_over_id FF).
 Qed.
 
-Lemma functor_over_ff_inv_compose (x y z : C) (f : x ⇒ y) (g : y ⇒ z)
-    (xx : D x) (yy : D y) (zz : D z)
+(* TODO: move the transport to the RHS. *)
+Lemma functor_over_ff_inv_compose {x y z : C} {f : x ⇒ y} {g : y ⇒ z}
+    {xx} {yy} {zz}
     (ff : FF _ xx ⇒[#F f] FF _ yy) (gg : FF _ yy ⇒[#F g] FF _ zz)
-  : functor_over_ff_inv (f ;; g) 
-                        (transportb _ (functor_comp F _ _ _ _ _ ) (ff ;; gg)) 
-    = 
-    functor_over_ff_inv f ff ;; functor_over_ff_inv _ gg.
+  : functor_over_ff_inv (transportb _ (functor_comp F _ _ _ _ _ ) (ff ;; gg)) 
+  = functor_over_ff_inv ff ;; functor_over_ff_inv gg.
 Proof.
   apply invmap_eq. cbn.
   apply pathsinv0.
   etrans. apply (functor_over_comp FF).
   apply maponpaths.
-  etrans. apply maponpaths. apply (homotweqinvweq (functor_over_ff_weq _ )).
-  etrans. apply maponpaths_2. apply (homotweqinvweq (functor_over_ff_weq _ )).
-  apply idpath.
+  etrans. apply maponpaths. exact (homotweqinvweq _ _).
+  apply maponpaths_2. exact (homotweqinvweq _ _).
 Qed.
 
 Definition functor_over_ff_reflects_isos 
@@ -1280,7 +1271,7 @@ Definition functor_over_ff_reflects_isos
 Proof.
   set (FFffinv := inv_mor_disp_from_iso isiso). 
   set (FFffinv' := transportb _ (functor_on_inv_from_iso _ _ _ _ _ _ ) FFffinv).
-  set (ffinv := functor_over_ff_inv _ FFffinv').
+  set (ffinv := functor_over_ff_inv FFffinv').
   exists ffinv.
   split.
   - unfold ffinv. unfold FFffinv'.
