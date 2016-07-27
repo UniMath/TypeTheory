@@ -181,7 +181,7 @@ Proof.
     simpl. cbn.
  
   admit.
-Admitted.
+Abort.
 
 (* TODO: above here and below here are two mostly separate approaches to [is_category_obj_ext].  Once one is complete, most of the other can probably be pruned *)
 
@@ -318,8 +318,8 @@ Defined.
 Lemma funextsec_idpath (T : UU) (P : T -> UU) (f : forall t, P t)
   : funextsec P f f (fun t => idpath _) = idpath _.
 Proof.
-  (* equal since they become equal after applying [toforallpaths], which is an equivalence and hence injective *)
-Admitted.
+  apply invmap_eq. apply idpath.
+Defined.
 
 (* TODO: name *)
 Lemma foo2 {X X' : obj_ext_Precat C} (e : X = X')
@@ -354,7 +354,7 @@ Proof.
     etrans. apply maponpaths_2. apply maponpaths.
     eapply (maponpaths pr1).
     (* lemma foo2 above: [φ] of an [idtoiso] is… what? *) 
-Admitted.
+Abort.
 
 (* TODO: move *) 
 Lemma isaprop_whatever
