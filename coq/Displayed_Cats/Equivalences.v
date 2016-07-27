@@ -657,7 +657,7 @@ Lemma inv_ax : nat_trans_over_axioms
     (λ (x : C) (xx : D' x), @inv_mor_disp_from_iso _ _ _ _ (identity_iso _ ) _  _ _ (Ha x xx)).
 *)
 
-Lemma inv_ax : @nat_trans_over_axioms C C (functor_identity_data C)
+Local Lemma inv_ax : @nat_trans_over_axioms C C (functor_identity_data C)
     (functor_identity_data C) (@nat_trans_id C C (functor_identity_data C))
     D' D GG FF
     (λ (x : C) (xx : D' x),
@@ -708,7 +708,7 @@ Proof.
     apply homset_property.
 Qed.
 
-Definition inv : nat_trans_over (nat_trans_id _ ) GG FF.
+Local Definition inv : nat_trans_over (nat_trans_id _ ) GG FF.
 Proof.
   mkpair.
   - intros x xx.
@@ -753,15 +753,35 @@ Proof.
   apply (is_iso_unit_over_id isEquiv).
 Defined.  
 
-Definition equiv_inv : is_equiv_over_id GG.
+Definition inv_adjunction_data : adjunction_over_id_data D D'.
 Proof.
-  mkpair.
-  - mkpair. 
-    + exists FF.
-      exists η_inv.
-      exact ε_inv.
-    + mkpair.
-      * intros x xx. cbn.
+  exists GG.
+  exists FF.
+  exists η_inv.
+  exact ε_inv.
+Defined.
+
+Lemma form_equiv_inv_adjunction_data : form_equiv_over_id inv_adjunction_data.
+Proof.
+  cbn. mkpair.
+    + intros. cbn. 
+      set (XR:= @is_iso_inv_from_is_iso_disp). 
+      specialize (XR _ D _  _ _ _ _ _ (  is_iso_counit_over_id (pr2 isEquiv) x xx)).
+      cbn in XR. 
+      eapply is_iso_disp_independent_of_is_iso.
+      apply XR.
+    + intros. cbn.
+      set (XR:= @is_iso_inv_from_is_iso_disp). 
+      specialize (XR _ D' _  _ _ _ _ _ (  is_iso_unit_over_id (pr2 isEquiv) x xx)).
+      cbn in XR. 
+      eapply is_iso_disp_independent_of_is_iso.
+      apply XR.
+Qed.
+
+Lemma inv_triangle_1_statement_over_id 
+  : triangle_1_statement_over_id inv_adjunction_data.
+Proof.
+  intros x xx. cbn.
         set (XR:= @iso_disp_precomp).
         set (Gepsxxx := (#GG (ε x xx))). 
         set (RG := @functor_over_on_is_iso_disp _ _ (functor_identity C)).
@@ -842,22 +862,26 @@ Proof.
         etrans. apply transport_f_f.
         apply transportf_ext.
         apply homset_property.
-      * intros x xx. cbn.
-        admit.
-  - cbn. mkpair.
-    + intros. cbn. 
-      set (XR:= @is_iso_inv_from_is_iso_disp). 
-      specialize (XR _ D _  _ _ _ _ _ (  is_iso_counit_over_id (pr2 isEquiv) x xx)).
-      cbn in XR. 
-      eapply is_iso_disp_independent_of_is_iso.
-      apply XR.
-    + intros. cbn.
-      set (XR:= @is_iso_inv_from_is_iso_disp). 
-      specialize (XR _ D' _  _ _ _ _ _ (  is_iso_unit_over_id (pr2 isEquiv) x xx)).
-      cbn in XR. 
-      eapply is_iso_disp_independent_of_is_iso.
-      apply XR.
-Abort.
+Qed.
+
+Lemma inv_triangle_2_statement_over_id 
+  : triangle_2_statement_over_id inv_adjunction_data.
+Proof.
+  apply triangle_2_from_1_for_equiv_over_id.
+  - apply form_equiv_inv_adjunction_data.
+  - apply inv_triangle_1_statement_over_id.
+Qed.  
+
+
+Definition equiv_inv : is_equiv_over_id GG.
+Proof.
+  mkpair.
+  - mkpair. 
+    + exact (FF,, (η_inv,, ε_inv)).
+    + mkpair. cbn. apply inv_triangle_1_statement_over_id.
+      apply inv_triangle_2_statement_over_id.
+  - apply form_equiv_inv_adjunction_data.
+Defined.      
 
 End Displayed_Equiv_Inv.
 
@@ -911,9 +935,5 @@ Defined.
 End Equiv_Fibres.
 
 (* *)
-
-
-
-
 
 
