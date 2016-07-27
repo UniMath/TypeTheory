@@ -645,6 +645,80 @@ Section Displayed_Equiv_Compose.
 
 End Displayed_Equiv_Compose.
 
+Section foo.
+
+Context {C : Precategory} {D' D : disp_precat C}
+        {FF GG : functor_over (functor_identity _) D' D}
+        (alpha : nat_trans_over (nat_trans_id _ ) FF GG)
+        (Ha : Π x xx, is_iso_disp (identity_iso _ ) (alpha x xx)).
+
+(*
+Lemma inv_ax : nat_trans_over_axioms
+    (λ (x : C) (xx : D' x), @inv_mor_disp_from_iso _ _ _ _ (identity_iso _ ) _  _ _ (Ha x xx)).
+*)
+
+Lemma inv_ax : @nat_trans_over_axioms C C (functor_identity_data C)
+    (functor_identity_data C) (@nat_trans_id C C (functor_identity_data C))
+    D' D GG FF
+    (λ (x : C) (xx : D' x),
+     @inv_mor_disp_from_iso C D ((functor_identity C) x)
+       ((functor_identity C) x) (@identity_iso C ((functor_identity C) x))
+       (FF x xx) (GG x xx) (alpha x xx) (Ha x xx)).
+Proof.
+     intros x y f xx yy ff.
+    Search (_ = _ -> transportf _ _ _ = _ ).
+    apply pathsinv0.
+    apply Utilities.transportf_pathsinv0.
+    apply pathsinv0.
+    set (XR := @iso_disp_precomp).
+    specialize (XR _ _ _ _ (identity_iso _ ) _ _ (alpha x xx ,, Ha x xx) ).
+    match goal with |[|- ?EE = _ ] => set (E := EE) end. cbn in E.
+    specialize (XR _ (identity x ;; f)%mor (FF y yy)).
+    set (R := weqpair _ XR).
+    apply (invmaponpathsweq R).
+    unfold R. unfold E. cbn.
+    etrans. apply assoc_disp.
+    etrans. apply maponpaths. apply maponpaths_2. 
+            apply (inv_mor_after_iso_disp (Ha x xx)).
+    etrans. apply maponpaths. 
+            apply mor_disp_transportf_postwhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply id_left_disp.
+    etrans. apply transport_f_f.
+    apply pathsinv0.
+    etrans.            apply mor_disp_transportf_prewhisker.
+    etrans. apply maponpaths.
+            apply assoc_disp.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply maponpaths_2.
+            apply (nat_trans_over_ax_var alpha).
+    etrans. apply maponpaths. 
+            apply mor_disp_transportf_postwhisker.
+    etrans.    apply transport_f_f.
+    etrans. apply maponpaths. apply assoc_disp_var.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply maponpaths.
+            apply (inv_mor_after_iso_disp (Ha _ _ )).
+    etrans. apply maponpaths. 
+            apply mor_disp_transportf_prewhisker.
+            
+     etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply id_right_disp.
+    etrans. apply transport_f_f. 
+    apply transportf_ext.
+    apply homset_property.
+Qed.
+
+Definition inv : nat_trans_over (nat_trans_id _ ) GG FF.
+Proof.
+  mkpair.
+  - intros x xx.
+    apply (inv_mor_disp_from_iso (Ha _ _ )).
+  - apply inv_ax.
+Defined.
+
+End foo.
+
 Section Displayed_Equiv_Inv.
 
 Context {C : Precategory} {D' D : disp_precat C}
@@ -666,25 +740,39 @@ Let ε :  nat_trans_over
 Definition η_inv : nat_trans_over (nat_trans_id (functor_identity C))
     (functor_over_identity D) (functor_over_composite GG FF).
 Proof.
-  mkpair.
-  - intros x xx. cbn.
-    set (eps := is_iso_counit_over_id isEquiv). cbn in eps.
-    specialize (eps x xx).
-    apply (inv_mor_disp_from_iso eps).
-  - intros x y f xx yy ff. simpl.
-    cbn.
-    apply pathsinv0.
-    set (XR := @mor_disp_transportf_postwhisker).
-    admit.
-Abort.
+  apply (inv ε).
+  apply (is_iso_counit_over_id isEquiv).
+Defined.
+
+Definition ε_inv :
+ nat_trans_over
+    (nat_trans_id
+       (functor_identity C))
+    (functor_over_composite FF GG) (functor_over_identity D').
+Proof.
+  apply (inv η). cbn.
+  apply (is_iso_unit_over_id isEquiv).
+Defined.  
 
 Definition equiv_inv : is_equiv_over_id GG.
 Proof.
   mkpair.
   - mkpair. 
     + exists FF.
-      mkpair.
-      * cbn.
+      exists η_inv.
+      exact ε_inv.
+    + mkpair.
+      * intros x xx. cbn.
+        admit.
+      * intros x xx. cbn.
+        admit.
+  - cbn. mkpair.
+    + intros. cbn. 
+      set (XR:= @is_iso_inv_from_is_iso_disp). 
+      specialize (XR _ D _  _ _ _ _ _ (  is_iso_counit_over_id (pr2 isEquiv) x xx)).
+      cbn in XR.
+      admit.
+    + admit.
 Abort.
 
 End Displayed_Equiv_Inv.
