@@ -666,7 +666,6 @@ Lemma inv_ax : @nat_trans_over_axioms C C (functor_identity_data C)
        (FF x xx) (GG x xx) (alpha x xx) (Ha x xx)).
 Proof.
      intros x y f xx yy ff.
-    Search (_ = _ -> transportf _ _ _ = _ ).
     apply pathsinv0.
     apply Utilities.transportf_pathsinv0.
     apply pathsinv0.
@@ -763,6 +762,49 @@ Proof.
       exact ε_inv.
     + mkpair.
       * intros x xx. cbn.
+        set (XR:= @iso_disp_precomp).
+        set (Gepsxxx := (#GG (ε x xx))). 
+        set (RG := @functor_over_on_is_iso_disp _ _ (functor_identity C)).
+        specialize (RG _ _ GG).  
+        specialize (RG _ _ _ _ (identity_iso _ )  (ε x xx)).
+        specialize (RG (is_iso_counit_over_id (pr2 isEquiv) x xx)).
+        transparent assert (Ge : (iso_disp (identity_iso x) 
+                                  (GG _ (FF _ (GG _ xx))) (GG _ xx))).
+        { apply (iso_disp_pair (f:=identity_iso _ ) Gepsxxx).
+          eapply is_iso_disp_independent_of_is_iso. 
+          apply RG.
+        }
+        
+        match goal with |[|- ?EE = _ ] => set (E := EE) end. cbn in E.
+        specialize (XR _ _ _ _ _ _ _ Ge).
+        specialize (XR _ (identity x ;; identity x )%mor  (GG x xx)).
+        apply (invmaponpathsweq (weqpair _ XR)). 
+        unfold E; clear E. 
+        cbn.
+        clear RG XR Ge.
+        unfold Gepsxxx.
+        etrans. apply assoc_disp.
+        etrans. apply maponpaths. apply maponpaths_2.
+                eapply pathsinv0. apply (functor_over_comp_var GG).
+        etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
+        etrans. apply transport_f_f.
+        etrans. apply maponpaths. apply maponpaths_2.
+                apply maponpaths.
+                apply (inv_mor_after_iso_disp (is_iso_counit_over_id (pr2 isEquiv) x xx)).
+        etrans. apply maponpaths. apply maponpaths_2.
+                apply (functor_over_transportf _ GG).
+        etrans. apply maponpaths. apply  mor_disp_transportf_postwhisker.
+        etrans. apply ( transport_f_f _ _ _ _ ).
+        etrans. apply maponpaths. apply maponpaths_2.
+                apply (functor_over_id GG).
+        etrans. apply maponpaths. apply  mor_disp_transportf_postwhisker.
+        etrans. apply transport_f_f.
+        etrans. apply maponpaths. apply id_left_disp.
+        etrans. apply transport_f_f.
+        
+        match goal with |[|- transportf _ ?EE _ = _ ] => generalize EE end.
+        intro EE.
+        
         admit.
       * intros x xx. cbn.
         admit.
@@ -770,9 +812,15 @@ Proof.
     + intros. cbn. 
       set (XR:= @is_iso_inv_from_is_iso_disp). 
       specialize (XR _ D _  _ _ _ _ _ (  is_iso_counit_over_id (pr2 isEquiv) x xx)).
-      cbn in XR.
-      admit.
-    + admit.
+      cbn in XR. 
+      eapply is_iso_disp_independent_of_is_iso.
+      apply XR.
+    + intros. cbn.
+      set (XR:= @is_iso_inv_from_is_iso_disp). 
+      specialize (XR _ D' _  _ _ _ _ _ (  is_iso_unit_over_id (pr2 isEquiv) x xx)).
+      cbn in XR. 
+      eapply is_iso_disp_independent_of_is_iso.
+      apply XR.
 Abort.
 
 End Displayed_Equiv_Inv.
