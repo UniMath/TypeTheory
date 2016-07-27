@@ -151,7 +151,7 @@ Definition triangle_1_over_id {C} {D D' : disp_precat C}
 
 Definition triangle_2_over_id {C} {D D' : disp_precat C}
   (A : adjunction_over_id D D')
-:= pr1 (pr2 A).
+:= pr2 (pr2 A).
 
 (** ** Left- and right- adjoints to a given functor *)
 
@@ -804,8 +804,44 @@ Proof.
         
         match goal with |[|- transportf _ ?EE _ = _ ] => generalize EE end.
         intro EE.
+       
+        set (XR:= @iso_disp_precomp).
+        set (etaGxxx := η _ (GG x xx)). 
+        transparent assert (Ge : (iso_disp (identity_iso x) 
+                                  (GG _ xx) (GG _ (FF _ (GG _ xx))) )).
+        { apply (iso_disp_pair (f:=identity_iso _ ) etaGxxx).
+          eapply is_iso_disp_independent_of_is_iso. 
+          apply (is_iso_unit_over_id (pr2 isEquiv) ).
+        }
         
-        admit.
+        match goal with |[|- ?EE = _ ] => set (E := EE) end. cbn in E.
+        specialize (XR _ _ _ _ _ _ _ Ge).
+        specialize (XR _ (identity x ;; (identity x ;; identity x) )%mor  (GG x xx)).
+        apply (invmaponpathsweq (weqpair _ XR)). 
+        
+        cbn. unfold etaGxxx.
+        unfold E.
+        clear E. clear XR Ge etaGxxx.
+        clear Gepsxxx.
+        
+        etrans. apply  mor_disp_transportf_prewhisker.
+        etrans. apply maponpaths. 
+           apply (inv_mor_after_iso_disp (is_iso_unit_over_id (pr2 isEquiv) x _ )).
+        etrans. apply transport_f_f.
+        apply pathsinv0.
+        etrans. apply maponpaths. apply  mor_disp_transportf_prewhisker.
+        etrans. apply mor_disp_transportf_prewhisker.
+        etrans. apply maponpaths.
+                apply maponpaths. apply id_right_disp.
+        etrans. apply maponpaths. apply  mor_disp_transportf_prewhisker.
+        etrans. apply transport_f_f.
+        set (XR := triangle_2_over_id isEquiv).
+        unfold triangle_1_statement_over_id in XR.
+        cbn in XR.
+        etrans. apply maponpaths. apply XR.
+        etrans. apply transport_f_f.
+        apply transportf_ext.
+        apply homset_property.
       * intros x xx. cbn.
         admit.
   - cbn. mkpair.
