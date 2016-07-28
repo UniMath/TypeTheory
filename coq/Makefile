@@ -60,7 +60,9 @@ MODULES-ROTTEN := \
 VS-CORE  := $(MODULES-CORE:%=%.v)
 VS-EXTRA := $(MODULES-EXTRA:%=%.v)
 
-COQDOC := coqdoc
+COQBIN ?= 
+COQDOC ?= $(COQBIN)coqdoc
+COQMAKEFILE ?= $(COQBIN)coq_makefile
 
 COQOPTIONS := -type-in-type
 
@@ -73,10 +75,10 @@ all: Makefile_all.coq
 	$(MAKE) -f Makefile_all.coq 
 
 Makefile.coq: Makefile $(VS-CORE)
-	coq_makefile -R . "Systems" $(VS-CORE) -arg $(COQOPTIONS) -o Makefile.coq
+	$(COQMAKEFILE) -R . "Systems" $(VS-CORE) -arg $(COQOPTIONS) -o Makefile.coq
 
 Makefile_all.coq: Makefile $(VS-CORE) $(VS-EXTRA)
-	coq_makefile -R . "Systems" $(VS-CORE) $(VS-EXTRA) -arg $(COQOPTIONS) -o Makefile_all.coq
+	$(COQMAKEFILE) -R . "Systems" $(VS-CORE) $(VS-EXTRA) -arg $(COQOPTIONS) -o Makefile_all.coq
 
 install: all
 	$(MAKE) -f Makefile_all.coq install
