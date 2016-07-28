@@ -11,6 +11,7 @@ Possibly some should be upstreamed to “UniMath” eventually.
 
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
@@ -632,14 +633,22 @@ Proof.
               (colimits.diagram_pointwise C^op HSET has_homsets_HSET
                                                pushout_graph (pullback_diagram (preShv C) f g) c) S)).
     { use mk_cone.
-      intro v.
-      destruct v.
+      apply three_rec_dep; cbn.
+(*      intro v.
+      destruct v.*)
       - apply h.
       - simpl. apply (h ;; (pr1 f c)).
       - apply k.
-      - intros u v e0; induction u; induction v; try induction e0.
-        + apply idpath.
-        + apply pathsinv0. apply H.
+      - use three_rec_dep; cbn; use three_rec_dep; cbn.
+        + exact (Empty_set_rect _ ).
+        + intro. apply idpath.
+        + exact (Empty_set_rect _ ).
+        + exact (Empty_set_rect _ ).
+        + exact (Empty_set_rect _ ).
+        + exact (Empty_set_rect _ ).
+        + exact (Empty_set_rect _ ).
+        + intro; apply (!H).
+        + exact (Empty_set_rect _ ).
     }
 
     specialize (XR HC).
@@ -655,11 +664,10 @@ Proof.
     + simpl.
       apply path_to_ctr.
       destruct t as [t [H1 H2]].
-      intro v; destruct v; simpl.
+      use three_rec_dep; cbn.
       * apply H1.
-      * rewrite  (assoc HSET).
-        apply (@cancel_postcomposition HSET).
-        apply H1.
+      * destruct H1.
+        apply idpath.
       * apply H2.
 Qed.      
 
