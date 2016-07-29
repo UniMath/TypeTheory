@@ -59,6 +59,8 @@ Local Notation φ := obj_ext_mor_φ.
 
 Section Compatible_Disp_Cat.
 
+(* TODO: rename [strucs_compat_FOO] to [strucs_iscompat_FOO] throughout, to disambiguate these from the sigma’d displayed-precat [compat_structures]. *)
+
 Definition strucs_compat_ob_mor
   : disp_precat_ob_mor (total_precat
       (families_disp_precat C × qq_structure_disp_precat C)).
@@ -87,7 +89,6 @@ Definition strucs_compat_disp_precat
   : disp_precat (total_precat
       (families_disp_precat C × qq_structure_disp_precat C))
 := ( _ ,, strucs_compat_axioms).
-
 
 Definition compat_structures_disp_precat
   := sigma_disp_precat strucs_compat_disp_precat.
@@ -594,22 +595,6 @@ Proof.
 Defined.
 
 End Strucs_Disp_Equiv.
-
-(* TODO: move *)
-Coercion left_adj_over_id
-  : adjunction_over_id_data >-> functor_over.
-
-Definition is_equiv_of_equiv_over_id {CC} {DD DD' : disp_precat CC}
-    (E : equiv_over_id DD DD')
-  : is_equiv_over_id E.
-Proof.
-  (* TODO: clean up with access functions *)
-  mkpair.
-  mkpair.
-  shelve.
-  exact (pr2 (pr1 E)).
-  exact (pr2 E).
-Defined.
 
 Section Strucs_Fiber_Equiv.
 

@@ -59,6 +59,13 @@ Proof.
   destruct e; apply idpath.
 Defined.
 
+Lemma transportf_const (A B : UU) (a a' : A) (e : a = a') (b : B) :
+   transportf (fun _ => B) e b = b.
+Proof.
+  induction e.
+  apply idpath.
+Qed.
+
 Lemma transportf_forall {A B} (C : A -> B -> Type)
   {x0 x1 : A} (e : x0 = x1) (f : forall y:B, C x0 y)
   : transportf (fun x => forall y, C x y) e f
@@ -66,18 +73,6 @@ Lemma transportf_forall {A B} (C : A -> B -> Type)
 Proof.
   destruct e; apply idpath.
 Defined.
-
-Definition isweqpathscomp0l {X : UU} {x x' : X} (x'' : X) (e: x = x') :
-   isweq (fun (e' : x' = x'') => e @ e').
-Proof.
-  intros.
-  apply (gradth _ (fun e'' => !e @ e'')).
-  - intro p. rewrite path_assoc. rewrite pathsinv0l.
-    apply idpath.
-  - intro p. rewrite path_assoc. rewrite pathsinv0r.
-    apply idpath.
-Defined.
-
 
 Definition transportf_forall_var :
   Π (A : UU) (B : A -> UU) (C : UU)
@@ -167,7 +162,17 @@ Proof.
   etrans. apply homotweqinvweq. apply H.
 Defined.
 
-  
+Definition isweqpathscomp0l {X : UU} {x x' : X} (x'' : X) (e: x = x') :
+   isweq (fun (e' : x' = x'') => e @ e').
+Proof.
+  intros.
+  apply (gradth _ (fun e'' => !e @ e'')).
+  - intro p. rewrite path_assoc. rewrite pathsinv0l.
+    apply idpath.
+  - intro p. rewrite path_assoc. rewrite pathsinv0r.
+    apply idpath.
+Defined.
+
 Definition rewrite_in_equivalence (A X : UU) (a a' b : A) :
   a = a' → (a' = b) ≃ X → (a = b) ≃ X.
 Proof.
@@ -445,6 +450,18 @@ Proof.
   rewrite id_right.
   induction 1.
   apply id_right.
+Qed.
+
+(* Left-handed counterpart to [transportf_isotoid], which could be called [prewhisker_isotoid] analogously — neither of these is a fully general transport lemma, they’re about specific cases.
+
+  TODO: look for dupes in library; move; consider naming conventions; rename D to C. *)
+Lemma postwhisker_isotoid {D : precategory} (H : is_category D)
+    {a b b' : D} (f : a --> b) (p : iso b b')
+  : transportf (fun b0 => a --> b0) (isotoid _ H p) f
+  = f ;; p.
+Proof.
+  rewrite <- idtoiso_postcompose.
+  apply maponpaths, maponpaths, idtoiso_isotoid.
 Qed.
 
 
@@ -777,6 +794,7 @@ Proof.
     rewrite PullbackArrow_PullbackPr2, PullbackArrow_PullbackPr1.
     apply idpath.
 Qed.
+
 
 
 Section Pullback_Unique_Up_To_Iso.

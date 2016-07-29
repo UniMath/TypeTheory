@@ -250,7 +250,7 @@ Proof.
   use tpair.
     apply (path_pregroupoid X).
     apply hlevelntosn, setproperty.
-  apply Precategories.homset_property.
+  apply homset_property.
 Defined.
 
 Lemma is_pregroupoid_path_pregroupoid {X} {H}

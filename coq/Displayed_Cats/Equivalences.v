@@ -78,6 +78,8 @@ Section Adjunctions.
 
 We give the “bidirectional” version first, and then the “handed” versions afterwards, with enough coercions between the two to (hopefully) make it easy to work with both versions. *)
 
+(* TODO: consider carefully the graph of coercions in this section; make them more systematic, and whatever we decide on, DOCUMENT the system clearly. *) 
+
 Definition adjunction_over_id_data {C} (D D' : disp_precat C) : UU
 := Σ (FF : functor_over (functor_identity _) D D')
      (GG : functor_over (functor_identity _) D' D),
@@ -91,6 +93,8 @@ Definition left_adj_over_id {C} {D D' : disp_precat C}
   (A : adjunction_over_id_data D D')
   : functor_over _ D D'
 := pr1 A.
+Coercion left_adj_over_id
+  : adjunction_over_id_data >-> functor_over.
 
 Definition right_adj_over_id {C} {D D' : disp_precat C}
   (A : adjunction_over_id_data D D')
@@ -182,6 +186,11 @@ Definition adjunction_of_right_adjoint_over_id_data {C} {D D' : disp_precat C}
 Coercion adjunction_of_right_adjoint_over_id_data
   : right_adjoint_over_id_data >-> adjunction_over_id_data.
 
+Definition right_adjoint_of_adjunction_over_id_data {C} {D D' : disp_precat C}
+    (A : adjunction_over_id_data D D')
+  : right_adjoint_over_id_data A
+:= pr2 A. 
+
 Definition right_adjoint_over_id {C} {D D' : disp_precat C}
   (FF : functor_over (functor_identity _) D D') : UU
 := Σ GG : right_adjoint_over_id_data FF,
@@ -198,10 +207,12 @@ Definition adjunction_of_right_adjoint_over_id {C} {D D' : disp_precat C}
     {FF : functor_over _ D D'}
     (GG : right_adjoint_over_id FF)
   : adjunction_over_id D D'
-:= (adjunction_of_right_adjoint_over_id_data GG ,, pr2 GG). 
-Coercion adjunction_of_right_adjoint_over_id
-  : right_adjoint_over_id >-> adjunction_over_id.
-(* Don’t worry about the ambiguous path generated here: the two ways round are equal. *)
+:= (adjunction_of_right_adjoint_over_id_data GG ,, pr2 GG).
+
+Definition right_adjoint_of_adjunction_over_id {C} {D D' : disp_precat C}
+    (A : adjunction_over_id D D')
+  : right_adjoint_over_id A
+:= (right_adjoint_of_adjunction_over_id_data A,, pr2 A).
 
 (* TODO: add the dual-handedness version, i.e. indexed over GG instead of FF. *)
 End Adjunctions.
@@ -248,19 +259,24 @@ Definition is_equiv_over_id {C} {D D' : disp_precat C}
 
 Definition right_adjoint_of_is_equiv_over_id {C} {D D' : disp_precat C}
   {FF : functor_over _ D D'}
-  (GG : is_equiv_over_id FF)
-:= pr1 GG.
+  (E : is_equiv_over_id FF)
+:= pr1 E.
 Coercion right_adjoint_of_is_equiv_over_id
   : is_equiv_over_id >-> right_adjoint_over_id.
 
 Definition equiv_of_is_equiv_over_id {C} {D D' : disp_precat C}
     {FF : functor_over _ D D'}
-    (GG : is_equiv_over_id FF)
+    (E : is_equiv_over_id FF)
   : equiv_over_id D D'
-:= (adjunction_of_right_adjoint_over_id GG ,, pr2 GG). 
+:= (adjunction_of_right_adjoint_over_id E ,, pr2 E). 
 Coercion equiv_of_is_equiv_over_id
   : is_equiv_over_id >-> equiv_over_id.
 (* Again, don’t worry about the ambiguous path generated here. *)
+
+Definition is_equiv_of_equiv_over_id {CC} {DD DD' : disp_precat CC}
+    (E : equiv_over_id DD DD')
+  : is_equiv_over_id E
+:= (right_adjoint_of_adjunction_over_id E,, axioms_of_equiv_over_id E).
 
 (* TODO: right-handed versions *)
 

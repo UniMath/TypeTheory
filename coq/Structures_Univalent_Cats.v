@@ -21,6 +21,18 @@ Local Set Automatic Introduction.
 
 Undelimit Scope transport.
 
+Section Auxiliary.
+
+Lemma transportf_families_mor_TM {C : Precategory}
+  {X X' : obj_ext_Precat C} {F F' : X ⇒ X'} (e : F = F')
+  {Y : families_disp_precat C X} {Y'} (FY : Y ⇒[F] Y')
+  : families_mor_TM (transportf _ e FY) = families_mor_TM FY.
+Proof.
+  destruct e; apply idpath.
+Qed.
+
+End Auxiliary.
+
 Section Fix_Context.
 
 Context {C : Precategory}.
@@ -36,13 +48,8 @@ Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 
 Local Notation Δ := comp_ext_compare.
 Local Notation φ := obj_ext_mor_φ.
 
-(* does not line up with identity 
-Definition obj_ext_iso_alt (X X' : obj_ext_Precat C) : UU :=
-  Σ F_TY : iso (TY X) (TY X'),
-        Π {Γ:C} {A : Ty X Γ},
-         Σ φ : iso (Γ ◂ A) (Γ ◂ ((pr1 F_TY : nat_trans _ _) _ A)),
-           φ ;; π _ = π A.
- *)
+
+Section Is_Category_Obj_Ext_1.
 
 Definition obj_ext_iso_alt (X X' : obj_ext_Precat C) : UU :=
   Σ F_TY : iso (TY X) (TY X'),
@@ -56,11 +63,7 @@ Definition is_saturated_preShv (F G : preShv C) : F = G ≃ iso F G.
 Proof.
   apply (weqpair idtoiso (pr1
                             (is_category_functor_category _ _ is_category_HSET) _ _ )).
-Defined.  
-
-
-
-
+Defined.
 
 Definition weq_eq_obj_ext_iso_alt (X X' : obj_ext_Precat C) :
   (X = X') ≃ obj_ext_iso_alt X X'.
@@ -99,7 +102,11 @@ Proof.
   admit.
 Abort.
 
+End Is_Category_Obj_Ext_1.
+
 (* TODO: above here and below here are two mostly separate approaches to [is_category_obj_ext].  Once one is complete, most of the other can probably be pruned *)
+
+Section Is_Category_Obj_Ext_2.
 
 (* TODO: move*)
 Definition obj_ext_to_preShv_functor_data
@@ -272,7 +279,11 @@ Proof.
     (* lemma foo2 above: [φ] of an [idtoiso] is… what? *) 
 Abort.
 
-(* TODO: move *) 
+End Is_Category_Obj_Ext_2.
+
+Section Is_Category_Families_Strucs.
+
+(* TODO: inline *) 
 Lemma isaprop_whatever
   (x : obj_ext_Precat C)
   (d d' : (families_disp_precat C) x)
@@ -281,36 +292,6 @@ Proof.
   apply isofhleveltotal2.
   - apply isaprop_families_mor.
   - intro. apply isaprop_is_iso_disp.
-Qed.
-
-(* TODO: move *) 
-Definition pr1_transportf_prime :
- Π (A : UU) (a a' : A) (e : a = a') (B : A → UU) (P : Π a : A, B a → UU) 
-        (xs : Σ b : B a, P a b),
-       pr1 (transportf (λ x : A, Σ b : B x, P x b) e xs) =
-       transportf (λ x : A, B x) e (pr1 xs).
-Proof.
-  intros.
-  apply pr1_transportf.
-Defined.
-
-(* TODO: move *) 
-Lemma transportf_const (A B : UU) (a a' : A) (e : a = a') (b : B) :
-   transportf (fun _ => B) e b = b.
-Proof.
-  induction e.
-  apply idpath.
-Qed.
-
-(* TODO: write access functions for [iso_disp], [is_iso_disp].  Maybe make [pr1] from [iso_disp] a coercion. *)
-
-(* TODO: move! *)
-Lemma transportf_families_mor_TM
-  {X X' : obj_ext_Precat C} {F F' : X ⇒ X'} (e : F = F')
-  {Y : families_disp_precat C X} {Y'} (FY : Y ⇒[F] Y')
-  : families_mor_TM (transportf _ e FY) = families_mor_TM FY.
-Proof.
-  destruct e; apply idpath.
 Qed.
 
 Definition iso_disp_to_TM_eq
@@ -322,29 +303,15 @@ Proof.
   intro i.
   use isotoid.
   - apply (is_category_functor_category _ _ is_category_HSET).
-  - exists (families_mor_TM (pr1 i)).
+  - exists (families_mor_TM (i : _ ⇒[_] _)).
     apply is_iso_from_is_z_iso.
-    exists (families_mor_TM (pr1 (pr2 i))).
+    exists (families_mor_TM (inv_mor_disp_from_iso i)).
     split.
-    + set (XR' := maponpaths families_mor_TM (pr2 (pr2 (pr2 i)))).
-      etrans. apply XR'. clear XR'.
+    + etrans. exact (maponpaths families_mor_TM (inv_mor_after_iso_disp i)).
       apply transportf_families_mor_TM.
-    + set (XR' := maponpaths families_mor_TM (pr1 (pr2 (pr2 i)))).
-      etrans. apply XR'. clear XR'.
+    + etrans. exact (maponpaths families_mor_TM (iso_disp_after_inv_mor i)).
       apply transportf_families_mor_TM.
 Defined.
-
-(* Left-handed counterpart to [transportf_isotoid], which could be called [prewhisker_isotoid] analogously — neither of these is a fully general transport lemma, they’re about specific cases.
-
-  TODO: look for dupes in library; move; consider naming conventions; rename D to C. *)
-Lemma postwhisker_isotoid {D : precategory} (H : is_category D)
-    {a b b' : D} (f : a --> b) (p : iso b b')
-  : transportf (fun b0 => a --> b0) (isotoid _ H p) f
-  = f ;; p.
-Proof.
-  rewrite <- idtoiso_postcompose.
-  apply maponpaths, maponpaths, idtoiso_isotoid.
-Qed.
 
 Lemma prewhisker_iso_disp_to_TM_eq 
   {X} {Y Y' : families_disp_precat C X}
@@ -400,27 +367,31 @@ Proof.
   - intros. apply eq_iso_disp, isaprop_families_mor.
 Qed.
 
+End Is_Category_Families_Strucs.
+
+Section Is_Category_qq_Strucs.
+
 Lemma isaset_qq_morphism_structure (x : obj_ext_structure C) 
   : isaset (qq_morphism_structure x).
 Proof.
   apply (isofhleveltotal2 2).
   - apply (isofhleveltotal2 2).
     + do 4 (apply impred; intro).
-      apply Precategories.homset_property.
+      apply homset_property.
     + intros. do 4 (apply impred; intro).
       apply (isofhleveltotal2 2).
       * apply hlevelntosn.
-        apply Precategories.homset_property.
+        apply homset_property.
       * intro. apply hlevelntosn.
         apply pullbacks.isaprop_isPullback.
   - intro d. unfold qq_morphism_axioms.
     apply isofhleveldirprod.
     + do 2 (apply impred; intro).
       apply hlevelntosn.
-      apply Precategories.homset_property.
+      apply homset_property.
     + do 6 (apply impred; intro).
       apply hlevelntosn.
-      apply Precategories.homset_property.
+      apply homset_property.
 Qed. 
 
 Lemma isaprop_iso_disp_qq_morphism_structure 
@@ -430,7 +401,7 @@ Lemma isaprop_iso_disp_qq_morphism_structure
 Proof.
   apply (isofhleveltotal2 1).
   - do 4 (apply impred; intro).
-    apply Precategories.homset_property.
+    apply homset_property.
   - intro. apply isaprop_is_iso_disp.
 Qed.
 
@@ -442,11 +413,11 @@ Lemma qq_structure_eq
   : d = d'.
 Proof.
   apply subtypeEquality.
-  { intro. apply (@isaprop_qq_morphism_axioms _  (Precategories.homset_property _ )). }
+  { intro. apply (@isaprop_qq_morphism_axioms _ (homset_property _ )). }
   apply subtypeEquality.
   { intro. do 4 (apply impred; intro). 
            apply isofhleveltotal2.
-     + apply Precategories.homset_property.
+     + apply homset_property.
      + intro. apply pullbacks.isaprop_isPullback.
   } 
   do 4 (apply funextsec; intro).
@@ -484,6 +455,9 @@ Proof.
   - apply isaprop_iso_disp_qq_morphism_structure.
 Defined.
 
+End Is_Category_qq_Strucs.
+
+Section Is_Category_Compat_Strucs.
 
 Lemma isaprop_iso_disp_strucs_compat_disp_precat
   (x : total_precat (families_disp_precat C × qq_structure_disp_precat C))
@@ -520,5 +494,7 @@ Proof.
     apply CwF_SplitTypeCat_Maps.isaprop_iscompatible_fam_qq.
   - apply isaprop_iso_disp_strucs_compat_disp_precat.
 Defined.
+
+End Is_Category_Compat_Strucs.
 
 End Fix_Context.
