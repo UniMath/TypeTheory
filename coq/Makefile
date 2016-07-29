@@ -45,6 +45,7 @@ MODULES-EXTRA := \
 	CwF_SplitTypeCat_Equivalence \
 	Structures_Equiv_Cats \
 	Structures_Univalent_Cats \
+	Structures_Equiv_Types \
 	OtherDefs/CwF_Pitts_completion \
 	OtherDefs/DM_to_TypeCat_to_DM \
 	Test

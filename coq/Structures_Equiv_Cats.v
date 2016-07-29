@@ -8,6 +8,7 @@
 Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.equivalences.
 
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
@@ -512,6 +513,25 @@ Proof.
     exact (qq_from_fam_mor FY W W').
 Qed.
 
+Lemma compat_structures_pr1_is_equiv_over_id
+  : is_equiv_over_id (compat_structures_pr1_disp_functor).
+Proof.
+  apply is_equiv_from_ff_ess_over_id.
+  - apply compat_structures_pr1_ess_split.
+  - apply compat_structures_pr1_ff.
+Defined.
+
+Definition compat_structures_pr1_equiv_over_id
+  : equiv_over_id _ _
+:= compat_structures_pr1_is_equiv_over_id.
+
+Definition compat_structures_pr1_inverse_over_id
+     : equiv_over_id
+         (families_disp_precat C) compat_structures_disp_precat.
+Proof.
+  exact (equiv_inv _ (compat_structures_pr1_is_equiv_over_id)).
+Defined.
+
 Lemma compat_structures_pr2_ess_split
   : functor_over_disp_ess_split_surj (compat_structures_pr2_disp_functor).
 Proof.
@@ -554,6 +574,77 @@ Proof.
     exact (fam_from_qq_mor FY W W').
 Qed.
 
+Lemma compat_structures_pr2_is_equiv_over_id
+  : is_equiv_over_id (compat_structures_pr2_disp_functor).
+Proof.
+  apply is_equiv_from_ff_ess_over_id.
+  - apply compat_structures_pr2_ess_split.
+  - apply compat_structures_pr2_ff.
+Defined.
+
+Definition compat_structures_pr2_equiv_over_id
+  : equiv_over_id _ _
+:= compat_structures_pr2_is_equiv_over_id.
+
+Definition compat_structures_pr2_inverse_over_id
+     : equiv_over_id
+         (qq_structure_disp_precat C) compat_structures_disp_precat.
+Proof.
+  exact (equiv_inv _ (compat_structures_pr2_is_equiv_over_id)).
+Defined.
+
 End Strucs_Disp_Equiv.
+
+(* TODO: move *)
+Coercion left_adj_over_id
+  : adjunction_over_id_data >-> functor_over.
+
+Definition is_equiv_of_equiv_over_id {CC} {DD DD' : disp_precat CC}
+    (E : equiv_over_id DD DD')
+  : is_equiv_over_id E.
+Proof.
+  (* TODO: clean up with access functions *)
+  mkpair.
+  mkpair.
+  shelve.
+  exact (pr2 (pr1 E)).
+  exact (pr2 E).
+Defined.
+
+Section Strucs_Fiber_Equiv.
+
+Context (X : obj_ext_Precat C).
+
+Definition fam_struc_to_qq_struc_fibre_functor
+  : functor
+      (fibre_precategory (families_disp_precat C) X)
+      (fibre_precategory (qq_structure_disp_precat C) X).
+Proof.
+  eapply functor_composite.
+  - eapply fibre_functor.
+    exact compat_structures_pr1_inverse_over_id.
+    (* TODO: make lemma [fibre_functor_over_id] *)
+  - exact (fibre_functor compat_structures_pr2_equiv_over_id X).
+Defined.
+
+Definition fam_struc_to_qq_struc_is_equiv
+  : adj_equivalence_of_precats
+      fam_struc_to_qq_struc_fibre_functor.
+Proof.
+  eapply comp_adj_equivalence_of_precats.
+  - apply fibre_equiv.
+    apply is_equiv_of_equiv_over_id.
+  - apply fibre_equiv.
+    apply is_equiv_of_equiv_over_id.
+  (* TODO: WTF with all the shelving!? *)
+  Unshelve. 
+(* TODO: define [fibre_precategory] as a [Precategory], so we can just use [homset_property] here. *)
+  apply has_homsets_fibre. apply has_homsets_fibre. apply has_homsets_fibre.
+Defined.
+
+End Strucs_Fiber_Equiv.
+
+
+
 
 End Fix_Context.
