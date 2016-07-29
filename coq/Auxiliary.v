@@ -639,7 +639,7 @@ Proof.
       - apply h.
       - simpl. apply (h ;; (pr1 f c)).
       - apply k.
-      - use three_rec_dep; cbn; use three_rec_dep; cbn.
+      - use three_rec_dep; use three_rec_dep.
         + exact (Empty_set_rect _ ).
         + intro. apply idpath.
         + exact (Empty_set_rect _ ).
@@ -650,11 +650,9 @@ Proof.
         + intro; apply (!H).
         + exact (Empty_set_rect _ ).
     }
-
     specialize (XR HC).
     mkpair.
   - exists (pr1 (iscontrpr1 XR)).
-    cbn.
     split.
     + apply (pr2 (pr1 XR) One).
     + apply (pr2 (pr1 XR) Three).
@@ -664,12 +662,12 @@ Proof.
     + simpl.
       apply path_to_ctr.
       destruct t as [t [H1 H2]].
-      use three_rec_dep; cbn.
+      use three_rec_dep.
       * apply H1.
       * destruct H1.
         apply idpath.
       * apply H2.
-Qed.      
+Qed.
 
 
 End Pullbacks_hSet.
