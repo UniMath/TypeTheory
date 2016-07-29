@@ -328,6 +328,13 @@ Definition iso_disp {C : Precategory} {D : disp_precat_data C}
     {x y : C} (f : iso x y) (xx : D x) (yy : D y)
   := Σ ff : xx ⇒[f] yy, is_iso_disp f ff.
 
+Definition iso_disp_pair {C : Precategory} {D : disp_precat_data C}
+    {x y : C} {f : iso x y} {xx : D x} {yy : D y}
+    (ff : xx ⇒[f] yy) (is : is_iso_disp f ff)
+    : iso_disp _ _ _ 
+  := (ff,, is).
+
+
 Definition mor_disp_from_iso {C : Precategory} {D : disp_precat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
     (i : iso_disp f xx yy) : _ ⇒[ _ ] _ := pr1 i.

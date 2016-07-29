@@ -151,7 +151,7 @@ Definition triangle_1_over_id {C} {D D' : disp_precat C}
 
 Definition triangle_2_over_id {C} {D D' : disp_precat C}
   (A : adjunction_over_id D D')
-:= pr1 (pr2 A).
+:= pr2 (pr2 A).
 
 (** ** Left- and right- adjoints to a given functor *)
 
@@ -645,6 +645,246 @@ Section Displayed_Equiv_Compose.
 
 End Displayed_Equiv_Compose.
 
+Section foo.
+
+Context {C : Precategory} {D' D : disp_precat C}
+        {FF GG : functor_over (functor_identity _) D' D}
+        (alpha : nat_trans_over (nat_trans_id _ ) FF GG)
+        (Ha : Π x xx, is_iso_disp (identity_iso _ ) (alpha x xx)).
+
+(*
+Lemma inv_ax : nat_trans_over_axioms
+    (λ (x : C) (xx : D' x), @inv_mor_disp_from_iso _ _ _ _ (identity_iso _ ) _  _ _ (Ha x xx)).
+*)
+
+Local Lemma inv_ax : @nat_trans_over_axioms C C (functor_identity_data C)
+    (functor_identity_data C) (@nat_trans_id C C (functor_identity_data C))
+    D' D GG FF
+    (λ (x : C) (xx : D' x),
+     @inv_mor_disp_from_iso C D ((functor_identity C) x)
+       ((functor_identity C) x) (@identity_iso C ((functor_identity C) x))
+       (FF x xx) (GG x xx) (alpha x xx) (Ha x xx)).
+Proof.
+     intros x y f xx yy ff.
+    apply pathsinv0.
+    apply Utilities.transportf_pathsinv0.
+    apply pathsinv0.
+    set (XR := @iso_disp_precomp).
+    specialize (XR _ _ _ _ (identity_iso _ ) _ _ (alpha x xx ,, Ha x xx) ).
+    match goal with |[|- ?EE = _ ] => set (E := EE) end. cbn in E.
+    specialize (XR _ (identity x ;; f)%mor (FF y yy)).
+    set (R := weqpair _ XR).
+    apply (invmaponpathsweq R).
+    unfold R. unfold E. cbn.
+    etrans. apply assoc_disp.
+    etrans. apply maponpaths. apply maponpaths_2. 
+            apply (inv_mor_after_iso_disp (Ha x xx)).
+    etrans. apply maponpaths. 
+            apply mor_disp_transportf_postwhisker.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply id_left_disp.
+    etrans. apply transport_f_f.
+    apply pathsinv0.
+    etrans.            apply mor_disp_transportf_prewhisker.
+    etrans. apply maponpaths.
+            apply assoc_disp.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply maponpaths_2.
+            apply (nat_trans_over_ax_var alpha).
+    etrans. apply maponpaths. 
+            apply mor_disp_transportf_postwhisker.
+    etrans.    apply transport_f_f.
+    etrans. apply maponpaths. apply assoc_disp_var.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply maponpaths.
+            apply (inv_mor_after_iso_disp (Ha _ _ )).
+    etrans. apply maponpaths. 
+            apply mor_disp_transportf_prewhisker.
+            
+     etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply id_right_disp.
+    etrans. apply transport_f_f. 
+    apply transportf_ext.
+    apply homset_property.
+Qed.
+
+Local Definition inv : nat_trans_over (nat_trans_id _ ) GG FF.
+Proof.
+  mkpair.
+  - intros x xx.
+    apply (inv_mor_disp_from_iso (Ha _ _ )).
+  - apply inv_ax.
+Defined.
+
+End foo.
+
+Section Displayed_Equiv_Inv.
+
+Context {C : Precategory} {D' D : disp_precat C}
+        (FF : functor_over (functor_identity _) D' D)
+        (isEquiv : is_equiv_over_id FF).
+
+Let GG : functor_over _ D D' := right_adjoint_of_is_equiv_over_id isEquiv.
+Let η : nat_trans_over (nat_trans_id (functor_identity C)) 
+                       (functor_over_identity D')
+                       (functor_over_composite FF GG)
+  := unit_over_id isEquiv.
+
+Let ε :  nat_trans_over
+           (nat_trans_id (functor_identity C))
+           (functor_over_composite GG FF)
+           (functor_over_identity D)
+  := counit_over_id isEquiv.
+
+Definition η_inv : nat_trans_over (nat_trans_id (functor_identity C))
+    (functor_over_identity D) (functor_over_composite GG FF).
+Proof.
+  apply (inv ε).
+  apply (is_iso_counit_over_id isEquiv).
+Defined.
+
+Definition ε_inv :
+ nat_trans_over
+    (nat_trans_id
+       (functor_identity C))
+    (functor_over_composite FF GG) (functor_over_identity D').
+Proof.
+  apply (inv η). cbn.
+  apply (is_iso_unit_over_id isEquiv).
+Defined.  
+
+Definition inv_adjunction_data : adjunction_over_id_data D D'.
+Proof.
+  exists GG.
+  exists FF.
+  exists η_inv.
+  exact ε_inv.
+Defined.
+
+Lemma form_equiv_inv_adjunction_data : form_equiv_over_id inv_adjunction_data.
+Proof.
+  cbn. mkpair.
+    + intros. cbn. 
+      set (XR:= @is_iso_inv_from_is_iso_disp). 
+      specialize (XR _ D _  _ _ _ _ _ (  is_iso_counit_over_id (pr2 isEquiv) x xx)).
+      cbn in XR. 
+      eapply is_iso_disp_independent_of_is_iso.
+      apply XR.
+    + intros. cbn.
+      set (XR:= @is_iso_inv_from_is_iso_disp). 
+      specialize (XR _ D' _  _ _ _ _ _ (  is_iso_unit_over_id (pr2 isEquiv) x xx)).
+      cbn in XR. 
+      eapply is_iso_disp_independent_of_is_iso.
+      apply XR.
+Qed.
+
+Lemma inv_triangle_1_statement_over_id 
+  : triangle_1_statement_over_id inv_adjunction_data.
+Proof.
+  intros x xx. cbn.
+        set (XR:= @iso_disp_precomp).
+        set (Gepsxxx := (#GG (ε x xx))). 
+        set (RG := @functor_over_on_is_iso_disp _ _ (functor_identity C)).
+        specialize (RG _ _ GG).  
+        specialize (RG _ _ _ _ (identity_iso _ )  (ε x xx)).
+        specialize (RG (is_iso_counit_over_id (pr2 isEquiv) x xx)).
+        transparent assert (Ge : (iso_disp (identity_iso x) 
+                                  (GG _ (FF _ (GG _ xx))) (GG _ xx))).
+        { apply (iso_disp_pair (f:=identity_iso _ ) Gepsxxx).
+          eapply is_iso_disp_independent_of_is_iso. 
+          apply RG.
+        }
+        
+        match goal with |[|- ?EE = _ ] => set (E := EE) end. cbn in E.
+        specialize (XR _ _ _ _ _ _ _ Ge).
+        specialize (XR _ (identity x ;; identity x )%mor  (GG x xx)).
+        apply (invmaponpathsweq (weqpair _ XR)). 
+        unfold E; clear E. 
+        cbn.
+        clear RG XR Ge.
+        unfold Gepsxxx.
+        etrans. apply assoc_disp.
+        etrans. apply maponpaths. apply maponpaths_2.
+                eapply pathsinv0. apply (functor_over_comp_var GG).
+        etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
+        etrans. apply transport_f_f.
+        etrans. apply maponpaths. apply maponpaths_2.
+                apply maponpaths.
+                apply (inv_mor_after_iso_disp (is_iso_counit_over_id (pr2 isEquiv) x xx)).
+        etrans. apply maponpaths. apply maponpaths_2.
+                apply (functor_over_transportf _ GG).
+        etrans. apply maponpaths. apply  mor_disp_transportf_postwhisker.
+        etrans. apply ( transport_f_f _ _ _ _ ).
+        etrans. apply maponpaths. apply maponpaths_2.
+                apply (functor_over_id GG).
+        etrans. apply maponpaths. apply  mor_disp_transportf_postwhisker.
+        etrans. apply transport_f_f.
+        etrans. apply maponpaths. apply id_left_disp.
+        etrans. apply transport_f_f.
+        
+        match goal with |[|- transportf _ ?EE _ = _ ] => generalize EE end.
+        intro EE.
+       
+        set (XR:= @iso_disp_precomp).
+        set (etaGxxx := η _ (GG x xx)). 
+        transparent assert (Ge : (iso_disp (identity_iso x) 
+                                  (GG _ xx) (GG _ (FF _ (GG _ xx))) )).
+        { apply (iso_disp_pair (f:=identity_iso _ ) etaGxxx).
+          eapply is_iso_disp_independent_of_is_iso. 
+          apply (is_iso_unit_over_id (pr2 isEquiv) ).
+        }
+        
+        match goal with |[|- ?EE = _ ] => set (E := EE) end. cbn in E.
+        specialize (XR _ _ _ _ _ _ _ Ge).
+        specialize (XR _ (identity x ;; (identity x ;; identity x) )%mor  (GG x xx)).
+        apply (invmaponpathsweq (weqpair _ XR)). 
+        
+        cbn. unfold etaGxxx.
+        unfold E.
+        clear E. clear XR Ge etaGxxx.
+        clear Gepsxxx.
+        
+        etrans. apply  mor_disp_transportf_prewhisker.
+        etrans. apply maponpaths. 
+           apply (inv_mor_after_iso_disp (is_iso_unit_over_id (pr2 isEquiv) x _ )).
+        etrans. apply transport_f_f.
+        apply pathsinv0.
+        etrans. apply maponpaths. apply  mor_disp_transportf_prewhisker.
+        etrans. apply mor_disp_transportf_prewhisker.
+        etrans. apply maponpaths.
+                apply maponpaths. apply id_right_disp.
+        etrans. apply maponpaths. apply  mor_disp_transportf_prewhisker.
+        etrans. apply transport_f_f.
+        set (XR := triangle_2_over_id isEquiv).
+        unfold triangle_1_statement_over_id in XR.
+        cbn in XR.
+        etrans. apply maponpaths. apply XR.
+        etrans. apply transport_f_f.
+        apply transportf_ext.
+        apply homset_property.
+Qed.
+
+Lemma inv_triangle_2_statement_over_id 
+  : triangle_2_statement_over_id inv_adjunction_data.
+Proof.
+  apply triangle_2_from_1_for_equiv_over_id.
+  - apply form_equiv_inv_adjunction_data.
+  - apply inv_triangle_1_statement_over_id.
+Qed.  
+
+
+Definition equiv_inv : is_equiv_over_id GG.
+Proof.
+  mkpair.
+  - mkpair. 
+    + exact (FF,, (η_inv,, ε_inv)).
+    + mkpair. cbn. apply inv_triangle_1_statement_over_id.
+      apply inv_triangle_2_statement_over_id.
+  - apply form_equiv_inv_adjunction_data.
+Defined.      
+
+End Displayed_Equiv_Inv.
+
 (** * Induced adjunctions/equivalences between fibre precats *)
 Section Equiv_Fibres.
 
@@ -695,9 +935,5 @@ Defined.
 End Equiv_Fibres.
 
 (* *)
-
-
-
-
 
 
