@@ -397,6 +397,15 @@ Proof.
     apply homset_property.
 Qed.
 
+Lemma isaset_iso_disp {C : Precategory} {D : disp_precat C}
+  {x y} (f : iso x y) (xx : D x) (yy : D y)
+  : isaset (iso_disp f xx yy).
+Proof.
+  apply isaset_total2.
+  - apply homsets_disp.
+  - intros f. apply isasetaprop, isaprop_is_iso_disp.
+Qed.
+
 Lemma eq_iso_disp {C : Precategory} {D : disp_precat C}
     {x y : C} (f : iso x y) 
     {xx : D x} {yy} (ff ff' : iso_disp f xx yy)
@@ -622,7 +631,7 @@ Definition is_category_disp {C} (D : disp_precat C)
   := forall x x' (e : x = x') {xx : D x} {xx' : D x'},
        isweq (λ ee, @idtoiso_disp _ _ _ _ e xx xx' ee).
 
-
+(* TODO: rename — at least respell fibre, maybe rename further.  *)
 Lemma is_category_disp_from_fibers {C} {D : disp_precat C}
   : (Π x (xx xx' : D x), isweq (fun e : xx = xx' => idtoiso_fiber_disp e))
   -> is_category_disp D.
@@ -844,7 +853,8 @@ Proof.
   split. Focus 2. apply homset_property.
   intros xs ys.
   set (x := pr1 xs). set (xx := pr2 xs).  
-  set (y := pr1 ys). set (yy := pr2 ys). 
+  set (y := pr1 ys). set (yy := pr2 ys).
+  (* TODO: search for lemma in library; if not found, break out and upstream. *)
   assert (lemma : 
    Π (A B : Type) (f : A -> B) (w : A ≃ B) (H : w ~ f), isweq f).
   {

@@ -80,7 +80,7 @@ End Auxiliary.
 
 We directly define direct products of displayed categories over a base.
 
-An alternative would be to define the direct product as the “Sigma-precategory” of the pullback to either factor.  *)
+An alternative would be to define the direct product as the [sigma_disp_precat] of the pullback to either factor.  *)
 Section Dirprod.
 
 Context {C : Precategory} (D1 D2 : disp_precat C).
@@ -247,6 +247,103 @@ Definition sigmapr1_disp_functor
 := (sigmapr1_disp_functor_data,, sigmapr1_disp_functor_axioms).
 
 (* TODO: complete [sigmapr2_disp]; will be a [functor_lifting], not a [functor_over]. *)
+
+(** ** Univalence of sigma-displayed-categories. *)
+
+Lemma is_iso_sigma_disp
+    {x y} (xxx : sigma_disp_precat x) (yyy : sigma_disp_precat y)
+    {f : iso x y} (fff : xxx ⇒[f] yyy) 
+    (ii : is_iso_disp f (pr1 fff))
+    (ffi := (_,, ii) : iso_disp f (pr1 xxx) (pr1 yyy))
+    (iii : is_iso_disp (@total_iso _ _ (_,,_) (_,,_) f ffi) (pr2 fff))
+  : is_iso_disp f fff.
+Proof.
+Admitted.
+
+Definition sigma_disp_iso
+    {x y} (xx : sigma_disp_precat x) (yy : sigma_disp_precat y)
+    {f : iso x y} (ff : iso_disp f (pr1 xx) (pr1 yy))
+    (fff : iso_disp (@total_iso _ _ (_,,_) (_,,_) f ff) (pr2 xx) (pr2 yy))
+  : iso_disp f xx yy.
+Proof.
+  exists (pr1 ff,, pr1 fff). use is_iso_sigma_disp; cbn.
+  - exact (pr2 ff).
+  - exact (pr2 fff).
+Defined.
+
+Definition sigma_disp_iso_map
+    {x y} (xx : sigma_disp_precat x) (yy : sigma_disp_precat y)
+    (f : iso x y)
+  : (Σ ff : iso_disp f (pr1 xx) (pr1 yy),
+       iso_disp (@total_iso _ _ (_,,_) (_,,_) f ff) (pr2 xx) (pr2 yy))
+  -> iso_disp f xx yy
+:= fun ff => sigma_disp_iso _ _ (pr1 ff) (pr2 ff).
+
+Lemma sigma_disp_iso_isweq
+    {x y} (xx : sigma_disp_precat x) (yy : sigma_disp_precat y)
+    (f : iso x y)
+  : isweq (sigma_disp_iso_map xx yy f).
+Proof.
+Admitted.
+
+Definition sigma_disp_iso_equiv 
+    {x y} (xx : sigma_disp_precat x) (yy : sigma_disp_precat y)
+    (f : iso x y)
+:= weqpair _ (sigma_disp_iso_isweq xx yy f).
+
+Lemma is_category_sigma_disp (DD : is_category_disp D) (EE : is_category_disp E)
+  : is_category_disp sigma_disp_precat.
+Proof.
+  apply is_category_disp_from_fibers.
+  intros x xx yy.
+  assert (lemma : 
+   Π (A B : Type) (f : A -> B) (w : A ≃ B) (H : w ~ f), isweq f).
+  {
+    intros A B f w H. apply isweqhomot with w. apply H. apply weqproperty.
+  }
+  use lemma.
+  - destruct xx as [xx xxx], yy as [yy yyy].
+    refine (@weqcomp _ (Σ ee : xx = yy, transportf _ ee xxx = yyy) _ _ _).
+      refine (total2_paths_equiv _ _ _).
+    set (i := fun (ee : xx = yy) => (total2_paths2 (idpath _) ee)).
+    apply @weqcomp with
+        (Σ ee : xx = yy, transportf _ (i ee) xxx = yyy).
+      apply weqfibtototal; intros ee.
+      refine (_ ,, isweqpathscomp0l _ _).
+      (* Pure transport lemma; maybe break out? *)
+      destruct ee; apply idpath.
+    apply @weqcomp with (Σ ee : xx = yy,
+             iso_disp (@idtoiso (total_precat _) (_,,_) (_,,_) (i ee)) xxx yyy).
+      apply weqfibtototal; intros ee.
+      exists (fun (eee : transportf _ (i ee) xxx = yyy) => idtoiso_disp _ eee).
+      apply EE.
+    apply @weqcomp with (Σ ee : xx = yy, iso_disp 
+         (@total_iso _ D (_,,_) (_,,_) _ (idtoiso_disp (idpath _) ee)) xxx yyy).
+      apply weqfibtototal; intros ee.
+      mkpair.
+        refine (transportf (fun I => iso_disp I xxx yyy) _).
+        unfold i.
+      (* lemma on [idtoiso]; maybe break out? *)
+        destruct ee. abstract (apply eq_iso, idpath).
+      exact (isweqtransportf (fun I => iso_disp I xxx yyy) _).    
+    apply (@weqcomp _ (Σ f : iso_disp (identity_iso x) xx yy,
+                      (iso_disp (@total_iso _ D (_,,_) (_,,_) _ f) xxx yyy)) _).
+      refine (weqfp (weqpair _ _) _). refine (DD _ _ (idpath _) _ _).
+    apply (sigma_disp_iso_equiv (_,,_) (_,,_) _).
+  - assert (lemma2 : forall i i' (e : i = i') ii, 
+                 pr1 (transportf (fun i => iso_disp i (pr2 xx) (pr2 yy)) e ii)
+                 = transportf _ (maponpaths pr1 e) (pr1 ii)).
+      intros; destruct e; apply idpath.
+    intros ee; apply eq_iso_disp.
+    destruct ee, xx as [xx xxx]; cbn.
+    apply maponpaths.
+    etrans. cbn in lemma2. apply (lemma2 _ _ 
+                 (is_category_sigma_disp_subproof _ _ _ _ _ _ _) _).
+    refine (@maponpaths_2 _ _ _ _ _ (idpath _) _ _).
+    etrans. use maponpaths. apply eq_iso, idpath.
+      apply isaset_iso, homset_property.
+   apply (@homset_property (total_precat _) (_,,_) (_,,_)).
+Qed.
 
 End Sigma.
 
