@@ -43,6 +43,121 @@ Tactic Notation "sym" := apply pathsinv0.
 Tactic Notation "assoc" := apply @pathsinv0, path_assoc.
 Tactic Notation "cancel_postcomposition" := apply cancel_postcomposition.
 
+(** * Path-algebra: general lemmas about transport, equivalences, etc. *)
+
+(** A useful lemma for binary functions, generalising e.g. [cancel_postcomposition]: *)
+(*TODO: look carefully for this in the library *)
+Definition maponpaths_2 {X Y Z : Type} (f : X -> Y -> Z) {x x'} (e : x = x') y
+  : f x y = f x' y
+:= maponpaths (fun x => f x y) e.
+
+Lemma pr1_transportf (A : UU) (B : A -> UU) (P : Π a, B a -> UU)
+   (a a' : A) (e : a = a') (xs : Σ b : B a, P _ b):
+   pr1 (transportf (fun x => Σ b : B x, P _ b) e xs) = 
+     transportf (fun x => B x) e (pr1 xs).
+Proof.
+  destruct e; apply idpath.
+Defined.
+
+Lemma transportf_forall {A B} (C : A -> B -> Type)
+  {x0 x1 : A} (e : x0 = x1) (f : forall y:B, C x0 y)
+  : transportf (fun x => forall y, C x y) e f
+  = fun y => transportf (fun x => C x y) e (f y).
+Proof.
+  destruct e; apply idpath.
+Defined.
+
+Definition isweqpathscomp0l {X : UU} {x x' : X} (x'' : X) (e: x = x') :
+   isweq (fun (e' : x' = x'') => e @ e').
+Proof.
+  intros.
+  apply (gradth _ (fun e'' => !e @ e'')).
+  - intro p. rewrite path_assoc. rewrite pathsinv0l.
+    apply idpath.
+  - intro p. rewrite path_assoc. rewrite pathsinv0r.
+    apply idpath.
+Defined.
+
+
+Definition transportf_forall_var :
+  Π (A : UU) (B : A -> UU) (C : UU)
+    (a1 a2 : A) (e : a1 = a2)
+(f : B a1 -> C),
+transportf (λ x : A, Π y : B x, C) e f =
+(λ y : B a2 ,  f (transportb B e y)).
+Proof.
+  intros A B D a1 a2 e f.
+  induction e.
+  apply idpath.
+Defined.
+
+Definition transportf_forall_var2 :
+  Π (A : UU) (B C : A -> UU) 
+    (a1 a2 : A) (e : a1 = a2)
+    (f : B a1 -> C a1),
+transportf (λ x : A, Π y : B x, C x) e f =  
+(λ y : B a2 , transportf _ e (f (transportb B e y))).
+Proof.
+  intros A B D a1 a2 e f.
+  induction e.
+  apply idpath.
+Defined.
+
+Lemma maponpaths_apply {A B} {f0 f1 : A -> B} (e : f0 = f1) (x : A)
+  : maponpaths (fun f => f x) e
+  = toforallpaths _ _ _ e x.
+Proof.
+  destruct e; apply idpath.
+Defined.
+
+Lemma maponpaths_eq_idpath
+  : Π (T1 T2 : UU) (f : T1 -> T2) (t1 : T1) (e : t1 = t1)
+       (H : e = idpath _ ), maponpaths f e = idpath _ .
+Proof.
+  intros.
+  exact (maponpaths (maponpaths f) H).
+Defined.
+
+Lemma transportf_comp_lemma (X : UU) (B : X -> UU) {A A' A'': X} (e : A = A'') (e' : A' = A'')
+  (x : B A) (x' : B A')
+  : transportf _ (e @ !e') x = x'
+  -> transportf _ e x = transportf _ e' x'.
+Proof.
+  intro H.
+  eapply pathscomp0. Focus 2.
+    apply maponpaths. exact H.
+  eapply pathscomp0. Focus 2.
+    symmetry. apply transport_f_f.
+  apply (maponpaths (fun p => transportf _ p x)).
+  apply pathsinv0.
+  eapply pathscomp0.
+  - apply @pathsinv0, path_assoc. 
+  - eapply pathscomp0. 
+    apply maponpaths.
+    apply pathsinv0l.
+    apply pathscomp0rid.
+Defined.
+
+Lemma transportf_comp_lemma_hset (X : UU) (B : X -> UU) (A : X) (e : A = A)
+  {x x' : B A} (hs : isaset X)
+  : x = x'
+  -> transportf _ e x = x'.
+Proof.
+  intros ex.
+  apply @pathscomp0 with (transportf _ (idpath _) x).
+    apply (maponpaths (fun p => transportf _ p x)).
+    apply hs.
+  exact ex.
+Qed.
+
+(* TODO: redundant: replace with general-purpose [maponpaths_2]. *)
+Lemma transportf_ext (X : UU) (B : X -> UU) (A A' : X) (e e' : A = A') p :
+  e = e' -> transportf _ e p = transportf B e' p.
+Proof.
+  intro H; induction H; apply idpath.
+Defined.
+
+(** ** Lemmas on equivalences *)
 
 Lemma invmap_eq {A B : UU} (f : A ≃ B) (b : B) (a : A)
   : b = f a → invmap f b = a.
@@ -52,11 +167,41 @@ Proof.
   etrans. apply homotweqinvweq. apply H.
 Defined.
 
-(*TODO: look carefully for this in the library *)
-Definition maponpaths_2 {X Y Z : Type} (f : X -> Y -> Z) {x x'} (e : x = x') y
-  : f x y = f x' y
-:= maponpaths (fun x => f x y) e.
+  
+Definition rewrite_in_equivalence (A X : UU) (a a' b : A) :
+  a = a' → (a' = b) ≃ X → (a = b) ≃ X.
+Proof.
+  intros.
+  set  (H:= weqpair _ (isweqpathscomp0l b (!X0))).
+  eapply weqcomp. apply H.
+  apply X1.
+Defined.
 
+(** ** Other general lemmas *)
+
+(* A slightly surprising but very useful lemma for characterising identity types.
+
+Concisely: to show that a family of functions [w : forall a b, a = b -> P a b] are equivalences, it’s enough to show they have a retraction; the retraction is then automatically a quasi-inverse, because of the fact that the coconut is contractible.
+ 
+Often one can save a bit of work with this (since the other direction of inverseness may not be so obvious in individual cases).
+
+TODO: move; consider naming; see if this can be used to simplify other proofs of [is_category] and similar? *)
+Lemma eq_equiv_from_retraction {A} {P : A -> A -> UU} 
+    (w : forall a b, a = b -> P a b)
+    (v : forall a b, P a b -> a = b)
+  : (forall a b (p : P a b), w _ _ (v _ _ p) = p)
+  -> forall a b, isweq (w a b).
+Proof.
+  intros wv a.
+  apply isweqtotaltofib. (* first of the two key steps *)
+  use gradth.
+  - intros bp. exists (pr1 bp). apply v, (pr2 bp).
+  - intros be; apply connectedcoconusfromt. (* the second key step *)
+  - intros bp. use total2_paths. apply idpath. apply wv.
+Qed.
+
+
+(** * Algebra in (pre)categories *)
 
 Lemma is_iso_comp_is_iso {C : precategory} {a b c : ob C}
   (f : C⟦a, b⟧) (g : C⟦b, c⟧) 
@@ -73,9 +218,19 @@ Proof.
 Defined.
 
 
-(** * Categorical equivalence *)
+(* TODO: check more thoroughly if this is provided in the library; if so, use the library version, otherwise move this upstream.  Cf. also https://github.com/UniMath/UniMath/issues/279 *)
+Lemma inv_from_iso_from_is_z_iso {D: precategory} {a b : D}
+  (f: a --> b) (g : b --> a) (H : is_inverse_in_precat f g)
+: inv_from_iso (f ,, (is_iso_from_is_z_iso _ (g ,, H))) 
+  = g.
+Proof.
+  cbn. apply id_right.
+Qed.
 
-Section fix_stuff.
+(** ** Equivalences of categories *)
+(** Specifically: the composition of (adjoint) equivalences of precats. *)
+
+Section eqv_comp.
 
 Context {A B C : precategory}
         {hsA : has_homsets A}
@@ -95,7 +250,6 @@ Let ε : functor_precategory _ _ hsB ⟦ _ , _ ⟧ := counit_from_left_adjoint a
 Let ε' : functor_precategory _ _ hsC ⟦ _ , _ ⟧ := counit_from_left_adjoint adF'.
 Let G := right_adjoint adF.
 Let G' := right_adjoint adF'.
-
 
 Definition unit_comp : (functor_precategory A A hsA) 
    ⟦ functor_identity A,
@@ -194,8 +348,6 @@ Defined.
 
 End adj_comp.
 
-Section eqv_comp.
-
 Hypothesis HF : adj_equivalence_of_precats F.
 Hypothesis HF' : adj_equivalence_of_precats F'.
 
@@ -219,103 +371,7 @@ Defined.
 
 End eqv_comp.
 
-End fix_stuff.
-
-
-(** * Lemmas about transport, etc *)
-
-Lemma idtoiso_transportf_family_of_morphisms (D : precategory)
-      (A : UU) (B : A -> UU)
-      (F : Π a, B a -> D)
-      (d d' : D) (deq : d = d')
-      (R : Π a (b : B a), D⟦ F a b, d⟧)
-     
-: transportf (λ x, Π a b, D⟦ F a b, x⟧)
-             deq R =
-  λ a b, R a b ;; idtoiso deq.
-Proof.
-  destruct deq.
-  apply funextsec.
-  intro. apply funextsec. intro.
-  apply pathsinv0.
-  apply id_right.
-Qed.
-
-
-Lemma pr1_transportf (A : UU) (B : A -> UU) (P : Π a, B a -> UU)
-   (a a' : A) (e : a = a') (xs : Σ b : B a, P _ b):
-   pr1 (transportf (fun x => Σ b : B x, P _ b) e xs) = 
-     transportf (fun x => B x) e (pr1 xs).
-Proof.
-  destruct e; apply idpath.
-Defined.
-
-Lemma transportf_forall {A B} (C : A -> B -> Type)
-  {x0 x1 : A} (e : x0 = x1) (f : forall y:B, C x0 y)
-  : transportf (fun x => forall y, C x y) e f
-  = fun y => transportf (fun x => C x y) e (f y).
-Proof.
-  destruct e; apply idpath.
-Defined.
-
-Lemma maponpaths_apply {A B} {f0 f1 : A -> B} (e : f0 = f1) (x : A)
-  : maponpaths (fun f => f x) e
-  = toforallpaths _ _ _ e x.
-Proof.
-  destruct e; apply idpath.
-Defined.
-
-Lemma maponpaths_eq_idpath
-  : Π (T1 T2 : UU) (f : T1 -> T2) (t1 : T1) (e : t1 = t1)
-       (H : e = idpath _ ), maponpaths f e = idpath _ .
-Proof.
-  intros.
-  exact (maponpaths (maponpaths f) H).
-Defined.
-
-(** Useful lemma for binary functions, generalising e.g. [cancel_postcomposition]. *)
-
-
-Lemma transportf_comp_lemma (X : UU) (B : X -> UU) {A A' A'': X} (e : A = A'') (e' : A' = A'')
-  (x : B A) (x' : B A')
-  : transportf _ (e @ !e') x = x'
-  -> transportf _ e x = transportf _ e' x'.
-Proof.
-  intro H.
-  eapply pathscomp0. Focus 2.
-    apply maponpaths. exact H.
-  eapply pathscomp0. Focus 2.
-    symmetry. apply transport_f_f.
-  apply (maponpaths (fun p => transportf _ p x)).
-  apply pathsinv0.
-  eapply pathscomp0.
-  - apply @pathsinv0, path_assoc. 
-  - eapply pathscomp0. 
-    apply maponpaths.
-    apply pathsinv0l.
-    apply pathscomp0rid.
-Defined.
-
-Lemma transportf_comp_lemma_hset (X : UU) (B : X -> UU) (A : X) (e : A = A)
-  {x x' : B A} (hs : isaset X)
-  : x = x'
-  -> transportf _ e x = x'.
-Proof.
-  intros ex.
-  apply @pathscomp0 with (transportf _ (idpath _) x).
-    apply (maponpaths (fun p => transportf _ p x)).
-    apply hs.
-  exact ex.
-Qed.
-
-(* TODO: redundant: replace with general-purpose [maponpaths_2]. *)
-Lemma transportf_ext (X : UU) (B : X -> UU) (A A' : X) (e e' : A = A') p :
-  e = e' -> transportf _ e p = transportf B e' p.
-Proof.
-  intro H; induction H; apply idpath.
-Defined.
-
-(** * Lemmas/definitions on (pre)categories *)
+(** ** Misc lemmas/definitions on (pre)categories *)
 
 Definition preShv C := functor_precategory C^op HSET has_homsets_HSET.
 
@@ -337,6 +393,24 @@ Proof.
   assert (XTT := is_natural_yoneda_iso_inv _ hsC F _ _ f).
   apply (toforallpaths _ _ _ XTT).
 Qed.
+
+Lemma idtoiso_transportf_family_of_morphisms (D : precategory)
+      (A : UU) (B : A -> UU)
+      (F : Π a, B a -> D)
+      (d d' : D) (deq : d = d')
+      (R : Π a (b : B a), D⟦ F a b, d⟧)
+     
+: transportf (λ x, Π a b, D⟦ F a b, x⟧)
+             deq R =
+  λ a b, R a b ;; idtoiso deq.
+Proof.
+  destruct deq.
+  apply funextsec.
+  intro. apply funextsec. intro.
+  apply pathsinv0.
+  apply id_right.
+Qed.
+
 
 Lemma idtoiso_concat_pr (C : precategory) (a a' a'' : ob C)
   (p : a = a') (q : a' = a'') :
@@ -705,8 +779,7 @@ Proof.
 Qed.
 
 
-Section bla.
-
+Section Pullback_Unique_Up_To_Iso.
 
 (*   a'   b'
       f  /h
@@ -805,10 +878,16 @@ Proof.
   - apply inv2.
 Defined.
 
-End bla.
-  
+End Pullback_Unique_Up_To_Iso.
 
 Arguments map_into_Pb {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 Arguments Pb_map_commutes_1 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 Arguments Pb_map_commutes_2 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 
+
+(** * Unorganised lemmas *)
+
+(* Lemmas that probably belong in one of the sections above, but haven’t been sorted into them yet.  Mainly a temporary holding pen for lemmas being upstreamed from other files. TODO: empty this bin frequently (but keep it here for re-use). *) 
+Section Unorganised.
+
+End Unorganised.
