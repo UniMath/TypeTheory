@@ -403,7 +403,7 @@ Lemma isaset_iso_disp {C : Precategory} {D : disp_precat C}
 Proof.
   apply isaset_total2.
   - apply homsets_disp.
-  - intros f. apply isasetaprop, isaprop_is_iso_disp.
+  - intros. apply isasetaprop, isaprop_is_iso_disp.
 Qed.
 
 Lemma eq_iso_disp {C : Precategory} {D : disp_precat C}
@@ -480,8 +480,7 @@ Proof.
   mkpair.
   - apply (ff ;; gg).
   - mkpair.
-    + Search (iso_inv_from_iso (iso_comp _ _ ) = _ ).
-      apply (transportb (mor_disp zz xx) (maponpaths pr1 (iso_inv_of_iso_comp _ _ _ _ f g))).
+    + apply (transportb (mor_disp zz xx) (maponpaths pr1 (iso_inv_of_iso_comp _ _ _ _ f g))).
       cbn.
       apply (inv_mor_disp_from_iso gg ;; inv_mor_disp_from_iso ff).
     + split.
@@ -632,7 +631,7 @@ Definition is_category_disp {C} (D : disp_precat C)
        isweq (λ ee, @idtoiso_disp _ _ _ _ e xx xx' ee).
 
 (* TODO: rename — at least respell fibre, maybe rename further.  *)
-Lemma is_category_disp_from_fibers {C} {D : disp_precat C}
+Lemma is_category_disp_from_fibres {C} {D : disp_precat C}
   : (Π x (xx xx' : D x), isweq (fun e : xx = xx' => idtoiso_fiber_disp e))
   -> is_category_disp D.
 Proof.
@@ -732,8 +731,6 @@ Definition pr1_precat : functor total_precat C
 
 (** ** Isomorphisms and saturation in the total category *)
 
-(* TODO: define, and sub in, [inv_from_iso_disp], and other access functions. *)
-
 Definition is_iso_total {xx yy : total_precat} (ff : xx ⇒ yy)
   (i : is_iso (pr1 ff))
   (fi := isopair (pr1 ff) i)
@@ -745,11 +742,11 @@ Proof.
   split.
   - use total2_paths.
     apply (iso_inv_after_iso fi).
-    etrans. apply maponpaths. apply (pr2 (pr2 ii)).
+    etrans. apply maponpaths. apply (inv_mor_after_iso_disp ii). 
     apply Utilities.transportfbinv.
   - use total2_paths.
     apply (iso_after_iso_inv fi).
-    etrans. apply maponpaths. apply (pr1 (pr2 ii)).
+    etrans. apply maponpaths. apply (iso_disp_after_inv_mor ii).
     apply Utilities.transportfbinv.
 Qed.
 
@@ -854,13 +851,7 @@ Proof.
   intros xs ys.
   set (x := pr1 xs). set (xx := pr2 xs).  
   set (y := pr1 ys). set (yy := pr2 ys).
-  (* TODO: search for lemma in library; if not found, break out and upstream. *)
-  assert (lemma : 
-   Π (A B : Type) (f : A -> B) (w : A ≃ B) (H : w ~ f), isweq f).
-  {
-    intros A B f w H. apply isweqhomot with w. apply H. apply weqproperty.
-  }
-  use lemma.
+  use weqhomot.
   apply (@weqcomp _ (Σ e : x = y, transportf _ e xx = yy) _).
     apply total2_paths_equiv.
   apply (@weqcomp _ (Σ e : x = y, iso_disp (idtoiso e) xx yy) _).

@@ -291,17 +291,27 @@ Definition sigma_disp_iso_equiv
     (f : iso x y)
 := weqpair _ (sigma_disp_iso_isweq xx yy f).
 
+Lemma is_category_sigma_disp_helper : is_category_disp D
+→ is_category_disp E
+  → Π (x : C) (xx : D x),
+    E (x,, xx)
+    → E (x,, xx)
+      → let i := λ ee : xx = xx, total2_paths2 (idpath x) ee in
+        idtoiso (C:= total_precat _ ) (total2_paths2 (idpath x) (idpath xx)) =
+        @total_iso _ D (x,,xx) (x,, xx) (idtoiso (C:= C) (idpath x))
+          (idtoiso_disp (idpath x) (idpath xx)).
+Proof.
+  intros.
+  apply eq_iso.
+  apply idpath.
+Defined.
+
 Lemma is_category_sigma_disp (DD : is_category_disp D) (EE : is_category_disp E)
   : is_category_disp sigma_disp_precat.
 Proof.
-  apply is_category_disp_from_fibers.
+  apply is_category_disp_from_fibres.
   intros x xx yy.
-  assert (lemma : 
-   Π (A B : Type) (f : A -> B) (w : A ≃ B) (H : w ~ f), isweq f).
-  {
-    intros A B f w H. apply isweqhomot with w. apply H. apply weqproperty.
-  }
-  use lemma.
+  use weqhomot.
   - destruct xx as [xx xxx], yy as [yy yyy].
     refine (@weqcomp _ (Σ ee : xx = yy, transportf _ ee xxx = yyy) _ _ _).
       refine (total2_paths_equiv _ _ _).
@@ -324,7 +334,8 @@ Proof.
         refine (transportf (fun I => iso_disp I xxx yyy) _).
         unfold i.
       (* lemma on [idtoiso]; maybe break out? *)
-        destruct ee. abstract (apply eq_iso, idpath).
+        destruct ee. apply is_category_sigma_disp_helper; assumption. 
+          (* abstract (apply eq_iso, idpath). *)
       exact (isweqtransportf (fun I => iso_disp I xxx yyy) _).    
     apply (@weqcomp _ (Σ f : iso_disp (identity_iso x) xx yy,
                       (iso_disp (@total_iso _ D (_,,_) (_,,_) _ f) xxx yyy)) _).
@@ -337,8 +348,11 @@ Proof.
     intros ee; apply eq_iso_disp.
     destruct ee, xx as [xx xxx]; cbn.
     apply maponpaths.
-    etrans. cbn in lemma2. apply (lemma2 _ _ 
-                 (is_category_sigma_disp_subproof _ _ _ _ _ _ _) _).
+    etrans. cbn in lemma2.  
+(*    Check                  (is_category_sigma_disp_subproof _ _ _ _ _ _ ). *)
+    (* TODO : clean this proof, has weird structure *)
+    apply (lemma2 _ _  
+                 (is_category_sigma_disp_helper _ _ _ _ _ _ ) _).
     refine (@maponpaths_2 _ _ _ _ _ (idpath _) _ _).
     etrans. use maponpaths. apply eq_iso, idpath.
       apply isaset_iso, homset_property.
@@ -376,7 +390,7 @@ Lemma foo
 Proof.
   induction p.
   assert (XR : nat_trans_eq_pointwise (idpath a') c' = idpath _ ).
-  { apply (pr2 C). }
+  { apply homset_property. }
   rewrite XR.
   apply idpath.
 Qed.
@@ -401,7 +415,7 @@ Proof.
   etrans. apply foo.
   apply pathsinv0.
   etrans. apply id_left_disp.
-  apply transportf_ext. apply (pr2 C).
+  apply transportf_ext, homset_property.
 Qed.
 
 Lemma nat_trans_over_id_right
@@ -424,7 +438,7 @@ Proof.
   etrans. apply foo.
   apply pathsinv0.
   etrans. apply id_right_disp.
-  apply transportf_ext. apply (pr2 C).
+  apply transportf_ext, homset_property.
 Qed.
 
 Lemma nat_trans_over_assoc
@@ -454,7 +468,7 @@ Proof.
   apply pathsinv0.
   etrans. apply assoc_disp.
   apply transportf_ext.
-  apply (pr2 C).
+  apply homset_property.
 Qed.
 
 Lemma isaset_nat_trans_over
@@ -551,15 +565,11 @@ Proof.
       assert (XR := foo). 
       specialize (XR _ _ _ _ (! iso_after_iso_inv f)).
       etrans. apply XR.
-      apply transportf_comp_lemma.
-(*      Search (transportf _ _ ?x = ?y). *)
-      apply transportf_comp_lemma_hset.
-      apply (pr2 C).
-      apply idpath.
+      apply transportf_ext, homset_property.
     + etrans. apply mor_disp_transportf_prewhisker.      
       apply pathsinv0.
       apply transportf_comp_lemma.
-      assert (XR:= pr2 (pr2 H)).
+      assert (XR:= inv_mor_after_iso_disp H).
       assert (XRT :=  (maponpaths pr1 XR)). 
       assert (XRT' :=  toforallpaths _ _ _  (toforallpaths _ _ _ XRT x')).
       apply pathsinv0.
@@ -568,11 +578,7 @@ Proof.
       assert (XR := foo). 
       specialize (XR _ _ _ _ (! iso_inv_after_iso f)).
       etrans. apply XR.
-      apply transportf_comp_lemma.
-(*      Search (transportf _ _ ?x = ?y). *)
-      apply transportf_comp_lemma_hset.
-      apply (pr2 C).
-      apply idpath.
+      apply transportf_ext, homset_property.
 Defined.
 
 Lemma is_nat_trans_over_pointwise_inv
@@ -647,13 +653,13 @@ Proof.
             apply assoc_disp_var.
     etrans. apply transport_f_f.
     etrans. apply maponpaths. apply maponpaths.
-            apply (pr2 (pr2 (H _ _ ))).
+            apply (inv_mor_after_iso_disp (H _ _ )).
     etrans. apply maponpaths. apply mor_disp_transportf_prewhisker. 
     etrans. apply maponpaths. apply maponpaths.
             apply id_right_disp.
     etrans. apply transport_f_f.
     etrans. apply transport_f_f.
-    apply transportf_ext. apply (pr2 C).
+    apply transportf_ext. apply homset_property.
 Qed.
 
 Definition inv_disp_from_pointwise_iso 
@@ -703,9 +709,9 @@ Proof.
       cbn.
       apply pathsinv0.
       etrans. apply mor_disp_transportf_postwhisker.
-      etrans. apply maponpaths. apply (pr1 (pr2 (H c' xx'))).
+      etrans. apply maponpaths. apply (iso_disp_after_inv_mor (H c' xx')).
       etrans. apply transport_f_f.
-      apply transportf_ext. apply (pr2 C).
+      apply transportf_ext, homset_property.
     + apply subtypeEquality.
       { intro. apply isaprop_nat_trans_over_axioms. }
       apply funextsec; intro c'.
@@ -715,9 +721,9 @@ Proof.
       cbn.
       apply pathsinv0.
       etrans. apply mor_disp_transportf_prewhisker.
-      etrans. apply maponpaths. apply (pr2 (pr2 (H c' xx'))).
+      etrans. apply maponpaths. apply (inv_mor_after_iso_disp (H c' xx')).
       etrans. apply transport_f_f.
-      apply transportf_ext. apply (pr2 C).
+      apply transportf_ext, homset_property.
 Defined.      
 
 End Functor.
@@ -908,10 +914,7 @@ Proof.
     etrans. apply transport_f_f.
     etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
     etrans. apply transport_f_f.
-    apply transportf_comp_lemma.
-    apply transportf_comp_lemma_hset.
-    + apply homset_property.
-    + apply idpath.
+    apply transportf_ext, homset_property.
 Qed.
 
 Definition fibre_functor : functor D[{x}] D'[{F x}]
