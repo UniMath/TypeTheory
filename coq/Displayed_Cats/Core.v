@@ -630,7 +630,7 @@ Definition is_category_disp {C} (D : disp_precat C)
   := forall x x' (e : x = x') {xx : D x} {xx' : D x'},
        isweq (λ ee, @idtoiso_disp _ _ _ _ e xx xx' ee).
 
-(* TODO: rename — at least respell fibre, maybe rename further.  *)
+(* TODO: maybe rename further.  *)
 Lemma is_category_disp_from_fibres {C} {D : disp_precat C}
   : (Π x (xx xx' : D x), isweq (fun e : xx = xx' => idtoiso_fiber_disp e))
   -> is_category_disp D.
@@ -1213,7 +1213,7 @@ Lemma functor_over_on_iso_disp_aux1 {C C'} {F}
     {x y} {xx : D x} {yy} {f : iso x y} 
     (ff : xx ⇒[f] yy)
     (Hff : is_iso_disp f ff)
-  : transportf _ (functor_on_inv_from_iso _ _ F _ _ f)
+  : transportf _ (functor_on_inv_from_iso F f)
       (# FF (inv_mor_disp_from_iso Hff))
     ;; # FF ff 
   = transportb _ (iso_after_iso_inv _) (id_disp _).
@@ -1236,7 +1236,7 @@ Lemma functor_over_on_iso_disp_aux2 {C C'} {F}
     (ff : xx ⇒[f] yy)
     (Hff : is_iso_disp f ff)
   : # FF ff
-    ;; transportf _ (functor_on_inv_from_iso _ _ F _ _ f)
+    ;; transportf _ (functor_on_inv_from_iso F f)
          (# FF (inv_mor_disp_from_iso Hff))
   =
     transportb _ (iso_inv_after_iso (functor_on_iso _ _)) (id_disp (FF x xx)).
@@ -1262,7 +1262,7 @@ Definition functor_over_on_is_iso_disp {C C'} {F}
     {ff : xx ⇒[f] yy} (Hff : is_iso_disp f ff)
     : is_iso_disp (functor_on_iso F f) (# FF ff).
 Proof.
-  exists (transportf _ (functor_on_inv_from_iso _ _ F _ _ f)
+  exists (transportf _ (functor_on_inv_from_iso F f)
            (# FF (inv_mor_disp_from_iso Hff))); split. 
   - apply functor_over_on_iso_disp_aux1.
   - apply functor_over_on_iso_disp_aux2.
@@ -1347,7 +1347,7 @@ Definition functor_over_ff_reflects_isos
   : is_iso_disp _ ff.
 Proof.
   set (FFffinv := inv_mor_disp_from_iso isiso). 
-  set (FFffinv' := transportb _ (functor_on_inv_from_iso _ _ _ _ _ _ ) FFffinv).
+  set (FFffinv' := transportb _ (functor_on_inv_from_iso _ _ ) FFffinv).
   set (ffinv := functor_over_ff_inv FFffinv').
   exists ffinv.
   split.
