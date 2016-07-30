@@ -403,7 +403,7 @@ Lemma isaset_iso_disp {C : Precategory} {D : disp_precat C}
 Proof.
   apply isaset_total2.
   - apply homsets_disp.
-  - intros f. apply isasetaprop, isaprop_is_iso_disp.
+  - intros. apply isasetaprop, isaprop_is_iso_disp.
 Qed.
 
 Lemma eq_iso_disp {C : Precategory} {D : disp_precat C}
@@ -480,8 +480,7 @@ Proof.
   mkpair.
   - apply (ff ;; gg).
   - mkpair.
-    + Search (iso_inv_from_iso (iso_comp _ _ ) = _ ).
-      apply (transportb (mor_disp zz xx) (maponpaths pr1 (iso_inv_of_iso_comp _ _ _ _ f g))).
+    + apply (transportb (mor_disp zz xx) (maponpaths pr1 (iso_inv_of_iso_comp _ _ _ _ f g))).
       cbn.
       apply (inv_mor_disp_from_iso gg ;; inv_mor_disp_from_iso ff).
     + split.
@@ -631,8 +630,8 @@ Definition is_category_disp {C} (D : disp_precat C)
   := forall x x' (e : x = x') {xx : D x} {xx' : D x'},
        isweq (λ ee, @idtoiso_disp _ _ _ _ e xx xx' ee).
 
-(* TODO: rename — at least respell fibre, maybe rename further.  *)
-Lemma is_category_disp_from_fibers {C} {D : disp_precat C}
+(* TODO: maybe rename further.  *)
+Lemma is_category_disp_from_fibres {C} {D : disp_precat C}
   : (Π x (xx xx' : D x), isweq (fun e : xx = xx' => idtoiso_fiber_disp e))
   -> is_category_disp D.
 Proof.
@@ -732,8 +731,6 @@ Definition pr1_precat : functor total_precat C
 
 (** ** Isomorphisms and saturation in the total category *)
 
-(* TODO: define, and sub in, [inv_from_iso_disp], and other access functions. *)
-
 Definition is_iso_total {xx yy : total_precat} (ff : xx ⇒ yy)
   (i : is_iso (pr1 ff))
   (fi := isopair (pr1 ff) i)
@@ -745,11 +742,11 @@ Proof.
   split.
   - use total2_paths.
     apply (iso_inv_after_iso fi).
-    etrans. apply maponpaths. apply (pr2 (pr2 ii)).
+    etrans. apply maponpaths. apply (inv_mor_after_iso_disp ii). 
     apply Utilities.transportfbinv.
   - use total2_paths.
     apply (iso_after_iso_inv fi).
-    etrans. apply maponpaths. apply (pr1 (pr2 ii)).
+    etrans. apply maponpaths. apply (iso_disp_after_inv_mor ii).
     apply Utilities.transportfbinv.
 Qed.
 
@@ -854,13 +851,7 @@ Proof.
   intros xs ys.
   set (x := pr1 xs). set (xx := pr2 xs).  
   set (y := pr1 ys). set (yy := pr2 ys).
-  (* TODO: search for lemma in library; if not found, break out and upstream. *)
-  assert (lemma : 
-   Π (A B : Type) (f : A -> B) (w : A ≃ B) (H : w ~ f), isweq f).
-  {
-    intros A B f w H. apply isweqhomot with w. apply H. apply weqproperty.
-  }
-  use lemma.
+  use weqhomot.
   apply (@weqcomp _ (Σ e : x = y, transportf _ e xx = yy) _).
     apply total2_paths_equiv.
   apply (@weqcomp _ (Σ e : x = y, iso_disp (idtoiso e) xx yy) _).
@@ -1222,7 +1213,7 @@ Lemma functor_over_on_iso_disp_aux1 {C C'} {F}
     {x y} {xx : D x} {yy} {f : iso x y} 
     (ff : xx ⇒[f] yy)
     (Hff : is_iso_disp f ff)
-  : transportf _ (functor_on_inv_from_iso _ _ F _ _ f)
+  : transportf _ (functor_on_inv_from_iso F f)
       (# FF (inv_mor_disp_from_iso Hff))
     ;; # FF ff 
   = transportb _ (iso_after_iso_inv _) (id_disp _).
@@ -1245,7 +1236,7 @@ Lemma functor_over_on_iso_disp_aux2 {C C'} {F}
     (ff : xx ⇒[f] yy)
     (Hff : is_iso_disp f ff)
   : # FF ff
-    ;; transportf _ (functor_on_inv_from_iso _ _ F _ _ f)
+    ;; transportf _ (functor_on_inv_from_iso F f)
          (# FF (inv_mor_disp_from_iso Hff))
   =
     transportb _ (iso_inv_after_iso (functor_on_iso _ _)) (id_disp (FF x xx)).
@@ -1271,7 +1262,7 @@ Definition functor_over_on_is_iso_disp {C C'} {F}
     {ff : xx ⇒[f] yy} (Hff : is_iso_disp f ff)
     : is_iso_disp (functor_on_iso F f) (# FF ff).
 Proof.
-  exists (transportf _ (functor_on_inv_from_iso _ _ F _ _ f)
+  exists (transportf _ (functor_on_inv_from_iso F f)
            (# FF (inv_mor_disp_from_iso Hff))); split. 
   - apply functor_over_on_iso_disp_aux1.
   - apply functor_over_on_iso_disp_aux2.
@@ -1356,7 +1347,7 @@ Definition functor_over_ff_reflects_isos
   : is_iso_disp _ ff.
 Proof.
   set (FFffinv := inv_mor_disp_from_iso isiso). 
-  set (FFffinv' := transportb _ (functor_on_inv_from_iso _ _ _ _ _ _ ) FFffinv).
+  set (FFffinv' := transportb _ (functor_on_inv_from_iso _ _ ) FFffinv).
   set (ffinv := functor_over_ff_inv FFffinv').
   exists ffinv.
   split.
@@ -1560,6 +1551,25 @@ Defined.
 
 (** identity nat_trans_over *)
 
+Definition nat_trans_over_id_ax
+  {C' C : Precategory} 
+  {F': functor_data C' C}
+  {D' : disp_precat_data C'}
+  {D : disp_precat C}
+  (R' : functor_over_data F' D' D)
+  : @nat_trans_over_axioms _ _ _ _ 
+                           (nat_trans_id _ )  
+                           _ _ R' R' (λ (x : C') (xx : D' x), id_disp (R' x xx)).
+Proof.
+  intros x' x f xx' xx ff;
+  etrans; [ apply id_right_disp |];
+  apply transportf_comp_lemma;
+  apply pathsinv0;
+  etrans; [apply id_left_disp |];
+  apply transportf_ext, homset_property.
+Qed.
+  
+
 Definition nat_trans_over_id
   {C' C : Precategory} 
   {F': functor_data C' C}
@@ -1571,21 +1581,48 @@ Proof.
   mkpair.
   - intros x xx.
     apply id_disp.
-  - abstract (
-    intros x' x f xx' xx ff;
-    etrans; [ apply id_right_disp |];
-    apply transportf_comp_lemma;
-    apply pathsinv0;
-    etrans; [apply id_left_disp |];
-    apply transportf_ext;
-    apply (pr2 C) ).
+  - apply nat_trans_over_id_ax.
 Defined.    
     
 
 (** composition of nat_trans_over *)
 
+Definition nat_trans_over_comp_ax
+  {C' C : Precategory} 
+  {F'' F' F : functor_data C' C}
+  {a' : nat_trans F'' F'}
+  {a : nat_trans F' F}
+  {D' : disp_precat_data C'}
+  {D : disp_precat C}
+  {R'' : functor_over_data F'' D' D}
+  {R' : functor_over_data F' D' D}
+  {R : functor_over_data F D' D}
+  (b' : nat_trans_over a' R'' R')
+  (b : nat_trans_over a R' R)
+  : @nat_trans_over_axioms _ _ _ _ 
+        (nat_trans_comp _ _ _ a' a) _ _ R'' R 
+        (λ (x : C') (xx : D' x), b' x xx ;; b x xx).
+Proof.
+  intros x' x f xx' xx ff;
+  etrans; [ apply assoc_disp |];
+  apply transportf_comp_lemma;
+  apply Utilities.transportf_pathsinv0; apply pathsinv0;
+  rewrite (nat_trans_over_ax b');
+  etrans; [ apply mor_disp_transportf_postwhisker |];
+  apply transportf_comp_lemma;
+  apply pathsinv0;
+  etrans; [ apply assoc_disp_var |];
+  apply pathsinv0;
+  apply transportf_comp_lemma;
+  apply pathsinv0;
+  rewrite (nat_trans_over_ax_var b);
+  rewrite mor_disp_transportf_prewhisker;
+  apply transportf_comp_lemma;
+  apply pathsinv0;
+  etrans; [ apply assoc_disp_var |].
+  apply transportf_ext, homset_property.
+Qed.
 
-(* TODO: split out data from axioms? *)
 Definition nat_trans_over_comp
   {C' C : Precategory} 
   {F'' F' F : functor_data C' C}
@@ -1603,28 +1640,7 @@ Proof.
   mkpair.
   - intros x xx.
     apply (comp_disp (b' _ _ )  (b _ _ )).
-  - abstract ( 
-    intros x' x f xx' xx ff;
-    etrans; [ apply assoc_disp |];
-    apply transportf_comp_lemma;
-    apply Utilities.transportf_pathsinv0; apply pathsinv0;
-    rewrite (nat_trans_over_ax b');
-    etrans; [ apply mor_disp_transportf_postwhisker |];
-    apply transportf_comp_lemma;
-    apply pathsinv0;
-    etrans; [ apply assoc_disp_var |];
-    apply pathsinv0;
-    apply transportf_comp_lemma;
-    apply pathsinv0;
-    rewrite (nat_trans_over_ax_var b);
-    rewrite mor_disp_transportf_prewhisker;
-    apply transportf_comp_lemma;
-    apply pathsinv0;
-    etrans; [ apply assoc_disp_var |];
-    apply transportf_comp_lemma;
-    apply transportf_comp_lemma_hset;
-     [ apply (pr2 C) | apply idpath]
-   ).
+  - apply nat_trans_over_comp_ax.
 Defined.
 
 End Nat_Trans_Over.

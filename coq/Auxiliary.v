@@ -43,7 +43,16 @@ Tactic Notation "sym" := apply pathsinv0.
 Tactic Notation "assoc" := apply @pathsinv0, path_assoc.
 Tactic Notation "cancel_postcomposition" := apply cancel_postcomposition.
 
+(** * Some argument settings *)
+
+Arguments functor_on_inv_from_iso {_ _} _  {_ _} f.
+
 (** * Path-algebra: general lemmas about transport, equivalences, etc. *)
+
+Lemma weqhomot {A B : UU} (f : A -> B) (w : A ≃ B) (H : w ~ f) : isweq f.
+Proof.
+  apply isweqhomot with w. apply H. apply weqproperty.
+Defined.
 
 (** A useful lemma for binary functions, generalising e.g. [cancel_postcomposition]: *)
 (*TODO: look carefully for this in the library *)

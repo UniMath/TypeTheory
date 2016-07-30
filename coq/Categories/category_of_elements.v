@@ -143,7 +143,7 @@ Proof.
   destruct H.
   destruct ac as [a c].
   destruct bd as [b d]; simpl in *.
-  set (T:= (functor_on_inv_from_iso C HSET  F _ _ t)).
+  set (T:= (@functor_on_inv_from_iso _ HSET F _ _ t)).
   set (T':= toforallpaths _ _ _ T  d).
   etrans. apply T'. clear T' T.
   apply iso_in_HSET.
