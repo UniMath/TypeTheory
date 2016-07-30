@@ -1551,6 +1551,25 @@ Defined.
 
 (** identity nat_trans_over *)
 
+Definition nat_trans_over_id_ax
+  {C' C : Precategory} 
+  {F': functor_data C' C}
+  {D' : disp_precat_data C'}
+  {D : disp_precat C}
+  (R' : functor_over_data F' D' D)
+  : @nat_trans_over_axioms _ _ _ _ 
+                           (nat_trans_id _ )  
+                           _ _ R' R' (λ (x : C') (xx : D' x), id_disp (R' x xx)).
+Proof.
+  intros x' x f xx' xx ff;
+  etrans; [ apply id_right_disp |];
+  apply transportf_comp_lemma;
+  apply pathsinv0;
+  etrans; [apply id_left_disp |];
+  apply transportf_ext, homset_property.
+Qed.
+  
+
 Definition nat_trans_over_id
   {C' C : Precategory} 
   {F': functor_data C' C}
@@ -1562,21 +1581,48 @@ Proof.
   mkpair.
   - intros x xx.
     apply id_disp.
-  - abstract (
-    intros x' x f xx' xx ff;
-    etrans; [ apply id_right_disp |];
-    apply transportf_comp_lemma;
-    apply pathsinv0;
-    etrans; [apply id_left_disp |];
-    apply transportf_ext;
-    apply (pr2 C) ).
+  - apply nat_trans_over_id_ax.
 Defined.    
     
 
 (** composition of nat_trans_over *)
 
+Definition nat_trans_over_comp_ax
+  {C' C : Precategory} 
+  {F'' F' F : functor_data C' C}
+  {a' : nat_trans F'' F'}
+  {a : nat_trans F' F}
+  {D' : disp_precat_data C'}
+  {D : disp_precat C}
+  {R'' : functor_over_data F'' D' D}
+  {R' : functor_over_data F' D' D}
+  {R : functor_over_data F D' D}
+  (b' : nat_trans_over a' R'' R')
+  (b : nat_trans_over a R' R)
+  : @nat_trans_over_axioms _ _ _ _ 
+        (nat_trans_comp _ _ _ a' a) _ _ R'' R 
+        (λ (x : C') (xx : D' x), b' x xx ;; b x xx).
+Proof.
+  intros x' x f xx' xx ff;
+  etrans; [ apply assoc_disp |];
+  apply transportf_comp_lemma;
+  apply Utilities.transportf_pathsinv0; apply pathsinv0;
+  rewrite (nat_trans_over_ax b');
+  etrans; [ apply mor_disp_transportf_postwhisker |];
+  apply transportf_comp_lemma;
+  apply pathsinv0;
+  etrans; [ apply assoc_disp_var |];
+  apply pathsinv0;
+  apply transportf_comp_lemma;
+  apply pathsinv0;
+  rewrite (nat_trans_over_ax_var b);
+  rewrite mor_disp_transportf_prewhisker;
+  apply transportf_comp_lemma;
+  apply pathsinv0;
+  etrans; [ apply assoc_disp_var |].
+  apply transportf_ext, homset_property.
+Qed.
 
-(* TODO: split out data from axioms? *)
 Definition nat_trans_over_comp
   {C' C : Precategory} 
   {F'' F' F : functor_data C' C}
@@ -1594,28 +1640,7 @@ Proof.
   mkpair.
   - intros x xx.
     apply (comp_disp (b' _ _ )  (b _ _ )).
-  - abstract ( 
-    intros x' x f xx' xx ff;
-    etrans; [ apply assoc_disp |];
-    apply transportf_comp_lemma;
-    apply Utilities.transportf_pathsinv0; apply pathsinv0;
-    rewrite (nat_trans_over_ax b');
-    etrans; [ apply mor_disp_transportf_postwhisker |];
-    apply transportf_comp_lemma;
-    apply pathsinv0;
-    etrans; [ apply assoc_disp_var |];
-    apply pathsinv0;
-    apply transportf_comp_lemma;
-    apply pathsinv0;
-    rewrite (nat_trans_over_ax_var b);
-    rewrite mor_disp_transportf_prewhisker;
-    apply transportf_comp_lemma;
-    apply pathsinv0;
-    etrans; [ apply assoc_disp_var |];
-    apply transportf_comp_lemma;
-    apply transportf_comp_lemma_hset;
-     [ apply (pr2 C) | apply idpath]
-   ).
+  - apply nat_trans_over_comp_ax.
 Defined.
 
 End Nat_Trans_Over.
