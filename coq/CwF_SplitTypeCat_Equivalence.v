@@ -20,6 +20,7 @@ Require Export Systems.Structures.
 Require Import Systems.CwF_SplitTypeCat_Maps.
 Require Import Systems.Displayed_Cats.Auxiliary.
 
+(* TODO: much cleanup needed.  In particular: update terminolog conen, e.g. [qq_] etc.! *)
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
@@ -359,7 +360,7 @@ Lemma iscontr_compatible_split_comp_structure (Y : families_structure hsC X)
 Proof.
   exists (compatible_qq_from_fam Y).
   apply compat_split_comp_eq.
-Qed.
+Defined.
 
 End compatible_structures.
 
