@@ -272,20 +272,33 @@ Qed.
 
 Local Open Scope hide_transport_scope.
 
-Lemma is_iso_sigma_disp
-    {x y} (xxx : sigma_disp_precat x) (yyy : sigma_disp_precat y)
+Definition is_iso_sigma_disp_aux1
+    {x y} {xxx : sigma_disp_precat x} {yyy : sigma_disp_precat y}
     {f : iso x y} (fff : xxx ⇒[f] yyy) 
     (ii : is_iso_disp f (pr1 fff))
     (ffi := (_,, ii) : iso_disp f (pr1 xxx) (pr1 yyy))
     (iii : is_iso_disp (@total_iso _ _ (_,,_) (_,,_) f ffi) (pr2 fff))
-  : is_iso_disp f fff.
+  : yyy ⇒[inv_from_iso f] xxx.
 Proof.
-  mkpair.
-    exists (inv_mor_disp_from_iso ii).
-    set (ggg := inv_mor_disp_from_iso iii).
-    exact (transportf _ (inv_mor_total_iso _ _ _) ggg).
-  split; cbn.
-  - use total2_paths; cbn.
+  exists (inv_mor_disp_from_iso ii).
+  set (ggg := inv_mor_disp_from_iso iii).
+  exact (transportf _ (inv_mor_total_iso _ _ _) ggg).
+Defined.
+
+Lemma is_iso_sigma_disp_aux2
+    {x y} {xxx : sigma_disp_precat x} {yyy : sigma_disp_precat y}
+    {f : iso x y} (fff : xxx ⇒[f] yyy) 
+    (ii : is_iso_disp f (pr1 fff))
+    (ffi := (_,, ii) : iso_disp f (pr1 xxx) (pr1 yyy))
+    (iii : is_iso_disp (@total_iso _ _ (_,,_) (_,,_) f ffi) (pr2 fff))
+  :   (is_iso_sigma_disp_aux1 fff ii iii) ;; fff
+    = transportb _ (iso_after_iso_inv f) (id_disp yyy)
+  ×
+      fff ;; (is_iso_sigma_disp_aux1 fff ii iii)
+    = transportb _ (iso_inv_after_iso f) (id_disp xxx).
+Proof.
+  split.
+  - use total2_paths.
     + etrans. apply iso_disp_after_inv_mor.
       apply pathsinv0, pr1_transportf_sigma_disp.
     + cbn.
@@ -311,7 +324,19 @@ Proof.
       etrans. eapply transportf_bind.
         apply (inv_mor_after_iso_disp iii).
       apply maponpaths_2, (@homset_property (total_precat D)).
-Time Qed. (* TODO: try to speed this up! *)
+Time Qed. (* TODO: try to speed this up? *)
+
+Lemma is_iso_sigma_disp
+    {x y} {xxx : sigma_disp_precat x} {yyy : sigma_disp_precat y}
+    {f : iso x y} (fff : xxx ⇒[f] yyy) 
+    (ii : is_iso_disp f (pr1 fff))
+    (ffi := (_,, ii) : iso_disp f (pr1 xxx) (pr1 yyy))
+    (iii : is_iso_disp (@total_iso _ _ (_,,_) (_,,_) f ffi) (pr2 fff))
+  : is_iso_disp f fff.
+Proof.
+  exists (is_iso_sigma_disp_aux1 fff ii iii).
+  apply is_iso_sigma_disp_aux2.
+Defined.
 
 Definition sigma_disp_iso
     {x y} (xx : sigma_disp_precat x) (yy : sigma_disp_precat y)
