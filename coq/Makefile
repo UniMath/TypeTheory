@@ -15,8 +15,8 @@ MODULES-CORE := \
 	UnicodeNotations \
 	Displayed_Cats/Auxiliary \
 	Displayed_Cats/Core \
-	Displayed_Cats/Equivalences \
 	Displayed_Cats/Constructions \
+	Displayed_Cats/Equivalences \
 	Displayed_Cats/Examples \
 	Structures \
 	CwF_SplitTypeCat_Maps \

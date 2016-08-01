@@ -246,7 +246,7 @@ Definition sigmapr1_disp_functor
 
 (* TODO: complete [sigmapr2_disp]; will be a [functor_lifting], not a [functor_over]. *)
 
-(** ** Transport and isomorphism lemmas for [sigma_disp_precat] *)
+(** ** Transport and isomorphism lemmas *)
 
 Lemma pr1_transportf_sigma_disp {x y : C} {f f' : x ⇒ y} (e : f = f')
     {xxx : sigma_disp_precat x} {yyy} (fff : xxx ⇒[f] yyy)
@@ -268,7 +268,7 @@ Proof.
 Qed.
 
 
-(** ** Univalence of sigma-displayed-categories. *)
+(** ** Univalence *)
 
 Local Open Scope hide_transport_scope.
 
@@ -894,7 +894,7 @@ Proof.
   - intro. apply eq_iso_disp. apply idpath.
 Defined.
     
-
+(** ** Univalence *)
 Variable H : is_category_disp D.
 
 Let idto1 (a b : fibre_precategory) : a = b ≃ iso_disp (identity_iso c) a b 

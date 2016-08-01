@@ -71,7 +71,9 @@ Defined.
 End Essential_Surjectivity.
 
 
+(** * Main definitions *)
 
+(** ** Adjunctions *)
 Section Adjunctions.
 
 (** In general, one can define displayed equivalences/adjunctions over any equivalences/adjunctions between the bases (and probably more generally still).  For now we just give the case over a single base precategory — i.e. over an identity functor. 
@@ -157,9 +159,9 @@ Definition triangle_2_over_id {C} {D D' : disp_precat C}
   (A : adjunction_over_id D D')
 := pr2 (pr2 A).
 
-(** ** Left- and right- adjoints to a given functor *)
+(** The “left-handed” version: right adjoints to a given functor *)
 
-(** The terminology is difficult to choose here: the proposition “F is a left adjoint” is the same as this type of “right adjoints to F”, so should this type be called something more like [left_adjoint F] or [right_adjoint F]?
+(** The terminology is difficult to choose here: the proposition “F is a left adjoint” is the same as the type of “right adjoints to F”, so should this type be called something more like [left_adjoint F] or [right_adjoint F]?
 
 Our choice here does _not_ agree with that of the base UniMath category theory library. TODO: consider these conventions, and eventually harmonise them by changing it either here or in UniMath. *)
 
@@ -219,6 +221,7 @@ End Adjunctions.
 
 Section Equivalences.
 (** ** Equivalences (adjoint and quasi) *)
+
 Definition form_equiv_over_id {C} {D D' : disp_precat C}
     (A : adjunction_over_id_data D D')
     (η := unit_over_id A)
@@ -397,7 +400,9 @@ Abort.
 
 End Equivalences.
 
-(** * Full + faithful + ess split => equivalence *)
+(** * Constructions on and of equivalences *)
+
+(** ** Full + faithful + ess split => equivalence *)
 Section Equiv_from_ff_plus_ess_split.
 (* TODO: consider naming throughout this section!  Especially: anything with [ses] should be fixed. *)
 
@@ -406,7 +411,7 @@ Context {C : Precategory} {D' D : disp_precat C}
         (FF_split : functor_over_disp_ess_split_surj FF)
         (FF_ff : functor_over_ff FF).
 
-(** ** Utility lemmas from fullness+faithfulness *)
+(** *** Utility lemmas from fullness+faithfulness *)
 
 (* TODO: inline throughout? *) 
 Let FFweq {x y} xx yy (f : x ⇒ y) := functor_over_ff_weq _ FF_ff xx yy f. 
@@ -464,7 +469,7 @@ Proof.
   apply @pathsinv0. use homotweqinvweq.
 Qed.
 
-(** ** Converse functor *)
+(** *** Converse functor *)
 
 (* TODO: does [Local Definition] actually keep it local?  It seems not — e.g. [Print GG_data] still works after the section closes. Is there a way to actually keep them local?  If not, find less generic names for [GG] and its components. *) 
 Local Definition GG_data : functor_over_data (functor_identity _ ) D D'.
@@ -655,13 +660,9 @@ Defined.
 
 End Equiv_from_ff_plus_ess_split.
 
-Section Displayed_Equiv_Compose.
+(** ** Inverses and composition of adjunctions/equivalences *)
 
-(* TODO: give composites of displayed equivalences. *)
-
-End Displayed_Equiv_Compose.
-
-Section foo.
+Section Nat_Trans_Disp_Inv.
 
 Context {C : Precategory} {D' D : disp_precat C}
         {FF GG : functor_over (functor_identity _) D' D}
@@ -732,7 +733,7 @@ Proof.
   - apply inv_ax.
 Defined.
 
-End foo.
+End Nat_Trans_Disp_Inv.
 
 Section Displayed_Equiv_Inv.
 
@@ -901,7 +902,13 @@ Defined.
 
 End Displayed_Equiv_Inv.
 
-(** * Induced adjunctions/equivalences between fibre precats *)
+Section Displayed_Equiv_Compose.
+
+(* TODO: give composites of displayed equivalences. *)
+
+End Displayed_Equiv_Compose.
+
+(** ** Induced adjunctions/equivalences of fibre precats *)
 Section Equiv_Fibres.
 
 Context {C : Precategory}.

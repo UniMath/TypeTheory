@@ -10,7 +10,7 @@ Two major motivations for displayed categories:
 - Pragmatically, they give a convenient tool for building categories of “structured objects”, and functors into such categories, encapsulating a lot of frequently-used constructions, and allowing for very modular proofs of e.g. saturation of such categories.
 - More conceptually, they give a setting for defining Grothendieck fibrations and isofibrations without mentioning equality of objects.
 
-** Contents:
+Contents:
 
 - Displayed precategories: [disp_precat C]
   - various access functions, etc.
@@ -74,6 +74,8 @@ Module Record_Preview.
     }.
 
 End Record_Preview.
+
+(** ** Definition *)
 
 (** The actual definition is structured analogously to [precategory], as an iterated Σ-type:
 
@@ -211,7 +213,7 @@ Definition homsets_disp {C} {D :disp_precat C} {x y} {f} {xx : D x} {yy : D y}
   : isaset (xx ⇒[f] yy)
 := pr2 (pr2 (pr2 (pr2 D))) _ _ _ _ _.
 
-(** ** Some utility lemmas *)
+(** ** Utility lemmas *)
 Section Lemmas.
 
 (** [etrans_disp]: a version of [etrans_dep] for use when the equality transport in the RHS of the goal is already present, and not of the form produced by [etrans_dep], so [etrans_dep] doesn’t apply.  Where possible, [etrans_dep] should still be used, since it *produces* a RHS, whereas this does not (and so leads to lots of unsolved existentials if used where not needed). 
@@ -313,7 +315,7 @@ Level is chosen to bind *tighter* than categorical composition, for readability.
 Notation "#? x" := (transportf _ _ x) (at level 45) : hide_transport_scope.
 Notation "#?' x" := (transportb _ _ x) (at level 45) : hide_transport_scope.
 
-(** * Isomorphisms and (saturated) categories *)
+(** ** Isomorphisms (and lemmas) *)
 
 Section Isos.
 
@@ -631,6 +633,7 @@ Qed.
 
 End Isos.
 
+(** ** Saturation: displayed _categories_ *)
 Section Categories.
 
 (** The current [is_category_disp] is certainly the correct definition in the case where the base precategory [C] is a category.
@@ -655,7 +658,9 @@ Definition disp_category {C}
 End Categories.
 
 
-(** * Total category *)
+(** * Total categories *)
+
+(** ** Definition and forgetful functor *)
 
 (* Any displayed precategory has a total precategory, with a forgetful functor to the base category. *)
 Section Total_Precat.
@@ -722,8 +727,6 @@ Qed.
 Definition total_precat : Precategory
   := (total_precat_pre ,, total_precat_has_homsets).
 
-(** ** Forgetful functor *)
-
 Definition pr1_precat_data : functor_data total_precat C.
 Proof.
   exists pr1.
@@ -740,7 +743,7 @@ Qed.
 Definition pr1_precat : functor total_precat C
   := (pr1_precat_data ,, pr1_precat_is_functor).
 
-(** ** Isomorphisms and saturation in the total category *)
+(** ** Isomorphisms and saturation *)
 
 Definition is_iso_total {xx yy : total_precat} (ff : xx ⇒ yy)
   (i : is_iso (pr1 ff))
