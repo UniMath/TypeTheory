@@ -13,19 +13,23 @@
 MODULES-CORE := \
 	Auxiliary \
 	UnicodeNotations \
-	RelUnivStructure \
-	Structures \
-	CwF_RelUnivYoneda \
-	RelUnivYonedaCompletion \
 	Displayed_Cats/Auxiliary \
 	Displayed_Cats/Core \
 	Displayed_Cats/Equivalences \
 	Displayed_Cats/Constructions \
 	Displayed_Cats/Examples \
+	Structures \
+	CwF_SplitTypeCat_Maps \
+	CwF_SplitTypeCat_Equivalence \
+	Structures_Cats \
+	Structures_Equiv_Cats \
+	Structures_Univalent_Cats \
+	Structures_Equiv_Types \
+	RelUnivStructure \
+	CwF_RelUnivYoneda \
+	RelUnivYonedaCompletion \
 	Bicats/Bicats \
 	Bicats/Displayed_Bicats \
-	Structures_Cats \
-	CwF_SplitTypeCat_Maps \
 	Categories/category_of_elements \
 	Categories/category_FAM \
 	OtherDefs/CwF_Pitts \
@@ -42,10 +46,6 @@ MODULES-CORE := \
 # Remaining modules, included only in “make all”.
 # Useful for leaves that are slow to recompile.
 MODULES-EXTRA := \
-	CwF_SplitTypeCat_Equivalence \
-	Structures_Equiv_Cats \
-	Structures_Univalent_Cats \
-	Structures_Equiv_Types \
 	OtherDefs/CwF_Pitts_completion \
 	OtherDefs/DM_to_TypeCat_to_DM \
 	Test
