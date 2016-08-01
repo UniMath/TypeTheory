@@ -14,7 +14,6 @@ MODULES-CORE := \
 	Auxiliary \
 	UnicodeNotations \
 	RelUnivStructure \
-	DM \
 	Structures \
 	CwF_RelUnivYoneda \
 	RelUnivYonedaCompletion \
@@ -31,6 +30,7 @@ MODULES-CORE := \
 	Categories/category_FAM \
 	OtherDefs/CwF_Pitts \
 	OtherDefs/TypeCat \
+	OtherDefs/DM \
 	OtherDefs/CwF_Pitts_to_TypeCat \
 	OtherDefs/TypeCat_to_CwF_Pitts \
 	OtherDefs/DM_to_TypeCat \

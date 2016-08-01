@@ -17,7 +17,7 @@ Require Import Systems.UnicodeNotations.
 Require Import Systems.OtherDefs.TypeCat.
 Require Import Systems.OtherDefs.CwF_Pitts.
 Require Import Systems.OtherDefs.TypeCat.
-Require Import Systems.DM.
+Require Import Systems.OtherDefs.DM.
 Require Import Systems.OtherDefs.CwF_Pitts_to_TypeCat.
 Require Import Systems.OtherDefs.CwF_Pitts_to_DM.
 Require Import Systems.OtherDefs.TypeCat_to_DM.

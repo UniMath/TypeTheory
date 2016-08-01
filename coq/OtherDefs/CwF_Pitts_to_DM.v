@@ -18,7 +18,7 @@ Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
 Require Import Systems.OtherDefs.TypeCat.
 Require Import Systems.OtherDefs.CwF_Pitts.
-Require Import Systems.DM.
+Require Import Systems.OtherDefs.DM.
 
 (* Locally override the notation [ γ ♯ a ], at a higher level,
   to get more informative bracketing when pairing meets composition. *) 
