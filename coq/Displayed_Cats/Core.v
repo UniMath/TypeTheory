@@ -424,6 +424,16 @@ Proof.
   apply is.
 Qed.
 
+Lemma transportf_iso_disp {C : Precategory} {D : disp_precat C}
+    {x y : C} {xx : D x} {yy} 
+    {f f' : iso x y} (e : f = f')
+    (ff : iso_disp f xx yy)
+  : pr1 (transportf (fun g => iso_disp g _ _) e ff)
+  = transportf _ (maponpaths pr1 e) (pr1 ff).
+Proof.
+  destruct e; apply idpath.
+Qed.
+
 Definition is_iso_inv_from_iso_disp {C : Precategory} {D : disp_precat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
     (i : iso_disp f xx yy) 
@@ -523,7 +533,8 @@ Proof.
         etrans.  apply maponpaths, maponpaths. apply transport_f_f.
         etrans. apply maponpaths. apply mor_disp_transportf_prewhisker. 
         etrans. apply transport_f_f.
-        etrans. apply maponpaths.                apply inv_mor_after_iso_disp.
+        etrans. apply maponpaths.
+                apply inv_mor_after_iso_disp.
         etrans. apply transport_f_f.
         apply transportf_comp_lemma; apply transportf_comp_lemma_hset;
         try apply homset_property; apply idpath.
@@ -737,8 +748,8 @@ Definition is_iso_total {xx yy : total_precat} (ff : xx ⇒ yy)
   (ii : is_iso_disp fi (pr2 ff))
   : is_iso ff.
 Proof.
-  apply (@is_iso_qinv total_precat xx yy _ 
-           (inv_from_iso fi,, pr1 ii)).
+  apply is_iso_from_is_z_iso.
+  exists (inv_from_iso fi,, pr1 ii).
   split.
   - use total2_paths.
     apply (iso_inv_after_iso fi).
@@ -808,20 +819,42 @@ Proof.
   apply (is_iso_total (pr1 f,, pr1 ff) (pr2 f) (pr2 ff)).
 Defined.
 
+(* TODO: look more for this in library.  If doesn’t exist, upstream it? *)
+Lemma cancel_precomposition_iso {C' : precategory} {x y z : C'}
+    (f : iso x y) (g1 g2 : y ⇒ z)
+  : (f ;; g1 = f ;; g2 -> g1 = g2)%mor.
+Proof.
+  intros e.
+  apply @pathscomp0 with (inv_from_iso f ;; (f ;; g1))%mor. 
+  apply @pathsinv0. 
+  - etrans. apply assoc.
+    etrans. apply maponpaths_2, iso_after_iso_inv. 
+    apply id_left.
+  - etrans. apply maponpaths, e.
+    etrans. apply assoc.
+    etrans. apply maponpaths_2, iso_after_iso_inv. 
+    apply id_left.  
+Qed.
+
+
+Lemma inv_mor_total_iso {xx yy : total_precat}
+  (f : iso (pr1 xx) (pr1 yy)) (ff : iso_disp f (pr2 xx) (pr2 yy))
+  : inv_from_iso (total_iso f ff)
+  = (inv_from_iso f,, inv_mor_disp_from_iso ff).
+Proof.
+  (* Could de-opacify [is_iso_total] and then use [inv_from_iso_from_is_z_iso].  If de-opacfying [is_iso_total] would make its inverse compute definitionally, that’d be wonderful, but for the sake of just this one lemma, it’s probably not worth it.  So we prove this the hard way. *)
+  apply cancel_precomposition_iso with (total_iso f ff).
+  etrans. apply iso_inv_after_iso. apply pathsinv0.
+  use total2_paths; cbn.
+  - apply iso_inv_after_iso.
+  - etrans. apply maponpaths, inv_mor_after_iso_disp. 
+    apply Utilities.transportfbinv.
+Qed.
+
 Definition total_iso_equiv_map {xx yy : total_precat}
   : (Σ f : iso (pr1 xx) (pr1 yy), iso_disp f (pr2 xx) (pr2 yy))
   -> iso xx yy
 := fun ff => total_iso (pr1 ff) (pr2 ff).
-
-(* TODO: make an uncurried version of this above, as [transportf_iso_disp]? *)
-Lemma transportf_iso_disp' {xx yy : total_precat} 
-    {f f' : iso (pr1 xx) (pr1 yy)} (e : f = f')
-    (ff : iso_disp f (pr2 xx) (pr2 yy))
-  : pr1 (transportf (fun g => iso_disp g _ _) e ff)
-  = transportf _ (base_paths _ _ e) (pr1 ff).
-Proof.
-  destruct e; apply idpath.
-Qed.
 
 Definition total_iso_isweq (xx yy : total_precat)
   : isweq (@total_iso_equiv_map xx yy).
@@ -831,7 +864,7 @@ Proof.
   - intros [f ff]. use total2_paths.
     + apply eq_iso, idpath.
     + apply eq_iso_disp.
-      etrans. apply transportf_iso_disp'.
+      etrans. apply transportf_iso_disp.
       simpl pr2. simpl (pr1 (iso_disp_from_total _)).
       refine (@maponpaths_2 _ _ _ (transportf _) _ (idpath _) _ _). 
       apply homset_property.

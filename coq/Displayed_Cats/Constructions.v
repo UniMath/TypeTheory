@@ -206,8 +206,6 @@ Proof.
   - intros. use total2_reassoc_paths'.
     + apply id_left_disp.
     + etrans. exact (@id_left_disp _ _ _ _ _ _ _ (pr2 ff)).
-    (* TODO: why doesn’t [apply homsets_disp] work here,
-       and in the other parts of this proof? *)
       apply maponpaths_2, homset_property.
   - intros. use total2_reassoc_paths'.
     + apply id_right_disp.
@@ -216,9 +214,9 @@ Proof.
   - intros. use total2_reassoc_paths'.
     + apply assoc_disp.
     + etrans. 
-        exact (@assoc_disp _ _ 
+        exact (@assoc_disp _ _
                  _ _ _ _  _ _ _ 
-                 _ _ _ _ (pr2 ff) (pr2 gg) (pr2 hh)).
+                 _ _ _ _  (pr2 ff) (pr2 gg) (pr2 hh)).
       apply maponpaths_2, homset_property.
   - intros. apply isaset_total2; intros; apply homsets_disp.
 Qed.
@@ -248,7 +246,31 @@ Definition sigmapr1_disp_functor
 
 (* TODO: complete [sigmapr2_disp]; will be a [functor_lifting], not a [functor_over]. *)
 
+(** ** Transport and isomorphism lemmas for [sigma_disp_precat] *)
+
+Lemma pr1_transportf_sigma_disp {x y : C} {f f' : x ⇒ y} (e : f = f')
+    {xxx : sigma_disp_precat x} {yyy} (fff : xxx ⇒[f] yyy)
+  : pr1 (transportf _ e fff) = transportf _ e (pr1 fff).
+Proof.
+  destruct e; apply idpath.
+Qed.
+
+Lemma pr2_transportf_sigma_disp {x y : C} {f f' : x ⇒ y} (e : f = f')
+    {xxx : sigma_disp_precat x} {yyy} (fff : xxx ⇒[f] yyy)
+  : pr2 (transportf _ e fff)
+  = transportf _ (total2_paths2 e (! pr1_transportf_sigma_disp e fff))
+      (pr2 fff).
+Proof.
+  destruct e. apply pathsinv0.
+  etrans. apply maponpaths_2, maponpaths, maponpaths. 
+  apply (homsets_disp _ _ _ (idpath _)).
+  apply idpath.
+Qed.
+
+
 (** ** Univalence of sigma-displayed-categories. *)
+
+Local Open Scope hide_transport_scope.
 
 Lemma is_iso_sigma_disp
     {x y} (xxx : sigma_disp_precat x) (yyy : sigma_disp_precat y)
@@ -258,7 +280,38 @@ Lemma is_iso_sigma_disp
     (iii : is_iso_disp (@total_iso _ _ (_,,_) (_,,_) f ffi) (pr2 fff))
   : is_iso_disp f fff.
 Proof.
-Admitted.
+  mkpair.
+    exists (inv_mor_disp_from_iso ii).
+    set (ggg := inv_mor_disp_from_iso iii).
+    exact (transportf _ (inv_mor_total_iso _ _ _) ggg).
+  split; cbn.
+  - use total2_paths; cbn.
+    + etrans. apply iso_disp_after_inv_mor.
+      apply pathsinv0, pr1_transportf_sigma_disp.
+    + cbn.
+      etrans. Focus 2. apply @pathsinv0, pr2_transportf_sigma_disp.
+      etrans. apply maponpaths.
+        refine (mor_disp_transportf_postwhisker
+          (@inv_mor_total_iso _ _ (_,,_) (_,,_) f ffi) _ (pr2 fff)).
+      etrans. apply functtransportf. 
+      etrans. apply transport_f_f.
+      etrans. eapply transportf_bind.
+        apply (iso_disp_after_inv_mor iii).
+      apply maponpaths_2, (@homset_property (total_precat D)).
+  - use total2_paths; cbn.
+    + etrans. apply inv_mor_after_iso_disp.
+      apply pathsinv0, pr1_transportf_sigma_disp.
+    + cbn.
+      etrans. Focus 2. apply @pathsinv0, pr2_transportf_sigma_disp.
+      etrans. apply maponpaths.
+      refine (mor_disp_transportf_prewhisker
+        (@inv_mor_total_iso _ _ (_,,_) (_,,_) f ffi) (pr2 fff) _).
+      etrans. apply functtransportf.
+      etrans. apply transport_f_f.
+      etrans. eapply transportf_bind.
+        apply (inv_mor_after_iso_disp iii).
+      apply maponpaths_2, (@homset_property (total_precat D)).
+Time Qed. (* TODO: try to speed this up! *)
 
 Definition sigma_disp_iso
     {x y} (xx : sigma_disp_precat x) (yy : sigma_disp_precat y)
