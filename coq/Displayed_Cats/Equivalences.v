@@ -414,13 +414,13 @@ Context {C : Precategory} {D' D : disp_precat C}
 (** *** Utility lemmas from fullness+faithfulness *)
 
 (* TODO: inline throughout? *) 
-Let FFweq {x y} xx yy (f : x ⇒ y) := functor_over_ff_weq _ FF_ff xx yy f. 
+Let FFweq {x y} xx yy (f : x --> y) := functor_over_ff_weq _ FF_ff xx yy f. 
 Let FFinv {x y} {xx} {yy} {f}
   := @functor_over_ff_inv _ _ _ _ _ _ FF_ff x y xx yy f.
 
 (* TODO: once [functor_over_ff_transportf_gen] is done, replace this with that. *) 
 Lemma FFinv_transportf
-    {x y : C} {f f' : x ⇒ y} (e : f = f')
+    {x y : C} {f f' : x --> y} (e : f = f')
     {xx : D' x} {yy : D' y} (ff : FF _ xx ⇒[f] FF _ yy)
   : FFinv (transportf _ e ff) = transportf _ e (FFinv ff).
 Proof.

@@ -33,7 +33,7 @@ Context (C:Precategory).
 
 Definition arrow_disp_ob_mor : disp_precat_ob_mor (C × C).
 Proof.
-  exists (fun xy : (C × C) => (pr1 xy) ⇒ (pr2 xy)).
+  exists (fun xy : (C × C) => (pr1 xy) --> (pr2 xy)).
   simpl; intros xx' yy' g h ff'. 
     exact (pr1 ff' ;; h = g ;; pr2 ff')%mor.
 Defined.
@@ -78,7 +78,7 @@ Context (C:Precategory).
 
 Definition NAction_disp_ob_mor : disp_precat_ob_mor C.
 Proof.
-  exists (fun c => c ⇒ c).
+  exists (fun c => c --> c).
   intros x y xx yy f. exact (f ;; yy = xx ;; f)%mor.
 Defined.
 

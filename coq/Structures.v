@@ -42,7 +42,7 @@ Section Obj_Ext_Structures.
 
 Definition obj_ext_structure : UU
   := Σ Ty : preShv C,
-        Π (Γ : C) (A : (Ty : functor _ _ ) Γ : hSet ), Σ (ΓA : C), ΓA ⇒ Γ.
+        Π (Γ : C) (A : (Ty : functor _ _ ) Γ : hSet ), Σ (ΓA : C), ΓA --> Γ.
 
 Definition TY (X : obj_ext_structure) : preShv _ := pr1 X.
 Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
@@ -50,7 +50,7 @@ Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 
 Definition comp_ext (X : obj_ext_structure) Γ A : C := pr1 (pr2 X Γ A).
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 
-Definition π {X : obj_ext_structure} {Γ} A : Γ ◂ A ⇒ Γ := pr2 (pr2 X _ A).
+Definition π {X : obj_ext_structure} {Γ} A : Γ ◂ A --> Γ := pr2 (pr2 X _ A).
 
 (** ** Extensions by equal types *)
 
@@ -60,7 +60,7 @@ Section Comp_Ext_Compare.
 
 Definition comp_ext_compare {X : obj_ext_structure}
     {Γ : C} {A A' : Ty X Γ} (e : A = A')
-  : Γ ◂ A ⇒ Γ ◂ A'
+  : Γ ◂ A --> Γ ◂ A'
 := idtoiso (maponpaths (comp_ext X Γ) e).
 
 Lemma comp_ext_compare_id {X : obj_ext_structure}
@@ -124,20 +124,20 @@ We now define the extra structure, over an object-extension structure, which con
 Components of [Y : families_structure X]:
 
 - [TM Y : preShv C] 
-- [pp Y : TM Y ⇒ TY X]
-- [Q Y A :  Yo (Γ ◂ A) ⇒ TM Y]
+- [pp Y : TM Y --> TY X]
+- [Q Y A :  Yo (Γ ◂ A) --> TM Y]
 - [Q_pp Y A : #Yo (π A) ;; yy A = Q Y A ;; pp Y]
 - [isPullback_Q_pp Y A : isPullback _ _ _ _ (Q_pp Y A)]
 *)
 
 Definition families_structure_data : UU
   := Σ Tm : preShv C, 
-        (Tm ⇒ TY X)
-        × (Π Γ (A : Ty X Γ), Yo (Γ ◂ A) ⇒ Tm).
+        (Tm --> TY X)
+        × (Π Γ (A : Ty X Γ), Yo (Γ ◂ A) --> Tm).
 
 Definition TM (Y : families_structure_data) : preShv C := pr1 Y.
-Definition pp Y : TM Y ⇒ TY X := pr1 (pr2 Y).
-Definition Q Y {Γ} A : _ ⇒ TM Y := pr2 (pr2 Y) Γ A.
+Definition pp Y : TM Y --> TY X := pr1 (pr2 Y).
+Definition Q Y {Γ} A : _ --> TM Y := pr2 (pr2 Y) Γ A.
 Local Notation "'Tm'" := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
 
 Lemma comp_ext_compare_Q Y Γ (A A' : Ty X Γ) (e : A = A') : 
@@ -190,7 +190,7 @@ Definition Q_pp_Pb_unique (Y : families_structure) (Γ' Γ : C) (A : Ty X Γ)
 Lemma term_to_section_aux {Y : families_structure} {Γ:C} (t : Tm Y Γ) 
   (A := (pp Y : nat_trans _ _) _ t)
   : iscontr
-    (Σ (f : Γ ⇒ Γ ◂ A), 
+    (Σ (f : Γ --> Γ ◂ A), 
          f ;; π _ = identity Γ
        × (Q Y A : nat_trans _ _) Γ f = t).
 Proof.
@@ -203,7 +203,7 @@ Qed.
 (* TODO: unify with [bar] in […_Equivalence]? *)
 Lemma term_to_section {Y : families_structure} {Γ:C} (t : Tm Y Γ) 
   (A := (pp Y : nat_trans _ _) _ t)
-  : Σ (f : Γ ⇒ Γ ◂ A), (f ;; π _ = identity Γ).
+  : Σ (f : Γ --> Γ ◂ A), (f ;; π _ = identity Γ).
 Proof.
   set (sectionplus := iscontrpr1 (term_to_section_aux t)).
   exists (pr1 sectionplus).
@@ -219,7 +219,7 @@ Proof.
 Qed.
 
 Lemma Q_comp_ext_compare {Y : families_structure}
-    {Γ Γ':C} {A A' : Ty X Γ} (e : A = A') (t : Γ' ⇒ Γ ◂ A)
+    {Γ Γ':C} {A A' : Ty X Γ} (e : A = A') (t : Γ' --> Γ ◂ A)
   : (Q Y A' : nat_trans _ _) _ (t ;; comp_ext_compare e)
   = (Q Y A : nat_trans _ _) _ t.
 Proof.
@@ -238,7 +238,7 @@ in calling this notion a _split_ type-category, and reserving _type-category_ (u
 
 Components of [Z : qq_morphism_structure X]:
 
-- [qq Z f A : Γ' ◂ A[f] ⇒ Γ ◂ A]
+- [qq Z f A : Γ' ◂ A[f] --> Γ ◂ A]
 - [qq_π Z f A : π _ ;; f = qq Y f A ;; π A]
 - [qq_π_Pb Z f A : isPullback _ _ _ _ (qq_π Y f A)]
 - [qq_id], [qq_comp]: functoriality for [qq]
@@ -258,12 +258,12 @@ Definition qq (Y : qq_morphism_data) {Γ Γ'} (f : C ⟦Γ', Γ⟧)
 := pr1 Y _ _ f A.
 
 (* TODO: consider changing the direction of this equality? *)
-Lemma qq_π (Y : qq_morphism_data) {Γ Γ'} (f : Γ' ⇒ Γ) (A : _ ) : π _ ;; f = qq Y f A ;; π A.
+Lemma qq_π (Y : qq_morphism_data) {Γ Γ'} (f : Γ' --> Γ) (A : _ ) : π _ ;; f = qq Y f A ;; π A.
 Proof.
   exact (pr1 (pr2 Y _ _ f A)).
 Qed.
 
-Lemma qq_π_Pb (Y : qq_morphism_data) {Γ Γ'} (f : Γ' ⇒ Γ) (A : _ ) : isPullback _ _ _ _ (qq_π Y f A).
+Lemma qq_π_Pb (Y : qq_morphism_data) {Γ Γ'} (f : Γ' --> Γ) (A : _ ) : isPullback _ _ _ _ (qq_π Y f A).
 Proof.
   exact (pr2 (pr2 Y _ _ f A)).
 Qed.

@@ -24,7 +24,7 @@ Undelimit Scope transport.
 Section Auxiliary.
 
 Lemma transportf_families_mor_TM {C : Precategory}
-  {X X' : obj_ext_Precat C} {F F' : X ⇒ X'} (e : F = F')
+  {X X' : obj_ext_Precat C} {F F' : X --> X'} (e : F = F')
   {Y : families_disp_precat C X} {Y'} (FY : Y ⇒[F] Y')
   : families_mor_TM (transportf _ e FY) = families_mor_TM FY.
 Proof.
@@ -89,7 +89,7 @@ Proof.
   - 
     set (RX := @transportf_forall).
     specialize (RX (preShv C) C).
-    specialize (RX (fun F Γ' => ((F:functor _ _ ) Γ' : hSet) → Σ ΓA : C, ΓA ⇒ Γ')).
+    specialize (RX (fun F Γ' => ((F:functor _ _ ) Γ' : hSet) → Σ ΓA : C, ΓA --> Γ')).
     simpl in RX.
     specialize (RX _ _ F).
     rewrite RX.
@@ -133,7 +133,7 @@ Definition obj_ext_to_preShv_functor
 
 Definition transportf_obj_ext
   {T T' : preShv C} (e : T = T')
-  (extn : Π Γ : C, ((T : functor _ _) Γ : hSet) → Σ ΓA : C, ΓA ⇒ Γ) 
+  (extn : Π Γ : C, ((T : functor _ _) Γ : hSet) → Σ ΓA : C, ΓA --> Γ) 
 : transportf _ e extn
   = fun Γ A => extn Γ ((inv_from_iso (idtoiso e) : nat_trans _ _) Γ A).
 Proof.
@@ -141,7 +141,7 @@ Proof.
 Defined.
 
 Lemma obj_ext_mor_TY_eq {X X' : obj_ext_Precat C}
-  {F F' : X ⇒ X'} (E : F = F')
+  {F F' : X --> X'} (E : F = F')
   {Γ} (A : Ty X Γ)
 : (obj_ext_mor_TY F : nat_trans _ _) _ A
   = (obj_ext_mor_TY F' : nat_trans _ _) _ A.
@@ -150,7 +150,7 @@ Proof.
 Qed.
 
 Lemma obj_ext_mor_φ_eq {X X' : obj_ext_Precat C}
-  {F F' : X ⇒ X'} (E : F = F')
+  {F F' : X --> X'} (E : F = F')
   {Γ} (A : Ty X Γ)
 : φ F A ;; Δ (obj_ext_mor_TY_eq E A)
   = φ F' A.
@@ -201,7 +201,7 @@ Proof.
   }
   use total2_paths.
   use isotoid. assumption.
-  exists (φ (F : _ ⇒ _) _ ;; Δ (obj_ext_mor_TY_eq FF' _)).
+  exists (φ (F : _ --> _) _ ;; Δ (obj_ext_mor_TY_eq FF' _)).
   + simpl. apply is_iso_from_is_z_iso.
     exists (φ _ _). exact H'.
   + etrans. apply transportf_isotoid.
@@ -214,7 +214,7 @@ Defined.
 Lemma foo {X X' : obj_ext_Precat C} (e : X = X')
   {Γ} (A : Ty X Γ)
 : comp_ext X Γ A
-  ⇒ comp_ext X' Γ ((obj_ext_mor_TY (idtoiso e : X ⇒ X') : nat_trans _ _) _ A).
+  --> comp_ext X' Γ ((obj_ext_mor_TY (idtoiso e : X --> X') : nat_trans _ _) _ A).
 Proof.
   Unset Printing Notations.
   revert Γ A.
@@ -247,7 +247,7 @@ Defined.
 (* TODO: name *)
 Lemma foo2 {X X' : obj_ext_Precat C} (e : X = X')
   {Γ} (A : Ty X Γ)
-: φ (idtoiso e : _ ⇒ _) A = foo e A.
+: φ (idtoiso e : _ --> _) A = foo e A.
 Proof.
   (* should be trivial once [foo] is defined correctly: *)
   destruct e. cbn. apply pathsinv0.
@@ -316,8 +316,8 @@ Defined.
 Lemma prewhisker_iso_disp_to_TM_eq 
   {X} {Y Y' : families_disp_precat C X}
   (FG : iso_disp (identity_iso X) Y Y')
-  {P : preShv C} (α : TM (Y : families_structure _ X) ⇒ P)
-: transportf (λ P' : preShv C, P' ⇒ P) (iso_disp_to_TM_eq _ _ _ FG) α
+  {P : preShv C} (α : TM (Y : families_structure _ X) --> P)
+: transportf (λ P' : preShv C, P' --> P) (iso_disp_to_TM_eq _ _ _ FG) α
   = families_mor_TM (pr1 (pr2 FG)) ;; α.
 Proof.
   etrans. apply transportf_isotoid.
@@ -328,8 +328,8 @@ Qed.
 Lemma postwhisker_iso_disp_to_TM_eq 
   {X} {Y Y' : families_disp_precat C X}
   (FG : iso_disp (identity_iso X) Y Y')
-  {P : preShv C} (α : P ⇒ TM (Y : families_structure _ X))
-: transportf (λ P' : preShv C, P ⇒ P') (iso_disp_to_TM_eq _ _ _ FG) α
+  {P : preShv C} (α : P --> TM (Y : families_structure _ X))
+: transportf (λ P' : preShv C, P --> P') (iso_disp_to_TM_eq _ _ _ FG) α
   = α ;; families_mor_TM (pr1 FG).
 Proof.
   apply postwhisker_isotoid.
@@ -408,7 +408,7 @@ Qed.
 Lemma qq_structure_eq 
   (x : obj_ext_Precat C)
   (d d' : qq_morphism_structure x)
-  (H : Π (Γ Γ' : C) (f : Γ' ⇒ Γ) (A : (TY x : functor _ _ ) Γ : hSet), 
+  (H : Π (Γ Γ' : C) (f : Γ' --> Γ) (A : (TY x : functor _ _ ) Γ : hSet), 
            qq d f A = qq d' f A)
   : d = d'.
 Proof.

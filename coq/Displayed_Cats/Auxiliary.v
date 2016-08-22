@@ -60,14 +60,14 @@ Section Dirprod_utils.
 (* TODO: check library more thoroughly in case these are already provided. *)
 
 (** Compare [pathsdirprod]. *)
-Definition dirprod_paths {A B : Type} {p q : A × B}
+Definition dirprod_paths {A B : UU} {p q : A × B}
   : pr1 p = pr1 q -> pr2 p = pr2 q -> p = q.
 Proof.
   destruct p as [a b], q as [a' b']; apply pathsdirprod.
 Defined.
 
 (** Compare [total2asstol]. *) 
-Definition dirprod_assoc {C0 C1 C2 : Type}
+Definition dirprod_assoc {C0 C1 C2 : UU}
   : (C0 × (C1 × C2)) -> ((C0 × C1) × C2).
 Proof.
   intros c. exact ((pr1 c , (pr1 (pr2 c))) , pr2 (pr2 c)). 
@@ -129,7 +129,7 @@ Defined.
 Definition prod_precategory_ob_mor (C D : precategory) : precategory_ob_mor.
   (* ob *) exists (C × D).
   (* mor *) intros a b. refine (_ × _).
-    exact ((pr1 a) ⇒ (pr1 b)). exact ((pr2 a) ⇒ (pr2 b)).
+    exact ((pr1 a) --> (pr1 b)). exact ((pr2 a) --> (pr2 b)).
 Defined.
 
 Definition prod_precategory_data (C D : precategory) : precategory_data.
@@ -228,7 +228,7 @@ Section Pregroupoids.
 (* TODO: search library more thoroughly for any of these! *)
 
 Definition is_pregroupoid (C : precategory)
-  := forall (x y : C) (f : x ⇒ y), is_iso f.
+  := forall (x y : C) (f : x --> y), is_iso f.
 
 Lemma is_pregroupoid_functor_precat {C D : Precategory}
   (gr_D : is_pregroupoid D)
@@ -297,7 +297,7 @@ End Discrete_precats.
 Section Miscellaneous.
 
 (* TODO: upstream; also perhaps reconsider implicit args of pr1_transportf to match this? *)
-Lemma pr2_transportf {A} {B1 B2 : A → Type} 
+Lemma pr2_transportf {A} {B1 B2 : A → UU} 
     {a a' : A} (e : a = a') (xs : B1 a × B2 a)
   : pr2 (transportf (fun a => B1 a × B2 a) e xs) = transportf _ e (pr2 xs).
 Proof.

@@ -43,12 +43,12 @@ Context {C : Precategory}.
 Local Notation hsC := (homset_property C).
 
 Definition obj_ext_mor (X X' : obj_ext_structure C)
-  := Σ F_TY : TY X ⇒ TY X',
+  := Σ F_TY : TY X --> TY X',
        Π {Γ:C} {A : Ty X Γ},
-         Σ φ : (Γ ◂ A ⇒ Γ ◂ ((F_TY : nat_trans _ _) _ A)),
+         Σ φ : (Γ ◂ A --> Γ ◂ ((F_TY : nat_trans _ _) _ A)),
            φ ;; π _ = π A.
 
-Definition obj_ext_mor_TY {X X'} (F : obj_ext_mor X X') : _ ⇒ _
+Definition obj_ext_mor_TY {X X'} (F : obj_ext_mor X X') : _ --> _
   := pr1 F.
 
 (* TODO: is this actually useful?  Maybe remove. *)
@@ -59,7 +59,7 @@ Open Scope TY_scope.
 
 Definition obj_ext_mor_φ {X X'} (F : obj_ext_mor X X')
     {Γ:C} (A : Ty X Γ)
-  : Γ ◂ A ⇒ Γ ◂ F[ A ]
+  : Γ ◂ A --> Γ ◂ F[ A ]
 := pr1 (pr2 F _ _).
 
 Local Notation φ := obj_ext_mor_φ.
@@ -172,7 +172,7 @@ Definition obj_ext_Precat : Precategory
   := (obj_ext_precat ,, obj_ext_has_homsets).
 
 (** ** Utility lemmas *)
-Lemma Δ_φ {X X' : obj_ext_Precat} (F : X ⇒ X')
+Lemma Δ_φ {X X' : obj_ext_Precat} (F : X --> X')
     {Γ : C} {A A' : Ty X Γ} (e : A = A')
   : Δ e ;; φ F A' = φ F A ;; Δ (maponpaths ((obj_ext_mor_TY F : nat_trans _ _) _) e).
 Proof.
@@ -196,28 +196,28 @@ Local Notation hsC := (homset_property C).
 Local Notation "'Yo'" := (yoneda _ hsC).
 
 Definition families_mor {X X' : obj_ext_Precat C}
-    (Y : families_structure hsC X) (Y' : families_structure hsC X') (F : X ⇒ X')
-  : Type
-:= Σ FF_TM : TM Y ⇒ TM Y',
+    (Y : families_structure hsC X) (Y' : families_structure hsC X') (F : X --> X')
+  : UU
+:= Σ FF_TM : TM Y --> TM Y',
        FF_TM ;; pp Y' = pp Y ;; obj_ext_mor_TY F
      × 
        Π {Γ:C} {A : Ty X Γ}, Q Y A ;; FF_TM = #Yo (φ F A) ;; Q Y' _.
 
-Definition families_mor_TM {X X'} {Y} {Y'} {F : X ⇒ X'} (FF : families_mor Y Y' F)
-  : _ ⇒ _
+Definition families_mor_TM {X X'} {Y} {Y'} {F : X --> X'} (FF : families_mor Y Y' F)
+  : _ --> _
 := pr1 FF.
 
-Definition families_mor_pp {X X'} {Y} {Y'} {F : X ⇒ X'} (FF : families_mor Y Y' F)
+Definition families_mor_pp {X X'} {Y} {Y'} {F : X --> X'} (FF : families_mor Y Y' F)
   : families_mor_TM FF ;; pp Y' = pp Y ;; obj_ext_mor_TY F
 := pr1 (pr2 FF).
 
-Definition families_mor_Q {X X'} {Y} {Y'} {F : X ⇒ X'} (FF : families_mor Y Y' F)
+Definition families_mor_Q {X X'} {Y} {Y'} {F : X --> X'} (FF : families_mor Y Y' F)
     {Γ} A
   : _ = _
 := pr2 (pr2 FF) Γ A.
 
 (* TODO: inline in [isaprop_families_mor]? *)
-Lemma families_mor_eq {X X'} {Y} {Y'} {F : X ⇒ X'} (FF FF' : families_mor Y Y' F)
+Lemma families_mor_eq {X X'} {Y} {Y'} {F : X --> X'} (FF FF' : families_mor Y Y' F)
     (e_TM : Π Γ (t : Tm Y Γ),
       (families_mor_TM FF : nat_trans _ _) _ t
       = (families_mor_TM FF' : nat_trans _ _) _ t)
@@ -234,7 +234,7 @@ Qed.
 
 (* This is not full naturality of [term_to_section]; it is just what is required for [isaprop_families_mor] below. *)
 Lemma term_to_section_naturality {X X'} {Y} {Y'}
-  {F : X ⇒ X'} {FY : families_mor Y Y' F}
+  {F : X --> X'} {FY : families_mor Y Y' F}
   {Γ : C} (t : Tm Y Γ) (A := (pp Y : nat_trans _ _) _ t)
   : pr1 (term_to_section ((families_mor_TM FY : nat_trans _ _) _ t))
   = pr1 (term_to_section t) ;; φ F _
@@ -263,7 +263,7 @@ Proof.
 Qed.
 
 Lemma families_mor_recover_term {X X'} {Y} {Y'}
-  {F : X ⇒ X'} {FY : families_mor Y Y' F}
+  {F : X --> X'} {FY : families_mor Y Y' F}
   {Γ : C} (t : Tm Y Γ)
   : (families_mor_TM FY : nat_trans _ _) Γ t
   = (Q Y' _ : nat_trans _ _) Γ (pr1 (term_to_section t) ;; φ F _).
@@ -274,7 +274,7 @@ Proof.
 Qed.
 
 (* TODO: once all obligations proved, replace [families_mor_eq] with this in subsequent proofs. *)
-Lemma isaprop_families_mor {X X'} {Y} {Y'} {F : X ⇒ X'}
+Lemma isaprop_families_mor {X X'} {Y} {Y'} {F : X --> X'}
   : isaprop (families_mor Y Y' F).
 Proof.
   apply invproofirrelevance; intros FF FF'. apply families_mor_eq.
@@ -284,7 +284,7 @@ Proof.
 Qed.
 
 Lemma families_mor_transportf {X X'} {Y Y'}
-    {F F' : X ⇒ X'} (eF : F = F') (FF : families_mor Y Y' F)
+    {F F' : X --> X'} (eF : F = F') (FF : families_mor Y Y' F)
     {Γ:C} (t : Tm Y Γ)
   : (families_mor_TM (transportf _ eF FF) : nat_trans _ _) Γ t
     = (families_mor_TM FF : nat_trans _ _) Γ t.

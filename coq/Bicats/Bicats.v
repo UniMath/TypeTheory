@@ -384,7 +384,7 @@ Definition LocallyDiscretePreBicat_ob_mor : prebicategory_obmor.
 Proof.
   (* objects *) exists (ob C).
   (* morphisms *) intros x y. use discrete_precat.
-    exists (x ⇒ y); apply homset_property.
+    exists (x --> y); apply homset_property.
 Defined.
 
 Definition LocallyDiscretePreBicat_data1 : prebicategory_data1.

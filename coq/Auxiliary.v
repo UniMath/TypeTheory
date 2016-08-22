@@ -56,7 +56,7 @@ Defined.
 
 (** A useful lemma for binary functions, generalising e.g. [cancel_postcomposition]: *)
 (*TODO: look carefully for this in the library *)
-Definition maponpaths_2 {X Y Z : Type} (f : X -> Y -> Z) {x x'} (e : x = x') y
+Definition maponpaths_2 {X Y Z : UU} (f : X -> Y -> Z) {x x'} (e : x = x') y
   : f x y = f x' y
 := maponpaths (fun x => f x y) e.
 
@@ -75,7 +75,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma transportf_forall {A B} (C : A -> B -> Type)
+Lemma transportf_forall {A B} (C : A -> B -> UU)
   {x0 x1 : A} (e : x0 = x1) (f : forall y:B, C x0 y)
   : transportf (fun x => forall y, C x y) e f
   = fun y => transportf (fun x => C x y) e (f y).
@@ -445,13 +445,13 @@ Qed.
 (* Seems to be an exact duplicate of a library lemma.  TODO: remove; or, if it’s not a duplicate, document the difference!
 
 Really it’s just the *arguments* that we want to change (and for [cancel_precomposition] too. *)
-Lemma cancel_postcomposition {C : precategory} {a b c : C} (f f' : a ⇒ b) (g : b ⇒ c)
+Lemma cancel_postcomposition {C : precategory} {a b c : C} (f f' : a --> b) (g : b --> c)
 : f = f' -> f ;; g = f' ;; g.
 Proof.
   intro H. apply (maponpaths (fun f => f ;; g) H).
 Defined.
 
-Lemma idtoiso_postcompose_idtoiso_pre {C : precategory} {a b c : C} (g : a ⇒ b) (f : a ⇒ c)
+Lemma idtoiso_postcompose_idtoiso_pre {C : precategory} {a b c : C} (g : a --> b) (f : a --> c)
               (p : b = c) :
   g = f ;; idtoiso (!p) -> g ;; idtoiso p = f.
 Proof.
@@ -481,7 +481,7 @@ Section on_pullbacks.
   Variable C : precategory.
   Variable hs : has_homsets C.
   Variables a b c d : C.
-  Variables (f : a ⇒ b) (g : a ⇒ c) (k : b ⇒ d) (h : c ⇒ d).
+  Variables (f : a --> b) (g : a --> c) (k : b --> d) (h : c --> d).
 
 (*
       f
@@ -521,8 +521,8 @@ Section on_pullbacks.
       - apply Pb.
   Defined.
   
-  Definition map_into_Pb {e : C} (x : e ⇒ b) (y : e ⇒ c)
-  :  x ;; k = y ;; h → e ⇒ a.
+  Definition map_into_Pb {e : C} (x : e --> b) (y : e --> c)
+  :  x ;; k = y ;; h → e --> a.
   Proof.
     intro H.
     unshelve refine (PullbackArrow Pbb _ _ _ _ ).
@@ -531,21 +531,21 @@ Section on_pullbacks.
     - apply H.
   Defined.
       
-  Definition Pb_map_commutes_1 {e : C} (x : e ⇒ b) (y : e ⇒ c) H
+  Definition Pb_map_commutes_1 {e : C} (x : e --> b) (y : e --> c) H
   : map_into_Pb x y H ;; f = x.
   Proof.
     assert (P:=PullbackArrow_PullbackPr1 Pbb).
     apply P.
   Qed.
 
-  Definition Pb_map_commutes_2 {e : C} (x : e ⇒ b) (y : e ⇒ c) H
+  Definition Pb_map_commutes_2 {e : C} (x : e --> b) (y : e --> c) H
   : map_into_Pb x y H ;; g = y.
   Proof.
     assert (P:=PullbackArrow_PullbackPr2 Pbb).
     apply P.
   Qed.
 
-  Lemma map_into_Pb_unique (e : C) (x y : e ⇒ a)
+  Lemma map_into_Pb_unique (e : C) (x y : e --> a)
   : x ;; f = y ;; f → x ;; g = y ;; g → x = y.
   Proof.
     intros H H'.
@@ -558,7 +558,7 @@ Section on_pullbacks.
     apply idpath.
   Qed.
 
-  Lemma postcomp_pb_with_iso (y : C) (r : y ⇒ d) (i : iso b y) (Hi : i ;; r = k) :
+  Lemma postcomp_pb_with_iso (y : C) (r : y --> d) (i : iso b y) (Hi : i ;; r = k) :
     Σ H : f ;; i ;; r = g ;; h, isPullback _ _ _ _ H.
   Proof.
     unshelve refine (tpair _ _ _ ).
@@ -605,7 +605,7 @@ Section Pullbacks_hSet.
 
   If we had the standard pullback of hsets defined, this could be maybe better stated as the fact that P is a pullback if the map from P to the standard pullback is an iso. *)
 Lemma isPullback_HSET {P A B C : HSET}
-  (p1 : P ⇒ A) (p2 : P ⇒ B) (f : A ⇒ C) (g : B ⇒ C) (ep : p1 ;; f = p2 ;; g) 
+  (p1 : P --> A) (p2 : P --> B) (f : A --> C) (g : B --> C) (ep : p1 ;; f = p2 ;; g) 
   : (Π a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b)
   -> isPullback _ _ _ _ ep.
 Proof.
@@ -681,7 +681,7 @@ Qed.
 (* TODO: upstream this and the following lemma, and unify them with the converse implication about pullbacks. *)
 Lemma square_commutes_preShv_to_pointwise {C : precategory} (hsC : has_homsets C)
     {X Y Z W : preShv C}
-    {f : Y ⇒ X} {g : Z ⇒ X} {p1 : W ⇒ Y} {p2 : W ⇒ Z}
+    {f : Y --> X} {g : Z --> X} {p1 : W --> Y} {p2 : W --> Z}
     (e : p1 ;; f = p2 ;; g)
     (c : C)
   : ((p1 : nat_trans _ _) c) ;; ((f : nat_trans _ _) c)
@@ -693,7 +693,7 @@ Qed.
 (* TODO: unify with the converse implication. *)
 Lemma isPullback_preShv_to_pointwise {C : precategory} (hsC : has_homsets C)
     {X Y Z W : preShv C}
-    {f : Y ⇒ X} {g : Z ⇒ X} {p1 : W ⇒ Y} {p2 : W ⇒ Z}
+    {f : Y --> X} {g : Z --> X} {p1 : W --> Y} {p2 : W --> Z}
     {e : p1 ;; f = p2 ;; g} (pb : isPullback _ _ _ _ e)
     (c : C)
   : isPullback ((f : nat_trans _ _) c) ((g : nat_trans _ _) c)
@@ -777,7 +777,7 @@ will be an instance of a general lemma to be proved
    in UniMath
 *)
 Definition isaprop_Pullback (C : precategory) (H : is_category C)
-           (a b c : C) (f : b ⇒ a) (g : c ⇒ a)
+           (a b c : C) (f : b --> a) (g : c --> a)
 : isaprop (Pullback f g).
 Proof.
   unfold Pullback.
@@ -825,14 +825,14 @@ Section Pullback_Unique_Up_To_Iso.
   
   Variable CC : precategory.
   Variables A B C D A' B' : CC.
-  Variables (f : A ⇒ B) (g : A ⇒ C) (k : B ⇒ D) (j : C ⇒ D) (H : f ;; k = g ;; j)
+  Variables (f : A --> B) (g : A --> C) (k : B --> D) (j : C --> D) (H : f ;; k = g ;; j)
             (pb : isPullback _ _ _ _ H).
-  Variables (f' : A' ⇒ B') (g' : A' ⇒ C) (r : B' ⇒ D) (h : iso B B').
+  Variables (f' : A' --> B') (g' : A' --> C) (r : B' --> D) (h : iso B B').
   Variable (H' : f' ;; r = g' ;; j).
   Variable (pb' : isPullback _ _ _ _ H').
   Variable (T : h ;; r = k).
 
-  Definition map_to_2nd_pb : A ⇒ A'.
+  Definition map_to_2nd_pb : A --> A'.
   Proof.
     unshelve refine (map_into_Pb H' pb' _ _ _  ).
     - exact (f ;; h).
@@ -842,7 +842,7 @@ Section Pullback_Unique_Up_To_Iso.
       apply maponpaths. apply T.
   Defined.
 
-  Definition map_to_1st_pb : A' ⇒ A.
+  Definition map_to_1st_pb : A' --> A.
   Proof.
     unshelve refine (map_into_Pb H pb _ _ _ ).
     - exact (f';; inv_from_iso h).

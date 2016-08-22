@@ -54,7 +54,7 @@ Notation ZZ := (pr2 Z).
 Variable Y : compatible_fam_structure Z.
 
 Definition canonical_TM_to_given_data
-  : Π Γ, (tm_from_qq Z Γ) ⇒ (Tm (pr1 Y) Γ)
+  : Π Γ, (tm_from_qq Z Γ) --> (Tm (pr1 Y) Γ)
 := (λ (Γ : C^op) (t : tm_from_qq_carrier Γ),
        (yoneda_weq C hsC Γ (TM (pr1 Y)))
          (# Yo (pr1 (pr2 t)) ;; Q (pr1 Y) (pr1 t))).

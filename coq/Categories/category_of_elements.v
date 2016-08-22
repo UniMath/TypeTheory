@@ -28,7 +28,7 @@ Definition precategory_of_elements_ob_mor : precategory_ob_mor.
 Proof.
   exists (Σ c : C, pr1hSet (F c)).
   intros ca db.
-  exact (Σ f : pr1 ca ⇒ pr1 db, #F f (pr2 ca) = (pr2 db)).
+  exact (Σ f : pr1 ca --> pr1 db, #F f (pr2 ca) = (pr2 db)).
 Defined.
 
 Definition precategory_of_elements_data : precategory_data.
@@ -251,7 +251,7 @@ Definition precategory_of_elements_ob_mor : precategory_ob_mor.
 Proof.
   exists (Σ c : C, pr1 (F c)).
   intros ca c'a'.
-  exact (Σ f : pr1 ca ⇒ pr1 c'a', #F (f) (pr2 c'a') = (pr2 ca)).
+  exact (Σ f : pr1 ca --> pr1 c'a', #F (f) (pr2 c'a') = (pr2 ca)).
 Defined.
 
 Definition precategory_of_elements_data : precategory_data.

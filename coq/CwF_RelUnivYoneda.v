@@ -161,12 +161,12 @@ Proof.
   eapply weqcomp. apply weqfibtototal. intro depr.
     set (XR := @weqtotal2asstol). unfold families_structure_data.
     specialize (XR (preShv C)
-                   (fun x =>  x ⇒ TY (Ty,, depr))). simpl in XR.
+                   (fun x =>  x --> TY (Ty,, depr))). simpl in XR.
     specialize (XR (fun Tmp =>  (Π (Γ : C^op) (A : (TY (Ty,, depr):functor _ _ ) Γ : hSet), 
-                                        Yo (comp_ext (Ty,,depr) Γ A) ⇒ pr1 Tmp)) ).       
+                                        Yo (comp_ext (Ty,,depr) Γ A) --> pr1 Tmp)) ).       
     apply XR. simpl.
   eapply weqcomp.
-    set (XR:= @weqtotal2asstol (Π Γ : C, (Ty Γ : hSet) → Σ ΓA : C, ΓA ⇒ Γ)).
+    set (XR:= @weqtotal2asstol (Π Γ : C, (Ty Γ : hSet) → Σ ΓA : C, ΓA --> Γ)).
      specialize (XR (fun _ =>  Σ x0 : functor (opp_precat_data C) hset_precategory_data, nat_trans x0 Ty)).
      simpl in *.
      specialize (XR (fun deprTmp =>  Π (Γ : C) (A : (Ty Γ : hSet)),
@@ -240,7 +240,7 @@ Defined.
 
 Definition comp_1_data (y : arrow (preShv C)) : UU
   := Π (Γ : C) (A : (u y : functor _ _ ) Γ : hSet),
-           (Σ ΓAp : Σ ΓA : C, ΓA ⇒ Γ, Yo (pr1 ΓAp) ⇒ tu y).
+           (Σ ΓAp : Σ ΓA : C, ΓA --> Γ, Yo (pr1 ΓAp) --> tu y).
 
 
 Definition weq_comp_data (y : arrow (preShv C)) : comp_data y ≃ comp_1_data y.
@@ -248,15 +248,15 @@ Proof.
   unfold comp_data.
   eapply weqcomp.
     set (XR := @weqtotaltoforall C).
-    specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓA : C, ΓA ⇒ X)).
+    specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓA : C, ΓA --> X)).
     simpl in XR.
-    specialize (XR (fun X dpr =>  Π (A : (u y : functor _ _ ) X : hSet), Yo (pr1 (dpr A)) ⇒ tu y)).
+    specialize (XR (fun X dpr =>  Π (A : (u y : functor _ _ ) X : hSet), Yo (pr1 (dpr A)) --> tu y)).
     apply XR.
   apply weqonsecfibers. intro X.
   eapply weqcomp.
     set (XR := @weqtotaltoforall ((u y : functor _ _ ) X : hSet) ). simpl in XR.
-    specialize (XR (fun _ => Σ ΓA : C, ΓA ⇒ X)). simpl in XR. 
-    specialize (XR  (fun A ΓAp => Yo (pr1 ΓAp) ⇒ tu y)).
+    specialize (XR (fun _ => Σ ΓA : C, ΓA --> X)). simpl in XR. 
+    specialize (XR  (fun A ΓAp => Yo (pr1 ΓAp) --> tu y)).
     apply XR.
   apply weqonsecfibers.
   intro A. apply idweq.
@@ -313,7 +313,7 @@ Proof.
   eapply weqcomp.
     set (XR := @weqtotaltoforall C). simpl in XR.
     unfold comp_1_data. unfold comp_1_prop.
-    specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓAp : Σ ΓA : C, ΓA ⇒ X, Yo (pr1 ΓAp) ⇒ tu y)). 
+    specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓAp : Σ ΓA : C, ΓA --> X, Yo (pr1 ΓAp) --> tu y)). 
     unfold dpr_1, QQ_1.
     specialize (XR (fun X pp =>  Π  (A : ((u y : functor _ _ ) X : hSet)),
        Σ e : # Yo (pr2 (pr1 (pp A))) ;; yy A = (pr2 (pp A) : preShv _ ⟦_,_⟧ );; p y,
@@ -322,7 +322,7 @@ Proof.
   apply weqonsecfibers. intro X.
   eapply weqcomp.
     set (XR := @weqtotaltoforall  ((target y : functor _ _ ) X : hSet)). simpl in XR.
-    specialize (XR (fun _ =>  Σ ΓAp : Σ ΓA : C, ΓA ⇒ X, Yo (pr1 ΓAp) ⇒ tu y)).
+    specialize (XR (fun _ =>  Σ ΓAp : Σ ΓA : C, ΓA --> X, Yo (pr1 ΓAp) --> tu y)).
 
     specialize (XR (fun A pp =>  Σ e : # Yo (pr2 (pr1 (pp ))) ;; yy A =
                                      ((pr2 pp : preShv C ⟦_,_⟧)) ;; p y, 
@@ -330,7 +330,7 @@ Proof.
     apply XR.
   apply weqonsecfibers. intro A. unfold fpullback.
   transparent assert (HXY :
-      ( (Σ ΓAp : Σ ΓA : C, ΓA ⇒ X, Yo (pr1 ΓAp) ⇒ tu y)
+      ( (Σ ΓAp : Σ ΓA : C, ΓA --> X, Yo (pr1 ΓAp) --> tu y)
          ≃
          fpullback_data C (preShv C) Yo (target y) (source y) (yy A)
       )).
@@ -434,7 +434,7 @@ Proof.
   simpl.
   eapply weqcomp. Focus 2.
     set (XR := @weqforalltototal C).
-    specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓA : C, ΓA ⇒ X)).
+    specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓA : C, ΓA --> X)).
     simpl in XR.
     specialize (XR (fun X pX =>  Π  (A : ((u y : functor _ _ ) X : hSet)),
               nat_trans (yoneda_ob_functor_data C hsC (pr1 (pX  A))) (tu y : functor _ _ ))).
@@ -442,14 +442,14 @@ Proof.
   apply weqonsecfibers. intro X. simpl.
   eapply weqcomp. Focus 2.
     set (XR := @weqforalltototal ((u y : functor _ _ ) X : hSet)).
-    specialize (XR (fun A =>  Σ ΓA : C, ΓA ⇒ X)). simpl in XR.
+    specialize (XR (fun A =>  Σ ΓA : C, ΓA --> X)). simpl in XR.
     specialize (XR (fun A pX => nat_trans (yoneda_ob_functor_data C hsC (pr1 (pX))) (tu y : functor _ _ ))).
     apply XR. simpl. unfold fpullback_data.
   eapply weqcomp.
     eapply weqbfun. apply (invweq (yoneda_weq _ _ _ _ )).
   apply weqffun.
   set (XR:= @weqtotal2asstol (ob C) (fun XA => _ ⟦XA, X⟧)). simpl in XR.
-  specialize (XR (fun Q => Yo (pr1 Q) ⇒ source y)).
+  specialize (XR (fun Q => Yo (pr1 Q) --> source y)).
   apply XR.
 Defined.  
 
