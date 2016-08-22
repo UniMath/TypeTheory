@@ -138,7 +138,7 @@ Proof.
   apply iscompatible_qq_from_fam.
 Defined.
 
-Lemma qq_from_fam_mor {X X' : obj_ext_precat} {F : X ⇒ X'}
+Lemma qq_from_fam_mor {X X' : obj_ext_precat} {F : X --> X'}
   {Y : families_disp_precat C X} {Y'} (FY : Y ⇒[F] Y')
   {Z : qq_structure_disp_precat C X} {Z'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
@@ -181,7 +181,7 @@ Proof.
       (nat_trans_eq_pointwise (families_mor_Q FY _) _) _).
 Time Qed.
 
-Lemma qq_from_fam_mor_unique {X X' : obj_ext_precat} {F : X ⇒ X'}
+Lemma qq_from_fam_mor_unique {X X' : obj_ext_precat} {F : X --> X'}
   {Y : families_disp_precat C X} {Y'} (FY : Y ⇒[F] Y')
   {Z : qq_structure_disp_precat C X} {Z'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
@@ -205,7 +205,7 @@ Proof.
 Defined.
 
 (** The next main goal is the following statement.  However, the construction of the morphism of families structures is rather large; so we break out the first component (the map of term presheaves) into several independent lemmas, before returning to this in [fam_from_qq_mor] below. *)
-Lemma fam_from_qq_mor {X X' : obj_ext_precat} {F : X ⇒ X'}
+Lemma fam_from_qq_mor {X X' : obj_ext_precat} {F : X --> X'}
   {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
   {Y : families_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
@@ -213,7 +213,7 @@ Lemma fam_from_qq_mor {X X' : obj_ext_precat} {F : X ⇒ X'}
   : Σ (FY : Y ⇒[F] Y'), W ⇒[(F,,(FY,,FZ))] W'.
 Abort.
 
-Lemma fam_from_qq_mor_TM_data {X X' : obj_ext_precat} {F : X ⇒ X'}
+Lemma fam_from_qq_mor_TM_data {X X' : obj_ext_precat} {F : X --> X'}
   {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
   {Y : families_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
@@ -226,7 +226,7 @@ Proof.
   exact ((Q _ _ : nat_trans _ _) _ (pr1 (term_to_section t) ;; φ F _)).
 Defined.
 
-Lemma fam_from_qq_mor_TM_naturality {X X' : obj_ext_precat} {F : X ⇒ X'}
+Lemma fam_from_qq_mor_TM_naturality {X X' : obj_ext_precat} {F : X --> X'}
   {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
   {Y : families_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
@@ -296,15 +296,15 @@ Proof.
     apply term_to_section_recover.
 Time Qed.
 
-Definition fam_from_qq_mor_TM {X X' : obj_ext_precat} {F : X ⇒ X'}
+Definition fam_from_qq_mor_TM {X X' : obj_ext_precat} {F : X --> X'}
     {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
     {Y : families_disp_precat C X} {Y'}
     (W : strucs_compat_disp_precat (X,,(Y,,Z)))
     (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
-  : TM (Y : families_structure _ _) ⇒ TM (Y' : families_structure _ _)
+  : TM (Y : families_structure _ _) --> TM (Y' : families_structure _ _)
 := (fam_from_qq_mor_TM_data _ _ _,, fam_from_qq_mor_TM_naturality FZ W W').
 
-Lemma fam_from_qq_mor {X X' : obj_ext_precat} {F : X ⇒ X'}
+Lemma fam_from_qq_mor {X X' : obj_ext_precat} {F : X --> X'}
   {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
   {Y : families_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
@@ -363,7 +363,7 @@ Proof.
   apply (map_from_term_recover W).
 Time Qed.
 
-Lemma fam_from_qq_mor_unique {X X' : obj_ext_precat} {F : X ⇒ X'}
+Lemma fam_from_qq_mor_unique {X X' : obj_ext_precat} {F : X --> X'}
   {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
   {Y : families_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))

@@ -20,7 +20,7 @@ Require Import Systems.OtherDefs.CwF_Pitts.
 
 (* TODO: move *)
 Lemma idtoiso_q_type_cat {CC : precategory} {C : type_cat_struct CC}
-      {Γ : CC} (A : C Γ) {Γ' : CC} {f f' : Γ' ⇒ Γ} (e : f = f') :
+      {Γ : CC} (A : C Γ) {Γ' : CC} {f f' : Γ' --> Γ} (e : f = f') :
       q_type_cat A f
       = (idtoiso (maponpaths (fun f => ext_type_cat Γ' (reind_type_cat A f)) e))
           ;; q_type_cat A f'.
@@ -48,7 +48,7 @@ Proof.
   unfold tt_structure.
   exists (ty_type_cat C).
   intros Γ A.
-  exact (Σ f : Γ ⇒ Γ ◂ A, f ;; dpr_type_cat _  = identity _ ). 
+  exact (Σ f : Γ --> Γ ◂ A, f ;; dpr_type_cat _  = identity _ ). 
 Defined.
 
 
@@ -99,7 +99,7 @@ Lemma reindx_law_1_term_of_type_cat
   (A : tt_reindx_from_type_cat ⟨ Γ ⟩)
   (a : tt_reindx_from_type_cat ⟨ Γ ⊢ A ⟩) :
    a ⟦ identity Γ ⟧ =
-   transportf (λ B : C Γ, Σ f : Γ ⇒ Γ ◂ B, f;; dpr_type_cat B = identity Γ)
+   transportf (λ B : C Γ, Σ f : Γ --> Γ ◂ B, f;; dpr_type_cat B = identity Γ)
               (! reind_id_type_typecat (pr2 C) Γ A) a.
 Proof.
   intros. simpl. unfold tt_reindx_from_type_cat in *. simpl in *.
@@ -118,12 +118,12 @@ Proof.
       rewrite (pr2 X).
 *)
     assert (T:=@transportf_total2).
-    assert (T':= T (C Γ) (λ B,  Γ ⇒ Γ ◂ B)). simpl in T'.
+    assert (T':= T (C Γ) (λ B,  Γ --> Γ ◂ B)). simpl in T'.
     assert (T'' := T' (λ B f, f ;; dpr_type_cat B = identity Γ)).
     simpl in *.
     assert (T3 := T'' _ _ (! (reind_id_type_typecat (pr2 C)  Γ A))).
     (*      assert (T3:= T'' _ _  (! pr1 (pr2 (pr1 (pr2 C))) Γ A)).*)
-    assert (T4 := T3 (tpair (λ f0 : Γ ⇒ Γ ◂ A, f0;; dpr_type_cat A = identity Γ) f H)).
+    assert (T4 := T3 (tpair (λ f0 : Γ --> Γ ◂ A, f0;; dpr_type_cat A = identity Γ) f H)).
     clear T3 T'' T'. simpl in T4.
     assert (T5:= base_paths _ _ T4). clear T4; simpl in *.
     etrans.
@@ -144,12 +144,12 @@ Proof.
     destruct a as [f H]; simpl in *.
     rewrite <- H.
     assert (T:=@transportf_total2).
-    assert (T':= T (C Γ) (λ B,  Γ ⇒ Γ ◂ B)). simpl in T'.
+    assert (T':= T (C Γ) (λ B,  Γ --> Γ ◂ B)). simpl in T'.
     assert (T'' := T' (λ B f0, f0 ;; dpr_type_cat B = f ;; dpr_type_cat A)).
     simpl in *.
     assert (T3 := T'' _ _ (! (reind_id_type_typecat (pr2 C)  Γ A))).
       (*      assert (T3:= T'' _ _  (! pr1 (pr2 (pr1 (pr2 C))) Γ A) ). *)
-    assert (T4 := T3  (tpair (λ f0 : Γ ⇒ Γ ◂ A, f0;; dpr_type_cat A = f;; dpr_type_cat A) f
+    assert (T4 := T3  (tpair (λ f0 : Γ --> Γ ◂ A, f0;; dpr_type_cat A = f;; dpr_type_cat A) f
                                (idpath (f;; dpr_type_cat A)))).
     clear T3 T'' T'. simpl in T4.
     assert (T5:= base_paths _ _ T4). clear T4; simpl in *.
@@ -162,14 +162,14 @@ Qed.
 
 Lemma foo
   (Γ Γ' Γ'' : CC)
-  (γ : Γ' ⇒ Γ)
-  (γ' : Γ'' ⇒ Γ')
+  (γ : Γ' --> Γ)
+  (γ' : Γ'' --> Γ')
   (A : ( tt_reindx_from_type_cat) ⟨ Γ ⟩)
   (a : ( tt_reindx_from_type_cat) ⟨ Γ ⊢ A ⟩)
   :
    a ⟦ γ';; γ ⟧ =
    transportf
-     (λ B : C Γ'', Σ f : Γ'' ⇒ Γ'' ◂ B, f;; dpr_type_cat B = identity Γ'')
+     (λ B : C Γ'', Σ f : Γ'' --> Γ'' ◂ B, f;; dpr_type_cat B = identity Γ'')
      (! reind_comp_type_typecat (pr2 C) Γ A Γ' γ Γ'' γ') 
      ((a ⟦ γ ⟧) ⟦ γ' ⟧).
 Proof.
@@ -189,7 +189,7 @@ Proof.
     clear X.
       
     assert (T:=@transportf_total2).
-    assert (T':= T (C Γ'') (λ B,  Γ'' ⇒ Γ'' ◂ B)); clear T; simpl in T'.
+    assert (T':= T (C Γ'') (λ B,  Γ'' --> Γ'' ◂ B)); clear T; simpl in T'.
     assert (T'' := T' (λ B f0, f0 ;; dpr_type_cat B = identity Γ''));
       clear T'.
     simpl in T''.
@@ -225,7 +225,7 @@ Proof.
   + match goal with |[|- pr1 (transportf ?P' ?e' ?x') ;; _ = _ ] =>
                        set (P:=P') ; set (e := e') ; set (x := x') end.
     assert (T:=@transportf_total2).
-    assert (T':= T (C Γ'') (λ B,  Γ'' ⇒ Γ'' ◂ B)); clear T; simpl in T'.
+    assert (T':= T (C Γ'') (λ B,  Γ'' --> Γ'' ◂ B)); clear T; simpl in T'.
     assert (T'' := T' (λ B f0, f0 ;; dpr_type_cat B = identity Γ''));
       clear T'.
     assert (T3:= T'' _ _  e x); clear T''.
@@ -396,7 +396,7 @@ Proof.
   unfold pairing; simpl.
   destruct a as [f H]; simpl in *.
   assert (T:=@transportf_total2).
-  assert (T' := T (C Γ'') (λ B, Γ'' ⇒ Γ'' ◂ B) ); clear T.
+  assert (T' := T (C Γ'') (λ B, Γ'' --> Γ'' ◂ B) ); clear T.
   assert (T2 := T' (λ B f0, f0 ;; dpr_type_cat B = identity Γ'')); clear T'. simpl in T2.
   assert (T3 := T2 _ _ (! reindx_type_comp reindx_laws_of_type_cat γ γ' A)); clear T2; simpl in T3.
   match goal with |[ |- _ = pr1 (transportf _ _ ?x) ;; _ ] => set (X := x) end.

@@ -129,7 +129,7 @@ Defined.
 Definition prod_precategory_ob_mor (C D : precategory) : precategory_ob_mor.
   (* ob *) exists (C × D).
   (* mor *) intros a b. refine (_ × _).
-    exact ((pr1 a) ⇒ (pr1 b)). exact ((pr2 a) ⇒ (pr2 b)).
+    exact ((pr1 a) --> (pr1 b)). exact ((pr2 a) --> (pr2 b)).
 Defined.
 
 Definition prod_precategory_data (C D : precategory) : precategory_data.
@@ -228,7 +228,7 @@ Section Pregroupoids.
 (* TODO: search library more thoroughly for any of these! *)
 
 Definition is_pregroupoid (C : precategory)
-  := forall (x y : C) (f : x ⇒ y), is_iso f.
+  := forall (x y : C) (f : x --> y), is_iso f.
 
 Lemma is_pregroupoid_functor_precat {C D : Precategory}
   (gr_D : is_pregroupoid D)

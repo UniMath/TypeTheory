@@ -27,7 +27,7 @@ Section Prelims.
 
 (* TODO: move to [cwf] *)
 Definition pairing_transport {CC : precategory} (C : cwf_struct CC) {Γ} {A A' : C⟨Γ⟩} (e : A = A')
-  {Γ'} (γ : Γ' ⇒ Γ) (a : C ⟨Γ'⊢A[γ]⟩)
+  {Γ'} (γ : Γ' --> Γ) (a : C ⟨Γ'⊢A[γ]⟩)
 : (γ ## a) ;; idtoiso (maponpaths (fun (B : C⟨Γ⟩) => Γ∙B) e)
 = (γ ## (transportf (fun B => C ⟨ Γ' ⊢ B [γ] ⟩) e a)).
 Proof.
@@ -37,7 +37,7 @@ Defined.
 
 (* TODO: generalise; really it’s about any [transportf] along any [maponpaths]. *)
 Lemma transportf_maponpaths {CC : precategory} {C : cwf_struct CC} {Γ} {B B' : C⟨Γ⟩} (e : B = B')
-  {Γ'} (f : Γ' ⇒ Γ) (b : C ⟨ Γ' ⊢ B[f] ⟩)
+  {Γ'} (f : Γ' --> Γ) (b : C ⟨ Γ' ⊢ B[f] ⟩)
 : transportf (term C Γ') (maponpaths (fun D => D[f]) e) b
   = transportf (fun D => term C Γ' (D[f])) e b.
 Proof.

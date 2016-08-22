@@ -67,7 +67,7 @@ End Compatible_Structures.
 (* TODO: find more logical home for this below, once file is cleaned up a bit. *)
 Lemma map_from_term_recover
     {Y} {Z} (W : iscompatible_fam_qq Y Z)
-    {Γ' Γ : C} {A : Ty X Γ} (f : Γ' ⇒ Γ ◂ A)
+    {Γ' Γ : C} {A : Ty X Γ} (f : Γ' --> Γ ◂ A)
     {e : (pp Y : nat_trans _ _) Γ' ((Q Y A : nat_trans _ _) Γ' f)
          = A [ f ;; π A ]}
   : pr1 (term_to_section ((Q Y A : nat_trans _ _) Γ' f)) ;; Δ e ;; qq Z (f ;; π A) A
@@ -159,9 +159,9 @@ Qed.
 
 (* TODO: rephrase in terms of [Δ] instead of [idtoiso]? *)
 Lemma tm_from_qq_eq' {Γ : C} (A : Ty X Γ)
-  {Γ'} {f f' : Γ' ⇒ Γ} (e_ff' : f = f')
-  {s : Γ' ⇒ Γ' ◂ A[f]} (es : s ;; π _ = identity _)
-  {s' : Γ' ⇒ Γ' ◂ A[f']} (es' : s' ;; π _ = identity _)
+  {Γ'} {f f' : Γ' --> Γ} (e_ff' : f = f')
+  {s : Γ' --> Γ' ◂ A[f]} (es : s ;; π _ = identity _)
+  {s' : Γ' --> Γ' ◂ A[f']} (es' : s' ;; π _ = identity _)
   (e_ss' : s' = s ;; Δ (maponpaths (fun f => A[f]) e_ff'))
 : (( A[f] ,, (s,, es)) : tm_from_qq_functor_data Γ' : hSet)
   = (A[f'] ,, (s',, es')).
@@ -222,7 +222,7 @@ Definition tm_from_qq : functor _ _
 Arguments tm_from_qq : simpl never.
 
 Definition pp_from_qq_data (Γ : C^op)
-  : tm_from_qq Γ ⇒ Ty X Γ.
+  : tm_from_qq Γ --> Ty X Γ.
 Proof.
   exact pr1.
 Defined.
@@ -312,7 +312,7 @@ Proof.
       } 
 Time Qed.
 
-Definition Q_from_qq : Yo (Γ ◂ A) ⇒ tm_from_qq 
+Definition Q_from_qq : Yo (Γ ◂ A) --> tm_from_qq 
   := tpair _ _ is_nat_trans_Q_from_qq.
 
 Arguments Q_from_qq : simpl never.
@@ -397,8 +397,8 @@ Proof.
 Defined.
 
 Lemma fam_from_qq_pointwise_compatible
-    {Γ Γ' : C} (A : Ty X Γ) (f : Γ'⇒ Γ)
-    {Γ'' : C} (g : Γ''⇒ Γ' ◂ A[f])
+    {Γ Γ' : C} (A : Ty X Γ) (f : Γ'--> Γ)
+    {Γ'' : C} (g : Γ''--> Γ' ◂ A[f])
   : Q_from_qq_data A[f] Γ'' g
   = Q_from_qq_data A Γ'' (g ;; qq Z f A).
 Proof.

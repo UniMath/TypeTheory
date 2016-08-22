@@ -248,14 +248,14 @@ Definition sigmapr1_disp_functor
 
 (** ** Transport and isomorphism lemmas *)
 
-Lemma pr1_transportf_sigma_disp {x y : C} {f f' : x ⇒ y} (e : f = f')
+Lemma pr1_transportf_sigma_disp {x y : C} {f f' : x --> y} (e : f = f')
     {xxx : sigma_disp_precat x} {yyy} (fff : xxx ⇒[f] yyy)
   : pr1 (transportf _ e fff) = transportf _ e (pr1 fff).
 Proof.
   destruct e; apply idpath.
 Qed.
 
-Lemma pr2_transportf_sigma_disp {x y : C} {f f' : x ⇒ y} (e : f = f')
+Lemma pr2_transportf_sigma_disp {x y : C} {f f' : x --> y} (e : f = f')
     {xxx : sigma_disp_precat x} {yyy} (fff : xxx ⇒[f] yyy)
   : pr2 (transportf _ e fff)
   = transportf _ (total2_paths2 e (! pr1_transportf_sigma_disp e fff))
@@ -652,7 +652,7 @@ Lemma is_nat_trans_over_pointwise_inv
   (H : Π (x' : C') (xx' : D' x'),
       is_iso_disp (pointwise_iso_from_nat_iso f x') (pr1 FF x' xx'))
   (x' x0 : C')
-  (f0 : x' ⇒ x0)
+  (f0 : x' --> x0)
   (xx' : D' x')
   (xx0 : D' x0)
   (ff : xx' ⇒[ f0] xx0)

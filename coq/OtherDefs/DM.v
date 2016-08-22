@@ -38,14 +38,14 @@ Reserved Notation "γ ⋆ f" (at level 25).
 
 Record CwDM := {
   C : precategory ;
-  DM : Π {Δ Γ : C}, Δ ⇒ Γ → hProp ;
-  pb : Π {Δ Γ : C} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ), C  where "γ ⋆ f" := (pb γ f) ;
-  pb_DM_of_DM : Π  {Δ Γ} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ),  Σ f : (γ⋆f) ⇒ Γ', DM f ;
-  pb_arrow_of_arrow : Π {Δ Γ} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ),  γ⋆f ⇒ Δ ;
-  sqr_comm_of_DM : Π {Δ Γ} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ),
+  DM : Π {Δ Γ : C}, Δ --> Γ → hProp ;
+  pb : Π {Δ Γ : C} (γ : Σ f : Δ --> Γ, DM f) {Γ'} (f : Γ' --> Γ), C  where "γ ⋆ f" := (pb γ f) ;
+  pb_DM_of_DM : Π  {Δ Γ} (γ : Σ f : Δ --> Γ, DM f) {Γ'} (f : Γ' --> Γ),  Σ f : (γ⋆f) --> Γ', DM f ;
+  pb_arrow_of_arrow : Π {Δ Γ} (γ : Σ f : Δ --> Γ, DM f) {Γ'} (f : Γ' --> Γ),  γ⋆f --> Δ ;
+  sqr_comm_of_DM : Π {Δ Γ} (γ : Σ f : Δ --> Γ, DM f) {Γ'} (f : Γ' --> Γ),
                       pb_arrow_of_arrow _ _  ;; pr1 γ = pr1 (pb_DM_of_DM γ f)  ;; f ;
 
-  isPullback_of_DM : Π {Δ Γ} (γ : Σ f : Δ ⇒ Γ, DM f) {Γ'} (f : Γ' ⇒ Γ),
+  isPullback_of_DM : Π {Δ Γ} (γ : Σ f : Δ --> Γ, DM f) {Γ'} (f : Γ' --> Γ),
                        isPullback _ _ _ _ (sqr_comm_of_DM γ f)
 
 }.
@@ -59,16 +59,16 @@ End Record_Preview.
 
 Definition dm_sub_struct (CC : precategory)
   : UU
-  := Π {Δ Γ : CC} , Δ ⇒ Γ → UU.
+  := Π {Δ Γ : CC} , Δ --> Γ → UU.
 
-Definition DM_type {C : precategory} (H : dm_sub_struct C) {Δ Γ} (γ : Δ ⇒ Γ)
+Definition DM_type {C : precategory} (H : dm_sub_struct C) {Δ Γ} (γ : Δ --> Γ)
            := H Δ Γ γ.
 
 Definition DM {C : precategory}(H : dm_sub_struct C) (Δ Γ : C) : UU :=
-  Σ f : Δ ⇒ Γ, DM_type H f.
+  Σ f : Δ --> Γ, DM_type H f.
 
 Definition DM_over {C : precategory}(H : dm_sub_struct C) (Γ : C) : UU :=
-  Σ (Δf : Σ Δ, Δ ⇒ Γ), DM_type H (pr2 Δf).
+  Σ (Δf : Σ Δ, Δ --> Γ), DM_type H (pr2 Δf).
 
 Definition ob_from_DM_over {C : precategory} {H : dm_sub_struct C} {Γ : C}
            (X : DM_over H Γ) : C := pr1 (pr1 X).
@@ -80,7 +80,7 @@ Proof.
   exact (pr2 X).
 Defined.
 
-Coercion arrow_from_DM {C : precategory} (H : dm_sub_struct C)(Δ Γ : C) (δ : DM H Δ Γ) : Δ ⇒ Γ := pr1 δ.
+Coercion arrow_from_DM {C : precategory} (H : dm_sub_struct C)(Δ Γ : C) (δ : DM H Δ Γ) : Δ --> Γ := pr1 δ.
 
 (** ** Display maps are closed under iso *)
 (** Here, isomorphism means isomorphism in the slice category of the target object.
@@ -90,7 +90,7 @@ Coercion arrow_from_DM {C : precategory} (H : dm_sub_struct C)(Δ Γ : C) (δ : 
 Definition dm_sub_closed_under_iso {CC : precategory} (C : dm_sub_struct CC)
   : UU
   := Π Δ Γ (γ : DM C Δ Γ),
-                          Π Δ' (δ : Δ' ⇒ Γ), 
+                          Π Δ' (δ : Δ' --> Γ), 
                           Π (h : iso Δ Δ'), h ;; δ = γ → DM_type C δ.
 
 
@@ -114,21 +114,21 @@ Definition dm_sub_closed_under_iso {CC : precategory} (C : dm_sub_struct CC)
 
 Definition pb_of_DM_struct {CC : precategory} (H : dm_sub_struct CC)
 : UU
-  := Π Δ Γ (γ : DM H Δ Γ), Π Γ' (f : Γ' ⇒ Γ),
+  := Π Δ Γ (γ : DM H Δ Γ), Π Γ' (f : Γ' --> Γ),
        Σ P : Pullback γ f, DM_type H (PullbackPr2 P).
 
 (*
 Definition pb_type_of_DM {CC : precategory} (H : dm_sub_struct CC)
-           {Δ Γ} (γ : DM H Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
+           {Δ Γ} (γ : DM H Δ Γ) {Γ'} (f : Γ' --> Γ)
   : UU
   := 
-    Σ (pfg : Σ Δ' : CC, Δ' ⇒ Δ × DM H Δ' Γ') (H : pr1 (pr2 pfg);; γ = pr2 (pr2 pfg);; f),
+    Σ (pfg : Σ Δ' : CC, Δ' --> Δ × DM H Δ' Γ') (H : pr1 (pr2 pfg);; γ = pr2 (pr2 pfg);; f),
            isPullback _ _ _  (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H .
  *)
 
 (*
 Definition Pullback_of_pb_type {CC : precategory} (sat : is_category CC) (H : dm_sub_struct CC)
-      {Δ Γ} (γ : DM H Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
+      {Δ Γ} (γ : DM H Δ Γ) {Γ'} (f : Γ' --> Γ)
 :  pb_type_of_DM _ γ f → Pullback _ γ f.
 Proof.
   intros [[P [f' g]] p]; simpl in *.
@@ -145,8 +145,8 @@ Search (isofhlevel _ _ -> isofhlevel _ _ ).
 
 (*
 Definition pb_type_of_DM_weq_Pb {CC : precategory} (sat : is_category CC) (H : dm_sub_struct CC)
-      {Δ Γ} (γ : DM H Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
-:  (Π Γ Γ' (γ : Γ ⇒ Γ'), isaprop (DM_type H γ)) →
+      {Δ Γ} (γ : DM H Δ Γ) {Γ'} (f : Γ' --> Γ)
+:  (Π Γ Γ' (γ : Γ --> Γ'), isaprop (DM_type H γ)) →
    isaprop (pb_type_of_DM _ γ f).
 Proof.
   intros.
@@ -174,8 +174,8 @@ Proof.
 
 (*
 Definition pb_type_of_DM_weq_Pb {CC : precategory} (sat : is_category CC) (H : dm_sub_struct CC)
-      {Δ Γ} (γ : DM H Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
-:  (Π Γ Γ' (γ : Γ ⇒ Γ'), isaprop (DM_type H γ)) →
+      {Δ Γ} (γ : DM H Δ Γ) {Γ'} (f : Γ' --> Γ)
+:  (Π Γ Γ' (γ : Γ --> Γ'), isaprop (DM_type H γ)) →
    isaprop (pb_type_of_DM _ γ f).
 Proof.
   intros.
@@ -254,10 +254,10 @@ Proof.
 (*
 Definition pb_of_DM_struct {CC : precategory} (H : dm_sub_struct CC)
 : UU
-  := Π Δ Γ (γ : DM H Δ Γ) Γ' (f : Γ' ⇒ Γ), pb_type_of_DM H γ f.
+  := Π Δ Γ (γ : DM H Δ Γ) Γ' (f : Γ' --> Γ), pb_type_of_DM H γ f.
 *)
 (*
-    Σ (pfg : Σ Δ' : CC, Δ' ⇒ Δ × DM H Δ' Γ') (H : pr1 (pr2 pfg);; γ = pr2 (pr2 pfg);; f),
+    Σ (pfg : Σ Δ' : CC, Δ' --> Δ × DM H Δ' Γ') (H : pr1 (pr2 pfg);; γ = pr2 (pr2 pfg);; f),
            isPullback _ _ _  (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H .
  *)
 
@@ -269,7 +269,7 @@ Coercion pb_of_dm_sub_pb {CC : precategory} (C : dm_sub_pb CC) : pb_of_DM_struct
 
 
 Definition pb_ob_of_DM {CC : precategory} {C : dm_sub_pb CC}
-           {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
+           {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' --> Γ)
 : CC
   := PullbackObject (pr1 (pr2 C _ _ γ _  f)).
 
@@ -277,35 +277,35 @@ Notation "γ ⋆ f" := (pb_ob_of_DM γ f) (at level 45, format "γ ⋆ f").
 (* written "\st" in Agda input mode *)
                         
 Definition pb_mor_of_DM {CC : precategory} {C : dm_sub_pb CC}
-           {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
-  :  (γ⋆f) ⇒  Γ'.
+           {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' --> Γ)
+  :  (γ⋆f) -->  Γ'.
 Proof.
   apply (PullbackPr2 (pr1 (pr2 C _ _ γ _ f))).
 Defined.
 (*  :=  pr2 (pr2 (pr1 (pr1 (pr2 C _ _ γ _ f)))). *)
 
 Definition pb_mor_of_mor {CC : precategory} {C : dm_sub_pb CC}
-           {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
-: γ⋆f ⇒ Δ.
+           {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' --> Γ)
+: γ⋆f --> Δ.
 Proof.
   apply (PullbackPr1 (pr1 (pr2 C _ _ γ _ f))).
 Defined.
 (* := pr1 (pr2 (pr1 (pr1 (pr2 C _ _ γ _ f)))). *)
 
 Definition sqr_comm_of_dm_sub_pb {CC : precategory} {C : dm_sub_pb CC}
-           {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
+           {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' --> Γ)
 : _ ;; _ = _ ;; _ 
 := PullbackSqrCommutes (pr1 (pr2 C _ _ γ _ f )).
 
 Definition isPullback_of_dm_sub_pb {CC : precategory} (hs: has_homsets CC) {C : dm_sub_pb CC}
-           {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
+           {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' --> Γ)
 : isPullback _ _ _ _ _ :=
 isPullback_Pullback (pr1 (pr2 C _ _ γ _ f )).
 
 (*
 Definition dm_closed_under_pb {CC : precategory} (C : dm_sub_pb CC)
 : UU
-    := Π Δ Γ (γ : DM C Δ Γ) Γ' (f : Γ' ⇒ Γ), DM_type C (pb_mor_of_DM γ f).
+    := Π Δ Γ (γ : DM C Δ Γ) Γ' (f : Γ' --> Γ), DM_type C (pb_mor_of_DM γ f).
 *)
 
 (** ** DM structure: putting the pieces together *)
@@ -314,7 +314,7 @@ Definition DM_structure (CC : precategory) : UU
   := Σ C : dm_sub_pb CC,
    (*        dm_closed_under_pb C *)
           dm_sub_closed_under_iso C
-        ×  Π Γ Γ' (γ : Γ ⇒ Γ'), isaprop (DM_type C γ).
+        ×  Π Γ Γ' (γ : Γ --> Γ'), isaprop (DM_type C γ).
 
 (** ** Some access functions *)
 (** Names are chosen as for the preview above *)
@@ -325,14 +325,14 @@ Coercion dm_sub_pb_from_DM_structure CC (C : DM_structure CC) : dm_sub_pb CC := 
 Lemma isaprop_DM_type (CC : precategory) (x : dm_sub_pb CC)
  (t0 : CC)
  (t2 : CC)
- (t3 : t2 ⇒ t0) :
+ (t3 : t2 --> t0) :
  isofhlevel 1 (DM_type x t3).
 Proof.
   set (p:=pr2 x t2 t0 t3). simpl in p. apply p.
 Qed.
 *)
 
-Definition pb_DM_of_DM {CC} {C : DM_structure CC}  {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
+Definition pb_DM_of_DM {CC} {C : DM_structure CC}  {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' --> Γ)
 : DM C (γ⋆f) Γ'.
 Proof.
   exists (pb_mor_of_DM γ f).
@@ -340,19 +340,19 @@ Proof.
 Defined.
 
 
-Definition pb_arrow_of_arrow {CC} {C : DM_structure CC}  {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
-: γ⋆f ⇒ Δ.
+Definition pb_arrow_of_arrow {CC} {C : DM_structure CC}  {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' --> Γ)
+: γ⋆f --> Δ.
 Proof.
   apply pb_mor_of_mor.
 Defined.
 
-Definition sqr_comm_of_DM {CC : precategory} {C : DM_structure CC}  {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
+Definition sqr_comm_of_DM {CC : precategory} {C : DM_structure CC}  {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' --> Γ)
 :  pb_arrow_of_arrow _ _  ;; γ = pb_DM_of_DM γ f  ;; f.
 Proof. 
   apply sqr_comm_of_dm_sub_pb.
 Defined.
 
-Definition isPullback_of_DM {CC : precategory} (hs: has_homsets CC) {C : DM_structure CC} {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' ⇒ Γ)
+Definition isPullback_of_DM {CC : precategory} (hs: has_homsets CC) {C : DM_structure CC} {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' --> Γ)
 : isPullback _ _ _ _ (sqr_comm_of_DM γ f).
 Proof.
   apply isPullback_of_dm_sub_pb; assumption.
@@ -362,8 +362,8 @@ Defined.
 Section lemmas.
 
   Definition DM_equal {CC} (H : is_category CC) (D D' : DM_structure CC)
-             (X : Π Δ Γ (f : Δ ⇒ Γ), DM_type D f → DM_type D' f)
-             (X' : Π Δ Γ (f : Δ ⇒ Γ), DM_type D' f → DM_type D f)
+             (X : Π Δ Γ (f : Δ --> Γ), DM_type D f → DM_type D' f)
+             (X' : Π Δ Γ (f : Δ --> Γ), DM_type D' f → DM_type D f)
   : D = D'.
   Proof.
     apply subtypeEquality'.

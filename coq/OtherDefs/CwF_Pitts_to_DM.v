@@ -34,7 +34,7 @@ Section DM_of_CwF.
 Context (CC : precategory) (C : cwf_struct CC) (H : is_category CC).
 
 (** Being isomorphic to a dependent projection *)
-Definition iso_to_dpr {Γ Γ'} (γ : Γ ⇒ Γ') : UU
+Definition iso_to_dpr {Γ Γ'} (γ : Γ --> Γ') : UU
   := Σ (A : C⟨Γ'⟩) (f : iso (Γ'∙A) Γ),
         π _ = f ;; γ .
 
