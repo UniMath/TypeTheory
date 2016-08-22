@@ -421,7 +421,7 @@ Let FFinv {x y} {xx} {yy} {f}
 (* TODO: once [functor_over_ff_transportf_gen] is done, replace this with that. *) 
 Lemma FFinv_transportf
     {x y : C} {f f' : x --> y} (e : f = f')
-    {xx : D' x} {yy : D' y} (ff : FF _ xx ⇒[f] FF _ yy)
+    {xx : D' x} {yy : D' y} (ff : FF _ xx -->[f] FF _ yy)
   : FFinv (transportf _ e ff) = transportf _ e (FFinv ff).
 Proof.
   destruct e. apply idpath.
@@ -430,7 +430,7 @@ Qed.
 (* TODO: once more general [functor_over_ff_reflects_isos] is done, kill this and replace it with that. *)
 Definition functor_over_id_ff_reflects_isos 
   {x y} {xx : D' x} {yy : D' y} {f : iso x y}
-  (ff : xx ⇒[ f ] yy) (isiso: is_iso_disp f (# FF ff)) 
+  (ff : xx -->[ f ] yy) (isiso: is_iso_disp f (# FF ff)) 
   : is_iso_disp _ ff.
 Proof.
   set (FFffinv := inv_mor_disp_from_iso isiso). 
@@ -461,7 +461,7 @@ Proof.
 Qed.
 
 Definition FFinv_on_iso_is_iso   {x y} {xx : D' x} {yy : D' y} {f : iso x y}
-  (ff : FF _ xx ⇒[ f ] FF _ yy) (Hff: is_iso_disp f ff) 
+  (ff : FF _ xx -->[ f ] FF _ yy) (Hff: is_iso_disp f ff) 
   : is_iso_disp _ (FFinv ff).
 Proof.
   apply functor_over_id_ff_reflects_isos.

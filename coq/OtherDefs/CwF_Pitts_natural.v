@@ -39,7 +39,7 @@ Variable Ty Tm: [C^op, HSET, hsHSET]. (* functor C^op HSET. *)
 Variable p : _ ⟦Tm, Ty⟧. (* needs to be written as mor in a precat *)
 
 Variable comp : forall (Γ : C) (A : pr1hSet ((Ty : functor _ _ ) Γ)), C.
-Variable pi : forall (Γ : C) (A : pr1hSet ((Ty : functor _ _ ) Γ)), comp Γ A ⇒ Γ.
+Variable pi : forall (Γ : C) (A : pr1hSet ((Ty : functor _ _ ) Γ)), comp Γ A --> Γ.
 Variable q : forall (Γ : C) (A : pr1hSet ((Ty : functor _ _)  Γ)),
                pr1hSet ((Tm : functor _ _ ) (comp Γ A)).
 
@@ -97,7 +97,7 @@ Definition comp {X : tt_structure} (Y : comp_structure X) :
   := fun Γ A => pr1 (Y Γ A).
 
 Definition pi {X : tt_structure} (Y : comp_structure X) : 
-  forall (Γ : C) (A : pr1hSet ((Ty X : functor _ _ ) Γ)), comp _ Γ A ⇒ Γ
+  forall (Γ : C) (A : pr1hSet ((Ty X : functor _ _ ) Γ)), comp _ Γ A --> Γ
   := fun Γ A => pr1 (pr2 (Y Γ A)).
 
 Definition q {X : tt_structure} (Y : comp_structure X) : 

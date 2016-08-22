@@ -47,11 +47,11 @@ Coercion ob_disp_bicat : disp_bicat_obmor >-> Funclass.
 Definition hom1_disp {C} (D : disp_bicat_obmor C) := pr2 D.
 Global Arguments hom1_disp [_] _ [_ _] _ _.
 
-Notation "XX ⇒1[ F ] YY" := (hom1_disp _ XX YY F)
+Notation "XX -->1[ F ] YY" := (hom1_disp _ XX YY F)
   (at level 50, YY at next level) : type_scope.
 
 Definition disp_bicat_idcomp {C : prebicategory_data1} (D : disp_bicat_obmor C) : Type
-:= (forall X (XX : D X), XX ⇒1[ identity1 X ] XX).
+:= (forall X (XX : D X), XX -->1[ identity1 X ] XX).
 
 (** composition component of a bicategory:  [× (forall X Y Z, functor (BB X Y × BB Y Z) (BB X Z)).]
 

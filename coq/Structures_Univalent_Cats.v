@@ -25,7 +25,7 @@ Section Auxiliary.
 
 Lemma transportf_families_mor_TM {C : Precategory}
   {X X' : obj_ext_Precat C} {F F' : X --> X'} (e : F = F')
-  {Y : families_disp_precat C X} {Y'} (FY : Y ⇒[F] Y')
+  {Y : families_disp_precat C X} {Y'} (FY : Y -->[F] Y')
   : families_mor_TM (transportf _ e FY) = families_mor_TM FY.
 Proof.
   destruct e; apply idpath.
@@ -303,7 +303,7 @@ Proof.
   intro i.
   use isotoid.
   - apply (is_category_functor_category _ _ is_category_HSET).
-  - exists (families_mor_TM (i : _ ⇒[_] _)).
+  - exists (families_mor_TM (i : _ -->[_] _)).
     apply is_iso_from_is_z_iso.
     exists (families_mor_TM (inv_mor_disp_from_iso i)).
     split.

@@ -139,11 +139,11 @@ Proof.
 Defined.
 
 Lemma qq_from_fam_mor {X X' : obj_ext_precat} {F : X --> X'}
-  {Y : families_disp_precat C X} {Y'} (FY : Y ⇒[F] Y')
+  {Y : families_disp_precat C X} {Y'} (FY : Y -->[F] Y')
   {Z : qq_structure_disp_precat C X} {Z'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
-  : Σ (FZ : Z ⇒[F] Z'), W ⇒[(F,,(FY,,FZ))] W'.
+  : Σ (FZ : Z -->[F] Z'), W -->[(F,,(FY,,FZ))] W'.
 Proof.
   refine (_,, tt).
   intros Γ' Γ f A.
@@ -182,11 +182,11 @@ Proof.
 Time Qed.
 
 Lemma qq_from_fam_mor_unique {X X' : obj_ext_precat} {F : X --> X'}
-  {Y : families_disp_precat C X} {Y'} (FY : Y ⇒[F] Y')
+  {Y : families_disp_precat C X} {Y'} (FY : Y -->[F] Y')
   {Z : qq_structure_disp_precat C X} {Z'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
-  : isaprop (Σ (FZ : Z ⇒[F] Z'), W ⇒[(F,,(FY,,FZ))] W').
+  : isaprop (Σ (FZ : Z -->[F] Z'), W -->[(F,,(FY,,FZ))] W').
 Proof.
   apply isofhleveltotal2.
   - simpl. repeat (apply impred_isaprop; intro). apply hsC.
@@ -206,15 +206,15 @@ Defined.
 
 (** The next main goal is the following statement.  However, the construction of the morphism of families structures is rather large; so we break out the first component (the map of term presheaves) into several independent lemmas, before returning to this in [fam_from_qq_mor] below. *)
 Lemma fam_from_qq_mor {X X' : obj_ext_precat} {F : X --> X'}
-  {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
+  {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
   {Y : families_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
-  : Σ (FY : Y ⇒[F] Y'), W ⇒[(F,,(FY,,FZ))] W'.
+  : Σ (FY : Y -->[F] Y'), W -->[(F,,(FY,,FZ))] W'.
 Abort.
 
 Lemma fam_from_qq_mor_TM_data {X X' : obj_ext_precat} {F : X --> X'}
-  {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
+  {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
   {Y : families_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
@@ -227,7 +227,7 @@ Proof.
 Defined.
 
 Lemma fam_from_qq_mor_TM_naturality {X X' : obj_ext_precat} {F : X --> X'}
-  {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
+  {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
   {Y : families_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
@@ -297,7 +297,7 @@ Proof.
 Time Qed.
 
 Definition fam_from_qq_mor_TM {X X' : obj_ext_precat} {F : X --> X'}
-    {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
+    {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
     {Y : families_disp_precat C X} {Y'}
     (W : strucs_compat_disp_precat (X,,(Y,,Z)))
     (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
@@ -305,11 +305,11 @@ Definition fam_from_qq_mor_TM {X X' : obj_ext_precat} {F : X --> X'}
 := (fam_from_qq_mor_TM_data _ _ _,, fam_from_qq_mor_TM_naturality FZ W W').
 
 Lemma fam_from_qq_mor {X X' : obj_ext_precat} {F : X --> X'}
-  {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
+  {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
   {Y : families_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
-  : Σ (FY : Y ⇒[F] Y'), W ⇒[(F,,(FY,,FZ))] W'.
+  : Σ (FY : Y -->[F] Y'), W -->[(F,,(FY,,FZ))] W'.
 Proof.
   simpl in W, W'; unfold iscompatible_fam_qq in W, W'. (* Readability *)
   simpl in Y, Y'.  (* To avoid needing casts [Y : families_structure _]. *)
@@ -364,11 +364,11 @@ Proof.
 Time Qed.
 
 Lemma fam_from_qq_mor_unique {X X' : obj_ext_precat} {F : X --> X'}
-  {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z ⇒[F] Z')
+  {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
   {Y : families_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
-  : isaprop (Σ (FY : Y ⇒[F] Y'), W ⇒[(F,,(FY,,FZ))] W').
+  : isaprop (Σ (FY : Y -->[F] Y'), W -->[(F,,(FY,,FZ))] W').
 Proof.
   apply isofhleveltotal2.
   - simpl. apply isaprop_families_mor.
@@ -419,7 +419,7 @@ Proof.
     + intros ab; destruct ab as [a b]. apply idpath. }
   simple refine (structural_lemma _ _ _ _ _).
   - intros FX FY FZ.
-      exists (W ⇒[FX,,(FY,,FZ)] W').
+      exists (W -->[FX,,(FY,,FZ)] W').
   - intros FX FY. apply iscontraprop1.
     exact (qq_from_fam_mor_unique FY W W').
     exact (qq_from_fam_mor FY W W').
@@ -462,7 +462,7 @@ Proof.
     + intros ac; destruct ac as [a c]. apply idpath. }
   simple refine (structural_lemma _ _ _ _ _).
   - intros FX FY FZ.
-      exists (W ⇒[FX,,(FY,,FZ)] W').
+      exists (W -->[FX,,(FY,,FZ)] W').
   - intros FX FY. apply iscontraprop1.
     exact (fam_from_qq_mor_unique FY W W').
     exact (fam_from_qq_mor FY W W').
@@ -508,7 +508,7 @@ Proof.
     + intros b; apply idpath. }
   simple refine (structural_lemma _ _ _ _).
   - intros FY FZ.
-      exists (W ⇒[FX,,(FY,,FZ)] W').
+      exists (W -->[FX,,(FY,,FZ)] W').
   - intros FY. apply iscontraprop1.
     exact (qq_from_fam_mor_unique FY W W').
     exact (qq_from_fam_mor FY W W').
@@ -569,7 +569,7 @@ Proof.
     + intros c; apply idpath. }
   simple refine (structural_lemma _ _ _ _).
   - intros FY FZ.
-      exists (W ⇒[FX,,(FY,,FZ)] W').
+      exists (W -->[FX,,(FY,,FZ)] W').
   - intros FY. apply iscontraprop1.
     exact (fam_from_qq_mor_unique FY W W').
     exact (fam_from_qq_mor FY W W').

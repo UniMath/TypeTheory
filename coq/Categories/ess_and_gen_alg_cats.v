@@ -34,7 +34,7 @@ Variable H : isaset C.
 (* TODO: now we are writing compositional in diagrammatic order,
 should we switch the names of [idtomor_left] and [idtomor_right]
 (and similar lemmas? *) 
-Lemma idtomor_left (a b : C) (f : a ⇒ b) (e : b = b) : 
+Lemma idtomor_left (a b : C) (f : a --> b) (e : b = b) : 
    f ;; idtomor _ _ e = f.
 Proof.
   set (H1 := H b b).
@@ -44,7 +44,7 @@ Proof.
   apply idpath.  
 Qed.
 
-Lemma idtomor_right (a b : C) (f : a ⇒ b) (e : a = a) : 
+Lemma idtomor_right (a b : C) (f : a --> b) (e : a = a) : 
    idtomor _ _ e ;; f = f.
 Proof.
   set (H1 := H a a).
