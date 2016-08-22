@@ -197,7 +197,7 @@ Local Notation "'Yo'" := (yoneda _ hsC).
 
 Definition families_mor {X X' : obj_ext_Precat C}
     (Y : families_structure hsC X) (Y' : families_structure hsC X') (F : X ⇒ X')
-  : Type
+  : UU
 := Σ FF_TM : TM Y ⇒ TM Y',
        FF_TM ;; pp Y' = pp Y ;; obj_ext_mor_TY F
      × 

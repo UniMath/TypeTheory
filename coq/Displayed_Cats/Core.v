@@ -51,9 +51,9 @@ Undelimit Scope transport.
 
 Module Record_Preview.
 
-  Record disp_precat (C : Precategory) : Type :=
-    { ob_disp : C -> Type
-    ; mor_disp {x y : C} : (x ⇒ y) -> ob_disp x -> ob_disp y -> Type
+  Record disp_precat (C : Precategory) : UU :=
+    { ob_disp : C -> UU
+    ; mor_disp {x y : C} : (x ⇒ y) -> ob_disp x -> ob_disp y -> UU
     ; id_disp {x : C} (xx : ob_disp x) : mor_disp (identity x) xx xx
     ; comp_disp {x y z : C} {f : x ⇒ y} {g : y ⇒ z}
                    {xx : ob_disp x} {yy : ob_disp y} {zz : ob_disp z}
@@ -98,20 +98,20 @@ End Record_Preview.
 Section Disp_Precat.
 
 Definition disp_precat_ob_mor (C : precategory_ob_mor)
-  := Σ (obd : C -> Type), (Π x y:C, obd x -> obd y -> (x ⇒ y) -> Type).
+  := Σ (obd : C -> UU), (Π x y:C, obd x -> obd y -> (x ⇒ y) -> UU).
 
 Definition ob_disp {C} (D : disp_precat_ob_mor C) : C -> UU := pr1 D.
 Coercion ob_disp : disp_precat_ob_mor >-> Funclass.
 
 Definition mor_disp {C} {D : disp_precat_ob_mor C}
   {x y} xx yy (f : x ⇒ y)
-:= pr2 D x y xx yy f : Type. 
+:= pr2 D x y xx yy f : UU. 
 
 Local Notation "xx ⇒[ f ] yy" := (mor_disp xx yy f) (at level 50, yy at next level).
 
 Definition disp_precat_id_comp (C : precategory_data)
   (D : disp_precat_ob_mor C)
-  : Type
+  : UU
 := (forall (x:C) (xx : D x), xx ⇒[identity x] xx)
   × (forall (x y z : C) (f : x ⇒ y) (g : y ⇒ z) (xx:D x) (yy:D y) (zz:D z),
            (xx ⇒[f] yy) -> (yy ⇒[g] zz) -> (xx ⇒[f ;; g] zz)).
@@ -144,7 +144,7 @@ Bind Scope mor_disp_scope with mor_disp.
 Local Open Scope mor_disp_scope.
 
 Definition disp_precat_axioms (C : Precategory) (D : disp_precat_data C)
-  : Type
+  : UU
 := (Π x y (f : x ⇒ y) (xx : D x) yy (ff : xx ⇒[f] yy),
      id_disp _ ;; ff
      = transportb _ (id_left _) ff)
@@ -321,7 +321,7 @@ Section Isos.
 
 Definition is_iso_disp {C : Precategory} {D : disp_precat_data C}
     {x y : C} (f : iso x y) {xx : D x} {yy} (ff : xx ⇒[f] yy)
-  : Type
+  : UU
 := Σ (gg : yy ⇒[inv_from_iso f] xx),
      gg ;; ff = transportb _ (iso_after_iso_inv _) (id_disp _)
      × ff ;; gg = transportb _ (iso_inv_after_iso _) (id_disp _).
@@ -982,7 +982,7 @@ We call it a _section_ (though we define it intrinsically, not as a section in a
 
 Section Sections.
 
-Definition section_disp_data {C} (D : disp_precat C) : Type
+Definition section_disp_data {C} (D : disp_precat C) : UU
   := Σ (Fob : forall x:C, D x),
        (forall (x y:C) (f:x ⇒ y), Fob x ⇒[f] Fob y).
 
@@ -1000,12 +1000,12 @@ Notation "# F" := (section_disp_on_morphisms F)
   (at level 3) : mor_disp_scope.
 
 Definition section_disp_axioms {C} {D : disp_precat C}
-  (F : section_disp_data D) : Type
+  (F : section_disp_data D) : UU
 := ((forall x:C, # F (identity x) = id_disp (F x))
   × (forall (x y z : C) (f : x ⇒ y) (g : y ⇒ z),
       # F (f ;; g)%mor = (# F f) ;; (# F g))).
 
-Definition section_disp {C} (D : disp_precat C) : Type
+Definition section_disp {C} (D : disp_precat C) : UU
   := total2 (@section_disp_axioms C D).
 
 Definition section_disp_data_from_section_disp {C} {D : disp_precat C}

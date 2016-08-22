@@ -56,7 +56,7 @@ Defined.
 
 (** A useful lemma for binary functions, generalising e.g. [cancel_postcomposition]: *)
 (*TODO: look carefully for this in the library *)
-Definition maponpaths_2 {X Y Z : Type} (f : X -> Y -> Z) {x x'} (e : x = x') y
+Definition maponpaths_2 {X Y Z : UU} (f : X -> Y -> Z) {x x'} (e : x = x') y
   : f x y = f x' y
 := maponpaths (fun x => f x y) e.
 
@@ -75,7 +75,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma transportf_forall {A B} (C : A -> B -> Type)
+Lemma transportf_forall {A B} (C : A -> B -> UU)
   {x0 x1 : A} (e : x0 = x1) (f : forall y:B, C x0 y)
   : transportf (fun x => forall y, C x y) e f
   = fun y => transportf (fun x => C x y) e (f y).

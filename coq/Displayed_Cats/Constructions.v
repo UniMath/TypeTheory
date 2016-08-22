@@ -39,8 +39,8 @@ Proof.
 Defined.
 
 (* TODO: perhaps upstream; consider name *)
-Lemma total2_reassoc_paths {A} {B : A → Type} {C : (Σ a, B a) -> Type}
-    (BC : A -> Type := fun a => Σ b, C (a,,b))
+Lemma total2_reassoc_paths {A} {B : A → UU} {C : (Σ a, B a) -> UU}
+    (BC : A -> UU := fun a => Σ b, C (a,,b))
     {a1 a2 : A} (bc1 : BC a1) (bc2 : BC a2)
     (ea : a1 = a2)
     (eb : transportf _ ea (pr1 bc1) = pr1 bc2)
@@ -53,8 +53,8 @@ Proof.
 Defined.
 
 (* TODO: as for non-primed version above *)
-Lemma total2_reassoc_paths' {A} {B : A → Type} {C : (Σ a, B a) -> Type}
-    (BC : A -> Type := fun a => Σ b, C (a,,b))
+Lemma total2_reassoc_paths' {A} {B : A → UU} {C : (Σ a, B a) -> UU}
+    (BC : A -> UU := fun a => Σ b, C (a,,b))
     {a1 a2 : A} (bc1 : BC a1) (bc2 : BC a2)
     (ea : a1 = a2)
     (eb : pr1 bc1 = transportb _ ea (pr1 bc2))

@@ -400,7 +400,7 @@ Proof.
   destruct XYZW' as [ [X' [Y' Z'] ] W'].
   unfold compat_structures_pr1_functor; simpl.
   assert (structural_lemma :
-    Π A (B C : A -> Type) (D : Π a, B a -> C a -> Type)
+    Π A (B C : A -> UU) (D : Π a, B a -> C a -> UU)
       (H : Π a b, iscontr (Σ c, D a b c)),
     isweq (fun abcd : Σ (abc : Σ a, (B a × C a)),
                         D (pr1 abc) (pr1 (pr2 abc)) (pr2 (pr2 abc))
@@ -443,7 +443,7 @@ Proof.
   destruct XYZW' as [ [X' [Y' Z'] ] W'].
   unfold compat_structures_pr2_functor; simpl.
   assert (structural_lemma :
-    Π A (B C : A -> Type) (D : Π a, B a -> C a -> Type)
+    Π A (B C : A -> UU) (D : Π a, B a -> C a -> UU)
       (H : Π a c, iscontr (Σ b, D a b c)),
     isweq (fun abcd : Σ (abc : Σ a, (B a × C a)),
                         D (pr1 abc) (pr1 (pr2 abc)) (pr2 (pr2 abc))
@@ -490,7 +490,7 @@ Proof.
   unfold compat_structures_pr1_functor; simpl.
   intros FX.
   assert (structural_lemma :
-    Π (B C : Type) (D : B -> C -> Type)
+    Π (B C : UU) (D : B -> C -> UU)
       (H : Π b, iscontr (Σ c, D b c)),
     isweq (fun bcd : Σ (bc : B × C), D (pr1 bc) (pr2 bc)
             => pr1 (pr1 bcd))).
@@ -551,7 +551,7 @@ Proof.
   unfold compat_structures_pr1_functor; simpl.
   intros FX.
   assert (structural_lemma :
-    Π (B C : Type) (D : B -> C -> Type)
+    Π (B C : UU) (D : B -> C -> UU)
       (H : Π c, iscontr (Σ b, D b c)),
     isweq (fun bcd : Σ (bc : B × C), D (pr1 bc) (pr2 bc)
             => pr2 (pr1 bcd))).
