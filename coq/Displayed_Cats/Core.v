@@ -3,7 +3,7 @@ A module for “displayed precategories”, based over UniMath’s [CategoryTheo
 
 Roughly, a “displayed category _D_ over a precategory _C_” is analogous to “a family of types _Y_ indexed over a type _X_”.  A displayed category has a “total category” Σ _C_ _D_, with a functor to _D_; and indeed displayed categories should be equivalent to categories over _D_, by taking fibres.
 
-In a little more detail: if [D] is a displayed precategory over [C], then [D] has a type of objects indexed over [ob C], and for each [x y : C, f : x ⇒ y, xx : D x, yy : D y], a type of “morphisms over [f] from [xx] to [yy]”.  The identity and composition (and axioms) for [D] all overlie the corresponding structure on [C].
+In a little more detail: if [D] is a displayed precategory over [C], then [D] has a type of objects indexed over [ob C], and for each [x y : C, f : x --> y, xx : D x, yy : D y], a type of “morphisms over [f] from [xx] to [yy]”.  The identity and composition (and axioms) for [D] all overlie the corresponding structure on [C].
 
 Two major motivations for displayed categories:
 
@@ -107,14 +107,14 @@ Definition mor_disp {C} {D : disp_precat_ob_mor C}
   {x y} xx yy (f : x --> y)
 := pr2 D x y xx yy f : UU. 
 
-Local Notation "xx ⇒[ f ] yy" := (mor_disp xx yy f) (at level 50, yy at next level).
+Local Notation "xx -->[ f ] yy" := (mor_disp xx yy f) (at level 50, yy at next level).
 
 Definition disp_precat_id_comp (C : precategory_data)
   (D : disp_precat_ob_mor C)
   : UU
-:= (forall (x:C) (xx : D x), xx ⇒[identity x] xx)
+:= (forall (x:C) (xx : D x), xx -->[identity x] xx)
   × (forall (x y z : C) (f : x --> y) (g : y --> z) (xx:D x) (yy:D y) (zz:D z),
-           (xx ⇒[f] yy) -> (yy ⇒[g] zz) -> (xx ⇒[f ;; g] zz)).
+           (xx -->[f] yy) -> (yy -->[g] zz) -> (xx -->[f ;; g] zz)).
 
 Definition disp_precat_data C := total2 (disp_precat_id_comp C).
 
@@ -127,13 +127,13 @@ Coercion disp_precat_ob_mor_from_disp_precat_data :
  disp_precat_data >-> disp_precat_ob_mor.
 
 Definition id_disp {C} {D : disp_precat_data C} {x:C} (xx : D x)
-  : xx ⇒[identity x] xx
+  : xx -->[identity x] xx
 := pr1 (pr2 D) x xx.
 
 Definition comp_disp {C} {D : disp_precat_data C}
   {x y z : C} {f : x --> y} {g : y --> z}
-  {xx : D x} {yy} {zz} (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
-  : xx ⇒[f;;g] zz
+  {xx : D x} {yy} {zz} (ff : xx -->[f] yy) (gg : yy -->[g] zz)
+  : xx -->[f;;g] zz
 := pr2 (pr2 D) _ _ _ _ _ _ _ _ ff gg.
 
 Local Notation "ff ;; gg" := (comp_disp ff gg)
@@ -145,17 +145,17 @@ Local Open Scope mor_disp_scope.
 
 Definition disp_precat_axioms (C : Precategory) (D : disp_precat_data C)
   : UU
-:= (Π x y (f : x --> y) (xx : D x) yy (ff : xx ⇒[f] yy),
+:= (Π x y (f : x --> y) (xx : D x) yy (ff : xx -->[f] yy),
      id_disp _ ;; ff
      = transportb _ (id_left _) ff)
-   × (Π x y (f : x --> y) (xx : D x) yy (ff : xx ⇒[f] yy),
+   × (Π x y (f : x --> y) (xx : D x) yy (ff : xx -->[f] yy),
      ff ;; id_disp _
      = transportb _ (id_right _) ff)
    × (Π x y z w f g h (xx : D x) (yy : D y) (zz : D z) (ww : D w)
-        (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz) (hh : zz ⇒[h] ww),
+        (ff : xx -->[f] yy) (gg : yy -->[g] zz) (hh : zz -->[h] ww),
      ff ;; (gg ;; hh)
      = transportb _ (assoc _ _ _) ((ff ;; gg) ;; hh))
-   × (Π x y f (xx : D x) (yy : D y), isaset (xx ⇒[f] yy)).
+   × (Π x y f (xx : D x) (yy : D y), isaset (xx -->[f] yy)).
 
 Definition disp_precat (C : Precategory) := total2 (disp_precat_axioms C).
 
@@ -169,12 +169,12 @@ Coercion disp_precat_data_from_disp_precat : disp_precat >-> disp_precat_data.
 (* TODO: maybe would be better to have a single [pathsinv0_dep] lemma, or something. *)
 
 Definition id_left_disp {C} {D : disp_precat C} 
-  {x y} {f : x --> y} {xx : D x} {yy} {ff : xx ⇒[f] yy}
+  {x y} {f : x --> y} {xx : D x} {yy} {ff : xx -->[f] yy}
 : id_disp _ ;; ff = transportb _ (id_left _) ff
 := pr1 (pr2 D) _ _ _ _ _ _.
 
 Lemma id_left_disp_var {C} {D : disp_precat C} 
-  {x y} {f : x --> y} {xx : D x} {yy} {ff : xx ⇒[f] yy}
+  {x y} {f : x --> y} {xx : D x} {yy} {ff : xx -->[f] yy}
 : ff = transportf _ (id_left _) (id_disp _ ;; ff).
 Proof.
   apply transportf_transpose.
@@ -182,12 +182,12 @@ Proof.
 Qed.
 
 Definition id_right_disp {C} {D : disp_precat C} 
-  {x y} {f : x --> y} {xx : D x} {yy} {ff : xx ⇒[f] yy}
+  {x y} {f : x --> y} {xx : D x} {yy} {ff : xx -->[f] yy}
   : ff ;; id_disp _ = transportb _ (id_right _) ff
 := pr1 (pr2 (pr2 D)) _ _ _ _ _ _.
 
 Definition id_right_disp_var {C} {D : disp_precat C} 
-  {x y} {f : x --> y} {xx : D x} {yy} {ff : xx ⇒[f] yy}
+  {x y} {f : x --> y} {xx : D x} {yy} {ff : xx -->[f] yy}
   : ff = transportf _ (id_right _) (ff ;; id_disp _).
 Proof.
   apply transportf_transpose.
@@ -196,13 +196,13 @@ Qed.
 
 Definition assoc_disp {C} {D : disp_precat C}
   {x y z w} {f} {g} {h} {xx : D x} {yy : D y} {zz : D z} {ww : D w}
-  {ff : xx ⇒[f] yy} {gg : yy ⇒[g] zz} {hh : zz ⇒[h] ww}
+  {ff : xx -->[f] yy} {gg : yy -->[g] zz} {hh : zz -->[h] ww}
 : ff ;; (gg ;; hh) = transportb _ (assoc _ _ _) ((ff ;; gg) ;; hh)
 := pr1 (pr2 (pr2 (pr2 D))) _ _ _ _ _ _ _ _ _ _ _ _ _ _.
 
 Definition assoc_disp_var {C} {D : disp_precat C}
   {x y z w} {f} {g} {h} {xx : D x} {yy : D y} {zz : D z} {ww : D w}
-  (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz) (hh : zz ⇒[h] ww)
+  (ff : xx -->[f] yy) (gg : yy -->[g] zz) (hh : zz -->[h] ww)
 : (ff ;; gg) ;; hh = transportf _ (assoc _ _ _) (ff ;; (gg ;; hh)).
 Proof.
   apply pathsinv0, Utilities.transportf_pathsinv0.
@@ -210,7 +210,7 @@ Proof.
 Defined.
 
 Definition homsets_disp {C} {D :disp_precat C} {x y} {f} {xx : D x} {yy : D y}
-  : isaset (xx ⇒[f] yy)
+  : isaset (xx -->[f] yy)
 := pr2 (pr2 (pr2 (pr2 D))) _ _ _ _ _.
 
 (** ** Utility lemmas *)
@@ -222,7 +222,7 @@ NOTE: as with [etrans_dep], proofs using [etrans_disp] seem to typecheck more sl
 Lemma pathscomp0_disp {C} {D : disp_precat C} 
   {x y} {f f' f'' : x --> y} {e : f' = f} {e' : f'' = f'} {e'' : f'' = f}
   {xx : D x} {yy}
-  {ff : xx ⇒[f] yy} {ff' : xx ⇒[f'] yy} {ff'' : xx ⇒[f''] yy}
+  {ff : xx -->[f] yy} {ff' : xx -->[f'] yy} {ff'' : xx -->[f''] yy}
 : (ff = transportf _ e ff') -> (ff' = transportf _ e' ff'')
   -> ff = transportf _ e'' ff''.
 Proof.
@@ -253,7 +253,7 @@ Qed.
 Lemma mor_disp_transportf_postwhisker
     {C : precategory} {D : disp_precat_data C}
     {x y z : C} {f f' : x --> y} (ef : f = f') {g : y --> z}
-    {xx : D x} {yy} {zz} (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
+    {xx : D x} {yy} {zz} (ff : xx -->[f] yy) (gg : yy -->[g] zz)
   : (transportf _ ef ff) ;; gg
   = transportf _ (cancel_postcomposition _ _ g ef) (ff ;; gg).
 Proof.
@@ -263,7 +263,7 @@ Qed.
 Lemma mor_disp_transportf_prewhisker
     {C : precategory} {D : disp_precat_data C}
     {x y z : C} {f : x --> y} {g g' : y --> z} (eg : g = g')
-    {xx : D x} {yy} {zz} (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
+    {xx : D x} {yy} {zz} (ff : xx -->[f] yy) (gg : yy -->[g] zz)
   : ff ;; (transportf _ eg gg)
   = transportf _ (maponpaths (compose f) eg) (ff ;; gg).
 Proof.
@@ -275,7 +275,7 @@ Qed.
 Lemma cancel_postcomposition_disp {C} {D : disp_precat C} 
   {x y z} {f f' : x --> y} {e : f' = f} {g : y --> z}
   {xx : D x} {yy} {zz}
-  {ff : xx ⇒[f] yy} {ff' : xx ⇒[f'] yy} (gg : yy ⇒[g] zz) 
+  {ff : xx -->[f] yy} {ff' : xx -->[f'] yy} (gg : yy -->[g] zz) 
   (ee : ff = transportf _ e ff')
 : ff ;; gg = transportf _ (cancel_postcomposition _ _ g e) (ff' ;; gg).
 Proof.
@@ -286,7 +286,7 @@ Qed.
 Lemma cancel_precomposition_disp {C} {D : disp_precat C} 
   {x y z} {f : x --> y} {g g' : y --> z} {e : g' = g}
   {xx : D x} {yy} {zz}
-  (ff : xx ⇒[f] yy) {gg : yy ⇒[g] zz} {gg' : yy ⇒[g'] zz}  
+  (ff : xx -->[f] yy) {gg : yy -->[g] zz} {gg' : yy -->[g'] zz}  
   (ee : gg = transportf _ e gg')
 : ff ;; gg = transportf _ (cancel_precomposition _ _ _ _ _ _ f e) (ff ;; gg').
 Proof.
@@ -299,7 +299,7 @@ End Lemmas.
 End Disp_Precat.
 
 (** Redeclare sectional notations globally. *)
-Notation "xx ⇒[ f ] yy" := (mor_disp xx yy f) (at level 50, yy at next level).
+Notation "xx -->[ f ] yy" := (mor_disp xx yy f) (at level 50, yy at next level).
 
 Notation "ff ;; gg" := (comp_disp ff gg)
   (at level 50, left associativity, format "ff  ;;  gg")
@@ -320,26 +320,26 @@ Notation "#?' x" := (transportb _ _ x) (at level 45) : hide_transport_scope.
 Section Isos.
 
 Definition is_iso_disp {C : Precategory} {D : disp_precat_data C}
-    {x y : C} (f : iso x y) {xx : D x} {yy} (ff : xx ⇒[f] yy)
+    {x y : C} (f : iso x y) {xx : D x} {yy} (ff : xx -->[f] yy)
   : UU
-:= Σ (gg : yy ⇒[inv_from_iso f] xx),
+:= Σ (gg : yy -->[inv_from_iso f] xx),
      gg ;; ff = transportb _ (iso_after_iso_inv _) (id_disp _)
      × ff ;; gg = transportb _ (iso_inv_after_iso _) (id_disp _).
 
 Definition iso_disp {C : Precategory} {D : disp_precat_data C}
     {x y : C} (f : iso x y) (xx : D x) (yy : D y)
-  := Σ ff : xx ⇒[f] yy, is_iso_disp f ff.
+  := Σ ff : xx -->[f] yy, is_iso_disp f ff.
 
 Definition iso_disp_pair {C : Precategory} {D : disp_precat_data C}
     {x y : C} {f : iso x y} {xx : D x} {yy : D y}
-    (ff : xx ⇒[f] yy) (is : is_iso_disp f ff)
+    (ff : xx -->[f] yy) (is : is_iso_disp f ff)
     : iso_disp _ _ _ 
   := (ff,, is).
 
 
 Definition mor_disp_from_iso {C : Precategory} {D : disp_precat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
-    (i : iso_disp f xx yy) : _ ⇒[ _ ] _ := pr1 i.
+    (i : iso_disp f xx yy) : _ -->[ _ ] _ := pr1 i.
 Coercion mor_disp_from_iso : iso_disp >-> mor_disp.
 
 Definition is_iso_disp_from_iso {C : Precategory} {D : disp_precat_data C}
@@ -349,12 +349,12 @@ Coercion is_iso_disp_from_iso : iso_disp >-> is_iso_disp.
 
 Definition inv_mor_disp_from_iso {C : Precategory} {D : disp_precat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
-    {ff : xx ⇒[f] yy} (i : is_iso_disp f ff)
-  : _ ⇒[ _ ] _ := pr1 i.
+    {ff : xx -->[f] yy} (i : is_iso_disp f ff)
+  : _ -->[ _ ] _ := pr1 i.
 
 Definition iso_disp_after_inv_mor {C : Precategory} {D : disp_precat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
-    {ff : xx ⇒[f] yy} (i : is_iso_disp f ff)
+    {ff : xx -->[f] yy} (i : is_iso_disp f ff)
   : inv_mor_disp_from_iso i ;; ff
     = transportb _ (iso_after_iso_inv _) (id_disp _).
 Proof.
@@ -363,7 +363,7 @@ Qed.
 
 Definition inv_mor_after_iso_disp {C : Precategory} {D : disp_precat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
-    {ff : xx ⇒[f] yy} (i : is_iso_disp f ff)
+    {ff : xx -->[f] yy} (i : is_iso_disp f ff)
   : ff ;; inv_mor_disp_from_iso i
     = transportb _ (iso_inv_after_iso _) (id_disp _).
 Proof.
@@ -371,7 +371,7 @@ Proof.
 Qed.
 
 Lemma isaprop_is_iso_disp {C : Precategory} {D : disp_precat C}
-    {x y : C} (f : iso x y) {xx : D x} {yy} (ff : xx ⇒[f] yy)
+    {x y : C} (f : iso x y) {xx : D x} {yy} (ff : xx -->[f] yy)
   : isaprop (is_iso_disp f ff).
 Proof.
   apply invproofirrelevance; intros i i'.
@@ -418,7 +418,7 @@ Qed.
 
 Lemma is_iso_disp_transportf {C : Precategory} {D : disp_precat C}
     {x y : C} {f f' : iso x y} (e : f = f')
-    {xx : D x} {yy} {ff : xx ⇒[f] yy}
+    {xx : D x} {yy} {ff : xx -->[f] yy}
     (is : is_iso_disp _ ff)
   : is_iso_disp f' (transportf _ (maponpaths _ e) ff).
 Proof.
@@ -443,7 +443,7 @@ Definition is_iso_inv_from_iso_disp {C : Precategory} {D : disp_precat_data C}
     is_iso_disp (iso_inv_from_iso f) (inv_mor_disp_from_iso i).
 Proof.
   mkpair.
-  - change ( xx ⇒[ iso_inv_from_iso (iso_inv_from_iso f)] yy).    
+  - change ( xx -->[ iso_inv_from_iso (iso_inv_from_iso f)] yy).    
     set (XR := transportb (mor_disp xx yy ) 
                           (maponpaths pr1 (iso_inv_iso_inv _ _ _ f))).
     apply XR. apply i.
@@ -465,7 +465,7 @@ Defined.
 
 Definition is_iso_inv_from_is_iso_disp {C : Precategory} {D : disp_precat_data C}
     {x y : C} {f : iso x y}{xx : D x} {yy : D y} 
-    (ff : xx ⇒[f] yy)
+    (ff : xx -->[f] yy)
     (i : is_iso_disp f ff) 
     :
     is_iso_disp (iso_inv_from_iso f) (inv_mor_disp_from_iso i).
@@ -576,7 +576,7 @@ Lemma iso_disp_precomp {C : Precategory} {D : disp_precat C}
     {x y : C} (f : iso x y) 
     {xx : D x} {yy} (ff : iso_disp f xx yy)
   : forall (y' : C) (f' : y --> y') (yy' : D y'), 
-          isweq (fun ff' : yy ⇒[ f' ] yy' => pr1 ff ;; ff').
+          isweq (fun ff' : yy -->[ f' ] yy' => pr1 ff ;; ff').
 Proof.
   intros y' f' yy'.
   use gradth.
@@ -622,7 +622,7 @@ Defined.
 (* Useful when you want to prove [is_iso_disp], and you have some lemma [awesome_lemma] which gives that, but over a different (or just opaque) proof of [is_iso] in the base.  Then you can use [eapply is_iso_disp_independent_of_is_iso; apply awesome_lemma.]. *)  
 Lemma is_iso_disp_independent_of_is_iso
     {C : Precategory} {D : disp_precat_data C}
-    {x y : C} (f : iso x y) {xx : D x} {yy} (ff : xx ⇒[f] yy)
+    {x y : C} (f : iso x y) {xx : D x} {yy} (ff : xx -->[f] yy)
     {H'f : is_iso f} (Hff : is_iso_disp ((f : _ --> _),,H'f) ff)
   : is_iso_disp f ff.
 Proof.
@@ -673,7 +673,7 @@ Proof.
   intros xx yy.
   (* note: we use projections rather than destructing, so that [ xx --> yy ] 
   can β-reduce without [xx] and [yy] needing to be in whnf *) 
-  exact (Σ (f : pr1 xx --> pr1 yy), pr2 xx ⇒[f] pr2 yy).
+  exact (Σ (f : pr1 xx --> pr1 yy), pr2 xx -->[f] pr2 yy).
 Defined.
 
 Definition total_precat_id_comp : precategory_id_comp (total_precat_ob_mor).
@@ -921,7 +921,7 @@ Context {C' C : Precategory} (F : functor C' C) (D : disp_precat C).
 Definition reindex_disp_precat_ob_mor : disp_precat_ob_mor C'.
 Proof.
   exists (fun c => D (F c)).
-  intros x y xx yy f. exact (xx ⇒[# F f] yy).
+  intros x y xx yy f. exact (xx -->[# F f] yy).
 Defined.
 
 Definition reindex_disp_precat_id_comp : disp_precat_id_comp C' reindex_disp_precat_ob_mor.
@@ -984,7 +984,7 @@ Section Sections.
 
 Definition section_disp_data {C} (D : disp_precat C) : UU
   := Σ (Fob : forall x:C, D x),
-       (forall (x y:C) (f:x --> y), Fob x ⇒[f] Fob y).
+       (forall (x y:C) (f:x --> y), Fob x -->[f] Fob y).
 
 Definition section_disp_on_objects {C} {D : disp_precat C}
   (F : section_disp_data D) (x : C)
@@ -994,7 +994,7 @@ Coercion section_disp_on_objects : section_disp_data >-> Funclass.
 
 Definition section_disp_on_morphisms {C} {D : disp_precat C}
   (F : section_disp_data D) {x y : C} (f : x --> y)
-:= pr2 F _ _ f : F x ⇒[f] F y.
+:= pr2 F _ _ f : F x -->[f] F y.
 
 Notation "# F" := (section_disp_on_morphisms F)
   (at level 3) : mor_disp_scope.
@@ -1088,7 +1088,7 @@ Definition functor_over_data {C' C : precategory_data} (F : functor_data C' C)
   (D' : disp_precat_data C') (D : disp_precat_data C)
 := Σ (Fob : Π x, D' x -> D (F x)),
      Π x y (xx : D' x) (yy : D' y) (f : x --> y),
-       (xx ⇒[f] yy) -> (Fob _ xx ⇒[ # F f ] Fob _ yy).
+       (xx -->[f] yy) -> (Fob _ xx -->[ # F f ] Fob _ yy).
 
 Definition functor_over_on_objects {C' C : precategory_data} {F : functor_data C' C}
     {D' : disp_precat_data C'} {D : disp_precat_data C}
@@ -1106,8 +1106,8 @@ Coercion functor_over_on_objects : functor_over_data >-> Funclass.
 Definition functor_over_on_morphisms {C' C : precategory_data} {F : functor_data C' C}
     {D' : disp_precat_data C'} {D : disp_precat_data C}
     (FF : functor_over_data F D' D)
-    {x y : C'} {xx : D' x} {yy} {f : x --> y} (ff : xx ⇒[f] yy)
-  : (FF _ xx) ⇒[ # F f ] (FF _ yy)
+    {x y : C'} {xx : D' x} {yy} {f : x --> y} (ff : xx -->[f] yy)
+  : (FF _ xx) -->[ # F f ] (FF _ yy)
 := pr2 FF x y xx yy f ff.
 
 Notation "# F" := (functor_over_on_morphisms F)
@@ -1118,7 +1118,7 @@ Definition functor_over_axioms {C' C : Precategory} {F : functor C' C}
 :=  (Π x (xx : D' x),
       # FF (id_disp xx) = transportb _ (functor_id F x) (id_disp (FF _ xx)))
   × (Π x y z (xx : D' x) yy zz (f : x --> y) (g : y --> z)
-        (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz),
+        (ff : xx -->[f] yy) (gg : yy -->[g] zz),
       # FF (ff ;; gg)
       = transportb _ (functor_comp F _ _ _ f g) (# FF ff ;; # FF gg)).
 
@@ -1144,7 +1144,7 @@ Definition functor_over_id {C' C} {F} {D' : disp_precat C'} {D : disp_precat C}
 Definition functor_over_comp {C' C} {F} {D' : disp_precat C'} {D : disp_precat C}
     (FF : functor_over F D' D)
     {x y z} {xx : D' x} {yy} {zz} {f : x --> y} {g : y --> z}
-    (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
+    (ff : xx -->[f] yy) (gg : yy -->[g] zz)
   : # FF (ff ;; gg)
     = transportb _ (functor_comp F _ _ _ f g) (# FF ff ;; # FF gg)
 := pr2 (pr2 FF) _ _ _ _ _ _ _ _ ff gg.
@@ -1153,7 +1153,7 @@ Definition functor_over_comp {C' C} {F} {D' : disp_precat C'} {D : disp_precat C
 Definition functor_over_comp_var {C' C} {F} {D' : disp_precat C'} {D : disp_precat C}
     (FF : functor_over F D' D)
     {x y z} {xx : D' x} {yy} {zz} {f : x --> y} {g : y --> z}
-    (ff : xx ⇒[f] yy) (gg : yy ⇒[g] zz)
+    (ff : xx -->[f] yy) (gg : yy -->[g] zz)
   : transportf _ (functor_comp F _ _ _ f g) (# FF (ff ;; gg)) 
      = # FF ff ;; # FF gg.
 Proof.
@@ -1167,7 +1167,7 @@ Lemma functor_over_transportf {C' C : Precategory}
   (F : functor C' C) (FF : functor_over F D' D)
   (x' x : C') (f' f : x' --> x) (p : f' = f)
   (xx' : D' x') (xx : D' x)
-  (ff : xx' ⇒[ f' ] xx) 
+  (ff : xx' -->[ f' ] xx) 
   :
   # FF (transportf _ p ff)
   = 
@@ -1247,7 +1247,7 @@ Lemma functor_over_on_iso_disp_aux1 {C C'} {F}
     {D : disp_precat C} {D' : disp_precat C'}
     (FF : functor_over F D D')
     {x y} {xx : D x} {yy} {f : iso x y} 
-    (ff : xx ⇒[f] yy)
+    (ff : xx -->[f] yy)
     (Hff : is_iso_disp f ff)
   : transportf _ (functor_on_inv_from_iso F f)
       (# FF (inv_mor_disp_from_iso Hff))
@@ -1269,7 +1269,7 @@ Lemma functor_over_on_iso_disp_aux2 {C C'} {F}
     {D : disp_precat C} {D' : disp_precat C'}
     (FF : functor_over F D D')
     {x y} {xx : D x} {yy} {f : iso x y} 
-    (ff : xx ⇒[f] yy)
+    (ff : xx -->[f] yy)
     (Hff : is_iso_disp f ff)
   : # FF ff
     ;; transportf _ (functor_on_inv_from_iso F f)
@@ -1295,7 +1295,7 @@ Definition functor_over_on_is_iso_disp {C C'} {F}
     {D : disp_precat C} {D' : disp_precat C'}
     (FF : functor_over F D D')
     {x y} {xx : D x} {yy} {f : iso x y} 
-    {ff : xx ⇒[f] yy} (Hff : is_iso_disp f ff)
+    {ff : xx -->[f] yy} (Hff : is_iso_disp f ff)
     : is_iso_disp (functor_on_iso F f) (# FF ff).
 Proof.
   exists (transportf _ (functor_on_inv_from_iso F f)
@@ -1323,7 +1323,7 @@ Definition functor_over_ff {C C'} {F}
   {D : disp_precat C} {D' : disp_precat C'} (FF : functor_over F D D')
 :=
   Π {x y} {xx : D x} {yy : D y} {f : x --> y},
-    isweq (fun ff : xx ⇒[f] yy => # FF ff).
+    isweq (fun ff : xx -->[f] yy => # FF ff).
 
 Section ff_reflects_isos.
 
@@ -1343,7 +1343,7 @@ Definition functor_over_ff_inv {x y} {xx} {yy} {f : x --> y}
 (* TODO: add a general version [functor_over_ff_inv_transportf], where the transportf on the LHS is arbitrary. *) 
 Lemma functor_over_ff_inv_transportf
     {x y : C} {f f' : x --> y} (e : f = f')
-    {xx : D x} {yy : D y} (ff : FF _ xx ⇒[#F f] FF _ yy)
+    {xx : D x} {yy : D y} (ff : FF _ xx -->[#F f] FF _ yy)
   : functor_over_ff_inv (transportf _ (maponpaths (# F )%mor e) ff) 
     = 
     transportf _ e (functor_over_ff_inv ff).
@@ -1365,7 +1365,7 @@ Qed.
 (* TODO: move the transport to the RHS. *)
 Lemma functor_over_ff_inv_compose {x y z : C} {f : x --> y} {g : y --> z}
     {xx} {yy} {zz}
-    (ff : FF _ xx ⇒[#F f] FF _ yy) (gg : FF _ yy ⇒[#F g] FF _ zz)
+    (ff : FF _ xx -->[#F f] FF _ yy) (gg : FF _ yy -->[#F g] FF _ zz)
   : functor_over_ff_inv (transportb _ (functor_comp F _ _ _ _ _ ) (ff ;; gg)) 
   = functor_over_ff_inv ff ;; functor_over_ff_inv gg.
 Proof.
@@ -1379,7 +1379,7 @@ Qed.
 
 Definition functor_over_ff_reflects_isos 
   {x y} {xx : D x} {yy : D y} {f : iso x y}
-  (ff : xx ⇒[f] yy) (isiso: is_iso_disp (functor_on_iso F f) (# FF ff)) 
+  (ff : xx -->[f] yy) (isiso: is_iso_disp (functor_on_iso F f) (# FF ff)) 
   : is_iso_disp _ ff.
 Proof.
   set (FFffinv := inv_mor_disp_from_iso isiso). 
@@ -1476,7 +1476,7 @@ Definition nat_trans_over_data
   (R' : functor_over_data F' D' D)
   (R : functor_over_data F D' D) :=
 forall (x : C')  (xx : D' x), 
-      R' x  xx ⇒[ a x ] R x xx .
+      R' x  xx -->[ a x ] R x xx .
 (*
 Check @nat_trans_ax.
 
@@ -1498,7 +1498,7 @@ Definition nat_trans_over_axioms
  := 
    forall (x' x : C') (f : x' --> x)
           (xx' : D' x') (xx : D' x) 
-          (ff : xx' ⇒[ f ] xx), 
+          (ff : xx' -->[ f ] xx), 
      # R'  ff ;; b _ xx = 
      transportb _ (nat_trans_ax a _ _ f ) (b _ xx' ;; # R ff).
 
@@ -1539,7 +1539,7 @@ Definition nat_trans_over_pr1
   {R : functor_over_data F D' D}
   (b : nat_trans_over a R' R) 
   {x : C'}  (xx : D' x):
-    R' x  xx ⇒[ a x ] R x xx
+    R' x  xx -->[ a x ] R x xx
   := pr1 b x xx.
 
 Coercion nat_trans_over_pr1 : nat_trans_over >-> Funclass.
@@ -1557,7 +1557,7 @@ Definition nat_trans_over_ax
   {f : x' --> x}
   {xx' : D' x'} 
   {xx : D' x}
-  (ff : xx' ⇒[ f ] xx):
+  (ff : xx' -->[ f ] xx):
   # R'  ff ;; b _ xx = 
   transportb _ (nat_trans_ax a _ _ f ) (b _ xx' ;; # R ff)
   := 
@@ -1576,7 +1576,7 @@ Lemma nat_trans_over_ax_var
   {f : x' --> x}
   {xx' : D' x'} 
   {xx : D' x}
-  (ff : xx' ⇒[ f ] xx):
+  (ff : xx' -->[ f ] xx):
   b _ xx' ;; # R ff =
   transportf _ (nat_trans_ax a _ _ f) (# R'  ff ;; b _ xx).
 Proof.

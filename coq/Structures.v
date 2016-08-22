@@ -37,7 +37,7 @@ Components of [X : obj_ext_structure C]:
 
 - [TY Γ : hSet]
 - [comp_ext X Γ A : C].  Notation: [Γ ◂ A]
-- [π A : Γ ◂ A ⇒  A ⟧ *)
+- [π A : Γ ◂ A -->  A ⟧ *)
 Section Obj_Ext_Structures.
 
 Definition obj_ext_structure : UU

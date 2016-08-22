@@ -377,7 +377,7 @@ Defined.
 
 Lemma isaprop_qq_structure_mor
   {X X'} F (Z : qq_structure_ob_mor X) (Z' : qq_structure_ob_mor X')
-  : isaprop (Z ⇒[F] Z').
+  : isaprop (Z -->[F] Z').
 Proof.
   repeat (apply impred_isaprop; intro). apply homset_property.
 Qed.

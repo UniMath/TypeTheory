@@ -41,11 +41,11 @@ Record precwf_record : Type := {
   C : precategory ;
   Ty : functor C HSET     where "C ⟨ Γ ⟩" := (Ty Γ) ;
   term : Π Γ : C, pr1hSet (Ty Γ) → UU     where "C ⟨ Γ ⊢ A ⟩" := (term Γ A) ;
-(*  rtype : Π {Γ Γ' : C} (A : pr1hSet (Ty Γ)) (γ : Γ' ⇒ Γ), pr1hSetC⟨Γ'⟩ where "A [[ γ ]]" := (rtype A γ) ; *)
-  rterm : Π {Γ Γ' : C} {A : C⟨Γ⟩} (a : C⟨Γ⊢A⟩) (γ : Γ' ⇒ Γ), 
+(*  rtype : Π {Γ Γ' : C} (A : pr1hSet (Ty Γ)) (γ : Γ' --> Γ), pr1hSetC⟨Γ'⟩ where "A [[ γ ]]" := (rtype A γ) ; *)
+  rterm : Π {Γ Γ' : C} {A : C⟨Γ⟩} (a : C⟨Γ⊢A⟩) (γ : Γ' --> Γ), 
           C⟨Γ'⊢ A[[γ]]⟩   where "a ⟦ γ ⟧" := (rterm a γ) ;
   reindx_type_id : Π Γ (A : C⟨Γ⟩), A [[identity Γ]] = A ;
-  reindx_type_comp : Π  {Γ Γ' Γ''} (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') (A : C⟨Γ⟩), 
+  reindx_type_comp : Π  {Γ Γ' Γ''} (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') (A : C⟨Γ⟩), 
           A [[γ';;γ]] 
           =  
           A[[γ]][[γ']] ;
@@ -53,20 +53,20 @@ Record precwf_record : Type := {
           a⟦identity Γ⟧ 
           =
           transportf (λ B, C⟨Γ ⊢ B⟩) (! (reindx_type_id _ _)) a ;
-  reindx_term_comp : Π {Γ Γ' Γ''} (γ : Γ' ⇒ Γ) (γ' : Γ'' ⇒ Γ') {A : C⟨Γ⟩} (a : C⟨Γ⊢A⟩),
+  reindx_term_comp : Π {Γ Γ' Γ''} (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') {A : C⟨Γ⟩} (a : C⟨Γ⊢A⟩),
           a⟦γ';;γ⟧ 
           =
           transportf (λ B, C⟨Γ'' ⊢ B⟩) (!(reindx_type_comp  _ _ _ )) (a⟦γ⟧⟦γ'⟧) ;
   comp_obj : Π Γ (A : C⟨Γ⟩), C where "Γ ∙ A" := (comp_obj Γ A) ;
-  proj_mor : Π Γ (A : C⟨Γ⟩), Γ ∙ A ⇒ Γ where "'π' A" := (proj_mor _ A) ;
+  proj_mor : Π Γ (A : C⟨Γ⟩), Γ ∙ A --> Γ where "'π' A" := (proj_mor _ A) ;
   gen_element : Π Γ (A : C⟨Γ⟩), C⟨Γ∙A ⊢ A[[π _ ]]⟩ where "'ν' A" := (gen_element _ A) ;
-  pairing : Π Γ (A : C⟨Γ⟩) Γ' (γ : Γ' ⇒ Γ)(a : C⟨Γ'⊢ A[[γ]]⟩), Γ' ⇒ Γ∙A 
+  pairing : Π Γ (A : C⟨Γ⟩) Γ' (γ : Γ' --> Γ)(a : C⟨Γ'⊢ A[[γ]]⟩), Γ' --> Γ∙A 
      where "γ ♯ a" := (pairing _ _ _  γ a) ;
-  pre_cwf_law_1 : Π Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' ⇒ Γ) (a : C⟨Γ'⊢ A[[γ]]⟩), 
+  pre_cwf_law_1 : Π Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A[[γ]]⟩), 
           (γ ♯ a) ;; (π _) 
           = 
           γ ;
-  pre_cwf_law_2 : Π Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' ⇒ Γ) (a : C⟨Γ'⊢ A[[γ]]⟩),
+  pre_cwf_law_2 : Π Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A[[γ]]⟩),
           transportf (λ ι, C⟨Γ'⊢ A [[ι]]⟩) (pre_cwf_law_1 Γ A Γ' γ a)
              (transportf (λ B, C⟨Γ'⊢ B⟩) (!reindx_type_comp (π _ )(γ ♯ a) _ )
                 ((ν A) ⟦γ ♯ a⟧))
@@ -97,7 +97,7 @@ Definition term {CC : precategory} (C : tt_structure CC) : Π Γ : CC, C⟨Γ⟩
 Notation "C ⟨ Γ ⊢ A ⟩" := (term C Γ A) (at level 60).
   (* \<, \>, and \|- or \vdash *)
 
-(** * Reindexing of types [A[γ]] and terms [a⟦γ⟧] along a morphism [γ : Γ' ⇒ Γ] *)
+(** * Reindexing of types [A[γ]] and terms [a⟦γ⟧] along a morphism [γ : Γ' --> Γ] *)
 
 Definition rtype {CC : precategory} {C : tt_structure CC}
   : Π {Γ Γ' : CC} (A : C⟨Γ⟩) (γ : Γ' --> Γ), C⟨Γ'⟩.

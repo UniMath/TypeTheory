@@ -89,7 +89,7 @@ Definition dirprod_disp_precat_ob_mor : disp_precat_ob_mor C.
 Proof.
   exists (fun c => (D1 c × D2 c)).
   intros x y xx yy f.
-  exact (pr1 xx ⇒[f] pr1 yy × pr2 xx ⇒[f] pr2 yy).
+  exact (pr1 xx -->[f] pr1 yy × pr2 xx -->[f] pr2 yy).
 Defined.
 
 Definition dirprod_disp_precat_id_comp
@@ -181,8 +181,8 @@ Definition sigma_disp_precat_ob_mor : disp_precat_ob_mor C.
 Proof.
   exists (fun c => Σ (d : D c), (E (c,,d))).
   intros x y xx yy f.
-  exact (Σ (fD : pr1 xx ⇒[f] pr1 yy), 
-                (pr2 xx ⇒[f,,fD] pr2 yy)).
+  exact (Σ (fD : pr1 xx -->[f] pr1 yy), 
+                (pr2 xx -->[f,,fD] pr2 yy)).
 Defined.
 
 Definition sigma_disp_precat_id_comp
@@ -249,14 +249,14 @@ Definition sigmapr1_disp_functor
 (** ** Transport and isomorphism lemmas *)
 
 Lemma pr1_transportf_sigma_disp {x y : C} {f f' : x --> y} (e : f = f')
-    {xxx : sigma_disp_precat x} {yyy} (fff : xxx ⇒[f] yyy)
+    {xxx : sigma_disp_precat x} {yyy} (fff : xxx -->[f] yyy)
   : pr1 (transportf _ e fff) = transportf _ e (pr1 fff).
 Proof.
   destruct e; apply idpath.
 Qed.
 
 Lemma pr2_transportf_sigma_disp {x y : C} {f f' : x --> y} (e : f = f')
-    {xxx : sigma_disp_precat x} {yyy} (fff : xxx ⇒[f] yyy)
+    {xxx : sigma_disp_precat x} {yyy} (fff : xxx -->[f] yyy)
   : pr2 (transportf _ e fff)
   = transportf _ (total2_paths2 e (! pr1_transportf_sigma_disp e fff))
       (pr2 fff).
@@ -274,11 +274,11 @@ Local Open Scope hide_transport_scope.
 
 Definition is_iso_sigma_disp_aux1
     {x y} {xxx : sigma_disp_precat x} {yyy : sigma_disp_precat y}
-    {f : iso x y} (fff : xxx ⇒[f] yyy) 
+    {f : iso x y} (fff : xxx -->[f] yyy) 
     (ii : is_iso_disp f (pr1 fff))
     (ffi := (_,, ii) : iso_disp f (pr1 xxx) (pr1 yyy))
     (iii : is_iso_disp (@total_iso _ _ (_,,_) (_,,_) f ffi) (pr2 fff))
-  : yyy ⇒[inv_from_iso f] xxx.
+  : yyy -->[inv_from_iso f] xxx.
 Proof.
   exists (inv_mor_disp_from_iso ii).
   set (ggg := inv_mor_disp_from_iso iii).
@@ -287,7 +287,7 @@ Defined.
 
 Lemma is_iso_sigma_disp_aux2
     {x y} {xxx : sigma_disp_precat x} {yyy : sigma_disp_precat y}
-    {f : iso x y} (fff : xxx ⇒[f] yyy) 
+    {f : iso x y} (fff : xxx -->[f] yyy) 
     (ii : is_iso_disp f (pr1 fff))
     (ffi := (_,, ii) : iso_disp f (pr1 xxx) (pr1 yyy))
     (iii : is_iso_disp (@total_iso _ _ (_,,_) (_,,_) f ffi) (pr2 fff))
@@ -328,7 +328,7 @@ Time Qed. (* TODO: try to speed this up? *)
 
 Lemma is_iso_sigma_disp
     {x y} {xxx : sigma_disp_precat x} {yyy : sigma_disp_precat y}
-    {f : iso x y} (fff : xxx ⇒[f] yyy) 
+    {f : iso x y} (fff : xxx -->[f] yyy) 
     (ii : is_iso_disp f (pr1 fff))
     (ffi := (_,, ii) : iso_disp f (pr1 xxx) (pr1 yyy))
     (iii : is_iso_disp (@total_iso _ _ (_,,_) (_,,_) f ffi) (pr2 fff))
@@ -604,7 +604,7 @@ Definition is_pointwise_iso_if_is_disp_functor_precat_iso
   (f : iso x y)
   (xx : disp_functor_precat x)
   (yy : disp_functor_precat y)
-  (FF : xx ⇒[ f ] yy)
+  (FF : xx -->[ f ] yy)
   (H : is_iso_disp f FF)
   :
   forall x' (xx' : D' x') , is_iso_disp (pointwise_iso_from_nat_iso f _ )
@@ -648,14 +648,14 @@ Lemma is_nat_trans_over_pointwise_inv
   (f : iso x y)
   (xx : disp_functor_precat x)
   (yy : disp_functor_precat y)
-  (FF : xx ⇒[ f] yy)
+  (FF : xx -->[ f] yy)
   (H : Π (x' : C') (xx' : D' x'),
       is_iso_disp (pointwise_iso_from_nat_iso f x') (pr1 FF x' xx'))
   (x' x0 : C')
   (f0 : x' --> x0)
   (xx' : D' x')
   (xx0 : D' x0)
-  (ff : xx' ⇒[ f0] xx0)
+  (ff : xx' -->[ f0] xx0)
   :
    # (yy : functor_over _ _ _)  ff ;; (let RT := pr1 (H x0 xx0) in
                transportf (mor_disp (pr1 yy x0 xx0) (pr1 xx x0 xx0))
@@ -729,11 +729,11 @@ Definition inv_disp_from_pointwise_iso
   (f : iso x y)
   (xx : disp_functor_precat x)
   (yy : disp_functor_precat y)
-  (FF : xx ⇒[ f ] yy)
+  (FF : xx -->[ f ] yy)
   (H : forall x' (xx' : D' x') , is_iso_disp (pointwise_iso_from_nat_iso f _ )
                           (pr1 FF _ xx' ))
   :     
-       yy ⇒[ inv_from_iso f] xx.
+       yy -->[ inv_from_iso f] xx.
 Proof.
   mkpair.
   + intros x' xx'.
@@ -754,7 +754,7 @@ Definition is_disp_functor_precat_iso_if_pointwise_iso
   (f : iso x y)
   (xx : disp_functor_precat x)
   (yy : disp_functor_precat y)
-  (FF : xx ⇒[ f ] yy)
+  (FF : xx -->[ f ] yy)
   (H : forall x' (xx' : D' x') , is_iso_disp (pointwise_iso_from_nat_iso f _ )
                           (pr1 FF _ xx' ))
   : is_iso_disp f FF.
@@ -988,7 +988,7 @@ End fix_context.
 
 Definition is_iso_fibre_from_is_iso_disp
   {C : Precategory} {D : disp_precat C}
-  {c : C} {d d' : D c} (ff : d ⇒[identity c] d')
+  {c : C} {d d' : D c} (ff : d -->[identity c] d')
   (Hff : is_iso_disp (identity_iso c) ff)
 : @is_iso (fibre_precategory D c) _ _ ff.
 Proof.
