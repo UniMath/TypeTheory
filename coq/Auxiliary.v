@@ -385,6 +385,98 @@ Defined.
 
 End eqv_comp.
 
+Section eqv_inv.
+
+Context {A B : precategory}
+        {hsA : has_homsets A}
+        {hsB : has_homsets B}
+        {F : functor A B}.
+
+Hypothesis adEquivF : adj_equivalence_of_precats F.
+
+Let η : functor_precategory _ _ hsA ⟦ _ , _ ⟧ := unit_from_left_adjoint adEquivF.
+Let ε : functor_precategory _ _ hsB ⟦ _ , _ ⟧ := counit_from_left_adjoint adEquivF.
+Let G := right_adjoint adEquivF.
+
+Let ηiso := unit_iso_from_adj_equivalence_of_precats hsA adEquivF.
+Let εiso := counit_iso_from_adj_equivalence_of_precats hsB adEquivF.
+
+Lemma functor_on_is_iso_is_iso (C C' : precategory) (H : functor C C')
+    (a b : ob C)(f : a --> b) (Hf : is_iso f) : is_isomorphism (#H f).
+Proof.
+  apply (functor_on_iso_is_iso _ _ _ _ _ (isopair f Hf)).
+Defined.
+
+Lemma foo : 
+ form_adjunction G F (inv_from_iso εiso) (inv_from_iso ηiso).
+Proof.
+  split.
+  - intro b.
+    apply (pre_comp_with_iso_is_inj _ _ _ _ (#G ((pr1 εiso : nat_trans _ _ )  b))).
+    + 
+      apply (functor_on_is_iso_is_iso _ _ G _ _ ). 
+      apply is_functor_iso_pointwise_if_iso. apply pr2.
+    + etrans. apply assoc.
+      etrans. apply maponpaths_2. eapply pathsinv0. apply functor_comp.
+      etrans. apply maponpaths_2. apply maponpaths.
+              apply (nat_trans_eq_pointwise (iso_inv_after_iso εiso)).
+      etrans. apply maponpaths_2. apply functor_id.
+      etrans. apply id_left.
+      apply (pre_comp_with_iso_is_inj _ _ _ _ (((pr1 ηiso : nat_trans _ _ ) (G b)))).
+      * apply is_functor_iso_pointwise_if_iso. apply pr2.
+      * etrans. apply (nat_trans_eq_pointwise (iso_inv_after_iso ηiso)).
+        apply pathsinv0. 
+        etrans. apply assoc.
+        etrans. apply id_right.
+        assert (XR := triangle_id_right_ad _ _ _ adEquivF).
+        apply XR.
+  - intro a.
+      apply (pre_comp_with_iso_is_inj _ _ _ _ (((pr1 εiso : nat_trans _ _ ) _))).
+      * apply is_functor_iso_pointwise_if_iso. apply pr2.
+      * etrans. apply assoc.
+        etrans. apply maponpaths_2.
+          apply (nat_trans_eq_pointwise (iso_inv_after_iso εiso)).
+        etrans. apply id_left.
+        apply (pre_comp_with_iso_is_inj _ _ _ _ (#F ((pr1 ηiso : nat_trans _ _ ) a))).
+          apply (functor_on_is_iso_is_iso _ _ F _ _ ). 
+          apply is_functor_iso_pointwise_if_iso. apply pr2.
+        etrans. eapply pathsinv0. apply functor_comp.
+        etrans. apply maponpaths. apply (nat_trans_eq_pointwise (iso_inv_after_iso ηiso )).
+        etrans. apply functor_id.
+        apply pathsinv0.
+        rewrite id_right.
+        apply triangle_id_left_ad.
+Qed.    
+
+
+Definition is_left_adjoint_inv : is_left_adjoint G.
+Proof.
+  mkpair.
+  - apply F.
+  - mkpair.
+    exists (pr1 (iso_inv_from_iso εiso)).
+    exact (pr1 (iso_inv_from_iso ηiso)).
+    apply foo.
+Defined.
+
+Definition adj_equivalence_of_precats_inv 
+  : adj_equivalence_of_precats G.
+Proof.
+  exists is_left_adjoint_inv.
+  split.
+  - intro b.
+    set (XR := is_functor_iso_pointwise_if_iso _ _ hsB _ _  
+                        (iso_inv_from_iso εiso) (pr2 (iso_inv_from_iso εiso))). 
+    apply XR.
+  - intro a.
+    set (XR := is_functor_iso_pointwise_if_iso _ _ hsA _ _  
+                        (iso_inv_from_iso ηiso) (pr2 (iso_inv_from_iso ηiso))). 
+    apply XR.
+Defined.
+  
+End eqv_inv.
+
+
 (** ** Misc lemmas/definitions on (pre)categories *)
 
 Definition preShv C := functor_precategory C^op HSET has_homsets_HSET.
