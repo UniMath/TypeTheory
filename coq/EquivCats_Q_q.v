@@ -392,7 +392,7 @@ Proof.
     assert (XR' := toforallpaths _ _ _ XR). unfold homot in XR'. 
       unfold yoneda_morphisms_data in XR'.
     specialize (XR' (identity _ )).
-    rewrite id_left in XR'.
+    etrans. apply maponpaths. eapply pathsinv0. apply id_left.
     etrans. apply (!XR').
 (*
     etrans.
@@ -401,7 +401,6 @@ Proof.
         (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
 *)
     clear XR' XR.
-    assert (XR := @Q_comp_ext_compare).
 (*    etrans. apply Q_comp_ext_compare. *)
     etrans. apply maponpaths, @pathsinv0, id_left.
     rewrite id_left.
@@ -427,7 +426,7 @@ Lemma qq_from_fam_mor_unique
   (W' : iscompatible_fam_qq Y Z')
   : isaprop (Z --> Z').
 Proof.
-  - simpl. repeat (apply impred_isaprop; intro). apply hsC.
+  simpl. repeat (apply impred_isaprop; intro). apply hsC.
 Qed.
 
 End Unique_QQ_From_Fam.
@@ -479,18 +478,20 @@ Proof.
   of [Q] to a form with the [f] action outermost.  Naturality will show that
   the type is equal to such a form; [Q_comp_ext_compare] pushes that type
   equality through [Q]. *)
-(*
+  unfold fam_from_qq_mor_TM_data.
   etrans. 
     apply @pathsinv0.
     simple refine (Q_comp_ext_compare _ _); simpl.
-    Focus 2. etrans. (*apply maponpaths.*)
+    Focus 2. 
       exact (toforallpaths _ _ _ (nat_trans_ax (pp Y) _ _ _) _).
-    exact (toforallpaths _ _ _ (nat_trans_ax (obj_ext_mor_TY F) _ _ _) _).
+(*    exact (toforallpaths _ _ _ (nat_trans_ax (obj_ext_mor_TY F) _ _ _) _). *)
   etrans.
     exact (toforallpaths _ _ _ (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
   apply (maponpaths ((Q _ _ : nat_trans _ _ ) Γ)).
   simpl. unfold yoneda_morphisms_data.
   (* Part 2: naturality of the transfer along [F]. *)
+
+(*
   etrans. apply @pathsinv0, assoc.
   etrans. apply @pathsinv0, assoc.
   etrans. apply maponpaths.
@@ -582,12 +583,28 @@ Proof.
 (*  checks until here   *)
 
 (*
+unfold fam_from_qq_mor_TM_data.
+
+    assert (XR:= @Q_pp _ _ _ Y _ A).
+    assert (XR' := nat_trans_eq_pointwise XR Γ').
+    assert (XR'':= toforallpaths _ _ _ XR'). unfold homot in XR''.
+    specialize (XR'' f).
+    etrans.
+      refine (maponpaths (fun k => (Q Y' k : nat_trans _ _ ) Γ' 
+             (pr1 (term_to_section ((Q Y A : nat_trans _ _ ) Γ' f))) _ )).
+    rewrite <- XR''.
+    etrans. 
+    cbn in XR.
     etrans.
       (* TODO: consider changing direction of [Q_comp_ext_compare]?*)
-      apply @pathsinv0. simple refine (Q_comp_ext_compare _ _); simpl.
+      apply @pathsinv0. 
+        (*
+         simple refine (Q_comp_ext_compare _ _); simpl.
         exact ((obj_ext_mor_TY F : nat_trans _ _) _ 
                  (# (TY _ : functor _ _) (f ;; π _) A)). 
-      apply maponpaths.
+       *)
+      (* apply maponpaths. *)
+      
       refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (Q_pp _ _) _) _).
     cbn.
     Arguments Δ [_ _ _ _ _ _]. idtac.
