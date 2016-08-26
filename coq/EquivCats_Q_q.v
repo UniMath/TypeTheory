@@ -568,41 +568,48 @@ Proof.
 
 (*  checks until here   *)
 
-(*
+
 unfold fam_from_qq_mor_TM_data.
 
     assert (XR:= @Q_pp _ _ _ Y _ A).
     assert (XR' := nat_trans_eq_pointwise XR Γ').
     assert (XR'':= toforallpaths _ _ _ XR'). unfold homot in XR''.
     specialize (XR'' f).
+(*
     etrans.
       refine (maponpaths (fun k => (Q Y' k : nat_trans _ _ ) Γ' 
              (pr1 (term_to_section ((Q Y A : nat_trans _ _ ) Γ' f))) _ )).
     rewrite <- XR''.
     etrans. 
     cbn in XR.
+*)
     etrans.
       (* TODO: consider changing direction of [Q_comp_ext_compare]?*)
       apply @pathsinv0. 
-        (*
+        
          simple refine (Q_comp_ext_compare _ _); simpl.
-        exact ((obj_ext_mor_TY F : nat_trans _ _) _ 
+         exact (# (TY _ : functor _ _ ) (f ;; π _ ) A).
+(*        exact ((obj_ext_mor_TY F : nat_trans _ _) _ 
                  (# (TY _ : functor _ _) (f ;; π _) A)). 
        *)
       (* apply maponpaths. *)
       
       refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (Q_pp _ _) _) _).
     cbn.
+
     Arguments Δ [_ _ _ _ _ _]. idtac.
+(*
     etrans. apply maponpaths.
       etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, @pathsinv0, Δ_φ.
       apply assoc.
+*)
     etrans. 
       apply @pathsinv0. simple refine (Q_comp_ext_compare _ _); simpl.
-        exact (# (TY _ : functor _ _) (f ;; π _)
-                 ((obj_ext_mor_TY F : nat_trans _ _) _ A)).
-      exact (toforallpaths _ _ _ (nat_trans_ax (obj_ext_mor_TY F) _ _ _) _).
+        exact (# (TY _ : functor _ _) (f ;; π _) A).
+(*                 ((obj_ext_mor_TY F : nat_trans _ _) _ A)). *)
+        apply idpath.
+(*      exact (toforallpaths _ _ _ (nat_trans_ax (obj_ext_mor_TY F) _ _ _) _). *)
     cbn.
     etrans. exact (toforallpaths _ _ _ (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
     simpl; unfold yoneda_morphisms_data; cbn.  apply maponpaths.
@@ -610,13 +617,12 @@ unfold fam_from_qq_mor_TM_data.
     etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths.
       etrans. apply assoc.
-      apply @pathsinv0, FZ.
-    etrans. apply assoc.
-    apply cancel_postcomposition.
-  apply (map_from_term_recover W).
+      apply @pathsinv0.  apply maponpaths. apply FZ.
+      assert (XRT := @map_from_term_recover _ _ _ _ W).
+      rewrite id_right.
+      rewrite assoc.
+      apply XRT.
 Time Qed.
-*)
-Admitted.
 
 Lemma fam_from_qq_mor_unique 
   {Z : qq_structure_precategory} {Z'} (FZ : Z --> Z')
