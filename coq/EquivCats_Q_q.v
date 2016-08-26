@@ -379,7 +379,7 @@ Proof.
 *)
   (* Maybe worth abstracting the following pointwise application of [W],
    [families_mor_Q], etc. as lemmas? *)
-  - etrans.
+  -  etrans.
       exact (!toforallpaths _ _ _
         (nat_trans_eq_pointwise (families_mor_Q FY _) _) _).
     etrans. apply maponpaths, @pathsinv0, id_left.
@@ -387,7 +387,27 @@ Proof.
       exact (!toforallpaths _ _ _
         (nat_trans_eq_pointwise (W _ _ _ _) _) _).
     apply pathsinv0.
-Abort.   
+    assert (XR := nat_trans_eq_pointwise (W' _ _ A f)).
+    specialize (XR (Γ' ◂ # (TY X : functor _ _ ) f A)). cbn in XR.
+    assert (XR' := toforallpaths _ _ _ XR). unfold homot in XR'. 
+      unfold yoneda_morphisms_data in XR'.
+    specialize (XR' (identity _ )).
+    rewrite id_left in XR'.
+    etrans. apply (!XR').
+(*
+    etrans.
+       apply (
+      exact (!toforallpaths _ _ _
+        (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
+*)
+    clear XR' XR.
+    assert (XR := @Q_comp_ext_compare).
+(*    etrans. apply Q_comp_ext_compare. *)
+    etrans. apply maponpaths, @pathsinv0, id_left.
+    rewrite id_left.
+    exact (!toforallpaths _ _ _
+      (nat_trans_eq_pointwise (families_mor_Q FY _) _) _).
+Time Qed.
 
 (*
     etrans. 
