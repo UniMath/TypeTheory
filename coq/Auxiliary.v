@@ -476,6 +476,120 @@ Defined.
   
 End eqv_inv.
 
+Section eqv_from_ess_split_and_ff.
+
+Definition split_ess_surj {A B : precategory}
+  (F : functor A B) 
+  := Π b : B, Σ a : A, iso (F a) b.
+
+Context {A B : precategory}
+        {hsA : has_homsets A}
+        {hsB : has_homsets B}
+        {F : functor A B}
+        (Fff : fully_faithful F)
+        (Fses : split_ess_surj F).
+
+Let Fweq {a b} f := (weq_from_fully_faithful Fff a b f).
+Let Finv {a b} g := (invweq (weq_from_fully_faithful Fff a b) g).
+
+Definition G_data : functor_data B A.
+Proof.
+  mkpair.
+  - intro b. exact (pr1 (Fses b)).
+  - intros b b' f'; cbn.
+    apply Finv.
+    exact (pr2 (Fses b) ;; f' ;; inv_from_iso (pr2 (Fses b'))).
+Defined.
+
+Definition G_ax : is_functor G_data.
+Proof.
+  split.
+  - intro b. cbn. rewrite id_right. simpl.
+    apply invmap_eq. cbn.
+    etrans. apply iso_inv_after_iso.
+    apply pathsinv0, functor_id.
+  - intros b b1 b2 f g.
+    apply invmap_eq; cbn.
+    rewrite functor_comp.
+    apply pathsinv0.
+    etrans. apply maponpaths.
+       apply (homotweqinvweq (weqpair _ (Fff _ _ ))).
+    etrans. apply maponpaths_2.
+       apply (homotweqinvweq (weqpair _ (Fff _ _ ))).
+    repeat rewrite <- assoc. apply maponpaths. apply maponpaths.
+    repeat rewrite assoc. apply maponpaths_2.
+    etrans. apply maponpaths_2.  apply iso_after_iso_inv.
+    apply id_left.
+Qed.
+
+Definition G : functor _ _ := ( _ ,, G_ax).
+
+
+Definition ε
+  : nat_trans (functor_composite G F) (functor_identity B).
+Proof.
+  mkpair.
+  - intro b.
+    exact (pr2 (Fses b)).
+  - intros b b' g. cbn.
+    etrans. apply maponpaths_2. use homotweqinvweq. 
+    repeat rewrite <- assoc. apply maponpaths.
+    rewrite iso_after_iso_inv.
+    apply id_right.
+Defined.
+
+Definition η : nat_trans (functor_identity A) (functor_composite F G).
+Proof.
+  mkpair.
+  -  intro a.
+     apply Finv.
+     apply (inv_from_iso (pr2 (Fses _ ))).
+  - intros a a' f; cbn.
+    apply (invmaponpathsweq (weqpair _ (Fff _ _ ))).
+    cbn.
+    rewrite functor_comp.
+    rewrite functor_comp.
+    etrans. apply maponpaths. use homotweqinvweq.
+    apply pathsinv0.
+    etrans. apply maponpaths. use homotweqinvweq.
+    etrans. apply maponpaths_2. use homotweqinvweq.
+    repeat rewrite assoc. rewrite iso_after_iso_inv.
+    rewrite id_left. apply idpath.
+Defined.
+    
+Definition foobar : adj_equivalence_of_precats F.
+Proof.
+  mkpair.
+  - exists G.
+    mkpair.
+    + exists η. 
+      exact ε. 
+    + split.
+      * intro a.
+        cbn. 
+        etrans. apply maponpaths_2. use homotweqinvweq. 
+        apply iso_after_iso_inv.
+      * intro b.
+        cbn. 
+        apply (invmaponpathsweq (weqpair _ (Fff _ _ ))).
+        cbn.
+        rewrite functor_comp.
+        rewrite functor_id.
+        etrans. apply maponpaths. use homotweqinvweq.
+        etrans. apply maponpaths_2. use homotweqinvweq.
+        repeat rewrite assoc.
+        rewrite iso_after_iso_inv.
+        rewrite id_left.
+        apply iso_inv_after_iso.
+  - split; cbn.
+    + intro a. 
+      use (fully_faithful_reflects_iso_proof _ _ _ Fff _ _ (isopair _ _ )).
+      Search (is_iso (inv_from_iso _ )).
+      apply is_iso_inv_from_iso. 
+    + intro b. apply pr2.
+Defined.
+
+End eqv_from_ess_split_and_ff.
 
 (** ** Misc lemmas/definitions on (pre)categories *)
 
