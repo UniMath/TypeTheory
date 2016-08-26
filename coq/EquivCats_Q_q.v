@@ -491,24 +491,12 @@ Proof.
   simpl. unfold yoneda_morphisms_data.
   (* Part 2: naturality of the transfer along [F]. *)
 
-(*
   etrans. apply @pathsinv0, assoc.
-  etrans. apply @pathsinv0, assoc.
-  etrans. apply maponpaths.
-    etrans. apply assoc. 
-    etrans. apply cancel_postcomposition. Focus 2.
-      apply @pathsinv0. 
-      etrans. Focus 2. apply assoc. 
-      apply maponpaths, FZ.
-    etrans. Focus 2. apply @pathsinv0, assoc.
-    etrans. Focus 2. apply cancel_postcomposition.
-      apply @pathsinv0, Δ_φ.
-    etrans. Focus 2. apply assoc.
-    apply maponpaths, comp_ext_compare_comp.
+(*  etrans. apply @pathsinv0, assoc. *)
+
+
+  etrans. apply maponpaths. apply maponpaths. eapply pathsinv0. apply FZ.
   etrans. apply assoc.
-  etrans. apply assoc.
-  etrans. Focus 2. apply @pathsinv0, assoc.
-  apply cancel_postcomposition.
   (* Part 3: naturality in [Γ] of the term-to-section construction from [Tm Y]. *)
   apply (Q_pp_Pb_unique Y).
   + unfold yoneda_morphisms_data. 
@@ -534,8 +522,6 @@ Proof.
     etrans. apply Q_comp_ext_compare.
     apply term_to_section_recover.
 Time Qed.
-*)
-Admitted.
 
 Definition fam_from_qq_mor_TM 
     {Z : qq_structure_precategory} {Z'} (FZ : Z --> Z')
