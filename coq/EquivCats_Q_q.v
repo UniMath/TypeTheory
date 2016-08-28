@@ -6,17 +6,22 @@ Main definitions:
 
 - [families_precategory]
 - [qq_structure_precategory]
+- category of compatible pairs
+- projection functors from compatible pairs to structures
+- proof that those projection functors are split and ff
+
 *)
 
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.more_on_pullbacks.
-
+Require Import UniMath.CategoryTheory.equivalences.
 Require Import Systems.UnicodeNotations.
 Require Import Systems.Auxiliary.
 Require Import Systems.Structures.
 Require UniMath.Ktheory.Precategories.
 Require Import UniMath.Ktheory.StandardCategories.
 Require Import Systems.CwF_SplitTypeCat_Maps.
+Require Import Systems.CwF_SplitTypeCat_Equivalence.
 
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
@@ -319,38 +324,21 @@ Lemma qq_from_fam_mor
   {Z : qq_structure_precategory} {Z'}
   (W : iscompatible_fam_qq Y Z)
   (W' : iscompatible_fam_qq Y' Z')
-  : ( Z --> Z'). (* , W -->[(F,,(FY,,FZ))] W'. *)
+  : Z --> Z'. 
 Proof.
-(*
-  refine (_,, tt).
-*)
   intros Γ' Γ f A.
   cbn in W, W', FY. unfold iscompatible_fam_qq in *. 
   unfold families_mor in FY.
   apply (Q_pp_Pb_unique Y'); simpl; unfold yoneda_morphisms_data.
-  - 
-    (* etrans. apply @pathsinv0, assoc. *)
-(*
-    etrans. apply maponpaths, obj_ext_mor_ax.
-*)
-      (* TODO: name of [obj_ext_mor_ax] unmemorable.  Rename more like [qq_π]? *)
+  -     (* TODO: name of [obj_ext_mor_ax] unmemorable.  Rename more like [qq_π]? *)
     etrans. apply @pathsinv0, qq_π.
       (* TODO: name of [qq_π] misleading, suggests opposite direction. *)
     apply pathsinv0.
-(*
-    etrans. apply @pathsinv0, assoc.
-*)
-    etrans. apply (* maponpaths, *) @pathsinv0, qq_π.
+    etrans. apply @pathsinv0, qq_π.
     apply idpath.
-(*
-    etrans. apply assoc. apply cancel_postcomposition.
-    etrans. apply @pathsinv0, assoc.
-    etrans. apply maponpaths. apply comp_ext_compare_π.
-    apply obj_ext_mor_ax.
-*)
   (* Maybe worth abstracting the following pointwise application of [W],
    [families_mor_Q], etc. as lemmas? *)
-  -  etrans.
+  - etrans.
       exact (!toforallpaths _ _ _
         (nat_trans_eq_pointwise (families_mor_Q FY _) _) _).
     etrans. apply maponpaths, @pathsinv0, id_left.
@@ -365,14 +353,7 @@ Proof.
     specialize (XR' (identity _ )).
     etrans. apply maponpaths. eapply pathsinv0. apply id_left.
     etrans. apply (!XR').
-(*
-    etrans.
-       apply (
-      exact (!toforallpaths _ _ _
-        (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
-*)
     clear XR' XR.
-(*    etrans. apply Q_comp_ext_compare. *)
     etrans. apply maponpaths, @pathsinv0, id_left.
     rewrite id_left.
     exact (!toforallpaths _ _ _
@@ -384,7 +365,7 @@ Lemma qq_from_fam_mor_unique
   {Y : families_precategory} {Y'} (FY : Y --> Y')
   {Z : qq_structure_precategory} {Z'}
   (W : iscompatible_fam_qq Y Z)
-  (W' : iscompatible_fam_qq Y Z')
+  (W' : iscompatible_fam_qq Y' Z')
   : isaprop (Z --> Z').
 Proof.
   simpl. repeat (apply impred_isaprop; intro). apply hsC.
@@ -445,7 +426,6 @@ Proof.
     simple refine (Q_comp_ext_compare _ _); simpl.
     Focus 2. 
       exact (toforallpaths _ _ _ (nat_trans_ax (pp Y) _ _ _) _).
-(*    exact (toforallpaths _ _ _ (nat_trans_ax (obj_ext_mor_TY F) _ _ _) _). *)
   etrans.
     exact (toforallpaths _ _ _ (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
   apply (maponpaths ((Q _ _ : nat_trans _ _ ) Γ)).
@@ -453,9 +433,6 @@ Proof.
   (* Part 2: naturality of the transfer along [F]. *)
 
   etrans. apply @pathsinv0, assoc.
-(*  etrans. apply @pathsinv0, assoc. *)
-
-
   etrans. apply maponpaths. apply maponpaths. eapply pathsinv0. apply FZ.
   etrans. apply assoc.
   (* Part 3: naturality in [Γ] of the term-to-section construction from [Tm Y]. *)
@@ -508,17 +485,9 @@ Proof.
   - simpl. intros Γ; apply funextsec; intros t.
     etrans. refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (Q_pp _ _) _) _).
     simpl. unfold yoneda_morphisms_data; cbn.
-(*
-    etrans. refine (toforallpaths _ _ _(!nat_trans_ax (obj_ext_mor_TY _) _ _ _) _).
-    cbn; apply maponpaths.
-*)
     etrans.
       refine (toforallpaths _ _ _ _ ((pp Y : nat_trans _ _) Γ t)).
       apply maponpaths.
-(*
-      etrans. apply @pathsinv0, assoc.
-      etrans. apply maponpaths, obj_ext_mor_ax.
-*)
       exact (pr2 (term_to_section _)).
     exact (toforallpaths _ _ _ (functor_id (TY _) _) _).
   - apply has_homsets_HSET.
@@ -531,53 +500,22 @@ Proof.
     assert (XR' := nat_trans_eq_pointwise XR Γ').
     assert (XR'':= toforallpaths _ _ _ XR'). unfold homot in XR''.
     specialize (XR'' f).
-(*
-    etrans.
-      refine (maponpaths (fun k => (Q Y' k : nat_trans _ _ ) Γ' 
-             (pr1 (term_to_section ((Q Y A : nat_trans _ _ ) Γ' f))) _ )).
-    rewrite <- XR''.
-    etrans. 
-    cbn in XR.
-*)
     etrans.
       (* TODO: consider changing direction of [Q_comp_ext_compare]?*)
-      apply @pathsinv0. 
-        
+      apply @pathsinv0.         
          simple refine (Q_comp_ext_compare _ _); simpl.
-         exact (# (TY _ : functor _ _ ) (f ;; π _ ) A).
-(*        exact ((obj_ext_mor_TY F : nat_trans _ _) _ 
-                 (# (TY _ : functor _ _) (f ;; π _) A)). 
-       *)
-      (* apply maponpaths. *)
-      
+         exact (# (TY _ : functor _ _ ) (f ;; π _ ) A).      
       refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (Q_pp _ _) _) _).
     cbn.
-
     Arguments Δ [_ _ _ _ _ _]. idtac.
-(*
-    etrans. apply maponpaths.
-      etrans. apply @pathsinv0, assoc.
-      etrans. apply maponpaths, @pathsinv0, Δ_φ.
-      apply assoc.
-*)
-    etrans. 
-      apply @pathsinv0. simple refine (Q_comp_ext_compare _ _); simpl.
-        exact (# (TY _ : functor _ _) (f ;; π _) A).
-(*                 ((obj_ext_mor_TY F : nat_trans _ _) _ A)). *)
-        apply idpath.
-(*      exact (toforallpaths _ _ _ (nat_trans_ax (obj_ext_mor_TY F) _ _ _) _). *)
-    cbn.
     etrans. exact (toforallpaths _ _ _ (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
     simpl; unfold yoneda_morphisms_data; cbn.  apply maponpaths.
     etrans. apply @pathsinv0, assoc.
-    etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths.
-      etrans. apply assoc.
       apply @pathsinv0.  apply maponpaths. apply FZ.
-      assert (XRT := @map_from_term_recover _ _ _ _ W).
-      rewrite id_right.
-      rewrite assoc.
-      apply XRT.
+    assert (XRT := @map_from_term_recover _ _ _ _ W).
+    rewrite assoc.
+    apply XRT.
 Time Qed.
 
 Lemma fam_from_qq_mor_unique 
@@ -597,19 +535,13 @@ End Unique_Fam_From_QQ.
 TODO: scrap this section, and recover it from the displayed version. *) 
 Section Strucs_Equiv_Precats.
 
-(* TODO: could strengthen to “explicitly essentially surjective” *)
-Lemma compat_structures_pr1_ess_surj
-  : essentially_surjective (compat_structures_pr1_functor).
+Lemma compat_structures_pr1_split_ess_surj
+  : split_ess_surj (compat_structures_pr1_functor).
 Proof.
-  unfold essentially_surjective.
-(*
-  intros XY; destruct XY as [X Y]; apply hinhpr.
-*)
   intro Y.
-  apply hinhpr.
   exists (((Y,, qq_from_fam Y)),,iscompatible_qq_from_fam Y).
   apply identity_iso.
-Qed.
+Defined.
 
 Lemma compat_structures_pr1_fully_faithful
   : fully_faithful (compat_structures_pr1_functor).
@@ -618,43 +550,22 @@ Proof.
   destruct YZW as [  [Y Z]  W].
   destruct YZW' as [ [Y' Z']  W'].
   unfold compat_structures_pr1_functor; simpl.
-Abort.
-(*
-  assert (structural_lemma :
-    Π A (B C : A -> UU) (D : Π a, B a -> C a -> UU)
-      (H : Π a b, iscontr (Σ c, D a b c)),
-    isweq (fun abcd : Σ (abc : Σ a, (B a × C a)),
-                        D (pr1 abc) (pr1 (pr2 abc)) (pr2 (pr2 abc))
-            => (pr1 (pr1 abcd),, pr1 (pr2 (pr1 abcd))))).
-    clear C X Y Z W  Y' Z' W'.
-  { intros A B C D H.
-    use gradth.
-    + intros ab.
-      set (cd := iscontrpr1 (H (pr1 ab) (pr2 ab))). 
-        exact ((pr1 ab,, (pr2 ab,, pr1 cd)),, pr2 cd).
-    + intros abcd; destruct abcd as [ [a [b c] ] d]; simpl.
-      refine (@maponpaths _ _ 
-        (fun cd : Σ c' : C a, (D a b c') => (a,, b,, (pr1 cd)),, (pr2 cd))
-        _ (_,, _) _).
-      apply proofirrelevancecontr, H.
-    + intros ab; destruct ab as [a b]. apply idpath. }
-  simple refine (structural_lemma _ _ _ _ _).
-  - intros FX FY FZ.
-      exists (W -->[FX,,(FY,,FZ)] W').
-  - intros FX FY. apply iscontraprop1.
-    exact (qq_from_fam_mor_unique FY W W').
-    exact (qq_from_fam_mor FY W W').
+  use gradth.
+  - intro f. exists f. use (qq_from_fam_mor f W W').
+  - intros. cbn. destruct x as [f q]. cbn.
+    apply maponpaths. 
+    apply proofirrelevance.
+    use (qq_from_fam_mor_unique f); assumption. 
+  - intros y. cbn. apply idpath.
 Qed.
-*)
-(* TODO: could strengthen to “explicitly essentially surjective” *)
-Lemma compat_structures_pr2_ess_surj
-  : essentially_surjective (compat_structures_pr2_functor).
+
+Lemma compat_structures_pr2_split_ess_surj
+  : split_ess_surj (compat_structures_pr2_functor).
 Proof.
-  unfold essentially_surjective.
-  intros Z; apply hinhpr.
+  intros Z.
   exists (((fam_from_qq Z,, Z)),,iscompatible_fam_from_qq Z).
   apply identity_iso.
-Qed.
+Defined.
 
 Lemma compat_structures_pr2_fully_faithful
   : fully_faithful (compat_structures_pr2_functor).
@@ -663,34 +574,252 @@ Proof.
   destruct YZW as [  [Y Z]  W];
   destruct YZW' as [  [Y' Z']  W'].
   unfold compat_structures_pr2_functor; simpl.
-Abort.
-(*
-  assert (structural_lemma :
-    Π A (B C : A -> UU) (D : Π a, B a -> C a -> UU)
-      (H : Π a c, iscontr (Σ b, D a b c)),
-    isweq (fun abcd : Σ (abc : Σ a, (B a × C a)),
-                        D (pr1 abc) (pr1 (pr2 abc)) (pr2 (pr2 abc))
-            => (pr1 (pr1 abcd),, pr2 (pr2 (pr1 abcd))))).
-    clear C X Y Z W  Y' Z' W'.
-  { intros A B C D H.
-    use gradth.
-    + intros ac.
-      set (bd := iscontrpr1 (H (pr1 ac) (pr2 ac))). 
-        exact ((pr1 ac,, (pr1 bd,, pr2 ac)),, pr2 bd).
-    + intros abcd; destruct abcd as [ [a [b c] ] d]; simpl.
-      refine (@maponpaths _ _ 
-        (fun bd : Σ b' : B a, (D a b' c) => (a,, (pr1 bd),, c),, (pr2 bd))
-        _ (_,, _) _).
-      apply proofirrelevancecontr, H.
-    + intros ac; destruct ac as [a c]. apply idpath. }
-  simple refine (structural_lemma _ _ _ _ _).
-  - intros FX FY FZ.
-      exists (W -->[FX,,(FY,,FZ)] W').
-  - intros FX FY. apply iscontraprop1.
-    exact (fam_from_qq_mor_unique FY W W').
-    exact (fam_from_qq_mor FY W W').
+  use gradth.
+  - intro x.
+    exists (fam_from_qq_mor x W W').
+    exact x.
+  - intro r. cbn.
+    destruct r as [r1 r2]. apply maponpaths_2.
+    apply proofirrelevance.
+    use (fam_from_qq_mor_unique r2); assumption.
+  - intros. apply idpath.
 Qed.
-*)
+
 End Strucs_Equiv_Precats.
 
+Section Is_Category_Families_Strucs.
+
+(*
+(* TODO: inline *) 
+Lemma isaprop_whatever
+  (x : obj_ext_Precat C)
+  (d d' : (families_disp_precat C) x)
+  : isaprop (iso_disp (identity_iso x) d d').
+Proof.
+  apply isofhleveltotal2.
+  - apply isaprop_families_mor.
+  - intro. apply isaprop_is_iso_disp.
+Qed.
+*)
+
+Definition iso_to_TM_eq
+  (Y Y' : families_precategory)
+  : iso Y Y' 
+  -> TM (Y : families_structure _ X) = TM (Y' : families_structure _ X).
+Proof.
+  intro i.
+  use isotoid.
+  - apply (is_category_functor_category _ _ is_category_HSET).
+  - exists (families_mor_TM (i : _ --> _)).
+    apply is_iso_from_is_z_iso.
+    exists (families_mor_TM (inv_from_iso i)).
+    split.
+    + exact (maponpaths families_mor_TM (iso_inv_after_iso i)).
+    + exact (maponpaths families_mor_TM (iso_after_iso_inv i)).
+Defined.
+
+Lemma prewhisker_iso_to_TM_eq 
+  {Y Y' : families_precategory}
+  (FG : iso Y Y')
+  {P : preShv C} (α : TM (Y : families_structure _ X) --> P)
+: transportf (λ P' : preShv C, P' --> P) (iso_to_TM_eq  _ _ FG) α
+  = families_mor_TM (*pr1 (pr2 FG)*) (inv_from_iso FG) ;; α.
+Proof.
+  etrans. apply transportf_isotoid.
+  apply maponpaths_2.
+  apply inv_from_iso_from_is_z_iso.
+Qed.
+
+Lemma postwhisker_iso_to_TM_eq 
+  {Y Y' : families_precategory}
+  (FG : iso Y Y')
+  {P : preShv C} (α : P --> TM (Y : families_structure _ X))
+: transportf (λ P' : preShv C, P --> P') (iso_to_TM_eq _ _ FG) α
+  = α ;; families_mor_TM (pr1 FG).
+Proof.
+  apply postwhisker_isotoid.
+Qed.
+
+Definition iso_to_id_families_precategory
+  (Y Y' : families_precategory)
+  : iso Y Y' -> Y = Y'.
+Proof.
+  intros i.
+  apply subtypeEquality. { intro. apply isaprop_families_structure_axioms. }
+  apply total2_paths with (iso_to_TM_eq _ _ i).
+  etrans. refine (transportf_dirprod _ _ _ _ _ _).
+  apply dirprodeq; simpl.
+  - etrans. apply prewhisker_iso_to_TM_eq.
+    apply families_mor_pp. 
+  - etrans. refine (transportf_forall _ _ _).
+    apply funextsec; intros Γ.
+    etrans. refine (transportf_forall _ _ _).
+    apply funextsec; intros A.
+    etrans. refine (postwhisker_iso_to_TM_eq i (Q _ _)).
+    apply families_mor_Q.
+Qed.
+
+Lemma has_homsets_families_precategory
+  : has_homsets families_precategory.
+Proof.
+  intros a b.
+  apply isaset_total2.
+  apply functor_category_has_homsets.
+  intros. apply isasetaprop, isapropdirprod.
+  apply functor_category_has_homsets.
+  repeat (apply impred_isaprop; intro). apply functor_category_has_homsets.
+Qed.
+
+Theorem is_category_families_structure
+  : is_category families_precategory.
+Proof.
+  split.
+  - apply eq_equiv_from_retraction with iso_to_id_families_precategory.
+    intros. apply eq_iso. apply isaprop_families_mor.
+  - apply has_homsets_families_precategory. 
+Qed.
+
+End Is_Category_Families_Strucs.
+
+Section Is_Category_qq_Strucs.
+
+Lemma isaset_qq_morphism_structure (x : obj_ext_structure C) 
+  : isaset (qq_morphism_structure x).
+Proof.
+  apply (isofhleveltotal2 2).
+  - apply (isofhleveltotal2 2).
+    + do 4 (apply impred; intro).
+      apply homset_property.
+    + intros. do 4 (apply impred; intro).
+      apply (isofhleveltotal2 2).
+      * apply hlevelntosn.
+        apply homset_property.
+      * intro. apply hlevelntosn.
+        apply pullbacks.isaprop_isPullback.
+  - intro d. unfold qq_morphism_axioms.
+    apply isofhleveldirprod.
+    + do 2 (apply impred; intro).
+      apply hlevelntosn.
+      apply homset_property.
+    + do 6 (apply impred; intro).
+      apply hlevelntosn.
+      apply homset_property.
+Qed. 
+
+Lemma isaprop_iso_qq_morphism_structure 
+  (d d' : qq_structure_precategory)
+  : isaprop (iso d d').
+Proof.
+  apply (isofhleveltotal2 1).
+  - do 4 (apply impred; intro).
+    apply homset_property.
+  - intro. apply isaprop_is_iso.
+Qed.
+
+Lemma qq_structure_eq 
+  (x : obj_ext_structure C)
+  (d d' : qq_morphism_structure x)
+  (H : Π (Γ Γ' : C) (f : Γ' --> Γ) (A : (TY x : functor _ _ ) Γ : hSet), 
+           qq d f A = qq d' f A)
+  : d = d'.
+Proof.
+  apply subtypeEquality.
+  { intro. apply (@isaprop_qq_morphism_axioms _ (homset_property _ )). }
+  apply subtypeEquality.
+  { intro. do 4 (apply impred; intro). 
+           apply isofhleveltotal2.
+     + apply homset_property.
+     + intro. apply pullbacks.isaprop_isPullback.
+  } 
+  do 4 (apply funextsec; intro).
+  apply H.
+Defined.
+
+Definition qq_structure_iso_to_id
+(*  (x : obj_ext_structure C) *)
+  (d d' : qq_structure_precategory)
+  : iso d d' → d = d'.
+Proof.
+  intro H. 
+  apply qq_structure_eq.
+  intros Γ Γ' f A.
+  apply (pr1 H).
+Defined.  
+  
+Lemma has_homsets_qq_structure_precategory
+  : has_homsets qq_structure_precategory.
+Proof.
+  intros a b. apply isasetaprop. apply isaprop_qq_structure_mor.
+Qed.
+
+Theorem is_category_qq_morphism
+  : is_category qq_structure_precategory.
+Proof.
+  split.
+  - intros d d'. 
+    use isweqimplimpl. 
+    + apply qq_structure_iso_to_id.
+    + apply isaset_qq_morphism_structure.
+    + apply isaprop_iso_qq_morphism_structure.
+  - apply has_homsets_qq_structure_precategory.
+Qed.
+
+End Is_Category_qq_Strucs.
+
+Lemma has_homsets_compat_structures_precategory  
+  : has_homsets compat_structures_precategory.
+Proof.
+  intros a b.  
+  apply isasetdirprod. 
+  - apply has_homsets_families_precategory.
+  - apply has_homsets_qq_structure_precategory. 
+Qed.
+
+Definition pr1_equiv : adj_equivalence_of_precats compat_structures_pr1_functor.
+Proof.
+  use adj_equivalence_of_precats_ff_split.
+  - apply compat_structures_pr1_fully_faithful.
+  - apply compat_structures_pr1_split_ess_surj.
+Defined.
+
+Definition pr2_equiv : adj_equivalence_of_precats compat_structures_pr2_functor.
+Proof.
+  use adj_equivalence_of_precats_ff_split.
+  - apply compat_structures_pr2_fully_faithful.
+  - apply compat_structures_pr2_split_ess_surj.
+Defined.
+
+Definition pr1_equiv_inv : adj_equivalence_of_precats (right_adjoint pr1_equiv).
+Proof.
+  use adj_equivalence_of_precats_inv.
+  - apply has_homsets_compat_structures_precategory.
+  - apply has_homsets_families_precategory.
+Defined.
+
+Definition equiv_of_structures : adj_equivalence_of_precats _ 
+  := @comp_adj_equivalence_of_precats _ _ _ 
+       has_homsets_families_precategory
+       has_homsets_compat_structures_precategory
+       has_homsets_qq_structure_precategory
+       _ _ pr1_equiv_inv pr2_equiv.
+
+Definition equiv_of_types_of_structures 
+  : families_precategory ≃ qq_structure_precategory.
+Proof.
+  use (weq_on_objects_from_adj_equiv_of_cats _ _
+           is_category_families_structure
+           is_category_qq_morphism
+           _
+           equiv_of_structures).
+Defined.
+
+Lemma foo : equiv_of_types_of_structures ~ weq_CwF_SplitTypeCat X.
+Proof.
+  intro Y.
+  apply idpath.
+Defined.
+
+Print Assumptions foo.
+
 End fix_cat_obj_ext.
+
