@@ -385,6 +385,215 @@ Defined.
 
 End eqv_comp.
 
+Section eqv_inv.
+
+Context {A B : precategory}
+        {hsA : has_homsets A}
+        {hsB : has_homsets B}
+        {F : functor A B}.
+
+Hypothesis adEquivF : adj_equivalence_of_precats F.
+
+Let η : functor_precategory _ _ hsA ⟦ _ , _ ⟧ := unit_from_left_adjoint adEquivF.
+Let ε : functor_precategory _ _ hsB ⟦ _ , _ ⟧ := counit_from_left_adjoint adEquivF.
+Let G := right_adjoint adEquivF.
+
+Let ηiso := unit_iso_from_adj_equivalence_of_precats hsA adEquivF.
+Let εiso := counit_iso_from_adj_equivalence_of_precats hsB adEquivF.
+
+
+Lemma form_adjunction_inv : 
+ form_adjunction G F (inv_from_iso εiso) (inv_from_iso ηiso).
+Proof.
+  split.
+  - intro b.
+    apply (pre_comp_with_iso_is_inj _ _ _ _ (#G ((pr1 εiso : nat_trans _ _ )  b))).
+    + apply (functor_is_iso_is_iso G). 
+      apply is_functor_iso_pointwise_if_iso. apply pr2.
+    + etrans. apply assoc.
+      etrans. apply maponpaths_2. eapply pathsinv0. apply functor_comp.
+      etrans. apply maponpaths_2. apply maponpaths.
+              apply (nat_trans_eq_pointwise (iso_inv_after_iso εiso)).
+      etrans. apply maponpaths_2. apply functor_id.
+      etrans. apply id_left.
+      apply (pre_comp_with_iso_is_inj _ _ _ _ (((pr1 ηiso : nat_trans _ _ ) (G b)))).
+      * apply is_functor_iso_pointwise_if_iso. apply pr2.
+      * etrans. apply (nat_trans_eq_pointwise (iso_inv_after_iso ηiso)).
+        apply pathsinv0. 
+        etrans. apply assoc.
+        etrans. apply id_right.
+        assert (XR := triangle_id_right_ad _ _ _ adEquivF).
+        apply XR.
+  - intro a.
+    apply (pre_comp_with_iso_is_inj _ _ _ _ (((pr1 εiso : nat_trans _ _ ) _))).
+    * apply is_functor_iso_pointwise_if_iso. apply pr2.
+    * etrans. apply assoc.
+      etrans. apply maponpaths_2.
+        apply (nat_trans_eq_pointwise (iso_inv_after_iso εiso)).
+      etrans. apply id_left.
+      apply (pre_comp_with_iso_is_inj _ _ _ _ (#F ((pr1 ηiso : nat_trans _ _ ) a))).
+      { apply (functor_is_iso_is_iso F). 
+        apply is_functor_iso_pointwise_if_iso. apply pr2.
+      }
+      etrans. eapply pathsinv0. apply functor_comp.
+      etrans. apply maponpaths. apply (nat_trans_eq_pointwise (iso_inv_after_iso ηiso )).
+      etrans. apply functor_id.
+      apply pathsinv0.
+      rewrite id_right.
+      apply triangle_id_left_ad.
+Qed.    
+
+
+Definition is_left_adjoint_inv : is_left_adjoint G.
+Proof.
+  mkpair.
+  - apply F.
+  - mkpair.
+    exists (pr1 (iso_inv_from_iso εiso)).
+    exact (pr1 (iso_inv_from_iso ηiso)).
+    apply form_adjunction_inv.
+Defined.
+
+Definition adj_equivalence_of_precats_inv 
+  : adj_equivalence_of_precats G.
+Proof.
+  exists is_left_adjoint_inv.
+  split.
+  - intro b.
+    apply (is_functor_iso_pointwise_if_iso _ _ hsB _ _  
+                        (iso_inv_from_iso εiso) (pr2 (iso_inv_from_iso εiso))). 
+  - intro a.
+    apply (is_functor_iso_pointwise_if_iso _ _ hsA _ _  
+                        (iso_inv_from_iso ηiso) (pr2 (iso_inv_from_iso ηiso))). 
+Defined.
+  
+End eqv_inv.
+
+Section eqv_from_ess_split_and_ff.
+
+Definition split_ess_surj {A B : precategory}
+  (F : functor A B) 
+  := Π b : B, Σ a : A, iso (F a) b.
+
+Context {A B : precategory}
+        {hsA : has_homsets A}
+        {hsB : has_homsets B}
+        {F : functor A B}
+        (Fff : fully_faithful F)
+        (Fses : split_ess_surj F).
+
+Let Fweq {a b} f := (weq_from_fully_faithful Fff a b f).
+Let Finv {a b} g := (invweq (weq_from_fully_faithful Fff a b) g).
+
+Definition G_ff_split_data : functor_data B A.
+Proof.
+  mkpair.
+  - intro b. exact (pr1 (Fses b)).
+  - intros b b' f'; cbn.
+    apply Finv.
+    exact (pr2 (Fses b) ;; f' ;; inv_from_iso (pr2 (Fses b'))).
+Defined.
+
+Definition G_ff_split_ax : is_functor G_ff_split_data.
+Proof.
+  split.
+  - intro b. cbn. rewrite id_right. simpl.
+    apply invmap_eq. cbn.
+    etrans. apply iso_inv_after_iso.
+    apply pathsinv0, functor_id.
+  - intros b b1 b2 f g.
+    apply invmap_eq; cbn.
+    rewrite functor_comp.
+    apply pathsinv0.
+    etrans. apply maponpaths.
+       apply (homotweqinvweq (weqpair _ (Fff _ _ ))).
+    etrans. apply maponpaths_2.
+       apply (homotweqinvweq (weqpair _ (Fff _ _ ))).
+    repeat rewrite <- assoc. apply maponpaths. apply maponpaths.
+    repeat rewrite assoc. apply maponpaths_2.
+    etrans. apply maponpaths_2.  apply iso_after_iso_inv.
+    apply id_left.
+Qed.
+
+Definition G_ff_split : functor _ _ := ( _ ,, G_ff_split_ax).
+
+
+Definition ε_ff_split
+  : nat_trans (functor_composite G_ff_split F) (functor_identity B).
+Proof.
+  mkpair.
+  - intro b.
+    exact (pr2 (Fses b)).
+  - abstract (
+    intros b b' g;
+    etrans; [ apply maponpaths_2 ; use homotweqinvweq |];
+    repeat rewrite <- assoc; 
+    apply maponpaths;
+    rewrite iso_after_iso_inv;
+    apply id_right ).
+Defined.
+
+Definition η_ff_split : nat_trans (functor_identity A) (functor_composite F G_ff_split).
+Proof.
+  mkpair.
+  -  intro a.
+     apply Finv.
+     apply (inv_from_iso (pr2 (Fses _ ))).
+  - abstract (
+    intros a a' f;
+    apply (invmaponpathsweq (weqpair _ (Fff _ _ )));
+    cbn;
+    rewrite functor_comp;
+    rewrite functor_comp;
+    etrans; [ apply maponpaths; use homotweqinvweq |];
+    apply pathsinv0;
+    etrans; [ apply maponpaths; use homotweqinvweq |];
+    etrans; [ apply maponpaths_2; use homotweqinvweq |];
+    repeat rewrite assoc;
+    rewrite iso_after_iso_inv;
+    rewrite id_left ;
+    apply idpath
+    ).
+Defined.
+    
+Lemma form_adjunction_ff_split 
+  : form_adjunction F G_ff_split η_ff_split ε_ff_split.
+  simpl. split.
+  * intro a.
+    cbn. 
+    etrans. apply maponpaths_2. use homotweqinvweq. 
+    apply iso_after_iso_inv.
+  * intro b.
+    cbn. 
+    apply (invmaponpathsweq (weqpair _ (Fff _ _ ))).
+    cbn.
+    rewrite functor_comp.
+    rewrite functor_id.
+    etrans. apply maponpaths. use homotweqinvweq.
+    etrans. apply maponpaths_2. use homotweqinvweq.
+    repeat rewrite assoc.
+    rewrite iso_after_iso_inv.
+    rewrite id_left.
+    apply iso_inv_after_iso.
+Qed.
+
+Definition adj_equivalence_of_precats_ff_split : adj_equivalence_of_precats F.
+Proof.
+  mkpair.
+  - exists G_ff_split.
+    mkpair.
+    + exists η_ff_split. 
+      exact ε_ff_split. 
+    + apply form_adjunction_ff_split. 
+  - split; cbn.
+    + intro a. 
+      use (fully_faithful_reflects_iso_proof _ _ _ Fff _ _ (isopair _ _ )).
+      apply is_iso_inv_from_iso. 
+    + intro b. apply pr2.
+Defined.
+
+End eqv_from_ess_split_and_ff.
+
 (** ** Misc lemmas/definitions on (pre)categories *)
 
 Definition preShv C := functor_precategory C^op HSET has_homsets_HSET.
