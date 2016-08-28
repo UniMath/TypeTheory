@@ -586,5 +586,173 @@ Qed.
 
 End Strucs_Equiv_Precats.
 
+Section Is_Category_Families_Strucs.
+
+(*
+(* TODO: inline *) 
+Lemma isaprop_whatever
+  (x : obj_ext_Precat C)
+  (d d' : (families_disp_precat C) x)
+  : isaprop (iso_disp (identity_iso x) d d').
+Proof.
+  apply isofhleveltotal2.
+  - apply isaprop_families_mor.
+  - intro. apply isaprop_is_iso_disp.
+Qed.
+*)
+
+Definition iso_to_TM_eq
+  (Y Y' : families_precategory)
+  : iso Y Y' 
+  -> TM (Y : families_structure _ X) = TM (Y' : families_structure _ X).
+Proof.
+  intro i.
+  use isotoid.
+  - apply (is_category_functor_category _ _ is_category_HSET).
+  - exists (families_mor_TM (i : _ --> _)).
+    apply is_iso_from_is_z_iso.
+    exists (families_mor_TM (inv_from_iso i)).
+    split.
+    + exact (maponpaths families_mor_TM (iso_inv_after_iso i)).
+    + exact (maponpaths families_mor_TM (iso_after_iso_inv i)).
+Defined.
+
+Lemma prewhisker_iso_to_TM_eq 
+  {Y Y' : families_precategory}
+  (FG : iso Y Y')
+  {P : preShv C} (α : TM (Y : families_structure _ X) --> P)
+: transportf (λ P' : preShv C, P' --> P) (iso_to_TM_eq  _ _ FG) α
+  = families_mor_TM (*pr1 (pr2 FG)*) (inv_from_iso FG) ;; α.
+Proof.
+  etrans. apply transportf_isotoid.
+  apply maponpaths_2.
+  apply inv_from_iso_from_is_z_iso.
+Qed.
+
+Lemma postwhisker_iso_to_TM_eq 
+  {Y Y' : families_precategory}
+  (FG : iso Y Y')
+  {P : preShv C} (α : P --> TM (Y : families_structure _ X))
+: transportf (λ P' : preShv C, P --> P') (iso_to_TM_eq _ _ FG) α
+  = α ;; families_mor_TM (pr1 FG).
+Proof.
+  apply postwhisker_isotoid.
+Qed.
+
+Definition iso_to_id_families_precategory
+  (Y Y' : families_precategory)
+  : iso Y Y' -> Y = Y'.
+Proof.
+  intros i.
+  apply subtypeEquality. { intro. apply isaprop_families_structure_axioms. }
+  apply total2_paths with (iso_to_TM_eq _ _ i).
+  etrans. refine (transportf_dirprod _ _ _ _ _ _).
+  apply dirprodeq; simpl.
+  - etrans. apply prewhisker_iso_to_TM_eq.
+    apply families_mor_pp. 
+  - etrans. refine (transportf_forall _ _ _).
+    apply funextsec; intros Γ.
+    etrans. refine (transportf_forall _ _ _).
+    apply funextsec; intros A.
+    etrans. refine (postwhisker_iso_to_TM_eq i (Q _ _)).
+    apply families_mor_Q.
+Qed.
+
+Theorem is_category_families_structure
+  : is_category families_precategory.
+Proof.
+  split.
+  - apply eq_equiv_from_retraction with iso_to_id_families_precategory.
+    intros. apply eq_iso. apply isaprop_families_mor.
+  - intros a b.
+    apply isaset_total2.
+    apply functor_category_has_homsets.
+    intros. apply isasetaprop, isapropdirprod.
+    apply functor_category_has_homsets.
+    repeat (apply impred_isaprop; intro). apply functor_category_has_homsets.
+Qed.
+
+End Is_Category_Families_Strucs.
+
+Section Is_Category_qq_Strucs.
+
+Lemma isaset_qq_morphism_structure (x : obj_ext_structure C) 
+  : isaset (qq_morphism_structure x).
+Proof.
+  apply (isofhleveltotal2 2).
+  - apply (isofhleveltotal2 2).
+    + do 4 (apply impred; intro).
+      apply homset_property.
+    + intros. do 4 (apply impred; intro).
+      apply (isofhleveltotal2 2).
+      * apply hlevelntosn.
+        apply homset_property.
+      * intro. apply hlevelntosn.
+        apply pullbacks.isaprop_isPullback.
+  - intro d. unfold qq_morphism_axioms.
+    apply isofhleveldirprod.
+    + do 2 (apply impred; intro).
+      apply hlevelntosn.
+      apply homset_property.
+    + do 6 (apply impred; intro).
+      apply hlevelntosn.
+      apply homset_property.
+Qed. 
+
+Lemma isaprop_iso_qq_morphism_structure 
+  (d d' : qq_structure_precategory)
+  : isaprop (iso d d').
+Proof.
+  apply (isofhleveltotal2 1).
+  - do 4 (apply impred; intro).
+    apply homset_property.
+  - intro. apply isaprop_is_iso.
+Qed.
+
+Lemma qq_structure_eq 
+  (x : obj_ext_structure C)
+  (d d' : qq_morphism_structure x)
+  (H : Π (Γ Γ' : C) (f : Γ' --> Γ) (A : (TY x : functor _ _ ) Γ : hSet), 
+           qq d f A = qq d' f A)
+  : d = d'.
+Proof.
+  apply subtypeEquality.
+  { intro. apply (@isaprop_qq_morphism_axioms _ (homset_property _ )). }
+  apply subtypeEquality.
+  { intro. do 4 (apply impred; intro). 
+           apply isofhleveltotal2.
+     + apply homset_property.
+     + intro. apply pullbacks.isaprop_isPullback.
+  } 
+  do 4 (apply funextsec; intro).
+  apply H.
+Defined.
+
+Definition qq_structure_iso_to_id
+(*  (x : obj_ext_structure C) *)
+  (d d' : qq_structure_precategory)
+  : iso d d' → d = d'.
+Proof.
+  intro H. 
+  apply qq_structure_eq.
+  intros Γ Γ' f A.
+  apply (pr1 H).
+Defined.  
+  
+Theorem is_category_qq_morphism
+  : is_category qq_structure_precategory.
+Proof.
+  split.
+  - intros d d'. 
+    use isweqimplimpl. 
+    + apply qq_structure_iso_to_id.
+    + apply isaset_qq_morphism_structure.
+    + apply isaprop_iso_qq_morphism_structure.
+  - intros a b. apply isasetaprop. apply isaprop_qq_structure_mor.
+Qed.
+
+End Is_Category_qq_Strucs.
+
+
 End fix_cat_obj_ext.
 
