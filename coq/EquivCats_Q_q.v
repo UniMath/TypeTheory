@@ -14,13 +14,14 @@ Main definitions:
 
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.more_on_pullbacks.
-
+Require Import UniMath.CategoryTheory.equivalences.
 Require Import Systems.UnicodeNotations.
 Require Import Systems.Auxiliary.
 Require Import Systems.Structures.
 Require UniMath.Ktheory.Precategories.
 Require Import UniMath.Ktheory.StandardCategories.
 Require Import Systems.CwF_SplitTypeCat_Maps.
+Require Import Systems.CwF_SplitTypeCat_Equivalence.
 
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
@@ -658,18 +659,24 @@ Proof.
     apply families_mor_Q.
 Qed.
 
+Lemma has_homsets_families_precategory
+  : has_homsets families_precategory.
+Proof.
+  intros a b.
+  apply isaset_total2.
+  apply functor_category_has_homsets.
+  intros. apply isasetaprop, isapropdirprod.
+  apply functor_category_has_homsets.
+  repeat (apply impred_isaprop; intro). apply functor_category_has_homsets.
+Qed.
+
 Theorem is_category_families_structure
   : is_category families_precategory.
 Proof.
   split.
   - apply eq_equiv_from_retraction with iso_to_id_families_precategory.
     intros. apply eq_iso. apply isaprop_families_mor.
-  - intros a b.
-    apply isaset_total2.
-    apply functor_category_has_homsets.
-    intros. apply isasetaprop, isapropdirprod.
-    apply functor_category_has_homsets.
-    repeat (apply impred_isaprop; intro). apply functor_category_has_homsets.
+  - apply has_homsets_families_precategory. 
 Qed.
 
 End Is_Category_Families_Strucs.
@@ -739,6 +746,12 @@ Proof.
   apply (pr1 H).
 Defined.  
   
+Lemma has_homsets_qq_structure_precategory
+  : has_homsets qq_structure_precategory.
+Proof.
+  intros a b. apply isasetaprop. apply isaprop_qq_structure_mor.
+Qed.
+
 Theorem is_category_qq_morphism
   : is_category qq_structure_precategory.
 Proof.
@@ -748,11 +761,63 @@ Proof.
     + apply qq_structure_iso_to_id.
     + apply isaset_qq_morphism_structure.
     + apply isaprop_iso_qq_morphism_structure.
-  - intros a b. apply isasetaprop. apply isaprop_qq_structure_mor.
+  - apply has_homsets_qq_structure_precategory.
 Qed.
 
 End Is_Category_qq_Strucs.
 
+Lemma has_homsets_compat_structures_precategory  
+  : has_homsets compat_structures_precategory.
+Proof.
+  intros a b.  
+  apply isasetdirprod. 
+  - apply has_homsets_families_precategory.
+  - apply has_homsets_qq_structure_precategory. 
+Qed.
+
+Definition pr1_equiv : adj_equivalence_of_precats compat_structures_pr1_functor.
+Proof.
+  use adj_equivalence_of_precats_ff_split.
+  - apply compat_structures_pr1_fully_faithful.
+  - apply compat_structures_pr1_split_ess_surj.
+Defined.
+
+Definition pr2_equiv : adj_equivalence_of_precats compat_structures_pr2_functor.
+Proof.
+  use adj_equivalence_of_precats_ff_split.
+  - apply compat_structures_pr2_fully_faithful.
+  - apply compat_structures_pr2_split_ess_surj.
+Defined.
+
+Definition pr1_equiv_inv : adj_equivalence_of_precats (right_adjoint pr1_equiv).
+Proof.
+  use adj_equivalence_of_precats_inv.
+  - apply has_homsets_compat_structures_precategory.
+  - apply has_homsets_families_precategory.
+Defined.
+
+Definition equiv_of_structures : adj_equivalence_of_precats _ 
+  := @comp_adj_equivalence_of_precats _ _ _ 
+       has_homsets_families_precategory
+       has_homsets_compat_structures_precategory
+       has_homsets_qq_structure_precategory
+       _ _ pr1_equiv_inv pr2_equiv.
+
+Definition equiv_of_types_of_structures 
+  : families_precategory ≃ qq_structure_precategory.
+Proof.
+  use (weq_on_objects_from_adj_equiv_of_cats _ _
+           is_category_families_structure
+           is_category_qq_morphism
+           _
+           equiv_of_structures).
+Defined.
+
+Lemma foo : equiv_of_types_of_structures ~ weq_CwF_SplitTypeCat X.
+Proof.
+  intro Y.
+  apply idpath.
+Defined.
 
 End fix_cat_obj_ext.
 
