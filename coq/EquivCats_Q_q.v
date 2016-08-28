@@ -100,16 +100,8 @@ Proof.
     etrans. refine (pr2 (term_to_section t')). apply pathsinv0.
     etrans. Focus 2. refine (pr2 (term_to_section t)).
     etrans. apply @pathsinv0, assoc.
-(*
-    etrans. apply @pathsinv0, assoc.
-*)
     apply maponpaths.
     apply comp_ext_compare_π.
-(*
-    etrans. Focus 2. apply @obj_ext_mor_ax.
-    apply maponpaths. 
-    apply comp_ext_compare_π.
-*)
   - etrans. apply term_to_section_recover. apply pathsinv0.
     etrans. apply Q_comp_ext_compare.
     etrans. apply @pathsinv0.
@@ -139,18 +131,8 @@ Proof.
   apply @pathsinv0. apply families_mor_recover_term.
 Qed.
 
-(*
-Lemma families_mor_transportf {X X'} {Y Y'}
-    {F F' : X --> X'} (eF : F = F') (FF : families_mor Y Y' F)
-    {Γ:C} (t : Tm Y Γ)
-  : (families_mor_TM (transportf _ eF FF) : nat_trans _ _) Γ t
-    = (families_mor_TM FF : nat_trans _ _) Γ t.
-Proof.
-  destruct eF. apply idpath.
-Qed.
- *)
 
-Definition families_ob_mor : precategory_ob_mor. (* disp_precat_ob_mor (obj_ext_Precat C). *)
+Definition families_ob_mor : precategory_ob_mor. 
 Proof.
   exists (families_structure hsC X).
   exact @families_mor.
@@ -227,20 +209,10 @@ Qed.
 Definition qq_structure_id_comp : precategory_id_comp qq_structure_ob_mor.
 Proof.
   apply tpair.
-  - intros Z; cbn.
+  - intros Z;
     intros Γ Γ' f A. apply idpath.
-(*
-    etrans. apply id_right.
-    apply pathsinv0.
-    etrans. apply @pathsinv0, assoc. 
-    etrans. apply id_left.
-    etrans.
-      apply cancel_postcomposition.
-      apply comp_ext_compare_id_general.
-    apply id_left.
-*)
-  - intros Z0 Z1 Z2.
-    intros FF GG Γ Γ' f A. cbn.
+  - intros Z0 Z1 Z2;
+    intros FF GG Γ Γ' f A.
     etrans. apply FF. apply GG.
 Qed.
 
@@ -270,8 +242,7 @@ Proof.
   use tpair.
   - exact (Σ YZ : (families_precategory × qq_structure_precategory), 
                   iscompatible_fam_qq (pr1 YZ) (pr2 YZ)).
-  - 
-    intros YZ YZ'.
+  - intros YZ YZ'.
     exact ((pr1 (pr1 YZ)) --> (pr1 (pr1 YZ')) × (pr2 (pr1 YZ)) --> pr2 (pr1 YZ')).
 Defined.
 
@@ -408,16 +379,6 @@ Proof.
       (nat_trans_eq_pointwise (families_mor_Q FY _) _) _).
 Time Qed.
 
-(*
-    etrans. 
-      exact (!toforallpaths _ _ _ 
-        (nat_trans_eq_pointwise (W' _ _ _ _) _) _ ).
-    etrans. apply Q_comp_ext_compare.
-    etrans. apply maponpaths, @pathsinv0, id_left.
-    exact (!toforallpaths _ _ _
-      (nat_trans_eq_pointwise (families_mor_Q FY _) _) _).
-Time Qed.
-*)
 
 Lemma qq_from_fam_mor_unique 
   {Y : families_precategory} {Y'} (FY : Y --> Y')
@@ -549,8 +510,6 @@ Proof.
     simpl. unfold yoneda_morphisms_data; cbn.
 (*
     etrans. refine (toforallpaths _ _ _(!nat_trans_ax (obj_ext_mor_TY _) _ _ _) _).
-*)
-(*
     cbn; apply maponpaths.
 *)
     etrans.
@@ -566,10 +525,7 @@ Proof.
   - intros Γ'. unfold yoneda_morphisms_data, yoneda_objects_ob; cbn.
     apply funextsec; intros f.
 
-(*  checks until here   *)
-
-
-unfold fam_from_qq_mor_TM_data.
+    unfold fam_from_qq_mor_TM_data.
 
     assert (XR:= @Q_pp _ _ _ Y _ A).
     assert (XR' := nat_trans_eq_pointwise XR Γ').
