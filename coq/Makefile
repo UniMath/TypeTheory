@@ -42,6 +42,7 @@ MODULES-CORE := \
 	OtherDefs/TypeCat_to_DM \
 	OtherDefs/CwF_Pitts_to_TypeCat_to_DM \
 	OtherDefs/CwF_1 \
+	EquivCats_Q_q
 
 # Remaining modules, included only in “make all”.
 # Useful for leaves that are slow to recompile.

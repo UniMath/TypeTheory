@@ -692,3 +692,5 @@ Abort.
 Qed.
 *)
 End Strucs_Equiv_Precats.
+
+End fix_cat_obj_ext.
