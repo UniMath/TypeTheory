@@ -819,5 +819,7 @@ Proof.
   apply idpath.
 Defined.
 
+Print Assumptions foo.
+
 End fix_cat_obj_ext.
 
