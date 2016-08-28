@@ -323,11 +323,8 @@ Lemma qq_from_fam_mor
   {Z : qq_structure_precategory} {Z'}
   (W : iscompatible_fam_qq Y Z)
   (W' : iscompatible_fam_qq Y' Z')
-  : ( Z --> Z'). (* , W -->[(F,,(FY,,FZ))] W'. *)
+  : Z --> Z'. 
 Proof.
-(*
-  refine (_,, tt).
-*)
   intros Γ' Γ f A.
   cbn in W, W', FY. unfold iscompatible_fam_qq in *. 
   unfold families_mor in FY.
@@ -336,20 +333,11 @@ Proof.
     etrans. apply @pathsinv0, qq_π.
       (* TODO: name of [qq_π] misleading, suggests opposite direction. *)
     apply pathsinv0.
-(*
-    etrans. apply @pathsinv0, assoc.
-*)
-    etrans. apply (* maponpaths, *) @pathsinv0, qq_π.
+    etrans. apply @pathsinv0, qq_π.
     apply idpath.
-(*
-    etrans. apply assoc. apply cancel_postcomposition.
-    etrans. apply @pathsinv0, assoc.
-    etrans. apply maponpaths. apply comp_ext_compare_π.
-    apply obj_ext_mor_ax.
-*)
   (* Maybe worth abstracting the following pointwise application of [W],
    [families_mor_Q], etc. as lemmas? *)
-  -  etrans.
+  - etrans.
       exact (!toforallpaths _ _ _
         (nat_trans_eq_pointwise (families_mor_Q FY _) _) _).
     etrans. apply maponpaths, @pathsinv0, id_left.
@@ -364,14 +352,7 @@ Proof.
     specialize (XR' (identity _ )).
     etrans. apply maponpaths. eapply pathsinv0. apply id_left.
     etrans. apply (!XR').
-(*
-    etrans.
-       apply (
-      exact (!toforallpaths _ _ _
-        (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
-*)
     clear XR' XR.
-(*    etrans. apply Q_comp_ext_compare. *)
     etrans. apply maponpaths, @pathsinv0, id_left.
     rewrite id_left.
     exact (!toforallpaths _ _ _
@@ -444,7 +425,6 @@ Proof.
     simple refine (Q_comp_ext_compare _ _); simpl.
     Focus 2. 
       exact (toforallpaths _ _ _ (nat_trans_ax (pp Y) _ _ _) _).
-(*    exact (toforallpaths _ _ _ (nat_trans_ax (obj_ext_mor_TY F) _ _ _) _). *)
   etrans.
     exact (toforallpaths _ _ _ (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
   apply (maponpaths ((Q _ _ : nat_trans _ _ ) Γ)).
@@ -452,9 +432,6 @@ Proof.
   (* Part 2: naturality of the transfer along [F]. *)
 
   etrans. apply @pathsinv0, assoc.
-(*  etrans. apply @pathsinv0, assoc. *)
-
-
   etrans. apply maponpaths. apply maponpaths. eapply pathsinv0. apply FZ.
   etrans. apply assoc.
   (* Part 3: naturality in [Γ] of the term-to-section construction from [Tm Y]. *)
@@ -507,17 +484,9 @@ Proof.
   - simpl. intros Γ; apply funextsec; intros t.
     etrans. refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (Q_pp _ _) _) _).
     simpl. unfold yoneda_morphisms_data; cbn.
-(*
-    etrans. refine (toforallpaths _ _ _(!nat_trans_ax (obj_ext_mor_TY _) _ _ _) _).
-    cbn; apply maponpaths.
-*)
     etrans.
       refine (toforallpaths _ _ _ _ ((pp Y : nat_trans _ _) Γ t)).
       apply maponpaths.
-(*
-      etrans. apply @pathsinv0, assoc.
-      etrans. apply maponpaths, obj_ext_mor_ax.
-*)
       exact (pr2 (term_to_section _)).
     exact (toforallpaths _ _ _ (functor_id (TY _) _) _).
   - apply has_homsets_HSET.
@@ -530,53 +499,22 @@ Proof.
     assert (XR' := nat_trans_eq_pointwise XR Γ').
     assert (XR'':= toforallpaths _ _ _ XR'). unfold homot in XR''.
     specialize (XR'' f).
-(*
-    etrans.
-      refine (maponpaths (fun k => (Q Y' k : nat_trans _ _ ) Γ' 
-             (pr1 (term_to_section ((Q Y A : nat_trans _ _ ) Γ' f))) _ )).
-    rewrite <- XR''.
-    etrans. 
-    cbn in XR.
-*)
     etrans.
       (* TODO: consider changing direction of [Q_comp_ext_compare]?*)
-      apply @pathsinv0. 
-        
+      apply @pathsinv0.         
          simple refine (Q_comp_ext_compare _ _); simpl.
-         exact (# (TY _ : functor _ _ ) (f ;; π _ ) A).
-(*        exact ((obj_ext_mor_TY F : nat_trans _ _) _ 
-                 (# (TY _ : functor _ _) (f ;; π _) A)). 
-       *)
-      (* apply maponpaths. *)
-      
+         exact (# (TY _ : functor _ _ ) (f ;; π _ ) A).      
       refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (Q_pp _ _) _) _).
     cbn.
-
     Arguments Δ [_ _ _ _ _ _]. idtac.
-(*
-    etrans. apply maponpaths.
-      etrans. apply @pathsinv0, assoc.
-      etrans. apply maponpaths, @pathsinv0, Δ_φ.
-      apply assoc.
-*)
-    etrans. 
-      apply @pathsinv0. simple refine (Q_comp_ext_compare _ _); simpl.
-        exact (# (TY _ : functor _ _) (f ;; π _) A).
-(*                 ((obj_ext_mor_TY F : nat_trans _ _) _ A)). *)
-        apply idpath.
-(*      exact (toforallpaths _ _ _ (nat_trans_ax (obj_ext_mor_TY F) _ _ _) _). *)
-    cbn.
     etrans. exact (toforallpaths _ _ _ (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
     simpl; unfold yoneda_morphisms_data; cbn.  apply maponpaths.
     etrans. apply @pathsinv0, assoc.
-    etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths.
-      etrans. apply assoc.
       apply @pathsinv0.  apply maponpaths. apply FZ.
-      assert (XRT := @map_from_term_recover _ _ _ _ W).
-      rewrite id_right.
-      rewrite assoc.
-      apply XRT.
+    assert (XRT := @map_from_term_recover _ _ _ _ W).
+    rewrite assoc.
+    apply XRT.
 Time Qed.
 
 Lemma fam_from_qq_mor_unique 
@@ -596,19 +534,13 @@ End Unique_Fam_From_QQ.
 TODO: scrap this section, and recover it from the displayed version. *) 
 Section Strucs_Equiv_Precats.
 
-(* TODO: could strengthen to “explicitly essentially surjective” *)
-Lemma compat_structures_pr1_ess_surj
-  : essentially_surjective (compat_structures_pr1_functor).
+Lemma compat_structures_pr1_split_ess_surj
+  : split_ess_surj (compat_structures_pr1_functor).
 Proof.
-  unfold essentially_surjective.
-(*
-  intros XY; destruct XY as [X Y]; apply hinhpr.
-*)
   intro Y.
-  apply hinhpr.
   exists (((Y,, qq_from_fam Y)),,iscompatible_qq_from_fam Y).
   apply identity_iso.
-Qed.
+Defined.
 
 Lemma compat_structures_pr1_fully_faithful
   : fully_faithful (compat_structures_pr1_functor).
@@ -626,15 +558,13 @@ Proof.
   - intros y. cbn. apply idpath.
 Qed.
 
-(* TODO: could strengthen to “explicitly essentially surjective” *)
-Lemma compat_structures_pr2_ess_surj
-  : essentially_surjective (compat_structures_pr2_functor).
+Lemma compat_structures_pr2_split_ess_surj
+  : split_ess_surj (compat_structures_pr2_functor).
 Proof.
-  unfold essentially_surjective.
-  intros Z; apply hinhpr.
+  intros Z.
   exists (((fam_from_qq Z,, Z)),,iscompatible_fam_from_qq Z).
   apply identity_iso.
-Qed.
+Defined.
 
 Lemma compat_structures_pr2_fully_faithful
   : fully_faithful (compat_structures_pr2_functor).
@@ -657,3 +587,4 @@ Qed.
 End Strucs_Equiv_Precats.
 
 End fix_cat_obj_ext.
+
