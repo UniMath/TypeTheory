@@ -515,11 +515,11 @@ Proof.
     apply id_left.
 Qed.
 
-Definition G : functor _ _ := ( _ ,, G_ff_split_ax).
+Definition G_ff_split : functor _ _ := ( _ ,, G_ff_split_ax).
 
 
-Definition ε
-  : nat_trans (functor_composite G F) (functor_identity B).
+Definition ε_ff_split
+  : nat_trans (functor_composite G_ff_split F) (functor_identity B).
 Proof.
   mkpair.
   - intro b.
@@ -533,7 +533,7 @@ Proof.
     apply id_right ).
 Defined.
 
-Definition η : nat_trans (functor_identity A) (functor_composite F G).
+Definition η_ff_split : nat_trans (functor_identity A) (functor_composite F G_ff_split).
 Proof.
   mkpair.
   -  intro a.
@@ -556,34 +556,38 @@ Proof.
     ).
 Defined.
     
-Definition foobar : adj_equivalence_of_precats F.
+Lemma form_adjunction_ff_split 
+  : form_adjunction F G_ff_split η_ff_split ε_ff_split.
+  simpl. split.
+  * intro a.
+    cbn. 
+    etrans. apply maponpaths_2. use homotweqinvweq. 
+    apply iso_after_iso_inv.
+  * intro b.
+    cbn. 
+    apply (invmaponpathsweq (weqpair _ (Fff _ _ ))).
+    cbn.
+    rewrite functor_comp.
+    rewrite functor_id.
+    etrans. apply maponpaths. use homotweqinvweq.
+    etrans. apply maponpaths_2. use homotweqinvweq.
+    repeat rewrite assoc.
+    rewrite iso_after_iso_inv.
+    rewrite id_left.
+    apply iso_inv_after_iso.
+Qed.
+
+Definition adj_equivalence_of_precats_ff_split : adj_equivalence_of_precats F.
 Proof.
   mkpair.
-  - exists G.
+  - exists G_ff_split.
     mkpair.
-    + exists η. 
-      exact ε. 
-    + simpl. split.
-      * intro a.
-        cbn. 
-        etrans. apply maponpaths_2. use homotweqinvweq. 
-        apply iso_after_iso_inv.
-      * intro b.
-        cbn. 
-        apply (invmaponpathsweq (weqpair _ (Fff _ _ ))).
-        cbn.
-        rewrite functor_comp.
-        rewrite functor_id.
-        etrans. apply maponpaths. use homotweqinvweq.
-        etrans. apply maponpaths_2. use homotweqinvweq.
-        repeat rewrite assoc.
-        rewrite iso_after_iso_inv.
-        rewrite id_left.
-        apply iso_inv_after_iso.
+    + exists η_ff_split. 
+      exact ε_ff_split. 
+    + apply form_adjunction_ff_split. 
   - split; cbn.
     + intro a. 
       use (fully_faithful_reflects_iso_proof _ _ _ Fff _ _ (isopair _ _ )).
-      Search (is_iso (inv_from_iso _ )).
       apply is_iso_inv_from_iso. 
     + intro b. apply pr2.
 Defined.
