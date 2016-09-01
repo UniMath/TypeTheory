@@ -51,6 +51,10 @@ Section Families_Structure_Precat.
 
 Local Notation "'Yo'" := (yoneda _ hsC).
 
+(* TODO: this should be called differently.
+         families is the name of Sigma obj-ext plus this
+*)
+
 Definition families_mor 
     (Y Y' : families_structure hsC X) 
   : UU
@@ -72,7 +76,7 @@ Definition families_mor_Q {Y} {Y'} (FF : families_mor Y Y')
   : _ = _
 := pr2 (pr2 FF) Γ A.
 
-(* TODO: inline in [isaprop_families_mor]? *)
+
 Lemma families_mor_eq {Y} {Y'} (FF FF' : families_mor Y Y')
     (e_TM : Π Γ (t : Tm Y Γ),
       (families_mor_TM FF : nat_trans _ _) _ t
@@ -589,18 +593,6 @@ End Strucs_Equiv_Precats.
 
 Section Is_Category_Families_Strucs.
 
-(*
-(* TODO: inline *) 
-Lemma isaprop_whatever
-  (x : obj_ext_Precat C)
-  (d d' : (families_disp_precat C) x)
-  : isaprop (iso_disp (identity_iso x) d d').
-Proof.
-  apply isofhleveltotal2.
-  - apply isaprop_families_mor.
-  - intro. apply isaprop_is_iso_disp.
-Qed.
-*)
 
 Definition iso_to_TM_eq
   (Y Y' : families_precategory)
@@ -736,7 +728,6 @@ Proof.
 Defined.
 
 Definition qq_structure_iso_to_id
-(*  (x : obj_ext_structure C) *)
   (d d' : qq_structure_precategory)
   : iso d d' → d = d'.
 Proof.
@@ -813,13 +804,15 @@ Proof.
            equiv_of_structures).
 Defined.
 
-Lemma foo : equiv_of_types_of_structures ~ weq_CwF_SplitTypeCat X.
+
+Lemma equiv_of_types_equal_direct_constr 
+  : equiv_of_types_of_structures ~ weq_CwF_SplitTypeCat X.
 Proof.
   intro Y.
   apply idpath.
 Defined.
 
-Print Assumptions foo.
+Print Assumptions equiv_of_types_equal_direct_constr.
 
 End fix_cat_obj_ext.
 
