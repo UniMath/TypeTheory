@@ -140,7 +140,7 @@ Qed.
 Lemma foo (ac bd : ∫) (H : Elem_cov_iso_type ac bd) :
   # F (inv_from_iso (pr1 H)) (pr2 bd) = pr2 ac.
 Proof.
-  destruct H.
+  destruct H as [t p].
   destruct ac as [a c].
   destruct bd as [b d]; simpl in *.
   set (T:= (@functor_on_inv_from_iso _ HSET F _ _ t)).

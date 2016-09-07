@@ -84,9 +84,8 @@ Proof.
       = pr1).
   { apply funextfun.
     intro x.
-    destruct x. simpl.
-    destruct t.
-    apply idpath.
+    destruct x as [t p]. simpl.
+    destruct t; apply idpath.
   }
   rewrite X.
   apply isinclpr1.

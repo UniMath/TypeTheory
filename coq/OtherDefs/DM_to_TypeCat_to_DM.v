@@ -39,7 +39,7 @@ Proof.
     apply (X X'). unfold X'; clear X' X.
     intro T. simpl in *.
     unfold iso_to_dpr in T. simpl.
-    destruct T.
+    destruct T as [t p].
     destruct t.
     simpl in *.
 Abort.
