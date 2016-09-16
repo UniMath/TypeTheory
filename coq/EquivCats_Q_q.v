@@ -13,7 +13,6 @@ Main definitions:
 *)
 
 Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.limits.more_on_pullbacks.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import Systems.UnicodeNotations.
 Require Import Systems.Auxiliary.
