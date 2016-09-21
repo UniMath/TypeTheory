@@ -9,7 +9,6 @@ Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
 Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.limits.more_on_pullbacks.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
