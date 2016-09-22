@@ -15,6 +15,8 @@ Require Export UniMath.CategoryTheory.UnicodeNotations.
 Require Export UniMath.CategoryTheory.category_hset.
 Require Export UniMath.CategoryTheory.opp_precat.
 
+Set Automatic Introduction.
+
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 

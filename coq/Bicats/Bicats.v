@@ -19,6 +19,7 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 
 Require Import Systems.UnicodeNotations.
+Require Import Systems.Auxiliary.
 Require Import Systems.Displayed_Cats.Auxiliary.
 
 Local Set Automatic Introduction.

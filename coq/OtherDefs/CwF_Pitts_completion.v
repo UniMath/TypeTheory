@@ -18,6 +18,8 @@ Require Export UniMath.CategoryTheory.rezk_completion.
 Require Export Systems.OtherDefs.CwF_Pitts.
 Require Export Systems.Categories.category_of_elements.
 
+Set Automatic Introduction.
+
 Implicit Arguments iso.
 
 (** How to get a functor from RC(C) to D when having one from C to D **)

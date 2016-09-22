@@ -17,7 +17,7 @@ Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
 Require Export Systems.Structures.
 Require Import Systems.CwF_SplitTypeCat_Maps.
-Require Import Systems.Displayed_Cats.Auxiliary.
+(* Require Import Systems.Displayed_Cats.Auxiliary. *)
 
 (* TODO: much cleanup needed.  In particular: update terminolog conen, e.g. [qq_] etc.! *)
 Local Set Automatic Introduction.

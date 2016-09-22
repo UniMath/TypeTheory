@@ -26,8 +26,6 @@ Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
 Notation Precategory := Precategories.Precategory.
-Coercion Precategories.Precategory_to_precategory
-  : Precategories.Precategory >-> precategory.
 Notation homset_property := Precategories.homset_property.
 Notation functorPrecategory := Precategories.functorPrecategory.
 

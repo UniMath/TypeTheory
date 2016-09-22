@@ -23,8 +23,22 @@ Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.equivalences.
-
+Require UniMath.Ktheory.Precategories.
 Require Import Systems.UnicodeNotations.
+
+Set Automatic Introduction.
+
+(** Unfortunately we can’t [Import Precategories], due to notation clashes. So instead we make provide alias notations here: *)
+Notation Precategory := Precategories.Precategory. 
+Coercion Precategories.Precategory_to_precategory
+  : Precategories.Precategory >-> precategory.
+Notation homset_property := Precategories.homset_property.
+Notation functorPrecategory := Precategories.functorPrecategory.
+
+Notation "( x , y , .. , z )" := (dirprodpair .. (dirprodpair x y) .. z) : core_scope.
+(** Replaces builtin notation for [pair], since we use [dirprod, dirprodpair] instead of [prod, pair]. *)
+
+
 
 (** Redeclare this notation, along with a new scope. *)
 Notation "ff ;; gg" := (compose ff gg)
@@ -1047,7 +1061,7 @@ Section Pullback_Unique_Up_To_Iso.
     - exact (f ;; h).
     - exact g.
     - eapply pathscomp0. Focus 2. apply H.
-      eapply pathscomp0. apply (!assoc _ _ _ _ _ _ _ _ ).
+      eapply pathscomp0. apply (!assoc _ _ _ ).
       apply maponpaths. apply T.
   Defined.
 
@@ -1057,7 +1071,7 @@ Section Pullback_Unique_Up_To_Iso.
     - exact (f';; inv_from_iso h).
     - exact g'.
     - eapply pathscomp0; [| apply H'].
-      eapply pathscomp0; [ apply (!assoc _ _ _ _ _ _ _ _) |].
+      eapply pathscomp0; [ apply (!assoc _ _ _ ) |].
       apply maponpaths. apply iso_inv_on_right.
       apply (!T).
   Defined.

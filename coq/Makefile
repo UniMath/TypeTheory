@@ -10,6 +10,8 @@
 
 # Modules to be compiled by default, in plain “make”.
 # Includes everything that compiles in reasonable time, and all dependencies.
+
+
 MODULES-CORE := \
 	Auxiliary \
 	UnicodeNotations \
@@ -44,6 +46,14 @@ MODULES-CORE := \
 	OtherDefs/CwF_1 \
 	EquivCats_Q_q
 
+MODULES-UNIVALENT := \
+	Auxiliary \
+	UnicodeNotations \
+	Structures \
+	CwF_SplitTypeCat_Maps \
+	CwF_SplitTypeCat_Equivalence \
+	EquivCats_Q_q
+
 # Remaining modules, included only in “make all”.
 # Useful for leaves that are slow to recompile.
 MODULES-EXTRA := \
@@ -61,6 +71,7 @@ MODULES-ROTTEN := \
 
 VS-CORE  := $(MODULES-CORE:%=%.v)
 VS-EXTRA := $(MODULES-EXTRA:%=%.v)
+VS-UNIVALENT := $(MODULES-UNIVALENT:%=%.v)
 
 COQBIN ?= 
 COQDOC ?= $(COQBIN)coqdoc
@@ -76,11 +87,20 @@ core: Makefile.coq
 all: Makefile_all.coq
 	$(MAKE) -f Makefile_all.coq 
 
+univalent: Makefile_univalent.coq
+	$(MAKE) -f Makefile_univalent.coq
+
 Makefile.coq: Makefile $(VS-CORE)
 	$(COQMAKEFILE) -R . "Systems" $(VS-CORE) -arg $(COQOPTIONS) -o Makefile.coq
 
 Makefile_all.coq: Makefile $(VS-CORE) $(VS-EXTRA)
 	$(COQMAKEFILE) -R . "Systems" $(VS-CORE) $(VS-EXTRA) -arg $(COQOPTIONS) -o Makefile_all.coq
+
+Makefile_univalent.coq: Makefile $(VS-UNIVALENT)
+	$(COQMAKEFILE) -R . "Systems" $(VS-UNIVALENT) -arg $(COQOPTIONS) -o Makefile_univalent.coq
+
+coqwc-univ:
+	coqwc $(VS-UNIVALENT)
 
 install: all
 	$(MAKE) -f Makefile_all.coq install

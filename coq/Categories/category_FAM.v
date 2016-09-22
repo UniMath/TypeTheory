@@ -21,6 +21,8 @@ Require Export UniMath.CategoryTheory.rezk_completion.
 Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
 
+Set Automatic Introduction.
+
 Section Auxiliary.
 
 Lemma transportf_eqweqmap (A B : UU) (p : A = B) C (A' : A → C) (b : B) :

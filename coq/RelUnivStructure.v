@@ -25,6 +25,8 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Export UniMath.CategoryTheory.UnicodeNotations.
 Require Export UniMath.CategoryTheory.functor_categories.
 
+Set Automatic Introduction.
+
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 Section fix_some_stuff.
