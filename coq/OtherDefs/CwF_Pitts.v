@@ -19,6 +19,8 @@ Require Export UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Export UniMath.CategoryTheory.UnicodeNotations.
 
+Set Automatic Introduction.
+
 (** * A "preview" of the definition *)
 
 Module Record_Preview.
@@ -413,7 +415,7 @@ Lemma map_to_comp_as_pair_precwf {Γ} {A : C⟨Γ⟩} {Γ'} (f : Γ' --> Γ∙A)
 Proof.
   sym.
   etrans.
-  apply (!id_right _ _ _ _ ).
+  apply (!id_right _ ).
   etrans.
   refine (maponpaths (fun g => f ;; g) (!cwf_law_4 _ _ _)).
   apply cwf_law_3.

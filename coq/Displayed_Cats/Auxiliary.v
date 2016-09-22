@@ -32,8 +32,6 @@ Local Set Automatic Introduction.
 
 (** Unfortunately we can’t [Import Precategories], due to notation clashes. So instead we make provide alias notations here: *)
 Notation Precategory := Precategories.Precategory. 
-Coercion Precategories.Precategory_to_precategory
-  : Precategories.Precategory >-> precategory.
 Notation homset_property := Precategories.homset_property.
 Notation functorPrecategory := Precategories.functorPrecategory.
 

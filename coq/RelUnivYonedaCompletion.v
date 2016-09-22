@@ -19,6 +19,8 @@ Require Import UniMath.CategoryTheory.rezk_completion.
 Require Import Systems.RelUnivStructure.
 Require Import Systems.Structures.
 
+Set Automatic Introduction.
+
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 Section fix_category.

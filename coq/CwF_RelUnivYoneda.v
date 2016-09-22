@@ -23,6 +23,8 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import Systems.RelUnivStructure.
 Require Import Systems.Structures.
 
+Set Automatic Introduction.
+
 Undelimit Scope transport.
 
 Section fix_category.

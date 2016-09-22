@@ -22,6 +22,8 @@ Require Export UniMath.CategoryTheory.opp_precat.
 Require Export UniMath.Foundations.Basics.Sets.
 Require Export UniMath.CategoryTheory.limits.pullbacks.
 
+Set Automatic Introduction.
+
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 (** * A "preview" of the definition *)
@@ -424,7 +426,7 @@ Lemma map_to_comp_as_pair_precwf {Γ} {A : C⟨Γ⟩} {Γ'} (f : Γ' --> Γ∙A)
 Proof.
   sym.
   etrans.
-  apply (!id_right _ _ _ _ ).
+  apply (!id_right _ ).
   etrans.
   refine (maponpaths (fun g => f ;; g) (!cwf_law_4 _ _ _)).
   apply cwf_law_3.

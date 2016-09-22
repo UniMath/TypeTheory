@@ -21,6 +21,8 @@ Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 
 Require Import Systems.UnicodeNotations.
 
+Set Automatic Introduction.
+
 (** * A "preview" of the definition *)
 
 Module Record_Preview.

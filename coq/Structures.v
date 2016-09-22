@@ -21,6 +21,8 @@ Require Export UniMath.CategoryTheory.yoneda.
 Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
 
+Set Automatic Introduction.
+
 Section Fix_Base_Category.
 
 Context {C : precategory} {hsC : has_homsets C}.

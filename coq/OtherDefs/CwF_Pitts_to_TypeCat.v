@@ -18,6 +18,7 @@ Require Import Systems.UnicodeNotations.
 Require Import Systems.OtherDefs.TypeCat.
 Require Import Systems.OtherDefs.CwF_Pitts.
 
+Set Automatic Introduction.
 
 (* Locally override the notation [ γ ♯ a ], at a higher level,
   to get more informative bracketing when pairing meets composition. *) 
@@ -109,7 +110,7 @@ Proof.
       symmetry. apply pairing_transport.
       Focus 2. apply cwf_law_4.
     eapply pathscomp0.
-    apply (pairing_mapeq _ _ (id_right _ _ _ _)).
+    apply (pairing_mapeq _ _ (id_right _ )).
     apply maponpaths. simpl.
     eapply pathscomp0. apply transport_f_f.
     unshelve refine (_ @ _).
