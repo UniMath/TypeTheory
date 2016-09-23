@@ -83,6 +83,7 @@ VS-CORE  := $(MODULES-CORE:%=%.v)
 VS-EXTRA := $(MODULES-EXTRA:%=%.v)
 VS-UNIVALENT := $(MODULES-UNIVALENT:%=%.v)
 VS-RELUNIV := $(MODULES-RELUNIV:%=%.v)
+VS-ALV1 := $(VS-UNIVALENT) $(VS-RELUNIV)
 
 COQBIN ?= 
 COQDOC ?= $(COQBIN)coqdoc
@@ -104,6 +105,9 @@ univalent: Makefile_univalent.coq
 alv1: $(VS-RELUNIV) $(VS-UNIVALENT)
 	$(COQMAKEFILE) -R . "Systems" $(VS-RELUNIV) $(VS-UNIVALENT) Test.v -arg $(COQOPTIONS) -o Makefile_alv1.coq
 	$(MAKE) -f Makefile_alv1.coq
+
+coqwc-alv1:  ## counts Auxiliary twice, hence delivers wrong result
+	coqwc $(VS-ALV1) 
 
 Makefile.coq: Makefile $(VS-CORE)
 	$(COQMAKEFILE) -R . "Systems" $(VS-CORE) -arg $(COQOPTIONS) -o Makefile.coq
