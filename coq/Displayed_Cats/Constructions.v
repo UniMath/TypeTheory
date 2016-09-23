@@ -434,7 +434,7 @@ Variables C' C : Precategory.
 Variable D' : disp_precat C'.
 Variable D : disp_precat C.
 
-Let FunctorsC'C := Precategories.functorPrecategory C' C.
+Let FunctorsC'C := functorPrecategory C' C.
 
 Lemma foo
   (F' F : functor C' C)

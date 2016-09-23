@@ -7,7 +7,7 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-Require UniMath.Ktheory.Utilities.
+(* Require UniMath.Ktheory.Utilities. *)
 
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
