@@ -18,7 +18,6 @@ Require Import Systems.UnicodeNotations.
 Require Import Systems.Auxiliary.
 Require Import Systems.Structures.
 Require UniMath.Ktheory.Precategories.
-Require Import UniMath.Ktheory.StandardCategories.
 Require Import Systems.CwF_SplitTypeCat_Maps.
 Require Import Systems.CwF_SplitTypeCat_Equivalence.
 
