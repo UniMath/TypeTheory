@@ -17,16 +17,12 @@ Require Import UniMath.CategoryTheory.equivalences.
 Require Import Systems.UnicodeNotations.
 Require Import Systems.Auxiliary.
 Require Import Systems.Structures.
-Require UniMath.Ktheory.Precategories.
 Require Import Systems.CwF_SplitTypeCat_Maps.
 Require Import Systems.CwF_SplitTypeCat_Equivalence.
 
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
-Notation Precategory := Precategories.Precategory.
-Notation homset_property := Precategories.homset_property.
-Notation functorPrecategory := Precategories.functorPrecategory.
 
 (** Some local notations, *)
 
@@ -37,7 +33,7 @@ Local Notation Δ := comp_ext_compare.
 
 Section fix_cat_obj_ext.
 
-Variable C : Precategories.Precategory.
+Variable C : Precategory.
 Definition hsC : has_homsets C := homset_property C.
 Variable X : obj_ext_structure C.
 

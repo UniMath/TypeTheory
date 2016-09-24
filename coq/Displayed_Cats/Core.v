@@ -34,8 +34,6 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-Require UniMath.Ktheory.Utilities.
-
 Require Import Systems.Auxiliary.
 Require Import Systems.UnicodeNotations.
 Require Import Systems.Displayed_Cats.Auxiliary.

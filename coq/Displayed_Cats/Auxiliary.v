@@ -19,8 +19,7 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-Require UniMath.Ktheory.Precategories.
-Require Import UniMath.Ktheory.StandardCategories.
+Require Import UniMath.Ktheory.StandardCategories. 
 
 Require Import Systems.UnicodeNotations.
 Require Import Systems.Auxiliary.
@@ -30,10 +29,6 @@ Local Set Automatic Introduction.
 
 (** * Notations and tactics *)
 
-(** Unfortunately we can’t [Import Precategories], due to notation clashes. So instead we make provide alias notations here: *)
-Notation Precategory := Precategories.Precategory. 
-Notation homset_property := Precategories.homset_property.
-Notation functorPrecategory := Precategories.functorPrecategory.
 
 Notation "( x , y , .. , z )" := (dirprodpair .. (dirprodpair x y) .. z) : core_scope.
 (** Replaces builtin notation for [pair], since we use [dirprod, dirprodpair] instead of [prod, pair]. *)
@@ -230,7 +225,7 @@ Definition is_pregroupoid (C : precategory)
 
 Lemma is_pregroupoid_functor_precat {C D : Precategory}
   (gr_D : is_pregroupoid D)
-  : is_pregroupoid (Precategories.functorPrecategory C D).
+  : is_pregroupoid (functorPrecategory C D).
 Proof.
   intros F G α; apply functor_iso_if_pointwise_iso.
   intros c; apply gr_D.

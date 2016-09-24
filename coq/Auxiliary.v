@@ -23,17 +23,10 @@ Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.equivalences.
-Require UniMath.Ktheory.Precategories.
+
 Require Import Systems.UnicodeNotations.
 
 Set Automatic Introduction.
-
-(** Unfortunately we can’t [Import Precategories], due to notation clashes. So instead we make provide alias notations here: *)
-Notation Precategory := Precategories.Precategory. 
-Coercion Precategories.Precategory_to_precategory
-  : Precategories.Precategory >-> precategory.
-Notation homset_property := Precategories.homset_property.
-Notation functorPrecategory := Precategories.functorPrecategory.
 
 Notation "( x , y , .. , z )" := (dirprodpair .. (dirprodpair x y) .. z) : core_scope.
 (** Replaces builtin notation for [pair], since we use [dirprod, dirprodpair] instead of [prod, pair]. *)
