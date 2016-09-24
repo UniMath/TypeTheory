@@ -17,7 +17,6 @@ Require Export Systems.Auxiliary.
 Require Export Systems.UnicodeNotations.
 Require Export Systems.Structures.
 Require Import Systems.CwF_SplitTypeCat_Maps.
-(* Require Import Systems.Displayed_Cats.Auxiliary. *)
 
 (* TODO: much cleanup needed.  In particular: update terminolog conen, e.g. [qq_] etc.! *)
 Local Set Automatic Introduction.
@@ -114,19 +113,18 @@ Proof.
     mkpair.
     + apply Yo^-1.
       exact (pr1 T).
-    + abstract
-      (
-      apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ )));
-      etrans ; [ apply functor_comp |];
-      etrans ; [ apply cancel_postcomposition ;
-         apply( homotweqinvweq (weqpair _
-           (yoneda_fully_faithful _ hsC Γ (comp_ext X Γ ps) ))) | ];
-      simpl;
-      match goal with |[ |- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => 
+    + abstract (
+          apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ )));
+          etrans ; [ apply functor_comp |];
+          etrans ; [ apply cancel_postcomposition ;
+                     apply (homotweqinvweq (weqpair _
+                            (yoneda_fully_faithful _ hsC Γ (comp_ext X Γ ps) ))) | ];
+          simpl;
+          match goal with |[ |- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => 
                        set (XR3:=HH) end;
-      rewrite (PullbackArrow_PullbackPr1 XR3);
-      apply pathsinv0; apply (functor_id Yo)
-       ).
+          rewrite (PullbackArrow_PullbackPr1 XR3);
+          apply pathsinv0; apply (functor_id Yo)
+        ).
 Time Defined.
 
 Lemma given_to_canonical_to_given Γ
@@ -142,7 +140,6 @@ Proof.
   match goal with |[|- _ ( ((_ (_ ?HH ?E ?H ?K _ ) )) _  _ )  = _ ] => specialize (XR1 E H K)  end.
   match goal with |[|- _ ( ((_ (_ _ _ _ _ ?HH ) )) _  _ )  = _ ] => specialize (XR1 HH)  end.
   assert (XR2 := nat_trans_eq_pointwise XR1).
-  simpl in XR2. 
   assert (XR3 := toforallpaths _ _ _ (XR2 Γ)).
   simpl in XR3.
   etrans. apply XR3.
@@ -162,6 +159,7 @@ Proof.
     assert (XR2 := toforallpaths _ _ _ XR1 s).
     cbn in XR2; unfold yoneda_morphisms_data in XR2.
     etrans. apply XR2.
+    clear XR2 XR1 XR.
     etrans. apply (maponpaths (fun k => A[k]) e).
     apply (toforallpaths _ _ _ (functor_id (TY X) _ ) _).
   (* TODO: the second half could possibly be simplified by
@@ -189,18 +187,17 @@ Proof.
       etrans. apply maponpaths.
               apply comp_ext_compare_Q.
       etrans. apply (PullbackArrow_PullbackPr2 XR).
-      simpl.
-      clear XR. clear ee.
+      simpl; clear XR ee.
       unfold yoneda_morphisms. unfold yoneda_morphisms_data.
-      apply nat_trans_eq. apply (has_homsets_HSET).
-      intro Γ'.
-      apply funextsec.
-      simpl. intro s'.
-      cbn. simpl.
-      rewrite id_left.
-      assert (XR := nat_trans_ax (Q (pr1 Y) A) _ _ s').
-      assert (XR1 := toforallpaths _ _ _ XR).
-      apply pathsinv0. simpl in XR1. apply XR1.
+      apply nat_trans_eq. 
+      * apply (has_homsets_HSET).
+      * intro Γ'.
+        apply funextsec; intro s'.
+        cbn. simpl.
+        rewrite id_left.
+        assert (XR := nat_trans_ax (Q (pr1 Y) A) _ _ s').
+        assert (XR1 := toforallpaths _ _ _ XR).
+        apply pathsinv0, XR1.
 Time Qed.
 
 Lemma canonical_TM_to_given_pointwise_iso Γ
@@ -232,64 +229,51 @@ Proof.
                    (canonical_TM_to_given_iso (Z,,ZZ) Y)).
   apply subtypeEquality.
   { intro. do 4 (apply impred; intro).
-    apply functor_category_has_homsets.
-  }
+    apply functor_category_has_homsets. }
   destruct Y as [Y YH]. simpl.
   apply subtypeEquality.
   { intro. apply isaprop_families_structure_axioms. }
   simpl.
-  destruct Y as [Y YH']. simpl.
+  destruct Y as [Y YH']; simpl.
   use total2_paths.
-  - simpl.
-    apply i.
+  - apply i.
   - rewrite transportf_dirprod.
-    destruct Y as [tm [p Q]].
-    simpl.
-    apply dirprodeq.
-    + simpl.
-      etrans. eapply pathsinv0.
-      apply  (idtoiso_precompose (preShv C)).
+    destruct Y as [tm [p Q]]; simpl.
+    apply dirprodeq; simpl.
+    + etrans. eapply pathsinv0.
+        apply  (idtoiso_precompose (preShv C)).
       unfold i.
       rewrite idtoiso_inv.
       rewrite idtoiso_isotoid.
-      simpl.
-      apply nat_trans_eq. apply has_homsets_HSET.
-      intro Γ. apply idpath.
-    + cbn. simpl.
-
-  assert (XR := 
+      apply nat_trans_eq. 
+      * apply has_homsets_HSET.
+      * intro Γ. apply idpath.
+    + assert (XR := 
           (idtoiso_transportf_family_of_morphisms (preShv C))).
-  specialize (XR C (λ B, (TY X : functor _ _ ) B : hSet)).
-  specialize (XR (λ Γ' B, (yoneda C hsC (Γ' ◂ B)))).
-  etrans. apply XR.
-  apply funextsec. intro Γ.
-  apply funextsec. intro A.
-  clear XR.
-  unfold i. rewrite idtoiso_isotoid.
-  simpl.
-  apply nat_trans_eq. { apply has_homsets_HSET. }
-  intro Γ'. simpl. cbn.
-  apply funextsec.
-  unfold yoneda_objects_ob.
-  intro s.
-  unfold yoneda_morphisms_data.
-  rewrite id_left.
-
-  cbn.
-  
-  simpl. clear i.
-  specialize (YH Γ Γ' A (s ;; π _ )). simpl in YH.
-  assert (XR := nat_trans_eq_pointwise YH Γ').
-  assert (XR2 := toforallpaths _ _ _ XR).
-  cbn in XR2.
-  etrans. apply XR2.
-  apply maponpaths.
-  unfold yoneda_morphisms_data.
-  match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] =>
+      specialize (XR C (λ B, (TY X : functor _ _ ) B : hSet)).
+      specialize (XR (λ Γ' B, (yoneda C hsC (Γ' ◂ B)))).
+      etrans. apply XR.
+      clear XR.
+      apply funextsec; intro Γ.
+      apply funextsec; intro A.
+      unfold i. rewrite idtoiso_isotoid.
+      apply nat_trans_eq. { apply has_homsets_HSET. }
+      intro Γ'. simpl. cbn.
+      apply funextsec;  intro s.
+      unfold yoneda_morphisms_data.
+      rewrite id_left.
+      clear i.
+      specialize (YH Γ Γ' A (s ;; π _ )). simpl in YH.
+      assert (XR := nat_trans_eq_pointwise YH Γ').
+      assert (XR2 := toforallpaths _ _ _ XR).
+      cbn in XR2.
+      etrans. apply XR2.
+      clear XR2 XR YH.
+      apply maponpaths.
+      unfold yoneda_morphisms_data.
+      match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] =>
             apply (PullbackArrow_PullbackPr2 HH) end.
 Defined.
-
-
 
 
 
@@ -308,35 +292,24 @@ Lemma compat_split_comp_eq (Y : families_structure _ X) :
 Proof.
   intro t.
     apply subtypeEquality.
-    { 
-      intro.
-(*      apply isofhleveldirprod. *)
-      (*- apply isaprop_qq_morphism_axioms.*)
-      - do 4 (apply impred; intro).
-        apply functor_category_has_homsets. 
-    }
-    simpl.
+    { intro.
+      do 4 (apply impred; intro).
+      apply functor_category_has_homsets. }
+    simpl; apply subtypeEquality.
+    { intro. apply @isaprop_qq_morphism_axioms, hsC. }
     apply subtypeEquality.
-    { 
-      intro.
-      apply @isaprop_qq_morphism_axioms, hsC.
-    }
-    apply subtypeEquality.
-    {
-      intro.
+    { intro.
       do 4 (apply impred; intro).
       apply isofhleveltotal2. 
       - apply hsC.
-      - intro. apply isaprop_isPullback.
-    } 
+      - intro. apply isaprop_isPullback. } 
     simpl.
     destruct t as [[t H1] H2]. simpl.
     destruct t as [q h]; simpl.
     apply funextsec. intro Γ.
     apply funextsec; intro Γ'.
     apply funextsec; intro f.
-    apply funextsec; intro A.
-    
+    apply funextsec; intro A.    
     apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
     apply pathsinv0.
     etrans. apply Yo_qq_fam_Yo_of_qq.
@@ -430,3 +403,4 @@ End Equivalence.
 End Fix_Context.
 
 
+ 

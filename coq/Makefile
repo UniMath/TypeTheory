@@ -46,6 +46,10 @@ MODULES-CORE := \
 	OtherDefs/CwF_1 \
 	EquivCats_Q_q
 
+MODULES-BICATS := \
+	Bicats/Bicats \
+	Bicats/Displayed_Bicats
+
 MODULES-UNIVALENT := \
 	Auxiliary \
 	UnicodeNotations \
@@ -53,6 +57,12 @@ MODULES-UNIVALENT := \
 	CwF_SplitTypeCat_Maps \
 	CwF_SplitTypeCat_Equivalence \
 	EquivCats_Q_q
+
+MODULES-RELUNIV := \
+	Auxiliary \
+	RelUnivStructure \
+	CwF_RelUnivYoneda \
+	RelUnivYonedaCompletion
 
 # Remaining modules, included only in “make all”.
 # Useful for leaves that are slow to recompile.
@@ -72,6 +82,8 @@ MODULES-ROTTEN := \
 VS-CORE  := $(MODULES-CORE:%=%.v)
 VS-EXTRA := $(MODULES-EXTRA:%=%.v)
 VS-UNIVALENT := $(MODULES-UNIVALENT:%=%.v)
+VS-RELUNIV := $(MODULES-RELUNIV:%=%.v)
+VS-ALV1 := $(VS-UNIVALENT) $(VS-RELUNIV)
 
 COQBIN ?= 
 COQDOC ?= $(COQBIN)coqdoc
@@ -89,6 +101,13 @@ all: Makefile_all.coq
 
 univalent: Makefile_univalent.coq
 	$(MAKE) -f Makefile_univalent.coq
+
+alv1: $(VS-RELUNIV) $(VS-UNIVALENT)
+	$(COQMAKEFILE) -R . "Systems" $(VS-RELUNIV) $(VS-UNIVALENT) Test.v -arg $(COQOPTIONS) -o Makefile_alv1.coq
+	$(MAKE) -f Makefile_alv1.coq
+
+coqwc-alv1:  ## counts Auxiliary twice, hence delivers wrong result
+	coqwc $(VS-ALV1) 
 
 Makefile.coq: Makefile $(VS-CORE)
 	$(COQMAKEFILE) -R . "Systems" $(VS-CORE) -arg $(COQOPTIONS) -o Makefile.coq
