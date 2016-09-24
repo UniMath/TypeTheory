@@ -35,7 +35,7 @@ Variable hsC : has_homsets C.
 Local Notation "'Yo'" := (yoneda _ hsC).
 Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
 
-(** a [RelUnivYo] as a relative univ structure on Yo is
+(** a [RelUnivYo] as a [relative_universe_structure] on [Yo] is
     - two presheaves tU, U
     - a morphism of presheaves p : tU -> U
     - for any X : C and f : Yo X -> U
@@ -49,7 +49,7 @@ Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _
 
 *)
 
-Local Definition RelUnivYo : UU
+Definition RelUnivYo_structure : UU
  := relative_universe_structure C (preShv C) Yo.
 
 
@@ -68,7 +68,7 @@ Local Definition RelUnivYo : UU
 
 *)
 
-Local Definition CwF : UU
+Definition CwF_structure : UU
  := Σ (X : obj_ext_structure C), families_structure hsC X.
 
 
@@ -87,8 +87,6 @@ Local Definition CwF : UU
     more cumbersome? Those two places are quantifications in
     - Q
     - the pullback condition
-
-
 *)
 
 
@@ -137,7 +135,7 @@ Qed.
 Definition comp (X : mor_of_presheaves) : UU 
   := Σ (Y : comp_data X), comp_prop _ Y.
 
-Definition iCwF := Σ (X : mor_of_presheaves), comp X.
+Definition iCwF_structure := Σ (X : mor_of_presheaves), comp X.
 
 (** * Construction of an equivalence between [CwF] and [iCwF] *)
 
@@ -163,44 +161,43 @@ Proof.
     set (XR := @weqtotal2asstol). unfold families_structure_data.
     specialize (XR (preShv C)
                    (fun x =>  x --> TY (Ty,, depr))). simpl in XR.
-    specialize (XR (fun Tmp =>  (Π (Γ : C^op) (A : (TY (Ty,, depr):functor _ _ ) Γ : hSet), 
-                                        Yo (comp_ext (Ty,,depr) Γ A) --> pr1 Tmp)) ).       
+    specialize (XR (fun Tmp =>  Π (Γ : C^op) (A : (TY (Ty,, depr):functor _ _ ) Γ : hSet), 
+                                 Yo (comp_ext (Ty,,depr) Γ A) --> pr1 Tmp) ).       
     apply XR. simpl.
   eapply weqcomp.
     set (XR:= @weqtotal2asstol (Π Γ : C, (Ty Γ : hSet) → Σ ΓA : C, ΓA --> Γ)).
-     specialize (XR (fun _ =>  Σ x0 : functor (opp_precat_data C) hset_precategory_data, nat_trans x0 Ty)).
-     simpl in *.
-     specialize (XR (fun deprTmp =>  Π (Γ : C) (A : (Ty Γ : hSet)),
-                    nat_trans (yoneda_ob_functor_data C hsC (comp_ext (Ty,,pr1 deprTmp) Γ A)) (pr1 (pr2 deprTmp) ))).
-     apply XR.
-  simpl. 
+    specialize (XR (fun _ =>  Σ x0 : functor (opp_precat_data C) hset_precategory_data, 
+                                      nat_trans x0 Ty)).
+    simpl in *.
+    specialize (XR (fun deprTmp => Π (Γ : C) (A : (Ty Γ : hSet)),
+                                   nat_trans (yoneda_objects C hsC (comp_ext (Ty,,pr1 deprTmp) Γ A)) 
+                                             (pr1 (pr2 deprTmp) ))).
+    apply XR.
   eapply weqcomp. use weqtotal2dirprodcomm. simpl.
   eapply weqcomp; apply weqtotal2asstor. (* this looks like magic *)
 Defined.
 
 
-Definition weq_CwF_iCwF : CwF ≃ iCwF.
+
+Definition weq_CwF_iCwF : CwF_structure ≃ iCwF_structure.
 Proof.
-  unfold iCwF.  
   eapply weqcomp. Focus 2. 
     set (XR:= @weqtotal2asstor mor_of_presheaves (fun X => comp_data X) ).
     specialize (XR (fun XY => comp_prop (pr1 XY) (pr2 XY))).
     apply XR.
-  unfold CwF. 
   eapply weqcomp.
-    set (XR:= @weqtotal2asstol (obj_ext_structure C) (fun X => families_structure_data hsC X) ).
+    set (XR:= @weqtotal2asstol (obj_ext_structure C) 
+                               (fun X => families_structure_data hsC X) ).
     specialize (XR (fun XY => families_structure_axioms hsC (pr1 XY) (pr2 XY))).
     apply XR.
   use weqbandf.
   - apply weq_comp_fam_data.
   - intro x.
-    unfold families_structure_axioms.
-    unfold comp_prop.
     apply weqonsecfibers.
     intro. 
     destruct x as [Tydepr [Tm [p Q]]].
     destruct Tydepr as [Ty depr].
-    simple refine (idweq _ ).
+    exact (idweq _ ).
 Defined.  
 
 
@@ -251,16 +248,14 @@ Proof.
     set (XR := @weqtotaltoforall C).
     specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓA : C, ΓA --> X)).
     simpl in XR.
-    specialize (XR (fun X dpr =>  Π (A : (u y : functor _ _ ) X : hSet), Yo (pr1 (dpr A)) --> tu y)).
+    specialize (XR (fun X dpr =>  Π (A : (u y : functor _ _ ) X : hSet), 
+                                  Yo (pr1 (dpr A)) --> tu y)).
     apply XR.
   apply weqonsecfibers. intro X.
-  eapply weqcomp.
-    set (XR := @weqtotaltoforall ((u y : functor _ _ ) X : hSet) ). simpl in XR.
-    specialize (XR (fun _ => Σ ΓA : C, ΓA --> X)). simpl in XR. 
-    specialize (XR  (fun A ΓAp => Yo (pr1 ΓAp) --> tu y)).
-    apply XR.
-  apply weqonsecfibers.
-  intro A. apply idweq.
+  set (XR := @weqtotaltoforall ((u y : functor _ _ ) X : hSet) ). simpl in XR.
+  specialize (XR (fun _ => Σ ΓA : C, ΓA --> X)). simpl in XR. 
+  specialize (XR  (fun A ΓAp => Yo (pr1 ΓAp) --> tu y)).
+  apply XR.
 Defined.
 
 Definition ext_1 {X : mor_of_presheaves} (Y : comp_1_data X) {Γ} A 
@@ -309,12 +304,12 @@ Defined.
 Definition weq_Yo_pullback_comp_1 (y : arrow (preShv C))
   : comp_1 y ≃ Yo_pullback y.
 Proof.
-  unfold Yo_pullback.
-  unfold comp_1.
+  unfold Yo_pullback; unfold comp_1.
   eapply weqcomp.
-    set (XR := @weqtotaltoforall C). simpl in XR.
+    set (XR := @weqtotaltoforall C). 
     unfold comp_1_data. unfold comp_1_prop.
-    specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓAp : Σ ΓA : C, ΓA --> X, Yo (pr1 ΓAp) --> tu y)). 
+    specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) 
+                             → Σ ΓAp : Σ ΓA : C, ΓA --> X, Yo (pr1 ΓAp) --> tu y)). 
     unfold dpr_1, QQ_1.
     specialize (XR (fun X pp =>  Π  (A : ((u y : functor _ _ ) X : hSet)),
        Σ e : # Yo (pr2 (pr1 (pp A))) ;; yy A = (pr2 (pp A) : preShv _ ⟦_,_⟧ );; p y,
@@ -333,10 +328,8 @@ Proof.
   transparent assert (HXY :
       ( (Σ ΓAp : Σ ΓA : C, ΓA --> X, Yo (pr1 ΓAp) --> tu y)
          ≃
-         fpullback_data C (preShv C) Yo (target y) (source y) (yy A)
-      )).
+         fpullback_data C (preShv C) Yo (target y) (source y) (yy A) ) ).
   { apply weqtotal2asstor. }
-  simpl in HXY.
   apply (weqbandf HXY).
   intro x.
   destruct x as [[XA p] Q]. exact (idweq _ ).
@@ -353,18 +346,15 @@ Proof.
   apply (invweq (weq_Yo_pullback_comp_1 _ )).
 Defined.
 
-Definition weq_iCwF_RelUnivYo : iCwF ≃ RelUnivYo.
+Definition weq_iCwF_RelUnivYo : iCwF_structure ≃ RelUnivYo_structure.
 Proof.
-  unfold iCwF.
-  unfold RelUnivYo. unfold relative_universe_structure.
-  unfold mor_of_presheaves.
   apply weqfibtototal.
   apply weq_comp_fcomprehension.
 Defined.   
  
 
 
-Definition weq_RelUnivYo_CwF : RelUnivYo ≃ CwF.
+Definition weq_RelUnivYo_CwF : RelUnivYo_structure ≃ CwF_structure.
 Proof.
   eapply weqcomp.
    apply (invweq weq_iCwF_RelUnivYo).
@@ -380,26 +370,19 @@ Definition comp_to_fcomprehension (x : arrow (preShv C)):
    comp x → fcomprehension C (preShv C) Yo (target x) (source x) x.
 Proof.
   intro H.
-  set ( t := pr1 H).
-  set (depr := pr1 t).
-  set (Q := pr2 t).
-  set (Hprop := pr2 H).
-  intros Γ A.
-  set (yiA := yoneda_weq _ _ _ _ A).
-  set (XA := depr Γ yiA).
+  set ( t := pr1 H). set (depr := pr1 t). set (Q := pr2 t). set (Hprop := pr2 H).
+  intros Γ A. set (yiA := yoneda_weq _ _ _ _ A). set (XA := depr Γ yiA).
   mkpair.
   - mkpair.
-    + exact (pr1 XA).
-    + mkpair. 
+    + exact (pr1 XA). 
+    + mkpair.  
       * exact (pr2 XA).
       * apply Q.
-  - simpl. unfold fpullback_prop.
-    mkpair.
+  - simpl. unfold fpullback_prop. mkpair.
     + etrans. Focus 2. apply (pr1 (Hprop Γ yiA)).
       apply maponpaths. apply pathsinv0. apply homotinvweqweq.
     + assert (XR := pr2 (Hprop Γ yiA)).
       assert (XT:= homotinvweqweq (yoneda_weq _ _ _ _ )  A).
-      simpl in XR.
       assert (XR2 := isPb_morphism_equal _ _ _ _ _ _ _ _ _ _ XR A (!XT) ).
       apply XR2.
 Defined.
@@ -408,8 +391,7 @@ Defined.
 Definition fcomprehension_to_comp (x : arrow (preShv C)):
   fcomprehension C (preShv C) Yo (target x) (source x) x → comp x.
 Proof.
-  intro H.
-  mkpair.
+  intro H. mkpair.
   - mkpair.
     + intros Γ A.
       set (XR := H Γ (yy A)).
@@ -453,7 +435,6 @@ Proof.
   specialize (XR (fun Q => Yo (pr1 Q) --> source y)).
   apply XR.
 Defined.  
-
 
 
 End fix_category.

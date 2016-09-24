@@ -28,9 +28,10 @@ Require Import Systems.UnicodeNotations.
 
 Set Automatic Introduction.
 
+Undelimit Scope transport.
+
 Notation "( x , y , .. , z )" := (dirprodpair .. (dirprodpair x y) .. z) : core_scope.
 (** Replaces builtin notation for [pair], since we use [dirprod, dirprodpair] instead of [prod, pair]. *)
-
 
 
 (** Redeclare this notation, along with a new scope. *)
@@ -80,7 +81,7 @@ Lemma transportf_const (A B : UU) (a a' : A) (e : a = a') (b : B) :
 Proof.
   induction e.
   apply idpath.
-Qed.
+Defined.
 
 Lemma transportf_forall {A B} (C : A -> B -> UU)
   {x0 x1 : A} (e : x0 = x1) (f : forall y:B, C x0 y)
@@ -93,9 +94,9 @@ Defined.
 Definition transportf_forall_var :
   Π (A : UU) (B : A -> UU) (C : UU)
     (a1 a2 : A) (e : a1 = a2)
-(f : B a1 -> C),
-transportf (λ x : A, Π y : B x, C) e f =
-(λ y : B a2 ,  f (transportb B e y)).
+    (f : B a1 -> C),
+  transportf (λ x : A, Π y : B x, C) e f =
+  (λ y : B a2 , f (transportb B e y)).
 Proof.
   intros A B D a1 a2 e f.
   induction e.
@@ -106,8 +107,8 @@ Definition transportf_forall_var2 :
   Π (A : UU) (B C : A -> UU) 
     (a1 a2 : A) (e : a1 = a2)
     (f : B a1 -> C a1),
-transportf (λ x : A, Π y : B x, C x) e f =  
-(λ y : B a2 , transportf _ e (f (transportb B e y))).
+  transportf (λ x : A, Π y : B x, C x) e f =  
+  (λ y : B a2 , transportf _ e (f (transportb B e y))).
 Proof.
   intros A B D a1 a2 e f.
   induction e.
@@ -123,7 +124,7 @@ Defined.
 
 Lemma maponpaths_eq_idpath
   : Π (T1 T2 : UU) (f : T1 -> T2) (t1 : T1) (e : t1 = t1)
-       (H : e = idpath _ ), maponpaths f e = idpath _ .
+      (H : e = idpath _ ), maponpaths f e = idpath _ .
 Proof.
   intros.
   exact (maponpaths (maponpaths f) H).
@@ -156,9 +157,9 @@ Lemma transportf_comp_lemma_hset (X : UU) (B : X -> UU) (A : X) (e : A = A)
 Proof.
   intros ex.
   apply @pathscomp0 with (transportf _ (idpath _) x).
-    apply (maponpaths (fun p => transportf _ p x)).
+  - apply (maponpaths (fun p => transportf _ p x)).
     apply hs.
-  exact ex.
+  - exact ex.
 Qed.
 
 (* TODO: redundant: replace with general-purpose [maponpaths_2]. *)
@@ -189,6 +190,7 @@ Proof.
     apply idpath.
 Defined.
 
+(*
 Definition rewrite_in_equivalence (A X : UU) (a a' b : A) :
   a = a' → (a' = b) ≃ X → (a = b) ≃ X.
 Proof.
@@ -197,6 +199,7 @@ Proof.
   eapply weqcomp. apply H.
   apply X1.
 Defined.
+*)
 
 (** ** Other general lemmas *)
 
@@ -250,6 +253,76 @@ Qed.
 
 (** ** Equivalences of categories *)
 (** Specifically: the composition of (adjoint) equivalences of precats. *)
+
+
+Coercion left_adj_from_adj_equiv (X Y : precategory) (K : functor X Y)
+         (HK : adj_equivalence_of_precats K)
+  : is_left_adjoint K
+:= pr1 HK.
+
+Section about_equivalences.
+
+Variables D1 D2 : precategory.
+Variable F : functor D1 D2.
+Variable GG : adj_equivalence_of_precats F.
+
+Let G : functor D2 D1 := right_adjoint GG.
+Let η := unit_from_left_adjoint GG.
+Let ε := counit_from_left_adjoint GG.
+Let ηinv a := iso_inv_from_iso (unit_pointwise_iso_from_adj_equivalence GG a).
+Let εinv a := iso_inv_from_iso (counit_pointwise_iso_from_adj_equivalence GG a).
+
+
+Lemma right_adj_equiv_is_ff : fully_faithful G.
+Proof.
+  intros c d.
+  set (inv := (fun f : D1 ⟦G c, G d⟧ => εinv _ ;; #F f ;; ε _ )).
+  simpl in inv.
+  apply (gradth _ inv ).
+  - intro f. simpl in f. unfold inv.
+    assert (XR := nat_trans_ax ε). simpl in XR.
+    rewrite <- assoc.
+    etrans. apply maponpaths. apply XR.
+    rewrite assoc.
+    etrans. apply cancel_postcomposition. apply iso_after_iso_inv.
+    apply id_left.
+  - intro g.
+    unfold inv. repeat rewrite functor_comp.
+    match goal with |[|- ?f1 ;; ?f2 ;; ?f3 = _ ] =>
+       pathvia ((f1 ;; ηinv _ ) ;; (η _ ;; f2) ;; f3) end.
+    + repeat rewrite <- assoc. apply maponpaths.
+      repeat rewrite assoc.
+      etrans. Focus 2. do 2 apply cancel_postcomposition. eapply pathsinv0, iso_after_iso_inv.
+      rewrite id_left. apply idpath.
+    + assert (XR := nat_trans_ax η). simpl in XR. rewrite <- XR. clear XR.
+      repeat rewrite <- assoc.
+      etrans. do 3 apply maponpaths. apply  triangle_id_right_ad. rewrite id_right.
+      rewrite assoc.
+      etrans. Focus 2. apply id_left.
+      apply cancel_postcomposition.
+      etrans. apply cancel_postcomposition. apply functor_on_inv_from_iso.
+      assert (XR := triangle_id_right_ad _ _ _ GG).
+      simpl in XR.
+      unfold ηinv. simpl.
+      match goal with |[|- inv_from_iso ?e ;; inv_from_iso ?f = _ ] =>
+                       assert (XRR := maponpaths pr1 (iso_inv_of_iso_comp _ _ _ _ f e)) end. 
+      simpl in XRR.
+      etrans. apply (! XRR). clear XRR.
+      apply pathsinv0, inv_iso_unique'.
+      simpl. cbn. unfold precomp_with.
+      rewrite id_right. apply XR.
+Defined.
+  
+Lemma right_adj_equiv_is_ess_sur : essentially_surjective G.
+Proof.
+  intro d.
+  apply hinhpr.
+  exists (F d).
+  exact (ηinv d).
+Defined.
+
+End about_equivalences.
+
 
 Section eqv_comp.
 
@@ -372,10 +445,7 @@ End adj_comp.
 Hypothesis HF : adj_equivalence_of_precats F.
 Hypothesis HF' : adj_equivalence_of_precats F'.
 
-Coercion left_adj_from_adj_equiv (X Y : precategory) (K : functor X Y)
-         (HK : adj_equivalence_of_precats K)
-  : is_left_adjoint K
-:= pr1 HK.
+
 
 Definition comp_adj_equivalence_of_precats 
   : adj_equivalence_of_precats (functor_composite F F').
@@ -525,20 +595,47 @@ Qed.
 Definition G_ff_split : functor _ _ := ( _ ,, G_ff_split_ax).
 
 
+Definition is_nat_trans_ε_ff_split : 
+ is_nat_trans (functor_composite_data G_ff_split_data F)
+    (functor_identity_data B) (λ b : B, pr2 (Fses b)).
+Proof.
+  intros b b' g;
+  etrans; [ apply maponpaths_2 ; use homotweqinvweq |];
+  repeat rewrite <- assoc; 
+  apply maponpaths;
+  rewrite iso_after_iso_inv;
+  apply id_right.
+Qed.
+
 Definition ε_ff_split
   : nat_trans (functor_composite G_ff_split F) (functor_identity B).
 Proof.
   mkpair.
   - intro b.
     exact (pr2 (Fses b)).
-  - abstract (
-    intros b b' g;
-    etrans; [ apply maponpaths_2 ; use homotweqinvweq |];
-    repeat rewrite <- assoc; 
-    apply maponpaths;
-    rewrite iso_after_iso_inv;
-    apply id_right ).
+  - apply is_nat_trans_ε_ff_split.
 Defined.
+
+Lemma is_nat_trans_η_ff_split : 
+ is_nat_trans (functor_identity_data A)
+    (functor_composite_data F G_ff_split_data)
+    (λ a : A, Finv (inv_from_iso (pr2 (Fses (F ((functor_identity A) a)))))).
+Proof.
+  intros a a' f;
+  apply (invmaponpathsweq (weqpair _ (Fff _ _ )));
+  cbn;
+  rewrite functor_comp;
+  rewrite functor_comp;
+  etrans; [ apply maponpaths; use homotweqinvweq |];
+  apply pathsinv0;
+  etrans; [ apply maponpaths; use homotweqinvweq |];
+  etrans; [ apply maponpaths_2; use homotweqinvweq |];
+  repeat rewrite assoc;
+  rewrite iso_after_iso_inv;
+  rewrite id_left ;
+  apply idpath.
+Qed.
+
 
 Definition η_ff_split : nat_trans (functor_identity A) (functor_composite F G_ff_split).
 Proof.
@@ -546,21 +643,7 @@ Proof.
   -  intro a.
      apply Finv.
      apply (inv_from_iso (pr2 (Fses _ ))).
-  - abstract (
-    intros a a' f;
-    apply (invmaponpathsweq (weqpair _ (Fff _ _ )));
-    cbn;
-    rewrite functor_comp;
-    rewrite functor_comp;
-    etrans; [ apply maponpaths; use homotweqinvweq |];
-    apply pathsinv0;
-    etrans; [ apply maponpaths; use homotweqinvweq |];
-    etrans; [ apply maponpaths_2; use homotweqinvweq |];
-    repeat rewrite assoc;
-    rewrite iso_after_iso_inv;
-    rewrite id_left ;
-    apply idpath
-    ).
+  - apply is_nat_trans_η_ff_split. 
 Defined.
     
 Lemma form_adjunction_ff_split 
@@ -630,8 +713,8 @@ Lemma idtoiso_transportf_family_of_morphisms (D : precategory)
       (d d' : D) (deq : d = d')
       (R : Π a (b : B a), D⟦ F a b, d⟧)
      
-: transportf (λ x, Π a b, D⟦ F a b, x⟧)
-             deq R =
+: transportf (λ x, Π a b, D⟦ F a b, x⟧) deq R 
+  =
   λ a b, R a b ;; idtoiso deq.
 Proof.
   destruct deq.
@@ -658,18 +741,13 @@ Proof.
   apply idpath.
 Qed.
 
-(* Seems to be an exact duplicate of a library lemma.  TODO: remove; or, if it’s not a duplicate, document the difference!
 
-Really it’s just the *arguments* that we want to change (and for [cancel_precomposition] too. *)
-Lemma cancel_postcomposition {C : precategory} {a b c : C} (f f' : a --> b) (g : b --> c)
-: f = f' -> f ;; g = f' ;; g.
-Proof.
-  intro H. apply (maponpaths (fun f => f ;; g) H).
-Defined.
+Arguments cancel_postcomposition [C a b c] f f' g _ .
 
-Lemma idtoiso_postcompose_idtoiso_pre {C : precategory} {a b c : C} (g : a --> b) (f : a --> c)
-              (p : b = c) :
-  g = f ;; idtoiso (!p) -> g ;; idtoiso p = f.
+Lemma idtoiso_postcompose_idtoiso_pre {C : precategory} {a b c : C} 
+      (g : a --> b) (f : a --> c)
+      (p : b = c) 
+  : g = f ;; idtoiso (!p) -> g ;; idtoiso p = f.
 Proof.
   induction p. simpl.
   rewrite id_right.
@@ -689,6 +767,99 @@ Proof.
   apply maponpaths, maponpaths, idtoiso_isotoid.
 Qed.
 
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+
+Definition nat_iso_from_pointwise_iso (D E : precategory)
+  (hsE : has_homsets E)
+  (F G : [D, E, hsE])
+  (a : Π d, iso ((F : functor _ _) d) ((G : functor _ _) d))
+  (H : is_nat_trans _ _ a)
+  : iso F G.
+Proof.
+  use functor_iso_from_pointwise_iso .
+  mkpair.
+  - intro d. apply a.
+  - apply H.
+  - intro d. apply (pr2 (a d)).
+Defined.
+
+Lemma iso_from_iso_with_postcomp (D E E' : precategory) hsE hsE'
+  (F G : functor D E) (H : functor E E')
+  (Hff : fully_faithful H) : 
+  iso (C:=[D, E', hsE']) (functor_composite F H) (functor_composite G H)
+  ->
+  iso (C:=[D, E, hsE]) F G.
+Proof.
+  intro a.
+  use nat_iso_from_pointwise_iso.
+  - intro d. simpl.
+    apply (iso_from_fully_faithful_reflection Hff).
+    apply (functor_iso_pointwise_if_iso _ _ _ _ _ a (pr2 a)).
+  - abstract (
+    simpl; intros d d' f;
+    assert (XR := nat_trans_ax (pr1 a : nat_trans _ _ ));
+    simpl in XR;
+    apply (invmaponpathsweq (weq_from_fully_faithful Hff _ _ ));
+    simpl; rewrite functor_comp; rewrite functor_comp;
+    assert (XTT:=homotweqinvweq (weq_from_fully_faithful Hff (F d') (G d')  ));
+    simpl in *;
+    etrans; [apply maponpaths; apply XTT |];
+    clear XTT;
+    assert (XTT:=homotweqinvweq (weq_from_fully_faithful Hff (F d) (G d)  ));
+    simpl in *;
+    etrans; [| apply cancel_postcomposition; apply (!XTT _ )];
+    apply XR
+    ).
+Defined.
+
+
+Definition functor_assoc_iso (D1 D2 D3 D4 : precategory) hsD4
+     (F : functor D1 D2) (G : functor D2 D3) (H : functor D3 D4) :
+    iso (C:=[D1,D4,hsD4])
+         (functor_composite (functor_composite F G) H)
+         (functor_composite F (functor_composite G H)).
+Proof.
+  use nat_iso_from_pointwise_iso.
+  - intro d. apply identity_iso.
+  - abstract (
+        intros x x' f;
+        rewrite id_left;
+        rewrite id_right;
+        apply idpath
+     ).
+Defined.
+
+Definition functor_comp_id_iso (D1 D2 : precategory) hsD2
+     (F : functor D1 D2) :
+  iso (C:=[D1,D2,hsD2]) (functor_composite F (functor_identity _ )) F.
+Proof.
+  use nat_iso_from_pointwise_iso.
+  - intro. apply identity_iso.
+  - abstract (
+       intros x x' f;
+       rewrite id_left;
+       rewrite id_right;
+       apply idpath
+    ).
+Defined.
+
+Definition functor_precomp_iso (D1 D2 D3 : precategory)  hsD3
+    (F : functor D1 D2) (G H : functor D2 D3) :
+    iso (C:=[D2,D3,hsD3]) G H ->
+    iso (C:=[D1,D3,hsD3]) (functor_composite F G)
+                          (functor_composite F H).
+Proof.
+  intro a.
+  use nat_iso_from_pointwise_iso.
+  - intro d. apply (functor_iso_pointwise_if_iso _ _ _ _ _ a (pr2 a)).
+  - abstract (intros x x' f; apply (nat_trans_ax (pr1 a))).
+Defined.
+
+
+Definition adj_from_equiv (D1 D2 : precategory) (F : functor D1 D2):
+    adj_equivalence_of_precats F → is_left_adjoint F := fun x => pr1 x.
+Coercion adj_from_equiv : adj_equivalence_of_precats >-> is_left_adjoint.
+
 
 (** ** Lemmas on pullbacks *)
 
@@ -699,15 +870,16 @@ Section on_pullbacks.
   Variables a b c d : C.
   Variables (f : a --> b) (g : a --> c) (k : b --> d) (h : c --> d).
 
-(*
+(**
+<<
       f
    a----b
  g |    | k
    |    |
    c----d
      h 
-    
- *)
+>>
+*)
 
   Variable sqr_comm : f ;; k = g ;; h.
   Variable Pb : limits.pullbacks.isPullback k h f g sqr_comm.
@@ -930,7 +1102,6 @@ Proof.
     { intro. apply LimConeHSET.  }
     specialize (XR XH).
     specialize (XR W). 
-
     set (XT := graphs.pullbacks.PullbCone _ _ _ _ p1 p2 e).
     specialize (XR XT).
     transparent assert (XTT : (isLimCone XT1 W XT)).
@@ -938,9 +1109,7 @@ Proof.
       apply functor_category_has_homsets.
       assumption.
     }
-    specialize (XR XTT c).
-
-    
+    specialize (XR XTT c).    
     intros S h k H.
     specialize (XR S).
     simpl in XR.
@@ -950,8 +1119,6 @@ Proof.
                                                pushout_graph (pullback_diagram (preShv C) f g) c) S)).
     { use mk_cone.
       apply three_rec_dep; cbn.
-(*      intro v.
-      destruct v.*)
       - apply h.
       - simpl. apply (h ;; (pr1 f c)).
       - apply k.
@@ -1089,9 +1256,9 @@ Section Pullback_Unique_Up_To_Iso.
       rewrite Pb_map_commutes_2.
       unfold map_to_2nd_pb.
       apply Pb_map_commutes_2.
-Qed.
+  Qed.
 
-   Lemma inv2 : map_to_1st_pb ;; map_to_2nd_pb = identity _ .
+  Lemma inv2 : map_to_1st_pb ;; map_to_2nd_pb = identity _ .
   Proof.
     apply (map_into_Pb_unique  H' pb').
     - rewrite id_left.
@@ -1110,16 +1277,16 @@ Qed.
       rewrite Pb_map_commutes_2.
       unfold map_to_1st_pb.
       apply Pb_map_commutes_2.
-Qed.
+  Qed.
 
-Definition iso_to_second_pb : iso A A'.
-Proof.
-  exists map_to_2nd_pb.
-  simple refine (is_iso_qinv _ map_to_1st_pb _ ).
-  split.
-  - apply inv1.
-  - apply inv2.
-Defined.
+  Definition iso_to_second_pb : iso A A'.
+  Proof.
+    exists map_to_2nd_pb.
+    simple refine (is_iso_qinv _ map_to_1st_pb _ ).
+    split.
+    - apply inv1.
+    - apply inv2.
+  Defined.
 
 End Pullback_Unique_Up_To_Iso.
 
