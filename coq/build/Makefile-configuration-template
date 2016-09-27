@@ -1,0 +1,24 @@
+# -*- makefile-gmake -*-
+
+# To configure the makefile, copy this file (Makefile-configuration-template)
+# to Makefile-configuration (in this directory) and then edit it.  Do not edit
+# this file, for it is just a template, and you might accidentally check it in.
+# The first thing to change, when editing this file, is to remove this comment.
+
+# To remove the configurations, it is best to delete all the text in your copy
+# of this file, rather than removing the file, so the timestamp on the newly
+# empty file will trigger "make" to remake the files that depend on the
+# configuration.
+
+# The Boolean values are "yes" and "no".
+
+#############################################################################
+
+
+# When BUILD_COQ is "no", give the path to the coq binary "coqtop", including the
+# final "/" (if nonempty), unless it is on the PATH:
+COQBIN =
+
+# List here any packages you'd like to try to build on a test basis.
+# When the packages work, add them to the list in ../Makefile.
+PACKAGES =
