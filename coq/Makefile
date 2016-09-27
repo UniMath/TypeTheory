@@ -109,6 +109,9 @@ alv1: $(VS-RELUNIV) $(VS-UNIVALENT)
 coqwc-alv1:  ## counts Auxiliary twice, hence delivers wrong result
 	coqwc $(VS-ALV1) 
 
+coqwc-all:
+	coqwc $(VS-CORE) $(VS-EXTRA)
+
 Makefile.coq: Makefile $(VS-CORE)
 	$(COQMAKEFILE) -R . "Systems" $(VS-CORE) -arg $(COQOPTIONS) -o Makefile.coq
 
