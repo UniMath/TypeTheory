@@ -10,10 +10,10 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.functor_categories.
 
-Require Import Systems.Auxiliary.
-Require Import Systems.UnicodeNotations.
-Require Import Systems.Structures.
-(* Require Import Systems.Displayed_Cats.Auxiliary. *)
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.UnicodeNotations.
+Require Import TypeTheory.ALV1.Structures.
+
 
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)

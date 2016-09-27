@@ -21,8 +21,8 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Require Import UniMath.Ktheory.StandardCategories. 
 
-Require Import Systems.UnicodeNotations.
-Require Import Systems.Auxiliary.
+Require Import TypeTheory.Auxiliary.UnicodeNotations.
+Require Import TypeTheory.Auxiliary.Auxiliary.
 
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)

@@ -14,11 +14,11 @@ Main definitions:
 
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.equivalences.
-Require Import Systems.UnicodeNotations.
-Require Import Systems.Auxiliary.
-Require Import Systems.Structures.
-Require Import Systems.CwF_SplitTypeCat_Maps.
-Require Import Systems.CwF_SplitTypeCat_Equivalence.
+Require Import TypeTheory.Auxiliary.UnicodeNotations.
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.ALV1.Structures.
+Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
+Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.
 
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)

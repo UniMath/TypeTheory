@@ -13,11 +13,11 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-Require Import Systems.Auxiliary.
-Require Import Systems.UnicodeNotations.
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
-Require Import Systems.Displayed_Cats.Auxiliary.
-Require Import Systems.Displayed_Cats.Core.
+Require Import TypeTheory.Displayed_Cats.Auxiliary.
+Require Import TypeTheory.Displayed_Cats.Core.
 
 Local Open Scope mor_disp_scope.
 

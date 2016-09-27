@@ -11,8 +11,6 @@ Contents:
 
 *)
 
-Require Import Systems.Auxiliary.
-Require Import Systems.UnicodeNotations.
 Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
@@ -22,12 +20,12 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.precomp_fully_faithful.
 Require Import UniMath.CategoryTheory.rezk_completion.
-Require Import Systems.RelUnivStructure.
-Require Import Systems.Structures.
-Require Import Systems.RelUnivYonedaCompletion.
-Require Import Systems.CwF_RelUnivYoneda.
-Require Import Systems.CwF_SplitTypeCat_Equivalence.
-Require Import Systems.EquivCats_Q_q.
+Require Import TypeTheory.ALV1.RelUnivStructure.
+Require Import TypeTheory.ALV1.Structures.
+Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
+Require Import TypeTheory.ALV1.CwF_RelUnivYoneda.
+Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.
+Require Import TypeTheory.ALV1.EquivCats_Q_q.
 
 
 (** * Transfer of relative universe structure from Yoneda on a category to Yoneda on its Rezk completion *)

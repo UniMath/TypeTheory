@@ -9,12 +9,12 @@
 
 *)
 
-Require Export Systems.Auxiliary.
-Require Export Systems.UnicodeNotations.
 Require Export UniMath.Foundations.hlevel2.hSet.
 Require Export UniMath.RezkCompletion.limits.pullbacks.
-Require Export Systems.Categories.category_FAM.
 Require Export UniMath.RezkCompletion.opp_precat.
+Require Export TypeTheory.Auxiliary.Auxiliary.
+Require Export TypeTheory.Auxiliary.UnicodeNotations.
+Require Export TypeTheory.Categories.category_FAM.
 
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).

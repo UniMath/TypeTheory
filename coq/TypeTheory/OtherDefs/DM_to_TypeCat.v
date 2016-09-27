@@ -11,10 +11,10 @@
 
 Require Import UniMath.CategoryTheory.total2_paths.
 
-Require Import Systems.Auxiliary.
-Require Import Systems.UnicodeNotations.
-Require Import Systems.OtherDefs.TypeCat.
-Require Import Systems.OtherDefs.DM.
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.UnicodeNotations.
+Require Import TypeTheory.OtherDefs.TypeCat.
+Require Import TypeTheory.OtherDefs.DM.
 
 
 (** * Construction of Comprehension precategory from Display map precategory *)

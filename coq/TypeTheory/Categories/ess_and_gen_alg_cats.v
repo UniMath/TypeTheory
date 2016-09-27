@@ -17,8 +17,8 @@ In this file, we define functions back and forth and show that
 
 
 Require Import UniMath.Foundations.hlevel2.hSet.
-Require Import Systems.UnicodeNotations.
-Require Import Systems.Categories.ess_alg_categories.
+Require Import TypeTheory.UnicodeNotations.
+Require Import TypeTheory.Categories.ess_alg_categories.
 
 
 (** * From generalized algebraic precategories to essentially algebraic ones.*)

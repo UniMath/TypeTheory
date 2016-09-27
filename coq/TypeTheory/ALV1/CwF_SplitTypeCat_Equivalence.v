@@ -13,10 +13,10 @@ Require Export UniMath.CategoryTheory.opp_precat.
 Require Export UniMath.CategoryTheory.category_hset.
 Require Export UniMath.CategoryTheory.yoneda.
 
-Require Export Systems.Auxiliary.
-Require Export Systems.UnicodeNotations.
-Require Export Systems.Structures.
-Require Import Systems.CwF_SplitTypeCat_Maps.
+Require Export TypeTheory.Auxiliary.Auxiliary.
+Require Export TypeTheory.Auxiliary.UnicodeNotations.
+Require Export TypeTheory.ALV1.Structures.
+Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
 
 (* TODO: much cleanup needed.  In particular: update terminolog conen, e.g. [qq_] etc.! *)
 Local Set Automatic Introduction.

@@ -34,9 +34,9 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-Require Import Systems.Auxiliary.
-Require Import Systems.UnicodeNotations.
-Require Import Systems.Displayed_Cats.Auxiliary.
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.UnicodeNotations.
+Require Import TypeTheory.Displayed_Cats.Auxiliary.
 
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)

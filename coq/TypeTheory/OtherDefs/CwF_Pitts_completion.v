@@ -6,17 +6,16 @@
     - not much yet
 *)
 
-Require Export Systems.Auxiliary.
-Require Export Systems.UnicodeNotations.
 Require Export UniMath.Foundations.Basics.Sets.
-
 Require Export UniMath.CategoryTheory.functor_categories.
 Require Export UniMath.CategoryTheory.category_hset.
 Require Export UniMath.CategoryTheory.yoneda.
 Require Export UniMath.CategoryTheory.rezk_completion.
 
-Require Export Systems.OtherDefs.CwF_Pitts.
-Require Export Systems.Categories.category_of_elements.
+Require Export TypeTheory.Auxiliary.Auxiliary.
+Require Export TypeTheory.Auxiliary.UnicodeNotations.
+Require Export TypeTheory.OtherDefs.CwF_Pitts.
+Require Export TypeTheory.Categories.category_of_elements.
 
 Set Automatic Introduction.
 

@@ -9,11 +9,11 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 (* Require UniMath.Ktheory.Utilities. *)
 
-Require Import Systems.Auxiliary.
-Require Import Systems.UnicodeNotations.
-Require Import Systems.Displayed_Cats.Auxiliary.
-Require Import Systems.Displayed_Cats.Core.
-Require Import Systems.Displayed_Cats.Constructions.
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.UnicodeNotations.
+Require Import TypeTheory.Displayed_Cats.Auxiliary.
+Require Import TypeTheory.Displayed_Cats.Core.
+Require Import TypeTheory.Displayed_Cats.Constructions.
 
 
 Local Set Automatic Introduction.

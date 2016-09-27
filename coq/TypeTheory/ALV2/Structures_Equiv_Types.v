@@ -8,19 +8,18 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Require Import UniMath.CategoryTheory.equivalences.
 
-Require Import Systems.Auxiliary.
-Require Import Systems.UnicodeNotations.
-Require Import Systems.Displayed_Cats.Auxiliary.
-Require Import Systems.Displayed_Cats.Core.
-
-Require Import Systems.Displayed_Cats.Constructions.
-Require Import Systems.Displayed_Cats.Equivalences.
-Require Import Systems.Structures.
-Require Import Systems.CwF_SplitTypeCat_Maps.
-
-Require Import Systems.Structures_Cats.
-Require Import Systems.Structures_Univalent_Cats.
-Require Import Systems.Structures_Equiv_Cats.
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.UnicodeNotations.
+Require Import TypeTheory.ALV1.Structures.
+Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
+Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.
+Require Import TypeTheory.Displayed_Cats.Auxiliary.
+Require Import TypeTheory.Displayed_Cats.Core.
+Require Import TypeTheory.Displayed_Cats.Constructions.
+Require Import TypeTheory.Displayed_Cats.Equivalences.
+Require Import TypeTheory.ALV2.Structures_Cats.
+Require Import TypeTheory.ALV2.Structures_Univalent_Cats.
+Require Import TypeTheory.ALV2.Structures_Equiv_Cats.
 
 Local Set Automatic Introduction.
 
@@ -61,7 +60,7 @@ Section Compare_Equivs_of_Types.
 
 Context (X : obj_ext_Precat C).
  
-Require Import Systems.CwF_SplitTypeCat_Equivalence.
+
 
 Theorem compare_fam_qq_equivs
   : fam_struc_to_qq_struc_equiv_types X = weq_CwF_SplitTypeCat X.

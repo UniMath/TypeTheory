@@ -10,7 +10,7 @@
 *)
 
 
-Require Import Systems.UnicodeNotations.
+Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 (** * Definition of a [graph] as two types with source and target maps *)
 

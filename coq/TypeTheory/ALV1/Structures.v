@@ -18,8 +18,8 @@ Require Export UniMath.CategoryTheory.opp_precat.
 Require Export UniMath.CategoryTheory.category_hset.
 Require Export UniMath.CategoryTheory.yoneda.
 
-Require Export Systems.Auxiliary.
-Require Export Systems.UnicodeNotations.
+Require Export TypeTheory.Auxiliary.Auxiliary.
+Require Export TypeTheory.Auxiliary.UnicodeNotations.
 
 Set Automatic Introduction.
 

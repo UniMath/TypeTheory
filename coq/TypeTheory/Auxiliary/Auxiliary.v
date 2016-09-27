@@ -24,7 +24,7 @@ Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.equivalences.
 
-Require Import Systems.UnicodeNotations.
+Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Set Automatic Introduction.
 

@@ -5,8 +5,6 @@
 
 *)
 
-Require Import Systems.Auxiliary.
-Require Import Systems.UnicodeNotations.
 Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
@@ -16,8 +14,10 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.precomp_fully_faithful.
 Require Import UniMath.CategoryTheory.rezk_completion.
-Require Import Systems.RelUnivStructure.
-Require Import Systems.Structures.
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.UnicodeNotations.
+Require Import TypeTheory.ALV1.RelUnivStructure.
+Require Import TypeTheory.ALV1.Structures.
 
 Set Automatic Introduction.
 

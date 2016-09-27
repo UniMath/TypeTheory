@@ -12,10 +12,10 @@
 
 Require Import UniMath.CategoryTheory.total2_paths.
 
-Require Import Systems.Auxiliary.
-Require Import Systems.UnicodeNotations.
-Require Import Systems.OtherDefs.TypeCat.
-Require Import Systems.OtherDefs.CwF_Pitts.
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.UnicodeNotations.
+Require Import TypeTheory.OtherDefs.TypeCat.
+Require Import TypeTheory.OtherDefs.CwF_Pitts.
 
 
 (* TODO: move *)

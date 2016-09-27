@@ -11,12 +11,12 @@ Main definitions:
 
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 
-Require Import Systems.UnicodeNotations.
-Require Import Systems.Auxiliary.
-Require Import Systems.Structures.
+Require Import TypeTheory.Auxiliary.UnicodeNotations.
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.ALV1.Structures.
 
-Require Import Systems.Displayed_Cats.Auxiliary.
-Require Import Systems.Displayed_Cats.Core.
+Require Import TypeTheory.Displayed_Cats.Auxiliary.
+Require Import TypeTheory.Displayed_Cats.Core.
 
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)

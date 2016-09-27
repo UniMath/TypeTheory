@@ -10,11 +10,11 @@ Contents:
 
 *)
 
-Require Export Systems.UnicodeNotations.
 Require Export UniMath.Foundations.Basics.Sets.
 Require Export UniMath.CategoryTheory.precategories.
 Require Export UniMath.CategoryTheory.UnicodeNotations.
 Require Export UniMath.CategoryTheory.limits.pullbacks.
+Require Export TypeTheory.Auxiliary.UnicodeNotations.
 
 Section Prelims.
 

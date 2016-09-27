@@ -12,15 +12,15 @@ Contents:
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import Systems.Auxiliary.
-Require Import Systems.UnicodeNotations.
-Require Import Systems.OtherDefs.TypeCat.
-Require Import Systems.OtherDefs.CwF_Pitts.
-Require Import Systems.OtherDefs.TypeCat.
-Require Import Systems.OtherDefs.DM.
-Require Import Systems.OtherDefs.CwF_Pitts_to_TypeCat.
-Require Import Systems.OtherDefs.CwF_Pitts_to_DM.
-Require Import Systems.OtherDefs.TypeCat_to_DM.
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.UnicodeNotations.
+Require Import TypeTheory.OtherDefs.TypeCat.
+Require Import TypeTheory.OtherDefs.CwF_Pitts.
+Require Import TypeTheory.OtherDefs.TypeCat.
+Require Import TypeTheory.OtherDefs.DM.
+Require Import TypeTheory.OtherDefs.CwF_Pitts_to_TypeCat.
+Require Import TypeTheory.OtherDefs.CwF_Pitts_to_DM.
+Require Import TypeTheory.OtherDefs.TypeCat_to_DM.
 
 
 Section compare_maps.
