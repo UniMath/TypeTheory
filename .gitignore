@@ -115,6 +115,9 @@ sympy-plots-for-*.tex/
 *.v.d
 *.vo
 Makefile*.coq
+coq/.coq_makefile_input
+coq/.coq_makefile_output
+coq/build/CoqMakefile.make
 
 # for Coq generated documentation
 coq/html/*
