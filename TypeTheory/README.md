@@ -34,8 +34,6 @@ We give an overview of the packages and refer to each package's README for detai
 * *ALV2/*
   * Construction of an equivalence of categories between families structures and split type structures using
     displayed categories
-* *Bicats/*
-  * Definition of bicategories
 * *OtherDefs/*
   * Some categorical structures used in the study of type theory
 

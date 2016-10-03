@@ -9,7 +9,6 @@ endif
 ############################################
 # The packages, listed in order by dependency:
 PACKAGES += Auxiliary
-PACKAGES += Bicats
 PACKAGES += ALV1
 PACKAGES += Displayed_Cats
 PACKAGES += ALV2
