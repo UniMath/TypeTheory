@@ -1,4 +1,6 @@
 *.backup
+.coq_makefile_input
+build/CoqMakefile.make
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
