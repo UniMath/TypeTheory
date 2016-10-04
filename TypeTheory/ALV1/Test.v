@@ -25,7 +25,7 @@ Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
 Require Import TypeTheory.ALV1.CwF_RelUnivYoneda.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.
-Require Import TypeTheory.ALV1.EquivCats_Q_q.
+Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Cats_Standalone.
 
 
 (** * Transfer of relative universe structure from Yoneda on a category to Yoneda on its Rezk completion *)

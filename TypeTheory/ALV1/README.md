@@ -7,13 +7,13 @@ Contents
 
 We give a per-file overview of the contents of this package:
 
-* *CwF_SplitTypeCat.v*
+* *CwF_SplitTypeCat_Defs.v*
   * Definition of families structures and split type structures in terms of smaller structures
 * *CwF_SplitTypeCat_Maps.v*
   * Construction of maps between cartesian generator structures and cartesian q-morphisms structures
 * *CwF_SplitTypeCat_Equivalence.v*
   * Construction of an equivalence of *types* between cartesian generator structures and cartesian q-morphisms structures
-* *EquivCats_Q_q.v*
+* *CwF_SplitTypeCat_Cats_Standalone.v*
   * Construction of an equivalence of *categories* between cartesian generator structures and cartesian q-morphisms structures
 * *RelUnivStructure.v*
   * Definition of relative universe structures

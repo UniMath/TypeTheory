@@ -1,10 +1,10 @@
 
 
-(*
-Require Import UniMath.Foundations.Basics.Sets.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
-
+(* This file compares two equivalences:
+- the one given directly, in [CwF_SplitTypeCat_Equivalence]
+- the one provided in [CwF_SplitTypeCat_Equiv_Cats]
 *)
+
 
 Require Import UniMath.CategoryTheory.equivalences.
 
