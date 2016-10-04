@@ -16,8 +16,11 @@ In this file, we define functions back and forth and show that
 *)
 
 
-Require Import UniMath.Foundations.hlevel2.hSet.
-Require Import TypeTheory.UnicodeNotations.
+Require Import UniMath.Foundations.Basics.Sets.
+
+Require Import UniMath.CategoryTheory.UnicodeNotations.
+
+Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.Categories.ess_alg_categories.
 
 
@@ -80,7 +83,7 @@ Definition id_op1 : @id_op graph_w_comp_from_gen_alg :=
 
 Lemma ess_alg_cat_axioms_from_gen_alg : ess_alg_cat_axioms graph_w_comp_from_gen_alg.
 Proof.
-  split.
+  split; [ | split].
   - repeat split.
     + exists id_op1.
       repeat split.
@@ -102,27 +105,26 @@ Proof.
         apply maponpaths.
         rewrite id_right.
         rewrite idtomor_left. apply idpath. }
-   + intros f g h p q p' q'; simpl.
-     unfold graph_from_gen_alg_comp; simpl.
-     apply maponpaths; simpl.
-     destruct f as [[a b] f].
-     destruct g as [[b' c] g].
-     destruct h as [[c' d] h].
-     simpl in *. unfold target, source in *; simpl in *.
-     unfold precategory_source, precategory_target in *; simpl in *. 
-     repeat (match goal with | [ H : _ = _ |- _ ] => destruct H end).
-     simpl.
-     rewrite id_right.
-     rewrite idtomor_left.
-     rewrite id_right.
-     rewrite idtomor_left.
-     apply precategories.assoc.
-   + apply H.
- - apply (isofhleveltotal2 2).
-   + apply isofhleveldirprod.
-     apply H.
-     apply H.
-   + intro x. apply hs.
+  - repeat split.
+    intros f g h p q p' q'; simpl.
+    unfold graph_from_gen_alg_comp; simpl.
+    apply maponpaths; simpl.
+    destruct f as [[a b] f].
+    destruct g as [[b' c] g].
+    destruct h as [[c' d] h].
+    simpl in *. unfold target, source in *; simpl in *.
+    unfold precategory_source, precategory_target in *; simpl in *. 
+    repeat (match goal with | [ H : _ = _ |- _ ] => destruct H end).
+    simpl.
+    rewrite id_right.
+    rewrite idtomor_left.
+    rewrite id_right.
+    rewrite idtomor_left.
+    apply precategories.assoc.
+ - split.
+   + apply H. 
+   + apply isaset_total2. apply isaset_dirprod; try assumption.
+     intro x; apply hs.
 Qed.
 
 End ess_alg_from_gen_alg.
@@ -138,9 +140,8 @@ Definition hom (a b : C) : UU := Σ f : mor C, source f = a × target f = b.
 Lemma hom_eq (a b : C) (f f' : hom a b) : pr1 f = pr1 f' → f = f'.
 Proof.
   intro H.  
-  apply total2_paths_second_isaprop.
-  - apply isapropdirprod; apply (pr2 (pr1 (pr2 C))).
-  - assumption.
+  apply subtypeEquality; try assumption.
+  intro x. apply isapropdirprod; apply (isaset_objects C (pr2 C)).
 Qed.
 
 Definition composition {a b c : C} (f : hom a b) (g : hom b c) : hom a c.
