@@ -4,5 +4,5 @@ CwF_SplitTypeCat_Maps.v
 EquivCats_Q_q.v
 RelUnivStructure.v
 RelUnivYonedaCompletion.v
-CwF_SplitTypeCats.v
+CwF_SplitTypeCat_Defs.v
 Test.v

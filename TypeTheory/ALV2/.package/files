@@ -1,4 +1,4 @@
-CwF_SplitTypeCats_Cats.v
-CwF_SplitTypeCats_Equiv_Cats.v
-CwF_SplitTypeCats_Equiv_Types.v
-CwF_SplitTypeCats_Univalent_Cats.v
+CwF_SplitTypeCat_Cats.v
+CwF_SplitTypeCat_Equiv_Cats.v
+CwF_SplitTypeCat_Equiv_Types.v
+CwF_SplitTypeCat_Univalent_Cats.v

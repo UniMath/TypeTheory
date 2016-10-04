@@ -21,7 +21,7 @@ Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.precomp_fully_faithful.
 Require Import UniMath.CategoryTheory.rezk_completion.
 Require Import TypeTheory.ALV1.RelUnivStructure.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCats.
+Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
 Require Import TypeTheory.ALV1.CwF_RelUnivYoneda.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.

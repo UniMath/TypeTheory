@@ -21,7 +21,7 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.RelUnivStructure.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCats.
+Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 
 Set Automatic Introduction.
 

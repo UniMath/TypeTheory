@@ -7,7 +7,7 @@ Contents
 
 We give a per-file overview of the contents of this package:
 
-* *CwF_SplitTypeCats.v*
+* *CwF_SplitTypeCat.v*
   * Definition of families structures and split type structures in terms of smaller structures
 * *CwF_SplitTypeCat_Maps.v*
   * Construction of maps between cartesian generator structures and cartesian q-morphisms structures

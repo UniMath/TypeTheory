@@ -15,7 +15,7 @@ Require Export UniMath.CategoryTheory.yoneda.
 
 Require Export TypeTheory.Auxiliary.Auxiliary.
 Require Export TypeTheory.Auxiliary.UnicodeNotations.
-Require Export TypeTheory.ALV1.CwF_SplitTypeCats.
+Require Export TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
 
 (* TODO: much cleanup needed.  In particular: update terminolog conen, e.g. [qq_] etc.! *)
