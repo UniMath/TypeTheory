@@ -1,12 +1,16 @@
 (**
 
- Ahrens, Lumsdaine, Voevodsky, 2015 - 2016
+Ahrens, Lumsdaine, Voevodsky, 2015 - 2016
 
-Key definitions:
+In this file, we give the definitions of _split type-categories_ (originally due to Cartmell, here following a version given by Pitts) and _categories with families_ (originally due to Dybjer, here following a formulation given by Fiore).
+
+To facilitate comparing them afterwards, we split up their definitions in a slightly unusual way, starting with the part they share.  The key definitions of this file are therefore (all over a fixed base (pre)category [C]):  
 
 - _object-extension structures_, [obj_ext_structure], the common core of CwF’s and split type-categories;
-- _families structures_, [families_structure], for building CwF’s;
-- _q-morphism structures_, [qq_morphism_structure], for building split type-categories
+- _families structures_, [families_structure], the rest of the structure of a CwF on [C];
+- _cwf-structure_, [cwf_structure], the full structure of a CwF on [C]; 
+- _q-morphism structures_, [qq_morphism_structure], for rest of the structure of a split type-category on [C];
+- _split type-cat structures_, [split_typecat_structure], the full structure of a split type-category on [C].
 
 *)
 
@@ -120,7 +124,7 @@ Context {X : obj_ext_structure}.
 
 (** * Families structures 
 
-We now define the extra structure, over an object-extension structure, which constitutes a _category with families_ in the sense of Dybjer, as reformulated by Fiore. 
+We now define the extra structure, over an object-extension structure, which constitutes a _category with families_ in the sense of Fiore, _Algebraic Type Theory_, 2008 #(<a href="http://www.cl.cam.ac.uk/~mpf23/Notes/att.pdf">link</a>)#, a reformulation of Dybjer’s original definition, replacing the functor [C --> FAM] with an arrow in [preShv C].
 
 Components of [Y : families_structure X]:
 
@@ -227,15 +231,17 @@ Proof.
   destruct e. apply maponpaths, id_right.
 Qed.
 
+
 (** * Cartesian _q_-morphism structures, split type-categories
 
 On the other hand, _(cartesian) q-morphism structure_ (over an object-extension structure) is what is required to constitute a _split type-category_.
 
-These are essentially the _type-categories_ of Andy Pitts, _Categorical Logic_, 2000, Def. 6.3.3
-#(<a href="https://synrc.com/publications/cat/Category%%20Theory/Categorical%%20Logic/Pitts%%20A.M.%%20Categorical%%20Logic.pdf##page=73">link</a>).#
+Up to ordering/groupoing of the components, these are essentially the _type-categories_ of Andy Pitts, _Categorical Logic_, 2000, Def. 6.3.3 #(<a href="http://www.cl.cam.ac.uk/techreports/UCAM-CL-TR-367.html">link</a>)# (which in turn were a reformulation of Cartmell’s _categories with attributes_).
 
 Our terminology follows van den Berg and Garner, _Topological and simplicial models_, Def 2.2.1 #(<a href="http://arxiv.org/abs/1007.4638">arXiv</a>)# 
 in calling this notion a _split_ type-category, and reserving _type-category_ (unqualified) for the weaker version without hSet/splitness assumptions.  We formalise non-split type-categories elsewhere, since they do not extend object-extension structures.
+
+Beyond the object extension structure, the only further data in a split type-category is the morphisms customarily denoted _q(f,a)_ : Γ ◂ _A_ --> Γ (satisfying certain axioms).  We therefore call this data a _q_-morphism structure.
 
 Components of [Z : qq_morphism_structure X]:
 
