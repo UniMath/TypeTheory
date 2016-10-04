@@ -13,14 +13,14 @@
   http://www.cl.cam.ac.uk/~amp12/papers/nompcs/nompcs.pdf (page=9)
 *)
 
-Require Export UniMath.CategoryTheory.functor_categories.
-Require Export UniMath.CategoryTheory.UnicodeNotations.
-Require Export UniMath.CategoryTheory.category_hset.
-Require Export UniMath.CategoryTheory.opp_precat.
-Require Export UniMath.Foundations.Basics.Sets.
-Require Export UniMath.CategoryTheory.limits.pullbacks.
-Require Export TypeTheory.Auxiliary.Auxiliary.
-Require Export TypeTheory.Auxiliary.UnicodeNotations.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.category_hset.
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 
 Set Automatic Introduction.

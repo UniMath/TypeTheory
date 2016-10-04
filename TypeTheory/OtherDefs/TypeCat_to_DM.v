@@ -8,8 +8,9 @@
       (assumption of saturatedness needed for pullbacks forming hprop)
 *)
 
-
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.

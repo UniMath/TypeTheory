@@ -13,15 +13,15 @@
   http://www.cl.cam.ac.uk/~amp12/papers/nompcs/nompcs.pdf (page=9)
 *)
 
-Require Export Systems.Auxiliary.
-Require Export Systems.UnicodeNotations.
-Require Export UniMath.Foundations.Sets.
-Require Export UniMath.CategoryTheory.functor_categories.
-Require Export UniMath.CategoryTheory.category_hset.
-Require Export UniMath.CategoryTheory.opp_precat.
-Require Export UniMath.CategoryTheory.yoneda.
-Require Export UniMath.CategoryTheory.UnicodeNotations.
-Require Export UniMath.CategoryTheory.limits.pullbacks.
+Require Import Systems.Auxiliary.
+Require Import Systems.UnicodeNotations.
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.category_hset.
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.yoneda.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).

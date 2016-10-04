@@ -11,11 +11,11 @@
 
 *)
 
-Require Export Systems.Auxiliary.
-Require Export Systems.UnicodeNotations.
-Require Export UniMath.Foundations.hlevel2.hSet.
-Require Export UniMath.RezkCompletion.precategories.
-Require Export UniMath.RezkCompletion.limits.pullbacks.
+Require Import Systems.Auxiliary.
+Require Import Systems.UnicodeNotations.
+Require Import UniMath.Foundations.hlevel2.hSet.
+Require Import UniMath.RezkCompletion.precategories.
+Require Import UniMath.RezkCompletion.limits.pullbacks.
 
 Require Import UniMath.Foundations.Proof_of_Extensionality.funextfun.
 

@@ -1,8 +1,8 @@
 
-Require Export UniMath.CategoryTheory.precategories.
-Require Export UniMath.CategoryTheory.functor_categories.
-Require Export UniMath.CategoryTheory.opp_precat.
-Require Export UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 
 (** * (Unicode) Notation for various types and operations  *)

@@ -6,16 +6,19 @@
     - not much yet
 *)
 
-Require Export UniMath.Foundations.Basics.Sets.
-Require Export UniMath.CategoryTheory.functor_categories.
-Require Export UniMath.CategoryTheory.category_hset.
-Require Export UniMath.CategoryTheory.yoneda.
-Require Export UniMath.CategoryTheory.rezk_completion.
+Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.category_hset.
+Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.yoneda.
+Require Import UniMath.CategoryTheory.rezk_completion.
 
-Require Export TypeTheory.Auxiliary.Auxiliary.
-Require Export TypeTheory.Auxiliary.UnicodeNotations.
-Require Export TypeTheory.OtherDefs.CwF_Pitts.
-Require Export TypeTheory.Categories.category_of_elements.
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.UnicodeNotations.
+Require Import TypeTheory.OtherDefs.CwF_Pitts.
+Require Import TypeTheory.Categories.category_of_elements.
 
 Set Automatic Introduction.
 

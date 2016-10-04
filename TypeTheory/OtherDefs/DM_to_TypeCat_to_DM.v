@@ -9,6 +9,7 @@
 *)
 
 
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.total2_paths.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.

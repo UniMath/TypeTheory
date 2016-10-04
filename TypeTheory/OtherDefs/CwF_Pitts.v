@@ -13,11 +13,11 @@
   http://www.cl.cam.ac.uk/~amp12/papers/nompcs/nompcs.pdf (page=9)
 *)
 
-Require Export UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Export UniMath.CategoryTheory.UnicodeNotations.
-Require Export TypeTheory.Auxiliary.Auxiliary.
-Require Export TypeTheory.Auxiliary.UnicodeNotations.
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Set Automatic Introduction.
 

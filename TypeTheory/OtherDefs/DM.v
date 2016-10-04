@@ -12,12 +12,12 @@
 *)
 
 Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
-Require Export UniMath.Foundations.Basics.Sets.
-Require Export UniMath.CategoryTheory.precategories.
-Require Export UniMath.CategoryTheory.UnicodeNotations.
-Require Export UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.limits.pullbacks.
 
-Require Export TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Set Automatic Introduction.

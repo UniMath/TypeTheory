@@ -6,8 +6,12 @@
 *)
 
 Require Import UniMath.Foundations.Basics.Sets.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.category_hset.
+Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.equivalences.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.

@@ -18,12 +18,12 @@ Contents:
 
 *)
 
-Require Export UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Export UniMath.CategoryTheory.UnicodeNotations.
-Require Export UniMath.CategoryTheory.functor_categories.
-Require Export TypeTheory.Auxiliary.Auxiliary.
-Require Export TypeTheory.Auxiliary.UnicodeNotations.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Set Automatic Introduction.
 
