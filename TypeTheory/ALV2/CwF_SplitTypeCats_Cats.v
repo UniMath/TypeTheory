@@ -13,7 +13,7 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.Auxiliary.Auxiliary.
-Require Import TypeTheory.ALV1.Structures.
+Require Import TypeTheory.ALV1.CwF_SplitTypeCats.
 
 Require Import TypeTheory.Displayed_Cats.Auxiliary.
 Require Import TypeTheory.Displayed_Cats.Core.

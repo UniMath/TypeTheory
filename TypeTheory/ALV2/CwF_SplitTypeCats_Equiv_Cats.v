@@ -16,9 +16,9 @@ Require Import TypeTheory.Displayed_Cats.Auxiliary.
 Require Import TypeTheory.Displayed_Cats.Core.
 Require Import TypeTheory.Displayed_Cats.Constructions.
 Require Import TypeTheory.Displayed_Cats.Equivalences.
-Require Import TypeTheory.ALV1.Structures.
+Require Import TypeTheory.ALV1.CwF_SplitTypeCats.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
-Require Import TypeTheory.ALV2.Structures_Cats.
+Require Import TypeTheory.ALV2.CwF_SplitTypeCats_Cats.
 
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)

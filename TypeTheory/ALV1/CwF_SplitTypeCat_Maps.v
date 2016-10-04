@@ -12,7 +12,7 @@ Require Import UniMath.CategoryTheory.functor_categories.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
-Require Import TypeTheory.ALV1.Structures.
+Require Import TypeTheory.ALV1.CwF_SplitTypeCats.
 
 
 Local Set Automatic Introduction.

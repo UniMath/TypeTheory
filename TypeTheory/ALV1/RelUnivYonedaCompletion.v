@@ -17,7 +17,7 @@ Require Import UniMath.CategoryTheory.rezk_completion.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.ALV1.RelUnivStructure.
-Require Import TypeTheory.ALV1.Structures.
+Require Import TypeTheory.ALV1.CwF_SplitTypeCats.
 
 Set Automatic Introduction.
 

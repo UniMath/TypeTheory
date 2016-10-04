@@ -1,4 +1,4 @@
-Structures_Cats.v
-Structures_Equiv_Cats.v
-Structures_Equiv_Types.v
-Structures_Univalent_Cats.v
+CwF_SplitTypeCats_Cats.v
+CwF_SplitTypeCats_Equiv_Cats.v
+CwF_SplitTypeCats_Equiv_Types.v
+CwF_SplitTypeCats_Univalent_Cats.v

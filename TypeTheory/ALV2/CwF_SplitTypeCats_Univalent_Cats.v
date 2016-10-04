@@ -12,9 +12,9 @@ Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.Displayed_Cats.Auxiliary.
 Require Import TypeTheory.Displayed_Cats.Core.
 Require Import TypeTheory.Displayed_Cats.Constructions.
-Require Import TypeTheory.ALV1.Structures.
-Require Import TypeTheory.ALV2.Structures_Cats.
-Require Import TypeTheory.ALV2.Structures_Equiv_Cats.
+Require Import TypeTheory.ALV1.CwF_SplitTypeCats.
+Require Import TypeTheory.ALV2.CwF_SplitTypeCats_Cats.
+Require Import TypeTheory.ALV2.CwF_SplitTypeCats_Equiv_Cats.
 
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
