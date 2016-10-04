@@ -14,10 +14,11 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.precomp_fully_faithful.
 Require Import UniMath.CategoryTheory.rezk_completion.
+Require Import UniMath.CategoryTheory.yoneda.
+Require Import UniMath.CategoryTheory.category_hset.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.ALV1.RelUnivStructure.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCats.
 
 Set Automatic Introduction.
 
