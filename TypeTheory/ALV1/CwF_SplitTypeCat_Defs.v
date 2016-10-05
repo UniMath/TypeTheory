@@ -8,11 +8,16 @@ To facilitate comparing them afterwards, we split up their definitions in a slig
 
 - _object-extension structures_, [obj_ext_structure], the common core of CwF’s and split type-categories;
 - _families structures_, [families_structure], the rest of the structure of a CwF on [C];
-- _cwf-structure_, [cwf_structure], the full structure of a CwF on [C]; 
+- _cwf-structures_, [cwf_structure], the full structure of a CwF on a precategory [C]; 
+- _CwF’s_, [cwf]; 
 - _q-morphism structures_, [qq_morphism_structure], for rest of the structure of a split type-category on [C];
 - _split type-cat structures_, [split_typecat_structure], the full structure of a split type-category on [C].
+- _split type-categories_, [split_typecat].
 
+NB: for now, we follow the literature in saying e.g. _category_ with families and split type-_category_, but these definitions do not include saturation, so are really _precategories_ with families, etc.
 *)
+
+(* TODO: consider renaming the definitions to [precwf], [split_type_precat], etc. *)
 
 Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
@@ -354,3 +359,48 @@ Arguments families_structure_axioms [_] _ _ _ : clear implicits.
 Arguments families_structure [_] _ _ : clear implicits.
 Arguments qq_morphism_data [_] _ : clear implicits.
 Arguments qq_morphism_structure [_] _ : clear implicits.
+
+(** * CwF’s, split type-categories *)
+
+(** Details and documentation of these definitions, are given with [families_structure] and [qq_morphism_structure] above. *)
+
+Definition cwf_structure {C : precategory} (hsC : has_homsets C) : UU 
+:= Σ X : obj_ext_structure C, families_structure hsC X.
+
+Coercion obj_ext_structure_of_cwf_structure {C : precategory} {hsC : has_homsets C}
+:= pr1 : cwf_structure hsC -> obj_ext_structure C.
+
+Coercion families_structure_of_cwf_structure
+  {C : precategory} {hsC : has_homsets C}
+:= pr2 : forall XY : cwf_structure hsC, families_structure hsC XY.
+
+Definition cwf : UU
+  := Σ (C : precategory) (hsC : has_homsets C), (cwf_structure hsC).
+
+Coercion precategory_of_cwf := pr1 : cwf -> precategory.
+
+Coercion has_homsets_of_cwf := (fun C => pr1 (pr2 C)) 
+: forall C : cwf, has_homsets C.
+
+Coercion cwf_structure_of_cwf := (fun C => pr2 (pr2 C)) 
+: forall C : cwf, cwf_structure C.
+
+Definition split_typecat_structure (C : precategory) : UU 
+:= Σ X : obj_ext_structure C, qq_morphism_structure X.
+
+Coercion obj_ext_structure_of_split_typecat_structure {C : precategory}
+:= pr1 : split_typecat_structure C -> obj_ext_structure C.
+
+Coercion qq_morphism_structure_of_split_typecat_structure {C : precategory}
+:= pr2 : forall XY : split_typecat_structure C, qq_morphism_structure XY.
+
+Definition split_typecat : UU
+  := Σ (C : precategory), (has_homsets C) × (split_typecat_structure C).
+
+Coercion precategory_of_split_typecat := pr1 : split_typecat -> precategory.
+
+Coercion has_homsets_of_split_typecat := (fun C => pr1 (pr2 C)) 
+: forall C : split_typecat, has_homsets C.
+
+Coercion split_typecat_structure_of_split_typecat := (fun C => pr2 (pr2 C)) 
+: forall C : split_typecat, split_typecat_structure C.
