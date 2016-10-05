@@ -198,8 +198,6 @@ Section Families_Structure_Precat.
 Context {C : Precategory}.
 Local Notation hsC := (homset_property C).
 
-Local Notation "'Yo'" := (yoneda _ hsC).
-
 Definition families_mor {X X' : obj_ext_Precat C}
     (Y : families_structure C X) (Y' : families_structure C X') (F : X --> X')
   : UU

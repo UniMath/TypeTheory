@@ -689,6 +689,9 @@ End eqv_from_ess_split_and_ff.
 Definition preShv C
 := functorPrecategory C^op (Precategory_pair _ has_homsets_HSET).
 
+Notation "'Yo'" := (yoneda _ (homset_property _) : functor _ (preShv _)).
+Notation "'Yo^-1'" := (invweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
+
 (* TODO: perhaps rename e.g. [yoneda_eq]? *)
 Definition yy {C : precategory} {hsC : has_homsets C}
   {F : preShv C} {c : C} : ((F : functor _ _) c : hSet) ≃ _ ⟦ yoneda _ hsC c, F⟧.

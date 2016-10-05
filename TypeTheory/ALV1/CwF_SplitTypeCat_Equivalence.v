@@ -31,9 +31,6 @@ Context {C : Precategory} (X : obj_ext_structure C).
 
 Local Notation hsC := (homset_property C).
 
-Local Notation "'Yo'" := (yoneda C hsC).
-Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
-
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
 Local Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).
@@ -123,7 +120,7 @@ Proof.
           match goal with |[ |- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => 
                        set (XR3:=HH) end;
           rewrite (PullbackArrow_PullbackPr1 XR3);
-          apply pathsinv0; apply (functor_id Yo)
+          apply pathsinv0; refine (functor_id Yo _)
         ).
 Time Defined.
 
@@ -180,9 +177,9 @@ Proof.
       etrans. apply maponpaths. apply maponpaths.
               apply comp_ext_compare_π.
       etrans. apply (PullbackArrow_PullbackPr1 XR).
-      etrans. Focus 2. apply (functor_comp Yo).
+      etrans. Focus 2. refine (functor_comp Yo _ _ _ _ _).
       etrans. Focus 2. apply maponpaths. apply (!e).
-      apply pathsinv0. apply (functor_id Yo).
+      apply pathsinv0. refine (functor_id Yo _).
     + etrans. apply (!assoc _ _ _ ).
       etrans. apply maponpaths.
               apply comp_ext_compare_Q.
@@ -318,7 +315,7 @@ Proof.
     apply PullbackArrowUnique.
     + etrans. apply maponpaths. cbn. apply idpath.
       rewrite <- functor_comp.
-      etrans. eapply pathsinv0. apply (functor_comp Yo).
+      etrans. eapply pathsinv0. refine (functor_comp Yo _ _ _ _ _).
       apply maponpaths.
       apply pathsinv0. apply (pr1 (h _ _ _ _ )).
     + etrans. apply maponpaths. cbn. apply idpath.

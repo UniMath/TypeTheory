@@ -34,13 +34,10 @@ Let hsRC : has_homsets RC := pr2 (pr2 (RC)).
 
 Let hsRCop : has_homsets RC^op := has_homsets_opp hsRC.
 
-Local Notation "'Yo'" := (yoneda _ hsC : functor C (preShv C)).
-Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
-
 Local Notation "'YoR'" := (yoneda _ hsRC : functor _ (preShv _)).
 Local Notation "'YoR^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsRC _ _ ))).
 
-Hypothesis X : relative_universe_structure Yo.
+Hypothesis X : @relative_universe_structure C _ Yo.
 
 Let YoR_ff : fully_faithful YoR := yoneda_fully_faithful _ hsRC.
 

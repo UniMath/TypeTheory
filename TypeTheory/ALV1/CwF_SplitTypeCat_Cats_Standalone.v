@@ -41,14 +41,12 @@ Local Notation Δ := comp_ext_compare.
 Section fix_cat_obj_ext.
 
 Variable C : Precategory.
-Definition hsC : has_homsets C := homset_property C.
+Local Notation "'hsC'" := (homset_property C).
 Variable X : obj_ext_structure C.
 
 
 (** * Precategory of families-structures *)
 Section Families_Structure_Precat.
-
-Local Notation "'Yo'" := (yoneda _ hsC).
 
 (* TODO: this should be called differently.
          families is the name of Sigma obj-ext plus this

@@ -27,9 +27,6 @@ Context {C : Precategory} {X : obj_ext_structure C}.
 
 Local Notation hsC := (homset_property C).
 
-Local Notation "'Yo'" := (yoneda C hsC).
-Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
-
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
 Local Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).
@@ -504,7 +501,7 @@ Proof.
   - apply (pr1 (pr2 Y _ _ )).
   - apply (pr2 (pr2 Y _ _ )).
   - match goal with [|- isPullback _ _ _ _ ?HH ] => generalize HH end.
-    rewrite <- yy_natural.
+    rewrite <- (@yy_natural C).
     rewrite Yo_of_qq_commutes_2.
     intro.
     apply (pr2 (pr2 Y _ _ )).
@@ -567,7 +564,7 @@ Proof.
     apply PullbackArrowUnique. 
     + etrans. apply maponpaths. cbn. apply idpath. 
       rewrite <- functor_comp.
-      etrans. eapply pathsinv0. apply (functor_comp Yo).
+      etrans. eapply pathsinv0. refine (functor_comp Yo _ _ _ _ _).
       apply maponpaths. rewrite (@comp_ext_compare_π _ X).
       apply pathsinv0. apply id_right.
     + etrans. apply maponpaths. cbn. apply idpath.
@@ -578,7 +575,7 @@ Proof.
     sym. apply PullbackArrowUnique.
     + etrans. apply maponpaths. cbn. apply idpath.
       rewrite <- functor_comp.
-      etrans. eapply pathsinv0. apply (functor_comp Yo).
+      etrans. eapply pathsinv0. refine (functor_comp Yo _ _ _ _ _).
       apply maponpaths.
       rewrite <- assoc. rewrite <- qq_commutes_1 .
       repeat rewrite assoc.

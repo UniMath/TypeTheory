@@ -32,13 +32,6 @@ Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Set Automatic Introduction.
 
-(*
-Context {C : precategory} {hsC : has_homsets C}.
-
-Local Notation "'Yo'" := (yoneda _ hsC).
-Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
-*)
-
 (** * Object-extension structures 
 
 We start by fixing the common core of families structures and split type-category structures: an _object-extension structure_, a presheaf together with “extension” and “dependent projection” operations.
@@ -132,8 +125,6 @@ Section Families_Structures.
 Context {C : Precategory} {X : obj_ext_structure C}.
 
 Local Notation "'hsC'" := (homset_property C).
-Local Notation "'Yo'" := (yoneda _ (homset_property _)).
-Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
 
 (** * Families structures 
 

@@ -43,9 +43,6 @@ Context {C : Precategory}.
 
 Local Notation hsC := (homset_property C).
 
-Local Notation "'Yo'" := (yoneda C hsC).
-Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
-
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
 

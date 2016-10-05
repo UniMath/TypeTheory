@@ -38,9 +38,6 @@ Variable C : Precategory.
 
 Local Notation "'hsC'" := (homset_property C).
 
-Local Notation "'Yo'" := (yoneda _ hsC : functor _ (preShv _)).
-Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
-
 (** a [RelUnivYo] as a [relative_universe_structure] on [Yo] is
     - two presheaves tU, U
     - a morphism of presheaves p : tU -> U
@@ -56,9 +53,7 @@ Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _
 *)
 
 Definition RelUnivYo_structure : UU
- := relative_universe_structure Yo.
-
-
+ := @relative_universe_structure C _ Yo.
 
 (** a CwF' as below is
     - a triple (Ty, ◂ + π) of object extension
