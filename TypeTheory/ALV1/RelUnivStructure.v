@@ -12,6 +12,7 @@ Contents:
   see [isaprop_fcomprehension]
 - Definition of a relative universe structure,
   see [relative_universe_structure]
+  Definition due to Vladimir Voevodsky
 - Transfer of a relative universe structure along
   two functors and a natural isomorphism, 
   see [rel_univ_struct_functor]
