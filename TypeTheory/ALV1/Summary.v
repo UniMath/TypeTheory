@@ -23,7 +23,15 @@ Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Cats_Standalone.
 
 
 (** * Transfer of relative universe structure from Yoneda on a category to Yoneda on its Rezk completion *)
-Check Rezk_on_RelUnivYoneda.
+Definition Rezk_on_RelUnivYoneda
+     : Π C : Precategory,
+       relative_universe_structure (yoneda C (homset_property C))
+       → relative_universe_structure
+           (yoneda (Rezk_completion C (homset_property C))
+              (homset_property (Rezk_completion C (homset_property C)))).
+Proof.
+  exact Rezk_on_RelUnivYoneda.
+Defined.
 Print Assumptions Rezk_on_RelUnivYoneda.
 (**
 <<
@@ -37,8 +45,12 @@ Type hierarchy is collapsed (logic is inconsistent)
 *)
 
 (** * Equivalence between type of CwF structures on C and of rel universe structures on Yoneda*)
-Check weq_RelUnivYo_CwF.
-Print Assumptions Rezk_on_RelUnivYoneda.
+Definition weq_RelUnivYo_cwf_structures
+     : Π C : Precategory, RelUnivYo_structure C ≃ cwf_structure C.
+Proof.
+  exact weq_RelUnivYo_CwF.
+Defined.
+Print Assumptions weq_RelUnivYo_cwf_structures. 
 (** 
 <<
 Axioms:
@@ -51,7 +63,7 @@ Type hierarchy is collapsed (logic is inconsistent)
 *)
 
 (** * Transfer of CwF structure from a category to its Rezk completion*)
-Definition Rezk_on_CwF (C : Precategory) 
+Definition Rezk_on_cwf_structures (C : Precategory) 
            (H : cwf_structure C) 
   : cwf_structure (Rezk_completion C (homset_property _)) .
 Proof.
@@ -60,7 +72,7 @@ Proof.
   apply (invmap (weq_RelUnivYo_CwF _)).
   exact H.
 Defined.
-Print Assumptions Rezk_on_CwF.
+Print Assumptions Rezk_on_cwf_structures.
 (** 
 <<
 Axioms:
@@ -74,8 +86,13 @@ Type hierarchy is collapsed (logic is inconsistent)
 *)
 
 (** * Equivalence of types between cartesian generator structures and cartesian q-morphisms structures *)
-Check weq_CwF_SplitTypeCat.
-Print Assumptions weq_CwF_SplitTypeCat.
+Definition weq_total_term_qq_morphisms_structures
+     : Π (C : Precategory) (X : obj_ext_structure C),
+       families_structure C X ≃ qq_morphism_structure X.
+Proof.
+  exact @weq_CwF_SplitTypeCat.
+Defined.
+Print Assumptions weq_total_term_qq_morphisms_structures.
 (** 
 <<
 Axioms:
@@ -88,8 +105,20 @@ Type hierarchy is collapsed (logic is inconsistent)
 *)
 
 (** * Equivalence of categories between cartesian generator structures and cartesian q-morphisms structures *)
-Check equiv_of_structures.
-Print Assumptions equiv_of_structures.
+Definition equiv_of_category_of_cwf_split_type_structures
+     : Π (C : Precategory) (X : obj_ext_structure C),
+       adj_equivalence_of_precats
+         (functor_composite
+            (right_adjoint
+               (Auxiliary.left_adj_from_adj_equiv
+                  (compat_structures_precategory C X)
+                  (families_precategory C X)
+                  (compat_structures_pr1_functor C X) 
+                  (pr1_equiv C X))) (compat_structures_pr2_functor C X)).
+Proof.
+  exact equiv_of_structures.
+Defined.
+Print Assumptions equiv_of_category_of_cwf_split_type_structures.
 (** 
 <<
 Axioms:
@@ -101,8 +130,13 @@ Type hierarchy is collapsed (logic is inconsistent)
 *)
 
 (** * Equivalence of categories between cartesian generator structures and cartesian q-morphisms structures *)
-Check equiv_of_types_of_structures.
-Print Assumptions equiv_of_types_of_structures.
+Definition equiv_of_types_of_cwf_split_type_structures
+     : Π (C : Precategory) (X : obj_ext_structure C),
+       families_precategory C X ≃ qq_structure_precategory C X.
+Proof.
+  exact equiv_of_types_of_structures.
+Defined.
+Print Assumptions equiv_of_types_of_cwf_split_type_structures.
 (** 
 <<
 Axioms:
