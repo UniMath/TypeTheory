@@ -19,9 +19,8 @@ Contents:
 *)
 
 Require Import UniMath.Foundations.Basics.Sets.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 

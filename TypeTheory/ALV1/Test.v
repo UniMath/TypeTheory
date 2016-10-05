@@ -12,14 +12,8 @@ Contents:
 *)
 
 Require Import UniMath.Foundations.Basics.Sets.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.equivalences.
-Require Import UniMath.CategoryTheory.precomp_fully_faithful.
-Require Import UniMath.CategoryTheory.rezk_completion.
+Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+
 Require Import TypeTheory.ALV1.RelUnivStructure.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.

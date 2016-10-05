@@ -12,18 +12,26 @@ Possibly some should be upstreamed to “UniMath” eventually.
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.Foundations.Combinatorics.StandardFiniteSets.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
+Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+Require Import UniMath.CategoryTheory.category_hset_structures.
+
+(*
+
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
+
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.equivalences.
-
+*)
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Set Automatic Introduction.
@@ -886,13 +894,14 @@ Section on_pullbacks.
 *)
 
   Variable sqr_comm : f ;; k = g ;; h.
-  Variable Pb : limits.pullbacks.isPullback k h f g sqr_comm.
+  Variable Pb : isPullback k h f g sqr_comm.
 
 
   Lemma square_morphism_equal k' (e : k' = k) : f ;; k' = g ;; h.
   Proof.
     rewrite e. assumption.
   Defined.
+
   Lemma isPb_morphism_equal k' (e : k' = k) : 
         isPullback k' h f g (square_morphism_equal _ e).
   Proof.
@@ -1092,24 +1101,22 @@ Lemma isPullback_preShv_to_pointwise {C : precategory} (hsC : has_homsets C)
       ((p1 : nat_trans _ _) c) ((p2 : nat_trans _ _) c)
       (square_commutes_preShv_to_pointwise hsC e c).
 Proof.
-
   set (XR := isLimFunctor_is_pointwise_Lim C^op HSET has_homsets_HSET
-            graphs.pullbacks.pushout_graph).
-  set (XT1 := graphs.pullbacks.pullback_diagram _ f g).
+            pushout_graph).
+  set (XT1 := pullback_diagram _ f g).
   specialize (XR XT1).
   transparent assert
        (XH : (Π a : C^op,
         LimCone
           (colimits.diagram_pointwise C^op HSET has_homsets_HSET
-             pullbacks.pushout_graph XT1 a))).
-
+             pushout_graph XT1 a))).
     { intro. apply LimConeHSET.  }
     specialize (XR XH).
     specialize (XR W). 
-    set (XT := graphs.pullbacks.PullbCone _ _ _ _ p1 p2 e).
+    set (XT := PullbCone _ _ _ _ p1 p2 e).
     specialize (XR XT).
     transparent assert (XTT : (isLimCone XT1 W XT)).
-    { apply @graphs.pullbacks.equiv_isPullback_1.
+    { apply @equiv_isPullback_1.
       apply functor_category_has_homsets.
       assumption.
     }
