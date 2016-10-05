@@ -32,12 +32,12 @@ Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Set Automatic Introduction.
 
-Section Fix_Base_Category.
-
+(*
 Context {C : precategory} {hsC : has_homsets C}.
 
 Local Notation "'Yo'" := (yoneda _ hsC).
 Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
+*)
 
 (** * Object-extension structures 
 
@@ -49,6 +49,8 @@ Components of [X : obj_ext_structure C]:
 - [comp_ext X Γ A : C].  Notation: [Γ ◂ A]
 - [π A : Γ ◂ A -->  A ⟧ *)
 Section Obj_Ext_Structures.
+
+Context {C : precategory}.
 
 Definition obj_ext_structure : UU
   := Σ Ty : preShv C,
@@ -62,9 +64,9 @@ Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 
 Definition π {X : obj_ext_structure} {Γ} A : Γ ◂ A --> Γ := pr2 (pr2 X _ A).
 
-(** ** Extensions by equal types *)
+(** ** Lemmas: extensions by equal types *)
 
-(* One frequently needs to deal with isomorphisms between context extensions [Γ ◂ A ≃ Γ ◂ A'] induced by type equalities [e : A = A']; so we collect lemmas for them, and notate them as [Δ e]. *)
+(* One frequently needs to deal with isomorphisms between context extensions [Γ ◂ A ≃ Γ ◂ A'] induced by type equalities [e : A = A']; so we collect lemmas for them, and notate them concisely as [Δ e]. *)
 
 Section Comp_Ext_Compare.
 
@@ -118,14 +120,20 @@ End Comp_Ext_Compare.
 
 End Obj_Ext_Structures.
 
+Arguments obj_ext_structure _ : clear implicits.
+
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
 
 (** The definitions of families structures and split type-category structures will all be relative to a fixed object-extension structure. *)
 
-Section Fix_Obj_Ext_Structure.
+Section Families_Structures.
 
-Context {X : obj_ext_structure}.
+Context {C : Precategory} {X : obj_ext_structure C}.
+
+Local Notation "'hsC'" := (homset_property C).
+Local Notation "'Yo'" := (yoneda _ (homset_property _)).
+Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
 
 (** * Families structures 
 
@@ -143,7 +151,7 @@ Components of [Y : families_structure X]:
 Definition families_structure_data : UU
   := Σ Tm : preShv C, 
         (Tm --> TY X)
-        × (Π Γ (A : Ty X Γ), Yo (Γ ◂ A) --> Tm).
+        × (Π (Γ : C) (A : Ty X Γ), Yo (Γ ◂ A) --> Tm).
 
 Definition TM (Y : families_structure_data) : preShv C := pr1 Y.
 Definition pp Y : TM Y --> TY X := pr1 (pr2 Y).
@@ -236,6 +244,16 @@ Proof.
   destruct e. apply maponpaths, id_right.
 Qed.
 
+End Families_Structures.
+
+Section Q_Morphism_Structures.
+
+(* NOTE: most of this section does not require the [homset_property] for [C]. If the few lemmas that do require it were moved out of the section, e.g. [isaprop_qq_morphism_axioms], then would could take [C] as just a [precategory] here. Perhaps worth doing so?
+
+(Another alternative would be adding an extra argument of type [has_homsets C] to [isaprop_qq_morphism_axioms], but that’s less convenient for later use than just having [C] be a [Precategory] in those lemmas.) *)
+
+Context {C : Precategory} {X : obj_ext_structure C}.
+Local Notation "'hsC'" := (homset_property C).
 
 (** * Cartesian _q_-morphism structures, split type-categories
 
@@ -349,14 +367,11 @@ Proof.
   repeat apply maponpaths. apply uip. apply setproperty.
 Qed.
 
-End Fix_Obj_Ext_Structure.
+End Q_Morphism_Structures.
 
-End Fix_Base_Category.
-
-Arguments obj_ext_structure _ : clear implicits.
-Arguments families_structure_data [_] _ _ : clear implicits.
-Arguments families_structure_axioms [_] _ _ _ : clear implicits.
-Arguments families_structure [_] _ _ : clear implicits.
+Arguments families_structure_data _ _ : clear implicits.
+Arguments families_structure_axioms _ _ _ : clear implicits.
+Arguments families_structure _ _ : clear implicits.
 Arguments qq_morphism_data [_] _ : clear implicits.
 Arguments qq_morphism_structure [_] _ : clear implicits.
 
@@ -364,43 +379,36 @@ Arguments qq_morphism_structure [_] _ : clear implicits.
 
 (** Details and documentation of these definitions, are given with [families_structure] and [qq_morphism_structure] above. *)
 
-Definition cwf_structure {C : precategory} (hsC : has_homsets C) : UU 
-:= Σ X : obj_ext_structure C, families_structure hsC X.
+Definition cwf_structure (C : Precategory) : UU 
+:= Σ X : obj_ext_structure C, families_structure C X.
 
-Coercion obj_ext_structure_of_cwf_structure {C : precategory} {hsC : has_homsets C}
-:= pr1 : cwf_structure hsC -> obj_ext_structure C.
+Coercion obj_ext_structure_of_cwf_structure {C : Precategory}
+:= pr1 : cwf_structure C -> obj_ext_structure C.
 
-Coercion families_structure_of_cwf_structure
-  {C : precategory} {hsC : has_homsets C}
-:= pr2 : forall XY : cwf_structure hsC, families_structure hsC XY.
+Coercion families_structure_of_cwf_structure {C : Precategory}
+:= pr2 : forall XY : cwf_structure C, families_structure C XY.
 
 Definition cwf : UU
-  := Σ (C : precategory) (hsC : has_homsets C), (cwf_structure hsC).
+:= Σ C : Precategory, cwf_structure C.
 
-Coercion precategory_of_cwf := pr1 : cwf -> precategory.
+Coercion precategory_of_cwf := pr1 : cwf -> Precategory.
 
-Coercion has_homsets_of_cwf := (fun C => pr1 (pr2 C)) 
-: forall C : cwf, has_homsets C.
+Coercion cwf_structure_of_cwf := pr2 : forall C : cwf, cwf_structure C.
 
-Coercion cwf_structure_of_cwf := (fun C => pr2 (pr2 C)) 
-: forall C : cwf, cwf_structure C.
-
-Definition split_typecat_structure (C : precategory) : UU 
+Definition split_typecat_structure (C : Precategory) : UU 
 := Σ X : obj_ext_structure C, qq_morphism_structure X.
 
-Coercion obj_ext_structure_of_split_typecat_structure {C : precategory}
+Coercion obj_ext_structure_of_split_typecat_structure {C : Precategory}
 := pr1 : split_typecat_structure C -> obj_ext_structure C.
 
-Coercion qq_morphism_structure_of_split_typecat_structure {C : precategory}
+Coercion qq_morphism_structure_of_split_typecat_structure {C : Precategory}
 := pr2 : forall XY : split_typecat_structure C, qq_morphism_structure XY.
 
 Definition split_typecat : UU
-  := Σ (C : precategory), (has_homsets C) × (split_typecat_structure C).
+  := Σ C : Precategory, split_typecat_structure C.
 
-Coercion precategory_of_split_typecat := pr1 : split_typecat -> precategory.
+Coercion precategory_of_split_typecat
+:= pr1 : split_typecat -> Precategory.
 
-Coercion has_homsets_of_split_typecat := (fun C => pr1 (pr2 C)) 
-: forall C : split_typecat, has_homsets C.
-
-Coercion split_typecat_structure_of_split_typecat := (fun C => pr2 (pr2 C)) 
-: forall C : split_typecat, split_typecat_structure C.
+Coercion split_typecat_structure_of_split_typecat
+:= pr2 : forall C : split_typecat, split_typecat_structure C.

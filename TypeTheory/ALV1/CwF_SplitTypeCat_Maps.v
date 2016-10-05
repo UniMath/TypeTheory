@@ -43,12 +43,12 @@ We define here what it means for a families-structure and a _q_-morphism structu
 
 Section Compatible_Structures.
 
-Definition iscompatible_fam_qq (Y : families_structure hsC X)
+Definition iscompatible_fam_qq (Y : families_structure C X)
          (Z : qq_morphism_structure X) : UU
   := Π Γ Γ' A (f : C⟦Γ', Γ⟧) , Q Y A[f] = #(yoneda _ hsC) (qq Z f A) ;; Q Y A.
 
 Lemma isaprop_iscompatible_fam_qq
-  (Y : families_structure hsC X)
+  (Y : families_structure C X)
   (Z : qq_morphism_structure X)
   : isaprop (iscompatible_fam_qq Y Z).
 Proof.
@@ -57,9 +57,9 @@ Proof.
 Qed.
 
 Definition compatible_fam_structure (Z : qq_morphism_structure X) : UU
-  := Σ Y : families_structure hsC X, iscompatible_fam_qq Y Z.
+  := Σ Y : families_structure C X, iscompatible_fam_qq Y Z.
 
-Definition compatible_qq_morphism_structure (Y : families_structure hsC X) : UU
+Definition compatible_qq_morphism_structure (Y : families_structure C X) : UU
   := Σ Z : qq_morphism_structure X, iscompatible_fam_qq Y Z.
 
 End Compatible_Structures.
@@ -387,7 +387,7 @@ Arguments Q_from_qq { _ } _ : simpl never.
 Arguments tm_from_qq : simpl never.
 Arguments pp_from_qq : simpl never.
 
-Definition fam_from_qq : families_structure hsC X.
+Definition fam_from_qq : families_structure C X.
 Proof.
   mkpair.
   + exists tm_from_qq.
@@ -457,7 +457,7 @@ Arguments tm_from_qq_functor_mor : simpl never.
 
 Section compatible_comp_structure_from_fam.
 
-Variable Y : families_structure hsC X.
+Variable Y : families_structure C X.
 
 Section qq_from_fam.
 

@@ -413,7 +413,7 @@ Lemma qq_structure_eq
   : d = d'.
 Proof.
   apply subtypeEquality.
-  { intro. apply (@isaprop_qq_morphism_axioms _ (homset_property _ )). }
+  { intro. apply isaprop_qq_morphism_axioms. }
   apply subtypeEquality.
   { intro. do 4 (apply impred; intro). 
            apply isofhleveltotal2.

@@ -201,7 +201,7 @@ Local Notation hsC := (homset_property C).
 Local Notation "'Yo'" := (yoneda _ hsC).
 
 Definition families_mor {X X' : obj_ext_Precat C}
-    (Y : families_structure hsC X) (Y' : families_structure hsC X') (F : X --> X')
+    (Y : families_structure C X) (Y' : families_structure C X') (F : X --> X')
   : UU
 := Σ FF_TM : TM Y --> TM Y',
        FF_TM ;; pp Y' = pp Y ;; obj_ext_mor_TY F
@@ -299,7 +299,7 @@ Qed.
  
 Definition families_ob_mor : disp_precat_ob_mor (obj_ext_Precat C).
 Proof.
-  exists (fun X => families_structure hsC X).
+  exists (fun X => families_structure C X).
   exact @families_mor.
 Defined.
 

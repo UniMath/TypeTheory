@@ -34,8 +34,9 @@ Undelimit Scope transport.
 
 Section fix_category.
 
-Variable C : precategory.
-Variable hsC : has_homsets C.
+Variable C : Precategory.
+
+Local Notation "'hsC'" := (homset_property C).
 
 Local Notation "'Yo'" := (yoneda _ hsC).
 Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
@@ -74,7 +75,7 @@ Definition RelUnivYo_structure : UU
 *)
 
 Definition CwF_structure : UU
- := Σ (X : obj_ext_structure C), families_structure hsC X.
+ := Σ (X : obj_ext_structure C), families_structure C X.
 
 
 (** Plan: a reasonable intermediate structure seems to be 
@@ -150,7 +151,7 @@ Definition iCwF_structure := Σ (X : mor_of_presheaves), comp X.
 *)
 
 Definition weq_comp_fam_data : 
- (Σ X : obj_ext_structure C, families_structure_data hsC X)
+ (Σ X : obj_ext_structure C, families_structure_data C X)
    ≃ 
  Σ X : mor_of_presheaves, comp_data X.
 Proof.
@@ -192,8 +193,8 @@ Proof.
     apply XR.
   eapply weqcomp.
     set (XR:= @weqtotal2asstol (obj_ext_structure C) 
-                               (fun X => families_structure_data hsC X) ).
-    specialize (XR (fun XY => families_structure_axioms hsC (pr1 XY) (pr2 XY))).
+                               (fun X => families_structure_data C X) ).
+    specialize (XR (fun XY => families_structure_axioms C (pr1 XY) (pr2 XY))).
     apply XR.
   use weqbandf.
   - apply weq_comp_fam_data.

@@ -296,7 +296,7 @@ Proof.
       do 4 (apply impred; intro).
       apply functor_category_has_homsets. }
     simpl; apply subtypeEquality.
-    { intro. apply @isaprop_qq_morphism_axioms, hsC. }
+    { intro. apply @isaprop_qq_morphism_axioms. }
     apply subtypeEquality.
     { intro.
       do 4 (apply impred; intro).
@@ -327,7 +327,7 @@ Proof.
 Time Qed.
   
 
-Lemma iscontr_compatible_split_comp_structure (Y : families_structure hsC X)
+Lemma iscontr_compatible_split_comp_structure (Y : families_structure C X)
 : iscontr (compatible_qq_morphism_structure Y).
 Proof.
   exists (compatible_qq_from_fam Y).
@@ -339,7 +339,7 @@ End compatible_structures.
 Section Equivalence.
 
 Definition T1 : UU :=
-  Σ Y : families_structure hsC X,
+  Σ Y : families_structure C X,
         compatible_qq_morphism_structure Y.
 
 Definition T2 : UU :=
@@ -352,7 +352,7 @@ Proof.
   unfold T1.
   unfold compatible_qq_morphism_structure.
   set (XR := @weqtotal2asstol).
-  specialize (XR (families_structure hsC X)).
+  specialize (XR (families_structure C X)).
   specialize (XR (fun _ => qq_morphism_structure X)).
   simpl in XR.
   specialize (XR (fun YZ => iscompatible_fam_qq (pr1 YZ) (pr2 YZ))).
@@ -361,7 +361,7 @@ Proof.
   unfold T2. unfold compatible_fam_structure.
   set (XR := @weqtotal2asstor).
   specialize (XR (qq_morphism_structure X)).
-  specialize (XR (fun _ => families_structure hsC X)).
+  specialize (XR (fun _ => families_structure C X)).
   simpl in XR.
   specialize (XR (fun YZ => iscompatible_fam_qq (pr2 YZ) (pr1 YZ))).
   apply XR.
@@ -381,7 +381,7 @@ Proof.
 Defined.
 
 Definition forget_comp :
-  T1 ≃ families_structure hsC X.
+  T1 ≃ families_structure C X.
 Proof.
   exists pr1.
   apply isweqpr1.
@@ -389,7 +389,7 @@ Proof.
   apply iscontr_compatible_split_comp_structure.
 Defined.
 
-Definition weq_CwF_SplitTypeCat : families_structure hsC X ≃ qq_morphism_structure X.
+Definition weq_CwF_SplitTypeCat : families_structure C X ≃ qq_morphism_structure X.
 Proof.
   eapply weqcomp.
     eapply invweq. apply forget_comp.
