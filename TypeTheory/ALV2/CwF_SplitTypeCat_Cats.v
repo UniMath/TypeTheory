@@ -161,7 +161,7 @@ Definition obj_ext_precat : precategory
 Definition obj_ext_has_homsets : has_homsets obj_ext_precat_data.
 Proof.
   intros X X'. apply isaset_total2.
-  - apply functor_category_has_homsets.
+  - apply homset_property.
   - intros α. apply impred_isaset; intros Γ; apply impred_isaset; intros A.
     apply isaset_total2. apply homset_property.
     intros φ. apply isasetaprop. apply homset_property.
@@ -221,8 +221,8 @@ Lemma families_mor_eq {X X'} {Y} {Y'} {F : X --> X'} (FF FF' : families_mor Y Y'
 Proof.
   apply subtypeEquality.
   - intros x; apply isapropdirprod.
-    + apply functor_category_has_homsets.
-    + repeat (apply impred_isaprop; intro). apply functor_category_has_homsets.
+    + apply homset_property.
+    + repeat (apply impred_isaprop; intro). apply homset_property.
   - apply nat_trans_eq. apply has_homsets_HSET. 
     intros Γ. apply funextsec. unfold homot. apply e_TM.
 Qed.
@@ -337,10 +337,10 @@ Proof.
     etrans. Focus 2. apply @pathsinv0, families_mor_transportf.
     apply idpath.
   - intros. apply isaset_total2.
-    apply functor_category_has_homsets.
+    apply homset_property.
     intros. apply isasetaprop, isapropdirprod.
-    apply functor_category_has_homsets.
-    repeat (apply impred_isaprop; intro). apply functor_category_has_homsets.
+    apply homset_property.
+    repeat (apply impred_isaprop; intro). apply homset_property.
 Qed.
 
 Definition families_disp_precat : disp_precat (obj_ext_Precat C)

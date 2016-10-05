@@ -29,16 +29,9 @@ Hypothesis X : @relative_universe_structure C _ Yo.
 
 Let YoR_ff : fully_faithful YoR := yoneda_fully_faithful _ (homset_property _).
 
-(* TODO: [pr2 RC], really?  Doens’t [category] have an access function for the [is_category] part? *)
-Definition R1 := rel_univ_struct_functor Yo X YoR YoR_ff (pr2 RC).
+Definition R1 := rel_univ_struct_functor Yo X YoR YoR_ff RC.
 
-(* TODO: should preShv be defined as a [category]?  Fine provided there is a coercion [category] >-> [Precategory]. *)
-Lemma is_category_preShv D : is_category (preShv D).
-Proof.
-    apply (is_category_functor_category _ _ is_category_HSET).
-Defined.
-
-Definition R2 :=  R1 (is_category_preShv RC) (Rezk_eta _ _ ).
+Definition R2 :=  R1 (preShv _) (Rezk_eta _ _ ).
 
 Definition ext : functor (preShv C) (preShv RC).
 Proof.

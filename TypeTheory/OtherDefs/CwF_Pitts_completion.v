@@ -138,7 +138,7 @@ Definition type_functor : functor _ _ := tpair _ _ type_is_functor.
 
 Definition RC_type_functor : functor (Rezk_completion CC (has_homsets_cwf C)) (opp_precat HSET).
 Proof.  
-  apply (Rezk_functor CC _ (opp_cat (tpair _ HSET is_category_HSET))).
+  apply (Rezk_functor CC _ (opp_cat HSET_category)).
   apply type_functor.
 Defined.
   

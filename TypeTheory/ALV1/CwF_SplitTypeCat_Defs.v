@@ -159,7 +159,7 @@ Lemma isaprop_families_structure_axioms Y
 Proof.
   do 2 (apply impred; intro).
   apply isofhleveltotal2.
-  - apply functor_category_has_homsets.
+  - apply homset_property.
   - intro. apply isaprop_isPullback.
 Qed.
 

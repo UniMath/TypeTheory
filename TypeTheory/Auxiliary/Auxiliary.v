@@ -703,8 +703,31 @@ End eqv_from_ess_split_and_ff.
 
 (** ** Misc lemmas/definitions on (pre)categories *)
 
-Definition preShv C
-:= functorPrecategory C^op (Precategory_pair _ has_homsets_HSET).
+(* Access function for [is_category] of categories.
+  TODO: check naming is consistent with other similar access functions. *)
+Definition category_is_category (C : category) : is_category C
+  := pr2 C.
+Coercion category_is_category : category >-> is_category.
+
+(* TODO: raise issue in [CategoryTheory.precategories]: delete [category_has_homsets], since now redundant with [homset_property], since [category] coerces to [Precategory]. *)
+
+(* TODO: raise issue: should the [HSET] provided be this by default, and current [HSET] be renamed to [HSET_precategory]? *)
+Definition HSET_category : category.
+Proof.
+  exists HSET; split.
+  - apply is_category_HSET.
+  - apply has_homsets_HSET.
+Defined.
+
+Definition functor_category (C : precategory) (D : category)
+  : category.
+Proof.
+  exists (functor_precategory C D (homset_property D)); split.
+  - apply is_category_functor_category.
+  - apply functor_category_has_homsets.
+Defined.
+
+Definition preShv C := functor_category C^op HSET_category.
 
 Notation "'Yo'" := (yoneda _ (homset_property _) : functor _ (preShv _)).
 Notation "'Yo^-1'" := (invweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).

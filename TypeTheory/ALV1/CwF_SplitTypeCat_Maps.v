@@ -43,7 +43,7 @@ Lemma isaprop_iscompatible_fam_qq
   : isaprop (iscompatible_fam_qq Y Z).
 Proof.
   do 4 (apply impred; intro).
-  apply functor_category_has_homsets.
+  apply homset_property.
 Qed.
 
 Definition compatible_fam_structure (Z : qq_morphism_structure X) : UU
@@ -485,7 +485,7 @@ Qed.
 Lemma isPullback_Yo_of_qq : isPullback _ _ _ _ Yo_of_qq_commutes_1.
 Proof.
   simple refine (isPullback_two_pullback _ _ _ _ _ _ _ _ _ _ ).
-  - apply functor_category_has_homsets.
+  - apply homset_property.
   - apply (TY X).
   - apply (TM Y).
   - apply (yy A).

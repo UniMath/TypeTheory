@@ -215,11 +215,11 @@ Lemma unique (Z : qq_morphism_data X)
   : compatible_fam_from_qq (Z,,ZZ) = Y.
 Proof.
   set (i := isotoid _
-                   (is_category_functor_category _ _ is_category_HSET)
+                   (category_is_category _)
                    (canonical_TM_to_given_iso (Z,,ZZ) Y)).
   apply subtypeEquality.
   { intro. do 4 (apply impred; intro).
-    apply functor_category_has_homsets. }
+    apply homset_property. }
   destruct Y as [Y YH]. simpl.
   apply subtypeEquality.
   { intro. apply isaprop_families_structure_axioms. }
@@ -284,7 +284,7 @@ Proof.
     apply subtypeEquality.
     { intro.
       do 4 (apply impred; intro).
-      apply functor_category_has_homsets. }
+      apply homset_property. }
     simpl; apply subtypeEquality.
     { intro. apply @isaprop_qq_morphism_axioms. }
     apply subtypeEquality.

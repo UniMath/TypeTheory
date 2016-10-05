@@ -75,8 +75,8 @@ Lemma families_mor_eq {Y} {Y'} (FF FF' : families_mor Y Y')
 Proof.
   apply subtypeEquality.
   - intros x; apply isapropdirprod.
-    + apply functor_category_has_homsets.
-    + repeat (apply impred_isaprop; intro). apply functor_category_has_homsets.
+    + apply homset_property.
+    + repeat (apply impred_isaprop; intro). apply homset_property.
   - apply nat_trans_eq. apply has_homsets_HSET. 
     intros Γ. apply funextsec. unfold homot. apply e_TM.
 Qed.
@@ -178,10 +178,10 @@ Lemma has_homsets_families_precat
   : has_homsets families_precategory.
 Proof.
   intros a b. apply isaset_total2.
-  apply functor_category_has_homsets.
+  apply homset_property.
   intros. apply isasetaprop, isapropdirprod.
-  apply functor_category_has_homsets.
-  repeat (apply impred_isaprop; intro). apply functor_category_has_homsets.
+  apply homset_property.
+  repeat (apply impred_isaprop; intro). apply homset_property.
 Qed.
 
 End Families_Structure_Precat.
@@ -591,7 +591,7 @@ Definition iso_to_TM_eq
 Proof.
   intro i.
   use isotoid.
-  - apply (is_category_functor_category _ _ is_category_HSET).
+  - apply category_is_category.
   - exists (families_mor_TM (i : _ --> _)).
     apply is_iso_from_is_z_iso.
     exists (families_mor_TM (inv_from_iso i)).
@@ -646,10 +646,10 @@ Lemma has_homsets_families_precategory
 Proof.
   intros a b.
   apply isaset_total2.
-  apply functor_category_has_homsets.
+  apply homset_property.
   intros. apply isasetaprop, isapropdirprod.
-  apply functor_category_has_homsets.
-  repeat (apply impred_isaprop; intro). apply functor_category_has_homsets.
+  apply homset_property.
+  repeat (apply impred_isaprop; intro). apply homset_property.
 Qed.
 
 Theorem is_category_families_structure

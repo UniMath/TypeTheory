@@ -52,10 +52,10 @@ Definition obj_ext_iso_alt (X X' : obj_ext_Precat C) : UU :=
          Σ φ : iso (Γ ◂ ((inv_from_iso F_TY) : nat_trans _ _ ) _ A') (Γ ◂  A'),
            φ ;; π _ = π _ .
 
+(* TODO: anstract this as a general function on any [category] (if there isn’t one already provided). *) 
 Definition is_saturated_preShv (F G : preShv C) : F = G ≃ iso F G.
 Proof.
-  apply (weqpair idtoiso (pr1
-                            (is_category_functor_category _ _ is_category_HSET) _ _ )).
+  apply (weqpair idtoiso (pr1 (category_is_category _) _ _ )).
 Defined.
 
 Definition weq_eq_obj_ext_iso_alt (X X' : obj_ext_Precat C) :
@@ -157,7 +157,7 @@ Definition iso_to_obj_ext_eq (H : is_category C)
 Proof.
   intros F.
   apply (total2_paths (isotoid _
-    (is_category_functor_category _ _ is_category_HSET)
+    (category_is_category _)
     (functor_on_iso obj_ext_to_preShv_functor F))).
   etrans. apply transportf_obj_ext.
   apply funextsec; intro Γ; apply funextsec; intro A.
@@ -293,7 +293,7 @@ Definition iso_disp_to_TM_eq
 Proof.
   intro i.
   use isotoid.
-  - apply (is_category_functor_category _ _ is_category_HSET).
+  - apply category_is_category.
   - exists (families_mor_TM (i : _ -->[_] _)).
     apply is_iso_from_is_z_iso.
     exists (families_mor_TM (inv_mor_disp_from_iso i)).
@@ -471,7 +471,7 @@ Definition  strucs_compat_iso_disp_to_id
 Proof.
   intro H.
   do 4 (apply funextsec; intro).
-  apply functor_category_has_homsets.
+  apply homset_property.
 Defined.
 
 Theorem is_category_strucs_compat

@@ -112,7 +112,7 @@ Lemma isaprop_comp_prop (X : mor_total (preShv C)) (Y : comp_data X)
 Proof.
   do 2 (apply impred; intro).
   apply isofhleveltotal2.
-  - apply functor_category_has_homsets.
+  - apply homset_property.
   - intro. apply isaprop_isPullback.
 Qed.
 
@@ -278,10 +278,10 @@ Proof.
      apply (pr1 H).
      apply (pr2 H).
   -  apply isofhleveltotal2.
-     +  apply functor_category_has_homsets.
+     +  apply homset_property.
      + intro. apply isaprop_isPullback.
   -  apply isofhleveltotal2.
-     +  apply functor_category_has_homsets.
+     +  apply homset_property.
      + intro. apply isaprop_isPullback.
 Defined. 
 
