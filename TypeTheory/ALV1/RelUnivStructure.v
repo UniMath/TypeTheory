@@ -26,20 +26,6 @@ Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Set Automatic Introduction.
 
-Section Auxiliary.
-
-(** TODO: upstream; rename as e.g. “mor_total” to make clearer what the distinction is. *)
-Definition arrow (E : precategory) : UU
-  := Σ (ab : E × E), E⟦pr2 ab, pr1 ab⟧.
-Definition source {E} (X : arrow E) : E := pr2 (pr1 X).
-Definition target {E} (X : arrow E) : E := pr1 (pr1 X).
-Definition morphism_from_arrow {E} (X : arrow E)
-  : E⟦source X, target X⟧
-  := pr2 X.
-Coercion morphism_from_arrow : arrow >-> precategory_morphisms.
-
-End Auxiliary.
-
 Local Notation "[ C , D ]" := (functorPrecategory C D).
 
 Section Pullback_Lemmas.
@@ -174,8 +160,8 @@ Qed.
 
 End Pullback_Prop_Lemmas.
 
-Definition relative_universe_structure {C D : precategory} (J : functor C D) : UU :=
-  Σ X : arrow D, fcomprehension J (morphism_from_arrow X).
+Definition relative_universe_structure {C D : precategory} (J : functor C D) : UU
+  := Σ X : mor_total D, fcomprehension J X.
 
 Section rel_univ_structure_and_functors.
 
@@ -217,7 +203,7 @@ Hypothesis Spb : maps_pb_squares_to_pb_squares _ _ S.
 
 Local Notation tU := (source (pr1 RUJ)).
 Local Notation U :=  (target (pr1 RUJ)).
-Local Notation pp := (morphism_from_arrow (pr1 RUJ)).
+Local Notation pp := (morphism_from_total (pr1 RUJ)).
 
 (*
 Let e {X : C} (f : D ⟦J X, U⟧) (* :  #J(fp _ _ _ X) ;; f = fq X ;; pp *)

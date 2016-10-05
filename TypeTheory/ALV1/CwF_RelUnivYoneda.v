@@ -80,41 +80,34 @@ Definition RelUnivYo_structure : UU
     - the pullback condition
 *)
 
-
-(** there should be a definition of a morphism in a category,
-    meaning a triple (a,b,f : a -> b)
-*)
-
-Definition mor_of_presheaves : UU := arrow (preShv C).
-   
-Definition u (X : mor_of_presheaves) : preShv C := target X.
-Definition tu (X : mor_of_presheaves) : preShv C := source X.
-Definition p (X : mor_of_presheaves) : preShv C ⟦tu X, u X⟧
-  :=  morphism_from_arrow X.
+Definition u (X : mor_total (preShv C)) : preShv C := target X.
+Definition tu (X : mor_total (preShv C)) : preShv C := source X.
+Definition p (X : mor_total (preShv C)) : preShv C ⟦tu X, u X⟧
+  :=  morphism_from_total X.
 
 
 (** * Definition of intermediate structure [comp] *)
 
-Definition comp_data (X : mor_of_presheaves) : UU
+Definition comp_data (X : mor_total (preShv C)) : UU
   := 
    Σ (dpr : Π (Γ : C) (A : (u X : functor _ _ ) Γ : hSet ), Σ (ΓA : C), C⟦ΓA, Γ⟧),
      Π Γ (A : (u X : functor _ _ ) Γ : hSet), _ ⟦Yo (pr1 (dpr Γ A)) , tu X⟧.
 
-Definition ext {X : mor_of_presheaves} (Y : comp_data X) {Γ} A 
+Definition ext {X : mor_total (preShv C)} (Y : comp_data X) {Γ} A 
   : C 
   := pr1 (pr1 Y Γ A).
-Definition dpr {X : mor_of_presheaves} (Y : comp_data X) {Γ} A 
+Definition dpr {X : mor_total (preShv C)} (Y : comp_data X) {Γ} A 
   : C⟦ext Y A, Γ⟧ 
   := pr2 (pr1 Y Γ A).
-Definition QQ {X : mor_of_presheaves} (Y : comp_data X) {Γ} A 
+Definition QQ {X : mor_total (preShv C)} (Y : comp_data X) {Γ} A 
   : _ ⟦Yo (ext Y A) , tu X⟧ 
   := pr2 Y Γ A.
 
-Definition comp_prop (X : mor_of_presheaves) (Y : comp_data X) : UU :=
+Definition comp_prop (X : mor_total (preShv C)) (Y : comp_data X) : UU :=
   Π Γ (A : (u X : functor _ _ ) Γ : hSet),
         Σ (e : #Yo (dpr _ A) ;; yy A = QQ Y A ;; p X), isPullback _ _ _ _ e.
 
-Lemma isaprop_comp_prop (X : mor_of_presheaves) (Y : comp_data X) 
+Lemma isaprop_comp_prop (X : mor_total (preShv C)) (Y : comp_data X) 
   : isaprop (comp_prop X Y).
 Proof.
   do 2 (apply impred; intro).
@@ -123,10 +116,10 @@ Proof.
   - intro. apply isaprop_isPullback.
 Qed.
 
-Definition comp (X : mor_of_presheaves) : UU 
+Definition comp (X : mor_total (preShv C)) : UU 
   := Σ (Y : comp_data X), comp_prop _ Y.
 
-Definition icwf_structure := Σ (X : mor_of_presheaves), comp X.
+Definition icwf_structure := Σ (X : mor_total (preShv C)), comp X.
 
 (** * Construction of an equivalence between [CwF] and [iCwF] *)
 
@@ -138,7 +131,7 @@ Definition icwf_structure := Σ (X : mor_of_presheaves), comp X.
 Definition weq_comp_fam_data : 
  (Σ X : obj_ext_structure C, families_structure_data C X)
    ≃ 
- Σ X : mor_of_presheaves, comp_data X.
+ Σ X : mor_total (preShv C), comp_data X.
 Proof.
   eapply weqcomp.
     unfold obj_ext_structure.
@@ -173,7 +166,7 @@ Defined.
 Definition weq_cwf_icwf : cwf_structure C ≃ icwf_structure.
 Proof.
   eapply weqcomp. Focus 2. 
-    set (XR:= @weqtotal2asstor mor_of_presheaves (fun X => comp_data X) ).
+    set (XR:= @weqtotal2asstor (mor_total _) (fun X => comp_data X) ).
     specialize (XR (fun XY => comp_prop (pr1 XY) (pr2 XY))).
     apply XR.
   eapply weqcomp.
@@ -196,7 +189,7 @@ Defined.
    [comp] is equivalent to fcomprehension
 *)
 (*
-Lemma isaprop_comp (y : arrow (preShv C)) : isaprop (comp y).
+Lemma isaprop_comp (y : mor_total (preShv C)) : isaprop (comp y).
 Proof.
   apply invproofirrelevance.
   intros x x'. apply subtypeEquality.
@@ -215,11 +208,11 @@ Abort.
 
 
 
-Definition Yo_pullback (x : arrow (preShv C)) : UU :=
+Definition Yo_pullback (x : mor_total (preShv C)) : UU :=
    Π X (A : (target x : functor _ _ ) X : hSet),
       fpullback Yo x (yy A).
 
-Definition weq_fcomprehension_Yo_pullback (x : arrow (preShv C)) :
+Definition weq_fcomprehension_Yo_pullback (x : mor_total (preShv C)) :
    fcomprehension Yo x ≃ Yo_pullback x.
 Proof.
   apply weqonsecfibers.
@@ -227,12 +220,12 @@ Proof.
   apply (weqonsecbase _ (@yy _ _ _ _ )).
 Defined.
 
-Definition comp_1_data (y : arrow (preShv C)) : UU
+Definition comp_1_data (y : mor_total (preShv C)) : UU
   := Π (Γ : C) (A : (u y : functor _ _ ) Γ : hSet),
            (Σ ΓAp : Σ ΓA : C, ΓA --> Γ, Yo (pr1 ΓAp) --> tu y).
 
 
-Definition weq_comp_data (y : arrow (preShv C)) : comp_data y ≃ comp_1_data y.
+Definition weq_comp_data (y : mor_total (preShv C)) : comp_data y ≃ comp_1_data y.
 Proof.
   unfold comp_data.
   eapply weqcomp.
@@ -249,21 +242,21 @@ Proof.
   apply XR.
 Defined.
 
-Definition ext_1 {X : mor_of_presheaves} (Y : comp_1_data X) {Γ} A 
+Definition ext_1 {X : mor_total (preShv C)} (Y : comp_1_data X) {Γ} A 
   : C 
   := pr1 (pr1 (Y Γ A)).
-Definition dpr_1 {X : mor_of_presheaves} (Y : comp_1_data X) {Γ} A 
+Definition dpr_1 {X : mor_total (preShv C)} (Y : comp_1_data X) {Γ} A 
   : C⟦ext_1 Y A, Γ⟧ 
   := pr2 (pr1 (Y Γ A)).
-Definition QQ_1 {X : mor_of_presheaves} (Y : comp_1_data X) {Γ} A 
+Definition QQ_1 {X : mor_total (preShv C)} (Y : comp_1_data X) {Γ} A 
   : _ ⟦Yo (ext_1 Y A) , tu X⟧ 
   := (pr2 (Y Γ A)).
 
-Definition comp_1_prop (X : mor_of_presheaves) (Y : comp_1_data X) : UU :=
+Definition comp_1_prop (X : mor_total (preShv C)) (Y : comp_1_data X) : UU :=
   Π Γ (A : (u X : functor _ _ ) Γ : hSet),
         Σ (e : #Yo (dpr_1 _ A) ;; yy A = QQ_1 Y A ;; p X), isPullback _ _ _ _ e.
 
-Definition comp_1 (X : mor_of_presheaves) : UU 
+Definition comp_1 (X : mor_total (preShv C)) : UU 
   := Σ (Y : comp_1_data X), comp_1_prop _ Y.
 
 
@@ -292,7 +285,7 @@ Proof.
      + intro. apply isaprop_isPullback.
 Defined. 
 
-Definition weq_Yo_pullback_comp_1 (y : arrow (preShv C))
+Definition weq_Yo_pullback_comp_1 (y : mor_total (preShv C))
   : comp_1 y ≃ Yo_pullback y.
 Proof.
   unfold Yo_pullback; unfold comp_1.
@@ -327,7 +320,7 @@ Proof.
 Defined.
 
 Lemma weq_comp_fcomprehension:
- Π x : arrow (preShv C),
+ Π x : mor_total (preShv C),
    comp x ≃ fcomprehension Yo x.
 Proof.
   intro y.
@@ -357,7 +350,7 @@ Defined.
     but we keep them because, well, why shouldn't we?
 *)
 
-Definition comp_to_fcomprehension (x : arrow (preShv C)):
+Definition comp_to_fcomprehension (x : mor_total (preShv C)):
    comp x → fcomprehension Yo x.
 Proof.
   intro H.
@@ -379,7 +372,7 @@ Proof.
 Defined.
 
 
-Definition fcomprehension_to_comp (x : arrow (preShv C)):
+Definition fcomprehension_to_comp (x : mor_total (preShv C)):
   fcomprehension Yo x → comp x.
 Proof.
   intro H. mkpair.
@@ -400,7 +393,7 @@ Proof.
 Defined.     
 
 
-Lemma weq_fcomprehension_comp_data (y : arrow (preShv C)):
+Lemma weq_fcomprehension_comp_data (y : mor_total (preShv C)):
    @fcomprehension_data _ _ Yo (target y) (source y) ≃ comp_data y.
 Proof.
   unfold fcomprehension_data.

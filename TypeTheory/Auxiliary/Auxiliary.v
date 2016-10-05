@@ -259,9 +259,18 @@ Proof.
   cbn. apply id_right.
 Qed.
 
+(** The total type of morphisms of a precategory *)
+Definition mor_total (E : precategory) : UU
+  := Σ (ab : E × E), E⟦pr2 ab, pr1 ab⟧.
+Definition source {E} (X : mor_total E) : E := pr2 (pr1 X).
+Definition target {E} (X : mor_total E) : E := pr1 (pr1 X).
+Definition morphism_from_total {E} (X : mor_total E)
+  : E ⟦source X, target X⟧
+  := pr2 X.
+Coercion morphism_from_total : mor_total >-> precategory_morphisms.
+
 (** ** Equivalences of categories *)
 (** Specifically: the composition of (adjoint) equivalences of precats. *)
-
 
 Coercion left_adj_from_adj_equiv (X Y : precategory) (K : functor X Y)
          (HK : adj_equivalence_of_precats K)
