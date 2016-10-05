@@ -41,7 +41,7 @@ Coercion morphism_from_arrow : arrow >-> precategory_morphisms.
 
 End Auxiliary.
 
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+Local Notation "[ C , D ]" := (functorPrecategory C D).
 
 Section Pullback_Lemmas.
 
@@ -89,7 +89,6 @@ End Pullback_Lemmas.
 Section Pullback_Prop_Lemmas.
 
 Context {C : precategory} {D : Precategory} (J : functor C D).
-Local Notation "'hsD'" := (homset_property D).
 
 Variables U tU : D.
 Variable pp : D ⟦tU, U⟧.
@@ -98,7 +97,7 @@ Lemma isaprop_fpullback_prop {X : C} {f : D ⟦J X, U⟧} (T : fpullback_data J 
   : isaprop (fpullback_prop J pp T).
 Proof.
   apply isofhleveltotal2.
-  - apply hsD.
+  - apply homset_property.
   - intros. apply isaprop_isPullback.
 Qed.
 
@@ -193,11 +192,11 @@ Variable isD' : is_category D'.
 
 Variables (R : functor C C') (S : functor D D').
 
-Variable a :   [C, D', pr2 isD'] ⟦functor_composite J S , functor_composite R J'⟧.
+Variable a :   [C, D'] ⟦functor_composite J S , functor_composite R J'⟧.
 Hypothesis is_iso_a : is_iso a.
 
 Let a' := inv_from_iso (isopair a is_iso_a).  
-Let TA':= iso_after_iso_inv (isopair (C:=[C, D', pr2 isD']) a is_iso_a).
+Let TA':= iso_after_iso_inv (isopair (C:=[C, D']) a is_iso_a).
 Let TAA := is_functor_iso_pointwise_if_iso _ _ _ _ _ a'.
 Let aiso := isopair a is_iso_a.
 

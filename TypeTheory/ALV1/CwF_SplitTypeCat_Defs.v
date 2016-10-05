@@ -124,8 +124,6 @@ Section Families_Structures.
 
 Context {C : Precategory} {X : obj_ext_structure C}.
 
-Local Notation "'hsC'" := (homset_property C).
-
 (** * Families structures 
 
 We now define the extra structure, over an object-extension structure, which constitutes a _category with families_ in the sense of Fiore, _Algebraic Type Theory_, 2008 #(<a href="http://www.cl.cam.ac.uk/~mpf23/Notes/att.pdf">link</a>)#, a reformulation of Dybjer’s original definition, replacing the functor [C --> FAM] with an arrow in [preShv C].
@@ -184,7 +182,7 @@ Definition isPullback_Q_pp (Y : families_structure) {Γ} (A : Ty X Γ)
 := pr2 (pr2 Y _ _ ).
 
 Definition Q_pp_Pb_pointwise (Y : families_structure) (Γ' Γ : C) (A : Ty X Γ)
-  := isPullback_preShv_to_pointwise hsC (isPullback_Q_pp Y A) Γ'.
+  := isPullback_preShv_to_pointwise (homset_property _) (isPullback_Q_pp Y A) Γ'.
 
 Definition Q_pp_Pb_univprop (Y : families_structure) (Γ' Γ : C) (A : Ty X Γ)
   := pullback_HSET_univprop_elements _ (Q_pp_Pb_pointwise Y Γ' Γ A).
@@ -203,7 +201,7 @@ Lemma term_to_section_aux {Y : families_structure} {Γ:C} (t : Tm Y Γ)
          f ;; π _ = identity Γ
        × (Q Y A : nat_trans _ _) Γ f = t).
 Proof.
-  set (Pb := isPullback_preShv_to_pointwise hsC (isPullback_Q_pp Y A) Γ).
+  set (Pb := isPullback_preShv_to_pointwise (homset_property _) (isPullback_Q_pp Y A) Γ).
   simpl in Pb.
   apply (pullback_HSET_univprop_elements _ Pb).
   exact (toforallpaths _ _ _ (functor_id (TY X) _) A).
@@ -244,7 +242,6 @@ Section Q_Morphism_Structures.
 (Another alternative would be adding an extra argument of type [has_homsets C] to [isaprop_qq_morphism_axioms], but that’s less convenient for later use than just having [C] be a [Precategory] in those lemmas.) *)
 
 Context {C : Precategory} {X : obj_ext_structure C}.
-Local Notation "'hsC'" := (homset_property C).
 
 (** * Cartesian _q_-morphism structures, split type-categories
 
@@ -339,9 +336,9 @@ Lemma isaprop_qq_morphism_axioms (Z : qq_morphism_data)
 Proof.
   apply isofhleveldirprod.
   - do 2 (apply impred; intro).
-    apply hsC.
+    apply homset_property.
   - do 6 (apply impred; intro).
-    apply hsC.    
+    apply homset_property.    
 Qed.
 
 (* Since [Ty X] is always an hset, the splitness properties hold with any path in place of the canonical ones. This is sometimes handy, as one may want to opacify the canonical equalities in examples. *)

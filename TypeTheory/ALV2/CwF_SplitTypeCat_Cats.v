@@ -45,7 +45,6 @@ Local Notation Δ := comp_ext_compare.
 Section Obj_Ext_Precat.
 
 Context {C : Precategory}.
-Local Notation hsC := (homset_property C).
 
 Definition obj_ext_mor (X X' : obj_ext_structure C)
   := Σ F_TY : TY X --> TY X',
@@ -87,7 +86,7 @@ Proof.
     intros Γ; apply funextsec; intros A.
     apply e_TY.
   apply funextsec; intros Γ; apply funextsec; intros A.
-  use total2_paths. Focus 2. apply hsC.
+  use total2_paths. Focus 2. apply homset_property.
   refine (_ @ e_comp Γ A).
   etrans.
     apply maponpaths.
@@ -169,8 +168,8 @@ Proof.
   intros X X'. apply isaset_total2.
   - apply functor_category_has_homsets.
   - intros α. apply impred_isaset; intros Γ; apply impred_isaset; intros A.
-    apply isaset_total2. apply hsC.
-    intros φ. apply isasetaprop. apply hsC.
+    apply isaset_total2. apply homset_property.
+    intros φ. apply isasetaprop. apply homset_property.
 Qed.
 
 Definition obj_ext_Precat : Precategory
@@ -196,7 +195,6 @@ Local Notation φ := obj_ext_mor_φ.
 Section Families_Structure_Precat.
 
 Context {C : Precategory}.
-Local Notation hsC := (homset_property C).
 
 Definition families_mor {X X' : obj_ext_Precat C}
     (Y : families_structure C X) (Y' : families_structure C X') (F : X --> X')
@@ -245,7 +243,7 @@ Lemma term_to_section_naturality {X X'} {Y} {Y'}
 Proof.
   set (t' := (families_mor_TM FY : nat_trans _ _) _ t).
   set (A' := (pp Y' : nat_trans _ _) _ t').
-  set (Pb := isPullback_preShv_to_pointwise hsC (isPullback_Q_pp Y' A') Γ);
+  set (Pb := isPullback_preShv_to_pointwise (homset_property _) (isPullback_Q_pp Y' A') Γ);
     simpl in Pb.
   apply (pullback_HSET_elements_unique Pb); clear Pb.
   - unfold yoneda_morphisms_data; cbn.
@@ -365,7 +363,6 @@ Arguments families_structure_precat _ : clear implicits.
 Section qq_Structure_Precat.
 
 Context {C : Precategory}.
-Local Notation hsC := (homset_property C).
 
 Definition qq_structure_ob_mor : disp_precat_ob_mor (obj_ext_Precat C).
 Proof.

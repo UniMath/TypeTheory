@@ -36,8 +36,6 @@ Section fix_category.
 
 Variable C : Precategory.
 
-Local Notation "'hsC'" := (homset_property C).
-
 (** a [RelUnivYo] as a [relative_universe_structure] on [Yo] is
     - two presheaves tU, U
     - a morphism of presheaves p : tU -> U
@@ -171,7 +169,7 @@ Proof.
                                       nat_trans x0 Ty)).
     simpl in *.
     specialize (XR (fun deprTmp => Π (Γ : C) (A : (Ty Γ : hSet)),
-                                   nat_trans (yoneda_objects C hsC (comp_ext (Ty,,pr1 deprTmp) Γ A)) 
+                                   nat_trans (yoneda_objects C (homset_property _) (comp_ext (Ty,,pr1 deprTmp) Γ A)) 
                                              (pr1 (pr2 deprTmp) ))).
     apply XR.
   eapply weqcomp. use weqtotal2dirprodcomm. simpl.
@@ -421,13 +419,13 @@ Proof.
     specialize (XR (fun X => ((u y : functor _ _ ) X : hSet) → Σ ΓA : C, ΓA --> X)).
     simpl in XR.
     specialize (XR (fun X pX =>  Π  (A : ((u y : functor _ _ ) X : hSet)),
-              nat_trans (yoneda_ob_functor_data C hsC (pr1 (pX  A))) (tu y : functor _ _ ))).
+              nat_trans (yoneda_ob_functor_data C (homset_property _) (pr1 (pX  A))) (tu y : functor _ _ ))).
     apply XR.
   apply weqonsecfibers. intro X. simpl.
   eapply weqcomp. Focus 2.
     set (XR := @weqforalltototal ((u y : functor _ _ ) X : hSet)).
     specialize (XR (fun A =>  Σ ΓA : C, ΓA --> X)). simpl in XR.
-    specialize (XR (fun A pX => nat_trans (yoneda_ob_functor_data C hsC (pr1 (pX))) (tu y : functor _ _ ))).
+    specialize (XR (fun A pX => nat_trans (yoneda_ob_functor_data C (homset_property _) (pr1 (pX))) (tu y : functor _ _ ))).
     apply XR. simpl. unfold fpullback_data.
   eapply weqcomp.
     eapply weqbfun. apply (invweq (yoneda_weq _ _ _ _ )).

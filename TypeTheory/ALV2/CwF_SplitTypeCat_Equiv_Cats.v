@@ -50,8 +50,6 @@ Section Fix_Context.
 
 Context {C : Precategory}.
 
-Local Notation hsC := (homset_property C).
-
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
 
@@ -190,7 +188,7 @@ Lemma qq_from_fam_mor_unique {X X' : obj_ext_precat} {F : X --> X'}
   : isaprop (Σ (FZ : Z -->[F] Z'), W -->[(F,,(FY,,FZ))] W').
 Proof.
   apply isofhleveltotal2.
-  - simpl. repeat (apply impred_isaprop; intro). apply hsC.
+  - simpl. repeat (apply impred_isaprop; intro). apply homset_property.
   - intros; simpl. apply isapropunit.
 Qed.
 

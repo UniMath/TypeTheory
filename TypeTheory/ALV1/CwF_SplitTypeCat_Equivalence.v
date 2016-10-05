@@ -29,8 +29,6 @@ Section Fix_Context.
 
 Context {C : Precategory} (X : obj_ext_structure C).
 
-Local Notation hsC := (homset_property C).
-
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
 Local Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).
@@ -51,7 +49,7 @@ Variable Y : compatible_fam_structure Z.
 Definition canonical_TM_to_given_data
   : Π Γ, (tm_from_qq Z Γ) --> (Tm (pr1 Y) Γ)
 := (λ (Γ : C^op) (t : tm_from_qq_carrier Γ),
-       (yoneda_weq C hsC Γ (TM (pr1 Y)))
+       (yoneda_weq C (homset_property _) Γ (TM (pr1 Y)))
          (# Yo (pr1 (pr2 t)) ;; Q (pr1 Y) (pr1 t))).
 
 Lemma is_nat_trans_canonical_TM_to_given 
@@ -63,7 +61,7 @@ Proof.
   apply funextsec. intro t. cbn.
   destruct t as [A [s e]].
   (* now use naturality of (yoneda_weq) on the right-hand side *)
-  assert (XR := nat_trans_ax (natural_trans_yoneda_iso _ hsC (TM (pr1 Y))) _ _ f). 
+  assert (XR := nat_trans_ax (natural_trans_yoneda_iso _ (homset_property _) (TM (pr1 Y))) _ _ f). 
   assert (XR1 := toforallpaths _ _ _ XR); cbn in XR1.
   set (XX := # Yo s ;; Q (pr1 Y) _ ). 
   assert (XR2 := XR1 XX).
@@ -91,7 +89,7 @@ Definition given_TM_to_canonical
   : Π Γ, HSET ⟦ Tm (pr1 Y) Γ, tm_from_qq Z Γ⟧.
 Proof.
   intro Γ. simpl.
-  intro s'. set (S' := @yy _ hsC _ _ s').
+  intro s'. set (S' := @yy _ (homset_property _) _ _ s').
   set (ps := (pp (pr1 Y) : nat_trans _ _ )  _ s').
   assert (XR : S' ;; pp (pr1 Y) = yy ( (pp (pr1 Y) : nat_trans _ _ ) _ s')).
   { 
@@ -111,11 +109,11 @@ Proof.
     + apply Yo^-1.
       exact (pr1 T).
     + abstract (
-          apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ )));
+          apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ )));
           etrans ; [ apply functor_comp |];
           etrans ; [ apply cancel_postcomposition ;
                      apply (homotweqinvweq (weqpair _
-                            (yoneda_fully_faithful _ hsC Γ (comp_ext X Γ ps) ))) | ];
+                            (yoneda_fully_faithful _ (homset_property _) Γ (comp_ext X Γ ps) ))) | ];
           simpl;
           match goal with |[ |- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => 
                        set (XR3:=HH) end;
@@ -161,11 +159,11 @@ Proof.
     apply (toforallpaths _ _ _ (functor_id (TY X) _ ) _).
   (* TODO: the second half could possibly be simplified by
   [Q_pp_Pb_unique]. *)
-  - apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
+  - apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
     etrans. apply (functor_comp Yo).
     etrans. apply cancel_postcomposition.
             apply (homotweqinvweq
-               (weqpair _ (yoneda_fully_faithful _  hsC _ _ ))).
+               (weqpair _ (yoneda_fully_faithful _  (homset_property C) _ _ ))).
     etrans. Focus 2. simpl. apply idpath.
     etrans. apply cancel_postcomposition. cbn. apply idpath.
     Time match goal with |[|- PullbackArrow ?HH _ _ _ ?PP ;; _ = _ ] =>
@@ -248,7 +246,7 @@ Proof.
     + assert (XR := 
           (idtoiso_transportf_family_of_morphisms (preShv C))).
       specialize (XR C (λ B, (TY X : functor _ _ ) B : hSet)).
-      specialize (XR (λ Γ' B, (yoneda C hsC (Γ' ◂ B)))).
+      specialize (XR (λ Γ' B, (yoneda C (homset_property _) (Γ' ◂ B)))).
       etrans. apply XR.
       clear XR.
       apply funextsec; intro Γ.
@@ -298,7 +296,7 @@ Proof.
     { intro.
       do 4 (apply impred; intro).
       apply isofhleveltotal2. 
-      - apply hsC.
+      - apply homset_property.
       - intro. apply isaprop_isPullback. } 
     simpl.
     destruct t as [[t H1] H2]. simpl.
@@ -307,7 +305,7 @@ Proof.
     apply funextsec; intro Γ'.
     apply funextsec; intro f.
     apply funextsec; intro A.    
-    apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
+    apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
     apply pathsinv0.
     etrans. apply Yo_qq_fam_Yo_of_qq.
     unfold Yo_of_qq.
