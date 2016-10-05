@@ -41,11 +41,6 @@ Section Fix_Context.
 
 Context {C : Precategory}.
 
-Local Notation hsC := (homset_property C).
-
-Local Notation "'Yo'" := (yoneda C hsC).
-Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
-
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
 
@@ -60,8 +55,6 @@ Definition obj_ext_iso_alt (X X' : obj_ext_Precat C) : UU :=
         Π {Γ:C} {A' : Ty X' Γ},
          Σ φ : iso (Γ ◂ ((inv_from_iso F_TY) : nat_trans _ _ ) _ A') (Γ ◂  A'),
            φ ;; π _ = π _ .
-
-Search (is_category _ ).
 
 Definition is_saturated_preShv (F G : preShv C) : F = G ≃ iso F G.
 Proof.
@@ -78,9 +71,7 @@ Proof.
   use (weqbandf H).
   intro F. simpl.
 (*  rewrite transportf_forall. (* do better *) *)
-  Search ( ( _ = _ ) ≃ (Π _ ,  _ )).
   eapply weqcomp. apply weqtoforallpaths.
-  Search ( (forall _ , _ ) ≃ (forall _ , _ )).
   apply weqonsecfibers.
   intro Γ.
   eapply weqcomp. apply weqtoforallpaths. simpl.
@@ -417,7 +408,7 @@ Lemma qq_structure_eq
   : d = d'.
 Proof.
   apply subtypeEquality.
-  { intro. apply (@isaprop_qq_morphism_axioms _ (homset_property _ )). }
+  { intro. apply isaprop_qq_morphism_axioms. }
   apply subtypeEquality.
   { intro. do 4 (apply impred; intro). 
            apply isofhleveltotal2.

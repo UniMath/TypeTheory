@@ -40,13 +40,12 @@ End Auxiliary.
 Section Fix_Context.
 
 Context {C : Precategory}.
-Let hsC := (homset_property C).
 
 (** * Equivalence of types of families- and qq-structures, constructed categorically *)
 Section Equiv_of_Types_from_Cats.
 
 Definition fam_struc_to_qq_struc_equiv_types (X : obj_ext_Precat C)
-  : families_structure hsC X ≃ qq_morphism_structure X.
+  : families_structure C X ≃ qq_morphism_structure X.
 Proof.
   refine (weq_on_objects_from_adj_equiv_of_cats _ _ _ _ _ 
          (fam_struc_to_qq_struc_is_equiv _)).
@@ -72,7 +71,7 @@ Proof.
 Defined.
 
 (* An alternative approach that doesn’t rely so much on computational behaviour, so would be more robust under refactoring, could use the following lemma: *)
-Lemma qq_compat_implies_eq (Y : families_structure hsC X) {Z Z'}
+Lemma qq_compat_implies_eq (Y : families_structure C X) {Z Z'}
   : iscompatible_fam_qq Y Z -> iscompatible_fam_qq Y Z'
   -> Z = Z'.
 Proof.

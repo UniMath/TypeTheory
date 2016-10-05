@@ -41,21 +41,18 @@ Local Notation Δ := comp_ext_compare.
 Section fix_cat_obj_ext.
 
 Variable C : Precategory.
-Definition hsC : has_homsets C := homset_property C.
 Variable X : obj_ext_structure C.
 
 
 (** * Precategory of families-structures *)
 Section Families_Structure_Precat.
 
-Local Notation "'Yo'" := (yoneda _ hsC).
-
 (* TODO: this should be called differently.
          families is the name of Sigma obj-ext plus this
 *)
 
 Definition families_mor 
-    (Y Y' : families_structure hsC X) 
+    (Y Y' : families_structure C X) 
   : UU
 := Σ FF_TM : TM Y --> TM Y',
        FF_TM ;; pp Y' = pp Y 
@@ -101,7 +98,7 @@ Lemma term_to_section_naturality {Y} {Y'}
 Proof.
   set (t' := (families_mor_TM FY : nat_trans _ _) _ t).
   set (A' := (pp Y' : nat_trans _ _) _ t').
-  set (Pb := isPullback_preShv_to_pointwise hsC (isPullback_Q_pp Y' A') Γ);
+  set (Pb := isPullback_preShv_to_pointwise (homset_property _) (isPullback_Q_pp Y' A') Γ);
     simpl in Pb.
   apply (pullback_HSET_elements_unique Pb); clear Pb.
   - unfold yoneda_morphisms_data; cbn.
@@ -142,7 +139,7 @@ Qed.
 
 Definition families_ob_mor : precategory_ob_mor. 
 Proof.
-  exists (families_structure hsC X).
+  exists (families_structure C X).
   exact @families_mor.
 Defined.
 
@@ -211,7 +208,7 @@ Lemma isaprop_qq_structure_mor
   (Z Z' : qq_structure_ob_mor)
   : isaprop (Z --> Z').
 Proof.
-  repeat (apply impred_isaprop; intro). apply hsC. 
+  repeat (apply impred_isaprop; intro). apply homset_property. 
 Qed.
 
 Definition qq_structure_id_comp : precategory_id_comp qq_structure_ob_mor.
@@ -371,7 +368,7 @@ Lemma qq_from_fam_mor_unique
   (W' : iscompatible_fam_qq Y' Z')
   : isaprop (Z --> Z').
 Proof.
-  simpl. repeat (apply impred_isaprop; intro). apply hsC.
+  simpl. repeat (apply impred_isaprop; intro). apply homset_property.
 Qed.
 
 End Unique_QQ_From_Fam.
@@ -499,7 +496,7 @@ Proof.
 
     unfold fam_from_qq_mor_TM_data.
 
-    assert (XR:= @Q_pp _ _ _ Y _ A).
+    assert (XR:= @Q_pp _ _ Y _ A).
     assert (XR' := nat_trans_eq_pointwise XR Γ').
     assert (XR'':= toforallpaths _ _ _ XR'). unfold homot in XR''.
     specialize (XR'' f).
@@ -715,7 +712,7 @@ Lemma qq_structure_eq
   : d = d'.
 Proof.
   apply subtypeEquality.
-  { intro. apply (@isaprop_qq_morphism_axioms _ (homset_property _ )). }
+  { intro. apply isaprop_qq_morphism_axioms. }
   apply subtypeEquality.
   { intro. do 4 (apply impred; intro). 
            apply isofhleveltotal2.
