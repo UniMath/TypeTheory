@@ -27,18 +27,26 @@ Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Set Automatic Introduction.
 
+Section Auxiliary.
+
+(** TODO: upstream; rename as e.g. “mor_total” to make clearer what the distinction is. *)
+Definition arrow (E : precategory) : UU
+  := Σ (ab : E × E), E⟦pr2 ab, pr1 ab⟧.
+Definition source {E} (X : arrow E) : E := pr2 (pr1 X).
+Definition target {E} (X : arrow E) : E := pr1 (pr1 X).
+Definition morphism_from_arrow {E} (X : arrow E)
+  : E⟦source X, target X⟧
+  := pr2 X.
+Coercion morphism_from_arrow : arrow >-> precategory_morphisms.
+
+End Auxiliary.
+
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
-Section fix_some_stuff.
+Section Pullback_Lemmas.
 
-Variables C D : precategory.
-Variables (hsC : has_homsets C) (hsD : has_homsets D).
-Variable J : functor C D.
-
-Section fix_a_morphism.
-
-Variables U tU : D.
-Variable pp : D ⟦tU, U⟧.
+Context {C D : precategory} (J : functor C D).
+Context {U tU : D} (pp : D ⟦tU, U⟧).
 
 Definition fpullback_data {X : C} (f : D ⟦J X, U⟧) : UU 
   := Σ Xf : C, C⟦Xf, X⟧ × D⟦J Xf, tU⟧.
@@ -50,14 +58,6 @@ Definition fq {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f) : D⟦ J (fpb_o
 Definition fpullback_prop {X : C} {f : D ⟦J X, U⟧} (T : fpullback_data f) : UU 
   := Σ (fe : #J(fp T) ;; f = fq T ;; pp), isPullback _ _ _ _ fe .
 
-Lemma isaprop_fpullback_prop {X : C} {f : D ⟦J X, U⟧} (T : fpullback_data f)
-  : isaprop (fpullback_prop T).
-Proof.
-  apply isofhleveltotal2.
-  - apply hsD.
-  - intros. apply isaprop_isPullback.
-Qed.
-
 Definition fpullback {X : C} (f : D ⟦J X, U⟧) := 
   Σ T : fpullback_data f, fpullback_prop T.
 
@@ -66,6 +66,7 @@ Coercion fpullback_data_from_fpullback {X : C} {f : D ⟦J X, U⟧} (T : fpullba
 
 Definition fcomprehension := Π X (f : D⟦J X, U⟧), fpullback f.
 
+(* TODO: add arguments declaration to make [U], [tU] explicit in these defs not depending on [pp]. *)
 Definition fcomprehension_data := Π X (f : D⟦ J X, U⟧), fpullback_data f.
 Definition fcomprehension_prop (Y : fcomprehension_data) :=
           Π X f, fpullback_prop (Y X f). 
@@ -83,9 +84,27 @@ Proof.
   apply weqforalltototal.
 Defined.
 
+End Pullback_Lemmas.
+
+Section Pullback_Prop_Lemmas.
+
+Context {C : precategory} {D : Precategory} (J : functor C D).
+Local Notation "'hsD'" := (homset_property D).
+
+Variables U tU : D.
+Variable pp : D ⟦tU, U⟧.
+
+Lemma isaprop_fpullback_prop {X : C} {f : D ⟦J X, U⟧} (T : fpullback_data J f)
+  : isaprop (fpullback_prop J pp T).
+Proof.
+  apply isofhleveltotal2.
+  - apply hsD.
+  - intros. apply isaprop_isPullback.
+Qed.
+
 Lemma isaprop_fpullback {X : C} (f : D ⟦J X, U⟧) (is_c : is_category C)(is_d : is_category D) 
     (HJ : fully_faithful J)
-  : isaprop (fpullback f).
+  : isaprop (fpullback J pp f).
 Proof.
   apply invproofirrelevance.
   intros x x'. apply subtypeEquality.
@@ -148,41 +167,25 @@ Proof.
         apply X1.
 Qed.
 
-
 Lemma isaprop_fcomprehension  (is_c : is_category C)(is_d : is_category D) 
-    (HJ : fully_faithful J) : isaprop fcomprehension.
+    (HJ : fully_faithful J) : isaprop (fcomprehension J pp).
 Proof.
   do 2 (apply impred; intro).
   apply isaprop_fpullback; assumption.
 Qed.  
 
-End fix_a_morphism.
+End Pullback_Prop_Lemmas.
 
-
-(** to upstream *)
-Definition arrow (E : precategory) : UU
-  := Σ (ab : E × E), E⟦pr2 ab, pr1 ab⟧.
-Definition source {E} (X : arrow E) : E := pr2 (pr1 X).
-Definition target {E} (X : arrow E) : E := pr1 (pr1 X).
-Definition morphism_from_arrow {E} (X : arrow E)
-  : E⟦source X, target X⟧
-  := pr2 X.
-Coercion morphism_from_arrow : arrow >-> precategory_morphisms.
-
-Definition relative_universe_structure : UU :=
-  Σ X : arrow D, fcomprehension (target X) (source X)
-      (morphism_from_arrow X).
-
-
-End fix_some_stuff.
+Definition relative_universe_structure {C D : precategory} (J : functor C D) : UU :=
+  Σ X : arrow D, fcomprehension J (morphism_from_arrow X).
 
 Section rel_univ_structure_and_functors.
 
-Variables C D : precategory.
+Context {C : precategory} {D : Precategory}.
 Variable J : functor C D.
-Variable RUJ : relative_universe_structure _ _ J.
+Variable RUJ : relative_universe_structure J.
 
-Variables C' D' : precategory.
+Context {C' : precategory} {D' : Precategory}.
 Variable J' : functor C' D'.
 Variable J'ff : fully_faithful J'.
 Variable isC' : is_category C'.
@@ -224,12 +227,11 @@ Let e {X : C} (f : D ⟦J X, U⟧) (* :  #J(fp _ _ _ X) ;; f = fq X ;; pp *)
 *)
 
 Definition fcomprehension_induced
-  :  fcomprehension C' D' J' (S U) (S tU) (# S (pr1 RUJ)).
+  :  fcomprehension J' (# S (pr1 RUJ)).
   intros X' g.
   set (preimg := Res X'). cbn. simpl.
   apply (squash_to_prop preimg).
-  - apply isaprop_fpullback.
-    + apply (pr2 isD').
+  - apply (isaprop_fpullback J').
     + apply isC'.
     + apply isD'.
     + apply J'ff.
@@ -333,7 +335,7 @@ Definition fcomprehension_induced
 Qed.
 
 
-Definition rel_univ_struct_functor : relative_universe_structure _ _ J'.
+Definition rel_univ_struct_functor : relative_universe_structure J'.
 Proof.
   mkpair.
   mkpair.

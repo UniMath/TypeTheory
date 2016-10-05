@@ -686,7 +686,8 @@ End eqv_from_ess_split_and_ff.
 
 (** ** Misc lemmas/definitions on (pre)categories *)
 
-Definition preShv C := functor_precategory C^op HSET has_homsets_HSET.
+Definition preShv C
+:= functorPrecategory C^op (Precategory_pair _ has_homsets_HSET).
 
 (* TODO: perhaps rename e.g. [yoneda_eq]? *)
 Definition yy {C : precategory} {hsC : has_homsets C}

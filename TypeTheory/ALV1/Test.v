@@ -62,7 +62,7 @@ Definition Rezk_on_CwF (C : Precategory)
   : CwF_structure (Rezk_completion C (homset_property _)) .
 Proof.
   apply weq_RelUnivYo_CwF.
-  apply (Rezk_on_RelUnivYoneda C (homset_property _)).
+  apply (Rezk_on_RelUnivYoneda C).
   apply (invmap (weq_RelUnivYo_CwF _)).
   exact H.
 Defined.

@@ -38,7 +38,7 @@ Variable C : Precategory.
 
 Local Notation "'hsC'" := (homset_property C).
 
-Local Notation "'Yo'" := (yoneda _ hsC).
+Local Notation "'Yo'" := (yoneda _ hsC : functor _ (preShv _)).
 Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
 
 (** a [RelUnivYo] as a [relative_universe_structure] on [Yo] is
@@ -56,7 +56,7 @@ Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _
 *)
 
 Definition RelUnivYo_structure : UU
- := relative_universe_structure C (preShv C) Yo.
+ := relative_universe_structure Yo.
 
 
 
@@ -232,10 +232,10 @@ Abort.
 
 Definition Yo_pullback (x : arrow (preShv C)) : UU :=
    Π X (A : (target x : functor _ _ ) X : hSet),
-      fpullback C (preShv C) Yo (target x) (source x) x (yy A).
+      fpullback Yo x (yy A).
 
 Definition weq_fcomprehension_Yo_pullback (x : arrow (preShv C)) :
-   fcomprehension C (preShv C) Yo (target x) (source x) x ≃ Yo_pullback x.
+   fcomprehension Yo x ≃ Yo_pullback x.
 Proof.
   apply weqonsecfibers.
   intro X.
@@ -334,7 +334,7 @@ Proof.
   transparent assert (HXY :
       ( (Σ ΓAp : Σ ΓA : C, ΓA --> X, Yo (pr1 ΓAp) --> tu y)
          ≃
-         fpullback_data C (preShv C) Yo (target y) (source y) (yy A) ) ).
+         @fpullback_data _ _ (Yo) _ (source y) _ (yy A) ) ).
   { apply weqtotal2asstor. }
   apply (weqbandf HXY).
   intro x.
@@ -343,7 +343,7 @@ Defined.
 
 Lemma weq_comp_fcomprehension:
  Π x : arrow (preShv C),
-   comp x ≃ fcomprehension C (preShv C) Yo (target x) (source x) x.
+   comp x ≃ fcomprehension Yo x.
 Proof.
   intro y.
   apply invweq.
@@ -373,7 +373,7 @@ Defined.
 *)
 
 Definition comp_to_fcomprehension (x : arrow (preShv C)):
-   comp x → fcomprehension C (preShv C) Yo (target x) (source x) x.
+   comp x → fcomprehension Yo x.
 Proof.
   intro H.
   set ( t := pr1 H). set (depr := pr1 t). set (Q := pr2 t). set (Hprop := pr2 H).
@@ -395,17 +395,17 @@ Defined.
 
 
 Definition fcomprehension_to_comp (x : arrow (preShv C)):
-  fcomprehension C (preShv C) Yo (target x) (source x) x → comp x.
+  fcomprehension Yo x → comp x.
 Proof.
   intro H. mkpair.
   - mkpair.
     + intros Γ A.
       set (XR := H Γ (yy A)).
-      exists (fpb_obj _ _ _ _ _ XR).
-      apply (fp _ _ _ _ _ XR).
+      exists (fpb_obj _ XR).
+      apply (fp _ XR).
     + intros Γ A.
       set (XR := H Γ (yy A)).
-      apply (fq _ _ _ _ _ XR).
+      apply (fq _ XR).
   - cbn. intros Γ A.
     set (XR := H Γ (yy A)).
     assert (XRT := pr2 XR). simpl in XRT. destruct XRT as [t p0]. simpl in t.
@@ -416,7 +416,7 @@ Defined.
 
 
 Lemma weq_fcomprehension_comp_data (y : arrow (preShv C)):
-   fcomprehension_data C (preShv C) Yo (target y) (source y) ≃ comp_data y.
+   @fcomprehension_data _ _ Yo (target y) (source y) ≃ comp_data y.
 Proof.
   unfold fcomprehension_data.
   unfold comp_data.

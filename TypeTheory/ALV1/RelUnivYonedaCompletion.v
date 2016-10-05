@@ -22,30 +22,29 @@ Require Import TypeTheory.ALV1.RelUnivStructure.
 
 Set Automatic Introduction.
 
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
-
+Local Notation "[ C , D ]" := (functorPrecategory C D).
 
 Section fix_category.
 
-Variable C : precategory.
-Variable hsC : has_homsets C.
+Variable C : Precategory.
+Local Notation "'hsC'" := (homset_property C).
 
 Let RC := Rezk_completion C hsC.
 Let hsRC : has_homsets RC := pr2 (pr2 (RC)).
 
 Let hsRCop : has_homsets RC^op := has_homsets_opp hsRC.
 
-Local Notation "'Yo'" := (yoneda _ hsC).
+Local Notation "'Yo'" := (yoneda _ hsC : functor C (preShv C)).
 Local Notation "'Yo^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsC _ _ ))).
 
-Local Notation "'YoR'" := (yoneda _ hsRC).
+Local Notation "'YoR'" := (yoneda _ hsRC : functor _ (preShv _)).
 Local Notation "'YoR^-1'" :=  (invweq (weqpair _ (yoneda_fully_faithful _ hsRC _ _ ))).
 
-Hypothesis X : relative_universe_structure _ _ Yo.
+Hypothesis X : relative_universe_structure Yo.
 
 Let YoR_ff : fully_faithful YoR := yoneda_fully_faithful _ hsRC.
 
-Definition R1 := rel_univ_struct_functor _ _ Yo X _ _ YoR YoR_ff (pr2 RC).
+Definition R1 := rel_univ_struct_functor Yo X YoR YoR_ff (pr2 RC).
 
 Lemma is_category_preShv D : is_category (preShv D).
 Proof.
@@ -63,7 +62,7 @@ Defined.
 Let R3 := R2 ext.
   
 
-Definition fi : iso (C:=[C, preShv RC, functor_category_has_homsets _ _ _ ])
+Definition fi : iso (C:=[C, preShv RC])
           (functor_composite Yo ext)
           (functor_composite (Rezk_eta C hsC) YoR).
 Proof.
