@@ -18,8 +18,6 @@ Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Set Automatic Introduction.
 
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-
 
 
 Section category_of_elements_covariant.
