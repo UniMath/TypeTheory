@@ -62,9 +62,6 @@ Definition RelUnivYo_structure : UU
 
 *)
 
-Definition CwF_structure : UU
- := Σ (X : obj_ext_structure C), families_structure C X.
-
 
 (** Plan: a reasonable intermediate structure seems to be 
           one that can be obtained from [CwF'] by shuffling
@@ -129,7 +126,7 @@ Qed.
 Definition comp (X : mor_of_presheaves) : UU 
   := Σ (Y : comp_data X), comp_prop _ Y.
 
-Definition iCwF_structure := Σ (X : mor_of_presheaves), comp X.
+Definition icwf_structure := Σ (X : mor_of_presheaves), comp X.
 
 (** * Construction of an equivalence between [CwF] and [iCwF] *)
 
@@ -173,7 +170,7 @@ Defined.
 
 
 
-Definition weq_CwF_iCwF : CwF_structure ≃ iCwF_structure.
+Definition weq_cwf_icwf : cwf_structure C ≃ icwf_structure.
 Proof.
   eapply weqcomp. Focus 2. 
     set (XR:= @weqtotal2asstor mor_of_presheaves (fun X => comp_data X) ).
@@ -340,7 +337,7 @@ Proof.
   apply (invweq (weq_Yo_pullback_comp_1 _ )).
 Defined.
 
-Definition weq_iCwF_RelUnivYo : iCwF_structure ≃ RelUnivYo_structure.
+Definition weq_iCwF_RelUnivYo : icwf_structure ≃ RelUnivYo_structure.
 Proof.
   apply weqfibtototal.
   apply weq_comp_fcomprehension.
@@ -348,11 +345,11 @@ Defined.
  
 
 
-Definition weq_RelUnivYo_CwF : RelUnivYo_structure ≃ CwF_structure.
+Definition weq_RelUnivYo_CwF : RelUnivYo_structure ≃ cwf_structure C.
 Proof.
   eapply weqcomp.
    apply (invweq weq_iCwF_RelUnivYo).
-  apply (invweq weq_CwF_iCwF).
+  apply (invweq weq_cwf_icwf).
 Defined.
 
 

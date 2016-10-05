@@ -52,8 +52,8 @@ Type hierarchy is collapsed (logic is inconsistent)
 
 (** * Transfer of CwF structure from a category to its Rezk completion*)
 Definition Rezk_on_CwF (C : Precategory) 
-           (H : CwF_structure C) 
-  : CwF_structure (Rezk_completion C (homset_property _)) .
+           (H : cwf_structure C) 
+  : cwf_structure (Rezk_completion C (homset_property _)) .
 Proof.
   apply weq_RelUnivYo_CwF.
   apply (Rezk_on_RelUnivYoneda C).
