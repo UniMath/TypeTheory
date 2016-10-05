@@ -61,8 +61,6 @@ Definition obj_ext_iso_alt (X X' : obj_ext_Precat C) : UU :=
          Σ φ : iso (Γ ◂ ((inv_from_iso F_TY) : nat_trans _ _ ) _ A') (Γ ◂  A'),
            φ ;; π _ = π _ .
 
-Search (is_category _ ).
-
 Definition is_saturated_preShv (F G : preShv C) : F = G ≃ iso F G.
 Proof.
   apply (weqpair idtoiso (pr1
@@ -78,9 +76,7 @@ Proof.
   use (weqbandf H).
   intro F. simpl.
 (*  rewrite transportf_forall. (* do better *) *)
-  Search ( ( _ = _ ) ≃ (Π _ ,  _ )).
   eapply weqcomp. apply weqtoforallpaths.
-  Search ( (forall _ , _ ) ≃ (forall _ , _ )).
   apply weqonsecfibers.
   intro Γ.
   eapply weqcomp. apply weqtoforallpaths. simpl.
