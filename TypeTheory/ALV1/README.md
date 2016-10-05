@@ -22,7 +22,8 @@ We give a per-file overview of the contents of this package:
   * Construction of an equivalence of types between families structures and relative universe structures on Yoneda
 * *RelUnivYonedaCompletion.v*
   * Instantiation of the hypotheses of transfer of relative universe structures to Yoneda
-* *Test.v*
-  * File checking the hypotheses and axioms needed for the constructions of this package
+* *Summary.v*
+  * File giving the main results of this package with all the hypotheses, printing the axioms needed for each construction
+
 
 
