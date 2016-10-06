@@ -34,6 +34,8 @@ Section Pullback_Lemmas.
 Context {C D : precategory} (J : functor C D).
 Context {U tU : D} (pp : D ⟦tU, U⟧).
 
+(** * Pullback relative to a functor *)
+
 Definition fpullback_data {X : C} (f : D ⟦J X, U⟧) : UU 
   := Σ Xf : C, C⟦Xf, X⟧ × D⟦J Xf, tU⟧.
 
@@ -57,6 +59,8 @@ Definition fcomprehension_data := Π X (f : D⟦ J X, U⟧), fpullback_data f.
 Definition fcomprehension_prop (Y : fcomprehension_data) :=
           Π X f, fpullback_prop (Y X f). 
 
+(** * An equivalence separating data and properties *)
+(** interchanging Σ and Π *)
 Definition fcomprehension_weq :
    fcomprehension ≃ Σ Y : fcomprehension_data, fcomprehension_prop Y.
 Proof.
@@ -71,6 +75,8 @@ Proof.
 Defined.
 
 End Pullback_Lemmas.
+
+(** * Some lemmas about relative pullbacks *)
 
 Section Pullback_Prop_Lemmas.
 
@@ -87,8 +93,41 @@ Proof.
   - intros. apply isaprop_isPullback.
 Qed.
 
-Lemma isaprop_fpullback {X : C} (f : D ⟦J X, U⟧) (is_c : is_category C)(is_d : is_category D) 
-    (HJ : fully_faithful J)
+
+(** TODO : move upstream *)
+Lemma forall_isotid (A : precategory) (a_is : is_category A) 
+      (a a' : A) (P : iso a a' -> UU) :
+  (Π e, P (idtoiso e)) → Π i, P i.
+Proof.
+  intros H i.
+  rewrite <- (idtoiso_isotoid _ a_is).
+  apply H.
+Defined.
+
+(** TODO : move upstream *)
+Lemma transportf_isotoid_functor 
+  (A X : precategory) (H : is_category A)
+  (K : functor A X)
+   (a a' : A) (p : iso a a') (b : X) (f : K a --> b) :
+ transportf (fun a0 => K a0 --> b) (isotoid _ H p) f = #K (inv_from_iso p) ;; f.
+Proof.
+  rewrite functor_on_inv_from_iso. simpl. cbn.
+  unfold precomp_with. rewrite id_right.
+  generalize p.
+  apply forall_isotid.
+  - apply H.
+  - intro e. induction e.
+    cbn.
+    rewrite functor_id.
+    rewrite id_left.
+    rewrite isotoid_identity_iso.
+    apply idpath.
+Defined.
+
+
+Lemma isaprop_fpullback {X : C} (f : D ⟦J X, U⟧) 
+      (is_c : is_category C)
+      (HJ : fully_faithful J)
   : isaprop (fpullback J pp f).
 Proof.
   apply invproofirrelevance.
@@ -139,16 +178,13 @@ Proof.
         match goal with |[|- transportf ?r  _ _ = _ ] => set (P:=r) end.
         set (T:=@functtransportf _ _ (functor_on_objects J) (fun a' => D⟦ a', tU⟧)).
         rewrite T.
-        assert (Xt:=maponpaths_isotoid _ _ J is_c is_d).
-        rewrite Xt.
-        rewrite functor_on_iso_iso_from_fully_faithful_reflection.
-        rewrite transportf_isotoid.
-        unfold iso_from_Pullback_to_Pullback.
-        cbn.
-        unfold precomp_with.
-        rewrite id_right.
+        rewrite <- functtransportf.
+        etrans. 
+          apply (transportf_isotoid_functor).  
+        cbn. unfold precomp_with. rewrite id_right. rewrite id_right.
+        assert (XX:=homotweqinvweq (weq_from_fully_faithful HJ a' a  )).
+        simpl in XX. rewrite XX. simpl. cbn.
         assert (X1:= PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ isP)).
-        cbn in X1.
         apply X1.
 Qed.
 
@@ -163,6 +199,9 @@ End Pullback_Prop_Lemmas.
 
 Definition relative_universe_structure {C D : precategory} (J : functor C D) : UU
   := Σ X : mor_total D, fcomprehension J X.
+
+
+(** * Transfer of a relative universe structure along two functors and a natural iso *)
 
 Section rel_univ_structure_and_functors.
 
@@ -193,10 +232,6 @@ Proof.
   apply (is_iso_inv_from_iso).
 Qed.
   
-(*
-Let T := inv_from_iso (isopair (C:=[C, D', pr2 isD']) a is_iso_a).
-Let TA := iso_inv_after_iso (isopair )).
-*)
 
 Hypothesis Res : essentially_surjective R.
 Hypothesis Sff : fully_faithful S.
@@ -206,10 +241,6 @@ Local Notation tU := (source (pr1 RUJ)).
 Local Notation U :=  (target (pr1 RUJ)).
 Local Notation pp := (morphism_from_total (pr1 RUJ)).
 
-(*
-Let e {X : C} (f : D ⟦J X, U⟧) (* :  #J(fp _ _ _ X) ;; f = fq X ;; pp *)
-  := pr1 (pr1 (pr2 (pr2 (pr2 RUJ)) X f)).
-*)
 
 Definition fcomprehension_induced
   :  fcomprehension J' (# S (pr1 RUJ)).
@@ -218,7 +249,6 @@ Definition fcomprehension_induced
   apply (squash_to_prop preimg).
   - apply (isaprop_fpullback J').
     + apply isC'.
-    + apply isD'.
     + apply J'ff.
   - intros [X i].
     set (f' := pr1 a X ;; #J' i ;; g : D' ⟦ S (J X), S U ⟧). 
@@ -323,11 +353,12 @@ Qed.
 Definition rel_univ_struct_functor : relative_universe_structure J'.
 Proof.
   mkpair.
-  mkpair.
-  exists (S U).
-  exact (S tU).
-  apply (#S pp). cbn.
-  apply fcomprehension_induced.
+  - mkpair.
+    + exists (S U).
+      exact (S tU).
+    + apply (#S pp). 
+  - cbn.
+    apply fcomprehension_induced.
 Defined.
   
 
