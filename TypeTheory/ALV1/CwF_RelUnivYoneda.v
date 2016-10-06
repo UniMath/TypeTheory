@@ -25,8 +25,6 @@ Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 
 Set Automatic Introduction.
 
-Undelimit Scope transport.
-
 Section fix_category.
 
 Variable C : Precategory.
@@ -48,7 +46,7 @@ Variable C : Precategory.
 Definition RelUnivYo_structure : UU
  := @relative_universe_structure C _ Yo.
 
-(** a CwF' as below is
+(** a [cwf_structure] as below is
     - a triple (Ty, ◂ + π) of object extension
     - a triple (Tm, p, Q) where
       - Tm is a presheaf,
@@ -64,25 +62,25 @@ Definition RelUnivYo_structure : UU
 
 
 (** Plan: a reasonable intermediate structure seems to be 
-          one that can be obtained from [CwF'] by shuffling
+          one that can be obtained from [cwf_structure] by shuffling
           the components:
    ( (Ty, Tm, p), ( (◂ + π , Q), props ) )
 
-     We then can show that the second component of that thing
-     - is a prop and
-     - is logically equivalent to the q-morphism structure
-       of a CwF 
+     The type of triples (Ty,Tm,p) is called [mor_total],
+     the type of triples (◂  + π, Q) is called [comp_data],
+     the axioms are called [comp_prop].
 
-    Alternatively, we can fiddle with interchanging Σ and Π and
-    the yoneda isomorphism in two places, but maybe that's 
-    more cumbersome? Those two places are quantifications in
-    - Q
-    - the pullback condition
+   This structure is called [comp] below, and we 
+   define [icwf_structure] as the type of pairs of 
+   a [mor_total] and a [comp] above.
+   We then construct an equivalence between 
+   [icwf_structure] and [cwf_structure].
+
 *)
 
-Definition u (X : mor_total (preShv C)) : preShv C := target X.
-Definition tu (X : mor_total (preShv C)) : preShv C := source X.
-Definition p (X : mor_total (preShv C)) : preShv C ⟦tu X, u X⟧
+Local Definition u (X : mor_total (preShv C)) : preShv C := target X.
+Local Definition tu (X : mor_total (preShv C)) : preShv C := source X.
+Local Definition p (X : mor_total (preShv C)) : preShv C ⟦tu X, u X⟧
   :=  morphism_from_total X.
 
 
@@ -107,6 +105,7 @@ Definition comp_prop (X : mor_total (preShv C)) (Y : comp_data X) : UU :=
   Π Γ (A : (u X : functor _ _ ) Γ : hSet),
         Σ (e : #Yo (dpr _ A) ;; yy A = QQ Y A ;; p X), isPullback _ _ _ _ e.
 
+(** This lemma is not used in the following *)
 Lemma isaprop_comp_prop (X : mor_total (preShv C)) (Y : comp_data X) 
   : isaprop (comp_prop X Y).
 Proof.
@@ -121,7 +120,7 @@ Definition comp (X : mor_total (preShv C)) : UU
 
 Definition icwf_structure := Σ (X : mor_total (preShv C)), comp X.
 
-(** * Construction of an equivalence between [CwF] and [iCwF] *)
+(** * Construction of an equivalence between [cwf_structure] and [icwf_structure] *)
 
 
 (** the next lemma might be proved more easily with the specialized lemmas
@@ -185,28 +184,6 @@ Proof.
 Defined.  
 
 
-(* This is more complicated than to show that 
-   [comp] is equivalent to fcomprehension
-*)
-(*
-Lemma isaprop_comp (y : mor_total (preShv C)) : isaprop (comp y).
-Proof.
-  apply invproofirrelevance.
-  intros x x'. apply subtypeEquality.
-  - intro t. apply isaprop_comp_prop.
-  - destruct x as [x H]. 
-    destruct x' as [x' H']. cbn.    
-    destruct x as [a m].
-    destruct x' as [a' m']. cbn in *.
-    simple refine (total2_paths _ _ ).
-    * simpl.
-      apply funextsec; intro Γ.
-      apply funextsec; intro A.      
-      unfold comp_prop in H, H'. simpl in H, H'.
-Abort.
-*)
-
-
 
 Definition Yo_pullback (x : mor_total (preShv C)) : UU :=
    Π X (A : (target x : functor _ _ ) X : hSet),
@@ -219,6 +196,9 @@ Proof.
   intro X.
   apply (weqonsecbase _ (@yy _ _ _ _ )).
 Defined.
+
+(** * Another intermediate structure [comp_1]
+*)
 
 Definition comp_1_data (y : mor_total (preShv C)) : UU
   := Π (Γ : C) (A : (u y : functor _ _ ) Γ : hSet),
@@ -336,7 +316,7 @@ Proof.
   apply weq_comp_fcomprehension.
 Defined.   
  
-
+(** * The main construction: an equivalence between [RelUnivYo] and [cwf_structure] *)
 
 Definition weq_RelUnivYo_CwF : RelUnivYo_structure ≃ cwf_structure C.
 Proof.
@@ -345,6 +325,8 @@ Proof.
   apply (invweq weq_cwf_icwf).
 Defined.
 
+
+(** * Some unused results *)
 
 (** The results below are not used anywhere, 
     but we keep them because, well, why shouldn't we?
