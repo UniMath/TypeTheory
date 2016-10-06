@@ -213,7 +213,6 @@ Context {C' : precategory} {D' : Precategory}.
 Variable J' : functor C' D'.
 Variable J'ff : fully_faithful J'.
 Variable isC' : is_category C'.
-Variable isD' : is_category D'.
 
 Variables (R : functor C C') (S : functor D D').
 
@@ -314,7 +313,7 @@ Definition fcomprehension_induced
         intro Hp.
         simple refine
                (isPullback_iso_of_morphisms _ _ _ _ _ _ _ _ _ _ _ _ ).
-        - apply (pr2 isD').
+        - apply (homset_property _ ).
         - apply (#J' (#R p)). 
         - repeat rewrite assoc.
           repeat rewrite assoc in Hp.
@@ -338,7 +337,7 @@ Definition fcomprehension_induced
           intro Hp.
           simple refine
                  (isPullback_iso_of_morphisms _ _ _ _ _ _ _ _ _ _ _ _ ).
-          + apply (pr2 isD').
+          + apply (homset_property _ ). 
           + cbn. apply (#S (#J p)).
           + apply functor_on_square. assumption.
           + apply a'iso.
@@ -350,7 +349,7 @@ Definition fcomprehension_induced
 Qed.
 
 
-Definition rel_univ_struct_functor : relative_universe_structure J'.
+Definition transfer_of_rel_univ_struct : relative_universe_structure J'.
 Proof.
   mkpair.
   - mkpair.
@@ -363,3 +362,6 @@ Defined.
   
 
 End rel_univ_structure_and_functors.
+
+Print Assumptions transfer_of_rel_univ_struct.
+Check @transfer_of_rel_univ_struct.

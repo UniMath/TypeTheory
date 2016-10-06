@@ -29,9 +29,9 @@ Hypothesis X : @relative_universe_structure C _ Yo.
 
 Let YoR_ff : fully_faithful YoR := yoneda_fully_faithful _ (homset_property _).
 
-Definition R1 := rel_univ_struct_functor Yo X YoR YoR_ff RC.
+Definition R1 := transfer_of_rel_univ_struct Yo X YoR YoR_ff RC.
 
-Definition R2 :=  R1 (preShv _) (Rezk_eta _ _ ).
+Definition R2 :=  R1 (Rezk_eta _ _ ).
 
 Definition ext : functor (preShv C) (preShv RC).
 Proof.
