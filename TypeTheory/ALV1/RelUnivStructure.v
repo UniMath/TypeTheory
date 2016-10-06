@@ -94,37 +94,6 @@ Proof.
 Qed.
 
 
-(** TODO : move upstream *)
-Lemma forall_isotid (A : precategory) (a_is : is_category A) 
-      (a a' : A) (P : iso a a' -> UU) :
-  (Π e, P (idtoiso e)) → Π i, P i.
-Proof.
-  intros H i.
-  rewrite <- (idtoiso_isotoid _ a_is).
-  apply H.
-Defined.
-
-(** TODO : move upstream *)
-Lemma transportf_isotoid_functor 
-  (A X : precategory) (H : is_category A)
-  (K : functor A X)
-   (a a' : A) (p : iso a a') (b : X) (f : K a --> b) :
- transportf (fun a0 => K a0 --> b) (isotoid _ H p) f = #K (inv_from_iso p) ;; f.
-Proof.
-  rewrite functor_on_inv_from_iso. simpl. cbn.
-  unfold precomp_with. rewrite id_right.
-  generalize p.
-  apply forall_isotid.
-  - apply H.
-  - intro e. induction e.
-    cbn.
-    rewrite functor_id.
-    rewrite id_left.
-    rewrite isotoid_identity_iso.
-    apply idpath.
-Defined.
-
-
 Lemma isaprop_fpullback {X : C} (f : D ⟦J X, U⟧) 
       (is_c : is_category C)
       (HJ : fully_faithful J)
