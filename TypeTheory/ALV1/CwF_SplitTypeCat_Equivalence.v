@@ -39,7 +39,7 @@ Section canonical_TM.
 
 Variable Z : qq_morphism_structure X.
 Notation ZZ := (pr2 Z).
-Variable Y : compatible_fam_structure Z.
+Variable Y : compatible_term_structure Z.
 
 Definition canonical_TM_to_given_data
   : Π Γ, (tm_from_qq Z Γ) --> (Tm (pr1 Y) Γ)
@@ -211,8 +211,8 @@ End canonical_TM.
 
 Lemma unique (Z : qq_morphism_data X)
              (ZZ : qq_morphism_axioms Z)
-             (Y : compatible_fam_structure (Z,,ZZ))
-  : compatible_fam_from_qq (Z,,ZZ) = Y.
+             (Y : compatible_term_structure (Z,,ZZ))
+  : compatible_term_from_qq (Z,,ZZ) = Y.
 Proof.
   set (i := isotoid _
                    (category_is_category _)
@@ -222,7 +222,7 @@ Proof.
     apply homset_property. }
   destruct Y as [Y YH]. simpl.
   apply subtypeEquality.
-  { intro. apply isaprop_families_structure_axioms. }
+  { intro. apply isaprop_fibered_term_structure_axioms. }
   simpl.
   destruct Y as [Y YH']; simpl.
   use total2_paths.
@@ -268,17 +268,17 @@ Defined.
 
 
 (* needs splitness? *)
-Lemma iscontr_compatible_fam_structure (Z : qq_morphism_data X) (ZZ : qq_morphism_axioms Z)
-: iscontr (compatible_fam_structure (Z,,ZZ)).
+Lemma iscontr_compatible_term_structure (Z : qq_morphism_data X) (ZZ : qq_morphism_axioms Z)
+: iscontr (compatible_term_structure (Z,,ZZ)).
 Proof.
-  exists (compatible_fam_from_qq (Z,,ZZ)).
+  exists (compatible_term_from_qq (Z,,ZZ)).
   intro t.
   apply pathsinv0. apply unique.
 Defined.
 
-Lemma compat_split_comp_eq (Y : families_structure _ X) :
+Lemma compat_split_comp_eq (Y : fibered_term_structure _ X) :
   Π t : compatible_qq_morphism_structure Y,
-  t = compatible_qq_from_fam Y.
+  t = compatible_qq_from_term Y.
 Proof.
   intro t.
     apply subtypeEquality.
@@ -302,7 +302,7 @@ Proof.
     apply funextsec; intro A.    
     apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
     apply pathsinv0.
-    etrans. apply Yo_qq_fam_Yo_of_qq.
+    etrans. apply Yo_qq_term_Yo_of_qq.
     unfold Yo_of_qq.
     apply pathsinv0.
     apply PullbackArrowUnique.
@@ -317,10 +317,10 @@ Proof.
 Time Qed.
   
 
-Lemma iscontr_compatible_split_comp_structure (Y : families_structure C X)
+Lemma iscontr_compatible_split_comp_structure (Y : fibered_term_structure C X)
 : iscontr (compatible_qq_morphism_structure Y).
 Proof.
-  exists (compatible_qq_from_fam Y).
+  exists (compatible_qq_from_term Y).
   apply compat_split_comp_eq.
 Defined.
 
@@ -329,12 +329,12 @@ End compatible_structures.
 Section Equivalence.
 
 Definition T1 : UU :=
-  Σ Y : families_structure C X,
+  Σ Y : fibered_term_structure C X,
         compatible_qq_morphism_structure Y.
 
 Definition T2 : UU :=
   Σ Z : qq_morphism_structure X,
-        compatible_fam_structure Z.
+        compatible_term_structure Z.
 
 Definition shuffle : T1 ≃ T2.
 Proof.
@@ -342,18 +342,18 @@ Proof.
   unfold T1.
   unfold compatible_qq_morphism_structure.
   set (XR := @weqtotal2asstol).
-  specialize (XR (families_structure C X)).
+  specialize (XR (fibered_term_structure C X)).
   specialize (XR (fun _ => qq_morphism_structure X)).
   simpl in XR.
-  specialize (XR (fun YZ => iscompatible_fam_qq (pr1 YZ) (pr2 YZ))).
+  specialize (XR (fun YZ => iscompatible_term_qq (pr1 YZ) (pr2 YZ))).
   apply XR.
   eapply weqcomp. Focus 2.
-  unfold T2. unfold compatible_fam_structure.
+  unfold T2. unfold compatible_term_structure.
   set (XR := @weqtotal2asstor).
   specialize (XR (qq_morphism_structure X)).
-  specialize (XR (fun _ => families_structure C X)).
+  specialize (XR (fun _ => fibered_term_structure C X)).
   simpl in XR.
-  specialize (XR (fun YZ => iscompatible_fam_qq (pr2 YZ) (pr1 YZ))).
+  specialize (XR (fun YZ => iscompatible_term_qq (pr2 YZ) (pr1 YZ))).
   apply XR.
   use weqbandf.
   - apply weqdirprodcomm.
@@ -367,11 +367,11 @@ Proof.
   exists pr1.
   apply isweqpr1.
   intros [z zz].
-  apply iscontr_compatible_fam_structure.
+  apply iscontr_compatible_term_structure.
 Defined.
 
 Definition forget_comp :
-  T1 ≃ families_structure C X.
+  T1 ≃ fibered_term_structure C X.
 Proof.
   exists pr1.
   apply isweqpr1.
@@ -379,7 +379,7 @@ Proof.
   apply iscontr_compatible_split_comp_structure.
 Defined.
 
-Definition weq_CwF_SplitTypeCat : families_structure C X ≃ qq_morphism_structure X.
+Definition weq_CwF_SplitTypeCat : fibered_term_structure C X ≃ qq_morphism_structure X.
 Proof.
   eapply weqcomp.
     eapply invweq. apply forget_comp.

@@ -7,17 +7,17 @@ In this file, we give the definitions of _split type-categories_ (originally due
 To facilitate comparing them afterwards, we split up their definitions in a slightly unusual way, starting with the part they share.  The key definitions of this file are therefore (all over a fixed base (pre)category [C]):  
 
 - _object-extension structures_, [obj_ext_structure], the common core of CwF’s and split type-categories;
-- _families structures_, [families_structure], the rest of the structure of a CwF on [C];
+- _fibered_term structures_, [fibered_term_structure], the rest of the structure of a CwF on [C];
 - _cwf-structures_, [cwf_structure], the full structure of a CwF on a precategory [C]; 
 - _CwF’s_, [cwf]; 
 - _q-morphism structures_, [qq_morphism_structure], for rest of the structure of a split type-category on [C];
 - _split type-cat structures_, [split_typecat_structure], the full structure of a split type-category on [C].
 - _split type-categories_, [split_typecat].
 
-NB: for now, we follow the literature in saying e.g. _category_ with families and split type-_category_, but these definitions do not include saturation, so are really _precategories_ with families, etc.
+NB: for now, we follow the literature in saying e.g. _category_ with families and split type-_category_, but these definitions do not include saturation, so are really _precategories_ with fibered_term, etc.
 *)
 
-(* TODO: consider renaming the definitions to [precwf], [split_type_precat], etc. *)
+
 
 Require Import UniMath.Foundations.Basics.Sets.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
@@ -113,7 +113,7 @@ Arguments obj_ext_structure _ : clear implicits.
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
 
-(** The definitions of families structures and split type-category structures will all be relative to a fixed object-extension structure. *)
+(** The definitions of fibered_term structures and split type-category structures will all be relative to a fixed object-extension structure. *)
 
 Section Families_Structures.
 
@@ -123,7 +123,7 @@ Context {C : Precategory} {X : obj_ext_structure C}.
 
 We now define the extra structure, over an object-extension structure, which constitutes a _category with families_ in the sense of Fiore, _Algebraic Type Theory_, 2008 #(<a href="http://www.cl.cam.ac.uk/~mpf23/Notes/att.pdf">link</a>)#, a reformulation of Dybjer’s original definition, replacing the functor [C --> FAM] with an arrow in [preShv C].
 
-Components of [Y : families_structure X]:
+Components of [Y : fibered_term_structure X]:
 
 - [TM Y : preShv C] 
 - [pp Y : TM Y --> TY X]
@@ -132,12 +132,12 @@ Components of [Y : families_structure X]:
 - [isPullback_Q_pp Y A : isPullback _ _ _ _ (Q_pp Y A)]
 *)
 
-Definition families_structure_data : UU
+Definition fibered_term_structure_data : UU
   := Σ Tm : preShv C, 
         (Tm --> TY X)
         × (Π (Γ : C) (A : Ty X Γ), Yo (Γ ◂ A) --> Tm).
 
-Definition TM (Y : families_structure_data) : preShv C := pr1 Y.
+Definition TM (Y : fibered_term_structure_data) : preShv C := pr1 Y.
 Definition pp Y : TM Y --> TY X := pr1 (pr2 Y).
 Definition Q Y {Γ} A : _ --> TM Y := pr2 (pr2 Y) Γ A.
 Local Notation "'Tm'" := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
@@ -150,12 +150,12 @@ Proof.
   apply id_left.
 Qed.
 
-Definition families_structure_axioms (Y : families_structure_data) :=
+Definition fibered_term_structure_axioms (Y : fibered_term_structure_data) :=
   Π Γ (A : Ty X Γ), 
         Σ (e : #Yo (π A) ;; yy A = Q Y A ;; pp Y), isPullback _ _ _ _ e.
 
-Lemma isaprop_families_structure_axioms Y
-  : isaprop (families_structure_axioms Y).
+Lemma isaprop_fibered_term_structure_axioms Y
+  : isaprop (fibered_term_structure_axioms Y).
 Proof.
   do 2 (apply impred; intro).
   apply isofhleveltotal2.
@@ -163,33 +163,33 @@ Proof.
   - intro. apply isaprop_isPullback.
 Qed.
 
-Definition families_structure : UU :=
-  Σ Y : families_structure_data, families_structure_axioms Y.
-Coercion families_data_from_families (Y : families_structure) : _ := pr1 Y.
+Definition fibered_term_structure : UU :=
+  Σ Y : fibered_term_structure_data, fibered_term_structure_axioms Y.
+Coercion fibered_term_data_from_fibered_term (Y : fibered_term_structure) : _ := pr1 Y.
 
-Definition Q_pp (Y : families_structure) {Γ} (A : Ty X Γ) 
+Definition Q_pp (Y : fibered_term_structure) {Γ} (A : Ty X Γ) 
   : #Yo (π A) ;; yy A = Q Y A ;; pp Y
 := pr1 (pr2 Y _ _ ).
 
 (* TODO: rename this to [Q_pp_Pb], or [qq_π_Pb] to [isPullback_qq_π]? *)
-Definition isPullback_Q_pp (Y : families_structure) {Γ} (A : Ty X Γ)
+Definition isPullback_Q_pp (Y : fibered_term_structure) {Γ} (A : Ty X Γ)
   : isPullback _ _ _ _ (Q_pp Y A)
 := pr2 (pr2 Y _ _ ).
 
-Definition Q_pp_Pb_pointwise (Y : families_structure) (Γ' Γ : C) (A : Ty X Γ)
+Definition Q_pp_Pb_pointwise (Y : fibered_term_structure) (Γ' Γ : C) (A : Ty X Γ)
   := isPullback_preShv_to_pointwise (homset_property _) (isPullback_Q_pp Y A) Γ'.
 
-Definition Q_pp_Pb_univprop (Y : families_structure) (Γ' Γ : C) (A : Ty X Γ)
+Definition Q_pp_Pb_univprop (Y : fibered_term_structure) (Γ' Γ : C) (A : Ty X Γ)
   := pullback_HSET_univprop_elements _ (Q_pp_Pb_pointwise Y Γ' Γ A).
 
-Definition Q_pp_Pb_unique (Y : families_structure) (Γ' Γ : C) (A : Ty X Γ)
+Definition Q_pp_Pb_unique (Y : fibered_term_structure) (Γ' Γ : C) (A : Ty X Γ)
   := pullback_HSET_elements_unique (Q_pp_Pb_pointwise Y Γ' Γ A).
 
 (** ** Terms as sections *)
 
-(* In any families structure, “terms” correspond to sections of dependent projections.  For now, we do not need this full isomorphism, but we construct the beginning of the correspondence. *)
+(* In any fibered_term structure, “terms” correspond to sections of dependent projections.  For now, we do not need this full isomorphism, but we construct the beginning of the correspondence. *)
   
-Lemma term_to_section_aux {Y : families_structure} {Γ:C} (t : Tm Y Γ) 
+Lemma term_to_section_aux {Y : fibered_term_structure} {Γ:C} (t : Tm Y Γ) 
   (A := (pp Y : nat_trans _ _) _ t)
   : iscontr
     (Σ (f : Γ --> Γ ◂ A), 
@@ -203,7 +203,7 @@ Proof.
 Qed.
 
 (* TODO: unify with [bar] in […_Equivalence]? *)
-Lemma term_to_section {Y : families_structure} {Γ:C} (t : Tm Y Γ) 
+Lemma term_to_section {Y : fibered_term_structure} {Γ:C} (t : Tm Y Γ) 
   (A := (pp Y : nat_trans _ _) _ t)
   : Σ (f : Γ --> Γ ◂ A), (f ;; π _ = identity Γ).
 Proof.
@@ -213,14 +213,14 @@ Proof.
 Defined.
 
 (* TODO: again, unify with lemmas following [bar] in […_Equivalence]? *)
-Lemma term_to_section_recover {Y : families_structure}
+Lemma term_to_section_recover {Y : fibered_term_structure}
   {Γ:C} (t : Tm Y Γ) (A := (pp Y : nat_trans _ _) _ t)
   : (Q Y A : nat_trans _ _) _ (pr1 (term_to_section t)) = t.
 Proof.
   exact (pr2 (pr2 (iscontrpr1 (term_to_section_aux t)))).
 Qed.
 
-Lemma Q_comp_ext_compare {Y : families_structure}
+Lemma Q_comp_ext_compare {Y : fibered_term_structure}
     {Γ Γ':C} {A A' : Ty X Γ} (e : A = A') (t : Γ' --> Γ ◂ A)
   : (Q Y A' : nat_trans _ _) _ (t ;; comp_ext_compare e)
   = (Q Y A : nat_trans _ _) _ t.
@@ -352,24 +352,24 @@ Qed.
 
 End Q_Morphism_Structures.
 
-Arguments families_structure_data _ _ : clear implicits.
-Arguments families_structure_axioms _ _ _ : clear implicits.
-Arguments families_structure _ _ : clear implicits.
+Arguments fibered_term_structure_data _ _ : clear implicits.
+Arguments fibered_term_structure_axioms _ _ _ : clear implicits.
+Arguments fibered_term_structure _ _ : clear implicits.
 Arguments qq_morphism_data [_] _ : clear implicits.
 Arguments qq_morphism_structure [_] _ : clear implicits.
 
 (** * CwF’s, split type-categories *)
 
-(** Details and documentation of these definitions, are given with [families_structure] and [qq_morphism_structure] above. *)
+(** Details and documentation of these definitions, are given with [fibered_term_structure] and [qq_morphism_structure] above. *)
 
 Definition cwf_structure (C : Precategory) : UU 
-:= Σ X : obj_ext_structure C, families_structure C X.
+:= Σ X : obj_ext_structure C, fibered_term_structure C X.
 
 Coercion obj_ext_structure_of_cwf_structure {C : Precategory}
 := pr1 : cwf_structure C -> obj_ext_structure C.
 
-Coercion families_structure_of_cwf_structure {C : Precategory}
-:= pr2 : forall XY : cwf_structure C, families_structure C XY.
+Coercion fibered_term_structure_of_cwf_structure {C : Precategory}
+:= pr2 : forall XY : cwf_structure C, fibered_term_structure C XY.
 
 Definition cwf : UU
 := Σ C : Precategory, cwf_structure C.
