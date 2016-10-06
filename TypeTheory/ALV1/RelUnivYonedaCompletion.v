@@ -14,6 +14,9 @@ Require Import TypeTheory.ALV1.RelUnivStructure.
 
 Set Automatic Introduction.
 
+
+(** * Instantiating the data and hypotheses of transfer of relative universe structures to Yoneda *)
+
 Local Notation "[ C , D ]" := (functorPrecategory C D).
 
 Section fix_category.
@@ -29,18 +32,15 @@ Hypothesis X : @relative_universe_structure C _ Yo.
 
 Let YoR_ff : fully_faithful YoR := yoneda_fully_faithful _ (homset_property _).
 
-Definition R1 := rel_univ_struct_functor Yo X YoR YoR_ff RC.
-
-Definition R2 :=  R1 (preShv _) (Rezk_eta _ _ ).
+(** ** The right vertical functor *)
 
 Definition ext : functor (preShv C) (preShv RC).
 Proof.
   set (T:= Rezk_op_adj_equiv C (homset_property _) HSET is_category_HSET).
   apply (equivalences.right_adjoint (pr1 T)).
 Defined.
-
-Let R3 := R2 ext.
   
+(** ** The natural isomorphism *)
 
 Definition fi : iso (C:=[C, preShv RC])
           (functor_composite Yo ext)
@@ -69,9 +69,7 @@ Proof.
     apply Rezk_eta_fully_faithful.
 Defined.
 
-Let R4 := R3 fi (pr2 fi).
-Let R5 := R4 (Rezk_eta_essentially_surjective _ _ ).
-Let R6 := R5 (right_adj_equiv_is_ff _ _ _ _ ).
+(** ** Right vertical functor preserves pullbacks *)
 
 Lemma preserves_pullbacks_ext
   : maps_pb_squares_to_pb_squares (preShv C) (preShv RC) ext.
@@ -84,8 +82,30 @@ Proof.
   assumption.
 Defined.
 
-Definition Rezk_on_RelUnivYoneda := R6 preserves_pullbacks_ext.
-Print Assumptions Rezk_on_RelUnivYoneda.
+(** ** The instantiation *)
+
+Definition Rezk_on_RelUnivYoneda : relative_universe_structure
+  ((yoneda RC (homset_property RC) : functor RC (preShv RC))
+   :
+   functor RC (preShv RC)).
+Proof.
+  cbn.
+  use (transfer_of_rel_univ_struct 
+         Yo 
+         X 
+         YoR 
+         YoR_ff 
+         RC 
+         (Rezk_eta _ _ )
+         ext
+         fi
+         (pr2 fi)
+         (Rezk_eta_essentially_surjective _ _ )
+         (right_adj_equiv_is_ff _ _ _ _ )
+         preserves_pullbacks_ext
+       ).
+Defined.
 
 End fix_category.
 
+Print Assumptions Rezk_on_RelUnivYoneda.
