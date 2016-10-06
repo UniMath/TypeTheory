@@ -29,12 +29,14 @@ Set Automatic Introduction.
 
 Local Notation "[ C , D ]" := (functorPrecategory C D).
 
-Section Pullback_Lemmas.
+(** * Relative comprehension structures *)
+
+(** Given a map [ p : Ũ —> U ] in a category [D], and a functor [ F : C —> D ], _a comprehension structure for [p] relative to [F]_ is an operation providing all pullbacks of [p] along morphisms from objects of the form [F X]. *)
+
+Section Relative_Comprehension.
 
 Context {C D : precategory} (J : functor C D).
-Context {U tU : D} (pp : D ⟦tU, U⟧).
-
-(** * Pullback relative to a functor *)
+Context {U tU : D} (p : D ⟦tU, U⟧).
 
 Definition fpullback_data {X : C} (f : D ⟦J X, U⟧) : UU 
   := Σ Xf : C, C⟦Xf, X⟧ × D⟦J Xf, tU⟧.
@@ -44,7 +46,7 @@ Definition fp {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f) : C⟦fpb_obj T
 Definition fq {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f) : D⟦ J (fpb_obj T), tU⟧ := pr2 (pr2 T).
 
 Definition fpullback_prop {X : C} {f : D ⟦J X, U⟧} (T : fpullback_data f) : UU 
-  := Σ (fe : #J(fp T) ;; f = fq T ;; pp), isPullback _ _ _ _ fe .
+  := Σ (fe : #J(fp T) ;; f = fq T ;; p), isPullback _ _ _ _ fe .
 
 Definition fpullback {X : C} (f : D ⟦J X, U⟧) := 
   Σ T : fpullback_data f, fpullback_prop T.
@@ -54,7 +56,7 @@ Coercion fpullback_data_from_fpullback {X : C} {f : D ⟦J X, U⟧} (T : fpullba
 
 Definition fcomprehension := Π X (f : D⟦J X, U⟧), fpullback f.
 
-(* TODO: add arguments declaration to make [U], [tU] explicit in these defs not depending on [pp]. *)
+(* TODO: add arguments declaration to make [U], [tU] explicit in these defs not depending on [p]. *)
 Definition fcomprehension_data := Π X (f : D⟦ J X, U⟧), fpullback_data f.
 Definition fcomprehension_prop (Y : fcomprehension_data) :=
           Π X f, fpullback_prop (Y X f). 
@@ -74,19 +76,17 @@ Proof.
   apply weqforalltototal.
 Defined.
 
-End Pullback_Lemmas.
+End Relative_Comprehension.
 
-(** * Some lemmas about relative pullbacks *)
+(** ** Some lemmas on the hpropness of the  *)
 
-Section Pullback_Prop_Lemmas.
+Section Relative_Comprehension_Lemmas.
 
 Context {C : precategory} {D : Precategory} (J : functor C D).
-
-Variables U tU : D.
-Variable pp : D ⟦tU, U⟧.
+Context {U tU : D} (p : D ⟦tU, U⟧).
 
 Lemma isaprop_fpullback_prop {X : C} {f : D ⟦J X, U⟧} (T : fpullback_data J f)
-  : isaprop (fpullback_prop J pp T).
+  : isaprop (fpullback_prop J p T).
 Proof.
   apply isofhleveltotal2.
   - apply homset_property.
@@ -97,7 +97,7 @@ Qed.
 Lemma isaprop_fpullback {X : C} (f : D ⟦J X, U⟧) 
       (is_c : is_category C)
       (HJ : fully_faithful J)
-  : isaprop (fpullback J pp f).
+  : isaprop (fpullback J p f).
 Proof.
   apply invproofirrelevance.
   intros x x'. apply subtypeEquality.
@@ -124,8 +124,8 @@ Proof.
       cbn in *.
       match goal with | [ |- transportf _ ?e _ = _ ] => set (TT := e) end.
       rewrite XT'.
-      destruct m as [p q].
-      destruct m' as [p' q'].
+      destruct m as [q r].
+      destruct m' as [q' r'].
       cbn. 
       apply pathsdirprod.
       * unfold TT.
@@ -158,35 +158,43 @@ Proof.
 Qed.
 
 Lemma isaprop_fcomprehension  (is_c : is_category C)(is_d : is_category D) 
-    (HJ : fully_faithful J) : isaprop (fcomprehension J pp).
+    (HJ : fully_faithful J) : isaprop (fcomprehension J p).
 Proof.
   do 2 (apply impred; intro).
   apply isaprop_fpullback; assumption.
 Qed.  
 
-End Pullback_Prop_Lemmas.
+End Relative_Comprehension_Lemmas.
 
+(** * Relative universe structures *)
+
+(** A _universe relative to a functor_ is just a map in the target category, equipped with a relative comprehension structure. *)
+
+(* TODO: any reason not to call just [relative_universe]? *)
 Definition relative_universe_structure {C D : precategory} (J : functor C D) : UU
   := Σ X : mor_total D, fcomprehension J X.
 
+(** ** Transfer of a relative universe structure *)
 
-(** * Transfer of a relative universe structure along two functors and a natural iso *)
+(** We give conditions under which a relative universe for one functor can be transferred to one for another functor. *)
 
-Section rel_univ_structure_and_functors.
+Section Rel_Univ_Structure_Transfer.
 
-Context {C : precategory} {D : Precategory}.
-Variable J : functor C D.
-Variable RUJ : relative_universe_structure J.
+Context
+   {C : precategory} {D : Precategory}
+   (J : functor C D)
+   (RUJ : relative_universe_structure J)
 
-Context {C' : precategory} {D' : Precategory}.
-Variable J' : functor C' D'.
-Variable J'ff : fully_faithful J'.
-Variable isC' : is_category C'.
+   {C' : precategory} {D' : Precategory}
+   (J' : functor C' D')
 
-Variables (R : functor C C') (S : functor D D').
+   (J'ff : fully_faithful J')
+   (isC' : is_category C')
 
-Variable a :   [C, D'] ⟦functor_composite J S , functor_composite R J'⟧.
-Hypothesis is_iso_a : is_iso a.
+   (R : functor C C') (S : functor D D')
+
+   (a : [C, D'] ⟦functor_composite J S , functor_composite R J'⟧)
+   (is_iso_a : is_iso a).
 
 Let a' := inv_from_iso (isopair a is_iso_a).  
 Let TA':= iso_after_iso_inv (isopair (C:=[C, D']) a is_iso_a).
@@ -200,7 +208,6 @@ Proof.
   apply (is_iso_inv_from_iso).
 Qed.
   
-
 Hypothesis Res : essentially_surjective R.
 Hypothesis Sff : fully_faithful S.
 Hypothesis Spb : maps_pb_squares_to_pb_squares _ _ S.
@@ -208,7 +215,6 @@ Hypothesis Spb : maps_pb_squares_to_pb_squares _ _ S.
 Local Notation tU := (source (pr1 RUJ)).
 Local Notation U :=  (target (pr1 RUJ)).
 Local Notation pp := (morphism_from_total (pr1 RUJ)).
-
 
 Definition fcomprehension_induced
   :  fcomprehension J' (# S (pr1 RUJ)).
@@ -317,7 +323,6 @@ Definition fcomprehension_induced
         } 
 Qed.
 
-
 Definition transfer_of_rel_univ_struct : relative_universe_structure J'.
 Proof.
   mkpair.
@@ -329,8 +334,4 @@ Proof.
     apply fcomprehension_induced.
 Defined.
   
-
-End rel_univ_structure_and_functors.
-
-Print Assumptions transfer_of_rel_univ_struct.
-Check @transfer_of_rel_univ_struct.
+End Rel_Univ_Structure_Transfer.
