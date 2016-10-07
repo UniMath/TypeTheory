@@ -29,7 +29,7 @@ Local Notation Δ := comp_ext_compare.
 
 (** * Definition of compatibility
 
-We define here what it means for a fibered_term-structure and a _q_-morphism structure to be _compatible_. *)
+We define what it means for a fibered_term-structure and a _q_-morphism structure to be _compatible_. *)
 
 Section Compatible_Structures.
 
@@ -89,8 +89,6 @@ Key definitions: [fam_from_qq], [iscompatible_fam_from_qq] *)
 Section compatible_term_structure_from_qq.
 
 Variable Z : qq_morphism_structure X.
-(* TODO: replaces references to [ZZ] by access functions. *)
-Notation ZZ := (pr2 Z).
 
 Definition tm_from_qq_carrier (Γ : C) : UU :=
   Σ A : Ty X Γ,
@@ -149,7 +147,6 @@ Qed.
 
 (** A useful more specialised case of equality on terms. *)
 
-(* TODO: rephrase in terms of [Δ] instead of [idtoiso]? *)
 Lemma tm_from_qq_eq' {Γ : C} (A : Ty X Γ)
   {Γ'} {f f' : Γ' --> Γ} (e_ff' : f = f')
   {s : Γ' --> Γ' ◂ A[f]} (es : s ;; π _ = identity _)
@@ -219,13 +216,12 @@ Proof.
   exact pr1.
 Defined.
 
-(* TODO: would a [Qed] here affect anything later in file (including timing)? *) 
 Lemma is_nat_trans_pp_from_qq
   : is_nat_trans _ _ pp_from_qq_data.
 Proof.
   intros Γ Γ' f.
   apply idpath.
-Defined.
+Defined. 
 
 Definition pp_from_qq : preShv C ⟦tm_from_qq, TY X⟧
   := tpair _ _ is_nat_trans_pp_from_qq.
@@ -281,9 +277,7 @@ Proof.
           match goal with |[|- _ = _ ;; (PullbackArrow ?HH _ _ _ _ ;; _ )] => set (XR := HH) end.
           rewrite (PullbackArrow_PullbackPr2 XR).
           clear XR.
-          assert (XT:= pr2 ZZ). simpl in XT.
-          specialize (XT _ _ _ (g ;; π _ ) f ).
-          specialize (XT A).
+          assert (XT := qq_comp Z (g ;; π _ ) f A).
           rewrite @comp_ext_compare_comp.
           simpl.
           match goal with |[ H : ?EE =  _ |- ?DD ;; (?II ;; ?KK) ;; _  ;; _  = _ ] => 
