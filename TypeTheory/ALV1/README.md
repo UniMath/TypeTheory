@@ -17,7 +17,7 @@ We give a per-file overview of the contents of this package:
   * Construction of an equivalence of *categories* between cartesian generator structures and cartesian q-morphisms structures
 * *RelativeUniverses.v*
   * Definition of relative universes
-  * Transfer of relative universes along two functors and a natural isomorphism
+  * Transfer of relative universes along functors
 * *CwF_RelUnivYoneda.v*
   * Construction of an equivalence of types between fibered_term structures and relative universes on Yoneda
 * *RelUnivYonedaCompletion.v*

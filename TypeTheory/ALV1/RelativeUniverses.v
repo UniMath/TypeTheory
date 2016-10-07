@@ -5,17 +5,10 @@
 
 Contents:
 
-- Definition of comprehension structure relative to 
-  a functor, see [fcomprehension]
-- Proof that [fcomprehension] is a proposition when
-  target precategory is univalent, 
-  see [isaprop_fcomprehension]
-- Definition of a relative universe,
-  see [relative_universe]
-  Definition due to Vladimir Voevodsky
-- Transfer of a relative universe along
-  two functors and a natural isomorphism, 
-  see [rel_univ_functor]
+- Definition of comprehension structure on a map, relative to a functor: [fcomprehension]
+- [fcomprehension] is a proposition under saturation assumptions: [isaprop_fcomprehension]
+- Definition of a relative universe: [relative_universe] (due to Vladimir Voevodsky)
+- Transfer of a relative universe from one functor to another: [transfer_of_rel_univ_with_ess_surj]
 
 *)
 
@@ -56,13 +49,12 @@ Coercion fpullback_data_from_fpullback {X : C} {f : D ⟦J X, U⟧} (T : fpullba
 
 Definition fcomprehension := Π X (f : D⟦J X, U⟧), fpullback f.
 
-(* TODO: add arguments declaration to make [U], [tU] explicit in these defs not depending on [p]. *)
+(* TODO: add arguments declaration to make [U], [tU] explicit in this def not depending on [p].  OR make it depend on [p] (which it conceptually should, though it formally doesn’t). *)
 Definition fcomprehension_data := Π X (f : D⟦ J X, U⟧), fpullback_data f.
 Definition fcomprehension_prop (Y : fcomprehension_data) :=
           Π X f, fpullback_prop (Y X f). 
 
-(** * An equivalence separating data and properties *)
-(** interchanging Σ and Π *)
+(** An equivalent form of [fcomprehension], separating its data and properties by interchanging Σ and Π *)
 Definition fcomprehension_weq :
    fcomprehension ≃ Σ Y : fcomprehension_data, fcomprehension_prop Y.
 Proof.
@@ -78,7 +70,7 @@ Defined.
 
 End Relative_Comprehension.
 
-(** ** Some lemmas on the hpropness of the  *)
+(** ** Uniqueness lemmas regarding relative comprehension *)
 
 Section Relative_Comprehension_Lemmas.
 
@@ -95,7 +87,7 @@ Qed.
 
 Lemma isaprop_fpullback {X : C} (f : D ⟦J X, U⟧) 
       (is_c : is_category C)
-      (HJ : fully_faithful J) (* NOTE: the weaker assumption “ff on isos” would be enough. *)
+      (HJ : fully_faithful J) (* NOTE: the weaker assumption “ff on isos” should be enough. *)
   : isaprop (fpullback J p f).
 Proof.
   apply invproofirrelevance.
@@ -156,12 +148,12 @@ Proof.
         apply X1.
 Qed.
 
-Lemma isaprop_fcomprehension  (is_c : is_category C)(is_d : is_category D) 
+Lemma isaprop_fcomprehension  (is_c : is_category C) 
     (HJ : fully_faithful J) : isaprop (fcomprehension J p).
 Proof.
   do 2 (apply impred; intro).
   apply isaprop_fpullback; assumption.
-Qed.  
+Qed.
 
 End Relative_Comprehension_Lemmas.
 
@@ -169,7 +161,6 @@ End Relative_Comprehension_Lemmas.
 
 (** A _universe relative to a functor_ is just a map in the target category, equipped with a relative comprehension structure. *)
 
-(* TODO: any reason not to call just [relative_universe]? *)
 Definition relative_universe {C D : precategory} (J : functor C D) : UU
   := Σ X : mor_total D, fcomprehension J X.
 
@@ -263,13 +254,8 @@ Definition transfer_of_rel_univ_with_ess_split
     (S_sf : split_full S)
   : relative_universe J'.
 Proof.
-  mkpair.
-  - mkpair.
-    + exists (S U).
-      exact (S tU).
-    + apply (#S pp). 
-  - cbn.
-    apply fcomprehension_induced_with_ess_split; assumption.
+  exists (morphism_as_total (#S pp)).
+  apply fcomprehension_induced_with_ess_split; assumption.
 Defined.
 
 Definition fcomprehension_induced_with_ess_surj
@@ -327,13 +313,8 @@ Definition transfer_of_rel_univ_with_ess_surj
     (S_full : full S)
   : relative_universe J'.
 Proof.
-  mkpair.
-  - mkpair.
-    + exists (S U).
-      exact (S tU).
-    + apply (#S pp). 
-  - cbn.
-    apply fcomprehension_induced_with_ess_surj; assumption.
+  exists (morphism_as_total (#S pp)).
+  apply fcomprehension_induced_with_ess_surj; assumption.
 Defined.
 
 End Rel_Univ_Structure_Transfer.
