@@ -10,11 +10,11 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
-Require Import TypeTheory.ALV1.RelUnivStructure.
+Require Import TypeTheory.ALV1.RelativeUniverses.
 
 Set Automatic Introduction.
 
-(** * Instantiating the data and hypotheses of transfer of relative universe structures to Yoneda *)
+(** * Instantiating the data and hypotheses of transfer of relative universes to Yoneda *)
 
 Local Notation "[ C , D ]" := (functorPrecategory C D).
 
@@ -27,7 +27,7 @@ Let hsRCop : has_homsets RC^op := has_homsets_opp (homset_property _).
 
 Local Notation "'YoR'" := (Yo : functor RC (preShv _)).
 
-Hypothesis X : @relative_universe_structure C _ Yo.
+Hypothesis X : @relative_universe C _ Yo.
 
 Let YoR_ff : fully_faithful YoR := yoneda_fully_faithful _ (homset_property _).
 
@@ -83,13 +83,13 @@ Defined.
 
 (** ** The instantiation *)
 
-Definition Rezk_on_RelUnivYoneda : relative_universe_structure
+Definition Rezk_on_RelUnivYoneda : relative_universe
   ((yoneda RC (homset_property RC) : functor RC (preShv RC))
    :
    functor RC (preShv RC)).
 Proof.
   cbn.
-  use (transfer_of_rel_univ_struct_with_ess_surj
+  use (transfer_of_rel_univ_with_ess_surj
          Yo 
          X 
          YoR 

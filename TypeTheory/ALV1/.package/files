@@ -2,7 +2,7 @@ CwF_RelUnivYoneda.v
 CwF_SplitTypeCat_Equivalence.v
 CwF_SplitTypeCat_Maps.v
 CwF_SplitTypeCat_Cats_Standalone.v
-RelUnivStructure.v
+RelativeUniverses.v
 RelUnivYonedaCompletion.v
 CwF_SplitTypeCat_Defs.v
 Summary.v

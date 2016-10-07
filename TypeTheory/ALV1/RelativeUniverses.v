@@ -10,12 +10,12 @@ Contents:
 - Proof that [fcomprehension] is a proposition when
   target precategory is univalent, 
   see [isaprop_fcomprehension]
-- Definition of a relative universe structure,
-  see [relative_universe_structure]
+- Definition of a relative universe,
+  see [relative_universe]
   Definition due to Vladimir Voevodsky
-- Transfer of a relative universe structure along
+- Transfer of a relative universe along
   two functors and a natural isomorphism, 
-  see [rel_univ_struct_functor]
+  see [rel_univ_functor]
 
 *)
 
@@ -165,15 +165,15 @@ Qed.
 
 End Relative_Comprehension_Lemmas.
 
-(** * Relative universe structures *)
+(** * Relative universes *)
 
 (** A _universe relative to a functor_ is just a map in the target category, equipped with a relative comprehension structure. *)
 
 (* TODO: any reason not to call just [relative_universe]? *)
-Definition relative_universe_structure {C D : precategory} (J : functor C D) : UU
+Definition relative_universe {C D : precategory} (J : functor C D) : UU
   := Σ X : mor_total D, fcomprehension J X.
 
-(** ** Transfer of a relative universe structure *)
+(** ** Transfer of a relative universe *)
 
 Section Rel_Univ_Structure_Transfer.
 
@@ -182,7 +182,7 @@ Section Rel_Univ_Structure_Transfer.
 Context
    {C : precategory} {D : Precategory}
    (J : functor C D)
-   (RUJ : relative_universe_structure J)
+   (RUJ : relative_universe J)
 
    {C' : precategory} {D' : Precategory}
    (J' : functor C' D')
@@ -258,10 +258,10 @@ Proof.
     apply id_left.
 Qed.
 
-Definition transfer_of_rel_univ_struct_with_ess_split 
+Definition transfer_of_rel_univ_with_ess_split 
     (R_es : split_ess_surj R)
     (S_sf : split_full S)
-  : relative_universe_structure J'.
+  : relative_universe J'.
 Proof.
   mkpair.
   - mkpair.
@@ -319,13 +319,13 @@ Proof.
     apply id_left.
 Qed.
 
-Definition transfer_of_rel_univ_struct_with_ess_surj
+Definition transfer_of_rel_univ_with_ess_surj
     (R_es : essentially_surjective R)
     (C'_sat : is_category C')
     (J'_ff : fully_faithful J')
      (* TODO: only “ff on isos” should be needed; see note at [isaprop_fpullback]. *)
     (S_full : full S)
-  : relative_universe_structure J'.
+  : relative_universe J'.
 Proof.
   mkpair.
   - mkpair.

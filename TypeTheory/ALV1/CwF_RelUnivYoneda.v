@@ -7,7 +7,7 @@ Contents:
 
 - Main result: construction of an equivalence
   [weq_RelUnivYo_CwF]
-  between relative universe structures on Yoneda
+  between relative universes on Yoneda
   and fibered_term structures on a fixed precategory
 
 - Intermediate structure [iCwF] obtained by 
@@ -20,7 +20,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
-Require Import TypeTheory.ALV1.RelUnivStructure.
+Require Import TypeTheory.ALV1.RelativeUniverses.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 
 Set Automatic Introduction.
@@ -29,7 +29,7 @@ Section fix_category.
 
 Variable C : Precategory.
 
-(** a [RelUnivYo] as a [relative_universe_structure] on [Yo] is
+(** a [RelUnivYo] as a [relative_universe] on [Yo] is
     - two presheaves tU, U
     - a morphism of presheaves p : tU -> U
     - for any X : C and f : Yo X -> U
@@ -44,7 +44,7 @@ Variable C : Precategory.
 *)
 
 Definition RelUnivYo_structure : UU
- := @relative_universe_structure C _ Yo.
+ := @relative_universe C _ Yo.
 
 (** a [cwf_structure] as below is
     - a triple (Ty, ◂ + π) of object extension

@@ -14,7 +14,7 @@ Contents:
 Require Import UniMath.Foundations.Basics.Sets.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
-Require Import TypeTheory.ALV1.RelUnivStructure.
+Require Import TypeTheory.ALV1.RelativeUniverses.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
 Require Import TypeTheory.ALV1.CwF_RelUnivYoneda.
@@ -22,11 +22,11 @@ Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Cats_Standalone.
 
 
-(** * Transfer of relative universe structure from Yoneda on a category to Yoneda on its Rezk completion *)
+(** * Transfer of relative universe from Yoneda on a category to Yoneda on its Rezk completion *)
 Definition Rezk_on_RelUnivYoneda
      : Π C : Precategory,
-       relative_universe_structure (yoneda C (homset_property C))
-       → relative_universe_structure
+       relative_universe (yoneda C (homset_property C))
+       → relative_universe
            (yoneda (Rezk_completion C (homset_property C))
               (homset_property (Rezk_completion C (homset_property C)))).
 Proof.
@@ -44,7 +44,7 @@ Type hierarchy is collapsed (logic is inconsistent)
 >>
 *)
 
-(** * Equivalence between type of CwF structures on C and of rel universe structures on Yoneda*)
+(** * Equivalence between type of CwF structures on C and of rel universes on Yoneda*)
 Definition weq_RelUnivYo_cwf_structures
      : Π C : Precategory, RelUnivYo_structure C ≃ cwf_structure C.
 Proof.
