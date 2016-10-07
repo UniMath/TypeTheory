@@ -44,9 +44,9 @@ Type hierarchy is collapsed (logic is inconsistent)
 >>
 *)
 
-(** * Equivalence between type of CwF structures on C and of rel universes on Yoneda*)
+(** * Equivalence between type of CwF structures on [C] and of rel univs on [Yo C] *)
 Definition weq_RelUnivYo_cwf_structures
-     : Π C : Precategory, RelUnivYo_structure C ≃ cwf_structure C.
+     : Π C : Precategory, RelUnivYo C ≃ cwf_structure C.
 Proof.
   exact weq_RelUnivYo_CwF.
 Defined.
@@ -85,7 +85,7 @@ Type hierarchy is collapsed (logic is inconsistent)
 >>
 *)
 
-(** * Equivalence of types between cartesian generator structures and cartesian q-morphisms structures *)
+(** * Equivalence of types between total term structures and cartesian q-morphisms structures *)
 Definition weq_total_term_qq_morphisms_structures
      : Π (C : Precategory) (X : obj_ext_structure C),
        fibered_term_structure C X ≃ qq_morphism_structure X.
@@ -104,7 +104,7 @@ Type hierarchy is collapsed (logic is inconsistent)
 >>
 *)
 
-(** * Equivalence of categories between cartesian generator structures and cartesian q-morphisms structures *)
+(** * Equivalence of categories between total term structures and q-morphism structures, over a fixed object extension structure *)
 Definition equiv_of_category_of_cwf_split_type_structures
      : Π (C : Precategory) (X : obj_ext_structure C),
        adj_equivalence_of_precats
@@ -129,7 +129,7 @@ Type hierarchy is collapsed (logic is inconsistent)
 >>
 *)
 
-(** * Equivalence of categories between cartesian generator structures and cartesian q-morphisms structures *)
+(** * Equivalence of types between total term structures and q-morphism structures, over a fixed object extension structures  *)
 Definition equiv_of_types_of_cwf_split_type_structures
      : Π (C : Precategory) (X : obj_ext_structure C),
        fibered_term_precategory C X ≃ qq_structure_precategory C X.
