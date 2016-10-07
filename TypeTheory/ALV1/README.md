@@ -15,13 +15,13 @@ We give a per-file overview of the contents of this package:
   * Construction of an equivalence of *types* between cartesian generator structures and cartesian q-morphisms structures
 * *CwF_SplitTypeCat_Cats_Standalone.v*
   * Construction of an equivalence of *categories* between cartesian generator structures and cartesian q-morphisms structures
-* *RelUnivStructure.v*
-  * Definition of relative universe structures
-  * Transfer of relative universe structures along two functors and a natural isomorphism
+* *RelativeUniverses.v*
+  * Definition of relative universes
+  * Transfer of relative universes along functors
 * *CwF_RelUnivYoneda.v*
-  * Construction of an equivalence of types between fibered_term structures and relative universe structures on Yoneda
+  * Construction of an equivalence of types between fibered_term structures and relative universes on Yoneda
 * *RelUnivYonedaCompletion.v*
-  * Instantiation of the hypotheses of transfer of relative universe structures to Yoneda
+  * Instantiation of the hypotheses of transfer of relative universes to Yoneda
 * *Summary.v*
   * File giving the main results of this package with all the hypotheses, printing the axioms needed for each construction
 
