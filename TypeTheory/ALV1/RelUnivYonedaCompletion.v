@@ -14,7 +14,6 @@ Require Import TypeTheory.ALV1.RelUnivStructure.
 
 Set Automatic Introduction.
 
-
 (** * Instantiating the data and hypotheses of transfer of relative universe structures to Yoneda *)
 
 Local Notation "[ C , D ]" := (functorPrecategory C D).
@@ -90,19 +89,19 @@ Definition Rezk_on_RelUnivYoneda : relative_universe_structure
    functor RC (preShv RC)).
 Proof.
   cbn.
-  use (transfer_of_rel_univ_struct 
+  use (transfer_of_rel_univ_struct_with_ess_surj
          Yo 
          X 
          YoR 
-         YoR_ff 
-         RC 
          (Rezk_eta _ _ )
          ext
          fi
          (pr2 fi)
-         (Rezk_eta_essentially_surjective _ _ )
-         (right_adj_equiv_is_ff _ _ _ _ )
          preserves_pullbacks_ext
+         (Rezk_eta_essentially_surjective _ _ )
+         RC
+         YoR_ff
+         (right_adj_equiv_is_full _ _)
        ).
 Defined.
 
