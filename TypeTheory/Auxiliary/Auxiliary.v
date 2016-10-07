@@ -260,14 +260,19 @@ Proof.
 Qed.
 
 (** The total type of morphisms of a precategory *)
-Definition mor_total (E : precategory) : UU
-  := Σ (ab : E × E), E⟦pr2 ab, pr1 ab⟧.
-Definition source {E} (X : mor_total E) : E := pr2 (pr1 X).
-Definition target {E} (X : mor_total E) : E := pr1 (pr1 X).
-Definition morphism_from_total {E} (X : mor_total E)
-  : E ⟦source X, target X⟧
+Definition mor_total (C : precategory) : UU
+  := Σ (ab : C × C), C⟦pr2 ab, pr1 ab⟧.
+
+Definition morphism_as_total {C : precategory} {a b : C} (f : a --> b)
+  := ((_,,_),,f) : mor_total C.
+
+Definition source {C} (X : mor_total C) : C := pr2 (pr1 X).
+Definition target {C} (X : mor_total C) : C := pr1 (pr1 X).
+Definition morphism_from_total {C} (X : mor_total C)
+  : C ⟦source X, target X⟧
   := pr2 X.
 Coercion morphism_from_total : mor_total >-> precategory_morphisms.
+
 
 (** ** Equivalences of categories *)
 (** Specifically: the composition of (adjoint) equivalences of precats. *)
@@ -701,6 +706,40 @@ Defined.
 
 End eqv_from_ess_split_and_ff.
 
+(** ** Properties of functors *)
+
+Definition split_full {C D : precategory} (F : functor C D) : UU
+  := Π c c' (f : F c --> F c'), hfiber (#F) f.
+
+Lemma full_from_split_full {C D : precategory} (F : functor C D)
+  : split_full F -> full F.
+Proof.
+  intros H c c' f.
+  apply hinhpr, H.
+Qed.
+
+Lemma split_full_from_ff {C D : precategory} (F : functor C D)
+  : fully_faithful F -> split_full F.
+Proof.
+  intros H c c' f.
+  exists (fully_faithful_inv_hom H c c' f).
+  apply (homotweqinvweq (weq_from_fully_faithful _ _ _)).
+Qed.
+
+Lemma full_from_ff
+  {D D' : precategory} (F : functor D D')
+  : fully_faithful F -> full F.
+Proof.
+  intros. apply full_from_split_full, split_full_from_ff; assumption.
+Qed.
+
+Lemma right_adj_equiv_is_full {D1 D2 : precategory}
+  (F : functor D1 D2) (GG : adj_equivalence_of_precats F)
+  : full (right_adjoint GG).
+Proof.
+  apply full_from_ff, right_adj_equiv_is_ff.
+Qed.
+
 (** ** Misc lemmas/definitions on (pre)categories *)
 
 (* Access function for [is_category] of categories.
@@ -937,6 +976,70 @@ Coercion adj_from_equiv : adj_equivalence_of_precats >-> is_left_adjoint.
 
 (** ** Lemmas on pullbacks *)
 
+Section Square_Transfers.
+
+Definition commutes_and_is_pullback {C : precategory} {a b c d : C}
+    (f : b --> a) (g : c --> a) (p1 : d --> b) (p2 : d --> c)
+  : UU
+:= Σ (H : p1 ;; f = p2 ;; g), isPullback _ _ _ _ H.
+
+(* Note: should have a dual version where [i_a], instead of [i_d], is assumed iso (and using [post_comp_with_iso_is_inj] in the proof). *)
+Lemma commuting_square_transfer_iso {C : precategory}
+      {a b c d : C}
+      {f : b --> a} {g : c --> a} {p1 : d --> b} {p2 : d --> c}
+      {a' b' c' d' : C}
+      {f' : b' --> a'} {g' : c' --> a'} {p1' : d' --> b'} {p2' : d' --> c'}
+      {i_a : a --> a'} {i_b : b --> b'} {i_c : c --> c'} {i_d : iso d d'}
+      (i_f : f ;; i_a = i_b ;; f') (i_g : g ;; i_a = i_c ;; g')
+      (i_p1 : p1 ;; i_b = i_d ;; p1') (i_p2 : p2 ;; i_c = i_d ;; p2')
+   : p1 ;; f = p2;; g
+   -> p1' ;; f' = p2' ;; g'.
+Proof.
+  intro H.
+  refine (pre_comp_with_iso_is_inj _ _ _ _ i_d _ _ _ _).
+  exact (pr2 i_d).  (* TODO: access function [is_iso_from_iso]? *)
+  rewrite 2 assoc.
+  rewrite <- i_p1, <- i_p2.
+  rewrite <- 2 assoc.
+  rewrite <- i_f, <- i_g.
+  rewrite 2 assoc.
+  apply maponpaths_2, H.
+Qed.
+
+(* Generalisation of [isPulback_iso_of_morphisms].  TODO: prove, move. *)
+Lemma isPullback_transfer_iso {C : precategory}
+      {a b c d : C}
+      {f : b --> a} {g : c --> a} {p1 : d --> b} {p2 : d --> c}
+      (H : p1 ;; f = p2;; g)
+      {a' b' c' d' : C}
+      {f' : b' --> a'} {g' : c' --> a'} {p1' : d' --> b'} {p2' : d' --> c'}
+      (H' : p1' ;; f' = p2' ;; g')
+      {i_a : iso a a'} {i_b : iso b b'} {i_c : iso c c'} {i_d : iso d d'}
+      (i_f : f ;; i_a = i_b ;; f') (i_g : g ;; i_a = i_c ;; g')
+      (i_p1 : p1 ;; i_b = i_d ;; p1') (i_p2 : p2 ;; i_c = i_d ;; p2')
+   : isPullback _ _ _ _ H
+   -> isPullback _ _ _ _ H'.
+Proof.
+Admitted.
+
+(* Generalisation of [isPulback_iso_of_morphisms].  TODO: prove, move. *)
+Lemma commutes_and_is_pullback_transfer_iso {C : precategory}
+      {a b c d : C}
+      {f : b --> a} {g : c --> a} {p1 : d --> b} {p2 : d --> c}
+      {a' b' c' d' : C}
+      {f' : b' --> a'} {g' : c' --> a'} {p1' : d' --> b'} {p2' : d' --> c'}
+      {i_a : iso a a'} {i_b : iso b b'} {i_c : iso c c'} {i_d : iso d d'}
+      (i_f : f ;; i_a = i_b ;; f') (i_g : g ;; i_a = i_c ;; g')
+      (i_p1 : p1 ;; i_b = i_d ;; p1') (i_p2 : p2 ;; i_c = i_d ;; p2')
+      (H : p1 ;; f = p2 ;; g) (P : isPullback _ _ _ _ H)
+   : commutes_and_is_pullback f' g' p1' p2'.
+Proof.
+  exists (commuting_square_transfer_iso i_f i_g i_p1 i_p2 H).
+  apply (isPullback_transfer_iso _ _ i_f i_g i_p1 i_p2 P).
+Qed.
+
+End Square_Transfers.
+
 Section on_pullbacks.
 
   Variable C : precategory.
@@ -1020,6 +1123,8 @@ Section on_pullbacks.
     apply pathsinv0. apply PullbackArrowUnique. apply pathsinv0; assumption.
     apply idpath.
   Qed.
+
+  (* TODO: should be instance of [isPullback_transfer_iso], once that’s proved. *)
 
   Lemma postcomp_pb_with_iso (y : C) (r : y --> d) (i : iso b y) (Hi : i ;; r = k) :
     Σ H : f ;; i ;; r = g ;; h, isPullback _ _ _ _ H.
