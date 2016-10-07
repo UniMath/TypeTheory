@@ -8,7 +8,7 @@ Contents:
 - Main result: construction of an equivalence
   [weq_RelUnivYo_CwF]
   between relative universe structures on Yoneda
-  and families structures on a fixed precategory
+  and fibered_term structures on a fixed precategory
 
 - Intermediate structure [iCwF] obtained by 
   shuffling the components of a [CwF] structure
@@ -128,7 +128,7 @@ Definition icwf_structure := Σ (X : mor_total (preShv C)), comp X.
 *)
 
 Definition weq_comp_fam_data : 
- (Σ X : obj_ext_structure C, families_structure_data C X)
+ (Σ X : obj_ext_structure C, fibered_term_structure_data C X)
    ≃ 
  Σ X : mor_total (preShv C), comp_data X.
 Proof.
@@ -141,7 +141,7 @@ Proof.
   apply weqfibtototal.
   intro Ty.
   eapply weqcomp. apply weqfibtototal. intro depr.
-    set (XR := @weqtotal2asstol). unfold families_structure_data.
+    set (XR := @weqtotal2asstol). unfold fibered_term_structure_data.
     specialize (XR (preShv C)
                    (fun x =>  x --> TY (Ty,, depr))). simpl in XR.
     specialize (XR (fun Tmp =>  Π (Γ : C^op) (A : (TY (Ty,, depr):functor _ _ ) Γ : hSet), 
@@ -170,8 +170,8 @@ Proof.
     apply XR.
   eapply weqcomp.
     set (XR:= @weqtotal2asstol (obj_ext_structure C) 
-                               (fun X => families_structure_data C X) ).
-    specialize (XR (fun XY => families_structure_axioms C (pr1 XY) (pr2 XY))).
+                               (fun X => fibered_term_structure_data C X) ).
+    specialize (XR (fun XY => fibered_term_structure_axioms C (pr1 XY) (pr2 XY))).
     apply XR.
   use weqbandf.
   - apply weq_comp_fam_data.

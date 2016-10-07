@@ -88,7 +88,7 @@ Type hierarchy is collapsed (logic is inconsistent)
 (** * Equivalence of types between cartesian generator structures and cartesian q-morphisms structures *)
 Definition weq_total_term_qq_morphisms_structures
      : Π (C : Precategory) (X : obj_ext_structure C),
-       families_structure C X ≃ qq_morphism_structure X.
+       fibered_term_structure C X ≃ qq_morphism_structure X.
 Proof.
   exact @weq_CwF_SplitTypeCat.
 Defined.
@@ -112,7 +112,7 @@ Definition equiv_of_category_of_cwf_split_type_structures
             (right_adjoint
                (Auxiliary.left_adj_from_adj_equiv
                   (compat_structures_precategory C X)
-                  (families_precategory C X)
+                  (fibered_term_precategory C X)
                   (compat_structures_pr1_functor C X) 
                   (pr1_equiv C X))) (compat_structures_pr2_functor C X)).
 Proof.
@@ -132,7 +132,7 @@ Type hierarchy is collapsed (logic is inconsistent)
 (** * Equivalence of categories between cartesian generator structures and cartesian q-morphisms structures *)
 Definition equiv_of_types_of_cwf_split_type_structures
      : Π (C : Precategory) (X : obj_ext_structure C),
-       families_precategory C X ≃ qq_structure_precategory C X.
+       fibered_term_precategory C X ≃ qq_structure_precategory C X.
 Proof.
   exact equiv_of_types_of_structures.
 Defined.

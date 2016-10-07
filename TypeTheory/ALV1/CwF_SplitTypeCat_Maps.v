@@ -29,28 +29,28 @@ Local Notation Δ := comp_ext_compare.
 
 (** * Definition of compatibility
 
-We define here what it means for a families-structure and a _q_-morphism structure to be _compatible_. *)
+We define here what it means for a fibered_term-structure and a _q_-morphism structure to be _compatible_. *)
 
 Section Compatible_Structures.
 
-Definition iscompatible_fam_qq (Y : families_structure C X)
+Definition iscompatible_term_qq (Y : fibered_term_structure C X)
          (Z : qq_morphism_structure X) : UU
   := Π Γ Γ' A (f : C⟦Γ', Γ⟧) , Q Y A[f] = #Yo (qq Z f A) ;; Q Y A.
 
-Lemma isaprop_iscompatible_fam_qq
-  (Y : families_structure C X)
+Lemma isaprop_iscompatible_term_qq
+  (Y : fibered_term_structure C X)
   (Z : qq_morphism_structure X)
-  : isaprop (iscompatible_fam_qq Y Z).
+  : isaprop (iscompatible_term_qq Y Z).
 Proof.
   do 4 (apply impred; intro).
   apply homset_property.
 Qed.
 
-Definition compatible_fam_structure (Z : qq_morphism_structure X) : UU
-  := Σ Y : families_structure C X, iscompatible_fam_qq Y Z.
+Definition compatible_term_structure (Z : qq_morphism_structure X) : UU
+  := Σ Y : fibered_term_structure C X, iscompatible_term_qq Y Z.
 
-Definition compatible_qq_morphism_structure (Y : families_structure C X) : UU
-  := Σ Z : qq_morphism_structure X, iscompatible_fam_qq Y Z.
+Definition compatible_qq_morphism_structure (Y : fibered_term_structure C X) : UU
+  := Σ Z : qq_morphism_structure X, iscompatible_term_qq Y Z.
 
 End Compatible_Structures.
 
@@ -58,14 +58,14 @@ End Compatible_Structures.
 
 (* TODO: find more logical home for this below, once file is cleaned up a bit. *)
 Lemma map_from_term_recover
-    {Y} {Z} (W : iscompatible_fam_qq Y Z)
+    {Y} {Z} (W : iscompatible_term_qq Y Z)
     {Γ' Γ : C} {A : Ty X Γ} (f : Γ' --> Γ ◂ A)
     {e : (pp Y : nat_trans _ _) Γ' ((Q Y A : nat_trans _ _) Γ' f)
          = A [ f ;; π A ]}
   : pr1 (term_to_section ((Q Y A : nat_trans _ _) Γ' f)) ;; Δ e ;; qq Z (f ;; π A) A
   = f.
 Proof.
-  unfold iscompatible_fam_qq in W.
+  unfold iscompatible_term_qq in W.
   apply (Q_pp_Pb_unique Y).
   - unfold yoneda_morphisms_data; cbn.
     etrans. apply @pathsinv0, assoc.
@@ -82,11 +82,11 @@ Proof.
     apply term_to_section_recover.
 Time Qed.
 
-(** * Defining a (compatible) families structure, given a _q_-morphism structure 
+(** * Defining a (compatible) fibered_term structure, given a _q_-morphism structure 
 
 Key definitions: [fam_from_qq], [iscompatible_fam_from_qq] *)
 
-Section compatible_fam_structure_from_qq.
+Section compatible_term_structure_from_qq.
 
 Variable Z : qq_morphism_structure X.
 (* TODO: replaces references to [ZZ] by access functions. *)
@@ -377,18 +377,18 @@ Arguments Q_from_qq { _ } _ : simpl never.
 Arguments tm_from_qq : simpl never.
 Arguments pp_from_qq : simpl never.
 
-Definition fam_from_qq : families_structure C X.
+Definition term_from_qq : fibered_term_structure C X.
 Proof.
   mkpair.
   + exists tm_from_qq.
     exists pp_from_qq.
     intros; apply Q_from_qq.
-  + unfold families_structure_axioms; intros.
+  + unfold fibered_term_structure_axioms; intros.
     exists (Q_pp_from_qq _ _ ).
     apply isPullback_Q_pp_from_qq.
 Defined.
 
-Lemma fam_from_qq_pointwise_compatible
+Lemma term_from_qq_pointwise_compatible
     {Γ Γ' : C} (A : Ty X Γ) (f : Γ'--> Γ)
     {Γ'' : C} (g : Γ''--> Γ' ◂ A[f])
   : Q_from_qq_data A[f] Γ'' g
@@ -424,18 +424,18 @@ Proof.
       apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). 
 Time Qed.
 
-Definition iscompatible_fam_from_qq
-  : iscompatible_fam_qq fam_from_qq Z.
+Definition iscompatible_term_from_qq
+  : iscompatible_term_qq term_from_qq Z.
 Proof.
   intros Γ Γ' A f; apply nat_trans_eq. 
   - apply has_homsets_HSET.
-  - intro; apply funextsec; unfold homot; apply fam_from_qq_pointwise_compatible.
+  - intro; apply funextsec; unfold homot; apply term_from_qq_pointwise_compatible.
 Qed.
 
-Definition compatible_fam_from_qq : compatible_fam_structure Z
-  := (fam_from_qq,, iscompatible_fam_from_qq).
+Definition compatible_term_from_qq : compatible_term_structure Z
+  := (term_from_qq,, iscompatible_term_from_qq).
     
-End compatible_fam_structure_from_qq.
+End compatible_term_structure_from_qq.
 
 Arguments Q_from_qq_data _ {_} _ _ _ : simpl never.
 Arguments Q_from_qq _ {_} _ : simpl never.
@@ -443,13 +443,13 @@ Arguments tm_from_qq : simpl never.
 Arguments pp_from_qq : simpl never.
 Arguments tm_from_qq_functor_mor : simpl never.
 
-(** * Defining a (compatible) _q_-morphism structure, given a families structure *)
+(** * Defining a (compatible) _q_-morphism structure, given a fibered_term structure *)
 
-Section compatible_comp_structure_from_fam.
+Section compatible_comp_structure_from_term.
 
-Variable Y : families_structure C X.
+Variable Y : fibered_term_structure C X.
 
-Section qq_from_fam.
+Section qq_from_term.
 
 Variables Γ Γ' : C.
 Variable f : C⟦Γ', Γ⟧.
@@ -500,24 +500,24 @@ Proof.
     apply (pr2 (pr2 Y _ _ )).
 Qed.
 
-Definition qq_fam :  _ ⟦Γ' ◂ A[f] , Γ ◂ A⟧.
+Definition qq_term :  _ ⟦Γ' ◂ A[f] , Γ ◂ A⟧.
 Proof.
   apply (invweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
   apply Yo_of_qq.
 Defined.
 
-Lemma Yo_qq_fam_Yo_of_qq : # Yo qq_fam = Yo_of_qq.
+Lemma Yo_qq_term_Yo_of_qq : # Yo qq_term = Yo_of_qq.
 Proof.
-  unfold qq_fam.
+  unfold qq_term.
   assert (XT := homotweqinvweq
      (weqpair _ (yoneda_fully_faithful _ (homset_property _) (Γ'◂ A[f]) (Γ ◂ A)))).
   apply XT.
 Qed.
 
-Lemma qq_commutes_1 : π _ ;; f = qq_fam ;; π _ .
+Lemma qq_commutes_1 : π _ ;; f = qq_term ;; π _ .
 Proof.
   assert (XT:= Yo_of_qq_commutes_1).
-  rewrite <- Yo_qq_fam_Yo_of_qq in XT.
+  rewrite <- Yo_qq_term_Yo_of_qq in XT.
   do 2 rewrite <- functor_comp in XT.
   apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
   apply XT.
@@ -530,22 +530,22 @@ Proof.
   - apply yoneda_fully_faithful.
   - assert (XT:= isPullback_Yo_of_qq).
     match goal with |[|- isPullback _ _ _ _ ?HHH] => generalize HHH end.
-    rewrite Yo_qq_fam_Yo_of_qq.
+    rewrite Yo_qq_term_Yo_of_qq.
     intro. assumption.
 Qed.
 
-End qq_from_fam.
+End qq_from_term.
 
-Definition qq_from_fam_data : qq_morphism_data X.
+Definition qq_from_term_data : qq_morphism_data X.
 Proof.
   mkpair.
-  - intros. apply qq_fam.
+  - intros. apply qq_term.
   - intros. simpl.
     exists (qq_commutes_1 _ _ _ _ ).
     apply isPullback_qq.
 Defined.
 
-Lemma is_split_qq_from_fam : qq_morphism_axioms qq_from_fam_data.
+Lemma is_split_qq_from_term : qq_morphism_axioms qq_from_term_data.
 Proof.
   split.
   - intros Γ A. simpl.
@@ -580,34 +580,34 @@ Proof.
     + etrans. apply maponpaths. cbn. apply idpath.
       etrans. apply cancel_postcomposition. apply functor_comp.
       rewrite <- assoc.
-      rewrite Yo_qq_fam_Yo_of_qq.
+      rewrite Yo_qq_term_Yo_of_qq.
       rewrite  Yo_of_qq_commutes_2 .
       etrans. apply cancel_postcomposition. apply functor_comp.
       rewrite <- assoc.
-      etrans. apply maponpaths. apply cancel_postcomposition. apply Yo_qq_fam_Yo_of_qq.
+      etrans. apply maponpaths. apply cancel_postcomposition. apply Yo_qq_term_Yo_of_qq.
       etrans. apply maponpaths. apply Yo_of_qq_commutes_2 .
       apply comp_ext_compare_Q.
 Time Qed.
 
-Definition qq_from_fam
+Definition qq_from_term
   : qq_morphism_structure X.
 Proof.
-  exists qq_from_fam_data.
-  apply is_split_qq_from_fam.
+  exists qq_from_term_data.
+  apply is_split_qq_from_term.
 Defined.
 
-Lemma iscompatible_qq_from_fam : iscompatible_fam_qq Y qq_from_fam.
+Lemma iscompatible_qq_from_term : iscompatible_term_qq Y qq_from_term.
 Proof.
   intros Γ Γ' A f.
   assert (XR:= Yo_of_qq_commutes_2).
   apply pathsinv0.
-  rewrite Yo_qq_fam_Yo_of_qq.
+  rewrite Yo_qq_term_Yo_of_qq.
   apply XR.
 Qed.
 
-Definition compatible_qq_from_fam : compatible_qq_morphism_structure Y
-  := (qq_from_fam,, iscompatible_qq_from_fam).
+Definition compatible_qq_from_term : compatible_qq_morphism_structure Y
+  := (qq_from_term,, iscompatible_qq_from_term).
     
-End compatible_comp_structure_from_fam.
+End compatible_comp_structure_from_term.
 
 End Fix_Base_Category.

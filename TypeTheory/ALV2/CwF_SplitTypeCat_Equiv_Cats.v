@@ -56,12 +56,12 @@ Section Compatible_Disp_Cat.
 
 Definition strucs_compat_ob_mor
   : disp_precat_ob_mor (total_precat
-      (families_disp_precat C × qq_structure_disp_precat C)).
+      (fibered_term_disp_precat C × qq_structure_disp_precat C)).
 Proof.
   use tpair.
-  - intros XYZ. exact (iscompatible_fam_qq (pr1 (pr2 XYZ)) (pr2 (pr2 XYZ))).
+  - intros XYZ. exact (iscompatible_term_qq (pr1 (pr2 XYZ)) (pr2 (pr2 XYZ))).
   - simpl; intros; exact unit.
-    (* For a given map of object-extension structures, a lifting to a map of either families-structures or _q_-morphism structues is essentially unique; so there is no extra compatibility condition required here on maps. *)
+    (* For a given map of object-extension structures, a lifting to a map of either fibered_term-structures or _q_-morphism structues is essentially unique; so there is no extra compatibility condition required here on maps. *)
 Defined.
 
 Definition strucs_compat_id_comp
@@ -80,7 +80,7 @@ Qed.
 
 Definition strucs_compat_disp_precat
   : disp_precat (total_precat
-      (families_disp_precat C × qq_structure_disp_precat C))
+      (fibered_term_disp_precat C × qq_structure_disp_precat C))
 := ( _ ,, strucs_compat_axioms).
 
 Definition compat_structures_disp_precat
@@ -88,7 +88,7 @@ Definition compat_structures_disp_precat
 
 Definition compat_structures_pr1_disp_functor
   : functor_over (functor_identity _)
-      compat_structures_disp_precat (families_disp_precat C)
+      compat_structures_disp_precat (fibered_term_disp_precat C)
 := functor_over_id_composite
      (sigmapr1_disp_functor _) (dirprodpr1_disp_functor _ _).
 
@@ -103,7 +103,7 @@ Definition compat_structures_precat
   := total_precat (strucs_compat_disp_precat).
 
 Definition compat_structures_pr1_functor
-  : functor compat_structures_precat (families_structure_precat C)
+  : functor compat_structures_precat (fibered_term_structure_precat C)
 := functor_composite
      (pr1_precat _)
      (total_functor (dirprodpr1_disp_functor _ _)).
@@ -118,21 +118,21 @@ End Compatible_Disp_Cat.
 
 (** * Lemmas towards an equivalence *)
 
-(** In the following two sections, we prove lemmas which should amount to the fact that the two projections from [compat_structures_disp_precat C] to [families_disp_precat C] and [qq_structure_precat C] are each equivalences (of displayed categories).
+(** In the following two sections, we prove lemmas which should amount to the fact that the two projections from [compat_structures_disp_precat C] to [fibered_term_disp_precat C] and [qq_structure_precat C] are each equivalences (of displayed categories).
 
 We don’t yet have the infrastructure on displayed categories to put it together as that fact; for now we put it together just as equivalences of _total_ precategories. *)
  
-Section Unique_QQ_From_Fam.
+Section Unique_QQ_From_Term.
 
-Lemma qq_from_fam_ob {X : obj_ext_precat} (Y : families_disp_precat C X)
+Lemma qq_from_term_ob {X : obj_ext_precat} (Y : fibered_term_disp_precat C X)
   : Σ (Z : qq_structure_disp_precat C X), strucs_compat_disp_precat (X ,, (Y ,, Z)).
 Proof.
-  exists (qq_from_fam Y).
-  apply iscompatible_qq_from_fam.
+  exists (qq_from_term Y).
+  apply iscompatible_qq_from_term.
 Defined.
 
-Lemma qq_from_fam_mor {X X' : obj_ext_precat} {F : X --> X'}
-  {Y : families_disp_precat C X} {Y'} (FY : Y -->[F] Y')
+Lemma qq_from_term_mor {X X' : obj_ext_precat} {F : X --> X'}
+  {Y : fibered_term_disp_precat C X} {Y'} (FY : Y -->[F] Y')
   {Z : qq_structure_disp_precat C X} {Z'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
@@ -140,8 +140,8 @@ Lemma qq_from_fam_mor {X X' : obj_ext_precat} {F : X --> X'}
 Proof.
   refine (_,, tt).
   intros Γ' Γ f A.
-  cbn in W, W', FY. unfold iscompatible_fam_qq in *. 
-  unfold families_mor in FY.
+  cbn in W, W', FY. unfold iscompatible_term_qq in *. 
+  unfold fibered_term_mor in FY.
   apply (Q_pp_Pb_unique Y'); simpl; unfold yoneda_morphisms_data.
   - etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths, obj_ext_mor_ax.
@@ -156,10 +156,10 @@ Proof.
     etrans. apply maponpaths. apply comp_ext_compare_π.
     apply obj_ext_mor_ax.
   (* Maybe worth abstracting the following pointwise application of [W],
-   [families_mor_Q], etc. as lemmas? *)
+   [fibered_term_mor_Q], etc. as lemmas? *)
   - etrans.
       exact (!toforallpaths _ _ _
-        (nat_trans_eq_pointwise (families_mor_Q FY _) _) _).
+        (nat_trans_eq_pointwise (fibered_term_mor_Q FY _) _) _).
     etrans. apply maponpaths, @pathsinv0, id_left.
     etrans. cbn. apply maponpaths.
       exact (!toforallpaths _ _ _
@@ -171,11 +171,11 @@ Proof.
     etrans. apply Q_comp_ext_compare.
     etrans. apply maponpaths, @pathsinv0, id_left.
     exact (!toforallpaths _ _ _
-      (nat_trans_eq_pointwise (families_mor_Q FY _) _) _).
+      (nat_trans_eq_pointwise (fibered_term_mor_Q FY _) _) _).
 Time Qed.
 
-Lemma qq_from_fam_mor_unique {X X' : obj_ext_precat} {F : X --> X'}
-  {Y : families_disp_precat C X} {Y'} (FY : Y -->[F] Y')
+Lemma qq_from_term_mor_unique {X X' : obj_ext_precat} {F : X --> X'}
+  {Y : fibered_term_disp_precat C X} {Y'} (FY : Y -->[F] Y')
   {Z : qq_structure_disp_precat C X} {Z'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
@@ -186,51 +186,51 @@ Proof.
   - intros; simpl. apply isapropunit.
 Qed.
 
-End Unique_QQ_From_Fam.
+End Unique_QQ_From_Term.
 
-Section Unique_Fam_From_QQ.
+Section Unique_Term_From_QQ.
 
-Lemma fam_from_qq_ob {X : obj_ext_precat} (Z : qq_structure_disp_precat C X)
-  : Σ (Y : families_disp_precat C X), strucs_compat_disp_precat (X ,, (Y ,, Z)).
+Lemma term_from_qq_ob {X : obj_ext_precat} (Z : qq_structure_disp_precat C X)
+  : Σ (Y : fibered_term_disp_precat C X), strucs_compat_disp_precat (X ,, (Y ,, Z)).
 Proof.
-  exists (fam_from_qq Z).
-  apply iscompatible_fam_from_qq.
+  exists (term_from_qq Z).
+  apply iscompatible_term_from_qq.
 Defined.
 
-(** The next main goal is the following statement.  However, the construction of the morphism of families structures is rather large; so we break out the first component (the map of term presheaves) into several independent lemmas, before returning to this in [fam_from_qq_mor] below. *)
-Lemma fam_from_qq_mor {X X' : obj_ext_precat} {F : X --> X'}
+(** The next main goal is the following statement.  However, the construction of the morphism of fibered_term structures is rather large; so we break out the first component (the map of term presheaves) into several independent lemmas, before returning to this in [fam_from_qq_mor] below. *)
+Lemma term_from_qq_mor {X X' : obj_ext_precat} {F : X --> X'}
   {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
-  {Y : families_disp_precat C X} {Y'}
+  {Y : fibered_term_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
   : Σ (FY : Y -->[F] Y'), W -->[(F,,(FY,,FZ))] W'.
 Abort.
 
-Lemma fam_from_qq_mor_TM_data {X X' : obj_ext_precat} {F : X --> X'}
+Lemma term_from_qq_mor_TM_data {X X' : obj_ext_precat} {F : X --> X'}
   {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
-  {Y : families_disp_precat C X} {Y'}
+  {Y : fibered_term_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
   : Π Γ,
-    ((TM (Y : families_structure _ _) : functor _ _) Γ : hSet)
-    -> ((TM (Y' : families_structure _ _) : functor _ _) Γ : hSet).
+    ((TM (Y : fibered_term_structure _ _) : functor _ _) Γ : hSet)
+    -> ((TM (Y' : fibered_term_structure _ _) : functor _ _) Γ : hSet).
 Proof.
   intros Γ t; simpl in Γ.
   exact ((Q _ _ : nat_trans _ _) _ (pr1 (term_to_section t) ;; φ F _)).
 Defined.
 
-Lemma fam_from_qq_mor_TM_naturality {X X' : obj_ext_precat} {F : X --> X'}
+Lemma term_from_qq_mor_TM_naturality {X X' : obj_ext_precat} {F : X --> X'}
   {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
-  {Y : families_disp_precat C X} {Y'}
+  {Y : fibered_term_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
-  : is_nat_trans (TM _ : functor _ _) _ (fam_from_qq_mor_TM_data FZ W W').
+  : is_nat_trans (TM _ : functor _ _) _ (term_from_qq_mor_TM_data FZ W W').
 Proof.
   simpl in Y, Y'.
   intros Γ' Γ f; apply funextsec; intros t.
   (* Part 1: naturality of the section-to-term map back to [Tm Y']. *)
   etrans. Focus 2. exact (toforallpaths _ _ _ (nat_trans_ax (Q Y' _) _ _ _) _).
-  cbn. simpl in W, W'; unfold iscompatible_fam_qq in W, W'.
+  cbn. simpl in W, W'; unfold iscompatible_term_qq in W, W'.
   (* We want to apply [W'] on the lhs, so we need to munge the type argument
   of [Q] to a form with the [f] action outermost.  Naturality will show that
   the type is equal to such a form; [Q_comp_ext_compare] pushes that type
@@ -289,25 +289,25 @@ Proof.
     apply term_to_section_recover.
 Time Qed.
 
-Definition fam_from_qq_mor_TM {X X' : obj_ext_precat} {F : X --> X'}
+Definition term_from_qq_mor_TM {X X' : obj_ext_precat} {F : X --> X'}
     {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
-    {Y : families_disp_precat C X} {Y'}
+    {Y : fibered_term_disp_precat C X} {Y'}
     (W : strucs_compat_disp_precat (X,,(Y,,Z)))
     (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
-  : TM (Y : families_structure _ _) --> TM (Y' : families_structure _ _)
-:= (fam_from_qq_mor_TM_data _ _ _,, fam_from_qq_mor_TM_naturality FZ W W').
+  : TM (Y : fibered_term_structure _ _) --> TM (Y' : fibered_term_structure _ _)
+:= (term_from_qq_mor_TM_data _ _ _,, term_from_qq_mor_TM_naturality FZ W W').
 
-Lemma fam_from_qq_mor {X X' : obj_ext_precat} {F : X --> X'}
+Lemma term_from_qq_mor {X X' : obj_ext_precat} {F : X --> X'}
   {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
-  {Y : families_disp_precat C X} {Y'}
+  {Y : fibered_term_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
   : Σ (FY : Y -->[F] Y'), W -->[(F,,(FY,,FZ))] W'.
 Proof.
-  simpl in W, W'; unfold iscompatible_fam_qq in W, W'. (* Readability *)
-  simpl in Y, Y'.  (* To avoid needing casts [Y : families_structure _]. *)
-  refine (_,,tt). simpl; unfold families_mor.
-  exists (fam_from_qq_mor_TM FZ W W').
+  simpl in W, W'; unfold iscompatible_term_qq in W, W'. (* Readability *)
+  simpl in Y, Y'.  (* To avoid needing casts [Y : fibered_term_structure _]. *)
+  refine (_,,tt). simpl; unfold fibered_term_mor.
+  exists (term_from_qq_mor_TM FZ W W').
   apply dirprodpair; try intros Γ A; apply nat_trans_eq; cbn.
   - apply has_homsets_HSET.
   - simpl. intros Γ; apply funextsec; intros t.
@@ -356,21 +356,21 @@ Proof.
   apply (map_from_term_recover W).
 Time Qed.
 
-Lemma fam_from_qq_mor_unique {X X' : obj_ext_precat} {F : X --> X'}
+Lemma term_from_qq_mor_unique {X X' : obj_ext_precat} {F : X --> X'}
   {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
-  {Y : families_disp_precat C X} {Y'}
+  {Y : fibered_term_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
   : isaprop (Σ (FY : Y -->[F] Y'), W -->[(F,,(FY,,FZ))] W').
 Proof.
   apply isofhleveltotal2.
-  - simpl. apply isaprop_families_mor.
+  - simpl. apply isaprop_fibered_term_mor.
   - intros; simpl. apply isapropunit.
 Defined.
 
-End Unique_Fam_From_QQ.
+End Unique_Term_From_QQ.
 
-(** We show, in this section, that the (non-displayed) projection functors from the (total) precategory of compatible-pairs-of-structures on C to the precategories of qq-structures and of families-structures are each equivalences. 
+(** We show, in this section, that the (non-displayed) projection functors from the (total) precategory of compatible-pairs-of-structures on C to the precategories of qq-structures and of fibered_term-structures are each equivalences. 
 
 TODO: scrap this section, and recover it from the displayed version. *) 
 Section Strucs_Equiv_Precats.
@@ -381,7 +381,7 @@ Lemma compat_structures_pr1_ess_surj
 Proof.
   unfold essentially_surjective.
   intros XY; destruct XY as [X Y]; apply hinhpr.
-  exists ((X,,(Y,, qq_from_fam Y)),,iscompatible_qq_from_fam Y).
+  exists ((X,,(Y,, qq_from_term Y)),,iscompatible_qq_from_term Y).
   apply identity_iso.
 Qed.
 
@@ -414,8 +414,8 @@ Proof.
   - intros FX FY FZ.
       exists (W -->[FX,,(FY,,FZ)] W').
   - intros FX FY. apply iscontraprop1.
-    exact (qq_from_fam_mor_unique FY W W').
-    exact (qq_from_fam_mor FY W W').
+    exact (qq_from_term_mor_unique FY W W').
+    exact (qq_from_term_mor FY W W').
 Qed.
 
 (* TODO: could strengthen to “explicitly essentially surjective” *)
@@ -424,7 +424,7 @@ Lemma compat_structures_pr2_ess_surj
 Proof.
   unfold essentially_surjective.
   intros XZ; destruct XZ as [X Z]; apply hinhpr.
-  exists ((X,,(fam_from_qq Z,, Z)),,iscompatible_fam_from_qq Z).
+  exists ((X,,(term_from_qq Z,, Z)),,iscompatible_term_from_qq Z).
   apply identity_iso.
 Qed.
 
@@ -457,8 +457,8 @@ Proof.
   - intros FX FY FZ.
       exists (W -->[FX,,(FY,,FZ)] W').
   - intros FX FY. apply iscontraprop1.
-    exact (fam_from_qq_mor_unique FY W W').
-    exact (fam_from_qq_mor FY W W').
+    exact (term_from_qq_mor_unique FY W W').
+    exact (term_from_qq_mor FY W W').
 Qed.
 
 End Strucs_Equiv_Precats.
@@ -470,7 +470,7 @@ Lemma compat_structures_pr1_ess_split
 Proof.
   unfold functor_over_disp_ess_split_surj.
   intros X Y.
-  exists ((Y,, qq_from_fam Y),,iscompatible_qq_from_fam Y).
+  exists ((Y,, qq_from_term Y),,iscompatible_qq_from_term Y).
   apply identity_iso_disp.
 Defined.
 
@@ -503,8 +503,8 @@ Proof.
   - intros FY FZ.
       exists (W -->[FX,,(FY,,FZ)] W').
   - intros FY. apply iscontraprop1.
-    exact (qq_from_fam_mor_unique FY W W').
-    exact (qq_from_fam_mor FY W W').
+    exact (qq_from_term_mor_unique FY W W').
+    exact (qq_from_term_mor FY W W').
 Qed.
 
 Lemma compat_structures_pr1_is_equiv_over_id
@@ -521,7 +521,7 @@ Definition compat_structures_pr1_equiv_over_id
 
 Definition compat_structures_pr1_inverse_over_id
      : equiv_over_id
-         (families_disp_precat C) compat_structures_disp_precat.
+         (fibered_term_disp_precat C) compat_structures_disp_precat.
 Proof.
   exact (equiv_inv _ (compat_structures_pr1_is_equiv_over_id)).
 Defined.
@@ -531,7 +531,7 @@ Lemma compat_structures_pr2_ess_split
 Proof.
   unfold functor_over_disp_ess_split_surj.
   intros X Z.
-  exists ((fam_from_qq Z,, Z),,iscompatible_fam_from_qq Z).
+  exists ((term_from_qq Z,, Z),,iscompatible_term_from_qq Z).
   apply identity_iso_disp.
 Defined.
 
@@ -564,8 +564,8 @@ Proof.
   - intros FY FZ.
       exists (W -->[FX,,(FY,,FZ)] W').
   - intros FY. apply iscontraprop1.
-    exact (fam_from_qq_mor_unique FY W W').
-    exact (fam_from_qq_mor FY W W').
+    exact (term_from_qq_mor_unique FY W W').
+    exact (term_from_qq_mor FY W W').
 Qed.
 
 Lemma compat_structures_pr2_is_equiv_over_id
@@ -595,7 +595,7 @@ Context (X : obj_ext_Precat C).
 
 Definition fam_struc_to_qq_struc_fibre_functor
   : functor
-      (fibre_precategory (families_disp_precat C) X)
+      (fibre_precategory (fibered_term_disp_precat C) X)
       (fibre_precategory (qq_structure_disp_precat C) X).
 Proof.
   eapply functor_composite.
@@ -609,15 +609,14 @@ Definition fam_struc_to_qq_struc_is_equiv
   : adj_equivalence_of_precats
       fam_struc_to_qq_struc_fibre_functor.
 Proof.
-  eapply comp_adj_equivalence_of_precats.
+  use comp_adj_equivalence_of_precats.
+  - apply has_homsets_fibre.
+  - apply has_homsets_fibre.
+  - apply has_homsets_fibre.
   - apply fibre_equiv.
     apply is_equiv_of_equiv_over_id.
   - apply fibre_equiv.
     apply is_equiv_of_equiv_over_id.
-  (* TODO: WTF with all the shelving!? *)
-  Unshelve. 
-(* TODO: define [fibre_precategory] as a [Precategory], so we can just use [homset_property] here. *)
-  apply has_homsets_fibre. apply has_homsets_fibre. apply has_homsets_fibre.
 Defined.
 
 End Strucs_Fiber_Equiv.
