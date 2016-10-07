@@ -29,6 +29,72 @@ Set Automatic Introduction.
 
 Local Notation "[ C , D ]" := (functorPrecategory C D).
 
+Section Auxiliary.
+
+(* TODO: upstream *)
+
+Definition commutes_and_is_pullback {C : precategory} {a b c d : C}
+    (f : b --> a) (g : c --> a) (p1 : d --> b) (p2 : d --> c)
+  : UU
+:= Σ (H : p1 ;; f = p2 ;; g), isPullback _ _ _ _ H.
+
+(* Note: should have a dual version where [i_a], instead of [i_d], is assumed iso (and using [post_comp_with_iso_is_inj] in the proof). *)
+Lemma commuting_square_transfer_iso {C : precategory}
+      {a b c d : C}
+      {f : b --> a} {g : c --> a} {p1 : d --> b} {p2 : d --> c}
+      {a' b' c' d' : C}
+      {f' : b' --> a'} {g' : c' --> a'} {p1' : d' --> b'} {p2' : d' --> c'}
+      {i_a : a --> a'} {i_b : b --> b'} {i_c : c --> c'} {i_d : iso d d'}
+      (i_f : f ;; i_a = i_b ;; f') (i_g : g ;; i_a = i_c ;; g')
+      (i_p1 : p1 ;; i_b = i_d ;; p1') (i_p2 : p2 ;; i_c = i_d ;; p2')
+   : p1 ;; f = p2;; g
+   -> p1' ;; f' = p2' ;; g'.
+Proof.
+  intro H.
+  refine (pre_comp_with_iso_is_inj _ _ _ _ i_d _ _ _ _).
+  exact (pr2 i_d).  (* TODO: access function [is_iso_from_iso]? *)
+  rewrite 2 assoc.
+  rewrite <- i_p1, <- i_p2.
+  rewrite <- 2 assoc.
+  rewrite <- i_f, <- i_g.
+  rewrite 2 assoc.
+  apply maponpaths_2, H.
+Qed.
+
+(* Generalisation of [isPulback_iso_of_morphisms].  TODO: prove, move. *)
+Lemma isPullback_transfer_iso {C : precategory}
+      {a b c d : C}
+      {f : b --> a} {g : c --> a} {p1 : d --> b} {p2 : d --> c}
+      (H : p1 ;; f = p2;; g)
+      {a' b' c' d' : C}
+      {f' : b' --> a'} {g' : c' --> a'} {p1' : d' --> b'} {p2' : d' --> c'}
+      (H' : p1' ;; f' = p2' ;; g')
+      {i_a : iso a a'} {i_b : iso b b'} {i_c : iso c c'} {i_d : iso d d'}
+      (i_f : f ;; i_a = i_b ;; f') (i_g : g ;; i_a = i_c ;; g')
+      (i_p1 : p1 ;; i_b = i_d ;; p1') (i_p2 : p2 ;; i_c = i_d ;; p2')
+   : isPullback _ _ _ _ H
+   -> isPullback _ _ _ _ H'.
+Proof.
+Admitted.
+
+(* Generalisation of [isPulback_iso_of_morphisms].  TODO: prove, move. *)
+Lemma commutes_and_is_pullback_transfer_iso {C : precategory}
+      {a b c d : C}
+      {f : b --> a} {g : c --> a} {p1 : d --> b} {p2 : d --> c}
+      {a' b' c' d' : C}
+      {f' : b' --> a'} {g' : c' --> a'} {p1' : d' --> b'} {p2' : d' --> c'}
+      {i_a : iso a a'} {i_b : iso b b'} {i_c : iso c c'} {i_d : iso d d'}
+      (i_f : f ;; i_a = i_b ;; f') (i_g : g ;; i_a = i_c ;; g')
+      (i_p1 : p1 ;; i_b = i_d ;; p1') (i_p2 : p2 ;; i_c = i_d ;; p2')
+      (H : p1 ;; f = p2 ;; g) (P : isPullback _ _ _ _ H)
+   : commutes_and_is_pullback f' g' p1' p2'.
+Proof.
+  exists (commuting_square_transfer_iso i_f i_g i_p1 i_p2 H).
+  apply (isPullback_transfer_iso _ _ i_f i_g i_p1 i_p2 P).
+Qed.
+
+End Auxiliary.
+
 (** * Relative comprehension structures *)
 
 (** Given a map [ p : Ũ —> U ] in a category [D], and a functor [ F : C —> D ], _a comprehension structure for [p] relative to [F]_ is an operation providing all pullbacks of [p] along morphisms from objects of the form [F X]. *)
@@ -45,8 +111,8 @@ Definition fpb_obj  {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f) : C := pr
 Definition fp {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f) : C⟦fpb_obj T, X⟧ := pr1 (pr2 T).
 Definition fq {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f) : D⟦ J (fpb_obj T), tU⟧ := pr2 (pr2 T).
 
-Definition fpullback_prop {X : C} {f : D ⟦J X, U⟧} (T : fpullback_data f) : UU 
-  := Σ (fe : #J(fp T) ;; f = fq T ;; p), isPullback _ _ _ _ fe .
+Definition fpullback_prop {X : C} {f : D ⟦J X, U⟧} (T : fpullback_data f) : UU
+  := commutes_and_is_pullback f p (#J (fp T)) (fq T).
 
 Definition fpullback {X : C} (f : D ⟦J X, U⟧) := 
   Σ T : fpullback_data f, fpullback_prop T.
@@ -201,8 +267,16 @@ Context
 Let αiso := isopair α is_iso_α.
 Let α' := inv_from_iso αiso. 
 Let α'_α := nat_trans_eq_pointwise (iso_after_iso_inv αiso).
+Let α_α' := nat_trans_eq_pointwise (iso_inv_after_iso αiso).
 
-Local Definition α'iso : forall X, is_iso (pr1 α' X).
+Local Definition α_iso : forall X, is_iso (pr1 α X).
+Proof.
+  intros.
+  apply is_functor_iso_pointwise_if_iso.
+  assumption.
+Qed.
+
+Local Definition α'_iso : forall X, is_iso (pr1 α' X).
 Proof.
   intros.
   apply is_functor_iso_pointwise_if_iso.
@@ -213,6 +287,7 @@ Local Notation tU := (source (pr1 RUJ)).
 Local Notation U :=  (target (pr1 RUJ)).
 Local Notation pp := (morphism_from_total (pr1 RUJ)).
 
+
 Definition fcomprehension_induced
   :  fcomprehension J' (# S (pr1 RUJ)).
 Proof.
@@ -221,91 +296,34 @@ Proof.
   set (Xi := Res X'); destruct Xi as [X i]; clear Res.
   set (f' := (α X ;; #J' i ;; g) : D' ⟦ S (J X), S U ⟧).
   set (f := invmap (weq_from_fully_faithful Sff _ _ ) f');
-  set (e_Sf_f' := homotweqinvweq (weq_from_fully_faithful Sff (J X) U) f'
-    : #S f = f');
-    clearbody e_Sf_f' f; clear Sff.
+  assert (e_Sf_f' := homotweqinvweq (weq_from_fully_faithful Sff (J X) U) f'
+    : #S f = f'); clearbody f; clear Sff.
   set (Xf :=  (pr2 RUJ) _ f); clearbody Xf.
   destruct Xf as [H A].
   destruct H as [Xf [p q]].
   destruct A as [e isPb]. cbn in e, isPb.
   assert (Sfp := Spb _ _ _ _ _ _ _ _ _ isPb); clear Spb.
   set (HSfp := functor_on_square D D' S e) in *; clearbody HSfp.
-  (* TODO: most from here could be abstracted as a general lemma about transfer of pullbacks along isomorphisms, generalising [isPullback_iso_of_morphisms]. *) 
   simple refine (tpair _ _ _ ).
   { exists (R Xf); split.
     - exact (#R p ;; i).
-    - refine (identity _ ;; (α' Xf ;; #S q)).
-  (* This [identity _] is to make [isPulback_iso_of_morphisms] applicable below. *)
+    - refine (α' Xf ;; #S q).
   }
-  cbn.
-  simple refine (tpair _ _ _ ).
-  * cbn.
-    rewrite id_left.
-    rewrite <- assoc.
-    rewrite <- HSfp.
-    rewrite assoc.
-    assert (Ha' := nat_trans_ax α'); cbn in Ha'.
-    rewrite <- Ha'; clear Ha'.
-    rewrite e_Sf_f'.
-    unfold f'.
-    rewrite functor_comp. 
-    repeat rewrite <- assoc. apply maponpaths.
-    repeat rewrite assoc. apply maponpaths_2.
-    cbn in α'_α; rewrite α'_α.
-    apply pathsinv0, id_left.
-  * cbn.
-    match goal with |[|- isPullback _ _ _ _ ?eee] => generalize eee end.
-    assert (XXX : g = #J' (inv_from_iso i) ;; α' _ ;; #S f).
-    { clear Sfp isPb HSfp.
-      rewrite e_Sf_f'.
-      unfold f'.
-      repeat rewrite assoc.
-      match goal with |[ |- _ = ?A1 ;; _ ;; _ ;; ?A2 ;; ?A3] =>
-                       pathvia (A1 ;; A2 ;; A3) end.
-      - rewrite <- functor_comp.
-        rewrite iso_after_iso_inv, functor_id.
-        apply pathsinv0, id_left.
-      - do 2 apply maponpaths_2.
-        rewrite <- assoc.
-        rewrite α'_α.
-        apply pathsinv0, id_right.
-    }
-    rewrite XXX; clear XXX.
-    rewrite <- assoc.
-    intro Hp.
-    simple refine
-           (isPullback_iso_of_morphisms _ _ _ _ _ _ _ _ _ _ _ _ ).
-    - apply (homset_property _ ).
-    - apply (#J' (#R p)). 
-    - repeat rewrite assoc.
-      repeat rewrite assoc in Hp.
-      rewrite id_left in Hp.
-      rewrite <- Hp.
-      rewrite functor_comp.
-      do 2 apply cancel_postcomposition.
-      rewrite <- assoc.
-      rewrite <- functor_comp.
-      rewrite iso_inv_after_iso.
-      rewrite functor_id. apply pathsinv0, id_right.
-    - apply (functor_on_iso_is_iso _ _ _ _ _  (iso_inv_from_iso i)).
-    - apply identity_is_iso.
-    - rewrite id_left.
-      rewrite functor_comp. rewrite <- assoc.
-      rewrite <- functor_comp. rewrite iso_inv_after_iso.
-      rewrite functor_id. apply id_right.
-    - match goal with |[|- isPullback _ _ _ _ ?HHH ]
-                       => generalize HHH end.
-      clear Hp.
-      intro Hp.
-      simple refine
-             (isPullback_iso_of_morphisms _ _ _ _ _ _ _ _ _ _ _ _ ).
-      + apply (homset_property _ ). 
-      + cbn. apply (#S (#J p)).
-      + apply functor_on_square. assumption.
-      + apply α'iso.
-      + apply α'iso. 
-      + apply (nat_trans_ax α').
-      + apply Sfp.
+  cbn. unfold fpullback_prop.
+  simple refine (commutes_and_is_pullback_transfer_iso _ _ _ _ _ Sfp).
+  - apply identity_iso.
+  - refine (iso_comp _ (functor_on_iso J' i)).
+    exists (α _); apply α_iso.
+  - apply identity_iso.
+  - cbn. exists (α _); apply α_iso.
+  - cbn. rewrite id_right.
+    apply e_Sf_f'.
+  - rewrite id_left. apply id_right.
+  - cbn. rewrite functor_comp.
+    repeat rewrite assoc. apply maponpaths_2, (nat_trans_ax α).
+  - cbn. rewrite id_right. apply pathsinv0.
+    rewrite assoc. eapply @pathscomp0. apply maponpaths_2, α_α'.
+    apply id_left.
 Qed.
 
 Definition transfer_of_rel_univ_struct : relative_universe_structure J'.
