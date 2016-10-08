@@ -1,14 +1,17 @@
-language:       ocaml
+language:       generic
+sudo:           required
+dist:           trusty
 before_install: 
   - sudo apt-get update -qq
-  - sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers camlp4-extra time
 install:
+  - sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers camlp4-extra time camlp5
+before_script:
   - WPATH=$PWD
   - cd ..        
   - git clone https://github.com/UniMath/UniMath
-  - cd UniMath && make && make install
+  - cd UniMath && make PACKAGES="Foundations CategoryTheory Ktheory" install
   - export PATH=$PATH:$PWD/sub/coq/bin/
   - cd $WPATH
 script:
-  - cd coq && make all
+  - make 
 
