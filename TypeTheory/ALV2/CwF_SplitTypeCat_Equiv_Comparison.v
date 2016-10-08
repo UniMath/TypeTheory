@@ -40,15 +40,15 @@ Section Fix_Context.
 
 Context {C : Precategory}.
 
-(** * Equivalence of types of fibered_term- and qq-structures, constructed categorically *)
+(** * Equivalence of types of term_fun- and qq-structures, constructed categorically *)
 Section Equiv_of_Types_from_Cats.
 
 Definition fam_struc_to_qq_struc_equiv_types (X : obj_ext_Precat C)
-  : fibered_term_structure C X ≃ qq_morphism_structure X.
+  : term_fun_structure C X ≃ qq_morphism_structure X.
 Proof.
   refine (weq_on_objects_from_adj_equiv_of_cats _ _ _ _ _ 
          (fam_struc_to_qq_struc_is_equiv _)).
-  - apply is_category_fibre, is_category_fibered_term_structure.
+  - apply is_category_fibre, is_category_term_fun_structure.
   - apply is_category_fibre, is_category_qq_morphism.
 Defined.
 
@@ -70,7 +70,7 @@ Proof.
 Defined.
 
 (* An alternative approach that doesn’t rely so much on computational behaviour, so would be more robust under refactoring, could use the following lemma: *)
-Lemma qq_compat_implies_eq (Y : fibered_term_structure C X) {Z Z'}
+Lemma qq_compat_implies_eq (Y : term_fun_structure C X) {Z Z'}
   : iscompatible_term_qq Y Z -> iscompatible_term_qq Y Z'
   -> Z = Z'.
 Proof.

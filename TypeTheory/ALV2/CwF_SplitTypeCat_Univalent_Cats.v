@@ -23,10 +23,10 @@ Undelimit Scope transport.
 
 Section Auxiliary.
 
-Lemma transportf_fibered_term_mor_TM {C : Precategory}
+Lemma transportf_term_fun_mor_TM {C : Precategory}
   {X X' : obj_ext_Precat C} {F F' : X --> X'} (e : F = F')
-  {Y : fibered_term_disp_precat C X} {Y'} (FY : Y -->[F] Y')
-  : fibered_term_mor_TM (transportf _ e FY) = fibered_term_mor_TM FY.
+  {Y : term_fun_disp_precat C X} {Y'} (FY : Y -->[F] Y')
+  : term_fun_mor_TM (transportf _ e FY) = term_fun_mor_TM FY.
 Proof.
   destruct e; apply idpath.
 Qed.
@@ -277,39 +277,39 @@ Section Is_Category_Families_Strucs.
 (* TODO: inline *) 
 Lemma isaprop_whatever
   (x : obj_ext_Precat C)
-  (d d' : (fibered_term_disp_precat C) x)
+  (d d' : (term_fun_disp_precat C) x)
   : isaprop (iso_disp (identity_iso x) d d').
 Proof.
   apply isofhleveltotal2.
-  - apply isaprop_fibered_term_mor.
+  - apply isaprop_term_fun_mor.
   - intro. apply isaprop_is_iso_disp.
 Qed.
 
 Definition iso_disp_to_TM_eq
   (X : obj_ext_Precat C)
-  (Y Y' : (fibered_term_disp_precat C) X)
+  (Y Y' : (term_fun_disp_precat C) X)
   : iso_disp (identity_iso X) Y Y'
-  -> TM (Y : fibered_term_structure _ X) = TM (Y' : fibered_term_structure _ X).
+  -> TM (Y : term_fun_structure _ X) = TM (Y' : term_fun_structure _ X).
 Proof.
   intro i.
   use isotoid.
   - apply category_is_category.
-  - exists (fibered_term_mor_TM (i : _ -->[_] _)).
+  - exists (term_fun_mor_TM (i : _ -->[_] _)).
     apply is_iso_from_is_z_iso.
-    exists (fibered_term_mor_TM (inv_mor_disp_from_iso i)).
+    exists (term_fun_mor_TM (inv_mor_disp_from_iso i)).
     split.
-    + etrans. exact (maponpaths fibered_term_mor_TM (inv_mor_after_iso_disp i)).
-      apply transportf_fibered_term_mor_TM.
-    + etrans. exact (maponpaths fibered_term_mor_TM (iso_disp_after_inv_mor i)).
-      apply transportf_fibered_term_mor_TM.
+    + etrans. exact (maponpaths term_fun_mor_TM (inv_mor_after_iso_disp i)).
+      apply transportf_term_fun_mor_TM.
+    + etrans. exact (maponpaths term_fun_mor_TM (iso_disp_after_inv_mor i)).
+      apply transportf_term_fun_mor_TM.
 Defined.
 
 Lemma prewhisker_iso_disp_to_TM_eq 
-  {X} {Y Y' : fibered_term_disp_precat C X}
+  {X} {Y Y' : term_fun_disp_precat C X}
   (FG : iso_disp (identity_iso X) Y Y')
-  {P : preShv C} (α : TM (Y : fibered_term_structure _ X) --> P)
+  {P : preShv C} (α : TM (Y : term_fun_structure _ X) --> P)
 : transportf (λ P' : preShv C, P' --> P) (iso_disp_to_TM_eq _ _ _ FG) α
-  = fibered_term_mor_TM (pr1 (pr2 FG)) ;; α.
+  = term_fun_mor_TM (pr1 (pr2 FG)) ;; α.
 Proof.
   etrans. apply transportf_isotoid.
   apply maponpaths_2.
@@ -317,45 +317,45 @@ Proof.
 Qed.
 
 Lemma postwhisker_iso_disp_to_TM_eq 
-  {X} {Y Y' : fibered_term_disp_precat C X}
+  {X} {Y Y' : term_fun_disp_precat C X}
   (FG : iso_disp (identity_iso X) Y Y')
-  {P : preShv C} (α : P --> TM (Y : fibered_term_structure _ X))
+  {P : preShv C} (α : P --> TM (Y : term_fun_structure _ X))
 : transportf (λ P' : preShv C, P --> P') (iso_disp_to_TM_eq _ _ _ FG) α
-  = α ;; fibered_term_mor_TM (pr1 FG).
+  = α ;; term_fun_mor_TM (pr1 FG).
 Proof.
   apply postwhisker_isotoid.
 Qed.
 
-Definition iso_to_id__fibered_term_disp_precat
+Definition iso_to_id__term_fun_disp_precat
   {X : obj_ext_Precat C}
-  (Y Y' : fibered_term_disp_precat C X)
+  (Y Y' : term_fun_disp_precat C X)
   : iso_disp (identity_iso _) Y Y' -> Y = Y'.
 Proof.
   intros i.
-  apply subtypeEquality. { intro. apply isaprop_fibered_term_structure_axioms. }
+  apply subtypeEquality. { intro. apply isaprop_term_fun_structure_axioms. }
   apply total2_paths with (iso_disp_to_TM_eq _ _ _ i).
   etrans. refine (transportf_dirprod _ _ _ _ _ _).
   apply dirprodeq; simpl.
   - etrans. apply prewhisker_iso_disp_to_TM_eq.
-    etrans. apply fibered_term_mor_pp.
+    etrans. apply term_fun_mor_pp.
     exact (id_right (pp _)).
   - etrans. refine (transportf_forall _ _ _).
     apply funextsec; intros Γ.
     etrans. refine (transportf_forall _ _ _).
     apply funextsec; intros A.
     etrans. refine (postwhisker_iso_disp_to_TM_eq i (Q _ _)).
-    etrans. apply fibered_term_mor_Q.
+    etrans. apply term_fun_mor_Q.
     etrans. Focus 2. exact (id_left (Q _ A)).
     apply maponpaths_2. apply functor_id.
 Qed.
 
-Theorem is_category_fibered_term_structure
-  : is_category_disp (fibered_term_disp_precat C).
+Theorem is_category_term_fun_structure
+  : is_category_disp (term_fun_disp_precat C).
 Proof.
   apply is_category_disp_from_fibres.
   intros X.
-  apply eq_equiv_from_retraction with iso_to_id__fibered_term_disp_precat.
-  - intros. apply eq_iso_disp, isaprop_fibered_term_mor.
+  apply eq_equiv_from_retraction with iso_to_id__term_fun_disp_precat.
+  - intros. apply eq_iso_disp, isaprop_term_fun_mor.
 Qed.
 
 End Is_Category_Families_Strucs.
@@ -451,7 +451,7 @@ End Is_Category_qq_Strucs.
 Section Is_Category_Compat_Strucs.
 
 Lemma isaprop_iso_disp_strucs_compat_disp_precat
-  (x : total_precat (fibered_term_disp_precat C × qq_structure_disp_precat C))
+  (x : total_precat (term_fun_disp_precat C × qq_structure_disp_precat C))
   (d d' : strucs_compat_disp_precat x)
   : isaprop (iso_disp (identity_iso x) d d').
 Proof.
@@ -465,7 +465,7 @@ Qed.
 
 
 Definition  strucs_compat_iso_disp_to_id
-  (x : total_precat (fibered_term_disp_precat C × qq_structure_disp_precat C))
+  (x : total_precat (term_fun_disp_precat C × qq_structure_disp_precat C))
   (d d' : strucs_compat_disp_precat x)
   : iso_disp (identity_iso x) d d' → d = d'.
 Proof.

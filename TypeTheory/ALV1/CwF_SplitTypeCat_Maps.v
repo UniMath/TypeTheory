@@ -29,16 +29,16 @@ Local Notation Δ := comp_ext_compare.
 
 (** * Definition of compatibility
 
-We define what it means for a fibered_term-structure and a _q_-morphism structure to be _compatible_. *)
+We define what it means for a term_fun-structure and a _q_-morphism structure to be _compatible_. *)
 
 Section Compatible_Structures.
 
-Definition iscompatible_term_qq (Y : fibered_term_structure C X)
+Definition iscompatible_term_qq (Y : term_fun_structure C X)
          (Z : qq_morphism_structure X) : UU
   := Π Γ Γ' A (f : C⟦Γ', Γ⟧) , Q Y A[f] = #Yo (qq Z f A) ;; Q Y A.
 
 Lemma isaprop_iscompatible_term_qq
-  (Y : fibered_term_structure C X)
+  (Y : term_fun_structure C X)
   (Z : qq_morphism_structure X)
   : isaprop (iscompatible_term_qq Y Z).
 Proof.
@@ -47,9 +47,9 @@ Proof.
 Qed.
 
 Definition compatible_term_structure (Z : qq_morphism_structure X) : UU
-  := Σ Y : fibered_term_structure C X, iscompatible_term_qq Y Z.
+  := Σ Y : term_fun_structure C X, iscompatible_term_qq Y Z.
 
-Definition compatible_qq_morphism_structure (Y : fibered_term_structure C X) : UU
+Definition compatible_qq_morphism_structure (Y : term_fun_structure C X) : UU
   := Σ Z : qq_morphism_structure X, iscompatible_term_qq Y Z.
 
 End Compatible_Structures.
@@ -82,7 +82,7 @@ Proof.
     apply term_to_section_recover.
 Time Qed.
 
-(** * Defining a (compatible) fibered_term structure, given a _q_-morphism structure 
+(** * Defining a (compatible) term_fun structure, given a _q_-morphism structure 
 
 Key definitions: [fam_from_qq], [iscompatible_fam_from_qq] *)
 
@@ -371,13 +371,13 @@ Arguments Q_from_qq { _ } _ : simpl never.
 Arguments tm_from_qq : simpl never.
 Arguments pp_from_qq : simpl never.
 
-Definition term_from_qq : fibered_term_structure C X.
+Definition term_from_qq : term_fun_structure C X.
 Proof.
   mkpair.
   + exists tm_from_qq.
     exists pp_from_qq.
     intros; apply Q_from_qq.
-  + unfold fibered_term_structure_axioms; intros.
+  + unfold term_fun_structure_axioms; intros.
     exists (Q_pp_from_qq _ _ ).
     apply isPullback_Q_pp_from_qq.
 Defined.
@@ -437,11 +437,11 @@ Arguments tm_from_qq : simpl never.
 Arguments pp_from_qq : simpl never.
 Arguments tm_from_qq_functor_mor : simpl never.
 
-(** * Defining a (compatible) _q_-morphism structure, given a fibered_term structure *)
+(** * Defining a (compatible) _q_-morphism structure, given a term_fun structure *)
 
 Section compatible_comp_structure_from_term.
 
-Variable Y : fibered_term_structure C X.
+Variable Y : term_fun_structure C X.
 
 Section qq_from_term.
 
