@@ -593,29 +593,29 @@ Section Strucs_Fiber_Equiv.
 
 Context (X : obj_ext_Precat C).
 
-Definition fam_struc_to_qq_struc_fibre_functor
+Definition fam_struc_to_qq_struc_fiber_functor
   : functor
-      (fibre_precategory (term_fun_disp_precat C) X)
-      (fibre_precategory (qq_structure_disp_precat C) X).
+      (fiber_precategory (term_fun_disp_precat C) X)
+      (fiber_precategory (qq_structure_disp_precat C) X).
 Proof.
   eapply functor_composite.
-  - eapply fibre_functor.
+  - eapply fiber_functor.
     exact compat_structures_pr1_inverse_over_id.
-    (* TODO: make lemma [fibre_functor_over_id] *)
-  - exact (fibre_functor compat_structures_pr2_equiv_over_id X).
+    (* TODO: make lemma [fiber_functor_over_id] *)
+  - exact (fiber_functor compat_structures_pr2_equiv_over_id X).
 Defined.
 
 Definition fam_struc_to_qq_struc_is_equiv
   : adj_equivalence_of_precats
-      fam_struc_to_qq_struc_fibre_functor.
+      fam_struc_to_qq_struc_fiber_functor.
 Proof.
   use comp_adj_equivalence_of_precats.
-  - apply has_homsets_fibre.
-  - apply has_homsets_fibre.
-  - apply has_homsets_fibre.
-  - apply fibre_equiv.
+  - apply has_homsets_fiber.
+  - apply has_homsets_fiber.
+  - apply has_homsets_fiber.
+  - apply fiber_equiv.
     apply is_equiv_of_equiv_over_id.
-  - apply fibre_equiv.
+  - apply fiber_equiv.
     apply is_equiv_of_equiv_over_id.
 Defined.
 

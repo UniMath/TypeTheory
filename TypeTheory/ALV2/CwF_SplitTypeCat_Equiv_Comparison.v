@@ -48,8 +48,8 @@ Definition fam_struc_to_qq_struc_equiv_types (X : obj_ext_Precat C)
 Proof.
   refine (weq_on_objects_from_adj_equiv_of_cats _ _ _ _ _ 
          (fam_struc_to_qq_struc_is_equiv _)).
-  - apply is_category_fibre, is_category_term_fun_structure.
-  - apply is_category_fibre, is_category_qq_morphism.
+  - apply is_category_fiber, is_category_term_fun_structure.
+  - apply is_category_fiber, is_category_qq_morphism.
 Defined.
 
 (* Print Assumptions fam_struc_to_qq_struc_equiv_types. *)

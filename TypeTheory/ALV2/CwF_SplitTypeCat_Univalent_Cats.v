@@ -352,7 +352,7 @@ Qed.
 Theorem is_category_term_fun_structure
   : is_category_disp (term_fun_disp_precat C).
 Proof.
-  apply is_category_disp_from_fibres.
+  apply is_category_disp_from_fibers.
   intros X.
   apply eq_equiv_from_retraction with iso_to_id__term_fun_disp_precat.
   - intros. apply eq_iso_disp, isaprop_term_fun_mor.
@@ -438,7 +438,7 @@ Defined.
 Theorem is_category_qq_morphism
   : is_category_disp (qq_structure_disp_precat C).
 Proof.
-  apply is_category_disp_from_fibres.
+  apply is_category_disp_from_fibers.
   intros x d d'. 
   use isweqimplimpl. 
   - apply qq_structure_iso_disp_to_id.
@@ -477,7 +477,7 @@ Defined.
 Theorem is_category_strucs_compat
   : is_category_disp (@strucs_compat_disp_precat C).
 Proof.
-  apply is_category_disp_from_fibres.
+  apply is_category_disp_from_fibers.
   intros x d d'.
   use isweqimplimpl.
   - apply strucs_compat_iso_disp_to_id.
