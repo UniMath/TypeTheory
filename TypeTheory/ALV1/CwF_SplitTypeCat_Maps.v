@@ -82,7 +82,7 @@ Proof.
     apply term_to_section_recover.
 Time Qed.
 
-(** * Defining a (compatible) term_fun structure, given a _q_-morphism structure 
+(** * Defining a (compatible) term structure, given a _q_-morphism structure 
 
 Key definitions: [fam_from_qq], [iscompatible_fam_from_qq] *)
 
@@ -437,7 +437,7 @@ Arguments tm_from_qq : simpl never.
 Arguments pp_from_qq : simpl never.
 Arguments tm_from_qq_functor_mor : simpl never.
 
-(** * Defining a (compatible) _q_-morphism structure, given a term_fun structure *)
+(** * Defining a (compatible) _q_-morphism structure, given a term structure *)
 
 Section compatible_comp_structure_from_term.
 

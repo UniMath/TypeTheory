@@ -197,7 +197,7 @@ Proof.
   apply iscompatible_term_from_qq.
 Defined.
 
-(** The next main goal is the following statement.  However, the construction of the morphism of term_fun structures is rather large; so we break out the first component (the map of term presheaves) into several independent lemmas, before returning to this in [fam_from_qq_mor] below. *)
+(** The next main goal is the following statement.  However, the construction of the morphism of term structures is rather large; so we break out the first component (the map of term presheaves) into several independent lemmas, before returning to this in [fam_from_qq_mor] below. *)
 Lemma term_from_qq_mor {X X' : obj_ext_precat} {F : X --> X'}
   {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
   {Y : term_fun_disp_precat C X} {Y'}

@@ -186,7 +186,7 @@ Arguments obj_ext_Precat _ : clear implicits.
 Local Notation φ := obj_ext_mor_φ.
 
 
-(** * Precategory of functional term structures *)
+(** * Precategory of term structures *)
 Section Term_Fun_Structure_Precat.
 
 Context {C : Precategory}.
