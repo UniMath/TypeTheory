@@ -354,7 +354,7 @@ End Term_Fun_Structure_Precat.
 Arguments term_fun_disp_precat _ : clear implicits.
 Arguments term_fun_structure_precat _ : clear implicits.
 
-(** * Precategory of cartesian _q_-morphism-structures *)
+(** * Precategory of _q_-morphism-structures *)
 Section qq_Structure_Precat.
 
 Context {C : Precategory}.

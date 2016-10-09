@@ -85,7 +85,7 @@ Type hierarchy is collapsed (logic is inconsistent)
 >>
 *)
 
-(** * Equivalence of types between functional term structures and cartesian q-morphisms structures *)
+(** * Equivalence of types between functional term structures and _q_-morphism structures *)
 Definition weq_term_fun_qq_morphisms_structures
      : Π (C : Precategory) (X : obj_ext_structure C),
        term_fun_structure C X ≃ qq_morphism_structure X.

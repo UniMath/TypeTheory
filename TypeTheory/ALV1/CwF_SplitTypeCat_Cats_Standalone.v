@@ -186,7 +186,8 @@ Qed.
 
 End Term_Fun_Structure_Precat.
 
-(** * Precategory of cartesian _q_-morphism-structures *)
+(** * Precategory of _q_-morphism-structures *)
+
 Section qq_Structure_Precat.
 
 Definition qq_structure_ob_mor : precategory_ob_mor.

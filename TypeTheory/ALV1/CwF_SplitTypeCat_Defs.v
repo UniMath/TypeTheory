@@ -238,9 +238,9 @@ Section Q_Morphism_Structures.
 
 Context {C : Precategory} {X : obj_ext_structure C}.
 
-(** * Cartesian _q_-morphism structures, split type-categories
+(** * _q_-morphism structures, split type-categories
 
-On the other hand, _(cartesian) q-morphism structure_ (over an object-extension structure) is what is required to constitute a _split type-category_.
+On the other hand, a _q-morphism structure_ (over an object-extension structure) is what is required to constitute a _split type-category_.
 
 Up to ordering/groupoing of the components, these are essentially the _type-categories_ of Andy Pitts, _Categorical Logic_, 2000, Def. 6.3.3 #(<a href="http://www.cl.cam.ac.uk/techreports/UCAM-CL-TR-367.html">link</a>)# (which in turn were a reformulation of Cartmell’s _categories with attributes_).
 
