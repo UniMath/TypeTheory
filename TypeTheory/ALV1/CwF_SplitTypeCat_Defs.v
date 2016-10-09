@@ -230,7 +230,7 @@ Qed.
 
 End Families_Structures.
 
-Section Q_Morphism_Structures.
+Section qq_Morphism_Structures.
 
 (* NOTE: most of this section does not require the [homset_property] for [C]. If the few lemmas that do require it were moved out of the section, e.g. [isaprop_qq_morphism_axioms], then would could take [C] as just a [precategory] here. Perhaps worth doing so?
 
@@ -350,7 +350,7 @@ Proof.
   repeat apply maponpaths. apply uip. apply setproperty.
 Qed.
 
-End Q_Morphism_Structures.
+End qq_Morphism_Structures.
 
 Arguments term_fun_structure_data _ _ : clear implicits.
 Arguments term_fun_structure_axioms _ _ _ : clear implicits.

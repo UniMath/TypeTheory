@@ -104,7 +104,7 @@ Type hierarchy is collapsed (logic is inconsistent)
 >>
 *)
 
-(** * Equivalence of categories between functional term structures and q-morphism structures, over a fixed object extension structure *)
+(** * Equivalence of categories between functional term structures and _q_-morphism structures, over a fixed object extension structure *)
 Definition equiv_of_category_of_cwf_split_type_structures
      : Π (C : Precategory) (X : obj_ext_structure C),
        adj_equivalence_of_precats
@@ -129,7 +129,7 @@ Type hierarchy is collapsed (logic is inconsistent)
 >>
 *)
 
-(** * Equivalence of types between functional term structures and q-morphism structures, over a fixed object extension structures  *)
+(** * Equivalence of types between functional term structures and _q_-morphism structures, over a fixed object extension structures  *)
 Definition equiv_of_types_of_cwf_split_type_structures
      : Π (C : Precategory) (X : obj_ext_structure C),
        term_fun_precategory C X ≃ qq_structure_precategory C X.
