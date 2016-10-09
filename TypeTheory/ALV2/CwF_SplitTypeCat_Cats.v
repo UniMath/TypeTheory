@@ -5,7 +5,7 @@
 Main definitions:
 
 - [obj_ext_precat]
-- [fibered_term_disp_precat], [fibered_term_structure_precat]
+- [term_fun_disp_precat], [term_fun_structure_precat]
 - [qq_structure_disp_precat], [qq_structure_precat]
 *)
 
@@ -191,32 +191,32 @@ Section Fibered_Term_Structure_Precat.
 
 Context {C : Precategory}.
 
-Definition fibered_term_mor {X X' : obj_ext_Precat C}
-    (Y : fibered_term_structure C X) (Y' : fibered_term_structure C X') (F : X --> X')
+Definition term_fun_mor {X X' : obj_ext_Precat C}
+    (Y : term_fun_structure C X) (Y' : term_fun_structure C X') (F : X --> X')
   : UU
 := Σ FF_TM : TM Y --> TM Y',
        FF_TM ;; pp Y' = pp Y ;; obj_ext_mor_TY F
      × 
        Π {Γ:C} {A : Ty X Γ}, Q Y A ;; FF_TM = #Yo (φ F A) ;; Q Y' _.
 
-Definition fibered_term_mor_TM {X X'} {Y} {Y'} {F : X --> X'} (FF : fibered_term_mor Y Y' F)
+Definition term_fun_mor_TM {X X'} {Y} {Y'} {F : X --> X'} (FF : term_fun_mor Y Y' F)
   : _ --> _
 := pr1 FF.
 
-Definition fibered_term_mor_pp {X X'} {Y} {Y'} {F : X --> X'} (FF : fibered_term_mor Y Y' F)
-  : fibered_term_mor_TM FF ;; pp Y' = pp Y ;; obj_ext_mor_TY F
+Definition term_fun_mor_pp {X X'} {Y} {Y'} {F : X --> X'} (FF : term_fun_mor Y Y' F)
+  : term_fun_mor_TM FF ;; pp Y' = pp Y ;; obj_ext_mor_TY F
 := pr1 (pr2 FF).
 
-Definition fibered_term_mor_Q {X X'} {Y} {Y'} {F : X --> X'} (FF : fibered_term_mor Y Y' F)
+Definition term_fun_mor_Q {X X'} {Y} {Y'} {F : X --> X'} (FF : term_fun_mor Y Y' F)
     {Γ} A
   : _ = _
 := pr2 (pr2 FF) Γ A.
 
-(* TODO: inline in [isaprop_fibered_term_mor]? *)
-Lemma fibered_term_mor_eq {X X'} {Y} {Y'} {F : X --> X'} (FF FF' : fibered_term_mor Y Y' F)
+(* TODO: inline in [isaprop_term_fun_mor]? *)
+Lemma term_fun_mor_eq {X X'} {Y} {Y'} {F : X --> X'} (FF FF' : term_fun_mor Y Y' F)
     (e_TM : Π Γ (t : Tm Y Γ),
-      (fibered_term_mor_TM FF : nat_trans _ _) _ t
-      = (fibered_term_mor_TM FF' : nat_trans _ _) _ t)
+      (term_fun_mor_TM FF : nat_trans _ _) _ t
+      = (term_fun_mor_TM FF' : nat_trans _ _) _ t)
   : FF = FF'.
 Proof.
   apply subtypeEquality.
@@ -228,15 +228,15 @@ Proof.
 Qed.
 
 
-(* This is not full naturality of [term_to_section]; it is just what is required for [isaprop_fibered_term_mor] below. *)
+(* This is not full naturality of [term_to_section]; it is just what is required for [isaprop_term_fun_mor] below. *)
 Lemma term_to_section_naturality {X X'} {Y} {Y'}
-  {F : X --> X'} {FY : fibered_term_mor Y Y' F}
+  {F : X --> X'} {FY : term_fun_mor Y Y' F}
   {Γ : C} (t : Tm Y Γ) (A := (pp Y : nat_trans _ _) _ t)
-  : pr1 (term_to_section ((fibered_term_mor_TM FY : nat_trans _ _) _ t))
+  : pr1 (term_to_section ((term_fun_mor_TM FY : nat_trans _ _) _ t))
   = pr1 (term_to_section t) ;; φ F _
-   ;; Δ (!toforallpaths _ _ _ (nat_trans_eq_pointwise (fibered_term_mor_pp FY) Γ) t).
+   ;; Δ (!toforallpaths _ _ _ (nat_trans_eq_pointwise (term_fun_mor_pp FY) Γ) t).
 Proof.
-  set (t' := (fibered_term_mor_TM FY : nat_trans _ _) _ t).
+  set (t' := (term_fun_mor_TM FY : nat_trans _ _) _ t).
   set (A' := (pp Y' : nat_trans _ _) _ t').
   set (Pb := isPullback_preShv_to_pointwise (homset_property _) (isPullback_Q_pp Y' A') Γ);
     simpl in Pb.
@@ -253,15 +253,15 @@ Proof.
   - etrans. apply term_to_section_recover. apply pathsinv0.
     etrans. apply Q_comp_ext_compare.
     etrans. apply @pathsinv0.
-      set (H1 := nat_trans_eq_pointwise (fibered_term_mor_Q FY A) Γ).
+      set (H1 := nat_trans_eq_pointwise (term_fun_mor_Q FY A) Γ).
       exact (toforallpaths _ _ _ H1 _).
     cbn. apply maponpaths. apply term_to_section_recover.
 Qed.
 
-Lemma fibered_term_mor_recover_term {X X'} {Y} {Y'}
-  {F : X --> X'} {FY : fibered_term_mor Y Y' F}
+Lemma term_fun_mor_recover_term {X X'} {Y} {Y'}
+  {F : X --> X'} {FY : term_fun_mor Y Y' F}
   {Γ : C} (t : Tm Y Γ)
-  : (fibered_term_mor_TM FY : nat_trans _ _) Γ t
+  : (term_fun_mor_TM FY : nat_trans _ _) Γ t
   = (Q Y' _ : nat_trans _ _) Γ (pr1 (term_to_section t) ;; φ F _).
 Proof.
   etrans. apply @pathsinv0, term_to_section_recover.
@@ -269,35 +269,35 @@ Proof.
   apply Q_comp_ext_compare.
 Qed.
 
-(* TODO: once all obligations proved, replace [fibered_term_mor_eq] with this in subsequent proofs. *)
-Lemma isaprop_fibered_term_mor {X X'} {Y} {Y'} {F : X --> X'}
-  : isaprop (fibered_term_mor Y Y' F).
+(* TODO: once all obligations proved, replace [term_fun_mor_eq] with this in subsequent proofs. *)
+Lemma isaprop_term_fun_mor {X X'} {Y} {Y'} {F : X --> X'}
+  : isaprop (term_fun_mor Y Y' F).
 Proof.
-  apply invproofirrelevance; intros FF FF'. apply fibered_term_mor_eq.
+  apply invproofirrelevance; intros FF FF'. apply term_fun_mor_eq.
   intros Γ t.
-  etrans. apply fibered_term_mor_recover_term.
-  apply @pathsinv0. apply fibered_term_mor_recover_term.
+  etrans. apply term_fun_mor_recover_term.
+  apply @pathsinv0. apply term_fun_mor_recover_term.
 Qed.
 
-Lemma fibered_term_mor_transportf {X X'} {Y Y'}
-    {F F' : X --> X'} (eF : F = F') (FF : fibered_term_mor Y Y' F)
+Lemma term_fun_mor_transportf {X X'} {Y Y'}
+    {F F' : X --> X'} (eF : F = F') (FF : term_fun_mor Y Y' F)
     {Γ:C} (t : Tm Y Γ)
-  : (fibered_term_mor_TM (transportf _ eF FF) : nat_trans _ _) Γ t
-    = (fibered_term_mor_TM FF : nat_trans _ _) Γ t.
+  : (term_fun_mor_TM (transportf _ eF FF) : nat_trans _ _) Γ t
+    = (term_fun_mor_TM FF : nat_trans _ _) Γ t.
 Proof.
   destruct eF. apply idpath.
 Qed.
  
-Definition fibered_term_ob_mor : disp_precat_ob_mor (obj_ext_Precat C).
+Definition term_fun_ob_mor : disp_precat_ob_mor (obj_ext_Precat C).
 Proof.
-  exists (fun X => fibered_term_structure C X).
-  exact @fibered_term_mor.
+  exists (fun X => term_fun_structure C X).
+  exact @term_fun_mor.
 Defined.
 
-Definition fibered_term_id_comp : disp_precat_id_comp _ fibered_term_ob_mor.
+Definition term_fun_id_comp : disp_precat_id_comp _ term_fun_ob_mor.
 Proof.
   apply tpair.
-  - intros X Y. simpl; unfold fibered_term_mor.
+  - intros X Y. simpl; unfold term_fun_mor.
     exists (identity _). apply tpair.
     + etrans. apply id_left. apply pathsinv0, id_right.
     + intros Γ A. etrans. apply id_right.
@@ -305,36 +305,36 @@ Proof.
       refine (maponpaths (fun k => k ;; _) _).
       apply functor_id.
   - intros X0 X1 X2 F G Y0 Y1 Y2 FF GG.
-    exists (fibered_term_mor_TM FF ;; fibered_term_mor_TM GG). apply tpair.
+    exists (term_fun_mor_TM FF ;; term_fun_mor_TM GG). apply tpair.
     + etrans. apply @pathsinv0. apply assoc.
-      etrans. apply maponpaths, fibered_term_mor_pp.
+      etrans. apply maponpaths, term_fun_mor_pp.
       etrans. apply assoc.
-      etrans. apply cancel_postcomposition, fibered_term_mor_pp.
+      etrans. apply cancel_postcomposition, term_fun_mor_pp.
       apply pathsinv0. apply assoc.
     + intros Γ A.
       etrans. apply assoc.
-      etrans. apply cancel_postcomposition, fibered_term_mor_Q.
+      etrans. apply cancel_postcomposition, term_fun_mor_Q.
       etrans. apply @pathsinv0, assoc.
-      etrans. apply maponpaths, fibered_term_mor_Q.
+      etrans. apply maponpaths, term_fun_mor_Q.
       etrans. apply assoc.
       apply cancel_postcomposition.
       apply pathsinv0, functor_comp.
 Defined.
 
-Definition fibered_term_data : disp_precat_data (obj_ext_Precat C)
-  := (_ ,, fibered_term_id_comp).
+Definition term_fun_data : disp_precat_data (obj_ext_Precat C)
+  := (_ ,, term_fun_id_comp).
 
-Definition fibered_term_axioms : disp_precat_axioms _ fibered_term_data.
+Definition term_fun_axioms : disp_precat_axioms _ term_fun_data.
 Proof.
   repeat apply tpair.
-  - intros. apply fibered_term_mor_eq. intros.
-    etrans. Focus 2. apply @pathsinv0, fibered_term_mor_transportf.
+  - intros. apply term_fun_mor_eq. intros.
+    etrans. Focus 2. apply @pathsinv0, term_fun_mor_transportf.
     apply idpath.
-  - intros. apply fibered_term_mor_eq. intros.
-    etrans. Focus 2. apply @pathsinv0, fibered_term_mor_transportf.
+  - intros. apply term_fun_mor_eq. intros.
+    etrans. Focus 2. apply @pathsinv0, term_fun_mor_transportf.
     apply idpath.
-  - intros. apply fibered_term_mor_eq. intros.
-    etrans. Focus 2. apply @pathsinv0, fibered_term_mor_transportf.
+  - intros. apply term_fun_mor_eq. intros.
+    etrans. Focus 2. apply @pathsinv0, term_fun_mor_transportf.
     apply idpath.
   - intros. apply isaset_total2.
     apply homset_property.
@@ -343,16 +343,16 @@ Proof.
     repeat (apply impred_isaprop; intro). apply homset_property.
 Qed.
 
-Definition fibered_term_disp_precat : disp_precat (obj_ext_Precat C)
-  := (_ ,, fibered_term_axioms).
+Definition term_fun_disp_precat : disp_precat (obj_ext_Precat C)
+  := (_ ,, term_fun_axioms).
 
-Definition fibered_term_structure_precat : precategory
-  := total_precat fibered_term_disp_precat.
+Definition term_fun_structure_precat : precategory
+  := total_precat term_fun_disp_precat.
 
 End Fibered_Term_Structure_Precat.
 
-Arguments fibered_term_disp_precat _ : clear implicits.
-Arguments fibered_term_structure_precat _ : clear implicits.
+Arguments term_fun_disp_precat _ : clear implicits.
+Arguments term_fun_structure_precat _ : clear implicits.
 
 (** * Precategory of cartesian _q_-morphism-structures *)
 Section qq_Structure_Precat.

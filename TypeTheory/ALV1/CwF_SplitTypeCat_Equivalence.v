@@ -222,7 +222,7 @@ Proof.
     apply homset_property. }
   destruct Y as [Y YH]. simpl.
   apply subtypeEquality.
-  { intro. apply isaprop_fibered_term_structure_axioms. }
+  { intro. apply isaprop_term_fun_structure_axioms. }
   simpl.
   destruct Y as [Y YH']; simpl.
   use total2_paths.
@@ -276,7 +276,7 @@ Proof.
   apply pathsinv0. apply unique.
 Defined.
 
-Lemma compat_split_comp_eq (Y : fibered_term_structure _ X) :
+Lemma compat_split_comp_eq (Y : term_fun_structure _ X) :
   Π t : compatible_qq_morphism_structure Y,
   t = compatible_qq_from_term Y.
 Proof.
@@ -317,7 +317,7 @@ Proof.
 Time Qed.
   
 
-Lemma iscontr_compatible_split_comp_structure (Y : fibered_term_structure C X)
+Lemma iscontr_compatible_split_comp_structure (Y : term_fun_structure C X)
 : iscontr (compatible_qq_morphism_structure Y).
 Proof.
   exists (compatible_qq_from_term Y).
@@ -329,7 +329,7 @@ End compatible_structures.
 Section Equivalence.
 
 Definition T1 : UU :=
-  Σ Y : fibered_term_structure C X,
+  Σ Y : term_fun_structure C X,
         compatible_qq_morphism_structure Y.
 
 Definition T2 : UU :=
@@ -342,7 +342,7 @@ Proof.
   unfold T1.
   unfold compatible_qq_morphism_structure.
   set (XR := @weqtotal2asstol).
-  specialize (XR (fibered_term_structure C X)).
+  specialize (XR (term_fun_structure C X)).
   specialize (XR (fun _ => qq_morphism_structure X)).
   simpl in XR.
   specialize (XR (fun YZ => iscompatible_term_qq (pr1 YZ) (pr2 YZ))).
@@ -351,7 +351,7 @@ Proof.
   unfold T2. unfold compatible_term_structure.
   set (XR := @weqtotal2asstor).
   specialize (XR (qq_morphism_structure X)).
-  specialize (XR (fun _ => fibered_term_structure C X)).
+  specialize (XR (fun _ => term_fun_structure C X)).
   simpl in XR.
   specialize (XR (fun YZ => iscompatible_term_qq (pr2 YZ) (pr1 YZ))).
   apply XR.
@@ -371,7 +371,7 @@ Proof.
 Defined.
 
 Definition forget_comp :
-  T1 ≃ fibered_term_structure C X.
+  T1 ≃ term_fun_structure C X.
 Proof.
   exists pr1.
   apply isweqpr1.
@@ -379,7 +379,7 @@ Proof.
   apply iscontr_compatible_split_comp_structure.
 Defined.
 
-Definition weq_CwF_SplitTypeCat : fibered_term_structure C X ≃ qq_morphism_structure X.
+Definition weq_CwF_SplitTypeCat : term_fun_structure C X ≃ qq_morphism_structure X.
 Proof.
   eapply weqcomp.
     eapply invweq. apply forget_comp.

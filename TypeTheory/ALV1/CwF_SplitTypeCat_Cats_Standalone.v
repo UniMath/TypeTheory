@@ -4,7 +4,7 @@
 
 Main definitions:
 
-- [fibered_term_precategory]
+- [term_fun_precategory]
 - [qq_structure_precategory]
 - category of compatible pairs
 - projection functors from compatible pairs to structures
@@ -38,39 +38,39 @@ Variable C : Precategory.
 Variable X : obj_ext_structure C.
 
 
-(** * Precategory of fibered_term-structures *)
+(** * Precategory of term_fun-structures *)
 Section Fibered_Term_Structure_Precat.
 
 (* TODO: this should be called differently.
-         fibered_term is the name of Sigma obj-ext plus this
+         term_fun is the name of Sigma obj-ext plus this
 *)
 
-Definition fibered_term_mor 
-    (Y Y' : fibered_term_structure C X) 
+Definition term_fun_mor 
+    (Y Y' : term_fun_structure C X) 
   : UU
 := Σ FF_TM : TM Y --> TM Y',
        FF_TM ;; pp Y' = pp Y 
      × 
        Π {Γ:C} {A : Ty X Γ}, Q Y A ;; FF_TM =  Q Y' _.
 
-Definition fibered_term_mor_TM {Y} {Y'} (FF : fibered_term_mor Y Y')
+Definition term_fun_mor_TM {Y} {Y'} (FF : term_fun_mor Y Y')
   : _ --> _
 := pr1 FF.
 
-Definition fibered_term_mor_pp {Y} {Y'} (FF : fibered_term_mor Y Y')
-  : fibered_term_mor_TM FF ;; pp Y' = pp Y 
+Definition term_fun_mor_pp {Y} {Y'} (FF : term_fun_mor Y Y')
+  : term_fun_mor_TM FF ;; pp Y' = pp Y 
 := pr1 (pr2 FF).
 
-Definition fibered_term_mor_Q {Y} {Y'} (FF : fibered_term_mor Y Y')
+Definition term_fun_mor_Q {Y} {Y'} (FF : term_fun_mor Y Y')
     {Γ} A
   : _ = _
 := pr2 (pr2 FF) Γ A.
 
 
-Lemma fibered_term_mor_eq {Y} {Y'} (FF FF' : fibered_term_mor Y Y')
+Lemma term_fun_mor_eq {Y} {Y'} (FF FF' : term_fun_mor Y Y')
     (e_TM : Π Γ (t : Tm Y Γ),
-      (fibered_term_mor_TM FF : nat_trans _ _) _ t
-      = (fibered_term_mor_TM FF' : nat_trans _ _) _ t)
+      (term_fun_mor_TM FF : nat_trans _ _) _ t
+      = (term_fun_mor_TM FF' : nat_trans _ _) _ t)
   : FF = FF'.
 Proof.
   apply subtypeEquality.
@@ -82,15 +82,15 @@ Proof.
 Qed.
 
 
-(* This is not full naturality of [term_to_section]; it is just what is required for [isaprop_fibered_term_mor] below. *)
+(* This is not full naturality of [term_to_section]; it is just what is required for [isaprop_term_fun_mor] below. *)
 Lemma term_to_section_naturality {Y} {Y'}
-  {FY : fibered_term_mor Y Y'}
+  {FY : term_fun_mor Y Y'}
   {Γ : C} (t : Tm Y Γ) (A := (pp Y : nat_trans _ _) _ t)
-  : pr1 (term_to_section ((fibered_term_mor_TM FY : nat_trans _ _) _ t))
+  : pr1 (term_to_section ((term_fun_mor_TM FY : nat_trans _ _) _ t))
   = pr1 (term_to_section t) 
-   ;; Δ (!toforallpaths _ _ _ (nat_trans_eq_pointwise (fibered_term_mor_pp FY) Γ) t).
+   ;; Δ (!toforallpaths _ _ _ (nat_trans_eq_pointwise (term_fun_mor_pp FY) Γ) t).
 Proof.
-  set (t' := (fibered_term_mor_TM FY : nat_trans _ _) _ t).
+  set (t' := (term_fun_mor_TM FY : nat_trans _ _) _ t).
   set (A' := (pp Y' : nat_trans _ _) _ t').
   set (Pb := isPullback_preShv_to_pointwise (homset_property _) (isPullback_Q_pp Y' A') Γ);
     simpl in Pb.
@@ -104,15 +104,15 @@ Proof.
   - etrans. apply term_to_section_recover. apply pathsinv0.
     etrans. apply Q_comp_ext_compare.
     etrans. apply @pathsinv0.
-      set (H1 := nat_trans_eq_pointwise (fibered_term_mor_Q FY A) Γ).
+      set (H1 := nat_trans_eq_pointwise (term_fun_mor_Q FY A) Γ).
       exact (toforallpaths _ _ _ H1 _).
     cbn. apply maponpaths. apply term_to_section_recover.
 Qed.
 
-Lemma fibered_term_mor_recover_term  {Y} {Y'}
-  {FY : fibered_term_mor Y Y'}
+Lemma term_fun_mor_recover_term  {Y} {Y'}
+  {FY : term_fun_mor Y Y'}
   {Γ : C} (t : Tm Y Γ)
-  : (fibered_term_mor_TM FY : nat_trans _ _) Γ t
+  : (term_fun_mor_TM FY : nat_trans _ _) Γ t
   = (Q Y' _ : nat_trans _ _) Γ (pr1 (term_to_section t) ).
 Proof.
   etrans. apply @pathsinv0, term_to_section_recover.
@@ -120,62 +120,62 @@ Proof.
   apply Q_comp_ext_compare.
 Qed.
 
-(* TODO: once all obligations proved, replace [fibered_term_mor_eq] with this in subsequent proofs. *)
-Lemma isaprop_fibered_term_mor {Y} {Y'}
-  : isaprop (fibered_term_mor Y Y').
+(* TODO: once all obligations proved, replace [term_fun_mor_eq] with this in subsequent proofs. *)
+Lemma isaprop_term_fun_mor {Y} {Y'}
+  : isaprop (term_fun_mor Y Y').
 Proof.
-  apply invproofirrelevance; intros FF FF'. apply fibered_term_mor_eq.
+  apply invproofirrelevance; intros FF FF'. apply term_fun_mor_eq.
   intros Γ t.
-  etrans. apply fibered_term_mor_recover_term.
-  apply @pathsinv0. apply fibered_term_mor_recover_term.
+  etrans. apply term_fun_mor_recover_term.
+  apply @pathsinv0. apply term_fun_mor_recover_term.
 Qed.
 
 
-Definition fibered_term_ob_mor : precategory_ob_mor. 
+Definition term_fun_ob_mor : precategory_ob_mor. 
 Proof.
-  exists (fibered_term_structure C X).
-  exact @fibered_term_mor.
+  exists (term_fun_structure C X).
+  exact @term_fun_mor.
 Defined.
 
-Definition fibered_term_id_comp : precategory_id_comp fibered_term_ob_mor.
+Definition term_fun_id_comp : precategory_id_comp term_fun_ob_mor.
 Proof.
   apply tpair.
-  - intros Y. simpl; unfold fibered_term_mor.
+  - intros Y. simpl; unfold term_fun_mor.
     exists (identity _). apply tpair.
     + apply id_left. 
     + intros Γ A. apply id_right.
   - intros Y0 Y1 Y2 FF GG.
-    exists (fibered_term_mor_TM FF ;; fibered_term_mor_TM GG). apply tpair.
+    exists (term_fun_mor_TM FF ;; term_fun_mor_TM GG). apply tpair.
     + etrans. apply @pathsinv0. apply assoc.
-      etrans. apply maponpaths, fibered_term_mor_pp.
-      apply fibered_term_mor_pp.
+      etrans. apply maponpaths, term_fun_mor_pp.
+      apply term_fun_mor_pp.
     + intros Γ A.
       etrans. apply assoc.
-      etrans. apply cancel_postcomposition, fibered_term_mor_Q.
-      apply fibered_term_mor_Q.
+      etrans. apply cancel_postcomposition, term_fun_mor_Q.
+      apply term_fun_mor_Q.
 Defined.
 
-Definition fibered_term_data : precategory_data 
-  := (_ ,, fibered_term_id_comp).
+Definition term_fun_data : precategory_data 
+  := (_ ,, term_fun_id_comp).
 
-Definition fibered_term_axioms : is_precategory fibered_term_data.
+Definition term_fun_axioms : is_precategory term_fun_data.
 Proof.
   repeat apply tpair.
-  - intros. apply fibered_term_mor_eq. intros.
+  - intros. apply term_fun_mor_eq. intros.
     apply idpath.
-  - intros. apply fibered_term_mor_eq. intros.
+  - intros. apply term_fun_mor_eq. intros.
     apply idpath.
-  - intros. apply fibered_term_mor_eq. intros.
+  - intros. apply term_fun_mor_eq. intros.
     apply idpath.
 Qed.
 
 
-Definition fibered_term_precategory : precategory 
-  := (_ ,, fibered_term_axioms).
+Definition term_fun_precategory : precategory 
+  := (_ ,, term_fun_axioms).
 
 
-Lemma has_homsets_fibered_term_precat 
-  : has_homsets fibered_term_precategory.
+Lemma has_homsets_term_fun_precat 
+  : has_homsets term_fun_precategory.
 Proof.
   intros a b. apply isaset_total2.
   apply homset_property.
@@ -239,7 +239,7 @@ Definition strucs_compat_ob_mor
   : precategory_ob_mor.
 Proof.
   use tpair.
-  - exact (Σ YZ : (fibered_term_precategory × qq_structure_precategory), 
+  - exact (Σ YZ : (term_fun_precategory × qq_structure_precategory), 
                   iscompatible_term_qq (pr1 YZ) (pr2 YZ)).
   - intros YZ YZ'.
     exact ((pr1 (pr1 YZ)) --> (pr1 (pr1 YZ')) × (pr2 (pr1 YZ)) --> pr2 (pr1 YZ')).
@@ -278,7 +278,7 @@ Definition compat_structures_disp_precat
 
 
 Definition compat_structures_pr1_functor
-  : functor compat_structures_precategory fibered_term_precategory.
+  : functor compat_structures_precategory term_fun_precategory.
 Proof.
   mkpair.
   - mkpair.
@@ -306,7 +306,7 @@ End Compatible_Disp_Cat.
 
 Section Unique_QQ_From_Term.
 
-Lemma qq_from_term_ob (Y : fibered_term_precategory)
+Lemma qq_from_term_ob (Y : term_fun_precategory)
   : Σ (Z : qq_structure_precategory), iscompatible_term_qq Y Z.
 Proof.
   exists (qq_from_term Y).
@@ -314,7 +314,7 @@ Proof.
 Defined.
 
 Lemma qq_from_term_mor 
-  {Y : fibered_term_precategory} {Y'} (FY : Y --> Y')
+  {Y : term_fun_precategory} {Y'} (FY : Y --> Y')
   {Z : qq_structure_precategory} {Z'}
   (W : iscompatible_term_qq Y Z)
   (W' : iscompatible_term_qq Y' Z')
@@ -322,7 +322,7 @@ Lemma qq_from_term_mor
 Proof.
   intros Γ' Γ f A.
   cbn in W, W', FY. unfold iscompatible_term_qq in *. 
-  unfold fibered_term_mor in FY.
+  unfold term_fun_mor in FY.
   apply (Q_pp_Pb_unique Y'); simpl; unfold yoneda_morphisms_data.
   -     (* TODO: name of [obj_ext_mor_ax] unmemorable.  Rename more like [qq_π]? *)
     etrans. apply @pathsinv0, qq_π.
@@ -331,10 +331,10 @@ Proof.
     etrans. apply @pathsinv0, qq_π.
     apply idpath.
   (* Maybe worth abstracting the following pointwise application of [W],
-   [fibered_term_mor_Q], etc. as lemmas? *)
+   [term_fun_mor_Q], etc. as lemmas? *)
   - etrans.
       exact (!toforallpaths _ _ _
-        (nat_trans_eq_pointwise (fibered_term_mor_Q FY _) _) _).
+        (nat_trans_eq_pointwise (term_fun_mor_Q FY _) _) _).
     etrans. apply maponpaths, @pathsinv0, id_left.
     etrans. cbn. apply maponpaths.
       exact (!toforallpaths _ _ _
@@ -351,12 +351,12 @@ Proof.
     etrans. apply maponpaths, @pathsinv0, id_left.
     rewrite id_left.
     exact (!toforallpaths _ _ _
-      (nat_trans_eq_pointwise (fibered_term_mor_Q FY _) _) _).
+      (nat_trans_eq_pointwise (term_fun_mor_Q FY _) _) _).
 Time Qed.
 
 
 Lemma qq_from_fam_mor_unique 
-  {Y : fibered_term_precategory} {Y'} (FY : Y --> Y')
+  {Y : term_fun_precategory} {Y'} (FY : Y --> Y')
   {Z : qq_structure_precategory} {Z'}
   (W : iscompatible_term_qq Y Z)
   (W' : iscompatible_term_qq Y' Z')
@@ -370,16 +370,16 @@ End Unique_QQ_From_Term.
 Section Unique_Term_From_QQ.
 
 Lemma term_from_qq_ob (Z : qq_structure_precategory)
-  : Σ (Y : fibered_term_precategory), iscompatible_term_qq Y Z.
+  : Σ (Y : term_fun_precategory), iscompatible_term_qq Y Z.
 Proof.
   exists (term_from_qq Z).
   apply iscompatible_term_from_qq.
 Defined.
 
-(** The next main goal is the following statement.  However, the construction of the morphism of fibered_term structures is rather large; so we break out the first component (the map of term presheaves) into several independent lemmas, before returning to this in [fam_from_qq_mor] below. *)
+(** The next main goal is the following statement.  However, the construction of the morphism of term_fun structures is rather large; so we break out the first component (the map of term presheaves) into several independent lemmas, before returning to this in [fam_from_qq_mor] below. *)
 Lemma term_from_qq_mor
   {Z : qq_structure_precategory} {Z'} (FZ : Z --> Z')
-  {Y : fibered_term_precategory} {Y'}
+  {Y : term_fun_precategory} {Y'}
   (W : iscompatible_term_qq Y Z)
   (W' : iscompatible_term_qq Y' Z')
   : (Y --> Y').
@@ -387,12 +387,12 @@ Abort.
 
 Lemma term_from_qq_mor_TM_data 
   {Z : qq_structure_precategory} {Z'} (FZ : Z --> Z')
-  {Y : fibered_term_precategory} {Y'}
+  {Y : term_fun_precategory} {Y'}
   (W : iscompatible_term_qq Y Z)
   (W' : iscompatible_term_qq Y' Z')
   : Π Γ,
-    ((TM (Y : fibered_term_structure _ _) : functor _ _) Γ : hSet)
-    -> ((TM (Y' : fibered_term_structure _ _) : functor _ _) Γ : hSet).
+    ((TM (Y : term_fun_structure _ _) : functor _ _) Γ : hSet)
+    -> ((TM (Y' : term_fun_structure _ _) : functor _ _) Γ : hSet).
 Proof.
   intros Γ t; simpl in Γ.
   exact ((Q _ _ : nat_trans _ _) _ (pr1 (term_to_section t) )).
@@ -400,7 +400,7 @@ Defined.
 
 Lemma term_from_qq_mor_TM_naturality 
   {Z : qq_structure_precategory} {Z'} (FZ : Z --> Z')
-  {Y : fibered_term_precategory} {Y'}
+  {Y : term_fun_precategory} {Y'}
   (W : iscompatible_term_qq Y Z)
   (W' : iscompatible_term_qq Y' Z')
   : is_nat_trans (TM _ : functor _ _) _ (term_from_qq_mor_TM_data FZ W W').
@@ -457,22 +457,22 @@ Time Qed.
 
 Definition term_from_qq_mor_TM 
     {Z : qq_structure_precategory} {Z'} (FZ : Z --> Z')
-    {Y : fibered_term_precategory} {Y'}
+    {Y : term_fun_precategory} {Y'}
     (W : iscompatible_term_qq Y Z)
     (W' : iscompatible_term_qq Y' Z')
-  : TM (Y : fibered_term_structure _ _) --> TM (Y' : fibered_term_structure _ _)
+  : TM (Y : term_fun_structure _ _) --> TM (Y' : term_fun_structure _ _)
 := (term_from_qq_mor_TM_data _ _ _,, term_from_qq_mor_TM_naturality FZ W W').
 
 Lemma term_from_qq_mor
   {Z : qq_structure_precategory} {Z'} (FZ : Z --> Z')
-  {Y : fibered_term_precategory} {Y'}
+  {Y : term_fun_precategory} {Y'}
   (W : iscompatible_term_qq Y Z)
   (W' : iscompatible_term_qq Y' Z')
   : (Y --> Y').
 Proof.
   simpl in W, W'; unfold iscompatible_term_qq in W, W'. (* Readability *)
-  simpl in Y, Y'.  (* To avoid needing casts [Y : fibered_term_structure _]. *)
-  simpl; unfold fibered_term_mor.
+  simpl in Y, Y'.  (* To avoid needing casts [Y : term_fun_structure _]. *)
+  simpl; unfold term_fun_mor.
   exists (term_from_qq_mor_TM FZ W W').
   apply dirprodpair; try intros Γ A; apply nat_trans_eq; cbn.
   - apply has_homsets_HSET.
@@ -514,12 +514,12 @@ Time Qed.
 
 Lemma term_from_qq_mor_unique 
   {Z : qq_structure_precategory} {Z'} (FZ : Z --> Z')
-  {Y : fibered_term_precategory} {Y'}
+  {Y : term_fun_precategory} {Y'}
   (W : iscompatible_term_qq Y Z)
   (W' : iscompatible_term_qq Y' Z')
   : isaprop ( Y --> Y').
 Proof.
-  simpl. apply isaprop_fibered_term_mor.
+  simpl. apply isaprop_term_fun_mor.
 Defined.
 
 End Unique_Term_From_QQ.
@@ -585,27 +585,27 @@ Section Is_Category_Families_Strucs.
 
 
 Definition iso_to_TM_eq
-  (Y Y' : fibered_term_precategory)
+  (Y Y' : term_fun_precategory)
   : iso Y Y' 
-  -> TM (Y : fibered_term_structure _ X) = TM (Y' : fibered_term_structure _ X).
+  -> TM (Y : term_fun_structure _ X) = TM (Y' : term_fun_structure _ X).
 Proof.
   intro i.
   use isotoid.
   - apply category_is_category.
-  - exists (fibered_term_mor_TM (i : _ --> _)).
+  - exists (term_fun_mor_TM (i : _ --> _)).
     apply is_iso_from_is_z_iso.
-    exists (fibered_term_mor_TM (inv_from_iso i)).
+    exists (term_fun_mor_TM (inv_from_iso i)).
     split.
-    + exact (maponpaths fibered_term_mor_TM (iso_inv_after_iso i)).
-    + exact (maponpaths fibered_term_mor_TM (iso_after_iso_inv i)).
+    + exact (maponpaths term_fun_mor_TM (iso_inv_after_iso i)).
+    + exact (maponpaths term_fun_mor_TM (iso_after_iso_inv i)).
 Defined.
 
 Lemma prewhisker_iso_to_TM_eq 
-  {Y Y' : fibered_term_precategory}
+  {Y Y' : term_fun_precategory}
   (FG : iso Y Y')
-  {P : preShv C} (α : TM (Y : fibered_term_structure _ X) --> P)
+  {P : preShv C} (α : TM (Y : term_fun_structure _ X) --> P)
 : transportf (λ P' : preShv C, P' --> P) (iso_to_TM_eq  _ _ FG) α
-  = fibered_term_mor_TM (*pr1 (pr2 FG)*) (inv_from_iso FG) ;; α.
+  = term_fun_mor_TM (*pr1 (pr2 FG)*) (inv_from_iso FG) ;; α.
 Proof.
   etrans. apply transportf_isotoid.
   apply maponpaths_2.
@@ -613,36 +613,36 @@ Proof.
 Qed.
 
 Lemma postwhisker_iso_to_TM_eq 
-  {Y Y' : fibered_term_precategory}
+  {Y Y' : term_fun_precategory}
   (FG : iso Y Y')
-  {P : preShv C} (α : P --> TM (Y : fibered_term_structure _ X))
+  {P : preShv C} (α : P --> TM (Y : term_fun_structure _ X))
 : transportf (λ P' : preShv C, P --> P') (iso_to_TM_eq _ _ FG) α
-  = α ;; fibered_term_mor_TM (pr1 FG).
+  = α ;; term_fun_mor_TM (pr1 FG).
 Proof.
   apply postwhisker_isotoid.
 Qed.
 
-Definition iso_to_id_fibered_term_precategory
-  (Y Y' : fibered_term_precategory)
+Definition iso_to_id_term_fun_precategory
+  (Y Y' : term_fun_precategory)
   : iso Y Y' -> Y = Y'.
 Proof.
   intros i.
-  apply subtypeEquality. { intro. apply isaprop_fibered_term_structure_axioms. }
+  apply subtypeEquality. { intro. apply isaprop_term_fun_structure_axioms. }
   apply total2_paths with (iso_to_TM_eq _ _ i).
   etrans. refine (transportf_dirprod _ _ _ _ _ _).
   apply dirprodeq; simpl.
   - etrans. apply prewhisker_iso_to_TM_eq.
-    apply fibered_term_mor_pp. 
+    apply term_fun_mor_pp. 
   - etrans. refine (transportf_forall _ _ _).
     apply funextsec; intros Γ.
     etrans. refine (transportf_forall _ _ _).
     apply funextsec; intros A.
     etrans. refine (postwhisker_iso_to_TM_eq i (Q _ _)).
-    apply fibered_term_mor_Q.
+    apply term_fun_mor_Q.
 Qed.
 
-Lemma has_homsets_fibered_term_precategory
-  : has_homsets fibered_term_precategory.
+Lemma has_homsets_term_fun_precategory
+  : has_homsets term_fun_precategory.
 Proof.
   intros a b.
   apply isaset_total2.
@@ -652,13 +652,13 @@ Proof.
   repeat (apply impred_isaprop; intro). apply homset_property.
 Qed.
 
-Theorem is_category_fibered_term_structure
-  : is_category fibered_term_precategory.
+Theorem is_category_term_fun_structure
+  : is_category term_fun_precategory.
 Proof.
   split.
-  - apply eq_equiv_from_retraction with iso_to_id_fibered_term_precategory.
-    intros. apply eq_iso. apply isaprop_fibered_term_mor.
-  - apply has_homsets_fibered_term_precategory. 
+  - apply eq_equiv_from_retraction with iso_to_id_term_fun_precategory.
+    intros. apply eq_iso. apply isaprop_term_fun_mor.
+  - apply has_homsets_term_fun_precategory. 
 Qed.
 
 End Is_Category_Families_Strucs.
@@ -752,7 +752,7 @@ Lemma has_homsets_compat_structures_precategory
 Proof.
   intros a b.  
   apply isasetdirprod. 
-  - apply has_homsets_fibered_term_precategory.
+  - apply has_homsets_term_fun_precategory.
   - apply has_homsets_qq_structure_precategory. 
 Qed.
 
@@ -774,21 +774,21 @@ Definition pr1_equiv_inv : adj_equivalence_of_precats (right_adjoint pr1_equiv).
 Proof.
   use adj_equivalence_of_precats_inv.
   - apply has_homsets_compat_structures_precategory.
-  - apply has_homsets_fibered_term_precategory.
+  - apply has_homsets_term_fun_precategory.
 Defined.
 
 Definition equiv_of_structures : adj_equivalence_of_precats _ 
   := @comp_adj_equivalence_of_precats _ _ _ 
-       has_homsets_fibered_term_precategory
+       has_homsets_term_fun_precategory
        has_homsets_compat_structures_precategory
        has_homsets_qq_structure_precategory
        _ _ pr1_equiv_inv pr2_equiv.
 
 Definition equiv_of_types_of_structures 
-  : fibered_term_precategory ≃ qq_structure_precategory.
+  : term_fun_precategory ≃ qq_structure_precategory.
 Proof.
   use (weq_on_objects_from_adj_equiv_of_cats _ _
-           is_category_fibered_term_structure
+           is_category_term_fun_structure
            is_category_qq_morphism
            _
            equiv_of_structures).

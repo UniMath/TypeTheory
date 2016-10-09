@@ -110,7 +110,7 @@ Definition icwf_structure := Σ (pp : mor_total (preShv C)), comp pp.
 *)
 
 Definition weq_comp_fam_data : 
- (Σ X : obj_ext_structure C, fibered_term_structure_data C X)
+ (Σ X : obj_ext_structure C, term_fun_structure_data C X)
    ≃ 
  Σ pp : mor_total (preShv C), comp_data pp.
 Proof.
@@ -123,7 +123,7 @@ Proof.
   apply weqfibtototal.
   intro Ty.
   eapply weqcomp. apply weqfibtototal. intro depr.
-    set (XR := @weqtotal2asstol). unfold fibered_term_structure_data.
+    set (XR := @weqtotal2asstol). unfold term_fun_structure_data.
     specialize (XR (preShv C)
                    (fun x =>  x --> TY (Ty,, depr))). simpl in XR.
     specialize (XR (fun Tmp =>  Π (Γ : C^op) (A : (TY (Ty,, depr):functor _ _ ) Γ : hSet), 
@@ -150,8 +150,8 @@ Proof.
     apply XR.
   eapply weqcomp.
     set (XR:= @weqtotal2asstol (obj_ext_structure C) 
-                               (fun X => fibered_term_structure_data C X) ).
-    specialize (XR (fun XY => fibered_term_structure_axioms C (pr1 XY) (pr2 XY))).
+                               (fun X => term_fun_structure_data C X) ).
+    specialize (XR (fun XY => term_fun_structure_axioms C (pr1 XY) (pr2 XY))).
     apply XR.
   use weqbandf.
   - apply weq_comp_fam_data.

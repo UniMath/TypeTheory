@@ -8,7 +8,7 @@ Contents
 We give a per-file overview of the contents of this package:
 
 * *CwF_SplitTypeCat_Defs.v*
-  * Definition of fibered_term structures and split type structures in terms of smaller structures
+  * Definition of term_fun structures and split type structures in terms of smaller structures
 * *CwF_SplitTypeCat_Maps.v*
   * Construction of maps between cartesian generator structures and cartesian q-morphisms structures
 * *CwF_SplitTypeCat_Equivalence.v*
@@ -19,7 +19,7 @@ We give a per-file overview of the contents of this package:
   * Definition of relative universes
   * Transfer of relative universes along functors
 * *CwF_RelUnivYoneda.v*
-  * Construction of an equivalence of types between fibered_term structures and relative universes on Yoneda
+  * Construction of an equivalence of types between term_fun structures and relative universes on Yoneda
 * *RelUnivYonedaCompletion.v*
   * Instantiation of the hypotheses of transfer of relative universes to Yoneda
 * *Summary.v*
