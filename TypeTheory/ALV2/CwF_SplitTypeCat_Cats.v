@@ -186,8 +186,8 @@ Arguments obj_ext_Precat _ : clear implicits.
 Local Notation φ := obj_ext_mor_φ.
 
 
-(** * Precategory of fibered term-structures *)
-Section Fibered_Term_Structure_Precat.
+(** * Precategory of functional term structures *)
+Section Term_Fun_Structure_Precat.
 
 Context {C : Precategory}.
 
@@ -349,7 +349,7 @@ Definition term_fun_disp_precat : disp_precat (obj_ext_Precat C)
 Definition term_fun_structure_precat : precategory
   := total_precat term_fun_disp_precat.
 
-End Fibered_Term_Structure_Precat.
+End Term_Fun_Structure_Precat.
 
 Arguments term_fun_disp_precat _ : clear implicits.
 Arguments term_fun_structure_precat _ : clear implicits.

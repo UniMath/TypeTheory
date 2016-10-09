@@ -39,7 +39,7 @@ Variable X : obj_ext_structure C.
 
 
 (** * Precategory of term_fun-structures *)
-Section Fibered_Term_Structure_Precat.
+Section Term_Fun_Structure_Precat.
 
 (* TODO: this should be called differently.
          term_fun is the name of Sigma obj-ext plus this
@@ -184,7 +184,7 @@ Proof.
   repeat (apply impred_isaprop; intro). apply homset_property.
 Qed.
 
-End Fibered_Term_Structure_Precat.
+End Term_Fun_Structure_Precat.
 
 (** * Precategory of cartesian _q_-morphism-structures *)
 Section qq_Structure_Precat.
