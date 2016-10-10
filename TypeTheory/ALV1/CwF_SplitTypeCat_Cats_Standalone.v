@@ -352,7 +352,7 @@ Proof.
 Time Qed.
 
 
-Lemma qq_from_fam_mor_unique 
+Lemma qq_from_term_mor_unique 
   {Y : term_fun_precategory} {Y'} (FY : Y --> Y')
   {Z : qq_structure_precategory} {Z'}
   (W : iscompatible_term_qq Y Z)
@@ -373,7 +373,7 @@ Proof.
   apply iscompatible_term_from_qq.
 Defined.
 
-(** The next main goal is the following statement.  However, the construction of the morphism of term structures is rather large; so we break out the first component (the map of term presheaves) into several independent lemmas, before returning to this in [fam_from_qq_mor] below. *)
+(** The next main goal is the following statement.  However, the construction of the morphism of term structures is rather large; so we break out the first component (the map of term presheaves) into several independent lemmas, before returning to this in [term_from_qq_mor] below. *)
 Lemma term_from_qq_mor
   {Z : qq_structure_precategory} {Z'} (FZ : Z --> Z')
   {Y : term_fun_precategory} {Y'}
@@ -546,7 +546,7 @@ Proof.
   - intros. cbn. destruct x as [f q]. cbn.
     apply maponpaths. 
     apply proofirrelevance.
-    use (qq_from_fam_mor_unique f); assumption. 
+    use (qq_from_term_mor_unique f); assumption. 
   - intros y. cbn. apply idpath.
 Qed.
 

@@ -43,16 +43,16 @@ Context {C : Precategory}.
 (** * Equivalence of types of term-structures and _q_-morphism structures, constructed categorically *)
 Section Equiv_of_Types_from_Cats.
 
-Definition fam_struc_to_qq_struc_equiv_types (X : obj_ext_Precat C)
+Definition term_struc_to_qq_struc_equiv_types (X : obj_ext_Precat C)
   : term_fun_structure C X ≃ qq_morphism_structure X.
 Proof.
   refine (weq_on_objects_from_adj_equiv_of_cats _ _ _ _ _ 
-         (fam_struc_to_qq_struc_is_equiv _)).
+         (term_struc_to_qq_struc_is_equiv _)).
   - apply is_category_fiber, is_category_term_fun_structure.
   - apply is_category_fiber, is_category_qq_morphism.
 Defined.
 
-(* Print Assumptions fam_struc_to_qq_struc_equiv_types. *)
+(* Print Assumptions term_struc_to_qq_struc_equiv_types. *)
 
 End Equiv_of_Types_from_Cats.
 
@@ -63,8 +63,8 @@ Context (X : obj_ext_Precat C).
  
 
 
-Theorem compare_fam_qq_equivs
-  : fam_struc_to_qq_struc_equiv_types X = weq_CwF_SplitTypeCat X.
+Theorem compare_term_qq_equivs
+  : term_struc_to_qq_struc_equiv_types X = weq_CwF_SplitTypeCat X.
 Proof.
   apply eq_weq, idpath.
 Defined.

@@ -109,7 +109,7 @@ Definition icwf_structure := Σ (pp : mor_total (preShv C)), comp pp.
     [weqtotal2dirprodassoc] and [weqtotal2dirprodassoc']
 *)
 
-Definition weq_comp_fam_data : 
+Definition weq_comp_cwf_data : 
  (Σ X : obj_ext_structure C, term_fun_structure_data C X)
    ≃ 
  Σ pp : mor_total (preShv C), comp_data pp.
@@ -154,7 +154,7 @@ Proof.
     specialize (XR (fun XY => term_fun_structure_axioms C (pr1 XY) (pr2 XY))).
     apply XR.
   use weqbandf.
-  - apply weq_comp_fam_data.
+  - apply weq_comp_cwf_data.
   - intro x.
     apply weqonsecfibers.
     intro. 

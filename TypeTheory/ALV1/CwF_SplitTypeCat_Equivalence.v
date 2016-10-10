@@ -361,7 +361,7 @@ Proof.
     apply idweq.
 Defined.
 
-Definition forget_fam :
+Definition forget_compat_term :
   T2 ≃ qq_morphism_structure X.
 Proof.
   exists pr1.
@@ -370,7 +370,7 @@ Proof.
   apply iscontr_compatible_term_structure.
 Defined.
 
-Definition forget_comp :
+Definition forget_compat_qq :
   T1 ≃ term_fun_structure C X.
 Proof.
   exists pr1.
@@ -382,10 +382,10 @@ Defined.
 Definition weq_CwF_SplitTypeCat : term_fun_structure C X ≃ qq_morphism_structure X.
 Proof.
   eapply weqcomp.
-    eapply invweq. apply forget_comp.
+    eapply invweq. apply forget_compat_qq.
   eapply weqcomp.
     apply shuffle.
-  apply forget_fam.
+  apply forget_compat_term.
 Defined.
 
 End Equivalence.
