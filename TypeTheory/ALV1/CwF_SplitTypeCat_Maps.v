@@ -29,7 +29,7 @@ Local Notation Δ := comp_ext_compare.
 
 (** * Definition of compatibility
 
-We define what it means for a term_fun-structure and a _q_-morphism structure to be _compatible_. *)
+We define _compatibility_ between a term-structure and a _q_-morphism structure, as a commutativity condition between the _q_-morphisms and the maps _Q_ of the term-structure.  *)
 
 Section Compatible_Structures.
 
@@ -56,7 +56,7 @@ End Compatible_Structures.
 
 (** ** Misc lemmas *)
 
-(* TODO: find more logical home for this below, once file is cleaned up a bit. *)
+(* TODO: find more natural home for this *)
 Lemma map_from_term_recover
     {Y} {Z} (W : iscompatible_term_qq Y Z)
     {Γ' Γ : C} {A : Ty X Γ} (f : Γ' --> Γ ◂ A)
@@ -82,13 +82,17 @@ Proof.
     apply term_to_section_recover.
 Time Qed.
 
-(** * Defining a (compatible) term structure, given a _q_-morphism structure 
+(** * Term-structures from _q_-morphism structures
 
-Key definitions: [fam_from_qq], [iscompatible_fam_from_qq] *)
+Given a _q_-morphism structure, we construct from it a (compatible) term structure: its terms are just the _sections_ of the projection maps, and its _Q_-maps are constructed from the _q_-morphisms.
+
+Key definitions: [term_from_qq], [iscompatible_term_from_qq] *)
 
 Section compatible_term_structure_from_qq.
 
 Variable Z : qq_morphism_structure X.
+
+(** ** Definition of the presheaf of terms *)
 
 Definition tm_from_qq_carrier (Γ : C) : UU :=
   Σ A : Ty X Γ,
@@ -145,7 +149,7 @@ Proof.
   exact es.
 Qed.
 
-(** A useful more specialised case of equality on terms. *)
+(* A useful more specialised case of equality on terms. *)
 
 Lemma tm_from_qq_eq' {Γ : C} (A : Ty X Γ)
   {Γ'} {f f' : Γ' --> Γ} (e_ff' : f = f')
@@ -228,6 +232,7 @@ Definition pp_from_qq : preShv C ⟦tm_from_qq, TY X⟧
 
 Arguments pp_from_qq : simpl never.
 
+(** ** Definition of the _Q_-maps *)
 Section Q_from_qq.
 
 Variable Γ : C.
@@ -371,6 +376,8 @@ Arguments Q_from_qq { _ } _ : simpl never.
 Arguments tm_from_qq : simpl never.
 Arguments pp_from_qq : simpl never.
 
+(** ** Assembly into a compatible term-structure *)
+
 Definition term_from_qq : term_fun_structure C X.
 Proof.
   mkpair.
@@ -437,7 +444,9 @@ Arguments tm_from_qq : simpl never.
 Arguments pp_from_qq : simpl never.
 Arguments tm_from_qq_functor_mor : simpl never.
 
-(** * Defining a (compatible) _q_-morphism structure, given a term structure *)
+(** * Defining a (compatible) _q_-morphism structure, given a term structure
+
+Key definitions: [qq_from_term], [iscompatible_qq_from_term] *)
 
 Section compatible_comp_structure_from_term.
 
@@ -449,7 +458,12 @@ Variables Γ Γ' : C.
 Variable f : C⟦Γ', Γ⟧.
 Variable A : Ty X Γ.
 
+(* TODO: use access functions! *)
 Let Xk := mk_Pullback _ _ _ _ _ (pr1 (pr2 Y Γ A)) (pr2 (pr2 Y Γ A)).
+
+(** ** Groundwork in presheaves
+
+We first construct maps of presheaves that will be the image of the _q_-morphisms under the Yoneda embedding. *)
 
 Definition Yo_of_qq : _ ⟦Yo (Γ' ◂ A[f]), Yo (Γ ◂ A) ⟧.
 Proof.
@@ -494,6 +508,7 @@ Proof.
     apply (pr2 (pr2 Y _ _ )).
 Qed.
 
+(** ** Construction of the _q_-morphisms *)
 Definition qq_term :  _ ⟦Γ' ◂ A[f] , Γ ◂ A⟧.
 Proof.
   apply (invweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
@@ -529,6 +544,8 @@ Proof.
 Qed.
 
 End qq_from_term.
+
+(** ** Assembly into a compatible _q_-morphism structure. *)
 
 Definition qq_from_term_data : qq_morphism_data X.
 Proof.

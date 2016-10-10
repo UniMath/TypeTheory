@@ -38,12 +38,8 @@ Variable C : Precategory.
 Variable X : obj_ext_structure C.
 
 
-(** * Precategory of term_fun-structures *)
+(** * Precategory of term-structures *)
 Section Term_Fun_Structure_Precat.
-
-(* TODO: this should be called differently.
-         term_fun is the name of Sigma obj-ext plus this
-*)
 
 Definition term_fun_mor 
     (Y Y' : term_fun_structure C X) 

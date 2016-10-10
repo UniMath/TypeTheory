@@ -40,7 +40,7 @@ Section Fix_Context.
 
 Context {C : Precategory}.
 
-(** * Equivalence of types of term_fun- and qq-structures, constructed categorically *)
+(** * Equivalence of types of term-structures and _q_-morphism structures, constructed categorically *)
 Section Equiv_of_Types_from_Cats.
 
 Definition fam_struc_to_qq_struc_equiv_types (X : obj_ext_Precat C)

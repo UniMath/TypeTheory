@@ -61,7 +61,7 @@ Proof.
   use tpair.
   - intros XYZ. exact (iscompatible_term_qq (pr1 (pr2 XYZ)) (pr2 (pr2 XYZ))).
   - simpl; intros; exact unit.
-    (* For a given map of object-extension structures, a lifting to a map of either term_fun-structures or _q_-morphism structues is essentially unique; so there is no extra compatibility condition required here on maps. *)
+    (* For a given map of object-extension structures, a lifting to a map of either term-structures or _q_-morphism structues is essentially unique; so there is no extra compatibility condition required here on maps. *)
 Defined.
 
 Definition strucs_compat_id_comp
@@ -370,12 +370,12 @@ Defined.
 
 End Unique_Term_From_QQ.
 
-(** We show, in this section, that the (non-displayed) projection functors from the (total) precategory of compatible-pairs-of-structures on C to the precategories of qq-structures and of term_fun-structures are each equivalences. 
+(** We show, in this section, that the (non-displayed) projection functors from the (total) precategory of compatible-pairs-of-structures on C to the precategories of _q_-morphism structures and of term-structures are each equivalences. 
 
 TODO: scrap this section, and recover it from the displayed version. *) 
 Section Strucs_Equiv_Precats.
 
-(* TODO: could strengthen to “explicitly essentially surjective” *)
+(* TODO: strengthen to “split essentially surjective” *)
 Lemma compat_structures_pr1_ess_surj
   : essentially_surjective (compat_structures_pr1_functor).
 Proof.

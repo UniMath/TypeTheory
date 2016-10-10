@@ -7,7 +7,7 @@ In this file, we give the definitions of _split type-categories_ (originally due
 To facilitate comparing them afterwards, we split up their definitions in a slightly unusual way, starting with the part they share.  The key definitions of this file are therefore (all over a fixed base (pre)category [C]):  
 
 - _object-extension structures_, [obj_ext_structure], the common core of CwF’s and split type-categories;
-- _(functional) term structures_, [term_fun_structure], the rest of the structure of a CwF on [C];
+- (_functional) term structures_, [term_fun_structure], the rest of the structure of a CwF on [C];
 - _cwf-structures_, [cwf_structure], the full structure of a CwF on a precategory [C]; 
 - _CwF’s_, [cwf]; 
 - _q-morphism structures_, [qq_morphism_structure], for rest of the structure of a split type-category on [C];
@@ -29,7 +29,7 @@ Set Automatic Introduction.
 
 (** * Object-extension structures 
 
-We start by fixing the common core of families structures and split type-category structures: an _object-extension structure_, a presheaf together with “extension” and “dependent projection” operations.
+We start by fixing the common core of families structures and split type-category structures: an _object-extension structure_, a presheaf of “types” together with “extension” and “dependent projection” operations.
 
 Components of [X : obj_ext_structure C]:
 
@@ -113,7 +113,7 @@ Arguments obj_ext_structure _ : clear implicits.
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
 
-(** The definitions of term structures and split type-category structures will all be relative to a fixed object-extension structure. *)
+(** The definitions of term structures and split type-category structures will all be relative to a fixed base category and object-extension structure. *)
 
 Section Families_Structures.
 
@@ -123,7 +123,7 @@ Context {C : Precategory} {X : obj_ext_structure C}.
 
 We now define the extra structure, over an object-extension structure, which constitutes a _category with families_ in the sense of Fiore, _Algebraic Type Theory_, 2008 #(<a href="http://www.cl.cam.ac.uk/~mpf23/Notes/att.pdf">link</a>)#, a reformulation of Dybjer’s original definition, replacing the functor [C --> FAM] with an arrow in [preShv C].
 
-We call this _term structure_, or a _functional_ term structure when necessary to disambiguate from Dybjer-style _familial_ term structures[term_fun].
+We call this _term structure_, or a _functional_ term structure [term_fun] when necessary to disambiguate from Dybjer-style _familial_ term structures.
 
 Components of [Y : term_fun_structure X]:
 
@@ -362,7 +362,7 @@ Arguments qq_morphism_structure [_] _ : clear implicits.
 
 (** * CwF’s, split type-categories *)
 
-(** Details and documentation of these definitions, are given with [term_fun_structure] and [qq_morphism_structure] above. *)
+(** Details and documentation of these definitions are given with [term_fun_structure] and [qq_morphism_structure] above. *)
 
 Definition cwf_structure (C : Precategory) : UU 
 := Σ X : obj_ext_structure C, term_fun_structure C X.
