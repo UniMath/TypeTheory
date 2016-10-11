@@ -1,8 +1,10 @@
+(**
+  [TypeTheory.ALV1.CwF_RelUnivYoneda]
+
+  Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
+*)
 
 (**
-
- Ahrens, Lumsdaine, Voevodsky, 2015 - 2016
-
 Contents:
 
 - Main result: an equivalence [weq_RelUnivYo_CwF]

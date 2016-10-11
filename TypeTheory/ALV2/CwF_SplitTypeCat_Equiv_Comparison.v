@@ -1,8 +1,14 @@
+(**
+  [TypeTheory.ALV2.CwF_SplitTypeCat_Equiv_Comparison]
 
+  Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
+*)
 
-(* This file compares two equivalences:
-- the one given directly, in [CwF_SplitTypeCat_Equivalence]
-- the one provided in [CwF_SplitTypeCat_Equiv_Cats]
+(** This file compares the two equivalences constructed between the types of term structures and _q_-morphism structures over a given object-extension structure:
+- one given directly, in [CwF_SplitTypeCat_Equivalence]
+- one deduced from an equivalence of categories, in [CwF_SplitTypeCat_Equiv_Cats]
+
+Main result: [compare_term_qq_equivs].
 *)
 
 
@@ -61,8 +67,6 @@ Section Compare_Equivs_of_Types.
 
 Context (X : obj_ext_Precat C).
  
-
-
 Theorem compare_term_qq_equivs
   : term_struc_to_qq_struc_equiv_types X = weq_CwF_SplitTypeCat X.
 Proof.

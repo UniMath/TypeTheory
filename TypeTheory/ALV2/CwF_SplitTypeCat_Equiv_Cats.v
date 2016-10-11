@@ -1,8 +1,7 @@
-
 (**
+  [TypeTheory.ALV2.CwF_SplitTypeCat_Equiv_Cats]
 
- Ahrens, Lumsdaine, Voevodsky, 2015 - 2016
-
+  Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
 
 Require Import UniMath.Foundations.Basics.Sets.

@@ -1,4 +1,8 @@
+(**
+  [TypeTheory.Auxiliary.CategoryTheoryImports]
 
+  Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
+*)
 
 (** A wrapper, re-exporting the modules from [UniMath] that we frequently use, to reduce clutter in imports. *)
 

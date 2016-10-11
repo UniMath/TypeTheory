@@ -1,6 +1,10 @@
 (**
+  [TypeTheory.ALV1.CwF_SplitTypeCat_Defs]
 
-Ahrens, Lumsdaine, Voevodsky, 2015 - 2016
+  Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
+*)
+
+(**
 
 In this file, we give the definitions of _split type-categories_ (originally due to Cartmell, here following a version given by Pitts) and _categories with families_ (originally due to Dybjer, here following a formulation given by Fiore).
 

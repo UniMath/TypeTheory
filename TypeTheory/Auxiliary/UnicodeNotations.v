@@ -1,3 +1,8 @@
+(**
+  [TypeTheory.Auxiliary.UnicodeNotations]
+
+  Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
+*)
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.

@@ -1,7 +1,10 @@
+(**
+  [TypeTheory.Auxiliary.Auxiliary]
+
+  Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
+*)
 
 (** 
-
- Ahrens, Lumsdaine, Voevodsky 2015
 
 Auxiliary background lemmas for the Ahrens/Lumsdaine/Voevodsky “Systems” project.  
 Possibly some should be upstreamed to “UniMath” eventually.

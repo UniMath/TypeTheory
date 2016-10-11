@@ -1,8 +1,7 @@
-
 (**
+  [TypeTheory.ALV1.RelUnivYonedaCompletion]
 
- Ahrens, Lumsdaine, Voevodsky, 2015 - 2016
-
+  Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
 
 (** This file provides the result: given a universe in [preShv C] relative to the Yoneda embedding [ Yo : C -> preShv C ], this transfers to a similar relative universe in [ preShv (RC C) ]. i.e. on the Rezk-completion of [C]. *)

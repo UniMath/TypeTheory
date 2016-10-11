@@ -1,7 +1,10 @@
+(**
+  [TypeTheory.ALV1.RelativeUniverses]
+
+  Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
+*)
 
 (**
-
- Ahrens, Lumsdaine, Voevodsky, 2015 - 2016
 
 Contents:
 
