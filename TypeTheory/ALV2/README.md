@@ -1,11 +1,13 @@
 Package *ALV2*
 ===================================================
 
+Authors: Benedikt Ahrens, Peter LeFanu Lumsdaine, Vladimir Voevodsky
+
 
 Contents
 --------
 
-We give a per-file overview of the contents of this package:
+The files of this package provide:
 
 * *CwF_SplitTypeCat_Cats.v*
   * Definition of displayed categories of term structures and *q*-morphism structures

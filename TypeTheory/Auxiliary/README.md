@@ -1,11 +1,13 @@
 Package *Auxiliary*
 ===================================================
 
+Authors: Benedikt Ahrens, Peter LeFanu Lumsdaine, Vladimir Voevodsky
+
 
 Contents
 --------
 
-We give a per-file overview of the contents of this package:
+The files of this package provide:
 
 * *Auxiliary.v*
   * Some complementary definitions and results that might be upstreamed into UniMath/UniMath

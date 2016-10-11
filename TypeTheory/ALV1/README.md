@@ -1,6 +1,8 @@
 Package *ALV1*
 ===================================================
 
+Authors: Benedikt Ahrens, Peter LeFanu Lumsdaine, Vladimir Voevodsky
+
 
 Contents
 --------
