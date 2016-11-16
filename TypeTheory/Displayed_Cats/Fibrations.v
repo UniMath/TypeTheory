@@ -347,6 +347,47 @@ Proof.
   apply (pair_inj (isaset_fiber_discrete_fibration _ _ ) foo).
 Defined.
 
+Definition fibration_from_discrete_fibration C (D : discrete_fibration C)
+  : is_fibration D.
+Proof.
+  intros c c' f d.
+  mkpair.
+  - exact (pr1 (iscontrpr1 (unique_lift f d))).
+  - mkpair.
+    + exact (pr2 (iscontrpr1 (unique_lift f d))).
+    + intros c'' g db hh.
+      set (ff := pr2 (iscontrpr1 (unique_lift f d))  ). cbn in ff.
+      set (d' := pr1 (iscontrpr1 (unique_lift f d))) in *.
+      set (ggff := pr2 (iscontrpr1 (unique_lift (g;;f) d))  ). cbn in ggff.
+      set (d'' := pr1 (iscontrpr1 (unique_lift (g;;f) d))) in *.
+      set (gg := pr2 (iscontrpr1 (unique_lift g d'))). cbn in gg.
+      set (d3 := pr1 (iscontrpr1 (unique_lift g d'))) in *. 
+      assert (XR : ((d'',, ggff) : Σ r, r -->[g;;f] d) = (db,,hh)).
+      { apply proofirrelevance. apply isapropifcontr. apply (pr2 D). }
+      assert (XR1 : ((d'',, ggff) : Σ r, r -->[g;;f] d) = (d3 ,,gg;;ff)).
+      { apply proofirrelevance. apply isapropifcontr. apply (pr2 D). }      
+      assert (XT := maponpaths pr1 XR). cbn in XT.
+      assert (XT1 := maponpaths pr1 XR1). cbn in XT1.
+      generalize XR.
+      generalize XR1; clear XR1.
+      destruct XT.
+      generalize gg; clear gg.
+      destruct XT1.
+      intros gg XR1 XR0.
+      apply iscontraprop1.
+      * apply invproofirrelevance.
+        intros. apply subtypeEquality.
+        { intro. apply homsets_disp. }
+        apply disp_mor_unique_disc_fib.
+      * exists gg.
+        cbn. 
+        assert (XX := pair_inj (isaset_fiber_discrete_fibration _ _ ) XR1).
+        assert (YY := pair_inj (isaset_fiber_discrete_fibration _ _ ) XR0).
+        etrans. apply (!XX). apply YY.
+Defined.
+
+
+
 Section Equivalence_disc_fibs_presheaves.
 
 (* GOAL: correspondence between discrete fibrations and presheaves.
