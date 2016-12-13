@@ -326,7 +326,7 @@ Proof.
       etrans. Focus 2. apply id_left.
       apply cancel_postcomposition.
       etrans. apply cancel_postcomposition. apply functor_on_inv_from_iso.
-      assert (XR := triangle_id_right_ad _ _ _ GG).
+      assert (XR := triangle_id_right_ad (pr2 (pr1 GG))).
       simpl in XR.
       unfold ηinv. simpl.
       match goal with |[|- inv_from_iso ?e ;; inv_from_iso ?f = _ ] =>
@@ -419,8 +419,8 @@ Proof.
     The second is completely dual: the same steps in the same order, only with pre- and post-composition switched.
 *)
   - intro a.
-    assert (T1 := triangle_id_left_ad _ _ _ adF a).
-    assert (T1' := triangle_id_left_ad _ _ _ adF' (F a)).
+    assert (T1 := triangle_id_left_ad  (pr2 adF) a).
+    assert (T1' := triangle_id_left_ad (pr2 adF') (F a)).
     (* Burrow in to get to the naturality. *)
     etrans.
     + etrans. apply assoc.
@@ -438,8 +438,8 @@ Proof.
         apply id_left.
       * apply T1'.
   - intro c.
-    assert (T2 := triangle_id_right_ad _ _ _ adF (G' c)).
-    assert (T2' := triangle_id_right_ad _ _ _ adF' c).
+    assert (T2 := triangle_id_right_ad (pr2 adF) (G' c)).
+    assert (T2' := triangle_id_right_ad (pr2 adF') c).
     (* Burrow in to get to the naturality. *)
     etrans.
     + etrans. apply @pathsinv0, assoc.
@@ -524,7 +524,7 @@ Proof.
         apply pathsinv0. 
         etrans. apply assoc.
         etrans. apply id_right.
-        assert (XR := triangle_id_right_ad _ _ _ adEquivF).
+        assert (XR := triangle_id_right_ad (pr2 (pr1 adEquivF))).
         apply XR.
   - intro a.
     apply (pre_comp_with_iso_is_inj _ _ _ _ (((pr1 εiso : nat_trans _ _ ) _))).
