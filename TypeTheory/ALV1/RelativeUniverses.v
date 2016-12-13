@@ -23,7 +23,7 @@ Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Set Automatic Introduction.
 
-Local Notation "[ C , D ]" := (functorPrecategory C D).
+Local Notation "[ C , D ]" := (functor_Precategory C D).
 
 (** * Relative comprehension structures *)
 

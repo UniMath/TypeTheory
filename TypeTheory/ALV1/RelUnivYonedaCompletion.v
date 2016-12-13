@@ -16,7 +16,7 @@ Set Automatic Introduction.
 
 (** * Instantiating the data and hypotheses of transfer of relative universes to Yoneda *)
 
-Local Notation "[ C , D ]" := (functorPrecategory C D).
+Local Notation "[ C , D ]" := (functor_Precategory C D).
 
 Section fix_category.
 
