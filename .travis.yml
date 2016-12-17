@@ -4,7 +4,7 @@ dist:           trusty
 before_install: 
   - sudo apt-get update -qq
 install:
-  - sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers camlp4-extra time camlp5
+  - sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers camlp4-extra time camlp5 ocaml-findlib
 before_script:
   - WPATH=$PWD
   - cd ..        
