@@ -266,9 +266,11 @@ Proof.
     apply weqdirprodcomm.
     
     eapply weqcomp. 
-      refine (weqtotal2asstol _ _ ).
-        intro H. eapply (isweq f).
-    
+      use (@weqtotal2asstol 
+             (Π a : pr1 (pr1 A), C ⟦ pr2 (pr1 A) a, pr2 (pr1 B) (f a) ⟧) 
+             (fun x0 => (Π a : pr1 (pr1 A), is_iso (x0 a))) 
+             (fun y0 => isweq f) 
+          ). 
     eapply weqcomp.
        apply weqdirprodcomm.
     apply invweq.   
@@ -276,8 +278,6 @@ Proof.
        apply weqdirprodcomm.
      apply weqfibtototal.
      intro T.
-
-     (* Search ( (Π _ , _ ) ≃ (Σ _ , _ )). *)
      apply weqforalltototal.
 Defined.
   

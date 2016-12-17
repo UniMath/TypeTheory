@@ -17,7 +17,7 @@ Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
 Open Scope mor_scope.
-Undelimit Scope transport.
+
 
 Section Fix_Context.
 

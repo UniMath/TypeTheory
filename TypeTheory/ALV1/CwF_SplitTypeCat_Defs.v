@@ -361,8 +361,8 @@ End qq_Morphism_Structures.
 Arguments term_fun_structure_data _ _ : clear implicits.
 Arguments term_fun_structure_axioms _ _ _ : clear implicits.
 Arguments term_fun_structure _ _ : clear implicits.
-Arguments qq_morphism_data [_] _ : clear implicits.
-Arguments qq_morphism_structure [_] _ : clear implicits.
+Arguments qq_morphism_data [_] _ .
+Arguments qq_morphism_structure [_] _ .
 
 (** * CwF’s, split type-categories *)
 

@@ -19,7 +19,6 @@ Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Equiv_Cats.
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
-Undelimit Scope transport.
 
 Section Auxiliary.
 
