@@ -35,7 +35,7 @@ Definition Rezk_on_RelUnivYoneda
 Proof.
   exact Rezk_on_RelUnivYoneda.
 Defined.
-Print Assumptions Rezk_on_RelUnivYoneda.
+(* Print Assumptions Rezk_on_RelUnivYoneda. *)
 (**
 <<
 Axioms:
@@ -53,7 +53,7 @@ Definition weq_RelUnivYo_cwf_structures
 Proof.
   exact weq_RelUnivYo_CwF.
 Defined.
-Print Assumptions weq_RelUnivYo_cwf_structures. 
+(* Print Assumptions weq_RelUnivYo_cwf_structures. *)
 (** 
 <<
 Axioms:
@@ -75,7 +75,7 @@ Proof.
   apply (invmap (weq_RelUnivYo_CwF _)).
   exact H.
 Defined.
-Print Assumptions Rezk_on_cwf_structures.
+(* Print Assumptions Rezk_on_cwf_structures. *)
 (** 
 <<
 Axioms:
@@ -95,7 +95,7 @@ Definition weq_term_fun_qq_morphisms_structures
 Proof.
   exact @weq_CwF_SplitTypeCat.
 Defined.
-Print Assumptions weq_term_fun_qq_morphisms_structures.
+(* Print Assumptions weq_term_fun_qq_morphisms_structures. *)
 (** 
 <<
 Axioms:
@@ -121,7 +121,7 @@ Definition equiv_of_category_of_cwf_split_type_structures
 Proof.
   exact equiv_of_structures.
 Defined.
-Print Assumptions equiv_of_category_of_cwf_split_type_structures.
+(* Print Assumptions equiv_of_category_of_cwf_split_type_structures. *)
 (** 
 <<
 Axioms:
@@ -139,7 +139,7 @@ Definition equiv_of_types_of_cwf_split_type_structures
 Proof.
   exact equiv_of_types_of_structures.
 Defined.
-Print Assumptions equiv_of_types_of_cwf_split_type_structures.
+(* Print Assumptions equiv_of_types_of_cwf_split_type_structures. *)
 (** 
 <<
 Axioms:

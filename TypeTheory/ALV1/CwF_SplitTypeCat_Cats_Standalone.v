@@ -803,7 +803,7 @@ Proof.
   apply idpath.
 Defined.
 
-Print Assumptions equiv_of_types_equal_direct_constr.
+(* Print Assumptions equiv_of_types_equal_direct_constr. *)
 
 End fix_cat_obj_ext.
 
