@@ -108,4 +108,4 @@ Defined.
 
 End fix_category.
 
-Print Assumptions Rezk_on_RelUnivYoneda.
+(* Print Assumptions Rezk_on_RelUnivYoneda. *)

@@ -392,13 +392,13 @@ Proof.
   destruct XYZW' as [ [X' [Y' Z'] ] W'].
   unfold compat_structures_pr1_functor; simpl.
   assert (structural_lemma :
-    Π A (B C : A -> UU) (D : Π a, B a -> C a -> UU)
+    Π (A : UU) (B C : A -> UU) (D : Π a, B a -> C a -> UU)
       (H : Π a b, iscontr (Σ c, D a b c)),
     isweq (fun abcd : Σ (abc : Σ a, (B a × C a)),
                         D (pr1 abc) (pr1 (pr2 abc)) (pr2 (pr2 abc))
             => (pr1 (pr1 abcd),, pr1 (pr2 (pr1 abcd))))).
-    clear C X Y Z W X' Y' Z' W'.
-  { intros A B C D H.
+  { clear C X Y Z W X' Y' Z' W'.
+    intros A B C D H.
     use gradth.
     + intros ab.
       set (cd := iscontrpr1 (H (pr1 ab) (pr2 ab))). 
@@ -409,12 +409,31 @@ Proof.
         _ (_,, _) _).
       apply proofirrelevancecontr, H.
     + intros ab; destruct ab as [a b]. apply idpath. }
-  simple refine (structural_lemma _ _ _ _ _).
-  - intros FX FY FZ.
-      exists (W -->[FX,,(FY,,FZ)] W').
-  - intros FX FY. apply iscontraprop1.
-    exact (qq_from_term_mor_unique FY W W').
-    exact (qq_from_term_mor FY W W').
+  use (structural_lemma _ _ _ (fun _ _ _ => unit) _ ).
+(* these are all the arguments to structural_lemma 
+         (obj_ext_mor X X') 
+                        (fun f' => term_fun_mor Y Y' f') 
+                        (fun f' => Π (Γ' Γ : C) (f0 : C ⟦ Γ', Γ ⟧) 
+                                     (A : pr1 (pr1 (TY X) Γ)),
+                                   qq (pr1 Z) f0 A ;; φ f' A =
+                  φ f' (# (pr1 (TY X)) f0 A) ;; Δ
+                                           (toforallpaths
+                                              (λ _ : pr1 (pr1 (TY X) Γ), pr1 (pr1 (TY X') Γ'))
+                                              (λ x : pr1 (pr1 (TY X) Γ),
+                                               (pr1 (obj_ext_mor_TY f')) Γ'
+                                                 (# (pr1 (TY X)) f0 x))
+                                              (λ x : pr1 ((pr1 (TY X)) Γ),
+                                               # (pr1 (TY X')) f0
+                                                 ((pr1 (obj_ext_mor_TY f')) Γ x))
+                                              (nat_trans_ax
+                                                 (obj_ext_mor_TY f') Γ Γ' f0)
+                                              A) ;; 
+                  qq (pr1 Z') f0 ((pr1 (obj_ext_mor_TY f')) Γ A))
+                        (fun _ _ _ => unit) ).
+*)
+  intros FX FY. apply iscontraprop1.
+  - exact (qq_from_term_mor_unique FY W W').
+  - exact (qq_from_term_mor FY W W').
 Qed.
 
 (* TODO: could strengthen to “explicitly essentially surjective” *)
@@ -440,8 +459,8 @@ Proof.
     isweq (fun abcd : Σ (abc : Σ a, (B a × C a)),
                         D (pr1 abc) (pr1 (pr2 abc)) (pr2 (pr2 abc))
             => (pr1 (pr1 abcd),, pr2 (pr2 (pr1 abcd))))).
-    clear C X Y Z W X' Y' Z' W'.
-  { intros A B C D H.
+  { clear C X Y Z W X' Y' Z' W'.
+    intros A B C D H.
     use gradth.
     + intros ac.
       set (bd := iscontrpr1 (H (pr1 ac) (pr2 ac))). 
@@ -452,12 +471,10 @@ Proof.
         _ (_,, _) _).
       apply proofirrelevancecontr, H.
     + intros ac; destruct ac as [a c]. apply idpath. }
-  simple refine (structural_lemma _ _ _ _ _).
-  - intros FX FY FZ.
-      exists (W -->[FX,,(FY,,FZ)] W').
-  - intros FX FY. apply iscontraprop1.
-    exact (term_from_qq_mor_unique FY W W').
-    exact (term_from_qq_mor FY W W').
+  simple refine (structural_lemma _ _ _ (fun _ _ _ => unit) _).
+  intros FX FY. apply iscontraprop1.
+  - exact (term_from_qq_mor_unique FY W W').
+  - exact (term_from_qq_mor FY W W').
 Qed.
 
 End Strucs_Equiv_Precats.
@@ -498,12 +515,10 @@ Proof.
         _ (_,, _) _).
       apply proofirrelevancecontr, H.
     + intros b; apply idpath. }
-  simple refine (structural_lemma _ _ _ _).
-  - intros FY FZ.
-      exists (W -->[FX,,(FY,,FZ)] W').
-  - intros FY. apply iscontraprop1.
-    exact (qq_from_term_mor_unique FY W W').
-    exact (qq_from_term_mor FY W W').
+  simple refine (structural_lemma _ _ (fun _ _  => unit) _).
+  intros FY. apply iscontraprop1.
+  - exact (qq_from_term_mor_unique FY W W').
+  - exact (qq_from_term_mor FY W W').
 Qed.
 
 Lemma compat_structures_pr1_is_equiv_over_id
@@ -559,12 +574,10 @@ Proof.
         _ (_,, _) _).
       apply proofirrelevancecontr, H.
     + intros c; apply idpath. }
-  simple refine (structural_lemma _ _ _ _).
-  - intros FY FZ.
-      exists (W -->[FX,,(FY,,FZ)] W').
-  - intros FY. apply iscontraprop1.
-    exact (term_from_qq_mor_unique FY W W').
-    exact (term_from_qq_mor FY W W').
+  simple refine (structural_lemma _ _ (fun _ _ => unit) _).
+  intros FY. apply iscontraprop1.
+  - exact (term_from_qq_mor_unique FY W W').
+  - exact (term_from_qq_mor FY W W').
 Qed.
 
 Lemma compat_structures_pr2_is_equiv_over_id
