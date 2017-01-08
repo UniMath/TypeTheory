@@ -44,7 +44,7 @@ PACKAGE_FILES := $(patsubst %, TypeTheory/%/.package/files, $(PACKAGES))
 ifneq "$(INCLUDE)" "no"
 include build/CoqMakefile.make
 endif
-everything: all html install #TAGS
+everything: all html install
 OTHERFLAGS += $(MOREFLAGS)
 OTHERFLAGS += -indices-matter -type-in-type -w none
 ifeq ($(VERBOSE),yes)
@@ -95,9 +95,9 @@ COQDEFS := --language=none												\
 	-r "/^[[:space:]]*Notation.* \"'\([[:alnum:]]+\)'/\1/"								\
 	-r '/^[[:space:]]*Tactic Notation.* "\([[:alnum:]]+\)" /\1/'
 
-# $(foreach P,$(PACKAGES),$(eval TAGS-$P: $(filter TypeTheory/$P/%,$(VFILES)); etags -o $$@ $$^))
+$(foreach P,$(PACKAGES),$(eval TAGS-$P: $(filter TypeTheory/$P/%,$(VFILES)); etags -o $$@ $$^))
 $(VFILES:.v=.vo) : # $(COQBIN)coqc
-# TAGS : $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
+TAGS : $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
 FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
 $(foreach P,$(PACKAGES),$(eval $P: $(shell <TypeTheory/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\)=TypeTheory/$P/\1o=" )))
 install:all
