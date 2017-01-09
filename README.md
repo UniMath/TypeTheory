@@ -6,9 +6,20 @@ Code  on C-systems, D-systems, categories with families, comprehension categorie
 Compilation
 ------------
 
-The Coq code depends on the UniMath library, available from http://github.com/UniMath/UniMath.
+h3. Prerequisites
 
-If you have UniMath’s coq in your path, then our library can be built just with `make` from within the toplevel directory.
+The Coq code depends on the UniMath library, available from http://github.com/UniMath/UniMath.
+To compile UniMath, follow the installation instructions given there.
+Afterwards, make sure to install UniMath and to add the underlying Coq binaries to your path, by calling, from within the UniMath toplevel directory,
+```
+$ make install 
+$ PATH=$PATH:`pwd`/sub/coq/bin/
+```
+The second step can be made persistent by modifying your shell configuration file.
+
+h3. Compilation of UniMath/TypeTheory
+
+If you have UniMath’s Coq in your path (as per the above extension of PATH), then our library can be built just with `make` from within the toplevel directory.
 
 Otherwise, you need to pass the location of the UniMath `coqc` binary by hand, as e.g. `make COQBIN="~/src/UniMath/sub/coq/bin/"`.
 
