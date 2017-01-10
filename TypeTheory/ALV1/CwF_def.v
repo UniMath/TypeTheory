@@ -33,37 +33,62 @@ Local Definition Tm (pp : mor_total (preShv C)) : functor _ _ := source pp.
 (** ** Main intermediate structures: [comp], [icwf_structure] *)
 
 
-Definition cwf'_structure (pp : mor_total (preShv C)) : UU
-  := Π Γ (A : Ty pp Γ : hSet),
-       Σ (ΓA : C) (π_A : C ⟦ΓA, Γ⟧) (v : Tm pp ΓA : hSet)
-         (e : #Yo π_A ;; yy A = yy v ;; pp), isPullback _ _ _ _ e .
-       
-Definition ext' {pp : mor_total (preShv C)} (Y : cwf'_structure pp) {Γ} A 
-  : C 
-  := pr1 (Y Γ A).
+Section fix_stuff.
 
-Definition π' {pp : mor_total (preShv C)} (Y : cwf'_structure pp) {Γ} A 
-  : C ⟦ext' Y A, Γ⟧ 
-  := pr1 (pr2 (Y Γ A)).
+Context (pp : mor_total (preShv C))
+        {Γ : C}
+        (A : Ty pp Γ : hSet).
 
-Definition QQ' {pp : mor_total (preShv C)} (Y : cwf'_structure pp) {Γ} A 
-  : _ ⟦Yo (ext' Y A) , Tm pp⟧ 
-  := yy (pr1 (pr2 (pr2 (Y Γ A)))).
+Definition cwf_ext : UU := Σ (ΓA : C), C ⟦ΓA, Γ⟧.
+
+Definition cwf_tm (r : cwf_ext) : UU := 
+  let ΓA := pr1 r in
+  let π := pr2 r in
+  Σ v : (Tm pp ΓA : hSet), (pr2 pp : nat_trans _ _ ) _ v = #(Ty pp) π A.
+
+Section fix_more_stuff.
+
+Context (ext : cwf_ext)
+        (tm : cwf_tm ext).
+
+Let ΓA : C := pr1 ext.
+Let π : C ⟦ ΓA , Γ ⟧ := pr2 ext.
+Let v : (Tm pp ΓA : hSet) := pr1 tm.
+Let e : (pr2 pp : nat_trans _ _ ) _ v = #(Ty pp) π A := pr2 tm.
+
+Lemma cwf_square_comm 
+  : #Yo π ;; yy A = yy v ;; pp.
+Proof.
+  apply pathsinv0.
+  etrans. Focus 2. apply yy_natural.
+  rewrite <- e.
+  apply yy_comp_nat_trans.
+Qed.
+
+End fix_more_stuff.
+
+Definition cwf_struct_pw : UU
+  := Σ (ΓAπ : cwf_ext), 
+     (Σ (ve : cwf_tm ΓAπ), isPullback _ _ _ _ (cwf_square_comm ΓAπ ve)).
+
+End fix_stuff.
+
+Definition rep_structure (pp : mor_total (preShv C)) : UU 
+  :=
+            Π Γ (A : Ty pp Γ : hSet), cwf_struct_pw pp A.
 
 
-Definition to_construct (pp : mor_total (preShv C)) : UU :=
-   fcomprehension Yo pp ≃ cwf'_structure pp.
-
-(** to construct this equivalence, maybe parts of the proofs of
-    CwF_RelUnivYoneda can be reused
-*)
+Definition to_construct (pp : mor_total (preShv C)): UU := 
+  fcomprehension Yo pp ≃ rep_structure pp.
 
 Lemma foo pp : to_construct pp.
 Proof.
   unfold to_construct.
   apply weqonsecfibers.
   intro Γ.  
-  Check (weqonsecbase _ (@yy _ _ _ _ )).
+  eapply weqcomp.
+  apply (weqonsecbase _ (@yy _ _ _ _ )).
+  apply weqonsecfibers. intro tm.
 Abort.
 
 End Fix_Category.
