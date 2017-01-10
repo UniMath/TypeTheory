@@ -793,6 +793,19 @@ Proof.
   apply (toforallpaths _ _ _ XTT).
 Qed.
 
+Lemma yy_comp_nat_trans {C : precategory} {hsC : has_homsets C}
+      (F F' : preShv C) (p : _ ⟦F, F'⟧)
+      A (v : (F : functor _ _ ) A : hSet)
+  : yy (hsC:=hsC) v ;; p = yy ((p : nat_trans _ _ )  _ v).
+Proof.
+  apply nat_trans_eq.
+  - apply has_homsets_HSET.
+  - intro c. simpl. 
+    apply funextsec. intro f. cbn.
+    assert (XR := toforallpaths _ _ _ (nat_trans_ax p _ _ f) v ).
+    cbn in XR.
+    apply XR.
+Qed.
 
 Lemma forall_isotid (A : precategory) (a_is : is_category A) 
       (a a' : A) (P : iso a a' -> UU) :
