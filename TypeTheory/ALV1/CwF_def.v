@@ -23,32 +23,11 @@ Set Automatic Introduction.
 
 Section Auxiliary.
 
-(* Needed temporarily for [weq_total2_assoc]. *)
-Lemma transparent_admit {A} : A.
-Admitted.
-
-(** Associativity of Σ. *)
-(* TODO: seek in library; if not found, upstream! *)
-(* Not sure if it’s best to give this with [C] typed as 
-[Π a, B a -> Type] or [(Σ a, B a) -> Type].  See how it works out in practice. The latter is more general, but it may be useful to have the former explicitly since if its arguments can be inferred more easily. *)
-Definition weq_total2_assoc {A} {B : A -> Type} (C : (Σ x, B x) -> Type)
-  : (Σ (xy : Σ x, B x), C xy) ≃ (Σ x y, C (x,, y)).
-Proof.
-  mkpair.
-    intros [[x y] z]. exact (x,,(y,,z)).
-  intros [x [y z]].
-  mkpair.
-    mkpair.
-      exact ((x,,y),,z).
-    apply idpath.
-  intros t. apply transparent_admit.
-  (* Can’t just [admit.] since we need computational behaviour of this lemma below. *)
-Defined.
-
-Definition weq_total2_assoc' {A} {B : A -> Type} (C : Π a, B a -> Type)
+(** A version of [weqtotal2asstor] with the type of the [C] argument slightly changed. Perhaps upstream? *)
+Definition weqtotal2asstor' {A} {B : A -> Type} (C : Π a, B a -> Type)
   : (Σ (xy : Σ x, B x), C _ (pr2 xy)) ≃ (Σ x y, C x y).
 Proof.
-  apply (weq_total2_assoc (fun xy => C (pr1 xy) (pr2 xy))).
+  apply (weqtotal2asstor _ (fun xy => C (pr1 xy) (pr2 xy))).
 Defined.
 
 End Auxiliary.
@@ -138,12 +117,12 @@ Proof.
   *)
   eapply weqcomp. Focus 2.
     refine (weqfp _ _).
-    apply weq_total2_assoc'.
+    apply weqtotal2asstor'.
   eapply weqcomp. Focus 2.
-    eapply invweq, weq_total2_assoc.
+    eapply weqtotal2asstol.
   eapply weqcomp. Focus 2.
     refine (weqfibtototal _ _ _).
-    intro. apply weq_total2_assoc'.
+    intro. apply weqtotal2asstor'.
   (* convert the term argument under [yy] *)
   apply weqfibtototal. intros [ΓA π]; simpl.
   simple refine (weqbandf _ _ _ _).
