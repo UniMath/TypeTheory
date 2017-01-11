@@ -1,13 +1,12 @@
 
 (** 
 
- Ahrens, Lumsdaine, Voevodsky, 2015
+ Ahrens, Lumsdaine, Voevodsky, 2015–
 
 Contents:
 
-  - Definition of Type-(pre)-categories
+  - Definition of type-categories and split type-categories
   - A few convenience lemmas
-
 *)
 
 Require Import UniMath.Foundations.Basics.Sets.

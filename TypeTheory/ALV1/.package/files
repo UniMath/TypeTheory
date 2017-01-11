@@ -7,4 +7,5 @@ RelativeUniverses.v
 RelUnivYonedaCompletion.v
 CwF_SplitTypeCat_Defs.v
 TypeCat.v
+TypeCat_Reassoc.v
 Summary.v
