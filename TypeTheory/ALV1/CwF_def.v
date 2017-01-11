@@ -99,7 +99,7 @@ Definition cwf_structure : UU := Σ pp, (cwf_representation pp).
 (** ** Equivalence with relative universe structures on Yoneda *)
 
 
-Lemma wev_cwf_representation_fcomprehension (pp : mor_total (preShv C))
+Lemma weq_cwf_representation_fcomprehension (pp : mor_total (preShv C))
   : cwf_representation pp ≃ fcomprehension Yo pp.
 Proof.
   apply weqonsecfibers. intro Γ.
@@ -153,4 +153,35 @@ Proof.
     apply idweq.
 Time Defined.
 
+
+Definition weq_cwf_structure_RelUnivYo 
+  : cwf_structure ≃ @relative_universe C _ Yo.
+Proof.
+  apply weqfibtototal.
+  intro pp.
+  apply weq_cwf_representation_fcomprehension.
+Defined.
+
+
+(** ** Representable vs represented *)
+
+(*
+    If the underlying category is univalent [is_category C],
+    then the representation is unique, and hence there is no
+    distinction between 'represented' and 'representable'
+    morphism of presheaves
+*)
+
+Lemma isaprop_cwf_representation (is : is_category C) (pp : mor_total (preShv C))
+  : isaprop (cwf_representation pp).
+Proof.
+  use isofhlevelweqb.
+  - exact (fcomprehension Yo pp).
+  - apply weq_cwf_representation_fcomprehension.
+  - apply isaprop_fcomprehension. 
+    + apply is.
+    + apply yoneda_fully_faithful.
+Qed.
+
 End Fix_Category.
+
