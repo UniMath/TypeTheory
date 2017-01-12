@@ -150,13 +150,13 @@ Time Defined.
 
 End Structural_Reassoc.
 
+Section Fix_Category.
 
+Context {CC : Precategory}.
 
 (** ** Equivalence between actual split type cats and their abstracted version *)
 
 Section Split_Type_Cat_as_Structural.
-
-Context {CC : Precategory}.
 
 Definition T_ty
   := (CC -> UU).
@@ -250,10 +250,127 @@ Defined.
 
 End Split_Type_Cat_as_Structural.
 
-(* TODO:
+(** ** Equivalence between the structural and object-extension versions *)
+Section Structural_to_Regrouped.
 
-- give weak equivalence between the second association of the abstracted version, and the imported version using object-extension structures *)
+(* TODO: upstream *)
+Definition weq_exchange_args {A B} (C : A -> B -> Type)
+  : (Π a b, C a b) ≃ (Π b a, C a b).
+Proof.
+  use weqgradth.
+  - intros f b a; exact (f a b).
+  - intros g a b; exact (g b a).
+  - intros f; apply idpath.
+  - intros g; apply idpath.
+Defined.
 
+(* TODO: remove once done *)
+Definition explicit_admit {A} : A.
+Admitted.
 
+Definition weq_structural_regrouped
+  : reassoc_split_struct
+      T_ty T_ext T_dpr T_reind T_q_etc
+      T_set T_reind_id T_q_id T_reind_comp T_q_comp
+  ≃ split_typecat_structure CC.
+Proof.
+  use weqbandf.
+    use weqbandf.
+      use weqbandf.
+        use weqbandf.
+          apply weqtotaltoforall.
+        simpl. intros. unfold T_reind.
+        apply weqonsecfibers; intro Γ.
+        eapply weqcomp. apply weq_exchange_args.
+        apply weqonsecfibers; intro Γ'.
+        apply weq_exchange_args.
+      intro F. apply weqdirprodf; shelve.
+    intro F. simpl. unfold ext_struct, T_ext, T_dpr.
+    eapply weqcomp.
+      exact (@weqtotaltoforall CC
+        (λ Γ, (pr1 (pr1 (pr1 F)) Γ → CC))
+        (λ Γ extΓ, Π (A : pr1 (pr1 (pr1 F)) Γ), extΓ A --> Γ)).
+    apply weqonsecfibers; intro Γ.
+    exact (@weqtotaltoforall _ _ (λ A ΓA, ΓA --> Γ)).
+  intro X. use weqbandf.
+    cbn. unfold bandfmap, weqforalltototal, maponsec.
+    cbn. unfold totaltoforall, gen_q_mor_data, T_q_etc, qq_morphism_data.
+    cbn.
+    use weqbandf.
+      apply weqonsecfibers; intro Γ.
+      eapply weqcomp. apply weq_exchange_args.
+      apply weqonsecfibers; intro Γ'.
+      apply weq_exchange_args.
+    cbn. intro q.
+    eapply weqcomp.
+      exact (@weqtotaltoforall CC
+        (λ Γ, _)
+        (λ Γ dpr_q_Γ, Π A Γ' f, isPullback _ _ _ _ (dpr_q_Γ A Γ' f))).
+    apply weqonsecfibers; intro Γ.
+    eapply weqcomp.
+      exact (@weqtotaltoforall (pr1 (pr1 (pr1 (pr1 X))) Γ)
+        (λ A, _)
+        (λ A dpr_q_Γ_A, Π Γ' f, isPullback _ _ _ _ (dpr_q_Γ_A Γ' f))).
+    eapply weqcomp.
+      apply weqonsecfibers; intro A.
+      eapply weqcomp.
+        exact (@weqtotaltoforall CC
+          (λ Γ', _)
+          (λ Γ' dpr_q_Γ_A_Γ', Π f, isPullback _ _ _ _ (dpr_q_Γ_A_Γ' f))).
+      apply weqonsecfibers; intro Γ'.
+      exact (@weqtotaltoforall _
+        (λ f, _)
+        (λ f dpr_q_Γ_A_Γ'_f, isPullback _ _ _ _ (dpr_q_Γ_A_Γ'_f))).
+    simpl.
+    eapply weqcomp. apply weq_exchange_args.
+    apply weqonsecfibers; intro Γ'.
+    eapply weqcomp. apply weq_exchange_args.
+    shelve. (* should be idweq once direction of [dpr_q] equality consistentised. *)
+  intros q_etc.
+  simpl. unfold bandfmap, weqforalltototal, maponsec.
+  simpl. unfold totaltoforall, qq_morphism_axioms. simpl.
+  apply weqdirprodf. Unshelve.
+  (* Everything remaining is hprops, so can now be unshelved and done in parallel. *)
+  - apply weqonsecfibers; intro Γ.
+    apply weqonsecfibers; intro A.
+    (* use fact that path-postcomposition is an equivalence; then use [maponpaths idtoiso; homset_property]. *)
+    apply explicit_admit.
+  - apply weqonsecfibers; intro Γ.
+    eapply weqcomp. apply weq_exchange_args.
+    apply weqonsecfibers; intro Γ'.
+    eapply weqcomp. 
+      apply weqonsecfibers; intro A. apply weq_exchange_args.
+    eapply weqcomp. apply weq_exchange_args.
+    apply weqonsecfibers; intro Γ''.
+    eapply weqcomp. apply weq_exchange_args.
+    apply weqonsecfibers; intro f.
+    eapply weqcomp. apply weq_exchange_args.
+    apply weqonsecfibers; intro g.
+    apply weqonsecfibers; intro A.
+    (* endgame should be similar to previous case *)
+    apply explicit_admit.
+  - cbn. unfold bandfmap, weqforalltototal, maponsec.
+    cbn. unfold totaltoforall, T_reind_id, functor_idax. 
+    apply weqonsecfibers; intro Γ.
+    apply weqfunextsec.
+  - cbn. unfold bandfmap, weqforalltototal, maponsec.
+    cbn. unfold totaltoforall, T_reind_comp, functor_compax. 
+    apply weqonsecfibers; intro Γ.
+    eapply weqcomp. apply weq_exchange_args.
+    apply weqonsecfibers; intro Γ'.
+    eapply weqcomp. 
+      apply weqonsecfibers; intro A. apply weq_exchange_args.
+    eapply weqcomp. apply weq_exchange_args.
+    apply weqonsecfibers; intro Γ''.
+    eapply weqcomp. apply weq_exchange_args.
+    apply weqonsecfibers; intro f.
+    eapply weqcomp. apply weq_exchange_args.
+    apply weqonsecfibers; intro g.
+    apply weqfunextsec.
+  - (* may be [idweq] once direction of [dpr_q] is harmonised *)
+    apply explicit_admit.
+Time Defined.
+
+End Structural_to_Regrouped.
 
 
