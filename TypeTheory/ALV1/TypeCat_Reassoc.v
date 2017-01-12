@@ -5,7 +5,14 @@
 
 Contents:
 
-  - Equivalence between split type-categories and their reassociated version based on object-extension structures
+  - Equivalence between split type-categories, and their reassociated version based on object-extension structures.
+
+The equivalence is a bit more involved than one might hope; it proceeds in two main steps:
+
+- Firstly, perform a big permutation/reassociation of the various components.  This is proven as a purely structural lemma, with the actual concrete types abstracted away — all that is needed is to know which components depend on which earlier ones.
+
+- Secondly, with the components in the right order, massage away the slight differences in the statements of individual components, by repeated use of [weqbandf].
+
 *)
 
 Require Import UniMath.Foundations.Basics.Sets.
@@ -16,6 +23,10 @@ Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.TypeCat.
+
+(** ** Structural permutation/reassociation lemma
+
+We give, purely structurally, a weak equivalence [weq_reassoc_direct] between an iterated sigma-type with components ordered/associated as in [split_type_struct] (the standalone definition of a split type-category structure) and one with the same components ordered/associated as in [split_typecat_structure] (the definition based on object-extension structures). *)
 
 Section Structural_Reassoc.
 
@@ -154,7 +165,9 @@ Section Fix_Category.
 
 Context {CC : Precategory}.
 
-(** ** Equivalence between actual split type cats and their abstracted version *)
+(** ** Equivalence between split type-cat structures and their structurally-abstracted version 
+
+This is in fact a judgemental equality; but recognising this in practice is rather slow, so we explicitly declare the equivalence [weq_standalone_structural] between them. *)
 
 Section Split_Type_Cat_as_Structural.
 
@@ -250,7 +263,11 @@ Defined.
 
 End Split_Type_Cat_as_Structural.
 
-(** ** Equivalence between the structural and object-extension versions *)
+(** ** Equivalence between the structural and object-extension versions 
+
+Here we build up an equivalence [weq_structural_regrouped] between (RHS) the regrouped object-extension structure definition of split type-category structures, and (LHS) the structurally-abstracted definition, with the types of components taken from the standalone definition, but re-ordered and re-grouped to match (RHS).
+
+Since the ordering/association of the sigma-type matches, this equivalence could in principle be done in a single declaration by repeated use of [weqbandf].  However, the compilation time becomes infeasaible, so instead we split it up into muptiple declarations. *)
 Section Structural_to_Regrouped.
 
 (* TODO: upstream *)
@@ -264,7 +281,8 @@ Proof.
   - intros g; apply idpath.
 Defined.
 
-(* TODO: remove once done *)
+(* Used below in order to admit individual components of incomplete proofs, while keeping the rest of the proof available for computational behaviour in subsequent work. 
+  TODO: remove once done *)
 Definition explicit_admit {A} : A.
 Admitted.
 
