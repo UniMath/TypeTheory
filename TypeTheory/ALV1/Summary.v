@@ -159,7 +159,7 @@ Defined.
 
 
 
-Lemma foo : Tm_iso ;; pp = pp'_eta ;; Ty_iso.
+Lemma RC_morphism_of_presheaves_recover : Tm_iso ;; pp = pp'_eta ;; Ty_iso.
 Proof.
   assert (XR := nat_trans_ax (counit_from_left_adjoint RCequiv) _ _ pp).
   apply pathsinv0.
