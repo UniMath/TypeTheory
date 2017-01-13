@@ -5,7 +5,7 @@
 
 Contents:
 
-  - Equivalence between split type-categories, and their reassociated version based on object-extension structures.
+  - Equivalence [weq_standalone_regrouped] between split type-categories, and their reassociated version based on object-extension structures.
 
 The equivalence is a bit more involved than one might hope; it proceeds in two main steps:
 
@@ -270,35 +270,10 @@ Here we build up an equivalence [weq_structural_regrouped] between (RHS) the reg
 Since the ordering/association of the sigma-type matches, this equivalence could in principle be done in a single declaration by repeated use of [weqbandf].  However, the compilation time becomes infeasaible, so instead we split it up into muptiple declarations. *)
 Section Structural_to_Regrouped.
 
-(* TODO: upstream *)
-Definition weq_exchange_args {A B} (C : A -> B -> Type)
-  : (Π a b, C a b) ≃ (Π b a, C a b).
-Proof.
-  use weqgradth.
-  - intros f b a; exact (f a b).
-  - intros g a b; exact (g b a).
-  - intros f; apply idpath.
-  - intros g; apply idpath.
-Defined.
-
 (* Used below in order to admit individual components of incomplete proofs, while keeping the rest of the proof available for computational behaviour in subsequent work. 
   TODO: remove once done *)
 Definition explicit_admit {A} : A.
 Admitted.
-
-(* TODO: upstream *)
-Definition weqpathscomp0l {X : UU} {x x'} (x'' : X) (e : x = x')
-  : (x' = x'') ≃ (x = x'').
-Proof.
-  exact (_ ,, isweqpathscomp0l x'' e).
-Defined.
-
-(* TODO: upstream *)
-Definition weqpathscomp0r {X : UU} (x:X) {x' x''} (e' : x' = x'')
-  : (x = x') ≃ (x = x'').
-Proof.
-  exact (_ ,, isweqpathscomp0r x e').
-Defined.
 
 
 Definition weq_structural_pshf_data
@@ -404,6 +379,7 @@ Proof.
     eapply weqcomp. apply weq_exchange_args.
     apply explicit_admit. (* should be idweq once direction of [dpr_q] equality consistentised. *)
 Defined.
+(* TODO: change the direction of [dpr_q] and/or [qq_π] upstream *)
 (* TODO: try factoring out the second half of this and opacifying it; see if that improves compilation time below *)
 
 Definition weq_structural_regrouped
@@ -444,4 +420,18 @@ Time Defined.
 
 End Structural_to_Regrouped.
 
-End Fix_Category.
+Section Standalone_to_Regrouped.
+
+Definition weq_standalone_to_regrouped
+  : split_type_struct CC
+  ≃ split_typecat_structure CC.
+Proof.
+  eapply weqcomp. apply weq_standalone_structural.
+  eapply weqcomp. apply weq_reassoc_direct.
+  apply weq_structural_regrouped.
+Defined.
+
+End Standalone_to_Regrouped.
+
+Time End Fix_Category.
+

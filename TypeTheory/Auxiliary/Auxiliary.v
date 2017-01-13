@@ -201,16 +201,27 @@ Proof.
     apply idpath.
 Defined.
 
-(*
-Definition rewrite_in_equivalence (A X : UU) (a a' b : A) :
-  a = a' → (a' = b) ≃ X → (a = b) ≃ X.
+Definition weqpathscomp0l {X : UU} {x x'} (x'' : X) (e : x = x')
+  : (x' = x'') ≃ (x = x'').
 Proof.
-  intros.
-  set  (H:= weqpair _ (isweqpathscomp0l b (!X0))).
-  eapply weqcomp. apply H.
-  apply X1.
+  exact (_ ,, isweqpathscomp0l x'' e).
 Defined.
-*)
+
+Definition weqpathscomp0r {X : UU} (x:X) {x' x''} (e' : x' = x'')
+  : (x = x') ≃ (x = x'').
+Proof.
+  exact (_ ,, isweqpathscomp0r x e').
+Defined.
+
+Definition weq_exchange_args {A B} (C : A -> B -> Type)
+  : (Π a b, C a b) ≃ (Π b a, C a b).
+Proof.
+  use weqgradth.
+  - intros f b a; exact (f a b).
+  - intros g a b; exact (g b a).
+  - intros f; apply idpath.
+  - intros g; apply idpath.
+Defined.
 
 (** ** Other general lemmas *)
 
@@ -469,7 +480,6 @@ End adj_comp.
 
 Hypothesis HF : adj_equivalence_of_precats F.
 Hypothesis HF' : adj_equivalence_of_precats F'.
-
 
 
 Definition comp_adj_equivalence_of_precats 
@@ -1526,5 +1536,7 @@ Arguments Pb_map_commutes_2 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 
 (* Lemmas that probably belong in one of the sections above, but haven’t been sorted into them yet.  Mainly a temporary holding pen for lemmas being upstreamed from other files. TODO: empty this bin frequently (but keep it here for re-use). *) 
 Section Unorganised.
+
+
 
 End Unorganised.
