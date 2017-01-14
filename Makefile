@@ -184,7 +184,7 @@ doc: $(GLOBFILES) $(VFILES)
 # The isolated bug will appear in this file, in the TypeTheory directory:
 ISOLATED_BUG_FILE := isolated_bug.v
 # To use it, run something like this command in an interactive shell:
-#     make isolate-bug BUGGY_FILE=Foundations/Basics/PartB.v
+#     make isolate-bug BUGGY_FILE=Foundations/PartB.v
 sub/coq-tools/find-bug.py:
 	git submodule update --init sub/coq-tools
 help-find-bug:

@@ -11,8 +11,8 @@
 
 *)
 
-Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.UnivalenceAxiom.
+Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.pullbacks.

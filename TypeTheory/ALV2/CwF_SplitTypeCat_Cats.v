@@ -12,7 +12,7 @@ Main definitions:
 - [qq_structure_disp_precat], [qq_structure_precat]
 *)
 
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.Sets.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
