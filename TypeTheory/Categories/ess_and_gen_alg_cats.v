@@ -16,7 +16,7 @@ In this file, we define functions back and forth and show that
 *)
 
 
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 

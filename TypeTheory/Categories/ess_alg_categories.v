@@ -9,7 +9,7 @@
     - axioms (including "identity morphism" map)
 *)
 
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.Sets.
 
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 

@@ -11,7 +11,7 @@ Contents:
 - equivalence between this and two related ones occurring in the ALV1 paper
 *)
 
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.Sets.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.

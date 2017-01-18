@@ -12,9 +12,9 @@ Possibly some should be upstreamed to “UniMath” eventually.
 *)
 
 
-Require Import UniMath.Foundations.Basics.PartD.
-Require Import UniMath.Foundations.Basics.Sets.
-Require Import UniMath.Foundations.Combinatorics.StandardFiniteSets.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.

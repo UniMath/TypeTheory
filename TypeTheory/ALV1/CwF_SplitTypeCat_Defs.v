@@ -23,7 +23,7 @@ NB: for now, we follow the literature in saying e.g. _category_ with families an
 
 
 
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.Sets.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
