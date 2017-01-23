@@ -62,12 +62,14 @@ Definition dm_sub_struct (CC : precategory)
   : UU
   := Π {Δ Γ : CC} , Δ --> Γ → UU.
 
+(* TODO: current name rather unintuitive; rename to [is_DM]. *)
 Definition DM_type {C : precategory} (H : dm_sub_struct C) {Δ Γ} (γ : Δ --> Γ)
            := H Δ Γ γ.
 
 Definition DM {C : precategory}(H : dm_sub_struct C) (Δ Γ : C) : UU :=
   Σ f : Δ --> Γ, DM_type H f.
 
+(* TODO: why is this triple sigma associated the less-intuitive way around?  Try re-associating the other way, see if it makes life simpler. *)
 Definition DM_over {C : precategory}(H : dm_sub_struct C) (Γ : C) : UU :=
   Σ (Δf : Σ Δ, Δ --> Γ), DM_type H (pr2 Δf).
 
@@ -79,6 +81,14 @@ Definition DM_from_DM_over {C : precategory} {H : dm_sub_struct C} {Γ : C}
 Proof.
   exists (pr2 (pr1 X)).
   exact (pr2 X).
+Defined.
+
+Coercion DM_from_DM_over : DM_over >-> DM.
+
+Definition DM_over_from_DM {C} {H : dm_sub_struct C} {Γ Δ} (γ : DM H Δ Γ)
+  : DM_over H Γ.
+Proof.
+  exists (Δ,,pr1 γ). exact (pr2 γ).
 Defined.
 
 Coercion arrow_from_DM {C : precategory} (H : dm_sub_struct C)(Δ Γ : C) (δ : DM H Δ Γ) : Δ --> Γ := pr1 δ.
@@ -303,6 +313,7 @@ Definition isPullback_of_dm_sub_pb {CC : precategory} (hs: has_homsets CC) {C : 
 : isPullback _ _ _ _ _ :=
 isPullback_Pullback (pr1 (pr2 C _ _ γ _ f )).
 
+
 (*
 Definition dm_closed_under_pb {CC : precategory} (C : dm_sub_pb CC)
 : UU
@@ -333,13 +344,19 @@ Proof.
 Qed.
 *)
 
-Definition pb_DM_of_DM {CC} {C : DM_structure CC}  {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' --> Γ)
+Definition pb_DM_of_DM {CC} {C : dm_sub_pb CC}  {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' --> Γ)
 : DM C (γ⋆f) Γ'.
 Proof.
   exists (pb_mor_of_DM γ f).
-  apply (pr2 (pr2 (pr1 C) _ _ γ _ f)). 
+  apply (pr2 (pr2 C _ _ γ _ f)). 
 Defined.
 
+Definition pb_DM_over_of_DM_over {CC} {C : dm_sub_pb CC}  {Γ} (γ : DM_over C Γ) {Γ'} (f : Γ' --> Γ)
+: DM_over C Γ'.
+Proof.
+  eapply DM_over_from_DM. 
+  refine (pb_DM_of_DM γ f).
+Defined.
 
 Definition pb_arrow_of_arrow {CC} {C : DM_structure CC}  {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' --> Γ)
 : γ⋆f --> Δ.
