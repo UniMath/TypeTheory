@@ -10,18 +10,31 @@ Compilation
 
 The Coq code depends on the UniMath library, available from http://github.com/UniMath/UniMath.
 To compile UniMath, follow the installation instructions given there.
-Afterwards, make sure to install UniMath and to add the underlying Coq binaries to your path, by calling, from within the UniMath toplevel directory,
+
+You will also need to make UniMath’s coq binaries available for compiling this library.  The simplest way is to install them as the default Coq on your system, by calling, from within the UniMath toplevel directory,
 ```
 $ make install 
+```
+and then adding them to your `$PATH`, either temporarily by running
+```
 $ PATH=$PATH:`pwd`/sub/coq/bin/
 ```
-The second step can be made persistent by modifying your shell configuration file.
+or permanently by modifying your shell configuration file (usually `~/.bash_profile` or similar):
+```
+echo "export PATH=\"`pwd`/sub/coq/bin/:\$PATH\"" >> ~/.bash_profile
+```
+
+Alternatively, if you do not want to make UniMath’s Coq your default, you can add an alias for its directory to your shell config file by calling (from within the UniMath toplevel directory)
+```
+echo "export UNIBIN=\"`pwd`/sub/coq/bin/\"" >> ~/.bash_profile
+```
+and then give the option `COQBIN=$UNIBIN` when compiling this library.
 
 ### Compilation of UniMath/TypeTheory
 
-If you have UniMath’s Coq in your path (as per the above extension of PATH), then our library can be built just with `make` from within the toplevel directory.
+If you have UniMath’s Coq in your path (as per the first suggestion above), then our library can be built just with `make` from within the toplevel directory.
 
-Otherwise, you need to pass the location of the UniMath `coqc` binary by hand, as e.g. `make COQBIN="~/src/UniMath/sub/coq/bin/"`.
+Otherwise, you need to pass the location of the UniMath `coqc` binary by hand, as e.g. `make COQBIN="~/src/UniMath/sub/coq/bin/"` or `make COQBIN=$UNIBIN`.
 
 Similarly, to use these files in Proof General, you must make sure the correct `coqtop` is called.  This may be either permanently set in the option `coq-prog-name`, or prompted for at each invocation by setting `proof-prog-name-ask`.
 
