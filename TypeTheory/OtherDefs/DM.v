@@ -58,11 +58,12 @@ End Record_Preview.
 
 (** ** Predicate selecting the display maps among the arrows *)
 
+(* TODO: this is just “a (proof-relevant) class of maps”; rename to something like that. *)
 Definition dm_sub_struct (CC : precategory)
   : UU
   := Π {Δ Γ : CC} , Δ --> Γ → UU.
 
-(* TODO: current name rather unintuitive; rename to [is_DM]. *)
+(* TODO: current name rather unintuitive; rename to [is_DM] or [is_in] or something? *)
 Definition DM_type {C : precategory} (H : dm_sub_struct C) {Δ Γ} (γ : Δ --> Γ)
            := H Δ Γ γ.
 
