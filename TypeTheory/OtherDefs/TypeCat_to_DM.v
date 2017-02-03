@@ -27,7 +27,7 @@ Variable H : is_category CC.
 Variable C : type_cat_struct CC.
 
 Definition iso_to_dpr {Γ Γ'} (γ : Γ --> Γ') : UU
-  := Σ (A : C Γ') (f : iso (Γ'◂ A) Γ),
+  := ∑ (A : C Γ') (f : iso (Γ'◂ A) Γ),
         dpr_type_cat _ = f ;; γ .
 
 Definition dm_sub_struct_of_TypeCat : dm_sub_struct CC.

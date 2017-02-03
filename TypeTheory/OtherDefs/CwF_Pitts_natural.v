@@ -80,7 +80,7 @@ Variable C : precategory.
 Variable hsC : has_homsets C.
 
 Definition tt_structure : UU :=
-  Σ TyTm : [C^op, HSET, hsHSET] × [C^op, HSET, hsHSET],
+  ∑ TyTm : [C^op, HSET, hsHSET] × [C^op, HSET, hsHSET],
            _ ⟦pr2 TyTm, pr1 TyTm⟧.
 
 Definition Ty (X : tt_structure) : [C^op, HSET, hsHSET] := pr1 (pr1 X).
@@ -89,7 +89,7 @@ Definition p (X : tt_structure) :  _ ⟦Tm X, Ty X⟧ := pr2 X.
 
 Definition comp_structure (X : tt_structure) : UU :=
   ∀ Γ (A : pr1hSet ((Ty X : functor _ _ ) Γ)),
-    Σ (comp : C) (pi : _ ⟦comp, Γ⟧), 
+    ∑ (comp : C) (pi : _ ⟦comp, Γ⟧), 
          pr1hSet ((Tm X : functor _ _ ) (comp)).
 
 Definition comp {X : tt_structure} (Y : comp_structure X) : 
@@ -107,7 +107,7 @@ Definition q {X : tt_structure} (Y : comp_structure X) :
 
 Definition pullback_structure {X : tt_structure} (Y : comp_structure X) : UU
   := forall Γ (A : pr1hSet ((Ty X : functor _ _ ) Γ)),
-       Σ H : 
+       ∑ H : 
           invmap (yoneda_weq _ _ _ (Tm X)) (q Y Γ A) ;; p X 
           =
           #(yoneda _ _ ) (pi Y Γ A) ;; invmap (yoneda_weq _ hsC _ (Ty X)) A , 
@@ -126,7 +126,7 @@ Definition is_Pullback_comp {X : tt_structure } {Y : comp_structure X} (Z : pull
   := fun Γ A => pr2 (Z Γ A).
 
 Definition is_natural_CwF : UU 
-  := Σ (X : tt_structure) (Y : comp_structure X), pullback_structure Y.
+  := ∑ (X : tt_structure) (Y : comp_structure X), pullback_structure Y.
 
 Coercion tt_structure_from_is_natural_CwF (X : is_natural_CwF) : tt_structure := pr1 X.
 Coercion comp_structure_from_is_natural_CwF (X : is_natural_CwF) : 

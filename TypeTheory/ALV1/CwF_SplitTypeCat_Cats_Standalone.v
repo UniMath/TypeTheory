@@ -48,10 +48,10 @@ Section Term_Fun_Structure_Precat.
 Definition term_fun_mor 
     (Y Y' : term_fun_structure C X) 
   : UU
-:= Σ FF_TM : TM Y --> TM Y',
+:= ∑ FF_TM : TM Y --> TM Y',
        FF_TM ;; pp Y' = pp Y 
      × 
-       Π {Γ:C} {A : Ty X Γ}, Q Y A ;; FF_TM =  Q Y' _.
+       ∏ {Γ:C} {A : Ty X Γ}, Q Y A ;; FF_TM =  Q Y' _.
 
 Definition term_fun_mor_TM {Y} {Y'} (FF : term_fun_mor Y Y')
   : _ --> _
@@ -68,7 +68,7 @@ Definition term_fun_mor_Q {Y} {Y'} (FF : term_fun_mor Y Y')
 
 
 Lemma term_fun_mor_eq {Y} {Y'} (FF FF' : term_fun_mor Y Y')
-    (e_TM : Π Γ (t : Tm Y Γ),
+    (e_TM : ∏ Γ (t : Tm Y Γ),
       (term_fun_mor_TM FF : nat_trans _ _) _ t
       = (term_fun_mor_TM FF' : nat_trans _ _) _ t)
   : FF = FF'.
@@ -194,7 +194,7 @@ Definition qq_structure_ob_mor : precategory_ob_mor.
 Proof.
   exists (qq_morphism_structure X).
   intros Z Z'.
-  refine (Π Γ' Γ (f : C ⟦ Γ' , Γ ⟧) (A : Ty X Γ), _).
+  refine (∏ Γ' Γ (f : C ⟦ Γ' , Γ ⟧) (A : Ty X Γ), _).
   refine (qq Z f A  = _).
   refine (qq Z' f _ ).
 Defined.
@@ -240,7 +240,7 @@ Definition strucs_compat_ob_mor
   : precategory_ob_mor.
 Proof.
   use tpair.
-  - exact (Σ YZ : (term_fun_precategory × qq_structure_precategory), 
+  - exact (∑ YZ : (term_fun_precategory × qq_structure_precategory), 
                   iscompatible_term_qq (pr1 YZ) (pr2 YZ)).
   - intros YZ YZ'.
     exact ((pr1 (pr1 YZ)) --> (pr1 (pr1 YZ')) × (pr2 (pr1 YZ)) --> pr2 (pr1 YZ')).
@@ -308,7 +308,7 @@ End Compatible_Disp_Cat.
 Section Unique_QQ_From_Term.
 
 Lemma qq_from_term_ob (Y : term_fun_precategory)
-  : Σ (Z : qq_structure_precategory), iscompatible_term_qq Y Z.
+  : ∑ (Z : qq_structure_precategory), iscompatible_term_qq Y Z.
 Proof.
   exists (qq_from_term Y).
   apply iscompatible_qq_from_term.
@@ -371,7 +371,7 @@ End Unique_QQ_From_Term.
 Section Unique_Term_From_QQ.
 
 Lemma term_from_qq_ob (Z : qq_structure_precategory)
-  : Σ (Y : term_fun_precategory), iscompatible_term_qq Y Z.
+  : ∑ (Y : term_fun_precategory), iscompatible_term_qq Y Z.
 Proof.
   exists (term_from_qq Z).
   apply iscompatible_term_from_qq.
@@ -391,7 +391,7 @@ Lemma term_from_qq_mor_TM_data
   {Y : term_fun_precategory} {Y'}
   (W : iscompatible_term_qq Y Z)
   (W' : iscompatible_term_qq Y' Z')
-  : Π Γ,
+  : ∏ Γ,
     ((TM (Y : term_fun_structure _ _) : functor _ _) Γ : hSet)
     -> ((TM (Y' : term_fun_structure _ _) : functor _ _) Γ : hSet).
 Proof.
@@ -702,7 +702,7 @@ Qed.
 Lemma qq_structure_eq 
   (x : obj_ext_structure C)
   (d d' : qq_morphism_structure x)
-  (H : Π (Γ Γ' : C) (f : Γ' --> Γ) (A : (TY x : functor _ _ ) Γ : hSet), 
+  (H : ∏ (Γ Γ' : C) (f : Γ' --> Γ) (A : (TY x : functor _ _ ) Γ : hSet), 
            qq d f A = qq d' f A)
   : d = d'.
 Proof.

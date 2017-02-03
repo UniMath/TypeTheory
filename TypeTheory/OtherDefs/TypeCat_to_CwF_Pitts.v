@@ -49,7 +49,7 @@ Proof.
   unfold tt_structure.
   exists (ty_type_cat C).
   intros Γ A.
-  exact (Σ f : Γ --> Γ ◂ A, f ;; dpr_type_cat _  = identity _ ). 
+  exact (∑ f : Γ --> Γ ◂ A, f ;; dpr_type_cat _  = identity _ ). 
 Defined.
 
 
@@ -100,7 +100,7 @@ Lemma reindx_law_1_term_of_type_cat
   (A : tt_reindx_from_type_cat ⟨ Γ ⟩)
   (a : tt_reindx_from_type_cat ⟨ Γ ⊢ A ⟩) :
    a ⟦ identity Γ ⟧ =
-   transportf (λ B : C Γ, Σ f : Γ --> Γ ◂ B, f;; dpr_type_cat B = identity Γ)
+   transportf (λ B : C Γ, ∑ f : Γ --> Γ ◂ B, f;; dpr_type_cat B = identity Γ)
               (! reind_id_type_typecat (pr2 C) Γ A) a.
 Proof.
   intros. simpl. unfold tt_reindx_from_type_cat in *. simpl in *.
@@ -170,7 +170,7 @@ Lemma foo
   :
    a ⟦ γ';; γ ⟧ =
    transportf
-     (λ B : C Γ'', Σ f : Γ'' --> Γ'' ◂ B, f;; dpr_type_cat B = identity Γ'')
+     (λ B : C Γ'', ∑ f : Γ'' --> Γ'' ◂ B, f;; dpr_type_cat B = identity Γ'')
      (! reind_comp_type_typecat (pr2 C) Γ A Γ' γ Γ'' γ') 
      ((a ⟦ γ ⟧) ⟦ γ' ⟧).
 Proof.

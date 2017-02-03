@@ -41,12 +41,12 @@ Record precwf_record : Type := {
   C :> precategory ;
   T : functor C^op (FAM(HSET))  where "C ⟨ Γ ⟩" := ((T Γ) ₁);
                                   (* "C ⟨ Γ ⊢ A ⟩" := ((T Γ) ₂ A) *)
-  comp_obj : Π Γ (A : C⟨Γ⟩), C where "Γ ∙ A" := (comp_obj Γ A) ;
-  proj_mor : Π Γ (A : C⟨Γ⟩), C ⦃Γ ∙ A, Γ⦄ where "'π' A" := (proj_mor _ A) ;
-  q : Π Γ (A : C ⟨Γ⟩), pr1 ((T _)₂ (pr1 (# T (π A)) A));
-  univ_prop : Π Γ (A : C ⟨Γ⟩) Δ (γ : C⦃Δ, Γ⦄) (a : pr1 ((T _)₂ (pr1 (# T γ) A))),
-        iscontr (Σ (θ : Δ --> Γ ∙ A),
-                 Σ (e : θ ;; π A = γ),
+  comp_obj : ∏ Γ (A : C⟨Γ⟩), C where "Γ ∙ A" := (comp_obj Γ A) ;
+  proj_mor : ∏ Γ (A : C⟨Γ⟩), C ⦃Γ ∙ A, Γ⦄ where "'π' A" := (proj_mor _ A) ;
+  q : ∏ Γ (A : C ⟨Γ⟩), pr1 ((T _)₂ (pr1 (# T (π A)) A));
+  univ_prop : ∏ Γ (A : C ⟨Γ⟩) Δ (γ : C⦃Δ, Γ⦄) (a : pr1 ((T _)₂ (pr1 (# T γ) A))),
+        iscontr (∑ (θ : Δ --> Γ ∙ A),
+                 ∑ (e : θ ;; π A = γ),
                  pr2 (# T θ) _ (q _ A)
                  = 
                   transportf (fun f => pr1 ((T Δ)₂ (pr1 f A)))

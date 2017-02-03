@@ -24,8 +24,8 @@ Set Automatic Introduction.
 Section Auxiliary.
 
 (** A version of [weqtotal2asstor] with the type of the [C] argument slightly changed. Perhaps upstream? *)
-Definition weqtotal2asstor' {A} {B : A -> Type} (C : Π a, B a -> Type)
-  : (Σ (xy : Σ x, B x), C _ (pr2 xy)) ≃ (Σ x y, C x y).
+Definition weqtotal2asstor' {A} {B : A -> Type} (C : ∏ a, B a -> Type)
+  : (∑ (xy : ∑ x, B x), C _ (pr2 xy)) ≃ (∑ x y, C x y).
 Proof.
   apply (weqtotal2asstor _ (fun xy => C (pr1 xy) (pr2 xy))).
 Defined.
@@ -61,12 +61,12 @@ Context (pp : mor_total (preShv C))
         {Γ : C}
         (A : Ty pp Γ : hSet).
 
-Definition cwf_ext : UU := Σ (ΓA : C), C ⟦ΓA, Γ⟧.
+Definition cwf_ext : UU := ∑ (ΓA : C), C ⟦ΓA, Γ⟧.
 
 Definition cwf_tm (r : cwf_ext) : UU := 
   let ΓA := pr1 r in
   let π := pr2 r in
-  Σ v : (Tm pp ΓA : hSet), (morphism_from_total pp : nat_trans _ _ ) _ v = #(Ty pp) π A.
+  ∑ v : (Tm pp ΓA : hSet), (morphism_from_total pp : nat_trans _ _ ) _ v = #(Ty pp) π A.
 
 (* Lemma: convert the equality of elements of presheaves into the commutativity of a square involving representables. *)
 Lemma cwf_square_comm
@@ -81,19 +81,19 @@ Proof.
 Qed.
 
 Definition cwf_fiber_representation : UU
-  := Σ (ΓAπ : cwf_ext), 
-     (Σ (ve : cwf_tm ΓAπ), isPullback _ _ _ _ (cwf_square_comm ΓAπ ve)).
+  := ∑ (ΓAπ : cwf_ext), 
+     (∑ (ve : cwf_tm ΓAπ), isPullback _ _ _ _ (cwf_square_comm ΓAπ ve)).
 
 End Fiber_Representation.
 
 Definition cwf_representation (pp : mor_total (preShv C)) : UU 
-  := Π Γ (A : Ty pp Γ : hSet), cwf_fiber_representation pp A.
+  := ∏ Γ (A : Ty pp Γ : hSet), cwf_fiber_representation pp A.
 
 End Representation.
 
 (** ** Definition of CwF structure *)
 
-Definition cwf_structure : UU := Σ pp, (cwf_representation pp).
+Definition cwf_structure : UU := ∑ pp, (cwf_representation pp).
 
 
 (** ** Equivalence with relative universe structures on Yoneda *)

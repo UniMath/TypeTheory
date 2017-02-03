@@ -41,7 +41,7 @@ Notation ZZ := (pr2 Z).
 Variable Y : compatible_term_structure Z.
 
 Definition canonical_TM_to_given_data
-  : Π Γ, (tm_from_qq Z Γ) --> (Tm (pr1 Y) Γ)
+  : ∏ Γ, (tm_from_qq Z Γ) --> (Tm (pr1 Y) Γ)
 := (λ (Γ : C^op) (t : tm_from_qq_carrier Γ),
        (yoneda_weq C (homset_property _) Γ (TM (pr1 Y)))
          (# Yo (pr1 (pr2 t)) ;; Q (pr1 Y) (pr1 t))).
@@ -80,7 +80,7 @@ Proof.
 Defined.
 
 Definition given_TM_to_canonical
-  : Π Γ, HSET ⟦ Tm (pr1 Y) Γ, tm_from_qq Z Γ⟧.
+  : ∏ Γ, HSET ⟦ Tm (pr1 Y) Γ, tm_from_qq Z Γ⟧.
 Proof.
   intro Γ. simpl.
   intro s'. set (S' := @yy _ (homset_property _) _ _ s').
@@ -276,7 +276,7 @@ Proof.
 Defined.
 
 Lemma compat_split_comp_eq (Y : term_fun_structure _ X) :
-  Π t : compatible_qq_morphism_structure Y,
+  ∏ t : compatible_qq_morphism_structure Y,
   t = compatible_qq_from_term Y.
 Proof.
   intro t.
@@ -328,11 +328,11 @@ End compatible_structures.
 Section Equivalence.
 
 Definition T1 : UU :=
-  Σ Y : term_fun_structure C X,
+  ∑ Y : term_fun_structure C X,
         compatible_qq_morphism_structure Y.
 
 Definition T2 : UU :=
-  Σ Z : qq_morphism_structure X,
+  ∑ Z : qq_morphism_structure X,
         compatible_term_structure Z.
 
 Definition shuffle : T1 ≃ T2.

@@ -135,7 +135,7 @@ Section gen_alg_from_ess_alg.
 
 Variable C : ess_alg_cat.
 
-Definition hom (a b : C) : UU := Σ f : mor C, source f = a × target f = b.
+Definition hom (a b : C) : UU := ∑ f : mor C, source f = a × target f = b.
 
 Lemma hom_eq (a b : C) (f f' : hom a b) : pr1 f = pr1 f' → f = f'.
 Proof.

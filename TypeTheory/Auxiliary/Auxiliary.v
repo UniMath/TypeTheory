@@ -79,9 +79,9 @@ Definition maponpaths_2 {X Y Z : UU} (f : X -> Y -> Z) {x x'} (e : x = x') y
   : f x y = f x' y
 := maponpaths (fun x => f x y) e.
 
-Lemma pr1_transportf (A : UU) (B : A -> UU) (P : Π a, B a -> UU)
-   (a a' : A) (e : a = a') (xs : Σ b : B a, P _ b):
-   pr1 (transportf (fun x => Σ b : B x, P _ b) e xs) = 
+Lemma pr1_transportf (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
+   (a a' : A) (e : a = a') (xs : ∑ b : B a, P _ b):
+   pr1 (transportf (fun x => ∑ b : B x, P _ b) e xs) = 
      transportf (fun x => B x) e (pr1 xs).
 Proof.
   destruct e; apply idpath.
@@ -103,10 +103,10 @@ Proof.
 Defined.
 
 Definition transportf_forall_var :
-  Π (A : UU) (B : A -> UU) (C : UU)
+  ∏ (A : UU) (B : A -> UU) (C : UU)
     (a1 a2 : A) (e : a1 = a2)
     (f : B a1 -> C),
-  transportf (λ x : A, Π y : B x, C) e f =
+  transportf (λ x : A, ∏ y : B x, C) e f =
   (λ y : B a2 , f (transportb B e y)).
 Proof.
   intros A B D a1 a2 e f.
@@ -115,10 +115,10 @@ Proof.
 Defined.
 
 Definition transportf_forall_var2 :
-  Π (A : UU) (B C : A -> UU) 
+  ∏ (A : UU) (B C : A -> UU) 
     (a1 a2 : A) (e : a1 = a2)
     (f : B a1 -> C a1),
-  transportf (λ x : A, Π y : B x, C x) e f =  
+  transportf (λ x : A, ∏ y : B x, C x) e f =  
   (λ y : B a2 , transportf _ e (f (transportb B e y))).
 Proof.
   intros A B D a1 a2 e f.
@@ -134,7 +134,7 @@ Proof.
 Defined.
 
 Lemma maponpaths_eq_idpath
-  : Π (T1 T2 : UU) (f : T1 -> T2) (t1 : T1) (e : t1 = t1)
+  : ∏ (T1 T2 : UU) (f : T1 -> T2) (t1 : T1) (e : t1 = t1)
       (H : e = idpath _ ), maponpaths f e = idpath _ .
 Proof.
   intros.
@@ -264,7 +264,7 @@ Qed.
 
 (** The total type of morphisms of a precategory *)
 Definition mor_total (C : precategory) : UU
-  := Σ (ab : C × C), C⟦pr2 ab, pr1 ab⟧.
+  := ∑ (ab : C × C), C⟦pr2 ab, pr1 ab⟧.
 
 Definition morphism_as_total {C : precategory} {a b : C} (f : a --> b)
   := ((_,,_),,f) : mor_total C.
@@ -575,7 +575,7 @@ Section eqv_from_ess_split_and_ff.
 
 Definition split_ess_surj {A B : precategory}
   (F : functor A B) 
-  := Π b : B, Σ a : A, iso (F a) b.
+  := ∏ b : B, ∑ a : A, iso (F a) b.
 
 Context {A B : precategory}
         {hsA : has_homsets A}
@@ -712,7 +712,7 @@ End eqv_from_ess_split_and_ff.
 (** ** Properties of functors *)
 
 Definition split_full {C D : precategory} (F : functor C D) : UU
-  := Π c c' (f : F c --> F c'), hfiber (#F) f.
+  := ∏ c c' (f : F c --> F c'), hfiber (#F) f.
 
 Lemma full_from_split_full {C D : precategory} (F : functor C D)
   : split_full F -> full F.
@@ -809,7 +809,7 @@ Qed.
 
 Lemma forall_isotid (A : precategory) (a_is : is_category A) 
       (a a' : A) (P : iso a a' -> UU) :
-  (Π e, P (idtoiso e)) → Π i, P i.
+  (∏ e, P (idtoiso e)) → ∏ i, P i.
 Proof.
   intros H i.
   rewrite <- (idtoiso_isotoid _ a_is).
@@ -838,11 +838,11 @@ Defined.
 
 Lemma idtoiso_transportf_family_of_morphisms (D : precategory)
       (A : UU) (B : A -> UU)
-      (F : Π a, B a -> D)
+      (F : ∏ a, B a -> D)
       (d d' : D) (deq : d = d')
-      (R : Π a (b : B a), D⟦ F a b, d⟧)
+      (R : ∏ a (b : B a), D⟦ F a b, d⟧)
      
-: transportf (λ x, Π a b, D⟦ F a b, x⟧) deq R 
+: transportf (λ x, ∏ a b, D⟦ F a b, x⟧) deq R 
   =
   λ a b, R a b ;; idtoiso deq.
 Proof.
@@ -901,7 +901,7 @@ Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Definition nat_iso_from_pointwise_iso (D E : precategory)
   (hsE : has_homsets E)
   (F G : [D, E, hsE])
-  (a : Π d, iso ((F : functor _ _) d) ((G : functor _ _) d))
+  (a : ∏ d, iso ((F : functor _ _) d) ((G : functor _ _) d))
   (H : is_nat_trans _ _ a)
   : iso F G.
 Proof.
@@ -997,7 +997,7 @@ Section Square_Transfers.
 Definition commutes_and_is_pullback {C : precategory} {a b c d : C}
     (f : b --> a) (g : c --> a) (p1 : d --> b) (p2 : d --> c)
   : UU
-:= Σ (H : p1 ;; f = p2 ;; g), isPullback _ _ _ _ H.
+:= ∑ (H : p1 ;; f = p2 ;; g), isPullback _ _ _ _ H.
 
 (* Note: should have a dual version where [i_a], instead of [i_d], is assumed iso (and using [post_comp_with_iso_is_inj] in the proof). *)
 Lemma commuting_square_transfer_iso {C : precategory}
@@ -1197,7 +1197,7 @@ Section on_pullbacks.
   Qed.
 
   Lemma postcomp_pb_with_iso (y : C) (r : y --> d) (i : iso b y) (Hi : i ;; r = k) :
-    Σ H : f ;; i ;; r = g ;; h, isPullback _ _ _ _ H.
+    ∑ H : f ;; i ;; r = g ;; h, isPullback _ _ _ _ H.
   Proof.
     simple refine (@commutes_and_is_pullback_transfer_iso (C,,hs)
               _ _ _ _  _ _ _ _
@@ -1223,7 +1223,7 @@ Section Pullbacks_hSet.
   If we had the standard pullback of hsets defined, this could be maybe better stated as the fact that P is a pullback if the map from P to the standard pullback is an iso. *)
 Lemma isPullback_HSET {P A B C : HSET}
   (p1 : P --> A) (p2 : P --> B) (f : A --> C) (g : B --> C) (ep : p1 ;; f = p2 ;; g) 
-  : (Π a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b)
+  : (∏ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b)
   -> isPullback _ _ _ _ ep.
 Proof.
   intros H X h k ehk.
@@ -1253,7 +1253,7 @@ Lemma pullback_HSET_univprop_elements {P A B C : HSET}
     {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
     (ep : p1 ;; f = p2 ;; g)
     (pb : isPullback f g p1 p2 ep)
-  : (Π a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b).
+  : (∏ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b).
 Proof.
   intros a b e.
   set (Pb := (mk_Pullback _ _ _ _ _ _ pb)).
@@ -1322,7 +1322,7 @@ Proof.
   set (XT1 := pullback_diagram _ f g).
   specialize (XR XT1).
   transparent assert
-       (XH : (Π a : C^op,
+       (XH : (∏ a : C^op,
         LimCone
           (@colimits.diagram_pointwise C^op HSET has_homsets_HSET
              pushout_graph XT1 a))).

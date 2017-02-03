@@ -82,8 +82,8 @@ Local Definition Tm (pp : mor_total (preShv C)) : functor _ _ := source pp.
 
 Definition comp_data (pp : mor_total (preShv C)) : UU
   := 
-   Σ (dpr : Π (Γ : C) (A : Ty pp Γ : hSet ), Σ (ΓA : C), C⟦ΓA, Γ⟧),
-     Π Γ (A : Ty pp Γ : hSet), _ ⟦Yo (pr1 (dpr Γ A)) , Tm pp⟧.
+   ∑ (dpr : ∏ (Γ : C) (A : Ty pp Γ : hSet ), ∑ (ΓA : C), C⟦ΓA, Γ⟧),
+     ∏ Γ (A : Ty pp Γ : hSet), _ ⟦Yo (pr1 (dpr Γ A)) , Tm pp⟧.
 
 Definition ext {pp : mor_total (preShv C)} (Y : comp_data pp) {Γ} A 
   : C 
@@ -96,13 +96,13 @@ Definition QQ {pp : mor_total (preShv C)} (Y : comp_data pp) {Γ} A
   := pr2 Y Γ A.
 
 Definition comp_axioms (pp : mor_total (preShv C)) (Y : comp_data pp) : UU :=
-  Π Γ (A : Ty pp Γ : hSet),
-        Σ (e : #Yo (dpr _ A) ;; yy A = QQ Y A ;; pp), isPullback _ _ _ _ e.
+  ∏ Γ (A : Ty pp Γ : hSet),
+        ∑ (e : #Yo (dpr _ A) ;; yy A = QQ Y A ;; pp), isPullback _ _ _ _ e.
 
 Definition comp (pp : mor_total (preShv C)) : UU 
-  := Σ (Y : comp_data pp), comp_axioms _ Y.
+  := ∑ (Y : comp_data pp), comp_axioms _ Y.
 
-Definition icwf_structure := Σ (pp : mor_total (preShv C)), comp pp.
+Definition icwf_structure := ∑ (pp : mor_total (preShv C)), comp pp.
 
 (** ** Equivalence between [cwf_structure] and [icwf_structure] *)
 
@@ -112,9 +112,9 @@ Definition icwf_structure := Σ (pp : mor_total (preShv C)), comp pp.
 *)
 
 Definition weq_comp_cwf_data : 
- (Σ X : obj_ext_structure C, term_fun_structure_data C X)
+ (∑ X : obj_ext_structure C, term_fun_structure_data C X)
    ≃ 
- Σ pp : mor_total (preShv C), comp_data pp.
+ ∑ pp : mor_total (preShv C), comp_data pp.
 Proof.
   eapply weqcomp.
     unfold obj_ext_structure.
@@ -128,15 +128,15 @@ Proof.
     set (XR := @weqtotal2asstol). unfold term_fun_structure_data.
     specialize (XR (preShv C)
                    (fun x =>  x --> TY (Ty,, depr))). simpl in XR.
-    specialize (XR (fun Tmp =>  Π (Γ : C^op) (A : (TY (Ty,, depr):functor _ _ ) Γ : hSet), 
+    specialize (XR (fun Tmp =>  ∏ (Γ : C^op) (A : (TY (Ty,, depr):functor _ _ ) Γ : hSet), 
                                  Yo (comp_ext (Ty,,depr) Γ A) --> pr1 Tmp) ).       
     apply XR. simpl.
   eapply weqcomp.
-    set (XR:= @weqtotal2asstol (Π Γ : C, (Ty Γ : hSet) → Σ ΓA : C, ΓA --> Γ)).
-    specialize (XR (fun _ =>  Σ x0 : functor (opp_precat_data C) hset_precategory_data, 
+    set (XR:= @weqtotal2asstol (∏ Γ : C, (Ty Γ : hSet) → ∑ ΓA : C, ΓA --> Γ)).
+    specialize (XR (fun _ =>  ∑ x0 : functor (opp_precat_data C) hset_precategory_data, 
                                       nat_trans x0 Ty)).
     simpl in *.
-    specialize (XR (fun deprTmp => Π (Γ : C) (A : (Ty Γ : hSet)),
+    specialize (XR (fun deprTmp => ∏ (Γ : C) (A : (Ty Γ : hSet)),
                                    nat_trans (yoneda_objects C (homset_property _) (comp_ext (Ty,,pr1 deprTmp) Γ A)) 
                                              (pr1 (pr2 deprTmp) ))).
     apply XR.
@@ -197,7 +197,7 @@ Defined.
 *)
 
 Definition fcompYo (pp : mor_total (preShv C)) : UU
-  := Π Γ (A : Ty pp Γ : hSet),
+  := ∏ Γ (A : Ty pp Γ : hSet),
        fpullback Yo pp (yy A).
 
 Definition weq_fcomprehension_fcompYo (pp : mor_total (preShv C)) :
@@ -209,8 +209,8 @@ Proof.
 Defined.
 
 Definition comp1_data (pp : mor_total (preShv C)) : UU
-  := Π (Γ : C) (A : Ty pp Γ : hSet),
-           (Σ ΓAp : Σ ΓA : C, ΓA --> Γ, Yo (pr1 ΓAp) --> Tm pp).
+  := ∏ (Γ : C) (A : Ty pp Γ : hSet),
+           (∑ ΓAp : ∑ ΓA : C, ΓA --> Γ, Yo (pr1 ΓAp) --> Tm pp).
 
 Definition ext1 {pp : mor_total (preShv C)} (Y : comp1_data pp) {Γ} A 
   : C 
@@ -223,25 +223,25 @@ Definition QQ1 {pp : mor_total (preShv C)} (Y : comp1_data pp) {Γ} A
   := (pr2 (Y Γ A)).
 
 Definition comp1_axioms (pp : mor_total (preShv C)) (Y : comp1_data pp) : UU :=
-  Π Γ (A : Ty pp Γ : hSet),
-        Σ (e : #Yo (dpr1 _ A) ;; yy A = QQ1 Y A ;; pp), isPullback _ _ _ _ e.
+  ∏ Γ (A : Ty pp Γ : hSet),
+        ∑ (e : #Yo (dpr1 _ A) ;; yy A = QQ1 Y A ;; pp), isPullback _ _ _ _ e.
 
 Definition comp1 (pp : mor_total (preShv C)) : UU 
-  := Σ (Y : comp1_data pp), comp1_axioms _ Y.
+  := ∑ (Y : comp1_data pp), comp1_axioms _ Y.
 
 Definition weq_comp_data (pp : mor_total (preShv C)) : comp_data pp ≃ comp1_data pp.
 Proof.
   unfold comp_data, comp1_data.
   eapply weqcomp.
     set (XR := @weqtotaltoforall C).
-    specialize (XR (fun Γ => (Ty pp Γ : hSet) → Σ ΓA : C, ΓA --> Γ)).
+    specialize (XR (fun Γ => (Ty pp Γ : hSet) → ∑ ΓA : C, ΓA --> Γ)).
     simpl in XR.
-    specialize (XR (fun Γ dpr =>  Π (A : Ty pp Γ : hSet), 
+    specialize (XR (fun Γ dpr =>  ∏ (A : Ty pp Γ : hSet), 
                                   Yo (pr1 (dpr A)) --> Tm pp)).
     apply XR.
   apply weqonsecfibers. intro Γ.
   set (XR := @weqtotaltoforall (Ty pp Γ : hSet) ). simpl in XR.
-  specialize (XR (fun _ => Σ ΓA : C, ΓA --> Γ)). simpl in XR. 
+  specialize (XR (fun _ => ∑ ΓA : C, ΓA --> Γ)). simpl in XR. 
   specialize (XR  (fun A ΓAp => Yo (pr1 ΓAp) --> Tm pp)).
   apply XR.
 Defined.
@@ -263,24 +263,24 @@ Proof.
     set (XR := @weqtotaltoforall C). 
     unfold comp1_data. unfold comp1_axioms.
     specialize (XR (fun Γ => (Ty pp Γ : hSet) 
-                             → Σ ΓAp : Σ ΓA : C, ΓA --> Γ, Yo (pr1 ΓAp) --> Tm pp)). 
+                             → ∑ ΓAp : ∑ ΓA : C, ΓA --> Γ, Yo (pr1 ΓAp) --> Tm pp)). 
     unfold dpr1, QQ1.
-    specialize (XR (fun Γ p =>  Π  (A : (Ty pp Γ : hSet)),
-       Σ e : # Yo (pr2 (pr1 (p A))) ;; yy A = (pr2 (p A) : preShv _ ⟦_,_⟧ );; pp,
+    specialize (XR (fun Γ p =>  ∏  (A : (Ty pp Γ : hSet)),
+       ∑ e : # Yo (pr2 (pr1 (p A))) ;; yy A = (pr2 (p A) : preShv _ ⟦_,_⟧ );; pp,
        isPullback (yy A) pp (# Yo (pr2 (pr1 (p A)))) (pr2 (p A)) e)).
     apply XR.
   apply weqonsecfibers. intro Γ.
   eapply weqcomp.
     set (XR := @weqtotaltoforall  (Ty pp Γ : hSet)). simpl in XR.
-    specialize (XR (fun _ =>  Σ ΓAp : Σ ΓA : C, ΓA --> Γ, Yo (pr1 ΓAp) --> Tm pp)).
+    specialize (XR (fun _ =>  ∑ ΓAp : ∑ ΓA : C, ΓA --> Γ, Yo (pr1 ΓAp) --> Tm pp)).
 
-    specialize (XR (fun A p =>  Σ e : # Yo (pr2 (pr1 (p ))) ;; yy A =
+    specialize (XR (fun A p =>  ∑ e : # Yo (pr2 (pr1 (p ))) ;; yy A =
                                      ((pr2 p : preShv C ⟦_,_⟧)) ;; pp, 
     isPullback (yy A) pp (# Yo (pr2 (pr1 (p )))) (pr2 (p )) e)).
     apply XR.
   apply weqonsecfibers. intro A. unfold fpullback.
   transparent assert (HXY :
-      ( (Σ ΓAp : Σ ΓA : C, ΓA --> Γ, Yo (pr1 ΓAp) --> Tm pp)
+      ( (∑ ΓAp : ∑ ΓA : C, ΓA --> Γ, Yo (pr1 ΓAp) --> Tm pp)
          ≃
          @fpullback_data _ _ (Yo) _ (Tm pp) _ (yy A) ) ).
   { apply weqtotal2asstor. }
@@ -380,15 +380,15 @@ Proof.
   simpl.
   eapply weqcomp. Focus 2.
     set (XR := @weqforalltototal C).
-    specialize (XR (fun Γ => (Ty pp Γ : hSet) → Σ ΓA : C, ΓA --> Γ)).
+    specialize (XR (fun Γ => (Ty pp Γ : hSet) → ∑ ΓA : C, ΓA --> Γ)).
     simpl in XR.
-    specialize (XR (fun Γ pX =>  Π  (A : (Ty pp Γ : hSet)),
+    specialize (XR (fun Γ pX =>  ∏  (A : (Ty pp Γ : hSet)),
               nat_trans (yoneda_ob_functor_data C (homset_property _) (pr1 (pX  A))) (Tm pp))).
     apply XR.
   apply weqonsecfibers. intro Γ. simpl.
   eapply weqcomp. Focus 2.
     set (XR := @weqforalltototal (Ty pp Γ : hSet)).
-    specialize (XR (fun A =>  Σ ΓA : C, ΓA --> Γ)). simpl in XR.
+    specialize (XR (fun A =>  ∑ ΓA : C, ΓA --> Γ)). simpl in XR.
     specialize (XR (fun A pX => nat_trans (yoneda_ob_functor_data C (homset_property _) (pr1 (pX))) (Tm pp))).
     apply XR. simpl. unfold fpullback_data.
   eapply weqcomp.
