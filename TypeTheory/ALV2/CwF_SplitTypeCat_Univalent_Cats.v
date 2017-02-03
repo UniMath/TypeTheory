@@ -46,9 +46,9 @@ Local Notation φ := obj_ext_mor_φ.
 Section Is_Category_Obj_Ext_1.
 
 Definition obj_ext_iso_alt (X X' : obj_ext_Precat C) : UU :=
-  Σ F_TY : iso (TY X) (TY X'),
-        Π {Γ:C} {A' : Ty X' Γ},
-         Σ φ : iso (Γ ◂ ((inv_from_iso F_TY) : nat_trans _ _ ) _ A') (Γ ◂  A'),
+  ∑ F_TY : iso (TY X) (TY X'),
+        ∏ {Γ:C} {A' : Ty X' Γ},
+         ∑ φ : iso (Γ ◂ ((inv_from_iso F_TY) : nat_trans _ _ ) _ A') (Γ ◂  A'),
            φ ;; π _ = π _ .
 
 (* TODO: anstract this as a general function on any [category] (if there isn’t one already provided). *) 
@@ -79,7 +79,7 @@ Proof.
   - 
     set (RX := @transportf_forall).
     specialize (RX (preShv C) C).
-    specialize (RX (fun F Γ' => ((F:functor _ _ ) Γ' : hSet) → Σ ΓA : C, ΓA --> Γ')).
+    specialize (RX (fun F Γ' => ((F:functor _ _ ) Γ' : hSet) → ∑ ΓA : C, ΓA --> Γ')).
     simpl in RX.
     specialize (RX _ _ F).
     rewrite RX.
@@ -123,7 +123,7 @@ Definition obj_ext_to_preShv_functor
 
 Definition transportf_obj_ext
   {T T' : preShv C} (e : T = T')
-  (extn : Π Γ : C, ((T : functor _ _) Γ : hSet) → Σ ΓA : C, ΓA --> Γ) 
+  (extn : ∏ Γ : C, ((T : functor _ _) Γ : hSet) → ∑ ΓA : C, ΓA --> Γ) 
 : transportf _ e extn
   = fun Γ A => extn Γ ((inv_from_iso (idtoiso e) : nat_trans _ _) Γ A).
 Proof.
@@ -398,7 +398,7 @@ Qed.
 Lemma qq_structure_eq 
   (x : obj_ext_Precat C)
   (d d' : qq_morphism_structure x)
-  (H : Π (Γ Γ' : C) (f : Γ' --> Γ) (A : (TY x : functor _ _ ) Γ : hSet), 
+  (H : ∏ (Γ Γ' : C) (f : Γ' --> Γ) (A : (TY x : functor _ _ ) Γ : hSet), 
            qq d f A = qq d' f A)
   : d = d'.
 Proof.

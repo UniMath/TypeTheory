@@ -31,7 +31,7 @@ Definition type_cat_struct1_from_DM : type_cat_struct1 CC.
 Proof.
   unfold type_cat_struct1.
   exists (DM_over C).
-(*  exists (fun X => Σ (Yf : Σ Y, X --> Y), DM_type C (pr2 Yf)). *)
+(*  exists (fun X => ∑ (Yf : ∑ Y, X --> Y), DM_type C (pr2 Yf)). *)
   refine (tpair _ _ _ ).
   - intros Γ H. exact (ob_from_DM_over H).
   - intros Γ Δ'γH Γ' f.

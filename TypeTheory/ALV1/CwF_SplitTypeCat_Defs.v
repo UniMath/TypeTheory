@@ -45,8 +45,8 @@ Section Obj_Ext_Structures.
 Context {C : precategory}.
 
 Definition obj_ext_structure : UU
-  := Σ Ty : preShv C,
-        Π (Γ : C) (A : (Ty : functor _ _ ) Γ : hSet ), Σ (ΓA : C), ΓA --> Γ.
+  := ∑ Ty : preShv C,
+        ∏ (Γ : C) (A : (Ty : functor _ _ ) Γ : hSet ), ∑ (ΓA : C), ΓA --> Γ.
 
 Definition TY (X : obj_ext_structure) : preShv _ := pr1 X.
 Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
@@ -139,9 +139,9 @@ Components of [Y : term_fun_structure X]:
 *)
 
 Definition term_fun_structure_data : UU
-  := Σ Tm : preShv C, 
+  := ∑ Tm : preShv C, 
         (Tm --> TY X)
-        × (Π (Γ : C) (A : Ty X Γ), Yo (Γ ◂ A) --> Tm).
+        × (∏ (Γ : C) (A : Ty X Γ), Yo (Γ ◂ A) --> Tm).
 
 Definition TM (Y : term_fun_structure_data) : preShv C := pr1 Y.
 Definition pp Y : TM Y --> TY X := pr1 (pr2 Y).
@@ -157,8 +157,8 @@ Proof.
 Qed.
 
 Definition term_fun_structure_axioms (Y : term_fun_structure_data) :=
-  Π Γ (A : Ty X Γ), 
-        Σ (e : #Yo (π A) ;; yy A = Q Y A ;; pp Y), isPullback _ _ _ _ e.
+  ∏ Γ (A : Ty X Γ), 
+        ∑ (e : #Yo (π A) ;; yy A = Q Y A ;; pp Y), isPullback _ _ _ _ e.
 
 Lemma isaprop_term_fun_structure_axioms Y
   : isaprop (term_fun_structure_axioms Y).
@@ -170,7 +170,7 @@ Proof.
 Qed.
 
 Definition term_fun_structure : UU :=
-  Σ Y : term_fun_structure_data, term_fun_structure_axioms Y.
+  ∑ Y : term_fun_structure_data, term_fun_structure_axioms Y.
 Coercion term_fun_data_from_term_fun (Y : term_fun_structure) : _ := pr1 Y.
 
 Definition Q_pp (Y : term_fun_structure) {Γ} (A : Ty X Γ) 
@@ -198,7 +198,7 @@ Definition Q_pp_Pb_unique (Y : term_fun_structure) (Γ' Γ : C) (A : Ty X Γ)
 Lemma term_to_section_aux {Y : term_fun_structure} {Γ:C} (t : Tm Y Γ) 
   (A := (pp Y : nat_trans _ _) _ t)
   : iscontr
-    (Σ (f : Γ --> Γ ◂ A), 
+    (∑ (f : Γ --> Γ ◂ A), 
          f ;; π _ = identity Γ
        × (Q Y A : nat_trans _ _) Γ f = t).
 Proof.
@@ -211,7 +211,7 @@ Qed.
 (* TODO: unify with [bar] in […_Equivalence]? *)
 Lemma term_to_section {Y : term_fun_structure} {Γ:C} (t : Tm Y Γ) 
   (A := (pp Y : nat_trans _ _) _ t)
-  : Σ (f : Γ --> Γ ◂ A), (f ;; π _ = identity Γ).
+  : ∑ (f : Γ --> Γ ◂ A), (f ;; π _ = identity Γ).
 Proof.
   set (sectionplus := iscontrpr1 (term_to_section_aux t)).
   exists (pr1 sectionplus).
@@ -266,10 +266,10 @@ Components of [Z : qq_morphism_structure X]:
 Local Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).
 
 Definition qq_morphism_data : UU :=
-  Σ q : Π {Γ Γ'} (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet), 
+  ∑ q : ∏ {Γ Γ'} (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet), 
            C ⟦Γ' ◂ A [ f ], Γ ◂ A⟧, 
-    (Π Γ Γ' (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet), 
-        Σ e :  π _ ;; f = q f A ;; π _ , isPullback _ _ _ _ e).
+    (∏ Γ Γ' (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet), 
+        ∑ e :  π _ ;; f = q f A ;; π _ , isPullback _ _ _ _ e).
 
 Definition qq (Y : qq_morphism_data) {Γ Γ'} (f : C ⟦Γ', Γ⟧)
               (A : (TY X:functor _ _ ) Γ : hSet) 
@@ -298,11 +298,11 @@ Qed.
 
 Definition qq_morphism_axioms (Y : qq_morphism_data) : UU
   := 
-    (Π Γ A,
+    (∏ Γ A,
     qq Y (identity Γ) A
     = comp_ext_compare (toforallpaths _ _ _ (functor_id (TY X) _ ) _ ))
   ×
-    (Π Γ Γ' Γ'' (f : C⟦Γ', Γ⟧) (g : C ⟦Γ'', Γ'⟧) (A : (TY X:functor _ _ ) Γ : hSet),
+    (∏ Γ Γ' Γ'' (f : C⟦Γ', Γ⟧) (g : C ⟦Γ'', Γ'⟧) (A : (TY X:functor _ _ ) Γ : hSet),
     qq Y (g ;; f) A
     = comp_ext_compare
            (toforallpaths _ _ _ (functor_comp (TY X) _ _ _ _ _) A)
@@ -310,7 +310,7 @@ Definition qq_morphism_axioms (Y : qq_morphism_data) : UU
       ;; qq Y f A).
 
 Definition qq_morphism_structure : UU
-  := Σ Z : qq_morphism_data,
+  := ∑ Z : qq_morphism_data,
            qq_morphism_axioms Z.
 
 Definition qq_morphism_data_from_structure :
@@ -369,7 +369,7 @@ Arguments qq_morphism_structure [_] _ .
 (** Details and documentation of these definitions are given with [term_fun_structure] and [qq_morphism_structure] above. *)
 
 Definition cwf_structure (C : Precategory) : UU 
-:= Σ X : obj_ext_structure C, term_fun_structure C X.
+:= ∑ X : obj_ext_structure C, term_fun_structure C X.
 
 Coercion obj_ext_structure_of_cwf_structure {C : Precategory}
 := pr1 : cwf_structure C -> obj_ext_structure C.
@@ -378,14 +378,14 @@ Coercion term_fun_structure_of_cwf_structure {C : Precategory}
 := pr2 : forall XY : cwf_structure C, term_fun_structure C XY.
 
 Definition cwf : UU
-:= Σ C : Precategory, cwf_structure C.
+:= ∑ C : Precategory, cwf_structure C.
 
 Coercion precategory_of_cwf := pr1 : cwf -> Precategory.
 
 Coercion cwf_structure_of_cwf := pr2 : forall C : cwf, cwf_structure C.
 
 Definition split_typecat_structure (C : Precategory) : UU 
-:= Σ X : obj_ext_structure C, qq_morphism_structure X.
+:= ∑ X : obj_ext_structure C, qq_morphism_structure X.
 
 Coercion obj_ext_structure_of_split_typecat_structure {C : Precategory}
 := pr1 : split_typecat_structure C -> obj_ext_structure C.
@@ -394,7 +394,7 @@ Coercion qq_morphism_structure_of_split_typecat_structure {C : Precategory}
 := pr2 : forall XY : split_typecat_structure C, qq_morphism_structure XY.
 
 Definition split_typecat : UU
-  := Σ C : Precategory, split_typecat_structure C.
+  := ∑ C : Precategory, split_typecat_structure C.
 
 Coercion precategory_of_split_typecat
 := pr1 : split_typecat -> Precategory.

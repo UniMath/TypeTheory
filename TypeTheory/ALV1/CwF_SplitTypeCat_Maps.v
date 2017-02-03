@@ -35,7 +35,7 @@ Section Compatible_Structures.
 
 Definition iscompatible_term_qq (Y : term_fun_structure C X)
          (Z : qq_morphism_structure X) : UU
-  := Π Γ Γ' A (f : C⟦Γ', Γ⟧) , Q Y A[f] = #Yo (qq Z f A) ;; Q Y A.
+  := ∏ Γ Γ' A (f : C⟦Γ', Γ⟧) , Q Y A[f] = #Yo (qq Z f A) ;; Q Y A.
 
 Lemma isaprop_iscompatible_term_qq
   (Y : term_fun_structure C X)
@@ -47,10 +47,10 @@ Proof.
 Qed.
 
 Definition compatible_term_structure (Z : qq_morphism_structure X) : UU
-  := Σ Y : term_fun_structure C X, iscompatible_term_qq Y Z.
+  := ∑ Y : term_fun_structure C X, iscompatible_term_qq Y Z.
 
 Definition compatible_qq_morphism_structure (Y : term_fun_structure C X) : UU
-  := Σ Z : qq_morphism_structure X, iscompatible_term_qq Y Z.
+  := ∑ Z : qq_morphism_structure X, iscompatible_term_qq Y Z.
 
 End Compatible_Structures.
 
@@ -95,8 +95,8 @@ Variable Z : qq_morphism_structure X.
 (** ** Definition of the presheaf of terms *)
 
 Definition tm_from_qq_carrier (Γ : C) : UU :=
-  Σ A : Ty X Γ,
-  Σ s : C⟦Γ, Γ ◂ A⟧, s ;; π _ = identity _ .
+  ∑ A : Ty X Γ,
+  ∑ s : C⟦Γ, Γ ◂ A⟧, s ;; π _ = identity _ .
 
 Lemma isaset_tm_from_qq Γ : isaset (tm_from_qq_carrier Γ).
 Proof.
@@ -239,7 +239,7 @@ Variable Γ : C.
 Variable A : Ty X Γ.
 
 Definition Q_from_qq_data
-  : Π Γ', HSET ⟦ (Yo (Γ ◂ A) : functor _ _ ) Γ', tm_from_qq Γ' ⟧.
+  : ∏ Γ', HSET ⟦ (Yo (Γ ◂ A) : functor _ _ ) Γ', tm_from_qq Γ' ⟧.
 Proof.
   intros Γ' f. simpl in *.
   unfold yoneda_objects_ob in f.

@@ -35,7 +35,7 @@ Context {C D : precategory} (J : functor C D).
 Context {U tU : D} (p : D ⟦tU, U⟧).
 
 Definition fpullback_data {X : C} (f : D ⟦J X, U⟧) : UU 
-  := Σ Xf : C, C⟦Xf, X⟧ × D⟦J Xf, tU⟧.
+  := ∑ Xf : C, C⟦Xf, X⟧ × D⟦J Xf, tU⟧.
 
 Definition fpb_obj  {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f) : C := pr1 T.
 Definition fp {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f) : C⟦fpb_obj T, X⟧ := pr1 (pr2 T).
@@ -45,26 +45,26 @@ Definition fpullback_prop {X : C} {f : D ⟦J X, U⟧} (T : fpullback_data f) : 
   := commutes_and_is_pullback f p (#J (fp T)) (fq T).
 
 Definition fpullback {X : C} (f : D ⟦J X, U⟧) := 
-  Σ T : fpullback_data f, fpullback_prop T.
+  ∑ T : fpullback_data f, fpullback_prop T.
 
 Coercion fpullback_data_from_fpullback {X : C} {f : D ⟦J X, U⟧} (T : fpullback f) :
    fpullback_data f := pr1 T.
 
-Definition fcomprehension := Π X (f : D⟦J X, U⟧), fpullback f.
+Definition fcomprehension := ∏ X (f : D⟦J X, U⟧), fpullback f.
 
 (* TODO: add arguments declaration to make [U], [tU] explicit in this def not depending on [p].  OR make it depend on [p] (which it conceptually should, though it formally doesn’t). *)
-Definition fcomprehension_data := Π X (f : D⟦ J X, U⟧), fpullback_data f.
+Definition fcomprehension_data := ∏ X (f : D⟦ J X, U⟧), fpullback_data f.
 Definition fcomprehension_prop (Y : fcomprehension_data) :=
-          Π X f, fpullback_prop (Y X f). 
+          ∏ X f, fpullback_prop (Y X f). 
 
-(** An equivalent form of [fcomprehension], separating its data and properties by interchanging Σ and Π *)
+(** An equivalent form of [fcomprehension], separating its data and properties by interchanging ∑ and ∏ *)
 Definition fcomprehension_weq :
-   fcomprehension ≃ Σ Y : fcomprehension_data, fcomprehension_prop Y.
+   fcomprehension ≃ ∑ Y : fcomprehension_data, fcomprehension_prop Y.
 Proof.
   eapply weqcomp. Focus 2.
     set (XR:=@weqforalltototal (ob C)).
-    specialize (XR (fun X => Π f : D⟦ J X, U⟧, fpullback_data f)). simpl in XR.
-    specialize (XR (fun X pX => Π A, fpullback_prop  (pX  A))).
+    specialize (XR (fun X => ∏ f : D⟦ J X, U⟧, fpullback_data f)). simpl in XR.
+    specialize (XR (fun X pX => ∏ A, fpullback_prop  (pX  A))).
     apply XR.
   apply weqonsecfibers.
   intro X.
@@ -113,8 +113,8 @@ Proof.
     + cbn.
       set (XT := transportf_dirprod _ (fun a' => C⟦a', X⟧) (fun a' => D⟦J a', tU⟧)).
       cbn in XT.
-      set (XT' := XT (tpair _ a m : Σ a : C, C ⟦ a, X ⟧ × D ⟦ J a, tU ⟧ )
-                     (tpair _ a' m' : Σ a : C, C ⟦ a, X ⟧ × D ⟦ J a, tU ⟧ )).
+      set (XT' := XT (tpair _ a m : ∑ a : C, C ⟦ a, X ⟧ × D ⟦ J a, tU ⟧ )
+                     (tpair _ a' m' : ∑ a : C, C ⟦ a, X ⟧ × D ⟦ J a, tU ⟧ )).
       cbn in *.
       match goal with | [ |- transportf _ ?e _ = _ ] => set (TT := e) end.
       rewrite XT'.
@@ -165,7 +165,7 @@ End Relative_Comprehension_Lemmas.
 (** A _universe relative to a functor_ is just a map in the target category, equipped with a relative comprehension structure. *)
 
 Definition relative_universe {C D : precategory} (J : functor C D) : UU
-  := Σ X : mor_total D, fcomprehension J X.
+  := ∑ X : mor_total D, fcomprehension J X.
 
 (** ** Transfer of a relative universe *)
 

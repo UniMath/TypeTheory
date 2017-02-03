@@ -45,9 +45,9 @@ Section Obj_Ext_Precat.
 Context {C : Precategory}.
 
 Definition obj_ext_mor (X X' : obj_ext_structure C)
-  := Σ F_TY : TY X --> TY X',
-       Π {Γ:C} {A : Ty X Γ},
-         Σ φ : (Γ ◂ A --> Γ ◂ ((F_TY : nat_trans _ _) _ A)),
+  := ∑ F_TY : TY X --> TY X',
+       ∏ {Γ:C} {A : Ty X Γ},
+         ∑ φ : (Γ ◂ A --> Γ ◂ ((F_TY : nat_trans _ _) _ A)),
            φ ;; π _ = π A.
 
 Definition obj_ext_mor_TY {X X'} (F : obj_ext_mor X X') : _ --> _
@@ -73,8 +73,8 @@ Definition obj_ext_mor_ax {X X'} (F : obj_ext_mor X X')
 
 (* TODO: try to speed up? *)
 Lemma obj_ext_mor_eq {X X'} (F F' : obj_ext_mor X X')
-  (e_TY : Π Γ (A : Ty X Γ), F [ A ] = F' [ A ])
-  (e_comp : Π Γ (A : Ty X Γ),
+  (e_TY : ∏ Γ (A : Ty X Γ), F [ A ] = F' [ A ])
+  (e_comp : ∏ Γ (A : Ty X Γ),
     φ F A ;; @Δ _ _ _ _ _ (e_TY _ _)
     = φ F' A)
   : F = F'.
@@ -106,9 +106,9 @@ Qed.
 
 TODO: see if using this instead of [obj_ext_mor_eq] speeds up any proofs. *)
 Lemma obj_ext_mor_eq' {X X'} (F F' : obj_ext_mor X X')
-  (e_TY : Π Γ (A : Ty X Γ), F [ A ] = F' [ A ])
-  (e_comp_gen : Π (e_TY : Π Γ (A : Ty X Γ), F [ A ] = F' [ A ]),
-    Π Γ (A : Ty X Γ),
+  (e_TY : ∏ Γ (A : Ty X Γ), F [ A ] = F' [ A ])
+  (e_comp_gen : ∏ (e_TY : ∏ Γ (A : Ty X Γ), F [ A ] = F' [ A ]),
+    ∏ Γ (A : Ty X Γ),
     φ F A ;; @Δ _ _ _ _ _ (e_TY _ _)
     = φ F' A)
   : F = F'.
@@ -197,10 +197,10 @@ Context {C : Precategory}.
 Definition term_fun_mor {X X' : obj_ext_Precat C}
     (Y : term_fun_structure C X) (Y' : term_fun_structure C X') (F : X --> X')
   : UU
-:= Σ FF_TM : TM Y --> TM Y',
+:= ∑ FF_TM : TM Y --> TM Y',
        FF_TM ;; pp Y' = pp Y ;; obj_ext_mor_TY F
      × 
-       Π {Γ:C} {A : Ty X Γ}, Q Y A ;; FF_TM = #Yo (φ F A) ;; Q Y' _.
+       ∏ {Γ:C} {A : Ty X Γ}, Q Y A ;; FF_TM = #Yo (φ F A) ;; Q Y' _.
 
 Definition term_fun_mor_TM {X X'} {Y} {Y'} {F : X --> X'} (FF : term_fun_mor Y Y' F)
   : _ --> _
@@ -217,7 +217,7 @@ Definition term_fun_mor_Q {X X'} {Y} {Y'} {F : X --> X'} (FF : term_fun_mor Y Y'
 
 (* TODO: inline in [isaprop_term_fun_mor]? *)
 Lemma term_fun_mor_eq {X X'} {Y} {Y'} {F : X --> X'} (FF FF' : term_fun_mor Y Y' F)
-    (e_TM : Π Γ (t : Tm Y Γ),
+    (e_TM : ∏ Γ (t : Tm Y Γ),
       (term_fun_mor_TM FF : nat_trans _ _) _ t
       = (term_fun_mor_TM FF' : nat_trans _ _) _ t)
   : FF = FF'.
@@ -366,7 +366,7 @@ Definition qq_structure_ob_mor : disp_precat_ob_mor (obj_ext_Precat C).
 Proof.
   exists (fun X => qq_morphism_structure X).
   intros X X' Z Z' F.
-  refine (Π Γ' Γ (f : C ⟦ Γ' , Γ ⟧) (A : Ty X Γ), _).
+  refine (∏ Γ' Γ (f : C ⟦ Γ' , Γ ⟧) (A : Ty X Γ), _).
   refine (qq Z f A ;; φ F A = _).
   refine (φ F _ ;; Δ _ ;; qq Z' f _).
   revert A; apply toforallpaths.

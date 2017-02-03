@@ -43,33 +43,33 @@ Reserved Notation "γ ♯ a" (at level 25).
 Record precwf_record : Type := {
   C : precategory ;
   Ty : functor C HSET     where "C ⟨ Γ ⟩" := (Ty Γ) ;
-  term : Π Γ : C, pr1hSet (Ty Γ) → UU     where "C ⟨ Γ ⊢ A ⟩" := (term Γ A) ;
-(*  rtype : Π {Γ Γ' : C} (A : pr1hSet (Ty Γ)) (γ : Γ' --> Γ), pr1hSetC⟨Γ'⟩ where "A [[ γ ]]" := (rtype A γ) ; *)
-  rterm : Π {Γ Γ' : C} {A : C⟨Γ⟩} (a : C⟨Γ⊢A⟩) (γ : Γ' --> Γ), 
+  term : ∏ Γ : C, pr1hSet (Ty Γ) → UU     where "C ⟨ Γ ⊢ A ⟩" := (term Γ A) ;
+(*  rtype : ∏ {Γ Γ' : C} (A : pr1hSet (Ty Γ)) (γ : Γ' --> Γ), pr1hSetC⟨Γ'⟩ where "A [[ γ ]]" := (rtype A γ) ; *)
+  rterm : ∏ {Γ Γ' : C} {A : C⟨Γ⟩} (a : C⟨Γ⊢A⟩) (γ : Γ' --> Γ), 
           C⟨Γ'⊢ A[[γ]]⟩   where "a ⟦ γ ⟧" := (rterm a γ) ;
-  reindx_type_id : Π Γ (A : C⟨Γ⟩), A [[identity Γ]] = A ;
-  reindx_type_comp : Π  {Γ Γ' Γ''} (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') (A : C⟨Γ⟩), 
+  reindx_type_id : ∏ Γ (A : C⟨Γ⟩), A [[identity Γ]] = A ;
+  reindx_type_comp : ∏  {Γ Γ' Γ''} (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') (A : C⟨Γ⟩), 
           A [[γ';;γ]] 
           =  
           A[[γ]][[γ']] ;
-  reindx_term_id : Π Γ (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩), 
+  reindx_term_id : ∏ Γ (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩), 
           a⟦identity Γ⟧ 
           =
           transportf (λ B, C⟨Γ ⊢ B⟩) (! (reindx_type_id _ _)) a ;
-  reindx_term_comp : Π {Γ Γ' Γ''} (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') {A : C⟨Γ⟩} (a : C⟨Γ⊢A⟩),
+  reindx_term_comp : ∏ {Γ Γ' Γ''} (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') {A : C⟨Γ⟩} (a : C⟨Γ⊢A⟩),
           a⟦γ';;γ⟧ 
           =
           transportf (λ B, C⟨Γ'' ⊢ B⟩) (!(reindx_type_comp  _ _ _ )) (a⟦γ⟧⟦γ'⟧) ;
-  comp_obj : Π Γ (A : C⟨Γ⟩), C where "Γ ∙ A" := (comp_obj Γ A) ;
-  proj_mor : Π Γ (A : C⟨Γ⟩), Γ ∙ A --> Γ where "'π' A" := (proj_mor _ A) ;
-  gen_element : Π Γ (A : C⟨Γ⟩), C⟨Γ∙A ⊢ A[[π _ ]]⟩ where "'ν' A" := (gen_element _ A) ;
-  pairing : Π Γ (A : C⟨Γ⟩) Γ' (γ : Γ' --> Γ)(a : C⟨Γ'⊢ A[[γ]]⟩), Γ' --> Γ∙A 
+  comp_obj : ∏ Γ (A : C⟨Γ⟩), C where "Γ ∙ A" := (comp_obj Γ A) ;
+  proj_mor : ∏ Γ (A : C⟨Γ⟩), Γ ∙ A --> Γ where "'π' A" := (proj_mor _ A) ;
+  gen_element : ∏ Γ (A : C⟨Γ⟩), C⟨Γ∙A ⊢ A[[π _ ]]⟩ where "'ν' A" := (gen_element _ A) ;
+  pairing : ∏ Γ (A : C⟨Γ⟩) Γ' (γ : Γ' --> Γ)(a : C⟨Γ'⊢ A[[γ]]⟩), Γ' --> Γ∙A 
      where "γ ♯ a" := (pairing _ _ _  γ a) ;
-  pre_cwf_law_1 : Π Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A[[γ]]⟩), 
+  pre_cwf_law_1 : ∏ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A[[γ]]⟩), 
           (γ ♯ a) ;; (π _) 
           = 
           γ ;
-  pre_cwf_law_2 : Π Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A[[γ]]⟩),
+  pre_cwf_law_2 : ∏ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A[[γ]]⟩),
           transportf (λ ι, C⟨Γ'⊢ A [[ι]]⟩) (pre_cwf_law_1 Γ A Γ' γ a)
              (transportf (λ B, C⟨Γ'⊢ B⟩) (!reindx_type_comp (π _ )(γ ♯ a) _ )
                 ((ν A) ⟦γ ♯ a⟧))
@@ -87,7 +87,7 @@ End Record_Preview.
 *)
 
 Definition tt_structure (C : precategory) :=
-  Σ f : functor C^op HSET, Π c : C, pr1hSet (f c) → UU.
+  ∑ f : functor C^op HSET, ∏ c : C, pr1hSet (f c) → UU.
 
 
 Definition type {C : precategory} (TT : tt_structure C) : C → hSet := functor_on_objects (pr1 TT).
@@ -95,7 +95,7 @@ Definition type {C : precategory} (TT : tt_structure C) : C → hSet := functor_
 Notation "C ⟨ Γ ⟩" := (type C Γ) (at level 60).
   (* \< and \> in Agda input method *)
 
-Definition term {CC : precategory} (C : tt_structure CC) : Π Γ : CC, C⟨Γ⟩ → UU := pr2 C.
+Definition term {CC : precategory} (C : tt_structure CC) : ∏ Γ : CC, C⟨Γ⟩ → UU := pr2 C.
 
 Notation "C ⟨ Γ ⊢ A ⟩" := (term C Γ A) (at level 60).
   (* \<, \>, and \|- or \vdash *)
@@ -103,26 +103,26 @@ Notation "C ⟨ Γ ⊢ A ⟩" := (term C Γ A) (at level 60).
 (** * Reindexing of types [A[γ]] and terms [a⟦γ⟧] along a morphism [γ : Γ' --> Γ] *)
 
 Definition rtype {CC : precategory} {C : tt_structure CC}
-  : Π {Γ Γ' : CC} (A : C⟨Γ⟩) (γ : Γ' --> Γ), C⟨Γ'⟩.
+  : ∏ {Γ Γ' : CC} (A : C⟨Γ⟩) (γ : Γ' --> Γ), C⟨Γ'⟩.
 Proof.
   intros Γ Γ' A γ.
   apply (# (pr1 C) γ A).
 Defined.
 
 Definition reindx_structure {CC : precategory}(C : tt_structure CC) := 
-(*  Σ (rtype : Π {Γ Γ' : CC} (A : C⟨Γ⟩) (γ : Γ' --> Γ), C⟨Γ'⟩), *)
-        Π (Γ Γ' : CC) (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩) (γ : Γ' --> Γ), C⟨Γ'⊢rtype A γ⟩.
+(*  ∑ (rtype : ∏ {Γ Γ' : CC} (A : C⟨Γ⟩) (γ : Γ' --> Γ), C⟨Γ'⟩), *)
+        ∏ (Γ Γ' : CC) (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩) (γ : Γ' --> Γ), C⟨Γ'⊢rtype A γ⟩.
 
 Definition tt_reindx_struct (CC : precategory) : UU 
  :=
-   Σ C : tt_structure CC, reindx_structure C.
+   ∑ C : tt_structure CC, reindx_structure C.
 
 Coercion tt_from_tt_reindx CC (C : tt_reindx_struct CC) : tt_structure _ := pr1 C.
 Coercion reindx_from_tt_reindx CC (C : tt_reindx_struct CC) : reindx_structure _ := pr2 C.
 
 (*
 Definition rtype {CC : precategory}{C : tt_reindx_struct CC} 
-  : Π {Γ Γ' : CC} (A : C⟨Γ⟩) (γ : Γ' --> Γ), C⟨Γ'⟩ 
+  : ∏ {Γ Γ' : CC} (A : C⟨Γ⟩) (γ : Γ' --> Γ), C⟨Γ'⟩ 
 := 
    pr1 (pr2 C).
 *)
@@ -130,7 +130,7 @@ Definition rtype {CC : precategory}{C : tt_reindx_struct CC}
 Notation "A [[ γ ]]" := (rtype A γ) (at level 40).
 
 Definition rterm {CC : precategory}{C : tt_reindx_struct CC}  
-  : Π {Γ Γ' : CC} {A : C⟨Γ⟩}  (a : C⟨Γ⊢A⟩) (γ : Γ' --> Γ), C⟨Γ'⊢ A [[γ]] ⟩ 
+  : ∏ {Γ Γ' : CC} {A : C⟨Γ⟩}  (a : C⟨Γ⊢A⟩) (γ : Γ' --> Γ), C⟨Γ'⊢ A [[γ]] ⟩ 
 := 
     (pr2 C).
 
@@ -140,8 +140,8 @@ Notation "a ⟦ γ ⟧" := (rterm a γ) (at level 40).
 
 (** Reindexing for types *)
 Definition reindx_laws_type {CC : precategory}(C : tt_reindx_struct CC) : UU :=
-    (Π Γ (A : C⟨Γ⟩), A [[identity Γ]] = A) ×
-    (Π Γ Γ' Γ'' (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') (A : C⟨Γ⟩), A [[γ';;γ]] = A[[γ]][[γ']]). 
+    (∏ Γ (A : C⟨Γ⟩), A [[identity Γ]] = A) ×
+    (∏ Γ Γ' Γ'' (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') (A : C⟨Γ⟩), A [[γ';;γ]] = A[[γ]][[γ']]). 
 
 Definition reindx_laws_type_proof {CC : precategory}(C : tt_reindx_struct CC)
   : reindx_laws_type C.
@@ -155,9 +155,9 @@ Defined.
 Definition reindx_laws_terms {CC : precategory} (C : tt_reindx_struct CC) 
     :=
     let T:=reindx_laws_type_proof C in
-    (Π Γ (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩), a⟦identity Γ⟧ = 
+    (∏ Γ (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩), a⟦identity Γ⟧ = 
           transportf (λ B, C⟨Γ ⊢ B⟩) (!pr1 T _ _) a) ×
-    (Π Γ Γ' Γ'' (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩),
+    (∏ Γ Γ' Γ'' (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩),
             a⟦γ';;γ⟧ = 
           transportf (λ B, C⟨Γ'' ⊢ B⟩) (!pr2 T _ _ _ _ _ _ )  (a⟦γ⟧⟦γ'⟧)).
           
@@ -166,7 +166,7 @@ Definition reindx_laws {CC : precategory} (C : tt_reindx_struct CC)  : UU :=
           reindx_laws_terms C.
      
 Definition reindx_type_id {CC : precategory} {C : tt_reindx_struct CC} 
-  : Π Γ (A : C⟨Γ⟩), A [[identity Γ]] = A 
+  : ∏ Γ (A : C⟨Γ⟩), A [[identity Γ]] = A 
 := 
   (pr1 (reindx_laws_type_proof C)).
 
@@ -179,13 +179,13 @@ Definition reindx_type_comp {CC : precategory} {C : tt_reindx_struct CC}
 
 Definition reindx_term_id {CC : precategory} {C : tt_reindx_struct CC}
    (T : reindx_laws C) 
-  : Π Γ (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩), a⟦identity Γ⟧ = 
+  : ∏ Γ (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩), a⟦identity Γ⟧ = 
           transportf (λ B, C⟨Γ ⊢ B⟩) (! (reindx_type_id _ _ ) ) a 
 := pr1 T.
 
 Definition reindx_term_comp {CC : precategory} {C : tt_reindx_struct CC}
     (T : reindx_laws C) 
-  : Π {Γ Γ' Γ''} (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') {A : C⟨Γ⟩} (a : C⟨Γ⊢A⟩),
+  : ∏ {Γ Γ' Γ''} (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') {A : C⟨Γ⟩} (a : C⟨Γ⊢A⟩),
             a⟦γ';;γ⟧ = 
           transportf (λ B, C⟨Γ'' ⊢ B⟩) (! (reindx_type_comp  _ _ _ ) )  (a⟦γ⟧⟦γ'⟧) 
 := 
@@ -198,12 +198,12 @@ Definition reindx_term_comp {CC : precategory} {C : tt_reindx_struct CC}
 
 Definition comp_1_struct {CC : precategory} (C : tt_reindx_struct CC) : UU 
 :=
-  Π Γ (A : C⟨Γ⟩), Σ ΓA, ΓA --> Γ.
+  ∏ Γ (A : C⟨Γ⟩), ∑ ΓA, ΓA --> Γ.
 
 
 Definition tt_reindx_comp_1_struct (CC : precategory) : UU 
   := 
-     Σ C : tt_reindx_struct CC, comp_1_struct C.
+     ∑ C : tt_reindx_struct CC, comp_1_struct C.
 
 Coercion tt_reindx_from_tt_reindx_comp_1 (CC : precategory) (C : tt_reindx_comp_1_struct CC) 
   : tt_reindx_struct _ := pr1 C.
@@ -224,13 +224,13 @@ Notation "'π' A" := (proj_mor A) (at level 20).
 (** ** Generic element and pairing *)
 Definition comp_2_struct {CC : precategory} (C : tt_reindx_comp_1_struct CC) : UU
 := 
-   Π Γ (A : C⟨Γ⟩), 
+   ∏ Γ (A : C⟨Γ⟩), 
      C⟨(Γ∙A) ⊢ (A [[π A]]) ⟩ × 
-     (Π Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢A[[γ]]⟩), Γ' --> Γ∙A).
+     (∏ Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢A[[γ]]⟩), Γ' --> Γ∙A).
 
 Definition tt_reindx_type_struct (CC : precategory) : UU 
 :=
-   Σ C : tt_reindx_comp_1_struct CC, comp_2_struct C.
+   ∑ C : tt_reindx_comp_1_struct CC, comp_2_struct C.
 
 Coercion tt_reindx_comp_1_from_tt_reindx_comp (CC : precategory) (C : tt_reindx_type_struct CC) 
   : tt_reindx_comp_1_struct _ := pr1 C.
@@ -257,8 +257,8 @@ Notation "γ ♯ a" := (pairing γ a) (at level 25).
 
 Definition comp_laws_1_2  {CC : precategory} {C : tt_reindx_type_struct CC} 
    (L : reindx_laws C) : UU := 
-   Π Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A[[γ]]⟩),
-        Σ h : (γ ♯ a) ;; (π _ ) = γ,
+   ∏ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A[[γ]]⟩),
+        ∑ h : (γ ♯ a) ;; (π _ ) = γ,
            transportf (λ ι, C⟨Γ'⊢ A [[ι]]⟩) h   
              (transportf (λ B, C⟨Γ'⊢ B⟩) (!reindx_type_comp  (π _ )(γ ♯ a) _ )
                ((ν _ ) ⟦γ ♯ a⟧)) = a.
@@ -266,7 +266,7 @@ Definition comp_laws_1_2  {CC : precategory} {C : tt_reindx_type_struct CC}
 Definition comp_law_3  {CC : precategory} {C : tt_reindx_type_struct CC}
      (L : reindx_laws C) : UU 
 := 
-   Π Γ (A : C ⟨Γ⟩) Γ' Γ'' (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') (a : C⟨Γ'⊢ A[[γ]]⟩),
+   ∏ Γ (A : C ⟨Γ⟩) Γ' Γ'' (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') (a : C⟨Γ'⊢ A[[γ]]⟩),
     γ' ;; (γ ♯ a) 
     =  
     (γ' ;; γ) ♯ (transportf (λ B, C⟨Γ''⊢ B⟩) (!reindx_type_comp γ γ' _ ) (a⟦γ'⟧)).
@@ -274,16 +274,16 @@ Definition comp_law_3  {CC : precategory} {C : tt_reindx_type_struct CC}
 Definition comp_law_4  {CC : precategory} {C : tt_reindx_type_struct CC}
     (L : reindx_laws C) : UU
 :=
-   Π Γ (A : C⟨Γ⟩), π A ♯ ν A = identity _ . 
+   ∏ Γ (A : C⟨Γ⟩), π A ♯ ν A = identity _ . 
 
 
 
 
 Definition cwf_laws {CC : precategory}(C : tt_reindx_type_struct CC) 
    :=
-    (Σ T : reindx_laws C,
+    (∑ T : reindx_laws C,
        (comp_laws_1_2 T × comp_law_3 T × comp_law_4 T)) ×
-    (has_homsets CC × (*Π Γ, isaset (C⟨Γ⟩) × *) Π Γ (A : C⟨Γ⟩), isaset (C⟨Γ⊢ A⟩)). 
+    (has_homsets CC × (*∏ Γ, isaset (C⟨Γ⟩) × *) ∏ Γ (A : C⟨Γ⟩), isaset (C⟨Γ⊢ A⟩)). 
 
 (** * Definition of precategory with families *)
 (** A precategory with families [pre_cwf] is 
@@ -297,7 +297,7 @@ Definition cwf_laws {CC : precategory}(C : tt_reindx_type_struct CC)
 
 
 Definition cwf_struct (CC : precategory) : UU 
-  := Σ C : tt_reindx_type_struct CC, cwf_laws C.
+  := ∑ C : tt_reindx_type_struct CC, cwf_laws C.
 
 (** * Various access functions to the components *)
 (** Also a few generalizations are proved, providing variants with 
@@ -324,7 +324,7 @@ Definition has_homsets_cwf {CC : precategory} (C : cwf_struct CC) : has_homsets 
 Definition cwf_types_isaset {CC : precategory} (C : cwf_struct CC) Γ : isaset (C⟨Γ⟩)
   := setproperty (C⟨Γ⟩).
 
-Definition cwf_terms_isaset  {CC : precategory} (C : cwf_struct CC) : Π Γ A, isaset (C⟨Γ ⊢ A⟩)
+Definition cwf_terms_isaset  {CC : precategory} (C : cwf_struct CC) : ∏ Γ A, isaset (C⟨Γ ⊢ A⟩)
   :=  (pr2 (pr2 (pr2 C))).
 
 
@@ -343,7 +343,7 @@ Definition cwf_law_2 {CC : precategory} (C : cwf_struct CC)
 
 Definition cwf_law_2_gen {CC : precategory} (C : cwf_struct CC) 
   Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A[[γ]]⟩)
-  :  Π (p : (A [[π A]]) [[γ ♯ a]] = A [[γ ♯ a;; π A]]) (p0 : γ ♯ a;; π A = γ),
+  :  ∏ (p : (A [[π A]]) [[γ ♯ a]] = A [[γ ♯ a;; π A]]) (p0 : γ ♯ a;; π A = γ),
    transportf (λ ι : Γ' --> Γ, C ⟨ Γ' ⊢ A [[ι]] ⟩) p0
      (transportf (λ B : C ⟨ Γ' ⟩, C ⟨ Γ' ⊢ B ⟩) p (ν A ⟦ γ ♯ a ⟧)) = a.
 Proof.
@@ -639,7 +639,7 @@ Definition dpr_q_pbpairing_precwf
   {Γ} (A : C ⟨ Γ ⟩)
   {Γ'} (f : Γ' --> Γ)
   {X} (h : X --> Γ ∙ A) (k : X --> Γ') (H : h ;; π A = k ;; f)
-: Σ (hk : X --> Γ' ∙ (A[[f]])),
+: ∑ (hk : X --> Γ' ∙ (A[[f]])),
     ( hk ;; q_precwf A f = h
     × hk ;; π (A[[f]]) = k).
 Proof.
@@ -694,7 +694,7 @@ Definition dpr_q_pbpairing_precwf_unique (hs : has_homsets CC)
   {Γ} (A : C⟨Γ⟩)
   {Γ'} (f : Γ' --> Γ)
   {X} (h : X --> Γ ∙ A) (k : X --> Γ') (H : h ;; π A = k ;; f)
-  (t : Σ hk : X --> Γ' ∙ (A [[f]]),
+  (t : ∑ hk : X --> Γ' ∙ (A [[f]]),
        (hk ;; q_precwf A f = h) × (hk ;; π (A[[f]]) = k))
 : t = dpr_q_pbpairing_precwf A f h k H.
 Proof.
@@ -704,7 +704,7 @@ Proof.
   unshelve refine (total2_paths _ _); apply hs.
 Qed.
 
-Lemma is_pullback_reindx_cwf (hs : has_homsets CC) : Π (Γ : CC) (A : C⟨Γ⟩) (Γ' : CC) 
+Lemma is_pullback_reindx_cwf (hs : has_homsets CC) : ∏ (Γ : CC) (A : C⟨Γ⟩) (Γ' : CC) 
    (f : Γ' --> Γ),
    isPullback (π A) f (q_precwf A f) (π (A [[f]])) (dpr_q_precwf A f).
 Proof.

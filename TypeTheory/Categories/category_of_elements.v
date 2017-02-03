@@ -27,9 +27,9 @@ Variable F : functor C HSET.
 
 Definition precategory_of_elements_ob_mor : precategory_ob_mor.
 Proof.
-  exists (Σ c : C, pr1hSet (F c)).
+  exists (∑ c : C, pr1hSet (F c)).
   intros ca db.
-  exact (Σ f : pr1 ca --> pr1 db, #F f (pr2 ca) = (pr2 db)).
+  exact (∑ f : pr1 ca --> pr1 db, #F f (pr2 ca) = (pr2 db)).
 Defined.
 
 Definition precategory_of_elements_data : precategory_data.
@@ -88,7 +88,7 @@ Definition proj_functor : functor _ _ := tpair _ _ is_functor_proj.
 
 
 Definition Elem_cov_iso_type (ac bd : ∫) : UU
-  := Σ (f : iso (pr1 ac) (pr1 bd)), #F f (pr2 ac) = pr2 bd.
+  := ∑ (f : iso (pr1 ac) (pr1 bd)), #F f (pr2 ac) = pr2 bd.
 
 Definition Elem_cov_iso_type_eq {ac bd : ∫} (T T' : Elem_cov_iso_type ac bd)
   : T = T' ≃ (pr1 (pr1 T)) = (pr1 (pr1 T')).
@@ -190,7 +190,7 @@ Proof.
 Defined.
 
 Lemma bla (H : is_category C) (ac bd : ∫) :
-  ac = bd ≃ Σ p : iso (pr1 ac) (pr1 bd), #F p (pr2 ac) = pr2 bd. 
+  ac = bd ≃ ∑ p : iso (pr1 ac) (pr1 bd), #F p (pr2 ac) = pr2 bd. 
 Proof.
   eapply weqcomp.
   apply total2_paths_equiv.
@@ -250,9 +250,9 @@ Variable F : functor C (opp_precat HSET).
 
 Definition precategory_of_elements_ob_mor : precategory_ob_mor.
 Proof.
-  exists (Σ c : C, pr1 (F c)).
+  exists (∑ c : C, pr1 (F c)).
   intros ca c'a'.
-  exact (Σ f : pr1 ca --> pr1 c'a', #F (f) (pr2 c'a') = (pr2 ca)).
+  exact (∑ f : pr1 ca --> pr1 c'a', #F (f) (pr2 c'a') = (pr2 ca)).
 Defined.
 
 Definition precategory_of_elements_data : precategory_data.

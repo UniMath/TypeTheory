@@ -15,7 +15,7 @@ Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 (** * Definition of a [graph] as two types with source and target maps *)
 
-Definition graph := Σ obmor : UU × UU,
+Definition graph := ∑ obmor : UU × UU,
     (pr2 obmor -> pr1 obmor) × (pr2 obmor -> pr1 obmor).
 
 
@@ -27,9 +27,9 @@ Definition target {X : graph} : mor X -> X := pr2 (pr2 X).
 
 (** * Definition of a graph with composition *)
 
-Definition comp_op {X : graph} := Π f g : mor X, target f = source g -> mor X.   
+Definition comp_op {X : graph} := ∏ f g : mor X, target f = source g -> mor X.   
 
-Definition graph_w_comp := Σ X, comp_op (X:=X).
+Definition graph_w_comp := ∑ X, comp_op (X:=X).
 Definition graph_from_graph_w_comp (X : graph_w_comp) := pr1 X.
 Coercion graph_from_graph_w_comp : graph_w_comp >-> graph.
 
@@ -45,24 +45,24 @@ Definition id_op := C -> mor C.
 
 Variable i : id_op.
 
-Definition id_source_ax := Π c : C, source (i c) = c.
-Definition id_target_ax := Π c : C, target (i c) = c.
-Definition id_comp_l_ax := Π f : mor C, 
-   Π p : target (i (source f)) = source f, comp (i (source f)) f  p = f.
-Definition id_comp_r_ax := Π f : mor C,
-   Π p : target f = source (i (target f)), comp f (i (target f)) p = f.
-Definition comp_source_ax := Π f g : mor C, 
-    Π p : target f = source g, source (comp f g p) = source f.
-Definition comp_target_ax := Π f g : mor C,
-    Π p : target f = source g, target (comp f g p) = target g.
-Definition assoc_ax := Π f g h : mor C, 
-    Π p : target f = source g, Π q : target g = source h,
-      Π p' : target f = source (comp g h q),
-        Π q' : target (comp f g p) = source h,
+Definition id_source_ax := ∏ c : C, source (i c) = c.
+Definition id_target_ax := ∏ c : C, target (i c) = c.
+Definition id_comp_l_ax := ∏ f : mor C, 
+   ∏ p : target (i (source f)) = source f, comp (i (source f)) f  p = f.
+Definition id_comp_r_ax := ∏ f : mor C,
+   ∏ p : target f = source (i (target f)), comp f (i (target f)) p = f.
+Definition comp_source_ax := ∏ f g : mor C, 
+    ∏ p : target f = source g, source (comp f g p) = source f.
+Definition comp_target_ax := ∏ f g : mor C,
+    ∏ p : target f = source g, target (comp f g p) = target g.
+Definition assoc_ax := ∏ f g h : mor C, 
+    ∏ p : target f = source g, ∏ q : target g = source h,
+      ∏ p' : target f = source (comp g h q),
+        ∏ q' : target (comp f g p) = source h,
           comp f (comp g h q ) p' = comp (comp f g p) h q' .
 
-Lemma id_comp_left (I : id_comp_l_ax) : Π f : mor C, Π a : C,
-   source f = a → Π p : target (i a) = source f, comp (i a) f p = f.
+Lemma id_comp_left (I : id_comp_l_ax) : ∏ f : mor C, ∏ a : C,
+   source f = a → ∏ p : target (i a) = source f, comp (i a) f p = f.
 Proof.
   intros f a p.
   rewrite <- p.
@@ -70,8 +70,8 @@ Proof.
   apply I.
 Qed.
 
-Lemma id_comp_right (I : id_comp_r_ax) : Π f : mor C, Π a : C,
-   target f = a → Π p : target f = source (i a), comp f (i a) p = f.
+Lemma id_comp_right (I : id_comp_r_ax) : ∏ f : mor C, ∏ a : C,
+   target f = a → ∏ p : target f = source (i a), comp f (i a) p = f.
 Proof.
   intros f a p.
   rewrite <- p.
@@ -82,7 +82,7 @@ End axioms.
 
 Definition ess_alg_cat_axioms (C : graph_w_comp)
 :=
-    (Σ i : id_op (C:=C), 
+    (∑ i : id_op (C:=C), 
       id_source_ax i × id_target_ax i × id_comp_l_ax i × id_comp_r_ax i)
   ×
     (comp_source_ax (C:=C) × comp_target_ax (C:=C) × assoc_ax (C:=C))
@@ -141,7 +141,7 @@ Qed.
 (** * A category in essentially algebraic style is a graph with composition 
       satisfying the categorical axioms *)
 
-Definition ess_alg_cat := Σ C : graph_w_comp, ess_alg_cat_axioms C.
+Definition ess_alg_cat := ∑ C : graph_w_comp, ess_alg_cat_axioms C.
 
 Definition graph_w_comp_from_ess_alg_cat (C : ess_alg_cat) : graph_w_comp := pr1 C.
 Coercion graph_w_comp_from_ess_alg_cat : ess_alg_cat >-> graph_w_comp.
@@ -152,18 +152,18 @@ Variable C : ess_alg_cat.
 
 Definition id : id_op := (pr1 (pr1 (pr2 C))).
 
-Definition id_source : Π c : C, source (id c) = c.
+Definition id_source : ∏ c : C, source (id c) = c.
 Proof.
   exact (pr1 (pr2 (pr1 (pr2 C)))).
 Qed.
 
-Definition id_target : Π c : C, target (id c) = c.
+Definition id_target : ∏ c : C, target (id c) = c.
 Proof.
   exact (pr1 (pr2 (pr2 (pr1 (pr2 C))))).
 Qed.
 
-Definition id_comp_l :  Π f : mor C, Π a : C,
-   source f = a → Π p : target (id a) = source f, comp (id a) f p = f.
+Definition id_comp_l :  ∏ f : mor C, ∏ a : C,
+   source f = a → ∏ p : target (id a) = source f, comp (id a) f p = f.
 Proof.
   intros.
   apply id_comp_left.
@@ -171,8 +171,8 @@ Proof.
   assumption.
 Qed.
 
-Definition id_comp_r : Π f : mor C, Π a : C,
-   target f = a → Π p : target f = source (id a), comp f (id a) p = f.
+Definition id_comp_r : ∏ f : mor C, ∏ a : C,
+   target f = a → ∏ p : target f = source (id a), comp f (id a) p = f.
 Proof.
   intros.
   apply id_comp_right.
@@ -182,28 +182,28 @@ Qed.
 
 (* TODO: update access functions (originally defined w.r.t. a different association of the sigma-type in the definition). 
 Definition ess_alg_cat_axioms (C : graph_w_comp) := 
-  (Σ i : id_op (C:=C), 
+  (∑ i : id_op (C:=C), 
     id_source_ax i × id_target_ax i × id_comp_l_ax i × id_comp_r_ax i) ×
     comp_source_ax (C:=C) × comp_target_ax (C:=C) × assoc_ax (C:=C) × 
     isaset (objects C) × isaset (mor C) .
 *)
 
-Definition comp_source : Π f g : mor C, 
-    Π p : target f = source g, source (comp f g p) = source f.
+Definition comp_source : ∏ f g : mor C, 
+    ∏ p : target f = source g, source (comp f g p) = source f.
 Proof.
   exact (pr1 (pr1 (pr2 (pr2 C)))). 
 Qed.
 
-Definition comp_target : Π f g : mor C,
-    Π p : target f = source g, target (comp f g p) = target g.
+Definition comp_target : ∏ f g : mor C,
+    ∏ p : target f = source g, target (comp f g p) = target g.
 Proof.
   exact (pr1 (pr2 (pr1 (pr2 (pr2 C))))). 
 Qed.
 
-Definition assoc : Π f g h : mor C, 
-    Π p : target f = source g, Π q : target g = source h,
-      Π p' : target f = source (comp g h q),
-        Π q' : target (comp f g p) = source h,
+Definition assoc : ∏ f g h : mor C, 
+    ∏ p : target f = source g, ∏ q : target g = source h,
+      ∏ p' : target f = source (comp g h q),
+        ∏ q' : target (comp f g p) = source h,
           comp f (comp g h q ) p' = comp (comp f g p) h q' .
 Proof.
   exact (pr2 (pr2 (pr1 (pr2 (pr2 C))))).

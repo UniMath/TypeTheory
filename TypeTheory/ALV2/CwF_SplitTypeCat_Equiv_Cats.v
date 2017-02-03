@@ -124,7 +124,7 @@ We don’t yet have the infrastructure on displayed categories to put it togethe
 Section Unique_QQ_From_Term.
 
 Lemma qq_from_term_ob {X : obj_ext_precat} (Y : term_fun_disp_precat C X)
-  : Σ (Z : qq_structure_disp_precat C X), strucs_compat_disp_precat (X ,, (Y ,, Z)).
+  : ∑ (Z : qq_structure_disp_precat C X), strucs_compat_disp_precat (X ,, (Y ,, Z)).
 Proof.
   exists (qq_from_term Y).
   apply iscompatible_qq_from_term.
@@ -135,7 +135,7 @@ Lemma qq_from_term_mor {X X' : obj_ext_precat} {F : X --> X'}
   {Z : qq_structure_disp_precat C X} {Z'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
-  : Σ (FZ : Z -->[F] Z'), W -->[(F,,(FY,,FZ))] W'.
+  : ∑ (FZ : Z -->[F] Z'), W -->[(F,,(FY,,FZ))] W'.
 Proof.
   refine (_,, tt).
   intros Γ' Γ f A.
@@ -178,7 +178,7 @@ Lemma qq_from_term_mor_unique {X X' : obj_ext_precat} {F : X --> X'}
   {Z : qq_structure_disp_precat C X} {Z'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
-  : isaprop (Σ (FZ : Z -->[F] Z'), W -->[(F,,(FY,,FZ))] W').
+  : isaprop (∑ (FZ : Z -->[F] Z'), W -->[(F,,(FY,,FZ))] W').
 Proof.
   apply isofhleveltotal2.
   - simpl. repeat (apply impred_isaprop; intro). apply homset_property.
@@ -190,7 +190,7 @@ End Unique_QQ_From_Term.
 Section Unique_Term_From_QQ.
 
 Lemma term_from_qq_ob {X : obj_ext_precat} (Z : qq_structure_disp_precat C X)
-  : Σ (Y : term_fun_disp_precat C X), strucs_compat_disp_precat (X ,, (Y ,, Z)).
+  : ∑ (Y : term_fun_disp_precat C X), strucs_compat_disp_precat (X ,, (Y ,, Z)).
 Proof.
   exists (term_from_qq Z).
   apply iscompatible_term_from_qq.
@@ -202,7 +202,7 @@ Lemma term_from_qq_mor {X X' : obj_ext_precat} {F : X --> X'}
   {Y : term_fun_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
-  : Σ (FY : Y -->[F] Y'), W -->[(F,,(FY,,FZ))] W'.
+  : ∑ (FY : Y -->[F] Y'), W -->[(F,,(FY,,FZ))] W'.
 Abort.
 
 Lemma term_from_qq_mor_TM_data {X X' : obj_ext_precat} {F : X --> X'}
@@ -210,7 +210,7 @@ Lemma term_from_qq_mor_TM_data {X X' : obj_ext_precat} {F : X --> X'}
   {Y : term_fun_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
-  : Π Γ,
+  : ∏ Γ,
     ((TM (Y : term_fun_structure _ _) : functor _ _) Γ : hSet)
     -> ((TM (Y' : term_fun_structure _ _) : functor _ _) Γ : hSet).
 Proof.
@@ -301,7 +301,7 @@ Lemma term_from_qq_mor {X X' : obj_ext_precat} {F : X --> X'}
   {Y : term_fun_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
-  : Σ (FY : Y -->[F] Y'), W -->[(F,,(FY,,FZ))] W'.
+  : ∑ (FY : Y -->[F] Y'), W -->[(F,,(FY,,FZ))] W'.
 Proof.
   simpl in W, W'; unfold iscompatible_term_qq in W, W'. (* Readability *)
   simpl in Y, Y'.  (* To avoid needing casts [Y : term_fun_structure _]. *)
@@ -360,7 +360,7 @@ Lemma term_from_qq_mor_unique {X X' : obj_ext_precat} {F : X --> X'}
   {Y : term_fun_disp_precat C X} {Y'}
   (W : strucs_compat_disp_precat (X,,(Y,,Z)))
   (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
-  : isaprop (Σ (FY : Y -->[F] Y'), W -->[(F,,(FY,,FZ))] W').
+  : isaprop (∑ (FY : Y -->[F] Y'), W -->[(F,,(FY,,FZ))] W').
 Proof.
   apply isofhleveltotal2.
   - simpl. apply isaprop_term_fun_mor.
@@ -392,9 +392,9 @@ Proof.
   destruct XYZW' as [ [X' [Y' Z'] ] W'].
   unfold compat_structures_pr1_functor; simpl.
   assert (structural_lemma :
-    Π (A : UU) (B C : A -> UU) (D : Π a, B a -> C a -> UU)
-      (H : Π a b, iscontr (Σ c, D a b c)),
-    isweq (fun abcd : Σ (abc : Σ a, (B a × C a)),
+    ∏ (A : UU) (B C : A -> UU) (D : ∏ a, B a -> C a -> UU)
+      (H : ∏ a b, iscontr (∑ c, D a b c)),
+    isweq (fun abcd : ∑ (abc : ∑ a, (B a × C a)),
                         D (pr1 abc) (pr1 (pr2 abc)) (pr2 (pr2 abc))
             => (pr1 (pr1 abcd),, pr1 (pr2 (pr1 abcd))))).
   { clear C X Y Z W X' Y' Z' W'.
@@ -405,7 +405,7 @@ Proof.
         exact ((pr1 ab,, (pr2 ab,, pr1 cd)),, pr2 cd).
     + intros abcd; destruct abcd as [ [a [b c] ] d]; simpl.
       refine (@maponpaths _ _ 
-        (fun cd : Σ c' : C a, (D a b c') => (a,, b,, (pr1 cd)),, (pr2 cd))
+        (fun cd : ∑ c' : C a, (D a b c') => (a,, b,, (pr1 cd)),, (pr2 cd))
         _ (_,, _) _).
       apply proofirrelevancecontr, H.
     + intros ab; destruct ab as [a b]. apply idpath. }
@@ -413,7 +413,7 @@ Proof.
 (* these are all the arguments to structural_lemma 
          (obj_ext_mor X X') 
                         (fun f' => term_fun_mor Y Y' f') 
-                        (fun f' => Π (Γ' Γ : C) (f0 : C ⟦ Γ', Γ ⟧) 
+                        (fun f' => ∏ (Γ' Γ : C) (f0 : C ⟦ Γ', Γ ⟧) 
                                      (A : pr1 (pr1 (TY X) Γ)),
                                    qq (pr1 Z) f0 A ;; φ f' A =
                   φ f' (# (pr1 (TY X)) f0 A) ;; Δ
@@ -454,9 +454,9 @@ Proof.
   destruct XYZW' as [ [X' [Y' Z'] ] W'].
   unfold compat_structures_pr2_functor; simpl.
   assert (structural_lemma :
-    Π A (B C : A -> UU) (D : Π a, B a -> C a -> UU)
-      (H : Π a c, iscontr (Σ b, D a b c)),
-    isweq (fun abcd : Σ (abc : Σ a, (B a × C a)),
+    ∏ A (B C : A -> UU) (D : ∏ a, B a -> C a -> UU)
+      (H : ∏ a c, iscontr (∑ b, D a b c)),
+    isweq (fun abcd : ∑ (abc : ∑ a, (B a × C a)),
                         D (pr1 abc) (pr1 (pr2 abc)) (pr2 (pr2 abc))
             => (pr1 (pr1 abcd),, pr2 (pr2 (pr1 abcd))))).
   { clear C X Y Z W X' Y' Z' W'.
@@ -467,7 +467,7 @@ Proof.
         exact ((pr1 ac,, (pr1 bd,, pr2 ac)),, pr2 bd).
     + intros abcd; destruct abcd as [ [a [b c] ] d]; simpl.
       refine (@maponpaths _ _ 
-        (fun bd : Σ b' : B a, (D a b' c) => (a,, (pr1 bd),, c),, (pr2 bd))
+        (fun bd : ∑ b' : B a, (D a b' c) => (a,, (pr1 bd),, c),, (pr2 bd))
         _ (_,, _) _).
       apply proofirrelevancecontr, H.
     + intros ac; destruct ac as [a c]. apply idpath. }
@@ -499,9 +499,9 @@ Proof.
   unfold compat_structures_pr1_functor; simpl.
   intros FX.
   assert (structural_lemma :
-    Π (B C : UU) (D : B -> C -> UU)
-      (H : Π b, iscontr (Σ c, D b c)),
-    isweq (fun bcd : Σ (bc : B × C), D (pr1 bc) (pr2 bc)
+    ∏ (B C : UU) (D : B -> C -> UU)
+      (H : ∏ b, iscontr (∑ c, D b c)),
+    isweq (fun bcd : ∑ (bc : B × C), D (pr1 bc) (pr2 bc)
             => pr1 (pr1 bcd))).
     clear C X Y Z W X' Y' Z' W' FX.
   { intros B C D H.
@@ -511,7 +511,7 @@ Proof.
         exact ((b,,pr1 cd),, pr2 cd).
     + intros bcd; destruct bcd as [ [b c] d]; simpl.
       refine (@maponpaths _ _ 
-        (fun cd : Σ c', (D b c') => (b,, (pr1 cd)),, (pr2 cd))
+        (fun cd : ∑ c', (D b c') => (b,, (pr1 cd)),, (pr2 cd))
         _ (_,, _) _).
       apply proofirrelevancecontr, H.
     + intros b; apply idpath. }
@@ -558,9 +558,9 @@ Proof.
   unfold compat_structures_pr1_functor; simpl.
   intros FX.
   assert (structural_lemma :
-    Π (B C : UU) (D : B -> C -> UU)
-      (H : Π c, iscontr (Σ b, D b c)),
-    isweq (fun bcd : Σ (bc : B × C), D (pr1 bc) (pr2 bc)
+    ∏ (B C : UU) (D : B -> C -> UU)
+      (H : ∏ c, iscontr (∑ b, D b c)),
+    isweq (fun bcd : ∑ (bc : B × C), D (pr1 bc) (pr2 bc)
             => pr2 (pr1 bcd))).
     clear C X Y Z W X' Y' Z' W' FX.
   { intros B C D H.
@@ -570,7 +570,7 @@ Proof.
         exact ((pr1 bd,,c),, pr2 bd).
     + intros bcd; destruct bcd as [ [b c] d]; simpl.
       refine (@maponpaths _ _ 
-        (fun bd : Σ b', (D b' c) => ((pr1 bd),, c),, (pr2 bd))
+        (fun bd : ∑ b', (D b' c) => ((pr1 bd),, c),, (pr2 bd))
         _ (_,, _) _).
       apply proofirrelevancecontr, H.
     + intros c; apply idpath. }
