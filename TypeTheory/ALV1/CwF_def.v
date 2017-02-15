@@ -81,8 +81,139 @@ Proof.
 Qed.
 
 Definition cwf_fiber_representation : UU
-  := ∑ (ΓAπ : cwf_ext), 
-     (∑ (ve : cwf_tm ΓAπ), isPullback _ _ _ _ (cwf_square_comm ΓAπ ve)).
+  := ∑ (ΓAπ : cwf_ext) (ve : cwf_tm ΓAπ), 
+     isPullback _ _ _ _ (cwf_square_comm ΓAπ ve).
+
+
+Definition cwf_fiber_rep_data : UU
+  := ∑ (ΓA : C), C ⟦ΓA, Γ⟧ × (Tm pp ΓA : hSet).
+
+Section stuff.
+
+Variable ΓAπt : cwf_fiber_rep_data.
+Let ΓA : C := pr1 ΓAπt.
+Let π : ΓA --> Γ := pr1 (pr2 ΓAπt).
+Let v : Tm pp ΓA : hSet := pr2 (pr2 ΓAπt).
+
+Definition _foo : (morphism_from_total pp : nat_trans _ _ ) _ v = #(Ty pp) π A
+   -> #Yo π ;; yy A = yy v ;; pp.
+Proof.
+  intro H.
+  apply pathsinv0.
+  etrans. Focus 2. apply yy_natural.
+  etrans. apply yy_comp_nat_trans.
+  apply maponpaths, H.
+Qed.
+
+Definition cwf_fiber_rep_ax : UU 
+  := ∑ (H : (morphism_from_total pp : nat_trans _ _ ) _ v = #(Ty pp) π A),
+     isPullback _ _ _ _ (_foo H).
+
+End stuff.
+
+
+Definition cwf_fiber_representation' : UU
+  := ∑ r : cwf_fiber_rep_data, cwf_fiber_rep_ax r.
+
+Definition cwf_fiber_rep_data_weq 
+  : cwf_fiber_rep_data ≃ ∑ (ΓA : C) (π : ΓA --> Γ), Tm pp ΓA : hSet.
+Proof.
+  unfold cwf_fiber_rep_data.
+  set (XR := @weqtotal2asstor ). 
+  specialize (XR C (fun x => x --> Γ)). cbn in XR.
+  specialize (XR (fun Ap => Tm pp (pr1 Ap) : hSet)). cbn in XR.
+  apply idweq.
+Defined.
+
+Definition stuff : cwf_fiber_representation ≃ cwf_fiber_representation'.
+Proof.
+  unfold cwf_fiber_representation, cwf_fiber_representation'.
+  eapply weqcomp.   (* (ΓA,π), ((v,e),P) *)
+  eapply weqfibtototal. intro x.
+    apply weqtotal2asstor. simpl. (*  (ΓA,π), (v, (e,P)) *)
+  eapply weqcomp; [eapply invweq; apply weqtotal2asstol |]; simpl.  
+  apply invweq.
+  eapply weqcomp.
+  apply weqtotal2asstor. cbn.
+  apply weqfibtototal. intro ΓA.
+  eapply weqcomp. apply weqtotal2asstor.
+  apply idweq.
+Defined.  
+
+
+Definition yoneda_induction (F : preShv C) (Γ' : C) 
+           (P : ((F : functor _ _ ) Γ' : hSet) -> UU) :
+  (forall K : _ ⟦ Yo Γ', F ⟧, P (invmap (@yy _ _ F Γ') K)) -> 
+  forall A : (F : functor _ _ ) Γ' : hSet, P A.
+Proof.
+  intros H A0.
+  set(XR := homotinvweqweq (@yy _ (homset_property C) F Γ')).
+  rewrite <- XR.
+  apply H.
+Defined.  
+
+
+Lemma isaprop_cwf_fiber_representation :
+  is_category C -> isaprop cwf_fiber_representation'.
+Proof.
+  intro isC.
+  apply invproofirrelevance.
+  intros x x'. apply subtypeEquality.
+  { admit. }
+  destruct x as [x H]. 
+  destruct x' as [x' H']. cbn.    
+  destruct x as [a m].
+  destruct x' as [a' m']. cbn in *.
+  destruct H as [H isP].
+  destruct H' as [H' isP'].
+  simple refine (total2_paths_f _ _ ).
+  - 
+    set (T1 := mk_Pullback _ _ _ _ _ _ isP).
+    set (T2 := mk_Pullback _ _ _ _ _ _ isP').
+    set (i := iso_from_Pullback_to_Pullback T1 T2). cbn in i.
+    set (i' := invmap (weq_ff_functor_on_iso (yoneda_fully_faithful _ _ ) _ _ ) i ).
+    set (TT := isotoid _ isC i').
+    apply TT.
+  - cbn.
+    cbn.
+      set (XT := transportf_dirprod _ (fun a' => C⟦a', Γ⟧) (fun a' => Tm pp a' : hSet)).
+      cbn in XT.
+      set (XT' := XT (tpair _ a m : ∑ R : C, C ⟦ R, Γ ⟧ × (Tm pp R : hSet) )
+                     (tpair _ a' m' : ∑ R : C, C ⟦ R, Γ ⟧ × (Tm pp R : hSet) )).
+      cbn in *.
+      match goal with | [ |- transportf _ ?e _ = _ ] => set (TT := e) end.
+      rewrite XT'.
+      destruct m as [q r].
+      destruct m' as [q' r'].
+      cbn. 
+      apply pathsdirprod.
+    + unfold TT.
+      rewrite transportf_isotoid.
+      cbn.
+      unfold precomp_with.
+      rewrite id_right.
+      unfold from_Pullback_to_Pullback. cbn.
+      cbn in *.
+      match goal with |[|- (_  ( _ ?PP _ _ _  _ ) )  _ _  ;; _ = _ ] => 
+                       set (P:=PP) end.
+      match goal with |[|- ( _ (PullbackArrow P ?PP ?E2 ?E3 _ )) _ _   ;; _ = _ ] 
+                       => set (E1 := PP);
+                         set (e1 := E1);
+                         set (e2 := E2);
+                         set (e3 := E3) end.
+      match goal with |[|- ( _ (PullbackArrow _ _ _ _ ?E4 )) _ _   ;; _ = _ ] 
+                       => set (e4 := E4) end.
+      set (XR := PullbackArrow_PullbackPr1 P e1 e2 e3 e4).
+      set (XR':= nat_trans_eq_pointwise XR a'). 
+      cbn in XR'. 
+      assert (XR'':= toforallpaths _ _  _ XR').
+      cbn in XR''.
+      etrans. apply XR''.
+      cbn. unfold yoneda_morphisms_data. apply id_left.
+    + unfold TT. clear TT. clear XT' XT.
+      match goal with |[|- transportf ?r  _ _ = _ ] => set (P:=r) end.
+Abort.
+      
 
 End Fiber_Representation.
 
