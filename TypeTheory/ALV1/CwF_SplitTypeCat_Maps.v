@@ -140,7 +140,7 @@ Lemma tm_from_qq_eq {Γ} (t t' : (tm_from_qq_functor_data Γ : hSet))
   : t = t'.
 Proof.
   destruct t as [A [s e]], t' as [A' [s' e']]; simpl in *.
-  use total2_paths; simpl.
+  use total2_paths_f; simpl.
     apply eA.
   apply subtypeEquality. intro; apply homset_property.
   simpl. eapply pathscomp0. refine (pr1_transportf _ _ _ _ _ eA _).

@@ -168,7 +168,7 @@ Proof.
   - intro; apply isofhleveltotal2.
     + apply (pr2 sat).
     + intros; apply isaprop_isPullback.
-  - apply (total2_paths (isotoid _ sat (iso_from_Pullback_to_Pullback _ Pb Pb' ))).
+  - apply (total2_paths_f (isotoid _ sat (iso_from_Pullback_to_Pullback _ Pb Pb' ))).
     rewrite transportf_dirprod, transportf_isotoid.
     rewrite inv_from_iso_iso_from_Pullback.
     rewrite transportf_isotoid.
@@ -213,9 +213,9 @@ Proof.
        simpl in *.
       destruct P as [P1 X1 ]. simpl.
       destruct P' as [P1' X1']. simpl in *.  
-      refine (total2_paths _ _  ).
+      refine (total2_paths_f _ _  ).
       apply (maponpaths).
-      refine (total2_paths _ _ ).
+      refine (total2_paths_f _ _ ).
       revert T.
       destruct P1 as [P1 P2].
       destruct P1' as [P1' P2']. simpl in *.
@@ -231,7 +231,7 @@ Proof.
   - intro; apply isofhleveltotal2.
     + apply (pr2 sat). 
     + intros; apply isaprop_isPullback.
-  - apply (total2_paths (isotoid _ sat (iso_from_Pullback_to_Pullback _   Pb Pb' ))).
+  - apply (total2_paths_f (isotoid _ sat (iso_from_Pullback_to_Pullback _   Pb Pb' ))).
     rewrite transportf_dirprod, transportf_isotoid.
     rewrite inv_from_iso_iso_from_Pullback.
     rewrite transportf_isotoid.

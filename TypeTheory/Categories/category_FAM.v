@@ -124,7 +124,7 @@ Defined.
 Definition FAM_obj_UU_eq_sigma {A B : obj_UU} (f : pr1 A ≃ pr1 B) 
    (H : ∏ a : pr1 A, pr2 A a = pr2 B (f a)) : A = B.
 Proof.
-  apply (total2_paths (weqtopaths f)).
+  apply (total2_paths_f (weqtopaths f)).
   apply funextsec; intro b.
   rewrite transportf_weqtopaths.
   rewrite H.
@@ -477,7 +477,7 @@ Defined.
 Lemma FAM_obj_weq_1_id (A : ob FAM)
   : (FAM_obj_weq_1 A A (idpath A)) = FAM_id1 A.
 Proof.
-  apply (@total2_paths _ _
+  apply (@total2_paths_f _ _
                        (FAM_obj_weq_1 A A (idpath A))
                        (FAM_id1 A)
                        (idpath _)).
@@ -493,7 +493,7 @@ Defined.
 Lemma FAM_obj_weq_2_id (A : ob FAM) (H : is_category C)
   : (FAM_obj_weq_2 A A H (FAM_id1 A)) = FAM_id2 A.
 Proof.
-  apply (total2_paths (idpath _)).
+  apply (total2_paths_f (idpath _)).
   cbn. apply idpath.
 Qed.
 
@@ -508,8 +508,8 @@ Defined.
 Lemma FAM_obj_weq_3_id (A : ob FAM)
   : (FAM_obj_weq_3 A A (FAM_id2 A)) = FAM_id3 A.
 Proof.
-  apply (total2_paths (idpath _)).
-  unshelve refine (total2_paths _ _).
+  apply (total2_paths_f (idpath _)).
+  unshelve refine (total2_paths_f _ _).
   - apply funextsec; intros a.
     destruct A as [[A1 A2] A3].
     eapply pathscomp0. Focus 2. exact (idpath (identity _)).

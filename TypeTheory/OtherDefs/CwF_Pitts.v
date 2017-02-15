@@ -687,9 +687,9 @@ Definition dpr_q_pbpairing_precwf_unique (hs : has_homsets CC)
 : t = dpr_q_pbpairing_precwf A f h k H.
 Proof.
   destruct t as [hk [e2 e1]]. 
-  refine (@total2_paths _ _ (tpair _ hk (tpair _ e2 e1)) _ 
+  refine (@total2_paths_f _ _ (tpair _ hk (tpair _ e2 e1)) _ 
     (dpr_q_pbpairing_precwf_mapunique A f H hk e2 e1) _).
-  unshelve refine (total2_paths _ _); apply hs.
+  unshelve refine (total2_paths_f _ _); apply hs.
 Qed.
 
 Lemma is_pullback_reindx_cwf (hs : has_homsets CC) : ∏ (Γ : CC) (A : C⟨Γ⟩) (Γ' : CC) 
