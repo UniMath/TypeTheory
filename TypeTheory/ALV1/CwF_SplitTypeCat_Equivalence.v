@@ -224,7 +224,7 @@ Proof.
   { intro. apply isaprop_term_fun_structure_axioms. }
   simpl.
   destruct Y as [Y YH']; simpl.
-  use total2_paths.
+  use total2_paths_f.
   - apply i.
   - rewrite transportf_dirprod.
     destruct Y as [tm [p Q]]; simpl.

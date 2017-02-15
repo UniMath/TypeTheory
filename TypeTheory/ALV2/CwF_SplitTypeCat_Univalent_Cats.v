@@ -155,7 +155,7 @@ Definition iso_to_obj_ext_eq (H : is_category C)
 : (iso X X') -> (X = X').
 Proof.
   intros F.
-  apply (total2_paths (isotoid _
+  apply (total2_paths_f (isotoid _
     (category_is_category _)
     (functor_on_iso obj_ext_to_preShv_functor F))).
   etrans. apply transportf_obj_ext.
@@ -172,7 +172,7 @@ Proof.
   set (FF' := iso_after_iso_inv F).
   set (F'F := iso_inv_after_iso F).
   simpl.
-  (* Now we break out a proof-irrelevant subproof needed later.  By breaking it out _before_ [use total2_paths], we ensure that this large subterm only occurs once in the proof term; this saves c.30s at the [Defined.] 
+  (* Now we break out a proof-irrelevant subproof needed later.  By breaking it out _before_ [use total2_paths_f], we ensure that this large subterm only occurs once in the proof term; this saves c.30s at the [Defined.] 
 
   For reading: skip this subproof block for now, then imagine it inlined at [exact H'] below. *)
   assert (H' : is_inverse_in_precat
@@ -189,7 +189,7 @@ Proof.
     * etrans. apply assoc.
       apply (obj_ext_mor_φ_eq FF').
   }
-  use total2_paths.
+  use total2_paths_f.
   use isotoid. assumption.
   exists (φ (F : _ --> _) _ ;; Δ (obj_ext_mor_TY_eq FF' _)).
   + simpl. apply is_iso_from_is_z_iso.
@@ -332,7 +332,7 @@ Definition iso_to_id__term_fun_disp_precat
 Proof.
   intros i.
   apply subtypeEquality. { intro. apply isaprop_term_fun_structure_axioms. }
-  apply total2_paths with (iso_disp_to_TM_eq _ _ _ i).
+  apply total2_paths_f with (iso_disp_to_TM_eq _ _ _ i).
   etrans. refine (transportf_dirprod _ _ _ _ _ _).
   apply dirprodeq; simpl.
   - etrans. apply prewhisker_iso_disp_to_TM_eq.

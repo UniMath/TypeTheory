@@ -102,7 +102,7 @@ Proof.
     destruct x' as [a' m']. cbn in *.
     destruct H as [H isP].
     destruct H' as [H' isP'].
-    simple refine (total2_paths _ _ ).
+    simple refine (total2_paths_f _ _ ).
     + unfold fpullback_prop in *.
       set (T1 := mk_Pullback _ _ _ _ _ _ isP).
       set (T2 := mk_Pullback _ _ _ _ _ _ isP').

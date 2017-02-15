@@ -79,12 +79,12 @@ Lemma obj_ext_mor_eq {X X'} (F F' : obj_ext_mor X X')
     = φ F' A)
   : F = F'.
 Proof.
-  use total2_paths.
+  use total2_paths_f.
     apply nat_trans_eq. apply has_homsets_HSET.
     intros Γ; apply funextsec; intros A.
     apply e_TY.
   apply funextsec; intros Γ; apply funextsec; intros A.
-  use total2_paths. Focus 2. apply homset_property.
+  use total2_paths_f. Focus 2. apply homset_property.
   refine (_ @ e_comp Γ A).
   etrans.
     apply maponpaths.

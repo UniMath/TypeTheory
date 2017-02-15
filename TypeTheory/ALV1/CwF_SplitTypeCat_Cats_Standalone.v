@@ -629,7 +629,7 @@ Definition iso_to_id_term_fun_precategory
 Proof.
   intros i.
   apply subtypeEquality. { intro. apply isaprop_term_fun_structure_axioms. }
-  apply total2_paths with (iso_to_TM_eq _ _ i).
+  apply total2_paths_f with (iso_to_TM_eq _ _ i).
   etrans. refine (transportf_dirprod _ _ _ _ _ _).
   apply dirprodeq; simpl.
   - etrans. apply prewhisker_iso_to_TM_eq.
