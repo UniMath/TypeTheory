@@ -68,15 +68,6 @@ Arguments functor_on_inv_from_iso {_ _} _  {_ _} f.
 
 (** * Path-algebra: general lemmas about transport, equivalences, etc. *)
 
-Lemma total2_paths2 {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1} 
-      {a2 : A} {b2 : B a2} (p : a1 = a2)
-       (q : transportf B p b1 = b2) : a1,,b1 = a2,,b2.
-Proof.
-  intros.
-  apply (@total2_paths_f _ _ (tpair (fun x => B x) a1 b1)
-                       (tpair (fun x => B x) a2 b2) p q).
-Defined.
-
 Lemma weqhomot {A B : UU} (f : A -> B) (w : A ≃ B) (H : w ~ f) : isweq f.
 Proof.
   apply isweqhomot with w. apply H. apply weqproperty.
