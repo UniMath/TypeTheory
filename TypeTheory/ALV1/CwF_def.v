@@ -185,17 +185,16 @@ Proof.
                    (tpair _ ΓA' m' : ∑ R : C, C ⟦ R, Γ ⟧ × (Tm pp R : hSet) )).
     cbn in *.
     match goal with | [ |- transportf _ ?e _ = _ ] => set (TT := e) end.
-    rewrite XT'.
+    rewrite XT'. clear XT' XT.
     destruct m as [π te].
     destruct m' as [π' te'].
     cbn. 
     apply pathsdirprod.
-    + unfold TT.
+    + unfold TT; clear TT.
       rewrite transportf_isotoid.
-      cbn.
-      unfold precomp_with.
+      cbn. unfold precomp_with.
       rewrite id_right.
-      unfold from_Pullback_to_Pullback. cbn.
+      unfold from_Pullback_to_Pullback.
       cbn in *.
       match goal with |[|- (_  ( _ ?PP _ _ _  _ ) )  _ _  ;; _ = _ ] => 
                        set (P:=PP) end.
@@ -206,22 +205,20 @@ Proof.
                          set (e3 := E3) end.
       match goal with |[|- ( _ (PullbackArrow _ _ _ _ ?E4 )) _ _   ;; _ = _ ] 
                        => set (e4 := E4) end.
-      set (XR := PullbackArrow_PullbackPr1 P e1 e2 e3 e4).
-      set (XR':= nat_trans_eq_pointwise XR ΓA'). 
+      assert (XR := PullbackArrow_PullbackPr1 P e1 e2 e3 e4).
+      assert (XR':= nat_trans_eq_pointwise XR ΓA'). 
       cbn in XR'. 
       assert (XR'':= toforallpaths _ _  _ XR').
       cbn in XR''.
       etrans. apply XR''.
-      cbn. unfold yoneda_morphisms_data. apply id_left.
-    + unfold TT. clear TT. clear XT' XT.
+      apply id_left.
+    + unfold TT; clear TT. 
       match goal with |[|- transportf ?r  _ _ = _ ] => set (P:=r) end.
       match goal with |[|- transportf _ (_ _ _ (_ _ ?ii)) _ = _ ] => set (i:=ii) end.
       simpl in i.
-      set (TR:= invmaponpathsweq (@yy _ (homset_property _ ) (Tm pp) ΓA')).
-      apply TR; clear TR.
+      apply (invmaponpathsweq (@yy _ (homset_property _ ) (Tm pp) ΓA')).
       etrans. apply transportf_yy.
       etrans. apply transportf_isotoid_functor.  
-      set (XR := mk_Pullback _ _ _ _ _ _ isP).
       rewrite inv_from_iso_iso_from_fully_faithful_reflection.
       assert (XX:=homotweqinvweq (weq_from_fully_faithful 
                                     (yoneda_fully_faithful _ (homset_property C)) ΓA' ΓA )).
@@ -238,8 +235,7 @@ Proof.
                          set (e3 := E3) end.
       match goal with |[|- PullbackArrow _ _ _ _ ?E4    ;; _ = _ ] 
                        => set (e4 := E4) end.
-      set (XRT := PullbackArrow_PullbackPr2 PT e1 e2 e3 e4).
-      etrans. apply XRT. apply idpath.
+      apply (PullbackArrow_PullbackPr2 PT e1 e2 e3 e4).
 Qed.      
 
 Lemma isaprop_cwf_fiber_representation :
