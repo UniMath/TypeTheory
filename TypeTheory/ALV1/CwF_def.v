@@ -159,7 +159,11 @@ Proof.
   intro isC.
   apply invproofirrelevance.
   intros x x'. apply subtypeEquality.
-  { admit. }
+  { intro. 
+    apply isofhleveltotal2. 
+    - apply setproperty.
+    - intro. apply isaprop_isPullback.
+  }
   destruct x as [x H]. 
   destruct x' as [x' H']. cbn.    
   destruct x as [ΓA m].
@@ -167,8 +171,7 @@ Proof.
   destruct H as [H isP].
   destruct H' as [H' isP'].
   simple refine (total2_paths_f _ _ ).
-  - 
-    set (T1 := mk_Pullback _ _ _ _ _ _ isP).
+  - set (T1 := mk_Pullback _ _ _ _ _ _ isP).
     set (T2 := mk_Pullback _ _ _ _ _ _ isP').
     set (i := iso_from_Pullback_to_Pullback T1 T2). cbn in i.
     set (i' := invmap (weq_ff_functor_on_iso (yoneda_fully_faithful _ _ ) _ _ ) i ).
@@ -219,33 +222,24 @@ Proof.
       etrans. apply transportf_isotoid_functor.  
       set (XR := mk_Pullback _ _ _ _ _ _ isP).
       rewrite inv_from_iso_iso_from_fully_faithful_reflection.
-      
-      set (XR' := PullbackArrow_PullbackPr2 XR). cbn in XR'. 
-(*
-
-      apply XR'.
       assert (XX:=homotweqinvweq (weq_from_fully_faithful 
-                                    (fully_faithful_yoneda _ ) _ _   )).
-        simpl in XX. rewrite XX. simpl. cbn.
-      unfold inv_from_iso. cbn.
-      unfold precomp_with.
-      cbn.
-      rewrite id_right. cbn.
-      etrans. apply XR'.
-      unfold i.
-      Search (iso_inv_from_iso).
-      clear i. cbn.
-
-     yoneda_map_2
-      unfold iso_from_Pullback_to_Pullback.
-      unfold from_Pullback_to_Pullback.
-
-      match goal with |[|- transportf _ (_ _ _ (_ _ ?ii)) _ = _ ] => set (i:=ii) end.
-      match goal with |[|- transportf _ (_ _ _ ?ii) _ = _ ] => set (i:=ii) end.
-
-      iso_from_fully_faithful_reflection
-*)
-Abort.
+                                    (yoneda_fully_faithful _ (homset_property C)) ΓA' ΓA )).
+      etrans. apply maponpaths_2. apply XX.
+      clear XX.
+      etrans. apply maponpaths_2. apply id_right.
+      etrans. apply maponpaths_2. unfold from_Pullback_to_Pullback. apply idpath.
+      match goal with |[|- ( _ ?PP _ _ _  _ )  ;; _ = _ ] => 
+                       set (PT:=PP) end.
+      match goal with |[|- PullbackArrow _ ?PP ?E2 ?E3 _    ;; _ = _ ] 
+                       => set (E1 := PP);
+                         set (e1 := E1);
+                         set (e2 := E2);
+                         set (e3 := E3) end.
+      match goal with |[|- PullbackArrow _ _ _ _ ?E4    ;; _ = _ ] 
+                       => set (e4 := E4) end.
+      set (XRT := PullbackArrow_PullbackPr2 PT e1 e2 e3 e4).
+      etrans. apply XRT. apply idpath.
+Qed.      
       
 
 End Fiber_Representation.
