@@ -218,10 +218,24 @@ Proof.
       etrans. apply transportf_yy.
       etrans. apply transportf_isotoid_functor.  
       set (XR := mk_Pullback _ _ _ _ _ _ isP).
-      set (XR' := PullbackArrow_PullbackPr2 XR).
+      rewrite inv_from_iso_iso_from_fully_faithful_reflection.
+      
+      set (XR' := PullbackArrow_PullbackPr2 XR). cbn in XR'. 
+(*
+
+      apply XR'.
+      assert (XX:=homotweqinvweq (weq_from_fully_faithful 
+                                    (fully_faithful_yoneda _ ) _ _   )).
+        simpl in XX. rewrite XX. simpl. cbn.
+      unfold inv_from_iso. cbn.
+      unfold precomp_with.
+      cbn.
+      rewrite id_right. cbn.
+      etrans. apply XR'.
       unfold i.
+      Search (iso_inv_from_iso).
       clear i. cbn.
-(* 
+
      yoneda_map_2
       unfold iso_from_Pullback_to_Pullback.
       unfold from_Pullback_to_Pullback.

@@ -908,6 +908,17 @@ Qed.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
+Lemma inv_from_iso_iso_from_fully_faithful_reflection {C D : precategory}
+      (F : functor C D) (HF : fully_faithful F) (a b : C) (i : iso (F a) (F b))
+      : inv_from_iso
+       (iso_from_fully_faithful_reflection HF i) = 
+ iso_from_fully_faithful_reflection HF (iso_inv_from_iso i).
+Proof.
+  cbn.
+  unfold precomp_with.
+  apply id_right.
+Defined.
+
 Definition nat_iso_from_pointwise_iso (D E : precategory)
   (hsE : has_homsets E)
   (F G : [D, E, hsE])
