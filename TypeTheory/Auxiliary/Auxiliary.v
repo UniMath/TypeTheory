@@ -807,6 +807,16 @@ Proof.
     apply XR.
 Qed.
 
+Lemma transportf_yy {C : precategory} {hsC : has_homsets C}
+      (F : preShv C) (c c' : C) (A : (F : functor _ _ ) c : hSet)
+      (e : c = c'):
+  yy (transportf (fun d => (F : functor _ _ ) d : hSet) e A) = 
+  transportf (fun d => preShv C ⟦ yoneda _ hsC d, F⟧) e (yy A).
+Proof.
+  induction e.
+  apply idpath.
+Defined.
+
 Lemma forall_isotid (A : precategory) (a_is : is_category A) 
       (a a' : A) (P : iso a a' -> UU) :
   (∏ e, P (idtoiso e)) → ∏ i, P i.

@@ -162,8 +162,8 @@ Proof.
   { admit. }
   destruct x as [x H]. 
   destruct x' as [x' H']. cbn.    
-  destruct x as [a m].
-  destruct x' as [a' m']. cbn in *.
+  destruct x as [ΓA m].
+  destruct x' as [ΓA' m']. cbn in *.
   destruct H as [H isP].
   destruct H' as [H' isP'].
   simple refine (total2_paths_f _ _ ).
@@ -175,18 +175,17 @@ Proof.
     set (TT := isotoid _ isC i').
     apply TT.
   - cbn.
-    cbn.
-      set (XT := transportf_dirprod _ (fun a' => C⟦a', Γ⟧) (fun a' => Tm pp a' : hSet)).
-      cbn in XT.
-      set (XT' := XT (tpair _ a m : ∑ R : C, C ⟦ R, Γ ⟧ × (Tm pp R : hSet) )
-                     (tpair _ a' m' : ∑ R : C, C ⟦ R, Γ ⟧ × (Tm pp R : hSet) )).
-      cbn in *.
-      match goal with | [ |- transportf _ ?e _ = _ ] => set (TT := e) end.
-      rewrite XT'.
-      destruct m as [q r].
-      destruct m' as [q' r'].
-      cbn. 
-      apply pathsdirprod.
+    set (XT := transportf_dirprod _ (fun a' => C⟦a', Γ⟧) (fun a' => Tm pp a' : hSet)).
+    cbn in XT.
+    set (XT' := XT (tpair _ ΓA m : ∑ R : C, C ⟦ R, Γ ⟧ × (Tm pp R : hSet) )
+                   (tpair _ ΓA' m' : ∑ R : C, C ⟦ R, Γ ⟧ × (Tm pp R : hSet) )).
+    cbn in *.
+    match goal with | [ |- transportf _ ?e _ = _ ] => set (TT := e) end.
+    rewrite XT'.
+    destruct m as [π te].
+    destruct m' as [π' te'].
+    cbn. 
+    apply pathsdirprod.
     + unfold TT.
       rewrite transportf_isotoid.
       cbn.
@@ -204,7 +203,7 @@ Proof.
       match goal with |[|- ( _ (PullbackArrow _ _ _ _ ?E4 )) _ _   ;; _ = _ ] 
                        => set (e4 := E4) end.
       set (XR := PullbackArrow_PullbackPr1 P e1 e2 e3 e4).
-      set (XR':= nat_trans_eq_pointwise XR a'). 
+      set (XR':= nat_trans_eq_pointwise XR ΓA'). 
       cbn in XR'. 
       assert (XR'':= toforallpaths _ _  _ XR').
       cbn in XR''.
@@ -212,6 +211,26 @@ Proof.
       cbn. unfold yoneda_morphisms_data. apply id_left.
     + unfold TT. clear TT. clear XT' XT.
       match goal with |[|- transportf ?r  _ _ = _ ] => set (P:=r) end.
+      match goal with |[|- transportf _ (_ _ _ (_ _ ?ii)) _ = _ ] => set (i:=ii) end.
+      simpl in i.
+      set (TR:= invmaponpathsweq (@yy _ (homset_property _ ) (Tm pp) ΓA')).
+      apply TR; clear TR.
+      etrans. apply transportf_yy.
+      etrans. apply transportf_isotoid_functor.  
+      set (XR := mk_Pullback _ _ _ _ _ _ isP).
+      set (XR' := PullbackArrow_PullbackPr2 XR).
+      unfold i.
+      clear i. cbn.
+(* 
+     yoneda_map_2
+      unfold iso_from_Pullback_to_Pullback.
+      unfold from_Pullback_to_Pullback.
+
+      match goal with |[|- transportf _ (_ _ _ (_ _ ?ii)) _ = _ ] => set (i:=ii) end.
+      match goal with |[|- transportf _ (_ _ _ ?ii) _ = _ ] => set (i:=ii) end.
+
+      iso_from_fully_faithful_reflection
+*)
 Abort.
       
 
