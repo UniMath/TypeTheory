@@ -125,7 +125,8 @@ Proof.
   apply idweq.
 Defined.
 
-Definition stuff : cwf_fiber_representation ≃ cwf_fiber_representation'.
+Definition cwf_fiber_representation_weq 
+  : cwf_fiber_representation ≃ cwf_fiber_representation'.
 Proof.
   unfold cwf_fiber_representation, cwf_fiber_representation'.
   eapply weqcomp.   (* (ΓA,π), ((v,e),P) *)
@@ -153,7 +154,7 @@ Proof.
 Defined.  
 
 
-Lemma isaprop_cwf_fiber_representation :
+Lemma isaprop_cwf_fiber_representation' :
   is_category C -> isaprop cwf_fiber_representation'.
 Proof.
   intro isC.
@@ -240,7 +241,17 @@ Proof.
       set (XRT := PullbackArrow_PullbackPr2 PT e1 e2 e3 e4).
       etrans. apply XRT. apply idpath.
 Qed.      
-      
+
+Lemma isaprop_cwf_fiber_representation :
+  is_category C -> isaprop cwf_fiber_representation.
+Proof.
+  intro H.
+  use isofhlevelweqb.
+  - apply cwf_fiber_representation'.
+  - apply cwf_fiber_representation_weq.
+  - apply isaprop_cwf_fiber_representation'.
+    apply H.
+Defined.
 
 End Fiber_Representation.
 
@@ -252,6 +263,26 @@ End Representation.
 (** ** Definition of CwF structure *)
 
 Definition cwf_structure : UU := ∑ pp, (cwf_representation pp).
+
+(** ** Natural model structure is equivalent to cwf structure when 
+       underlying category is univalent *)
+
+Definition natural_model_structure : UU 
+  := ∑ pp : mor_total (preShv C),
+            ∏ Γ (A : Ty pp Γ : hSet), ∥ cwf_fiber_representation pp A ∥.
+
+Definition cwf_natural_model_weq : 
+  is_category C -> cwf_structure ≃ natural_model_structure.
+Proof.
+  intro H.
+  apply weqfibtototal.
+  intro x.
+  apply weqonsecfibers. intro Γ.
+  apply weqonsecfibers. intro A.
+  apply truncation_weq.
+  apply isaprop_cwf_fiber_representation.
+  apply H.
+Defined.
 
 
 (** ** Equivalence with relative universe structures on Yoneda *)
