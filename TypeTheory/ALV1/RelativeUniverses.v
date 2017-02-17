@@ -139,9 +139,6 @@ Proof.
         apply X1.
       * unfold TT. clear TT. clear XT' XT.
         match goal with |[|- transportf ?r  _ _ = _ ] => set (P:=r) end.
-        set (T:=@functtransportf _ _ (functor_on_objects J) (fun a' => D⟦ a', tU⟧)).
-        rewrite T.
-        rewrite <- functtransportf.
         etrans. 
           apply (transportf_isotoid_functor).  
         cbn. unfold precomp_with. rewrite id_right. rewrite id_right.

@@ -68,15 +68,6 @@ Arguments functor_on_inv_from_iso {_ _} _  {_ _} f.
 
 (** * Path-algebra: general lemmas about transport, equivalences, etc. *)
 
-Lemma total2_paths2 {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1} 
-      {a2 : A} {b2 : B a2} (p : a1 = a2)
-       (q : transportf B p b1 = b2) : a1,,b1 = a2,,b2.
-Proof.
-  intros.
-  apply (@total2_paths_f _ _ (tpair (fun x => B x) a1 b1)
-                       (tpair (fun x => B x) a2 b2) p q).
-Defined.
-
 Lemma weqhomot {A B : UU} (f : A -> B) (w : A ≃ B) (H : w ~ f) : isweq f.
 Proof.
   apply isweqhomot with w. apply H. apply weqproperty.
@@ -244,6 +235,14 @@ Proof.
   - intros bp. use total2_paths_f. apply idpath. apply wv.
 Qed.
 
+Definition truncation_weq (A : UU) (is : isaprop A) : A ≃ ∥ A ∥.
+Proof.
+  apply weqimplimpl.
+  - apply hinhpr.
+  - intro a. use (squash_to_prop a is). apply idfun.
+  - apply is.
+  - apply propproperty. 
+Defined.
 
 (** * Algebra in (pre)categories *)
 
@@ -816,6 +815,16 @@ Proof.
     apply XR.
 Qed.
 
+Lemma transportf_yy {C : precategory} {hsC : has_homsets C}
+      (F : preShv C) (c c' : C) (A : (F : functor _ _ ) c : hSet)
+      (e : c = c'):
+  yy (transportf (fun d => (F : functor _ _ ) d : hSet) e A) = 
+  transportf (fun d => preShv C ⟦ yoneda _ hsC d, F⟧) e (yy A).
+Proof.
+  induction e.
+  apply idpath.
+Defined.
+
 Lemma forall_isotid (A : precategory) (a_is : is_category A) 
       (a a' : A) (P : iso a a' -> UU) :
   (∏ e, P (idtoiso e)) → ∏ i, P i.
@@ -906,6 +915,17 @@ Proof.
 Qed.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+
+Lemma inv_from_iso_iso_from_fully_faithful_reflection {C D : precategory}
+      (F : functor C D) (HF : fully_faithful F) (a b : C) (i : iso (F a) (F b))
+      : inv_from_iso
+       (iso_from_fully_faithful_reflection HF i) = 
+ iso_from_fully_faithful_reflection HF (iso_inv_from_iso i).
+Proof.
+  cbn.
+  unfold precomp_with.
+  apply id_right.
+Defined.
 
 Definition nat_iso_from_pointwise_iso (D E : precategory)
   (hsE : has_homsets E)
