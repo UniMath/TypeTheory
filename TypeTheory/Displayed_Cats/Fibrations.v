@@ -376,7 +376,7 @@ Proof.
       intros gg XR1 XR0.
       apply iscontraprop1.
       * apply invproofirrelevance.
-        intros. apply subtypeEquality.
+        intros x x'. apply subtypeEquality.
         { intro. apply homsets_disp. }
         apply disp_mor_unique_disc_fib.
       * exists gg.
@@ -539,7 +539,7 @@ Proof.
           intros; cbn in *; apply (toforallpaths _ _ _ (functor_id D x ) _ ) |]
         ;
           intros ? ? ? ? ? ? ? ? X X0; cbn in *; 
-          etrans; [apply (toforallpaths _ _ _ (functor_comp D _ _ _  g f ) _ ) |];
+          etrans; [apply (toforallpaths _ _ _ (functor_comp D g f ) _ ) |];
           cbn; etrans; [ apply maponpaths; apply X0 |]; (* here maponpaths depends on cbn *)
           apply X
        ) 

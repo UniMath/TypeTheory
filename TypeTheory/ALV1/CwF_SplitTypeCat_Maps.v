@@ -178,7 +178,7 @@ Proof.
   - intros Γ Γ' Γ'' f g; apply funextsec; intro t.
     destruct t as [A [s e]]; cbn in *.
     use tm_from_qq_eq; simpl.
-    + exact (toforallpaths _ _ _ (functor_comp (TY X) _ _ _ _ _) A).
+    + exact (toforallpaths _ _ _ (functor_comp (TY X) _ _) A).
     + {
       apply PullbackArrowUnique; cbn.
       - rewrite <- assoc.
@@ -256,7 +256,7 @@ Proof.
   unfold yoneda_objects_ob. cbn.    
   use tm_from_qq_eq; simpl pr1.
   + etrans. apply (maponpaths (fun k => A[k]) (assoc _ _ _)).
-    apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ _ _ _ )).
+    apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ )).
   + apply PullbackArrowUnique.
     * cbn.
       etrans. apply (!assoc _ _ _).
@@ -397,7 +397,7 @@ Lemma term_from_qq_pointwise_compatible
 Proof.
   use tm_from_qq_eq.
   + unfold yoneda_morphisms_data; simpl.
-    etrans. apply (toforallpaths _ _ _ (!functor_comp (TY X) _ _ _ _ _ ) A).
+    etrans. apply (toforallpaths _ _ _ (!functor_comp (TY X) _ _ ) A).
     eapply (maponpaths (fun k => A[k])).
       etrans. apply @pathsinv0, (@assoc C).
       etrans. apply maponpaths, qq_π.
@@ -567,7 +567,7 @@ Proof.
     apply PullbackArrowUnique. 
     + etrans. apply maponpaths. cbn. apply idpath. 
       rewrite <- functor_comp.
-      etrans. eapply pathsinv0. refine (functor_comp Yo _ _ _ _ _).
+      etrans. eapply pathsinv0. refine (functor_comp Yo _ _).
       apply maponpaths. rewrite (@comp_ext_compare_π _ X).
       apply pathsinv0. apply id_right.
     + etrans. apply maponpaths. cbn. apply idpath.
@@ -578,7 +578,7 @@ Proof.
     sym. apply PullbackArrowUnique.
     + etrans. apply maponpaths. cbn. apply idpath.
       rewrite <- functor_comp.
-      etrans. eapply pathsinv0. refine (functor_comp Yo _ _ _ _ _).
+      etrans. eapply pathsinv0. refine (functor_comp Yo _ _).
       apply maponpaths.
       rewrite <- assoc. rewrite <- qq_commutes_1 .
       repeat rewrite assoc.
