@@ -50,7 +50,7 @@ Record precwf_record : Type := {
                  pr2 (# T θ) _ (q _ A)
                  = 
                   transportf (fun f => pr1 ((T Δ)₂ (pr1 f A)))
-                             (functor_comp T _ _ _ _ _)
+                             (functor_comp T _ _ )
                   (transportb (fun f => pr1 ((T Δ)₂ (pr1 (# T f) A))) e
                  a))
  }.

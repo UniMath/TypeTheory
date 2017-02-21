@@ -305,7 +305,7 @@ Definition qq_morphism_axioms (Y : qq_morphism_data) : UU
     (∏ Γ Γ' Γ'' (f : C⟦Γ', Γ⟧) (g : C ⟦Γ'', Γ'⟧) (A : (TY X:functor _ _ ) Γ : hSet),
     qq Y (g ;; f) A
     = comp_ext_compare
-           (toforallpaths _ _ _ (functor_comp (TY X) _ _ _ _ _) A)
+           (toforallpaths _ _ _ (functor_comp (TY X) _ _) A)
       ;; qq Y g (A [f]) 
       ;; qq Y f A).
 
@@ -328,7 +328,7 @@ Definition qq_comp (Z : qq_morphism_structure)
     {Γ Γ' Γ'' : C}
     (f : C ⟦ Γ', Γ ⟧) (g : C ⟦ Γ'', Γ' ⟧) (A : Ty X Γ)
   : qq Z (g ;; f) A
-  = comp_ext_compare (toforallpaths _ _ _ (functor_comp (TY X) _ _ _ _ _) A)
+  = comp_ext_compare (toforallpaths _ _ _ (functor_comp (TY X) _ _) A)
     ;; qq Z g (A [f]) ;; qq Z f A
 := pr2 (pr2 Z) _ _ _ _ _ _.
 

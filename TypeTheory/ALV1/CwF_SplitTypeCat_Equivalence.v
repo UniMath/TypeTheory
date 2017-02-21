@@ -165,11 +165,11 @@ Proof.
     intro ee.
     use (MorphismsIntoPullbackEqual (isPullback_Q_pp (pr1 Y) _ )).
     + etrans. apply (!assoc _ _ _ ).
-      etrans. apply maponpaths. apply (!functor_comp _ _ _ _ _ _ ).
+      etrans. apply maponpaths. apply (!functor_comp _ _ _ ).
       etrans. apply maponpaths. apply maponpaths.
               apply comp_ext_compare_π.
       etrans. apply (PullbackArrow_PullbackPr1 XR).
-      etrans. Focus 2. refine (functor_comp Yo _ _ _ _ _).
+      etrans. Focus 2. refine (functor_comp Yo _ _).
       etrans. Focus 2. apply maponpaths. apply (!e).
       apply pathsinv0. refine (functor_id Yo _).
     + etrans. apply (!assoc _ _ _ ).
@@ -307,7 +307,7 @@ Proof.
     apply PullbackArrowUnique.
     + etrans. apply maponpaths. cbn. apply idpath.
       rewrite <- functor_comp.
-      etrans. eapply pathsinv0. refine (functor_comp Yo _ _ _ _ _).
+      etrans. eapply pathsinv0. refine (functor_comp Yo _ _).
       apply maponpaths.
       apply pathsinv0. apply (pr1 (h _ _ _ _ )).
     + etrans. apply maponpaths. cbn. apply idpath.
