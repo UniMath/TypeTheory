@@ -36,7 +36,7 @@ Let YoR_ff : fully_faithful YoR := yoneda_fully_faithful _ (homset_property _).
 Definition ext : functor (preShv C) (preShv RC).
 Proof.
   set (T:= Rezk_op_adj_equiv C (homset_property _) HSET is_category_HSET).
-  apply (equivalences.right_adjoint (pr1 T)).
+  apply (right_adjoint (pr1 T)).
 Defined.
   
 (** ** The natural isomorphism *)

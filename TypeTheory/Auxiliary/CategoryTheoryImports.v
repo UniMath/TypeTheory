@@ -11,6 +11,7 @@ Require Export UniMath.CategoryTheory.UnicodeNotations.
 Require Export UniMath.CategoryTheory.functor_categories.
 Require Export UniMath.CategoryTheory.whiskering.
 Require Export UniMath.CategoryTheory.opp_precat.
+Require Export UniMath.CategoryTheory.Adjunctions.
 Require Export UniMath.CategoryTheory.equivalences.
 Require Export UniMath.CategoryTheory.precomp_fully_faithful.
 Require Export UniMath.CategoryTheory.rezk_completion.
