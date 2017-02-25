@@ -10,7 +10,6 @@
 *)
 
 Require Import UniMath.Foundations.Sets.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.category_hset.
@@ -29,7 +28,7 @@ Reserved Notation "C ⟨ Γ ⟩" (at level 60).
 Reserved Notation "C ⟨ Γ ⊢ A ⟩" (at level 60).
 Reserved Notation "A [ γ ]" (at level 40).
 Reserved Notation "a ⟦ γ ⟧" (at level 40).
-Reserved Notation "Γ ∙ A" (at level 20).
+Reserved Notation "Γ ∙ A" (at level 35).
 Reserved Notation "'π' A" (at level 20).
 Reserved Notation "'ν' A" (at level 15).
 Reserved Notation "γ ♯ a" (at level 25).

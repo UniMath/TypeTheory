@@ -14,7 +14,6 @@
 *)
 
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.Foundations.Sets.
@@ -35,7 +34,7 @@ Reserved Notation "C ⟨ Γ ⟩" (at level 60).
 Reserved Notation "C ⟨ Γ ⊢ A ⟩" (at level 60).
 Reserved Notation "A [[ γ ]]" (at level 40).
 Reserved Notation "a ⟦ γ ⟧" (at level 40).
-Reserved Notation "Γ ∙ A" (at level 20).
+Reserved Notation "Γ ∙ A" (at level 35).
 Reserved Notation "'π' A" (at level 20).
 Reserved Notation "'ν' A" (at level 15).
 Reserved Notation "γ ♯ a" (at level 25).
@@ -211,7 +210,7 @@ Coercion tt_reindx_from_tt_reindx_comp_1 (CC : precategory) (C : tt_reindx_comp_
 Definition comp_obj {CC : precategory} {C : tt_reindx_comp_1_struct CC} (Γ : CC) (A : C⟨Γ⟩) 
   : CC 
 :=  (pr1 (pr2 C Γ A)).
-Notation "Γ ∙ A" := (comp_obj Γ A) (at level 20).
+Notation "Γ ∙ A" := (comp_obj Γ A) (at level 35).
   (* \. in Adga mode *)
 
 Definition proj_mor {CC : precategory} {C : tt_reindx_comp_1_struct CC}
