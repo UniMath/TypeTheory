@@ -431,7 +431,7 @@ Proof.
     assert (T1' := triangle_id_left_ad (pr2 adF') (F a)).
     (* Burrow in to get to the naturality. *)
     etrans.
-    + etrans. apply assoc.
+    + cbn. etrans. apply assoc.
       apply maponpaths_2.
       etrans. apply @pathsinv0, functor_comp.
       apply maponpaths.
@@ -450,7 +450,7 @@ Proof.
     assert (T2' := triangle_id_right_ad (pr2 adF') c).
     (* Burrow in to get to the naturality. *)
     etrans.
-    + etrans. apply @pathsinv0, assoc.
+    + cbn. etrans. apply @pathsinv0, assoc.
       apply maponpaths.
       etrans. apply @pathsinv0, functor_comp.
       apply maponpaths.
