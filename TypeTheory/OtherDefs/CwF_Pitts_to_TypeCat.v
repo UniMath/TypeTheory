@@ -12,14 +12,12 @@ Contents:
 
 
 Require Import UniMath.CategoryTheory.total2_paths.
-
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 
-Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.OtherDefs.TypeCat.
 Require Import TypeTheory.OtherDefs.CwF_Pitts.
+Require Import TypeTheory.Auxiliary.Auxiliary.
 
 Set Automatic Introduction.
 
@@ -31,9 +29,9 @@ Section Prelims.
 
 (* TODO: move to [cwf] *)
 Definition pairing_transport {CC : precategory} (C : cwf_struct CC) {Γ} {A A' : C⟨Γ⟩} (e : A = A')
-  {Γ'} (γ : Γ' --> Γ) (a : C ⟨Γ'⊢A[γ]⟩)
+  {Γ'} (γ : Γ' --> Γ) (a : C ⟨Γ'⊢A{{γ}}⟩)
 : (γ ## a) ;; idtoiso (maponpaths (fun (B : C⟨Γ⟩) => Γ∙B) e)
-= (γ ## (transportf (fun B => C ⟨ Γ' ⊢ B [γ] ⟩) e a)).
+= (γ ## (transportf (fun B => C ⟨ Γ' ⊢ B {{γ}}⟩) e a)).
 Proof.
   destruct e; simpl.
   apply id_right.
@@ -41,12 +39,12 @@ Defined.
 
 (* TODO: generalise; really it’s about any [transportf] along any [maponpaths]. *)
 Lemma transportf_maponpaths {CC : precategory} {C : cwf_struct CC} {Γ} {B B' : C⟨Γ⟩} (e : B = B')
-  {Γ'} (f : Γ' --> Γ) (b : C ⟨ Γ' ⊢ B[f] ⟩)
-: transportf (term C Γ') (maponpaths (fun D => D[f]) e) b
-  = transportf (fun D => term C Γ' (D[f])) e b.
+  {Γ'} (f : Γ' --> Γ) (b : C ⟨ Γ' ⊢ B{{f}} ⟩)
+: transportf (term C Γ') (maponpaths (fun D => D{{f}}) e) b
+  = transportf (fun D => term C Γ' (D{{f}})) e b.
 Proof.
   apply pathsinv0.
-  apply (@functtransportf _ _ (λ D : C ⟨Γ⟩, D [f])).
+  apply (@functtransportf _ _ (λ D : C ⟨Γ⟩, D {{f}})).
 Defined.
 
 End Prelims.
@@ -74,7 +72,7 @@ Proof.
   unfold type_cat_struct1.
   exists (type C).
   exists (comp_obj ).  
-  exact (fun Γ a Γ' f => a[f]).
+  exact (fun Γ a Γ' f => a{{f}}).
 Defined.
 
 (** We can now assemble the components into a type-precategory: *)
@@ -118,8 +116,8 @@ Proof.
     eapply pathscomp0. apply transport_f_f.
     unshelve refine (_ @ _).
       exact (transportf (term C (Γ ◂ reind_type_cat A (identity Γ)))
-        (maponpaths (fun B => B [π (A [identity Γ])]) (reindx_type_id C Γ A))
-        (ν (A [identity Γ]))).
+        (maponpaths (fun B => B {{π (A {{identity Γ}})}}) (reindx_type_id C Γ A))
+        (ν (A {{identity Γ}}))).
     apply term_typeeq_transport_lemma.
     apply term_typeeq_transport_lemma_2.
     reflexivity.
@@ -194,7 +192,7 @@ Proof.
       intro p.
       clear P P'.
       clear X.
-      assert (X : p = maponpaths (fun x => x [π (A [g ;; f])]) Q).
+      assert (X : p = maponpaths (fun x => x {{π (A {{g ;; f}})}}) Q).
       { apply cwf_types_isaset. }
       rewrite X.
       apply pathsinv0. apply retype_term_pi.

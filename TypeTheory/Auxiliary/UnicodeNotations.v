@@ -7,12 +7,11 @@
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Export UniMath.Foundations.Propositions.
+Require Export UniMath.CategoryTheory.precategories.
+Require Export UniMath.CategoryTheory.functor_categories.
+Require Export UniMath.CategoryTheory.opp_precat.
 
-
-(** * (Unicode) Notation for various types and operations  *)
-
-Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
-(* Redeclaring in [mor_scope].  *)
-Notation "# F" := (functor_on_morphisms F) (at level 3) : mor_scope.
+Open Scope cat.
+Open Scope cat_deprecated.
 

@@ -13,7 +13,7 @@ Main result: [compare_term_qq_equivs].
 
 
 
-Require Import UniMath.CategoryTheory.UnicodeNotations.
+
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.

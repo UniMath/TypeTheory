@@ -8,15 +8,13 @@
       (assumption of saturatedness needed for pullbacks forming hprop)
 *)
 
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 
-Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.OtherDefs.TypeCat.
 Require Import TypeTheory.OtherDefs.DM.
-
+Require Import TypeTheory.Auxiliary.Auxiliary.
 
 (** * Construction of Comprehension precategory from Display map precategory *)
 
@@ -81,7 +79,7 @@ Proof.
   clear B.
   unshelve refine (tpair _ _ _ ).
   - unshelve refine (mk_Pullback _ _ _ _ _ _ _ ).
-    + apply (Γ' ◂ (A[f])).
+    + apply (Γ' ◂ (A{{f}})).
     + apply (q_type_cat _ _ ;; h).
     + apply (dpr_type_cat _ ).
     + simpl. unfold dm_sub_struct_of_TypeCat.
@@ -110,7 +108,7 @@ Proof.
    simpl.
     apply hinhpr.
     unfold iso_to_dpr.
-    exists (A[f]).
+    exists (A{{f}}).
     exists (identity_iso _ ).
     sym. apply id_left.
 Defined.

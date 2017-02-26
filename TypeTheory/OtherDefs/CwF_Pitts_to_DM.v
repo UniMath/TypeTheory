@@ -12,7 +12,6 @@
 
 
 Require Import UniMath.Foundations.Sets.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 
@@ -92,7 +91,7 @@ Proof.
   clear B.
   unshelve refine (tpair _ _ _ ).
   - unshelve refine (mk_Pullback _ _ _ _ _ _ _ ).
-    + apply (Γ' ∙ (A[f])).
+    + apply (Γ' ∙ (A{{f}})).
     + apply (q_precwf _ _ ;; h).
     + apply (π _ ). 
     + simpl. unfold dm_sub_struct_of_CwF.
@@ -108,7 +107,7 @@ Proof.
   - simpl.
     apply hinhpr.
     unfold iso_to_dpr.
-    exists (A[f]).
+    exists (A{{f}}).
     exists (identity_iso _ ).
     sym. apply id_left.
 Defined.
