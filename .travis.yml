@@ -9,7 +9,7 @@ before_script:
   - WPATH=$PWD
   - cd ..        
   - git clone https://github.com/UniMath/UniMath
-  - cd UniMath && make PACKAGES="Foundations Combinatorics Algebra NumberSystems CategoryTheory Ktheory" install
+  - cd UniMath && git show && make PACKAGES="Foundations Combinatorics Algebra NumberSystems CategoryTheory Ktheory" install
   - export PATH=$PATH:$PWD/sub/coq/bin/
   - cd $WPATH
 script:
