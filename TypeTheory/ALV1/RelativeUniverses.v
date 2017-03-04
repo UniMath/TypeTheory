@@ -170,6 +170,9 @@ End Relative_Comprehension_Lemmas.
 Definition relative_universe {C D : precategory} (J : functor C D) : UU
   := ∑ X : mor_total D, fcomprehension J X.
 
+Definition mere_relative_universe {C D : precategory} (J : functor C D) : UU
+  := ∑ X : mor_total D,  is_universe_relative_to J X.
+
 (** ** Transfer of a relative universe *)
 
 Section Rel_Univ_Structure_Transfer.
@@ -387,15 +390,15 @@ Variables (U tU : D) (pp : tU --> U).
 Hypothesis is : is_universe_relative_to J pp.
 
 Context
-           (R_es : essentially_surjective R)
-           (C'_sat : is_category C')
-           (J'_ff : fully_faithful J')
-           (* TODO: only “ff on isos” should be needed; see note at [isaprop_fpullback]. *)
-           (S_full : full S).
-       
-Lemma is_universe_transfer : is_universe_relative_to J' (#S pp).
+  (R_es : essentially_surjective R)
+  (C'_sat : is_category C')
+  (J'_ff : fully_faithful J')
+  (* TODO: only “ff on isos” should be needed; see note at [isaprop_fpullback]. *)
+  (S_full : full S).
+
+Lemma mere_fpullback_transfer {X' : C'} (g : D' ⟦ J' X', S U ⟧)
+  : ∥ fpullback J' (# S pp) g ∥.
 Proof.
-  intros X' g.
   cbn in α, α', α'_α.
   set (Xi := R_es X').
   apply (squash_to_prop Xi).
@@ -436,6 +439,13 @@ Proof.
   - cbn. rewrite id_right. apply pathsinv0.
     rewrite assoc. eapply @pathscomp0. apply maponpaths_2, α_α'.
     apply id_left.
+Defined.
+
+
+Lemma is_universe_transfer : is_universe_relative_to J' (#S pp).
+Proof.
+  intros X' g.
+  apply (mere_fpullback_transfer g).
 Defined.
 
 End Is_universe_relative_to_Transfer.
