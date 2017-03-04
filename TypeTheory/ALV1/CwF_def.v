@@ -17,7 +17,6 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.ALV1.RelativeUniverses.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 
 Set Automatic Introduction.
 
@@ -46,8 +45,8 @@ Section Fix_Category.
 
 Variable C : Precategory.
 
-Local Definition Ty (pp : mor_total (preShv C)) : functor _ _ := target pp.
-Local Definition Tm (pp : mor_total (preShv C)) : functor _ _ := source pp.
+Definition Ty (pp : mor_total (preShv C)) : functor _ _ := target pp.
+Definition Tm (pp : mor_total (preShv C)) : functor _ _ := source pp.
 
 (** ** Representations of maps of presheaves 
 
@@ -260,12 +259,22 @@ End Representation.
 
 Definition cwf_structure : UU := ∑ pp, (cwf_representation pp).
 
+(*
 (** ** Natural model structure is equivalent to cwf structure when 
        underlying category is univalent *)
 
 Definition natural_model_structure : UU 
   := ∑ pp : mor_total (preShv C),
             ∏ Γ (A : Ty pp Γ : hSet), ∥ cwf_fiber_representation pp A ∥.
+
+Definition from_cwf_to_natural_model 
+  : cwf_structure -> natural_model_structure.
+Proof.
+  intro H.
+  exists (pr1 H).
+  intros Γ A.
+  exact (hinhpr (pr2 H Γ A)).
+Defined.
 
 Definition cwf_natural_model_weq : 
   is_category C -> cwf_structure ≃ natural_model_structure.
@@ -280,6 +289,8 @@ Proof.
   apply H.
 Defined.
 
+Defini
+*)
 
 (** ** Equivalence with relative universe structures on Yoneda *)
 
