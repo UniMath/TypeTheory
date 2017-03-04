@@ -266,16 +266,11 @@ Definition cwf_structure : UU := ∑ pp, (cwf_representation pp).
 
 (** ** Equivalence with relative universe structures on Yoneda *)
 
-
-Lemma weq_cwf_representation_fcomprehension (pp : mor_total (preShv C))
-  : cwf_representation pp ≃ fcomprehension Yo pp.
+Definition weq_cwf_fiber_representation_fpullback (pp : mor_total (preShv C))
+           (Γ : C^op) (A : (Ty pp) Γ : hSet)
+: cwf_fiber_representation pp A
+  ≃ fpullback (yoneda C (homset_property C)) pp (yy A).
 Proof.
-  apply weqonsecfibers. intro Γ.
-  (* convert the type argument under [yy] *) 
-  eapply weqcomp.
-    Focus 2. eapply invweq. 
-    refine (weqonsecbase _ _). apply yy.
-  apply weqonsecfibers. intro A.
   unfold cwf_fiber_representation, fpullback.
   (* reassociate the RHS to match the LHS:
        ((ΓA,(π,v)),(e,p))
@@ -321,6 +316,17 @@ Proof.
     apply idweq.
 Time Defined.
 
+Lemma weq_cwf_representation_fcomprehension (pp : mor_total (preShv C))
+  : cwf_representation pp ≃ fcomprehension Yo pp.
+Proof.
+  apply weqonsecfibers. intro Γ.
+  (* convert the type argument under [yy] *) 
+  eapply weqcomp.
+    Focus 2. eapply invweq. 
+    refine (weqonsecbase _ _). apply yy.
+  apply weqonsecfibers. intro A.
+  apply  weq_cwf_fiber_representation_fpullback.
+Defined.
 
 Definition weq_cwf_structure_RelUnivYo 
   : cwf_structure ≃ @relative_universe C _ Yo.
