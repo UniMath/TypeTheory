@@ -7,8 +7,12 @@
 (**
 Contents:
 
-- the canonical standalone definition of a (Fiore-style) CwF
-- equivalence between this and two related ones occurring in the ALV1 paper
+- the canonical standalone definition of a (Fiore-style) CwF as per
+  Marcelo Fiore, slides for a talk on "Discrete Generalised Polynomial Functors."  
+  In 39th International Colloquium on Automata, Languages and Programming (ICALP 2012)
+  http://www.cl.cam.ac.uk/~mpf23/talks/ICALP2012.pdf
+- equivalence between cwf structures and two related ones occurring in the ALV1 paper
+
 *)
 
 Require Import UniMath.Foundations.Sets.
@@ -17,7 +21,6 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.ALV1.RelativeUniverses.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 
 Set Automatic Introduction.
 
@@ -46,8 +49,8 @@ Section Fix_Category.
 
 Variable C : Precategory.
 
-Local Definition Ty (pp : mor_total (preShv C)) : functor _ _ := target pp.
-Local Definition Tm (pp : mor_total (preShv C)) : functor _ _ := source pp.
+Definition Ty (pp : mor_total (preShv C)) : functor _ _ := target pp.
+Definition Tm (pp : mor_total (preShv C)) : functor _ _ := source pp.
 
 (** ** Representations of maps of presheaves 
 
@@ -259,26 +262,6 @@ End Representation.
 (** ** Definition of CwF structure *)
 
 Definition cwf_structure : UU := ∑ pp, (cwf_representation pp).
-
-(** ** Natural model structure is equivalent to cwf structure when 
-       underlying category is univalent *)
-
-Definition natural_model_structure : UU 
-  := ∑ pp : mor_total (preShv C),
-            ∏ Γ (A : Ty pp Γ : hSet), ∥ cwf_fiber_representation pp A ∥.
-
-Definition cwf_natural_model_weq : 
-  is_category C -> cwf_structure ≃ natural_model_structure.
-Proof.
-  intro H.
-  apply weqfibtototal.
-  intro x.
-  apply weqonsecfibers. intro Γ.
-  apply weqonsecfibers. intro A.
-  apply truncation_weq.
-  apply isaprop_cwf_fiber_representation.
-  apply H.
-Defined.
 
 
 (** ** Equivalence with relative universe structures on Yoneda *)
