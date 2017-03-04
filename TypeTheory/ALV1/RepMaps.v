@@ -7,7 +7,11 @@
 (**
 Contents:
 
-- definition of a representable map of presheaves
+- definition of a representable map of presheaves as per
+
+  Steve Awodey: Natural models of homotopy type theory,
+  Mathematical Structures in Computer Science, 1--46, 2016
+  https://arxiv.org/abs/1406.3219
 
 *)
 
