@@ -386,15 +386,20 @@ Let α'_α := nat_trans_eq_pointwise (iso_after_iso_inv αiso).
 Let α_α' := nat_trans_eq_pointwise (iso_inv_after_iso αiso).
 
 
-Variables (U tU : D) (pp : tU --> U).
-Hypothesis is : is_universe_relative_to J pp.
-
 Context
   (R_es : essentially_surjective R)
   (C'_sat : is_category C')
   (J'_ff : fully_faithful J')
   (* TODO: only “ff on isos” should be needed; see note at [isaprop_fpullback]. *)
   (S_full : full S).
+
+
+Variables (U tU : D) (pp : tU --> U).
+
+Section map_on_is_universe_relativ_to.
+
+Hypothesis is : is_universe_relative_to J pp.
+
 
 Lemma mere_fpullback_transfer {X' : C'} (g : D' ⟦ J' X', S U ⟧)
   : ∥ fpullback J' (# S pp) g ∥.
@@ -447,6 +452,69 @@ Proof.
   intros X' g.
   apply (mere_fpullback_transfer g).
 Defined.
+
+End map_on_is_universe_relativ_to.
+
+Definition αpwiso X : iso (S (J X)) (J' (R X))
+  := functor_iso_pointwise_if_iso _ _ _ _ _ α is_iso_α X.
+
+
+Definition isweq_is_universe_transfer 
+           (R_ff : fully_faithful R) (* ff on isos might be sufficient *)
+           (S_ff : fully_faithful S)
+  : isweq is_universe_transfer.
+Proof.
+  use (gradth _ _ _ _ ).
+  - intro H.
+    intros X f.
+    set (RX := R X). set (f' := (α' : nat_trans _ _ ) X ;; #S f).
+    set (Pb_RX_f' := H RX f').
+    apply (squash_to_prop Pb_RX_f'). 
+    { apply propproperty. }
+    intro T.
+    destruct T as [X1 X2].
+    destruct X1 as [X' [p' q]].
+    destruct X2 as [H1 H2]. cbn in H1. cbn in H2.
+    unfold RX in *. clear RX. clear Pb_RX_f'.
+    
+    apply (squash_to_prop (R_es X')). 
+    { apply propproperty. }
+    intros [Xf i].
+    
+    apply hinhpr.
+    repeat mkpair.
+    + apply Xf.
+    + exact (invmap (weq_from_fully_faithful R_ff _ _) (i ;; p')).
+    + set (hi := (α : nat_trans _ _ ) Xf). cbn in hi.
+      set (XR := hi ;; functor_on_iso J' i ;; q).
+      exact (invmap (weq_from_fully_faithful S_ff _ _ ) XR).
+    + cbn. apply (invmaponpathsweq (weq_from_fully_faithful S_ff _ _ )).
+      cbn. apply pathsinv0.
+      etrans. rewrite functor_comp. apply maponpaths_2.
+              apply (homotweqinvweq (weq_from_fully_faithful S_ff _ _ )).
+      unfold f' in H1. unfold f' in H2. clear f'.
+      etrans. eapply pathsinv0. repeat rewrite <- assoc.
+              apply maponpaths. apply maponpaths. apply H1.
+      rewrite functor_comp.
+      repeat rewrite assoc. apply maponpaths_2.
+      apply pathsinv0. rewrite <- assoc. rewrite <- assoc.
+(*      match goal with |[|- ?II = _ ] => set (I := II) end. *)
+      apply (iso_inv_to_left D' _ _ _ (αpwiso Xf )).
+      cbn. unfold precomp_with. rewrite id_right.
+      assert (XR := nat_trans_ax α').
+      apply pathsinv0. 
+      etrans. Focus 2. apply XR.
+      cbn.
+      apply pathsinv0. 
+      etrans. apply maponpaths_2. apply maponpaths.
+              apply (homotweqinvweq (weq_from_fully_faithful R_ff _ _ )).
+      rewrite functor_comp.
+      apply pathsinv0, assoc.
+    + cbn.
+      admit.
+  - admit.
+  - admit.
+Abort.
 
 End Is_universe_relative_to_Transfer.
 
