@@ -52,6 +52,9 @@ Coercion fpullback_data_from_fpullback {X : C} {f : D ⟦J X, U⟧} (T : fpullba
 
 Definition fcomprehension := ∏ X (f : D⟦J X, U⟧), fpullback f.
 
+Definition is_universe_relative_to : UU
+  := ∏ (X : C) (f : D⟦J X, _ ⟧), ∥ fpullback f ∥ .
+
 (* TODO: add arguments declaration to make [U], [tU] explicit in this def not depending on [p].  OR make it depend on [p] (which it conceptually should, though it formally doesn’t). *)
 Definition fcomprehension_data := ∏ X (f : D⟦ J X, U⟧), fpullback_data f.
 Definition fcomprehension_prop (Y : fcomprehension_data) :=
@@ -157,9 +160,12 @@ Qed.
 
 End Relative_Comprehension_Lemmas.
 
+
+
 (** * Relative universes *)
 
-(** A _universe relative to a functor_ is just a map in the target category, equipped with a relative comprehension structure. *)
+(** A _universe relative to a functor_ is just a map in the target category, 
+    equipped with a relative comprehension structure. *)
 
 Definition relative_universe {C D : precategory} (J : functor C D) : UU
   := ∑ X : mor_total D, fcomprehension J X.
@@ -168,7 +174,10 @@ Definition relative_universe {C D : precategory} (J : functor C D) : UU
 
 Section Rel_Univ_Structure_Transfer.
 
-(** We give two sets of conditions under which a relative universe for one functor can be transferred to one for another functor. In each case, we start by assuming a commutative (up to iso) square of functors, in which the right-hand functor _S_ preserves pullbacks. *)
+(** We give two sets of conditions under which a relative universe for one functor 
+    can be transferred to one for another functor. 
+    In each case, we start by assuming a commutative (up to iso) square of functors, 
+    in which the right-hand functor _S_ preserves pullbacks. *)
 
 Context
    {C : precategory} {D : Precategory}
@@ -185,7 +194,14 @@ Context
 
    (S_pb : maps_pb_squares_to_pb_squares _ _ S).
 
-(** On top of this, we then assume either the assumptions that _R_ is split essentially surjective and _S_ split full; or else that _R_ is essentially surjective and _S_ full, plus that _J_ is fully faithful and _C'_ saturated.  These last two assumptions imply uniqueness of the new comprehension structure, and hence allow getting chosen inverses out of the (non-split) surjectivity assumptions. *)
+(** On top of this, we then assume either 
+   - the assumptions that [R] is split essentially surjective and [S] split full; or else 
+   - that [R] is essentially surjective and [S] full, plus that [J] is fully faithful 
+     and [C'] saturated.  
+     These last two assumptions imply uniqueness of the new comprehension structure, 
+     and hence allow getting chosen inverses out of the (non-split) 
+     surjectivity assumptions. 
+*)
 
 Let αiso := isopair α is_iso_α.
 Let α' := inv_from_iso αiso. 
@@ -258,16 +274,17 @@ Proof.
   apply fcomprehension_induced_with_ess_split; assumption.
 Defined.
 
-Definition fcomprehension_induced_with_ess_surj
-   (R_es : essentially_surjective R)
-   (C'_sat : is_category C')
-   (J'_ff : fully_faithful J')
-     (* TODO: only “ff on isos” should be needed; see note at [isaprop_fpullback]. *)
-   (S_full : full S)
-  :  fcomprehension J' (# S (pr1 RUJ)).
+Definition fpullback_induced_with_ess_surj
+           (R_es : essentially_surjective R)
+           (C'_sat : is_category C')
+           (J'_ff : fully_faithful J')
+           (* TODO: only “ff on isos” should be needed; see note at [isaprop_fpullback]. *)
+           (S_full : full S)
+           (X' : C')
+           (g : D' ⟦ J' X', S U ⟧)
+: fpullback J' (# S (pr1 RUJ)) g.
 Proof.
   cbn in α, α', α'_α.
-  intros X' g.
   set (Xi := R_es X').
   apply (squash_to_prop Xi).
     { apply (isaprop_fpullback J'); assumption. }
@@ -303,7 +320,20 @@ Proof.
   - cbn. rewrite id_right. apply pathsinv0.
     rewrite assoc. eapply @pathscomp0. apply maponpaths_2, α_α'.
     apply id_left.
-Qed.
+Defined.
+
+Definition fcomprehension_induced_with_ess_surj
+   (R_es : essentially_surjective R)
+   (C'_sat : is_category C')
+   (J'_ff : fully_faithful J')
+     (* TODO: only “ff on isos” should be needed; see note at [isaprop_fpullback]. *)
+   (S_full : full S)
+  :  fcomprehension J' (# S (pr1 RUJ)).
+Proof.
+  cbn in α, α', α'_α.
+  intros X' g.
+  apply fpullback_induced_with_ess_surj; assumption.
+Defined.
 
 Definition transfer_of_rel_univ_with_ess_surj
     (R_es : essentially_surjective R)
@@ -317,4 +347,97 @@ Proof.
   apply fcomprehension_induced_with_ess_surj; assumption.
 Defined.
 
+
 End Rel_Univ_Structure_Transfer.
+
+
+(** ** Transfer of morphisms that merely are a relative universe: truncation *)
+
+(** The next section literally copies a proof from the
+    preceding section, with the exception of a truncation elimination
+    in the middle of the proof.
+    TODO: see if one can factor out a common lemma between the
+          truncated lemma below and the untruncated lemma above.
+*)
+    
+
+Section Is_universe_relative_to_Transfer.
+
+Context
+   {C : precategory} {D : Precategory}
+   (J : functor C D)
+
+   {C' : precategory} {D' : Precategory}
+   (J' : functor C' D')
+
+   (R : functor C C') (S : functor D D')
+
+   (α : [C, D'] ⟦functor_composite J S , functor_composite R J'⟧)
+   (is_iso_α : is_iso α)
+
+   (S_pb : maps_pb_squares_to_pb_squares _ _ S).
+
+Let αiso := isopair α is_iso_α.
+Let α' := inv_from_iso αiso. 
+Let α'_α := nat_trans_eq_pointwise (iso_after_iso_inv αiso).
+Let α_α' := nat_trans_eq_pointwise (iso_inv_after_iso αiso).
+
+
+Variables (U tU : D) (pp : tU --> U).
+Hypothesis is : is_universe_relative_to J pp.
+
+Context
+           (R_es : essentially_surjective R)
+           (C'_sat : is_category C')
+           (J'_ff : fully_faithful J')
+           (* TODO: only “ff on isos” should be needed; see note at [isaprop_fpullback]. *)
+           (S_full : full S).
+       
+Lemma is_universe_transfer : is_universe_relative_to J' (#S pp).
+Proof.
+  intros X' g.
+  cbn in α, α', α'_α.
+  set (Xi := R_es X').
+  apply (squash_to_prop Xi).
+  { apply propproperty. }
+  intros [X i]; clear Xi R_es.
+  set (f' := (α X ;; #J' i ;; g) : D' ⟦ S (J X), S U ⟧).
+  set (fe := S_full _ _ f').
+  apply (squash_to_prop fe).
+  { apply propproperty. } 
+  intros [f e_Sf_f']; clear fe S_full.
+  set (Xf' := is _ f).
+  apply (squash_to_prop Xf').
+  { apply propproperty. } 
+  intro Xf.
+  destruct Xf as [H A].
+  destruct H as [Xf [p q]].
+  destruct A as [e isPb]. cbn in e, isPb.
+  assert (Sfp := S_pb _ _ _ _ _ _ _ _ _ isPb); clear S_pb.
+  set (HSfp := functor_on_square D D' S e) in *; clearbody HSfp.
+  apply hinhpr.
+  simple refine (tpair _ _ _ ).
+  { exists (R Xf); split.
+    - exact (#R p ;; i).
+    - refine (α' Xf ;; #S q).
+  }
+  cbn. unfold fpullback_prop.
+  simple refine (commutes_and_is_pullback_transfer_iso _ _ _ _ _ Sfp).
+  - apply identity_iso.
+  - refine (iso_comp _ (functor_on_iso J' i)).
+    exists (α _). apply α_iso. apply is_iso_α.
+  - apply identity_iso.
+  - cbn. exists (α _). apply α_iso. apply is_iso_α.
+  - cbn. rewrite id_right.
+    apply e_Sf_f'.
+  - rewrite id_left. apply id_right.
+  - cbn. rewrite functor_comp.
+    repeat rewrite assoc. apply maponpaths_2, (nat_trans_ax α).
+  - cbn. rewrite id_right. apply pathsinv0.
+    rewrite assoc. eapply @pathscomp0. apply maponpaths_2, α_α'.
+    apply id_left.
+Defined.
+
+End Is_universe_relative_to_Transfer.
+
+(* *)
