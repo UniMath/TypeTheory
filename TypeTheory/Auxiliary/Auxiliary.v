@@ -173,6 +173,15 @@ Proof.
   - exact ex.
 Qed.
 
+Lemma transportf_pair {A B} (P : A × B -> UU) {a a' : A} {b b' : B}
+      (eA : a = a') (eB : b = b') (p : P (a,,b)) 
+      : transportf P (pathsdirprod eA eB) p =
+        transportf (fun bb => P(a',,bb) ) eB (transportf (fun aa => P(aa,,b)) eA p).
+Proof.
+  induction eA. induction eB. apply idpath.
+Defined.
+
+
 (* TODO: redundant: replace with general-purpose [maponpaths_2]. *)
 Lemma transportf_ext (X : UU) (B : X -> UU) (A A' : X) (e e' : A = A') p :
   e = e' -> transportf _ e p = transportf B e' p.
@@ -199,6 +208,15 @@ Proof.
     apply idpath.
   - intro p. rewrite path_assoc. rewrite pathsinv0r.
     apply idpath.
+Defined.
+
+Definition isweqbandfmap_var {X Y : UU} (w : X -> Y) 
+           (P : X → UU) (Q : Y → UU)
+           (fw : ∏ x : X, P x -> Q (w x))
+: isweq w -> (∏ x, isweq (fw x)) -> isweq (bandfmap w P Q (λ x : X, fw x)).
+Proof.
+  intros Hw Hfw.
+  apply (isweqbandfmap (weqpair w Hw) _ _ (fun x => weqpair _ (Hfw x))).
 Defined.
 
 (*
@@ -284,6 +302,122 @@ Definition morphism_from_total {C} (X : mor_total C)
   := pr2 X.
 Coercion morphism_from_total : mor_total >-> precategory_morphisms.
 
+Definition functor_on_mor_total {C D : precategory} (F : functor C D) 
+           (p : mor_total C) : mor_total D := (_ ,, _ ) ,, #F p.
+
+
+
+Definition isweq_left_adj_equivalence_on_mor_total {C D : precategory} (F : functor C D) 
+           (isC : is_category C) (isD : is_category D)
+           (H : adj_equivalence_of_precats F) 
+: isweq (functor_on_mor_total F).
+Proof.
+  use (gradth _ _ _ _ ).
+  - apply (functor_on_mor_total (adj_equivalence_inv H)).
+  - intro p.
+    use total2_paths_f.
+    + cbn. destruct p as [[a b] f].
+      apply pathsdirprod; cbn. 
+      * apply (isotoid _ isC). 
+        apply iso_inv_from_iso. apply (unit_pointwise_iso_from_adj_equivalence H).
+      * apply (isotoid _ isC).
+        apply iso_inv_from_iso. apply (unit_pointwise_iso_from_adj_equivalence H).
+    + cbn. destruct p as [[a b] f]. cbn in *.
+      etrans. apply (transportf_pair (λ x : C × C, C ⟦ pr2 x, pr1 x ⟧)).
+      cbn.
+      rewrite transportf_isotoid.
+      rewrite transportf_isotoid'.
+      cbn. unfold precomp_with. rewrite id_right.
+      rewrite assoc. assert (XR := nat_trans_ax (unit_from_are_adjoints (pr2 (pr1 H)))).
+      cbn in XR. rewrite <- XR.
+      rewrite <- assoc. 
+      etrans. apply maponpaths.
+      apply (iso_inv_after_iso (unit_pointwise_iso_from_adj_equivalence H a)).
+      apply id_right.
+    - intro p.
+    use total2_paths_f.
+    + cbn. destruct p as [[a b] f].
+      apply pathsdirprod; cbn. 
+      * apply (isotoid _ isD). 
+        apply (counit_pointwise_iso_from_adj_equivalence H).
+      * apply (isotoid _ isD).
+        apply (counit_pointwise_iso_from_adj_equivalence H).
+    + cbn. destruct p as [[a b] f]. cbn in *.
+      etrans. apply (transportf_pair (λ x : D × D, D ⟦ pr2 x, pr1 x ⟧)).
+      cbn.
+      rewrite transportf_isotoid.
+      rewrite transportf_isotoid'.
+      cbn. unfold precomp_with. 
+      assert (XR := nat_trans_ax (counit_from_are_adjoints (pr2 (pr1 H)))).
+      cbn in XR. rewrite XR. clear XR.
+      rewrite assoc. 
+      etrans. apply maponpaths_2.
+      apply (iso_after_iso_inv (counit_pointwise_iso_from_adj_equivalence H _)).
+      apply id_left.
+Defined.
+
+Definition iso_ob {C D : precategory} (hsD : has_homsets D)
+          {F G : functor C D} (a : iso (C:= [C, D, hsD]) F G)
+  : ∏ c, iso (F c) (G c).
+Proof.
+  intro c.
+  use isopair.
+  - cbn. apply ((pr1 a : nat_trans _ _ ) c).
+  - apply is_functor_iso_pointwise_if_iso. apply (pr2 a).
+Defined.
+
+Definition isweq_equivalence_on_mor_total {C D : precategory}
+           (isC : is_category C) (isD : is_category D)
+           (F : functor C D) (G : functor D C)
+           (eta : iso (C:= [_ , _ , pr2 isC ]) (functor_identity C) (F ∙ G))
+           (eps : iso (C:= [_ , _ , pr2 isD ]) (G ∙ F) (functor_identity D))
+: isweq (functor_on_mor_total F).
+Proof.
+  use (gradth _ _ _ _ ).
+  - apply (functor_on_mor_total G).
+  - intro p.
+    use total2_paths_f.
+    + cbn. destruct p as [[a b] f].
+      apply pathsdirprod; cbn. 
+      * apply (isotoid _ isC). 
+        apply iso_inv_from_iso. apply (iso_ob (pr2 isC) eta).
+      * apply (isotoid _ isC).
+        apply iso_inv_from_iso. apply (iso_ob (pr2 isC) eta).
+    + cbn. destruct p as [[a b] f]. cbn in *.
+      etrans. apply (transportf_pair (λ x : C × C, C ⟦ pr2 x, pr1 x ⟧)).
+      cbn.
+      rewrite transportf_isotoid.
+      rewrite transportf_isotoid'.
+      cbn. unfold precomp_with. rewrite id_right.
+      rewrite assoc. assert (XR := nat_trans_ax (pr1 eta)).
+      cbn in XR. rewrite <- XR.
+      rewrite <- assoc.
+      rewrite id_right.
+      etrans. apply maponpaths.
+      apply (nat_trans_inv_pointwise_inv_after _ _ (pr2 isC)  _ _ (pr1 eta)).
+      apply id_right.
+  - intro p.
+    use total2_paths_f.
+    + cbn. destruct p as [[a b] f].
+      apply pathsdirprod; cbn. 
+      * apply (isotoid _ isD). 
+        apply (iso_ob (pr2 isD) eps).
+      * apply (isotoid _ isD).
+        apply (iso_ob (pr2 isD) eps).
+    + cbn. destruct p as [[a b] f]. cbn in *.
+      etrans. apply (transportf_pair (λ x : D × D, D ⟦ pr2 x, pr1 x ⟧)).
+      cbn.
+      rewrite transportf_isotoid.
+      rewrite transportf_isotoid'.
+      cbn. unfold precomp_with. 
+      assert (XR := nat_trans_ax (pr1 eps)).
+      cbn in XR. rewrite XR. clear XR.
+      rewrite assoc. 
+      rewrite id_right.
+      etrans. apply maponpaths_2.
+      apply (nat_trans_inv_pointwise_inv_before _ _ (pr2 isD)  _ _ (pr1 eps)).
+      apply id_left.
+Defined.
 
 (** ** Equivalences of categories *)
 (** Specifically: the composition of (adjoint) equivalences of precats. *)
@@ -1020,6 +1154,20 @@ Coercion adj_from_equiv : adj_equivalence_of_precats >-> is_left_adjoint.
 
 
 (** ** Lemmas on pullbacks *)
+
+Definition reflects_pullbacks {C D : precategory} (F : functor C D) : UU
+  := ∏ {a b c d : C}{f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : C⟦d, b⟧} {k : C⟦d,c⟧}
+       (H : h · f = k · g),
+     isPullback _ _ _ _ (functor_on_square _ _ F H) -> isPullback _ _ _ _ H.
+
+Lemma ff_reflects_pullbacks {C D : Precategory} {F : functor C D} 
+      (F_ff : fully_faithful F) : reflects_pullbacks F.
+Proof.
+  do 10 intro. 
+  use (isPullback_preimage_square _ _ _ _ _ _ X).
+  - apply homset_property.
+  - apply F_ff.
+Defined.
 
 Section Square_Transfers.
 

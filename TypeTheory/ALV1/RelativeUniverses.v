@@ -176,7 +176,7 @@ Definition relative_universe {C D : precategory} (J : functor C D) : UU
   := ∑ X : mor_total D, fcomprehension J X.
 
 Definition mere_relative_universe {C D : precategory} (J : functor C D) : UU
-  := ∑ X : mor_total D,  is_universe_relative_to J X.
+  := ∑ X : mor_total D, is_universe_relative_to J X.
 
 (** ** Transfer of a relative universe *)
 
@@ -398,6 +398,7 @@ Context
   (* TODO: only “ff on isos” should be needed; see note at [isaprop_fpullback]. *)
   (S_full : full S).
 
+Section fix_a_morphism.
 
 Variables (U tU : D) (pp : tU --> U).
 
@@ -466,7 +467,8 @@ Definition αpwiso X : iso (S (J X)) (J' (R X))
 
 Definition isweq_is_universe_transfer 
            (R_full : full R) (* full on isos might be sufficient *)
-           (S_ff : fully_faithful S) (* we need that S reflects limits *)
+           (S_ff : fully_faithful S) (* we need that S reflects pullbacks and 
+                                        that S is full *)
   : isweq is_universe_transfer.
 Proof.
   use (gradth _ _ _ _ ).
@@ -570,6 +572,50 @@ Proof.
   - intros. apply proofirrelevance. 
     do 2 (apply impred; intro); apply propproperty.
 Defined.
+
+End fix_a_morphism.
+
+Definition mere_universe_transfer : 
+  mere_relative_universe J -> mere_relative_universe J'.
+Proof.
+  use bandfmap.
+  - apply (functor_on_mor_total S).
+  - intro pp. cbn.
+    apply is_universe_transfer.
+Defined.
+
+
+Definition isweq_mere_universe_transfer 
+           (R_full : full R)
+           (isD : is_category D) (isD' : is_category D')
+           (T : functor D' D)
+           (eta : iso (C:=[D, D, pr2 D]) (functor_identity D) (S ∙ T))
+           (eps : iso (C:=[D', D', pr2 D']) (T ∙ S) (functor_identity D'))
+           (S_ff : fully_faithful S) (* redundant, but that lemma is still missing *)
+  : isweq mere_universe_transfer.
+Proof.
+  apply isweqbandfmap_var.
+  - use isweq_equivalence_on_mor_total.
+    + apply isD.
+    + apply isD'.
+    + apply T.
+    + apply eta.
+    + apply eps.
+  - intro pp.
+    apply isweq_is_universe_transfer.
+    + apply R_full.
+    + apply S_ff.
+Defined.
+
+Definition weq_mere_universe_transfer
+           (R_full : full R)
+           (isD : is_category D) (isD' : is_category D')
+           (T : functor D' D)
+           (eta : iso (C:=[D, D, pr2 D]) (functor_identity D) (S ∙ T))
+           (eps : iso (C:=[D', D', pr2 D']) (T ∙ S) (functor_identity D'))
+           (S_ff : fully_faithful S)
+: mere_relative_universe J ≃ mere_relative_universe J'
+:= weqpair _ (isweq_mere_universe_transfer R_full isD isD' T eta eps S_ff).
 
 End Is_universe_relative_to_Transfer.
 
