@@ -21,6 +21,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.ALV1.RelativeUniverses.
+Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
 
 Set Automatic Introduction.
 
@@ -358,4 +359,16 @@ Proof.
 Qed.
 
 End Fix_Category.
+
+Definition Rezk_on_cwf_structures (C : Precategory)
+           (H : cwf_structure C)
+  : cwf_structure (Rezk_completion C (homset_property _)) .
+Proof.
+  apply (invmap (weq_cwf_structure_RelUnivYo _)).
+  apply (Rezk_on_RelUnivYoneda C).
+  apply (weq_cwf_structure_RelUnivYo _).
+  exact H.
+Defined.
+
+
 

@@ -22,6 +22,7 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.ALV1.CwF_def.
 Require Import TypeTheory.ALV1.RelativeUniverses.
+Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
 
 Set Automatic Introduction.
 
@@ -118,3 +119,35 @@ Defined.
 
 End Fix_Category.
 
+Definition Rezk_on_rep_map (C : Precategory)
+  : rep_map C ≃ rep_map (Rezk_completion C (homset_property _)).
+Proof.
+  eapply weqcomp.
+    apply weq_rep_map_mere_relative_universe_Yo.
+  eapply weqcomp.
+     apply Rezk_on_RepMaps.
+  apply invweq.
+  apply weq_rep_map_mere_relative_universe_Yo.
+Defined.
+
+
+(** 
+<<<
+  cwf(C) ------> rep_map(C)
+   |                |
+   v                v
+  cwf(RC) -----> rep_map(RC)
+>>>
+*)
+
+Lemma cwf_repmap_diagram (C : Precategory) (X : cwf_structure C) 
+  : from_cwf_to_rep_map _ (Rezk_on_cwf_structures _ X)
+    = 
+    Rezk_on_rep_map _ (from_cwf_to_rep_map _ X).
+Proof.
+  apply subtypeEquality.
+  { intro. admit. }
+  
+  destruct X as [pp H].
+  cbn.
+Abort.
