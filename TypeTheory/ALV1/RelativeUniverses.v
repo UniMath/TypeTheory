@@ -465,8 +465,8 @@ Definition αpwiso X : iso (S (J X)) (J' (R X))
 
 
 Definition isweq_is_universe_transfer 
-           (R_ff : fully_faithful R) (* ff on isos might be sufficient *)
-           (S_ff : fully_faithful S)
+           (R_full : full R) (* full on isos might be sufficient *)
+           (S_ff : fully_faithful S) (* we need that S reflects limits *)
   : isweq is_universe_transfer.
 Proof.
   use (gradth _ _ _ _ ).
@@ -486,10 +486,14 @@ Proof.
     { apply propproperty. }
     intros [Xf i].
     
+    (* get a preimage of [i · 'p] *)
+    apply (squash_to_prop (R_full _ _ (i · p'))).
+    { apply propproperty. } 
+    intros [ip' Hip'].
     apply hinhpr.
     repeat mkpair.
     + apply Xf.
-    + exact (invmap (weq_from_fully_faithful R_ff _ _) (i ;; p')).
+    + exact ip'.
     + set (hi := (α : nat_trans _ _ ) Xf). cbn in hi.
       set (XR := hi ;; functor_on_iso J' i ;; q').
       exact (invmap (weq_from_fully_faithful S_ff _ _ ) XR).
@@ -510,8 +514,8 @@ Proof.
       etrans. Focus 2. apply XR.
       cbn.
       apply pathsinv0. 
-      etrans. apply maponpaths_2. apply maponpaths.
-              apply (homotweqinvweq (weq_from_fully_faithful R_ff _ _ )).
+      etrans. apply maponpaths_2. apply maponpaths. 
+            apply Hip'.
       rewrite functor_comp.
       apply pathsinv0, assoc.
     + cbn. 
@@ -545,7 +549,7 @@ Proof.
         apply maponpaths.
         apply pathsinv0.
         etrans. apply maponpaths. 
-          apply (homotweqinvweq (weq_from_fully_faithful R_ff _ _ )).
+          apply Hip'.
         rewrite assoc.
         rewrite iso_after_iso_inv.
         apply id_left.
