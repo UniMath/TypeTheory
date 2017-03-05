@@ -27,7 +27,10 @@ Local Notation "[ C , D ]" := (functor_Precategory C D).
 
 (** * Relative comprehension structures *)
 
-(** Given a map [ p : Ũ —> U ] in a category [D], and a functor [ F : C —> D ], _a comprehension structure for [p] relative to [F]_ is an operation providing all pullbacks of [p] along morphisms from objects of the form [F X]. *)
+(** Given a map [ p : Ũ —> U ] in a category [D], 
+    and a functor [ F : C —> D ], _a comprehension structure for [p] 
+    relative to [F]_ is an operation providing all pullbacks of [p] 
+    along morphisms from objects of the form [F X]. *)
 
 Section Relative_Comprehension.
 
@@ -55,7 +58,9 @@ Definition fcomprehension := ∏ X (f : D⟦J X, U⟧), fpullback f.
 Definition is_universe_relative_to : UU
   := ∏ (X : C) (f : D⟦J X, _ ⟧), ∥ fpullback f ∥ .
 
-(* TODO: add arguments declaration to make [U], [tU] explicit in this def not depending on [p].  OR make it depend on [p] (which it conceptually should, though it formally doesn’t). *)
+(* TODO: add arguments declaration to make [U], [tU] explicit in this 
+   def not depending on [p].  
+   OR make it depend on [p] (which it conceptually should, though it formally doesn’t). *)
 Definition fcomprehension_data := ∏ X (f : D⟦ J X, U⟧), fpullback_data f.
 Definition fcomprehension_prop (Y : fcomprehension_data) :=
           ∏ X f, fpullback_prop (Y X f). 
@@ -473,7 +478,7 @@ Proof.
     { apply propproperty. }
     intro T.
     destruct T as [X1 X2].
-    destruct X1 as [X' [p' q]].
+    destruct X1 as [X' [p' q']].
     destruct X2 as [H1 H2]. cbn in H1. cbn in H2.
     unfold RX in *. clear RX. clear Pb_RX_f'.
     
@@ -486,7 +491,7 @@ Proof.
     + apply Xf.
     + exact (invmap (weq_from_fully_faithful R_ff _ _) (i ;; p')).
     + set (hi := (α : nat_trans _ _ ) Xf). cbn in hi.
-      set (XR := hi ;; functor_on_iso J' i ;; q).
+      set (XR := hi ;; functor_on_iso J' i ;; q').
       exact (invmap (weq_from_fully_faithful S_ff _ _ ) XR).
     + cbn. apply (invmaponpathsweq (weq_from_fully_faithful S_ff _ _ )).
       cbn. apply pathsinv0.
@@ -498,7 +503,6 @@ Proof.
       rewrite functor_comp.
       repeat rewrite assoc. apply maponpaths_2.
       apply pathsinv0. rewrite <- assoc. rewrite <- assoc.
-(*      match goal with |[|- ?II = _ ] => set (I := II) end. *)
       apply (iso_inv_to_left D' _ _ _ (αpwiso Xf )).
       cbn. unfold precomp_with. rewrite id_right.
       assert (XR := nat_trans_ax α').
@@ -510,11 +514,58 @@ Proof.
               apply (homotweqinvweq (weq_from_fully_faithful R_ff _ _ )).
       rewrite functor_comp.
       apply pathsinv0, assoc.
-    + cbn.
-      admit.
-  - admit.
-  - admit.
-Abort.
+    + cbn. 
+      match goal with |[|- isPullback _ _ _ _ (?HH)] => generalize HH end.
+      intro HH.
+      use (isPullback_preimage_square _ _ _ _ S_ff). 
+      { apply homset_property. }
+      match goal with |[|- isPullback _ _ _ _ (?HH)] => generalize HH end.
+      assert (XR := homotweqinvweq (weq_from_fully_faithful S_ff (J Xf) tU )).
+      simpl in XR. rewrite XR.
+      clear HH XR.
+      intro HH.
+      use (isPullback_transfer_iso _ _ _ _ _ _ H2).
+      * exact (identity_iso _ ).
+      * exact (iso_inv_from_iso (αpwiso _ )).
+      * exact (identity_iso _ ).
+      * apply (iso_comp (functor_on_iso J' (iso_inv_from_iso i)) 
+                        (iso_inv_from_iso (αpwiso _ ))).
+      * cbn. rewrite id_right. 
+        unfold precomp_with. rewrite id_right.
+        unfold f'. apply idpath.
+      * rewrite id_left. rewrite id_right. apply idpath.
+      * cbn. unfold precomp_with. rewrite id_right. rewrite id_right.
+        assert (XR := nat_trans_ax α').
+        cbn in XR. 
+        etrans. Focus 2. apply assoc.
+        rewrite <- XR.
+        rewrite assoc.
+        apply maponpaths_2.
+        rewrite <- functor_comp. 
+        apply maponpaths.
+        apply pathsinv0.
+        etrans. apply maponpaths. 
+          apply (homotweqinvweq (weq_from_fully_faithful R_ff _ _ )).
+        rewrite assoc.
+        rewrite iso_after_iso_inv.
+        apply id_left.
+      * cbn. rewrite id_right.
+        unfold precomp_with. rewrite id_right.
+        apply pathsinv0.
+        do 2 rewrite assoc.
+        etrans. apply maponpaths_2. apply assoc4.
+        etrans. apply maponpaths_2. apply maponpaths_2. apply maponpaths.
+          apply α'_α.
+        rewrite id_right.
+        rewrite <- functor_comp.
+        rewrite iso_after_iso_inv.
+        rewrite functor_id.
+        apply id_left.
+  - intros. apply proofirrelevance. 
+    do 2 (apply impred; intro); apply propproperty.
+  - intros. apply proofirrelevance. 
+    do 2 (apply impred; intro); apply propproperty.
+Defined.
 
 End Is_universe_relative_to_Transfer.
 
