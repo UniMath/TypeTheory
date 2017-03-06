@@ -52,6 +52,21 @@ Definition compatible_term_structure (Z : qq_morphism_structure X) : UU
 Definition compatible_qq_morphism_structure (Y : term_fun_structure C X) : UU
   := ∑ Z : qq_morphism_structure X, iscompatible_term_qq Y Z.
 
+(* TODO: consider switching main definition (probably after/together with changing to te-based definition of cwf). *)
+Definition iscompatible'_term_qq
+    (Y : term_fun_structure C X)
+    (Z : qq_morphism_structure X) : UU
+  := ∏ Γ Γ' A (f : C⟦Γ', Γ⟧),
+    (Q Y A[f] : nat_trans _ _) _ (identity _)
+  = (#Yo (qq Z f A) ;; Q Y A : nat_trans _ _) _ (identity _).
+
+Definition iscompatible_iscompatible'
+    (Y : term_fun_structure C X)
+    (Z : qq_morphism_structure X)
+  : iscompatible_term_qq Y Z
+  <-> iscompatible'_term_qq Y Z.
+Admitted.
+
 End Compatible_Structures.
 
 (** ** Misc lemmas *)
@@ -214,6 +229,13 @@ Definition tm_from_qq : functor _ _
 
 Arguments tm_from_qq : simpl never.
 
+Lemma pr2_tm_from_qq_paths
+    {Γ : C} {t t' : tm_from_qq Γ : hSet} (e : t = t')
+  : pr1 (pr2 t) = pr1 (pr2 t') ;; (Δ (maponpaths pr1 (!e))) .
+Proof.
+  destruct e. apply pathsinv0, id_right.
+Qed.
+
 Definition pp_from_qq_data (Γ : C^op)
   : tm_from_qq Γ --> Ty X Γ.
 Proof.
@@ -232,88 +254,54 @@ Definition pp_from_qq : preShv C ⟦tm_from_qq, TY X⟧
 
 Arguments pp_from_qq : simpl never.
 
+(* TODO: upstream *)
+(* TODO: any reason why comp_ext_compare is the morphism not just the iso?? *)
+Lemma comp_ext_compare_inv
+    {Γ : C} {A A' : Ty X Γ : hSet} (e : A = A')
+  : Δ (!e) = inv_from_iso (idtoiso (maponpaths (comp_ext X Γ) e)).
+Proof.
+  destruct e; apply idpath.
+Defined.
+
+Lemma comp_ext_compare_qq_general
+  {Γ Γ' : C} {f f' : Γ' --> Γ} (e : f = f')
+  {A : Ty X Γ} (eA : A[f] = A[f']) 
+  : comp_ext_compare eA ;; qq Z f' A
+  = qq Z f A.
+Proof.
+  refine (_ @ comp_ext_compare_qq _ e A).
+  apply maponpaths_2, maponpaths, setproperty.
+Qed.
+
+
 (** ** Definition of the _Q_-maps *)
 Section Q_from_qq.
 
 Variable Γ : C.
 Variable A : Ty X Γ.
 
-Definition Q_from_qq_data
-  : ∏ Γ', HSET ⟦ (Yo (Γ ◂ A) : functor _ _ ) Γ', tm_from_qq Γ' ⟧.
+Definition Q_from_qq : Yo (Γ ◂ A) --> tm_from_qq.
 Proof.
-  intros Γ' f. simpl in *.
-  unfold yoneda_objects_ob in f.
-  unfold tm_from_qq_carrier. mkpair.
-  + exact A[f;;π _ ].
+  simpl in A.
+  apply yy. mkpair.
+  + exact A [π A].
   + apply (section_from_diagonal _ (qq_π_Pb Z _ _)). 
-    exists f. apply idpath.
+    exists (identity _). apply id_left.
 Defined.
 
-Lemma is_nat_trans_Q_from_qq : is_nat_trans _ _ Q_from_qq_data.
-Proof.
-  intros Γ' Γ'' f. simpl.
-  apply funextsec. intro g.
-  unfold yoneda_objects_ob. cbn.    
-  use tm_from_qq_eq; simpl pr1.
-  + etrans. apply (maponpaths (fun k => A[k]) (assoc _ _ _)).
-    apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ )).
-  + apply PullbackArrowUnique.
-    * cbn.
-      etrans. apply (!assoc _ _ _).
-      etrans. apply maponpaths, comp_ext_compare_π.
-      match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => set (XR := HH) end.
-      apply (PullbackArrow_PullbackPr1 XR).
-    * cbn.
-      {
-        use (MorphismsIntoPullbackEqual (qq_π_Pb Z _ _)).
-        - etrans. Focus 2. apply assoc.
-          match goal with [|- _ = _ ;; (PullbackArrow ?HH _ _ _ _ ;; _ )] =>
-                          set (XR := HH) end.
-          rewrite (PullbackArrow_PullbackPr1 XR). clear XR.
-          etrans. apply (!assoc _ _ _).
-          rewrite <- (qq_π Z).
-          etrans. apply assoc.
-          etrans. apply assoc4.
-          rewrite @comp_ext_compare_π.
-          match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ ;; _ = _ ] => set (XR := HH) end.
-          rewrite (PullbackArrow_PullbackPr1 XR).
-          rewrite id_right. apply id_left.
-        - etrans. Focus 2. apply assoc.
-          match goal with |[|- _ = _ ;; (PullbackArrow ?HH _ _ _ _ ;; _ )] => set (XR := HH) end.
-          rewrite (PullbackArrow_PullbackPr2 XR).
-          clear XR.
-          assert (XT := qq_comp Z (g ;; π _ ) f A).
-          rewrite @comp_ext_compare_comp.
-          simpl.
-          match goal with |[ H : ?EE =  _ |- ?DD ;; (?II ;; ?KK) ;; _  ;; _  = _ ] => 
-                           set (d := DD); set (i:= II) end.
-          rewrite <- assoc.
-          rewrite <- assoc.
-          etrans. apply maponpaths. apply (!assoc _ _ _ ).
-          
-          etrans. apply maponpaths. apply maponpaths. apply assoc.
-          etrans. apply maponpaths. apply maponpaths. 
-          apply (!XT).
-          unfold i. clear i. clear XT.
-          rewrite (@comp_ext_compare_qq _ X).
-          unfold d; clear d.
-          match goal with [|- PullbackArrow ?HH _ _ _ _ ;; _  = _ ] =>
-                          set (XR := HH) end.
-          apply (PullbackArrow_PullbackPr2 XR). 
-      } 
-Time Qed.
-
-Definition Q_from_qq : Yo (Γ ◂ A) --> tm_from_qq 
-  := tpair _ _ is_nat_trans_Q_from_qq.
-
-Arguments Q_from_qq : simpl never.
+(* Arguments Q_from_qq : simpl never. *)
 
 Definition Q_pp_from_qq
   : # Yo (π _) ;; yy A = Q_from_qq ;; pp_from_qq.
 Proof.
   apply nat_trans_eq. apply has_homsets_HSET.
-  intro Γ'. apply idpath.
-Defined.
+  intro Γ'. cbn. 
+  apply funextsec; intros f.
+  (* To see what’s happening here, uncomment the following lines:
+  unfold yoneda_morphisms_data. 
+  unfold pp_from_qq, pp_from_qq_data. cbn. simpl pr1. *)
+  refine (toforallpaths _ _ _ (functor_comp (TY X) _ _) _).
+Qed.
 
 Definition section_qq_π  (Γ' : C) (f : C⟦ Γ', Γ⟧) 
     (s : C ⟦ Γ', Γ' ◂ A[f] ⟧)
@@ -328,12 +316,19 @@ Proof.
 Qed.
 
 Lemma Q_from_qq_reconstruction
-  {Γ' : C} ( ft : C ⟦ Γ', Γ ◂ A ⟧ )
-: ft = pr1 (pr2 (Q_from_qq_data Γ' ft)) ;; qq Z (ft ;; π A) A.
+    {Γ' : C} ( ft : C ⟦ Γ', Γ ◂ A ⟧ )
+  : ft = pr1 (pr2 ((Q_from_qq : nat_trans _ _) Γ' ft)) ;; qq Z ft _ ;; qq Z (π _) A.
 Proof.
-  cbn. apply pathsinv0, (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
+  cbn.
+  apply pathsinv0.
+  etrans. {
+    apply maponpaths_2.
+    apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). }
+  refine (_ @ id_right _).  
+  etrans. apply @pathsinv0, assoc.
+  apply maponpaths.
+  apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
 Qed.
-
 
 Lemma isPullback_Q_pp_from_qq : isPullback _ _ _ _ Q_pp_from_qq.
 Proof.
@@ -343,35 +338,71 @@ Proof.
   use tpair.
   - exists (s ;; qq Z f A).
     simpl; unfold yoneda_morphisms_data.
-    split.
-    + apply (section_qq_π _ _ _ e).
-    + use tm_from_qq_eq'; simpl.
-      apply (section_qq_π _ _ _ e).
-      use (map_into_Pb_unique _ (qq_π_Pb Z _ _  )).
-      * etrans. apply e.
-        apply pathsinv0.
+    split. { apply (section_qq_π _ _ _ e). }
+    use tm_from_qq_eq. cbn. 
+    + etrans.
+        apply @pathsinv0.
+        refine (toforallpaths _ _ _ (functor_comp (TY X) _ _ ) A).
+      apply maponpaths_2.
+      cbn.
+      etrans. apply @pathsinv0, assoc. 
+      etrans. apply maponpaths, @pathsinv0, qq_π.
+      etrans. apply assoc.
+      etrans. apply maponpaths_2, e.
+      apply id_left.
+    + use (map_into_Pb_unique _ (qq_π_Pb Z _ _  )).
+      * cbn.
+        refine (_ @ !e).
         etrans. apply @pathsinv0, assoc.
         etrans. apply @maponpaths, comp_ext_compare_π.
         apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
-      * apply pathsinv0. etrans. apply @pathsinv0, assoc.
-        etrans. apply @maponpaths, comp_ext_compare_qq.
-        apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
-  - intros ft.
-    apply subtypeEquality. intro. apply isapropdirprod. apply homset_property. apply setproperty.
-    simpl. destruct ft as [ ft [ e1 e2 ] ]; simpl.
+      * etrans. apply @pathsinv0, assoc.
+        simple refine (maponpaths _ _ @ _).
+            { refine (qq Z _ _ ;; qq Z _ _). }
+          { etrans. Focus 2. {
+            eapply iso_inv_on_right.
+            etrans. Focus 2. apply @pathsinv0, assoc. 
+            apply qq_comp. } Unfocus.
+          apply @pathsinv0, iso_inv_on_right.
+          apply @pathsinv0.
+          etrans. apply assoc.
+          etrans. apply maponpaths_2, @pathsinv0, comp_ext_compare_comp.
+          apply comp_ext_compare_qq_general.
+         apply (section_qq_π _ _ _ e). }
+        etrans. apply assoc.
+        etrans. { apply maponpaths_2,
+                  (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). }
+        etrans. apply @pathsinv0, assoc.
+        etrans.
+          apply maponpaths.
+          apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
+        apply id_right.
+  - idtac. intros ft. apply subtypeEquality.
+    { intro. apply isapropdirprod.
+    + apply homset_property.
+    + apply setproperty. }
+    cbn. destruct ft as [ ft [ e1 e2 ] ]. cbn; cbn in e1.
+    unfold yoneda_morphisms_data in e1.
     etrans. apply Q_from_qq_reconstruction.
-    etrans.
-       apply cancel_postcomposition, @pathsinv0.
-       exact (section_eq_from_tm_from_qq_eq _ _ (!e2)).
-    simpl. etrans. apply @pathsinv0, assoc.
+    etrans. apply maponpaths_2, maponpaths_2, (pr2_tm_from_qq_paths e2).
+    cbn.
+    etrans. apply @pathsinv0, assoc.
+    etrans. apply @pathsinv0, assoc.
     apply maponpaths.
-    etrans. Focus 2. apply (comp_ext_compare_qq _ (!e1)).
-    apply cancel_postcomposition, maponpaths, setproperty.
+    etrans. apply maponpaths.
+      apply @pathsinv0, iso_inv_on_right.
+      refine (_ @ !assoc _ _ _).
+      apply qq_comp.
+    etrans. Focus 2. 
+      exact (comp_ext_compare_qq Z (!e1) _).
+    etrans. apply assoc.
+    apply maponpaths_2.
+    etrans. apply maponpaths, @pathsinv0, comp_ext_compare_inv.
+    apply pathsinv0, comp_ext_compare_comp_general.
 Time Qed.
 
 End Q_from_qq.
 
-Arguments Q_from_qq_data { _ } _ _ _ : simpl never.
 Arguments Q_from_qq { _ } _ : simpl never.
 Arguments tm_from_qq : simpl never.
 Arguments pp_from_qq : simpl never.
@@ -392,8 +423,8 @@ Defined.
 Lemma term_from_qq_pointwise_compatible
     {Γ Γ' : C} (A : Ty X Γ) (f : Γ'--> Γ)
     {Γ'' : C} (g : Γ''--> Γ' ◂ A[f])
-  : Q_from_qq_data A[f] Γ'' g
-  = Q_from_qq_data A Γ'' (g ;; qq Z f A).
+  : (Q_from_qq A[f] : nat_trans _ _) Γ'' g
+  = (Q_from_qq A : nat_trans _ _) Γ'' (g ;; qq Z f A).
 Proof.
   use tm_from_qq_eq.
   + unfold yoneda_morphisms_data; simpl.
