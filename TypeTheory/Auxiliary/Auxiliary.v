@@ -255,7 +255,7 @@ Proof.
 Defined.
 
 Lemma functor_is_iso_is_iso {C C' : precategory} (F : functor C C')
-    {a b : ob C} (f : C ⟦a,b⟧) (fH : is_iso f) : is_isomorphism (#F f).
+    {a b : ob C} (f : C ⟦a,b⟧) (fH : is_iso f) : is_iso (#F f).
 Proof.
   apply (functor_on_iso_is_iso _ _ F _ _ (isopair f fH)).
 Defined.
