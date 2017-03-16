@@ -197,7 +197,7 @@ Proof.
   + etrans. apply transportf_isotoid.
     etrans. apply maponpaths_2. 
       apply inv_from_iso_from_is_z_iso.
-    apply obj_ext_mor_ax.
+    use obj_ext_mor_ax.
 Defined.
 
 (* TODO: inline *)
@@ -333,7 +333,7 @@ Proof.
   intros i.
   apply subtypeEquality. { intro. apply isaprop_term_fun_structure_axioms. }
   apply total2_paths_f with (iso_disp_to_TM_eq _ _ _ i).
-  etrans. refine (transportf_dirprod _ _ _ _ _ _).
+  rewrite transportf_dirprod.
   apply dirprodeq; simpl.
   - etrans. apply prewhisker_iso_disp_to_TM_eq.
     etrans. apply term_fun_mor_pp.
