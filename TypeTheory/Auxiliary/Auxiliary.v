@@ -292,8 +292,12 @@ Qed.
 Definition mor_total (C : precategory) : UU
   := ∑ (ab : C × C), C⟦pr2 ab, pr1 ab⟧.
 
-Definition morphism_as_total {C : precategory} {a b : C} (f : a --> b)
-  := ((_,,_),,f) : mor_total C.
+Definition morphism_as_total {C : precategory} {a b : C} (f : a --> b) : mor_total C.
+Proof.
+  exists (b,,a).
+  exact f.
+Defined.
+
 
 Definition source {C} (X : mor_total C) : C := pr2 (pr1 X).
 Definition target {C} (X : mor_total C) : C := pr1 (pr1 X).
@@ -303,8 +307,11 @@ Definition morphism_from_total {C} (X : mor_total C)
 Coercion morphism_from_total : mor_total >-> precategory_morphisms.
 
 Definition functor_on_mor_total {C D : precategory} (F : functor C D) 
-           (p : mor_total C) : mor_total D := (_ ,, _ ) ,, #F p.
-
+           (p : mor_total C) : mor_total D.
+Proof.
+  exists (F (pr1 (pr1 p)) ,, F (pr2 (pr1 p)) ).
+  exact (#F p).
+Defined.
 
 
 Definition isweq_left_adj_equivalence_on_mor_total {C D : precategory} (F : functor C D) 

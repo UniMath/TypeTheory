@@ -309,9 +309,9 @@ Proof.
   set (H' := pr2 H (finv b)). simpl in H'.
   set (x  := isopair _ H': iso (A ₂ (finv b)) (B ₂ (pr1 f (finv b)))).
   set (xinv := inv_from_iso x).
-  set (xinvtr := transportf (λ b', B ₂ b' --> A ₂ (finv b))
-         (homotweqinvweq _ _ ) xinv : B ₂ b --> A ₂ (finv b)).
-  exact xinvtr.
+  cbn in *.
+  use (transportf (λ b', B ₂ b' --> A ₂ (finv b)) (homotweqinvweq (weqpair _ (pr1 H)) _ )).
+  apply xinv.
 Defined.
 
 
