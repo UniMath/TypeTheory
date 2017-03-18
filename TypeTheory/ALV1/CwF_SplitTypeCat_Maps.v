@@ -52,20 +52,20 @@ Definition compatible_term_structure (Z : qq_morphism_structure X) : UU
 Definition compatible_qq_morphism_structure (Y : term_fun_structure C X) : UU
   := ∑ Z : qq_morphism_structure X, iscompatible_term_qq Y Z.
 
-(* TODO: consider switching main definition (probably after/together with changing to te-based definition of cwf). *)
+(* TODO: consider switching this to main definition. *)
 Definition iscompatible'_term_qq
     (Y : term_fun_structure C X)
     (Z : qq_morphism_structure X) : UU
   := ∏ Γ Γ' A (f : C⟦Γ', Γ⟧),
-    (Q Y A[f] : nat_trans _ _) _ (identity _)
-  = (Q Y A : nat_trans _ _) _ (qq Z f A).
+     te Y A[f] = # (TM _ : functor _ _) (qq Z f A) (te Y A).
 
 Definition iscompatible_iscompatible'
     (Y : term_fun_structure C X)
     (Z : qq_morphism_structure X)
   : iscompatible_term_qq Y Z
   <-> iscompatible'_term_qq Y Z.
-Admitted. (* TODO: don’t bother to fix this admit; wait till changing to te-based definition of cwf. *)
+Admitted.
+(* TODO: either fix this admit, or drop older [iscompatible] entirely. *)
 
 End Compatible_Structures.
 
@@ -109,6 +109,7 @@ Variable Z : qq_morphism_structure X.
 
 (** ** Definition of the presheaf of terms *)
 
+(* TODO: abstract second half out as “sections”, with pr1 an access function + a coercion. *)
 Definition tm_from_qq_carrier (Γ : C) : UU :=
   ∑ A : Ty X Γ,
   ∑ s : C⟦Γ, Γ ◂ A⟧, s ;; π _ = identity _ .
@@ -139,7 +140,8 @@ Proof.
   refine tm_from_qq_functor_mor.
 Defined.
 
-Lemma section_eq_from_tm_from_qq_eq {Γ} (t t' : (tm_from_qq_functor_data Γ : hSet)) 
+Lemma section_eq_from_tm_from_qq_eq {Γ}
+  {t t' : (tm_from_qq_functor_data Γ : hSet)}
   (e : t = t')
   : pr1 (pr2 t) ;; Δ (maponpaths pr1 e)
     = pr1 (pr2 t').
@@ -273,34 +275,45 @@ Proof.
   apply maponpaths_2, maponpaths, setproperty.
 Qed.
 
+Definition te_from_qq {Γ:C} (A : Ty X Γ)
+  : (tm_from_qq : functor _ _) (Γ ◂ A) : hSet.
+Proof.
+  exists A [π A].
+  apply (section_from_diagonal _ (qq_π_Pb Z _ _)). 
+  exists (identity _). apply id_left.
+Defined.
 
-(** ** Definition of the _Q_-maps *)
-Section Q_from_qq.
+Definition term_from_qq_data : term_fun_structure_data C X.
+Proof.
+  exists tm_from_qq.
+  exists pp_from_qq.
+  intros; apply te_from_qq.
+Defined.
+
+(** ** Typing of te, and pullback property *)
+Section Tm_fun_axioms_from_qq.
 
 Variable Γ : C.
 Variable A : Ty X Γ.
 
+
 Definition Q_from_qq : Yo (Γ ◂ A) --> tm_from_qq.
 Proof.
   simpl in A.
-  apply yy. mkpair.
-  + exact A [π A].
-  + apply (section_from_diagonal _ (qq_π_Pb Z _ _)). 
-    exists (identity _). apply id_left.
+  apply yy, te_from_qq.
 Defined.
 
-(* Arguments Q_from_qq : simpl never. *)
+Definition pp_te_from_qq
+  : (pp_from_qq : nat_trans _ _) _ (te_from_qq A) = A [ π A ].
+Proof.
+  apply idpath.
+Qed.
 
 Definition Q_pp_from_qq
   : # Yo (π _) ;; yy A = Q_from_qq ;; pp_from_qq.
 Proof.
-  apply nat_trans_eq. apply has_homsets_HSET.
-  intro Γ'. cbn. 
-  apply funextsec; intros f.
-  (* To see what’s happening here, uncomment the following lines:
-  unfold yoneda_morphisms_data. 
-  unfold pp_from_qq, pp_from_qq_data. cbn. simpl pr1. *)
-  refine (toforallpaths _ _ _ (functor_comp (TY X) _ _) _).
+  apply (@term_fun_str_square_comm _ _ term_from_qq_data).
+  apply pp_te_from_qq.
 Qed.
 
 Definition section_qq_π  (Γ' : C) (f : C⟦ Γ', Γ⟧) 
@@ -315,6 +328,7 @@ Proof.
   apply id_left.
 Qed.
 
+(* TODO: check if this is needed. *)
 Lemma Q_from_qq_reconstruction
     {Γ' : C} ( ft : C ⟦ Γ', Γ ◂ A ⟧ )
   : ft = pr1 (pr2 ((Q_from_qq : nat_trans _ _) Γ' ft)) ;; qq Z ft _ ;; qq Z (π _) A.
@@ -330,6 +344,7 @@ Proof.
   apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
 Qed.
 
+(* TODO: try to speed this up! *)
 Lemma isPullback_Q_pp_from_qq : isPullback _ _ _ _ Q_pp_from_qq.
 Proof.
   apply pb_if_pointwise_pb. intros Γ'.
@@ -401,7 +416,7 @@ Proof.
     apply pathsinv0, comp_ext_compare_comp_general.
 Time Qed.
 
-End Q_from_qq.
+End Tm_fun_axioms_from_qq.
 
 Arguments Q_from_qq { _ } _ : simpl never.
 Arguments tm_from_qq : simpl never.
@@ -409,28 +424,21 @@ Arguments pp_from_qq : simpl never.
 
 (** ** Assembly into a compatible term-structure *)
 
+
 Definition term_from_qq : term_fun_structure C X.
 Proof.
-  mkpair.
-  + exists tm_from_qq.
-    exists pp_from_qq.
-    intros; apply Q_from_qq.
-  + unfold term_fun_structure_axioms; intros.
-    exists (Q_pp_from_qq _ _ ).
-    apply isPullback_Q_pp_from_qq.
+  exists term_from_qq_data.
+  intros ? ?.
+  exists (pp_te_from_qq _ _).
+  apply isPullback_Q_pp_from_qq.
 Defined.
 
-Lemma term_from_qq_compatible_te
-    {Γ Γ' : C} (A : Ty X Γ) (f : Γ'--> Γ)
-  : (Q_from_qq A[f] : nat_trans _ _) _ (identity _)
-  = (Q_from_qq A : nat_trans _ _) _ (qq Z f A).
+Definition iscompatible'_term_from_qq
+  : iscompatible'_term_qq term_from_qq Z.
 Proof.
-  etrans.
-    apply (toforallpaths _ _ _ (functor_id tm_from_qq _)).
-  cbn.  
-  use tm_from_qq_eq; cbn.
-  - unfold Q_from_qq; simpl.
-    etrans. apply (toforallpaths _ _ _ (!functor_comp (TY X) _ _ ) A).
+  intros ? ? ? ?.
+  use tm_from_qq_eq; simpl.
+  - etrans. apply (toforallpaths _ _ _ (!functor_comp (TY X) _ _ ) A).
     etrans. Focus 2. apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ ) A).
     apply maponpaths_2; cbn.
     apply qq_π.
@@ -487,13 +495,6 @@ Proof.
         apply id_right.
 Time Qed.
 
-
-Definition iscompatible'_term_from_qq
-  : iscompatible'_term_qq term_from_qq Z.
-Proof.
-  intros ? ? ? ?. apply term_from_qq_compatible_te.
-Qed.
-
 Definition iscompatible_term_from_qq
   : iscompatible_term_qq term_from_qq Z.
 Proof.
@@ -506,10 +507,11 @@ Definition compatible_term_from_qq : compatible_term_structure Z
     
 End compatible_term_structure_from_qq.
 
-Arguments Q_from_qq _ {_} _ : simpl never.
 Arguments tm_from_qq : simpl never.
-Arguments pp_from_qq : simpl never.
 Arguments tm_from_qq_functor_mor : simpl never.
+Arguments pp_from_qq : simpl never.
+Arguments te_from_qq : simpl never.
+Arguments Q_from_qq _ {_} _ : simpl never.
 
 (** * Defining a (compatible) _q_-morphism structure, given a term structure
 
@@ -525,8 +527,7 @@ Variables Γ Γ' : C.
 Variable f : C⟦Γ', Γ⟧.
 Variable A : Ty X Γ.
 
-(* TODO: use access functions! *)
-Let Xk := mk_Pullback _ _ _ _ _ (pr1 (pr2 Y Γ A)) (pr2 (pr2 Y Γ A)).
+Let Xk := mk_Pullback _ _ _ _ _ _ (isPullback_Q_pp Y A).
 
 (** ** Groundwork in presheaves
 
@@ -539,7 +540,7 @@ Proof.
   - apply (Q Y).
   - abstract (
         clear Xk;
-        assert (XT:= pr1 (pr2 Y Γ' A[f]));
+        assert (XT := Q_pp Y A[f]);
         eapply pathscomp0; try apply XT; clear XT;
         rewrite <- assoc; apply maponpaths;
         apply pathsinv0, yy_natural
@@ -566,13 +567,13 @@ Proof.
   - apply (yy A).
   - apply pp.
   - apply Q.
-  - apply (pr1 (pr2 Y _ _ )).
-  - apply (pr2 (pr2 Y _ _ )).
+  - apply Q_pp.
+  - apply isPullback_Q_pp.
   - match goal with [|- isPullback _ _ _ _ ?HH ] => generalize HH end.
     rewrite <- (@yy_natural C).
     rewrite Yo_of_qq_commutes_2.
     intro.
-    apply (pr2 (pr2 Y _ _ )).
+    apply isPullback_Q_pp.
 Qed.
 
 (** ** Construction of the _q_-morphisms *)

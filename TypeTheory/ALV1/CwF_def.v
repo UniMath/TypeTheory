@@ -7,11 +7,8 @@
 (**
 Contents:
 
-- the canonical standalone definition of a (Fiore-style) CwF as per
-  Marcelo Fiore, slides for a talk on "Discrete Generalised Polynomial Functors."  
-  In 39th International Colloquium on Automata, Languages and Programming (ICALP 2012)
-  http://www.cl.cam.ac.uk/~mpf23/talks/ICALP2012.pdf
-- equivalence between cwf structures and two related ones occurring in the ALV1 paper
+- the definition of CwFs à la Fiore: [cwf_structure]
+- equivalence between cwf structures and relative universe structures on Yoneda.
 
 *)
 
@@ -41,8 +38,16 @@ End Auxiliary.
 A (Fiore-style) CwF consists of:
 
 - a base category C;
-- a morphism Tm —p—> Ty of presheaves on C;
-- a _representation_ of p.
+- two presheaves on C, connected by a morphism Tm —p—> Ty;
+- a _representation_ of p (see below).
+
+  This is a mild reformulation of Dybjer’s original definition of CwF’s, replacing the functor [C --> FAM] with an arrow in [preShv C].
+
+  Specifically, we follow: Marcelo Fiore, slides 32–34 of _Discrete Generalised Polynomial Functors,_ from talk at ICALP 2012,
+  #(<a href="http://www.cl.cam.ac.uk/~mpf23/talks/ICALP2012.pdf">link</a>)#
+
+  See also: Marcelo Fiore, _Algebraic Type Theory_, 2008
+  #(<a href="http://www.cl.cam.ac.uk/~mpf23/Notes/att.pdf">link</a>)#
 
 *)
 
@@ -55,7 +60,7 @@ Definition Tm (pp : mor_total (preShv C)) : functor _ _ := source pp.
 
 (** ** Representations of maps of presheaves 
 
-A *representation* of a map Tm —p—> Ty of presheaves consists of data exhibiting, for each (A : Ty Γ), the fiber of p over A as represented by some object Γ.A over Γ. *)
+A *representation* of a map Tm —p—> Ty of presheaves consists of data giving, for each (A : Ty Γ), some object and map (π A) : Γ.A Γ, along with a term (te A) over A which is “universal”, in that it represents the fiber of p over A. *)
 
 Section Representation.
 
@@ -92,6 +97,7 @@ Definition cwf_fiber_representation : UU
 Definition cwf_fiber_rep_data : UU
   := ∑ (ΓA : C), C ⟦ΓA, Γ⟧ × (Tm pp ΓA : hSet).
 
+(* TODO: consolidate this with [cwf_square_comm], and make organisation/documentation clearer *)
 Section stuff.
 
 Variable ΓAπt : cwf_fiber_rep_data.
@@ -264,6 +270,11 @@ End Representation.
 
 Definition cwf_structure : UU := ∑ pp, (cwf_representation pp).
 
+(* TODO:
+
+- move the following out of this file, into CwF_RelUniv_Yoneda
+- add definition of “CwF”
+*)
 
 (** ** Equivalence with relative universe structures on Yoneda *)
 

@@ -18,7 +18,7 @@ To facilitate comparing them afterwards, we split up their definitions in a slig
 - _split type-cat structures_, [split_typecat_structure], the full structure of a split type-category on [C].
 - _split type-categories_, [split_typecat].
 
-NB: for now, we follow the literature in saying e.g. _category_ with families and split type-_category_, but these definitions do not include saturation, so are really _precategories_ with families, etc.
+NB: we follow the convention that _category_ does not include an assumption of saturation/univalence, i.e. means what is sometimes called _precategory_.
 *)
 
 
@@ -125,7 +125,7 @@ Context {C : Precategory} {X : obj_ext_structure C}.
 
 (** * Families structures 
 
-We now define the extra structure, over an object-extension structure, which constitutes a _category with families_ in the sense of Fiore, _Algebraic Type Theory_, 2008 #(<a href="http://www.cl.cam.ac.uk/~mpf23/Notes/att.pdf">link</a>)#, a reformulation of Dybjer’s original definition, replacing the functor [C --> FAM] with an arrow in [preShv C].
+We now define the extra structure, over an object-extension structure, which constitutes a _category with families_ in the sense of Fiore a reformulation of Dybjer’s original definition, replacing the functor [C --> FAM] with an arrow in [preShv C].
 
 We call this _term structure_, or a _functional_ term structure [term_fun] when necessary to disambiguate from Dybjer-style _familial_ term structures.
 
@@ -136,17 +136,30 @@ Components of [Y : term_fun_structure X]:
 - [Q Y A :  Yo (Γ ◂ A) --> TM Y]
 - [Q_pp Y A : #Yo (π A) ;; yy A = Q Y A ;; pp Y]
 - [isPullback_Q_pp Y A : isPullback _ _ _ _ (Q_pp Y A)]
+
+ See: Marcelo Fiore, slides 32–34 of _Discrete Generalised Polynomial Functors,_ from talk at ICALP 2012,
+  #(<a href="http://www.cl.cam.ac.uk/~mpf23/talks/ICALP2012.pdf">link</a>)#
+  and comments in file [CwF_def].
+
 *)
 
+Local Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).
+
 Definition term_fun_structure_data : UU
-  := ∑ Tm : preShv C, 
-        (Tm --> TY X)
-        × (∏ (Γ : C) (A : Ty X Γ), Yo (Γ ◂ A) --> Tm).
+  := ∑ TM : preShv C, 
+        (TM --> TY X)
+        × (∏ (Γ : C) (A : Ty X Γ), (TM : functor _ _) (Γ ◂ A) : hSet).
 
 Definition TM (Y : term_fun_structure_data) : preShv C := pr1 Y.
-Definition pp Y : TM Y --> TY X := pr1 (pr2 Y).
-Definition Q Y {Γ} A : _ --> TM Y := pr2 (pr2 Y) Γ A.
 Local Notation "'Tm'" := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
+
+Definition pp Y : TM Y --> TY X := pr1 (pr2 Y).
+
+Definition te Y {Γ:C} A : Tm Y (Γ ◂ A)
+  := pr2 (pr2 Y) Γ A.
+
+Definition Q Y {Γ:C} (A:Ty X Γ) : Yo (Γ ◂ A) --> TM Y
+  := yy (te Y A).
 
 Lemma comp_ext_compare_Q Y Γ (A A' : Ty X Γ) (e : A = A') : 
   #Yo (comp_ext_compare e) ;; Q Y A' = Q Y A . 
@@ -156,16 +169,29 @@ Proof.
   apply id_left.
 Qed.
 
+(* Cf. [cwf_square_comm] and [_foo]. TODO: try to unify? *)
+Lemma term_fun_str_square_comm {Y : term_fun_structure_data}
+    {Γ : C} {A : Ty X Γ}
+    (e : (pp Y : nat_trans _ _) _ (te Y A) = A [ π A ])
+  : #Yo (π A) ;; yy A = Q Y A ;; pp Y.
+Proof.
+  apply pathsinv0.
+  etrans. Focus 2. apply yy_natural.
+  etrans. apply yy_comp_nat_trans.
+  apply maponpaths, e.
+Qed.
+
 Definition term_fun_structure_axioms (Y : term_fun_structure_data) :=
   ∏ Γ (A : Ty X Γ), 
-        ∑ (e : #Yo (π A) ;; yy A = Q Y A ;; pp Y), isPullback _ _ _ _ e.
+        ∑ (e : (pp Y : nat_trans _ _) _ (te Y A) = A [ π A ]),
+          isPullback _ _ _ _ (term_fun_str_square_comm e).
 
 Lemma isaprop_term_fun_structure_axioms Y
   : isaprop (term_fun_structure_axioms Y).
 Proof.
   do 2 (apply impred; intro).
   apply isofhleveltotal2.
-  - apply homset_property.
+  - apply setproperty.
   - intro. apply isaprop_isPullback.
 Qed.
 
@@ -173,15 +199,22 @@ Definition term_fun_structure : UU :=
   ∑ Y : term_fun_structure_data, term_fun_structure_axioms Y.
 Coercion term_fun_data_from_term_fun (Y : term_fun_structure) : _ := pr1 Y.
 
+
+Definition pp_te (Y : term_fun_structure) {Γ} (A : Ty X Γ)
+  : (pp Y : nat_trans _ _) _ (te Y A)
+    = A [ π A ]
+:= pr1 (pr2 Y _ A).
+
 Definition Q_pp (Y : term_fun_structure) {Γ} (A : Ty X Γ) 
   : #Yo (π A) ;; yy A = Q Y A ;; pp Y
-:= pr1 (pr2 Y _ _ ).
+:= term_fun_str_square_comm (pp_te Y A).
 
 (* TODO: rename this to [Q_pp_Pb], or [qq_π_Pb] to [isPullback_qq_π]? *)
 Definition isPullback_Q_pp (Y : term_fun_structure) {Γ} (A : Ty X Γ)
   : isPullback _ _ _ _ (Q_pp Y A)
 := pr2 (pr2 Y _ _ ).
 
+(* TODO: look if there are places these can be used to simplify things? *) 
 Definition Q_pp_Pb_pointwise (Y : term_fun_structure) (Γ' Γ : C) (A : Ty X Γ)
   := isPullback_preShv_to_pointwise (homset_property _) (isPullback_Q_pp Y A) Γ'.
 
