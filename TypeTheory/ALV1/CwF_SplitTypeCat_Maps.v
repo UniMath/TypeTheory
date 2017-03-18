@@ -65,7 +65,7 @@ Definition iscompatible_iscompatible'
     (Z : qq_morphism_structure X)
   : iscompatible_term_qq Y Z
   <-> iscompatible'_term_qq Y Z.
-Admitted.
+Admitted. (* TODO: don’t bother to fix this admit; wait till changing to te-based definition of cwf. *)
 
 End Compatible_Structures.
 
@@ -487,88 +487,18 @@ Proof.
         apply id_right.
 Time Qed.
 
-Lemma term_from_qq_compatible_pointwise
-    {Γ Γ' : C} (A : Ty X Γ) (f : Γ'--> Γ)
-    {Γ''} (g : Γ'' --> _)
-  : (Q_from_qq A[f] : nat_trans _ _) _ g
-  = (Q_from_qq A : nat_trans _ _) _ (g ;; qq Z f A).
+
+Definition iscompatible'_term_from_qq
+  : iscompatible'_term_qq term_from_qq Z.
 Proof.
-  cbn.
-  use tm_from_qq_eq; cbn.
-  - unfold Q_from_qq; simpl.
-    etrans. apply maponpaths, (toforallpaths _ _ _ (!functor_comp (TY X) _ _ ) _).
-    etrans. apply (toforallpaths _ _ _ (!functor_comp (TY X) _ _ ) _).
-    etrans. Focus 2. apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ ) A).
-    apply maponpaths_2; cbn.
-    etrans. apply maponpaths, qq_π.
-    apply assoc.
-  - apply PullbackArrowUnique.
-    + cbn.
-      etrans. apply @pathsinv0, assoc.
-      etrans. apply maponpaths, comp_ext_compare_π.
-      apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)). 
-    + apply (map_into_Pb_unique _ (qq_π_Pb Z _ _)). 
-      * cbn.
-        etrans. apply @pathsinv0, assoc.
-        etrans. apply maponpaths. apply @pathsinv0, qq_π.
-        etrans. apply assoc.
-        etrans. apply maponpaths_2.
-          etrans. apply @pathsinv0, assoc.
-          etrans. apply maponpaths, comp_ext_compare_π.
-          apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
-        etrans. apply id_left.
-        apply pathsinv0.
-        etrans. apply @pathsinv0, assoc.
-        etrans. apply maponpaths.
-          apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
-        apply id_right.
-      * cbn.
-        etrans. apply @pathsinv0, assoc.
-        etrans. apply @pathsinv0, assoc.
-        etrans. apply maponpaths.
-          etrans. apply maponpaths_2.
-            etrans. apply comp_ext_compare_comp.
-            etrans. apply maponpaths, comp_ext_compare_comp.
-            apply assoc.
-          etrans. apply @pathsinv0, assoc.
-          etrans. apply maponpaths.
-            etrans. apply assoc.
-            apply @pathsinv0. apply qq_comp_general.
-          etrans. apply @pathsinv0, assoc.
-          etrans. apply maponpaths, comp_ext_compare_qq.
-          etrans. apply maponpaths, qq_comp.
-          apply assoc.
-        etrans. apply assoc.
-        etrans. apply maponpaths_2.
-          etrans. apply maponpaths.
-            etrans. apply assoc. 
-            etrans. apply maponpaths_2.
-              etrans. apply @pathsinv0, comp_ext_compare_comp.
-              apply comp_ext_compare_id_general.
-            apply id_left.
-          apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
-        etrans. apply id_left.
-        apply pathsinv0.
-        etrans. apply @pathsinv0, assoc.
-        etrans. apply maponpaths.
-          apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
-        apply id_right.
-Time Qed.
-
-Defined.
-
-
-Definition iscompatible_term_qq (Y : term_fun_structure C X)
-         (Z : qq_morphism_structure X) : UU
-  := ∏ Γ Γ' A (f : C⟦Γ', Γ⟧) , Q Y A[f] = #Yo (qq Z f A) ;; Q Y A.
-
+  intros ? ? ? ?. apply term_from_qq_compatible_te.
+Qed.
 
 Definition iscompatible_term_from_qq
   : iscompatible_term_qq term_from_qq Z.
 Proof.
-  intros Γ Γ' A f; apply nat_trans_eq. 
-  - apply has_homsets_HSET.
-  - intro; apply funextsec; unfold homot; apply term_from_qq_pointwise_compatible.
+  apply (pr2 (iscompatible_iscompatible' _ _)).
+  apply iscompatible'_term_from_qq.
 Qed.
 
 Definition compatible_term_from_qq : compatible_term_structure Z
@@ -576,7 +506,6 @@ Definition compatible_term_from_qq : compatible_term_structure Z
     
 End compatible_term_structure_from_qq.
 
-Arguments Q_from_qq_data _ {_} _ _ _ : simpl never.
 Arguments Q_from_qq _ {_} _ : simpl never.
 Arguments tm_from_qq : simpl never.
 Arguments pp_from_qq : simpl never.
