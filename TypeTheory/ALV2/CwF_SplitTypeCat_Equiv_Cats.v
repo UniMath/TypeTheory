@@ -252,7 +252,7 @@ Proof.
     etrans. apply cancel_postcomposition. Focus 2.
       apply @pathsinv0. 
       etrans. Focus 2. apply assoc. 
-      apply maponpaths, FZ.
+      apply maponpaths. use FZ.
     etrans. Focus 2. apply @pathsinv0, assoc.
     etrans. Focus 2. apply cancel_postcomposition.
       apply @pathsinv0, Δ_φ.
@@ -349,7 +349,7 @@ Proof.
     etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths.
       etrans. apply assoc.
-      apply @pathsinv0, FZ.
+      apply @pathsinv0. use FZ.
     etrans. apply assoc.
     apply cancel_postcomposition.
   apply (map_from_term_recover W).

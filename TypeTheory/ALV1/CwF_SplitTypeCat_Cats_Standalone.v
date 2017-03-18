@@ -428,7 +428,7 @@ Proof.
   (* Part 2: naturality of the transfer along [F]. *)
 
   etrans. apply @pathsinv0, assoc.
-  etrans. apply maponpaths. apply maponpaths. eapply pathsinv0. apply FZ.
+  etrans. apply maponpaths. apply maponpaths. eapply pathsinv0. use FZ.
   etrans. apply assoc.
   (* Part 3: naturality in [Γ] of the term-to-section construction from [Tm Y]. *)
   apply (Q_pp_Pb_unique Y).
@@ -507,7 +507,7 @@ Proof.
     simpl; unfold yoneda_morphisms_data; cbn.  apply maponpaths.
     etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths.
-      apply @pathsinv0.  apply maponpaths. apply FZ.
+      apply @pathsinv0.  apply maponpaths. use FZ.
     assert (XRT := @map_from_term_recover _ _ _ _ W).
     rewrite assoc.
     apply XRT.
@@ -620,7 +620,7 @@ Lemma postwhisker_iso_to_TM_eq
 : transportf (λ P' : preShv C, P --> P') (iso_to_TM_eq _ _ FG) α
   = α ;; term_fun_mor_TM (pr1 FG).
 Proof.
-  apply postwhisker_isotoid.
+  use postwhisker_isotoid.
 Qed.
 
 Definition iso_to_id_term_fun_precategory
@@ -630,7 +630,7 @@ Proof.
   intros i.
   apply subtypeEquality. { intro. apply isaprop_term_fun_structure_axioms. }
   apply total2_paths_f with (iso_to_TM_eq _ _ i).
-  etrans. refine (transportf_dirprod _ _ _ _ _ _).
+  rewrite transportf_dirprod.
   apply dirprodeq; simpl.
   - etrans. apply prewhisker_iso_to_TM_eq.
     apply term_fun_mor_pp. 
@@ -725,7 +725,7 @@ Proof.
   intro H. 
   apply qq_structure_eq.
   intros Γ Γ' f A.
-  apply (pr1 H).
+  use (pr1 H).
 Defined.  
   
 Lemma has_homsets_qq_structure_precategory
