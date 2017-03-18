@@ -58,7 +58,7 @@ Definition iscompatible'_term_qq
     (Z : qq_morphism_structure X) : UU
   := ∏ Γ Γ' A (f : C⟦Γ', Γ⟧),
     (Q Y A[f] : nat_trans _ _) _ (identity _)
-  = (#Yo (qq Z f A) ;; Q Y A : nat_trans _ _) _ (identity _).
+  = (Q Y A : nat_trans _ _) _ (qq Z f A).
 
 Definition iscompatible_iscompatible'
     (Y : term_fun_structure C X)
@@ -420,41 +420,148 @@ Proof.
     apply isPullback_Q_pp_from_qq.
 Defined.
 
-Lemma term_from_qq_pointwise_compatible
+Lemma term_from_qq_compatible_te
     {Γ Γ' : C} (A : Ty X Γ) (f : Γ'--> Γ)
-    {Γ'' : C} (g : Γ''--> Γ' ◂ A[f])
-  : (Q_from_qq A[f] : nat_trans _ _) Γ'' g
-  = (Q_from_qq A : nat_trans _ _) Γ'' (g ;; qq Z f A).
+  : (Q_from_qq A[f] : nat_trans _ _) _ (identity _)
+  = (Q_from_qq A : nat_trans _ _) _ (qq Z f A).
 Proof.
-  use tm_from_qq_eq.
-  + unfold yoneda_morphisms_data; simpl.
+  etrans.
+    apply (toforallpaths _ _ _ (functor_id tm_from_qq _)).
+  cbn.  
+  use tm_from_qq_eq; cbn.
+  - unfold Q_from_qq; simpl.
     etrans. apply (toforallpaths _ _ _ (!functor_comp (TY X) _ _ ) A).
-    eapply (maponpaths (fun k => A[k])).
-      etrans. apply @pathsinv0, (@assoc C).
-      etrans. apply maponpaths, qq_π.
-      apply (@assoc C).
-  + simpl.
-    apply PullbackArrowUnique.
-    * etrans. apply @pathsinv0, assoc.
+    etrans. Focus 2. apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ ) A).
+    apply maponpaths_2; cbn.
+    apply qq_π.
+  - apply PullbackArrowUnique.
+    + cbn.
+      etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, comp_ext_compare_π.
       apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)). 
-    * etrans. apply @pathsinv0, assoc.
-      etrans. apply maponpaths.
-        rewrite @comp_ext_compare_comp.
-        etrans. apply @pathsinv0, assoc. 
-        etrans. apply maponpaths, comp_ext_compare_qq.
-        etrans. apply maponpaths, qq_comp.
+    + apply (map_into_Pb_unique _ (qq_π_Pb Z _ _)). 
+      * cbn.
+        etrans. apply @pathsinv0, assoc.
+        etrans. apply maponpaths. apply @pathsinv0, qq_π.
         etrans. apply assoc.
-        apply cancel_postcomposition.
+        etrans. apply maponpaths_2.
+          etrans. apply @pathsinv0, assoc.
+          etrans. apply maponpaths, comp_ext_compare_π.
+          apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
+        etrans. apply id_left.
+        apply pathsinv0.
+        etrans. apply @pathsinv0, assoc.
+        etrans. apply maponpaths.
+          apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
+        apply id_right.
+      * cbn.
+        etrans. apply @pathsinv0, assoc.
+        etrans. apply @pathsinv0, assoc.
+        etrans. apply maponpaths.
+          etrans. apply maponpaths_2.
+            etrans. apply comp_ext_compare_comp.
+            etrans. apply maponpaths, comp_ext_compare_comp.
+            apply assoc.
+          etrans. apply @pathsinv0, assoc.
+          etrans. apply maponpaths.
+            etrans. apply assoc.
+            apply @pathsinv0. apply qq_comp_general.
+          etrans. apply @pathsinv0, assoc.
+          etrans. apply maponpaths, comp_ext_compare_qq.
+          etrans. apply maponpaths, qq_comp.
+          apply assoc.
         etrans. apply assoc.
-        etrans. Focus 2. apply id_left.
-        apply cancel_postcomposition.
-        etrans. apply @pathsinv0, comp_ext_compare_comp.
-        apply comp_ext_compare_id_general.
-      etrans. apply assoc.
-      apply cancel_postcomposition.
-      apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). 
+        etrans. apply maponpaths_2.
+          etrans. apply maponpaths.
+            etrans. apply assoc. 
+            etrans. apply maponpaths_2.
+              etrans. apply @pathsinv0, comp_ext_compare_comp.
+              apply comp_ext_compare_id_general.
+            apply id_left.
+          apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
+        etrans. apply id_left.
+        apply pathsinv0.
+        etrans. apply @pathsinv0, assoc.
+        etrans. apply maponpaths.
+          apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
+        apply id_right.
 Time Qed.
+
+Lemma term_from_qq_compatible_pointwise
+    {Γ Γ' : C} (A : Ty X Γ) (f : Γ'--> Γ)
+    {Γ''} (g : Γ'' --> _)
+  : (Q_from_qq A[f] : nat_trans _ _) _ g
+  = (Q_from_qq A : nat_trans _ _) _ (g ;; qq Z f A).
+Proof.
+  cbn.
+  use tm_from_qq_eq; cbn.
+  - unfold Q_from_qq; simpl.
+    etrans. apply maponpaths, (toforallpaths _ _ _ (!functor_comp (TY X) _ _ ) _).
+    etrans. apply (toforallpaths _ _ _ (!functor_comp (TY X) _ _ ) _).
+    etrans. Focus 2. apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ ) A).
+    apply maponpaths_2; cbn.
+    etrans. apply maponpaths, qq_π.
+    apply assoc.
+  - apply PullbackArrowUnique.
+    + cbn.
+      etrans. apply @pathsinv0, assoc.
+      etrans. apply maponpaths, comp_ext_compare_π.
+      apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)). 
+    + apply (map_into_Pb_unique _ (qq_π_Pb Z _ _)). 
+      * cbn.
+        etrans. apply @pathsinv0, assoc.
+        etrans. apply maponpaths. apply @pathsinv0, qq_π.
+        etrans. apply assoc.
+        etrans. apply maponpaths_2.
+          etrans. apply @pathsinv0, assoc.
+          etrans. apply maponpaths, comp_ext_compare_π.
+          apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
+        etrans. apply id_left.
+        apply pathsinv0.
+        etrans. apply @pathsinv0, assoc.
+        etrans. apply maponpaths.
+          apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
+        apply id_right.
+      * cbn.
+        etrans. apply @pathsinv0, assoc.
+        etrans. apply @pathsinv0, assoc.
+        etrans. apply maponpaths.
+          etrans. apply maponpaths_2.
+            etrans. apply comp_ext_compare_comp.
+            etrans. apply maponpaths, comp_ext_compare_comp.
+            apply assoc.
+          etrans. apply @pathsinv0, assoc.
+          etrans. apply maponpaths.
+            etrans. apply assoc.
+            apply @pathsinv0. apply qq_comp_general.
+          etrans. apply @pathsinv0, assoc.
+          etrans. apply maponpaths, comp_ext_compare_qq.
+          etrans. apply maponpaths, qq_comp.
+          apply assoc.
+        etrans. apply assoc.
+        etrans. apply maponpaths_2.
+          etrans. apply maponpaths.
+            etrans. apply assoc. 
+            etrans. apply maponpaths_2.
+              etrans. apply @pathsinv0, comp_ext_compare_comp.
+              apply comp_ext_compare_id_general.
+            apply id_left.
+          apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
+        etrans. apply id_left.
+        apply pathsinv0.
+        etrans. apply @pathsinv0, assoc.
+        etrans. apply maponpaths.
+          apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
+        apply id_right.
+Time Qed.
+
+Defined.
+
+
+Definition iscompatible_term_qq (Y : term_fun_structure C X)
+         (Z : qq_morphism_structure X) : UU
+  := ∏ Γ Γ' A (f : C⟦Γ', Γ⟧) , Q Y A[f] = #Yo (qq Z f A) ;; Q Y A.
+
 
 Definition iscompatible_term_from_qq
   : iscompatible_term_qq term_from_qq Z.
