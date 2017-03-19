@@ -47,10 +47,18 @@ Proof.
 Qed.
 
 Definition compatible_term_structure (Z : qq_morphism_structure X) : UU
-  := ∑ Y : term_fun_structure C X, iscompatible_term_qq Y Z.
+  := ∑ Y : term_fun_structure _ X, iscompatible_term_qq Y Z.
 
-Definition compatible_qq_morphism_structure (Y : term_fun_structure C X) : UU
+Coercion term_structure_of_compatible {Z : qq_morphism_structure X}
+  : compatible_term_structure Z -> term_fun_structure _ X
+:= pr1.
+
+Definition compatible_qq_morphism_structure (Y : term_fun_structure _ X) : UU
   := ∑ Z : qq_morphism_structure X, iscompatible_term_qq Y Z.
+
+Coercion qq_morphism_structure_of_compatible {Y : term_fun_structure _ X}
+  : compatible_qq_morphism_structure Y -> qq_morphism_structure X
+:= pr1.
 
 (* TODO: consider switching this to main definition. *)
 Definition iscompatible'_term_qq

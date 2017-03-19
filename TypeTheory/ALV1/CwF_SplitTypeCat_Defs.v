@@ -241,7 +241,6 @@ Proof.
   exact (toforallpaths _ _ _ (functor_id (TY X) _) A).
 Qed.
 
-(* TODO: unify with [bar] in […_Equivalence]? *)
 Lemma term_to_section {Y : term_fun_structure} {Γ:C} (t : Tm Y Γ) 
   (A := (pp Y : nat_trans _ _) _ t)
   : ∑ (f : Γ --> Γ ◂ A), (f ;; π _ = identity Γ).
@@ -251,7 +250,7 @@ Proof.
   exact (pr1 (pr2 sectionplus)).
 Defined.
 
-(* TODO: again, unify with lemmas following [bar] in […_Equivalence]? *)
+(* TODO: unify with lemmas following [bar] in […_Equivalence]? *)
 Lemma term_to_section_recover {Y : term_fun_structure}
   {Γ:C} (t : Tm Y Γ) (A := (pp Y : nat_trans _ _) _ t)
   : (Q Y A : nat_trans _ _) _ (pr1 (term_to_section t)) = t.
