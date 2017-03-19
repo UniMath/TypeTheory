@@ -51,7 +51,7 @@ Proof.
   intros Γ Γ' f.
   apply funextsec; intros [A [s e]].
   unfold canonical_TM_to_given_data; cbn.
-  etrans. apply maponpaths, iscompatible_iscompatible', (pr2 Y).
+  etrans. apply maponpaths, (pr2 Y).
   etrans. apply (toforallpaths _ _ _ (!functor_comp (TM Y) _ _ ) _).
   etrans. Focus 2. apply (toforallpaths _ _ _ (functor_comp (TM Y) _ _ ) _).
   apply maponpaths_2. 
@@ -148,7 +148,7 @@ Defined.
 
 End canonical_TM.
 
-(* TODO: upstream? *)
+(* TODO: upstream this and the following lemma? *)
 Lemma transportf_pshf
     {P P' : preShv C} (e : P = P')
     {c : C} (x : (P : functor _ _) c : hSet)
@@ -171,7 +171,6 @@ Proof.
   apply maponpaths, maponpaths, idtoiso_isotoid.
 Qed.
 
-(* TODO: make name more unique *)
 Lemma compatible_term_structure_equals_canonical
   {Z : qq_morphism_structure X} (Y : compatible_term_structure Z)
   : Y = compatible_term_from_qq Z.
@@ -181,8 +180,7 @@ Proof.
                    (category_is_category _)
                    (canonical_TM_to_given_iso Z Y)).
   apply subtypeEquality.
-  { intro. do 4 (apply impred; intro).
-    apply homset_property. }
+  { intro. apply isaprop_iscompatible_term_qq. } 
   destruct Y as [Y YH]. simpl.
   apply subtypeEquality.
   { intro. apply isaprop_term_fun_structure_axioms. }
@@ -207,8 +205,7 @@ Proof.
       apply funextsec; intro A.
       etrans. apply transportf_isotoid_pshf.
       cbn. unfold canonical_TM_to_given_data. cbn.
-      etrans. apply maponpaths.
-        apply (pr1 (iscompatible_iscompatible' _ Z) YH).
+      etrans. apply maponpaths, YH.
       etrans. refine (toforallpaths _ _ _ (!functor_comp tm _ _ ) _).
       etrans. apply maponpaths_2; cbn.
         apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). 
@@ -225,52 +222,49 @@ Proof.
   apply compatible_term_structure_equals_canonical.
 Defined.
 
-Lemma compat_split_comp_eq (Y : term_fun_structure _ X) :
-  ∏ t : compatible_qq_morphism_structure Y,
-  t = compatible_qq_from_term Y.
+Lemma compatible_qq_morphism_structure_equals_canonical
+    {Y : term_fun_structure _ X} (t : compatible_qq_morphism_structure Y)
+  : t = compatible_qq_from_term Y.
 Proof.
-  intro t.
-    apply subtypeEquality.
-    { intro.
-      do 4 (apply impred; intro).
-      apply homset_property. }
-    simpl; apply subtypeEquality.
-    { intro. apply @isaprop_qq_morphism_axioms. }
-    apply subtypeEquality.
-    { intro.
-      do 4 (apply impred; intro).
-      apply isofhleveltotal2. 
-      - apply homset_property.
-      - intro. apply isaprop_isPullback. } 
-    simpl.
-    destruct t as [[t H1] H2]. simpl.
-    destruct t as [q h]; simpl.
-    apply funextsec. intro Γ.
-    apply funextsec; intro Γ'.
-    apply funextsec; intro f.
-    apply funextsec; intro A.    
-    apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
+  apply subtypeEquality.
+  { intro. apply isaprop_iscompatible_term_qq. }
+  simpl; apply subtypeEquality.
+  { intro. apply @isaprop_qq_morphism_axioms. }
+  apply subtypeEquality.
+  { intro.
+    do 4 (apply impred; intro).
+    apply isofhleveltotal2. 
+    - apply homset_property.
+    - intro. apply isaprop_isPullback. } 
+  simpl.
+  destruct t as [[t H1] H2]. simpl.
+  destruct t as [q h]; simpl.
+  apply funextsec. intro Γ.
+  apply funextsec; intro Γ'.
+  apply funextsec; intro f.
+  apply funextsec; intro A.    
+  apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
+  apply pathsinv0.
+  etrans. apply Yo_qq_term_Yo_of_qq.
+  unfold Yo_of_qq.
+  apply pathsinv0.
+  apply PullbackArrowUnique.
+  + etrans. apply maponpaths. cbn. apply idpath.
+    rewrite <- functor_comp.
+    etrans. eapply pathsinv0. refine (functor_comp Yo _ _).
+    apply maponpaths.
+    apply pathsinv0. apply (pr1 (h _ _ _ _ )).
+  + etrans. apply maponpaths. cbn. apply idpath.
     apply pathsinv0.
-    etrans. apply Yo_qq_term_Yo_of_qq.
-    unfold Yo_of_qq.
-    apply pathsinv0.
-    apply PullbackArrowUnique.
-    + etrans. apply maponpaths. cbn. apply idpath.
-      rewrite <- functor_comp.
-      etrans. eapply pathsinv0. refine (functor_comp Yo _ _).
-      apply maponpaths.
-      apply pathsinv0. apply (pr1 (h _ _ _ _ )).
-    + etrans. apply maponpaths. cbn. apply idpath.
-      apply pathsinv0.
-      apply H2.
+    apply (pr1 (iscompatible_iscompatible' _ _) H2).
 Time Qed.
-  
+
 
 Lemma iscontr_compatible_split_comp_structure (Y : term_fun_structure C X)
 : iscontr (compatible_qq_morphism_structure Y).
 Proof.
   exists (compatible_qq_from_term Y).
-  apply compat_split_comp_eq.
+  apply compatible_qq_morphism_structure_equals_canonical.
 Defined.
 
 End compatible_structures.

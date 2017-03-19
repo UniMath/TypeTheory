@@ -35,7 +35,8 @@ Section Compatible_Structures.
 
 Definition iscompatible_term_qq (Y : term_fun_structure C X)
          (Z : qq_morphism_structure X) : UU
-  := ∏ Γ Γ' A (f : C⟦Γ', Γ⟧) , Q Y A[f] = #Yo (qq Z f A) ;; Q Y A.
+  := ∏ Γ Γ' A (f : C⟦Γ', Γ⟧),
+     te Y A[f] = # (TM _ : functor _ _) (qq Z f A) (te Y A).
 
 Lemma isaprop_iscompatible_term_qq
   (Y : term_fun_structure C X)
@@ -43,7 +44,7 @@ Lemma isaprop_iscompatible_term_qq
   : isaprop (iscompatible_term_qq Y Z).
 Proof.
   do 4 (apply impred; intro).
-  apply homset_property.
+  apply setproperty.
 Qed.
 
 Definition compatible_term_structure (Z : qq_morphism_structure X) : UU
@@ -64,8 +65,7 @@ Coercion qq_morphism_structure_of_compatible {Y : term_fun_structure _ X}
 Definition iscompatible'_term_qq
     (Y : term_fun_structure C X)
     (Z : qq_morphism_structure X) : UU
-  := ∏ Γ Γ' A (f : C⟦Γ', Γ⟧),
-     te Y A[f] = # (TM _ : functor _ _) (qq Z f A) (te Y A).
+  := ∏ Γ Γ' A (f : C⟦Γ', Γ⟧) , Q Y A[f] = #Yo (qq Z f A) ;; Q Y A.
 
 Definition iscompatible_iscompatible'
     (Y : term_fun_structure C X)
@@ -88,7 +88,9 @@ Lemma map_from_term_recover
   : pr1 (term_to_section ((Q Y A : nat_trans _ _) Γ' f)) ;; Δ e ;; qq Z (f ;; π A) A
   = f.
 Proof.
-  unfold iscompatible_term_qq in W.
+  assert (W' : iscompatible'_term_qq Y Z).
+    apply iscompatible_iscompatible'; assumption.
+  unfold iscompatible'_term_qq in W'.
   apply (Q_pp_Pb_unique Y).
   - unfold yoneda_morphisms_data; cbn.
     etrans. apply @pathsinv0, assoc.
@@ -100,7 +102,7 @@ Proof.
     etrans. apply assoc.
     etrans. Focus 2. apply id_left. apply cancel_postcomposition.
     exact (pr2 (term_to_section _)).
-  - etrans. refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (W _ _ _ _) _) _).
+  - etrans. refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
     etrans. apply Q_comp_ext_compare.
     apply term_to_section_recover.
 Time Qed.
@@ -441,8 +443,8 @@ Proof.
   apply isPullback_Q_pp_from_qq.
 Defined.
 
-Definition iscompatible'_term_from_qq
-  : iscompatible'_term_qq term_from_qq Z.
+Definition iscompatible_term_from_qq
+  : iscompatible_term_qq term_from_qq Z.
 Proof.
   intros ? ? ? ?.
   use tm_from_qq_eq; simpl.
@@ -503,13 +505,6 @@ Proof.
         apply id_right.
 Time Qed.
 
-Definition iscompatible_term_from_qq
-  : iscompatible_term_qq term_from_qq Z.
-Proof.
-  apply (pr2 (iscompatible_iscompatible' _ _)).
-  apply iscompatible'_term_from_qq.
-Qed.
-
 Definition compatible_term_from_qq : compatible_term_structure Z
   := (term_from_qq,, iscompatible_term_from_qq).
     
@@ -540,6 +535,8 @@ Let Xk := mk_Pullback _ _ _ _ _ _ (isPullback_Q_pp Y A).
 (** ** Groundwork in presheaves
 
 We first construct maps of presheaves that will be the image of the _q_-morphisms under the Yoneda embedding. *)
+
+(* TODO: see if it simplifies things to construct the q-morphisms more directly. *)
 
 Definition Yo_of_qq : _ ⟦Yo (Γ' ◂ A[f]), Yo (Γ ◂ A) ⟧.
 Proof.
@@ -683,13 +680,19 @@ Proof.
   apply is_split_qq_from_term.
 Defined.
 
-Lemma iscompatible_qq_from_term : iscompatible_term_qq Y qq_from_term.
+Lemma iscompatible'_qq_from_term : iscompatible'_term_qq Y qq_from_term.
 Proof.
   intros Γ Γ' A f.
   assert (XR:= Yo_of_qq_commutes_2).
   apply pathsinv0.
   rewrite Yo_qq_term_Yo_of_qq.
   apply XR.
+Qed.
+
+Lemma iscompatible_qq_from_term : iscompatible_term_qq Y qq_from_term.
+Proof.
+  apply (pr2 (iscompatible_iscompatible' _ _)).
+  apply iscompatible'_qq_from_term.
 Qed.
 
 Definition compatible_qq_from_term : compatible_qq_morphism_structure Y
