@@ -12,7 +12,6 @@ Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
 
-(* TODO: much cleanup needed.  In particular: update terminolog conen, e.g. [qq_] etc.! *)
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
@@ -34,21 +33,9 @@ Section compatible_structures.
 
 Section canonical_TM.
 
-(* TODO: there is a lot of redundancy between the lemmas of this section and [term_to_section] and companions. *)
-
 Variable Z : qq_morphism_structure X.
 Notation ZZ := (pr2 Z).
 Variable Y : compatible_term_structure Z.
-
-(*
-Definition canonical_TM_to_given_data
-  : ∏ (Γ:C^op), (tm_from_qq Z Γ) --> (Tm Y Γ).
-Proof.
-  intros Γ Ase.
-  refine (# (TM _ : functor _ _) _ (te _ (pr1 Ase))). 
-  exact (pr1 (pr2 Ase)).
-Defined.
-*)
 
 Definition canonical_TM_to_given_data
   {Γ} (Ase : tm_from_qq Z Γ : hSet) : (Tm Y Γ).
@@ -114,6 +101,7 @@ Lemma canonical_TM_to_given_paths_adjoint {Γ:C} Ase t
 Proof.
   destruct Ase as [A [s e]].
   intros H.
+  (* This [assert] is to enable the [destruct eA] below. *)
   assert (eA : (pp Y : nat_trans _ _) _ t = A). {
     etrans. apply maponpaths, (!H).
     refine (toforallpaths _ _ _ 
@@ -124,17 +112,15 @@ Proof.
   exact (!eA).
   cbn. destruct eA; cbn. unfold idfun.
   apply subtypeEquality. { intros x; apply homset_property. }
-  cbn. refine (@maponpaths _ _ pr1 (_,,_) (_,,_) _).
-  apply proofirrelevance, isapropifcontr.
-  refine (term_to_section_aux t).
-  Unshelve.
+  set (temp := proofirrelevance _ (isapropifcontr (term_to_section_aux t))).
+  refine (maponpaths pr1 (temp (_,,_) (_,,_))).
   - cbn; split.
     + exact e.
     + exact H.
   - split.
     + apply (pr2 (pr2 (given_TM_to_canonical _ t))).
     + apply term_to_section_recover.
-Time Qed.
+Qed.
 
 Lemma canonical_to_given_to_canonical Γ
   : (canonical_TM_to_given : nat_trans _ _ )  Γ ;; given_TM_to_canonical Γ = identity _ .
