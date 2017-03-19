@@ -130,6 +130,17 @@ Proof.
   apply iscompatible_qq_from_term.
 Defined.
 
+(* TODO: upstream *)
+Lemma comp_ext_compare_te
+    {X : obj_ext_structure C}
+    {Y : term_fun_structure C X}
+    {Γ:C} {A A' : Ty X Γ} (e : A = A')
+  : # (TM Y : functor _ _) (Δ e) (te Y A') = te Y A.
+Proof.
+  destruct e; cbn.
+  exact (toforallpaths _ _ _ (functor_id (TM _) _) _). 
+Qed.
+
 Lemma qq_from_term_mor {X X' : obj_ext_precat} {F : X --> X'}
   {Y : term_fun_disp_precat C X} {Y'} (FY : Y -->[F] Y')
   {Z : qq_structure_disp_precat C X} {Z'}
@@ -154,23 +165,18 @@ Proof.
     etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths. apply comp_ext_compare_π.
     apply obj_ext_mor_ax.
-  (* Maybe worth abstracting the following pointwise application of [W],
-   [term_fun_mor_Q], etc. as lemmas? *)
-  - etrans.
-      exact (!toforallpaths _ _ _
-        (nat_trans_eq_pointwise (term_fun_mor_Q FY _) _) _).
-    etrans. apply maponpaths, @pathsinv0, id_left.
-    etrans. cbn. apply maponpaths.
-      exact (!toforallpaths _ _ _
-        (nat_trans_eq_pointwise (W _ _ _ _) _) _).
+  - etrans. exact (toforallpaths _ _ _ (functor_comp (TM _) _ _) _).
+    etrans. cbn. apply maponpaths, @pathsinv0, (term_fun_mor_te FY).
+    etrans. refine (toforallpaths _ _ _
+                      (!nat_trans_ax (term_fun_mor_TM _) _ _ _) _).
+    etrans. cbn. apply maponpaths, @pathsinv0, W.
+    etrans. apply term_fun_mor_te.
     apply pathsinv0.
-    etrans.
-      exact (!toforallpaths _ _ _
-        (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
-    etrans. apply Q_comp_ext_compare.
-    etrans. apply maponpaths, @pathsinv0, id_left.
-    exact (!toforallpaths _ _ _
-      (nat_trans_eq_pointwise (term_fun_mor_Q FY _) _) _).
+    etrans. exact (toforallpaths _ _ _ (functor_comp (TM _) _ _) _).
+    etrans. cbn. apply maponpaths, @pathsinv0, W'.
+    etrans. exact (toforallpaths _ _ _ (functor_comp (TM _) _ _) _).
+    cbn. apply maponpaths. 
+    apply comp_ext_compare_te.
 Time Qed.
 
 Lemma qq_from_term_mor_unique {X X' : obj_ext_precat} {F : X --> X'}
