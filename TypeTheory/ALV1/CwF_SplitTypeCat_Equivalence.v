@@ -64,20 +64,21 @@ Proof.
   apply is_nat_trans_canonical_TM_to_given.
 Defined.
 
-Definition given_TM_to_canonical
+(* Naturality of this direction is a bit subtle; we will deduce it below from the fact that it is pointwise inverse to [canonical_TM_to_given]. *)
+Definition given_TM_to_canonical_data
   : ∏ Γ, HSET ⟦ Tm (pr1 Y) Γ, tm_from_qq Z Γ⟧.
 Proof.
   intros Γ t.
   exists ((pp (pr1 Y) : nat_trans _ _ )  _ t).
   apply term_to_section.
-Defined.
+Defined. 
 
 Lemma given_to_canonical_to_given Γ
-  : given_TM_to_canonical Γ ;; (canonical_TM_to_given : nat_trans _ _) Γ
+  : given_TM_to_canonical_data Γ ;; (canonical_TM_to_given : nat_trans _ _) Γ
   = identity _ .
 Proof.
   apply funextsec; intro t.
-  cbn. unfold canonical_TM_to_given_data, given_TM_to_canonical.
+  cbn. unfold canonical_TM_to_given_data, given_TM_to_canonical_data.
   apply term_to_section_recover.
 Qed.
 
@@ -95,9 +96,12 @@ Proof.
   apply (toforallpaths _ _ _ (functor_id (TY X) _ ) _).
 Qed.
 
+(* Functions between sets [f : X <--> Y : g] are inverse iff they are _adjoint_, in that [ f x = y <-> x = f y ] for all x, y.
+
+Here we give one direction of that “adjunction”; combined with [given_to_canonical_to_given] above, it implies full inverseness. *) 
 Lemma canonical_TM_to_given_paths_adjoint {Γ:C} Ase t
   : (canonical_TM_to_given : nat_trans _ _) Γ Ase = t
-  -> Ase = given_TM_to_canonical Γ t.
+  -> Ase = given_TM_to_canonical_data Γ t.
 Proof.
   destruct Ase as [A [s e]].
   intros H.
@@ -118,12 +122,14 @@ Proof.
     + exact e.
     + exact H.
   - split.
-    + apply (pr2 (pr2 (given_TM_to_canonical _ t))).
+    + apply (pr2 (pr2 (given_TM_to_canonical_data _ t))).
     + apply term_to_section_recover.
 Qed.
 
 Lemma canonical_to_given_to_canonical Γ
-  : (canonical_TM_to_given : nat_trans _ _ )  Γ ;; given_TM_to_canonical Γ = identity _ .
+  : (canonical_TM_to_given : nat_trans _ _ )  Γ
+    ;; given_TM_to_canonical_data Γ
+  = identity _ .
 Proof.
   apply funextsec; intro t.
   apply pathsinv0, canonical_TM_to_given_paths_adjoint, idpath.
@@ -132,7 +138,7 @@ Qed.
 Lemma canonical_TM_to_given_pointwise_iso Γ
   : is_iso ((canonical_TM_to_given : nat_trans _ _) Γ).
 Proof.
-  apply (is_iso_qinv _ (given_TM_to_canonical Γ) ).
+  apply (is_iso_qinv _ (given_TM_to_canonical_data Γ) ).
   split.
   - apply canonical_to_given_to_canonical.
   - apply given_to_canonical_to_given.
@@ -145,6 +151,29 @@ Proof.
   apply functor_iso_if_pointwise_iso.
   apply canonical_TM_to_given_pointwise_iso.
 Defined.
+
+Definition given_TM_to_canonical_naturality
+  : is_nat_trans (TM Y : functor _ _) (tm_from_qq Z) 
+      (@given_TM_to_canonical_data).
+Proof.
+  refine (is_nat_trans_inv_from_pointwise_inv_ext _
+           canonical_TM_to_given_pointwise_iso).
+  apply homset_property.
+Qed.
+
+Definition given_TM_to_canonical
+  : (TM Y) --> (tm_from_qq Z)
+:= (_ ,, given_TM_to_canonical_naturality).
+
+Lemma pp_given_TM_to_canonical
+  : given_TM_to_canonical ;; pp_from_qq Z
+    = pp Y.
+Proof.
+  apply nat_trans_eq. apply homset_property.
+  intros Γ; apply idpath.
+Qed.
+
+(* TODO: re-state [given_to_canonical_to_given] and [canonical_to_given_to_canonical] as composites of natural transformations? *)
 
 End canonical_TM.
 

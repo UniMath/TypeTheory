@@ -520,6 +520,8 @@ Arguments Q_from_qq _ {_} _ : simpl never.
 
 Key definitions: [qq_from_term], [iscompatible_qq_from_term] *)
 
+(* TODO: see if this section can be simplified to construct the q-morphisms more directly. *)
+
 Section compatible_comp_structure_from_term.
 
 Variable Y : term_fun_structure C X.
@@ -535,8 +537,6 @@ Let Xk := mk_Pullback _ _ _ _ _ _ (isPullback_Q_pp Y A).
 (** ** Groundwork in presheaves
 
 We first construct maps of presheaves that will be the image of the _q_-morphisms under the Yoneda embedding. *)
-
-(* TODO: see if it simplifies things to construct the q-morphisms more directly. *)
 
 Definition Yo_of_qq : _ ⟦Yo (Γ' ◂ A[f]), Yo (Γ ◂ A) ⟧.
 Proof.
