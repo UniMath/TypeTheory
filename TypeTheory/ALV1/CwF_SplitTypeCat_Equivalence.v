@@ -121,9 +121,6 @@ Proof.
   - cbn; split.
     + exact e.
     + exact H.
-  - split.
-    + apply (pr2 (pr2 (given_TM_to_canonical_data _ t))).
-    + apply term_to_section_recover.
 Qed.
 
 Lemma canonical_to_given_to_canonical Γ

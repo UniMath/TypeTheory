@@ -242,7 +242,8 @@ Proof.
       etrans. apply maponpaths, comp_ext_compare_π.
       etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, obj_ext_mor_ax.
-      refine (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _) _ _ _ _).
+      refine (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ (qq_π_Pb _ f A))
+                                          _ _ _ _).
     * cbn in FZ; cbn.
       etrans. apply maponpaths_2, @pathsinv0, assoc.
       etrans. apply @pathsinv0, assoc.
@@ -331,7 +332,8 @@ Proof.
       etrans. apply maponpaths, comp_ext_compare_qq.
       etrans. apply maponpaths_2, @pathsinv0, assoc.
       etrans. apply @pathsinv0, assoc.
-      etrans. apply maponpaths, @pathsinv0, FZ. (* TODO: give access function [qq_structure_mor_ax]! *)
+      etrans. apply maponpaths, @pathsinv0. use FZ.
+        (* TODO: give access function [qq_structure_mor_ax]! *)
       etrans. apply assoc.
       etrans. apply maponpaths_2.
         apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
