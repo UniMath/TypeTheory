@@ -351,6 +351,7 @@ Proof.
   - refine (given_TM_to_canonical _ _ (Y,,W)).
   - refine (canonical_TM_to_given _ _ (Y',,W')).
 Defined.
+(* TODO: better, construct these three parts as maps of qq-morphism structures, and put them together directly as that. *)
 
 Lemma term_from_qq_mor {X X' : obj_ext_precat} {F : X --> X'}
   {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
@@ -369,45 +370,15 @@ Proof.
     etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths, tm_from_qq_mor_pp.
     etrans. apply assoc.
-    apply maponpaths_2, (pp_given_TM_to_canonical _ _ (_,,W)).
-  - admit.
-    (* TODO: this should be a combination of [tm_from_qq_mor_te] above, and similar lemmas for [given_TM_to_canonical] and vice versa. Essentially the point is that all these three are displayed morphisms of term-structures.  Perhaps they should even be given as such, and composed as such for this lemma. *)
-
-(*
-
-  - intros Γ'. unfold yoneda_morphisms_data, yoneda_objects_ob; cbn.
-    apply funextsec; intros f.
-    etrans.
-      (* TODO: consider changing direction of [Q_comp_ext_compare]?*)
-      apply @pathsinv0. simple refine (Q_comp_ext_compare _ _); simpl.
-        exact ((obj_ext_mor_TY F : nat_trans _ _) _ 
-                 (# (TY _ : functor _ _) (f ;; π _) A)). 
-      apply maponpaths.
-      refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (Q_pp _ _) _) _).
+    apply maponpaths_2, (pp_given_TM_to_canonical _ _ (_,,_)).
+  - unfold term_from_qq_mor_TM.
     cbn.
-    Arguments Δ [_ _ _ _ _ _]. idtac.
-    etrans. apply maponpaths.
-      etrans. apply @pathsinv0, assoc.
-      etrans. apply maponpaths, @pathsinv0, Δ_φ.
-      apply assoc.
-    etrans. 
-      apply @pathsinv0. simple refine (Q_comp_ext_compare _ _); simpl.
-        exact (# (TY _ : functor _ _) (f ;; π _)
-                 ((obj_ext_mor_TY F : nat_trans _ _) _ A)).
-      exact (toforallpaths _ _ _ (nat_trans_ax (obj_ext_mor_TY F) _ _ _) _).
-    cbn.
-    etrans. exact (toforallpaths _ _ _ (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
-    simpl; unfold yoneda_morphisms_data; cbn.  apply maponpaths.
-    etrans. apply @pathsinv0, assoc.
-    etrans. apply @pathsinv0, assoc.
-    etrans. apply maponpaths.
-      etrans. apply assoc.
-      apply @pathsinv0. use FZ.
-    etrans. apply assoc.
-    apply cancel_postcomposition.
-  apply (map_from_term_recover W).
-*)
-Admitted.
+    etrans. apply maponpaths, maponpaths, given_TM_to_canonical_te.
+    etrans. apply maponpaths, (tm_from_qq_mor_te FZ).
+    etrans. apply (toforallpaths _ _ _
+                     (nat_trans_ax (canonical_TM_to_given _ _ (_,,_)) _ _ _) _).
+    cbn. apply maponpaths. apply (canonical_TM_to_given_te _ _ (_,,_)).
+Defined.
 
 Lemma term_from_qq_mor_unique {X X' : obj_ext_precat} {F : X --> X'}
   {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')

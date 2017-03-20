@@ -157,6 +157,7 @@ Proof.
            canonical_TM_to_given_pointwise_iso).
   apply homset_property.
 Qed.
+(* TODO: perhaps reorganisae the above a little?  Under the current definitions, [iso_inv_from_iso canonical_TM_to_given_iso] is *not* definitionally equal to [given_TM_to_canonical], which is a little annoying downstream (lemmas about [given_TM_to_canonical] can’t be applied). *)  
 
 Definition given_TM_to_canonical
   : (TM Y) --> (tm_from_qq Z)
@@ -171,6 +172,24 @@ Proof.
 Qed.
 
 (* TODO: re-state [given_to_canonical_to_given] and [canonical_to_given_to_canonical] as composites of natural transformations? *)
+
+Lemma canonical_TM_to_given_te {Γ:C} A
+  : (canonical_TM_to_given : nat_trans _ _) (Γ ◂ A) (te_from_qq Z A) = te Y A.
+Proof.
+  cbn. unfold canonical_TM_to_given_data. cbn.
+  etrans. apply maponpaths, (pr2 Y).
+  etrans. refine (toforallpaths _ _ _ (!functor_comp (TM Y) _ _ ) _).
+  etrans. apply maponpaths_2; cbn.
+    apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). 
+  apply (toforallpaths _ _ _ (functor_id (TM Y) _) _).
+Qed.
+
+Lemma given_TM_to_canonical_te {Γ:C} A
+  : (given_TM_to_canonical : nat_trans _ _) (Γ ◂ A) (te Y A) = (te_from_qq Z A).
+Proof.
+  etrans. Focus 2. exact (toforallpaths _ _ _ (canonical_to_given_to_canonical _) _).
+  cbn. apply maponpaths, @pathsinv0, canonical_TM_to_given_te.
+Qed.
 
 End canonical_TM.
 
@@ -222,6 +241,7 @@ Proof.
       unfold i.
       rewrite idtoiso_inv.
       rewrite idtoiso_isotoid.
+      unfold canonical_TM_to_given_iso. 
       apply nat_trans_eq. 
       * apply has_homsets_HSET.
       * intro Γ. apply idpath.
