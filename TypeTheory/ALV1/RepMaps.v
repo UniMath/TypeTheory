@@ -41,20 +41,39 @@ Section Fix_Category.
 
 (** ** Representations of maps of presheaves 
 
-A *representation* of a map Tm —p—> Ty of presheaves consists of data exhibiting, for each (A : Ty Γ), the fiber of p over A as represented by some object Γ.A over Γ. *)
+A *representation* of a map Tm —p—> Ty of presheaves consists of data exhibiting, 
+  for each (A : Ty Γ), the fiber of p over A as represented by some object Γ.A over Γ. 
 
+*)
 
-(** ** Natural model structure is equivalent to cwf structure when 
-       underlying category is univalent *)
 
 Variable C : Precategory.
 
 Definition mere_cwf_representation (pp : mor_total (preShv C)) : UU
   := ∏ Γ (A : Ty C pp Γ : hSet), ∥ cwf_fiber_representation C pp A ∥.
 
+(** The important fact: being representable is a proposition, by use of truncation.
+    Put differently: the type of representable presheaves is a subtype
+    of the type of presheaves.
+    In particular, two representable maps of presheaves are equal if
+    their underlying maps of presheaves are equal.
+ *)
+
+Lemma isaprop_mere_cwf_representation (pp : mor_total (preShv C))
+  : isaprop (mere_cwf_representation pp).
+Proof.
+  do 2 (apply impred; intro).
+  apply propproperty.
+Qed.
+
 Definition rep_map : UU 
   := ∑ pp : mor_total (preShv C), mere_cwf_representation pp.
 
+(** From a [cwf_structure] on [C], we get a representable map
+    of presheaves on [C], given by
+    - the identity on the first component (the objects and the morphism between them)
+    - a prop-truncation projection on the second component
+*)
 
 Definition from_cwf_to_rep_map
   : cwf_structure C -> rep_map.
@@ -65,7 +84,11 @@ Proof.
   exact (hinhpr (pr2 H Γ A)).
 Defined.
 
-Definition cwf_rep_map_weq : 
+(** The map from [cwf_structure C] to [rep_map C] is
+    an equivalence if [C] is univalent.
+*)
+
+Definition weq_cwf_rep_map : 
   is_category C -> cwf_structure C ≃ rep_map.
 Proof.
   intro H.
@@ -78,13 +101,19 @@ Proof.
   apply H.
 Defined.
 
+(** Perhaps not obviously, the equivalence [weq_cwf_rep_map] is 
+    pointwise definitionally equal to the map [from_cwf_to_rep_map] 
+    defined by hand.
+*)
+
 Lemma cwf_natural_rep_map_def (H : is_category C) (X : cwf_structure C)
-      : cwf_rep_map_weq H X = from_cwf_to_rep_map X.
+      : weq_cwf_rep_map H X = from_cwf_to_rep_map X.
 Proof.
   apply idpath.
 Defined.
 
-(** Equivalence between representable maps of presheaves and mere relative universes *)
+
+(** ** Equivalence between representable maps of presheaves and mere relative universes *)
 
 Lemma weq_mere_cwf_representation_is_universe_relative (pp : mor_total (preShv C))
   : mere_cwf_representation pp ≃ is_universe_relative_to Yo pp.
@@ -111,13 +140,10 @@ Proof.
   apply weq_mere_cwf_representation_is_universe_relative.
 Defined.
 
-(** TODO: define a truncated version of relative universes
-    and construct an equivalence between
-    - representable maps of presheaves on C and
-    - truncated relative universes on Yoneda(C)
-*)
-
 End Fix_Category.
+
+(** ** Equivalence between rep. maps of presheaves on [C] and on its Rezk completion
+*)
 
 Definition Rezk_on_rep_map (C : Precategory)
   : rep_map C ≃ rep_map (Rezk_completion C (homset_property _)).
@@ -131,7 +157,8 @@ Proof.
 Defined.
 
 
-(** 
+(** ** Commutativity of a diagram *)
+(**
 <<<
   cwf(C) ------> rep_map(C)
    |                |
@@ -146,8 +173,8 @@ Lemma cwf_repmap_diagram (C : Precategory) (X : cwf_structure C)
     Rezk_on_rep_map _ (from_cwf_to_rep_map _ X).
 Proof.
   apply subtypeEquality.
-  { intro. admit. }
-  
-  destruct X as [pp H].
-  cbn.
-Abort.
+  { intro. apply isaprop_mere_cwf_representation. }
+  apply idpath.
+Qed.
+
+(* *)
