@@ -241,6 +241,23 @@ Definition tm_from_qq : functor _ _
 
 Arguments tm_from_qq : simpl never.
 
+(* TODO: search for uses of [tm_from_qq_eq] to see where this can be used (should save a good few lines of code). *)
+Lemma tm_from_qq_eq_reindex
+    {Γ Γ' : C} (f : Γ' --> Γ)
+    (Ase : tm_from_qq Γ : hSet) (Ase' : tm_from_qq Γ' : hSet)
+    (eA : pr1 Ase' = # (TY X : functor _ _) f (pr1 Ase))
+    (es : pr1 (pr2 Ase') ;; Δ eA ;; qq Z f _ = f ;; pr1 (pr2 Ase))
+  : Ase' = # tm_from_qq f Ase.
+Proof.
+  use tm_from_qq_eq.
+  - exact eA.
+  - cbn. apply PullbackArrowUnique; cbn.
+    + etrans. apply @pathsinv0, assoc. 
+      etrans. apply maponpaths, comp_ext_compare_π.
+      apply (pr2 (pr2 Ase')).
+    + apply es.
+Qed.
+
 Lemma pr2_tm_from_qq_paths
     {Γ : C} {t t' : tm_from_qq Γ : hSet} (e : t = t')
   : pr1 (pr2 t) = pr1 (pr2 t') ;; (Δ (maponpaths pr1 (!e))) .

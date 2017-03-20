@@ -6,6 +6,13 @@
 
 (**
 
+This file defines the categories of term-structures and _q_-morphism structures over a fixed object-extension structure, and proves that they are equivalent.
+
+For the more interesting case where the object-extension structure is also allowed to vary, see [CwF_Split_TypeCat_Cats], where this more general category is constructed, using the formalism of displayed categories.
+
+In general, this file should be deprectated, and the displayed version should be used for all further development.  This standalone version is included just to give the equivalence in a form independent of the development of displayed categories.
+
+
 Main definitions:
 
 - [term_fun_precategory]
@@ -51,21 +58,34 @@ Definition term_fun_mor
 := ∑ FF_TM : TM Y --> TM Y',
        FF_TM ;; pp Y' = pp Y 
      × 
-       ∏ {Γ:C} {A : Ty X Γ}, Q Y A ;; FF_TM =  Q Y' _.
+       ∏ {Γ:C} {A : Ty X Γ},
+           (FF_TM : nat_trans _ _) _ (te Y A) = (te Y' _).
 
-Definition term_fun_mor_TM {Y} {Y'} (FF : term_fun_mor Y Y')
+
+Definition term_fun_mor_TM {Y Y'} (FF : term_fun_mor Y Y')
   : _ --> _
 := pr1 FF.
 
-Definition term_fun_mor_pp {Y} {Y'} (FF : term_fun_mor Y Y')
+Definition term_fun_mor_pp {Y Y'} (FF : term_fun_mor Y Y')
   : term_fun_mor_TM FF ;; pp Y' = pp Y 
 := pr1 (pr2 FF).
 
-Definition term_fun_mor_Q {Y} {Y'} (FF : term_fun_mor Y Y')
-    {Γ} A
-  : _ = _
+Definition term_fun_mor_te {Y Y'} (FF : term_fun_mor Y Y')
+    {Γ:C} (A : Ty X Γ)
+  : (term_fun_mor_TM FF : nat_trans _ _) _ (te Y A) = (te Y' _)
 := pr2 (pr2 FF) Γ A.
 
+Definition term_fun_mor_Q {Y Y'} (FF : term_fun_mor Y Y')
+    {Γ:C} (A : Ty X Γ)
+  : Q Y A ;; term_fun_mor_TM FF = Q Y' _.
+Proof.
+  apply nat_trans_eq. apply homset_property.
+  intros Γ'; simpl in Γ'.
+  unfold yoneda_objects_ob. apply funextsec; intros f.
+  etrans. 
+    refine (toforallpaths _ _ _ (nat_trans_ax (term_fun_mor_TM FF) _ _ _) _).
+  cbn. apply maponpaths, term_fun_mor_te.
+Qed.
 
 Lemma term_fun_mor_eq {Y} {Y'} (FF FF' : term_fun_mor Y Y')
     (e_TM : ∏ Γ (t : Tm Y Γ),
@@ -76,7 +96,7 @@ Proof.
   apply subtypeEquality.
   - intros x; apply isapropdirprod.
     + apply homset_property.
-    + repeat (apply impred_isaprop; intro). apply homset_property.
+    + repeat (apply impred_isaprop; intro). apply setproperty.
   - apply nat_trans_eq. apply has_homsets_HSET. 
     intros Γ. apply funextsec. unfold homot. apply e_TM.
 Qed.
@@ -143,16 +163,15 @@ Proof.
   - intros Y. simpl; unfold term_fun_mor.
     exists (identity _). apply tpair.
     + apply id_left. 
-    + intros Γ A. apply id_right.
+    + intros Γ A. apply idpath.
   - intros Y0 Y1 Y2 FF GG.
     exists (term_fun_mor_TM FF ;; term_fun_mor_TM GG). apply tpair.
     + etrans. apply @pathsinv0. apply assoc.
       etrans. apply maponpaths, term_fun_mor_pp.
       apply term_fun_mor_pp.
     + intros Γ A.
-      etrans. apply assoc.
-      etrans. apply cancel_postcomposition, term_fun_mor_Q.
-      apply term_fun_mor_Q.
+      etrans. cbn. apply maponpaths, term_fun_mor_te.
+      apply term_fun_mor_te.
 Defined.
 
 Definition term_fun_data : precategory_data 
@@ -181,7 +200,7 @@ Proof.
   apply homset_property.
   intros. apply isasetaprop, isapropdirprod.
   apply homset_property.
-  repeat (apply impred_isaprop; intro). apply homset_property.
+  repeat (apply impred_isaprop; intro). apply setproperty.
 Qed.
 
 End Term_Fun_Structure_Precat.
@@ -331,29 +350,13 @@ Proof.
     apply pathsinv0.
     etrans. apply @pathsinv0, qq_π.
     apply idpath.
-  (* Maybe worth abstracting the following pointwise application of [W],
-   [term_fun_mor_Q], etc. as lemmas? *)
-  - etrans.
-      exact (!toforallpaths _ _ _
-        (nat_trans_eq_pointwise (term_fun_mor_Q FY _) _) _).
-    etrans. apply maponpaths, @pathsinv0, id_left.
-    etrans. cbn. apply maponpaths.
-      exact (!toforallpaths _ _ _
-        (nat_trans_eq_pointwise (W _ _ _ _) _) _).
-    apply pathsinv0.
-    assert (XR := nat_trans_eq_pointwise (W' _ _ A f)).
-    specialize (XR (Γ' ◂ # (TY X : functor _ _ ) f A)). cbn in XR.
-    assert (XR' := toforallpaths _ _ _ XR). unfold homot in XR'. 
-      unfold yoneda_morphisms_data in XR'.
-    specialize (XR' (identity _ )).
-    etrans. apply maponpaths. eapply pathsinv0. apply id_left.
-    etrans. apply (!XR').
-    clear XR' XR.
-    etrans. apply maponpaths, @pathsinv0, id_left.
-    rewrite id_left.
-    exact (!toforallpaths _ _ _
-      (nat_trans_eq_pointwise (term_fun_mor_Q FY _) _) _).
-Time Qed.
+  - etrans. cbn. apply maponpaths, @pathsinv0, (term_fun_mor_te FY).
+    etrans. refine (toforallpaths _ _ _
+                      (!nat_trans_ax (term_fun_mor_TM _) _ _ _) _).
+    etrans. cbn. apply maponpaths, @pathsinv0, W.
+    etrans. apply term_fun_mor_te.
+    apply W'.
+Qed.
 
 
 Lemma qq_from_term_mor_unique 
@@ -379,90 +382,82 @@ Defined.
 
 (** The next main goal is the following statement.  However, the construction of the morphism of term structures is rather large; so we break out the first component (the map of term presheaves) into several independent lemmas, before returning to this in [term_from_qq_mor] below. *)
 Lemma term_from_qq_mor
-  {Z : qq_structure_precategory} {Z'} (FZ : Z --> Z')
+  {Z Z' : qq_structure_precategory} (FZ : Z --> Z')
   {Y : term_fun_precategory} {Y'}
   (W : iscompatible_term_qq Y Z)
   (W' : iscompatible_term_qq Y' Z')
   : (Y --> Y').
 Abort.
 
-Lemma term_from_qq_mor_TM_data 
-  {Z : qq_structure_precategory} {Z'} (FZ : Z --> Z')
-  {Y : term_fun_precategory} {Y'}
-  (W : iscompatible_term_qq Y Z)
-  (W' : iscompatible_term_qq Y' Z')
-  : ∏ Γ,
-    ((TM (Y : term_fun_structure _ _) : functor _ _) Γ : hSet)
-    -> ((TM (Y' : term_fun_structure _ _) : functor _ _) Γ : hSet).
+(* TODO: rename and move this section! *)
+Section Rename_me.
+(* TODO: naming conventions in this section clash rather with those of [ALV1.CwF_SplitTypeCat_Equivalence]. Consider! *)
+(* TODO: one would expect the type of this to be [nat_trans_data].  However, that name breaks HORRIBLY with general naming conventions: it is not the _type_ of the data (which is un-named for [nat_trans]), but is the _access function_ for that data!  Submit issue for this? *)  
+Lemma tm_from_qq_mor_data {Z Z' : qq_structure_precategory} (FZ : Z --> Z')
+  : forall Γ : C, (tm_from_qq Z Γ) --> (tm_from_qq Z' Γ).
 Proof.
-  intros Γ t; simpl in Γ.
-  exact ((Q _ _ : nat_trans _ _) _ (pr1 (term_to_section t) )).
+  intros Γ Ase; exact Ase. (* ! *)
 Defined.
 
-Lemma term_from_qq_mor_TM_naturality 
-  {Z : qq_structure_precategory} {Z'} (FZ : Z --> Z')
-  {Y : term_fun_precategory} {Y'}
-  (W : iscompatible_term_qq Y Z)
-  (W' : iscompatible_term_qq Y' Z')
-  : is_nat_trans (TM _ : functor _ _) _ (term_from_qq_mor_TM_data FZ W W').
+Lemma tm_from_qq_mor_naturality
+    {Z Z' : qq_structure_precategory} (FZ : Z --> Z')
+  : is_nat_trans (tm_from_qq Z) (tm_from_qq Z') (tm_from_qq_mor_data FZ).
 Proof.
-  simpl in Y, Y'.
-  intros Γ' Γ f; apply funextsec; intros t.
-  (* Part 1: naturality of the section-to-term map back to [Tm Y']. *)
-  etrans. Focus 2. exact (toforallpaths _ _ _ (nat_trans_ax (Q Y' _) _ _ _) _).
-  cbn. simpl in W, W'; unfold iscompatible_term_qq in W, W'.
-  (* We want to apply [W'] on the lhs, so we need to munge the type argument
-  of [Q] to a form with the [f] action outermost.  Naturality will show that
-  the type is equal to such a form; [Q_comp_ext_compare] pushes that type
-  equality through [Q]. *)
-  unfold term_from_qq_mor_TM_data.
-  etrans. 
-    apply @pathsinv0.
-    simple refine (Q_comp_ext_compare _ _); simpl.
-    Focus 2. 
-      exact (toforallpaths _ _ _ (nat_trans_ax (pp Y) _ _ _) _).
-  etrans.
-    exact (toforallpaths _ _ _ (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
-  apply (maponpaths ((Q _ _ : nat_trans _ _ ) Γ)).
-  simpl. unfold yoneda_morphisms_data.
-  (* Part 2: naturality of the transfer along [F]. *)
+  intros Γ Γ' f; cbn in Γ, Γ', f.
+  apply funextsec; intros [A [s e]].
+  use tm_from_qq_eq.
+  - apply idpath.
+  - etrans. apply id_right.
+    cbn. apply PullbackArrowUnique. 
+    + refine (PullbackArrow_PullbackPr1
+                (mk_Pullback _ _ _ _ _ _ (qq_π_Pb _ f A)) _ _ _ _).
+    + cbn; cbn in FZ. etrans. apply maponpaths, @pathsinv0, FZ.
+      apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). 
+Qed.
 
-  etrans. apply @pathsinv0, assoc.
-  etrans. apply maponpaths. apply maponpaths. eapply pathsinv0. use FZ.
-  etrans. apply assoc.
-  (* Part 3: naturality in [Γ] of the term-to-section construction from [Tm Y]. *)
-  apply (Q_pp_Pb_unique Y).
-  + unfold yoneda_morphisms_data. 
-    apply @pathscomp0 with f.
-    * etrans. apply @pathsinv0, assoc.
-      etrans. apply maponpaths, @pathsinv0, qq_π.
-      etrans. apply assoc.
-      etrans. Focus 2. apply id_left.
-      apply cancel_postcomposition.
-      etrans. apply @pathsinv0, assoc.
-      etrans. apply maponpaths, comp_ext_compare_π.
-      exact (pr2 (term_to_section _)).
-    * etrans. apply @pathsinv0, id_right.
-      etrans. Focus 2. apply assoc.
-      apply maponpaths, pathsinv0.
-      exact (pr2 (term_to_section _)).
-  + etrans. Focus 2.
-      exact (toforallpaths _ _ _ (!nat_trans_ax (Q _ _) _ _ _) _).
-    etrans. Focus 2. cbn.
-      apply maponpaths, @pathsinv0, term_to_section_recover.
-    etrans.
-      exact (!toforallpaths _ _ _ (nat_trans_eq_pointwise (W _ _ _ _) _) _).
-    etrans. apply Q_comp_ext_compare.
-    apply term_to_section_recover.
-Time Qed.
+Lemma tm_from_qq_mor_TM {Z Z' : qq_structure_precategory} (FZ : Z --> Z')
+  : nat_trans (tm_from_qq Z) (tm_from_qq Z').
+Proof.
+  exists (tm_from_qq_mor_data FZ).
+  apply tm_from_qq_mor_naturality.
+Defined.
+
+Lemma tm_from_qq_mor_pp {Z Z' : qq_structure_precategory} (FZ : Z --> Z')
+  : (tm_from_qq_mor_TM FZ : preShv C ⟦ _ , _ ⟧) ;; pp_from_qq Z'
+  = pp_from_qq Z.
+Proof.
+  apply nat_trans_eq. apply homset_property.
+  intros Γ. apply idpath.
+Qed.
+
+Lemma tm_from_qq_mor_te {Z Z' : qq_structure_precategory} (FZ : Z --> Z')
+    {Γ} (A : Ty X Γ)
+  : tm_from_qq_mor_TM FZ _ (te_from_qq Z A) = (te_from_qq Z' A).
+Proof.
+  cbn.
+  use tm_from_qq_eq.
+  - apply idpath.
+  - etrans. apply id_right. 
+    cbn. apply PullbackArrowUnique.
+    + cbn. apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
+    + cbn. cbn in FZ. 
+      etrans. apply maponpaths, @pathsinv0, FZ.
+      apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). 
+Qed.
+
+End Rename_me.
 
 Definition term_from_qq_mor_TM 
     {Z : qq_structure_precategory} {Z'} (FZ : Z --> Z')
     {Y : term_fun_precategory} {Y'}
     (W : iscompatible_term_qq Y Z)
     (W' : iscompatible_term_qq Y' Z')
-  : TM (Y : term_fun_structure _ _) --> TM (Y' : term_fun_structure _ _)
-:= (term_from_qq_mor_TM_data _ _ _,, term_from_qq_mor_TM_naturality FZ W W').
+  : TM (Y : term_fun_structure _ _) --> TM (Y' : term_fun_structure _ _).
+Proof.
+  refine ( _ ;; (tm_from_qq_mor_TM FZ : preShv C ⟦ _ , _ ⟧) ;; _).
+  - refine (given_TM_to_canonical _ _ (Y,,W)).
+  - refine (canonical_TM_to_given _ _ (Y',,W')).
+Defined.
 
 Lemma term_from_qq_mor
   {Z : qq_structure_precategory} {Z'} (FZ : Z --> Z')
@@ -475,43 +470,18 @@ Proof.
   simpl in Y, Y'.  (* To avoid needing casts [Y : term_fun_structure _]. *)
   simpl; unfold term_fun_mor.
   exists (term_from_qq_mor_TM FZ W W').
-  apply dirprodpair; try intros Γ A; apply nat_trans_eq; cbn.
-  - apply has_homsets_HSET.
-  - simpl. intros Γ; apply funextsec; intros t.
-    etrans. refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (Q_pp _ _) _) _).
-    simpl. unfold yoneda_morphisms_data; cbn.
-    etrans.
-      refine (toforallpaths _ _ _ _ ((pp Y : nat_trans _ _) Γ t)).
-      apply maponpaths.
-      exact (pr2 (term_to_section _)).
-    exact (toforallpaths _ _ _ (functor_id (TY _) _) _).
-  - apply has_homsets_HSET.
-  - intros Γ'. unfold yoneda_morphisms_data, yoneda_objects_ob; cbn.
-    apply funextsec; intros f.
-
-    unfold term_from_qq_mor_TM_data.
-
-    assert (XR:= @Q_pp _ _ Y _ A).
-    assert (XR' := nat_trans_eq_pointwise XR Γ').
-    assert (XR'':= toforallpaths _ _ _ XR'). unfold homot in XR''.
-    specialize (XR'' f).
-    etrans.
-      (* TODO: consider changing direction of [Q_comp_ext_compare]?*)
-      apply @pathsinv0.         
-         simple refine (Q_comp_ext_compare _ _); simpl.
-         exact (# (TY _ : functor _ _ ) (f ;; π _ ) A).      
-      refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (Q_pp _ _) _) _).
-    cbn.
-    Arguments Δ [_ _ _ _ _ _]. idtac.
-    etrans. exact (toforallpaths _ _ _ (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
-    simpl; unfold yoneda_morphisms_data; cbn.  apply maponpaths.
+  apply dirprodpair; try intros Γ A.
+  - etrans. apply @pathsinv0, assoc.
+    etrans. apply maponpaths, (pp_canonical_TM_to_given _ _ (_,,_)).
     etrans. apply @pathsinv0, assoc.
-    etrans. apply maponpaths.
-      apply @pathsinv0.  apply maponpaths. use FZ.
-    assert (XRT := @map_from_term_recover _ _ _ _ W).
-    rewrite assoc.
-    apply XRT.
-Time Qed.
+    etrans. apply maponpaths, tm_from_qq_mor_pp.
+    apply (pp_given_TM_to_canonical _ _ (_,,_)).
+  - unfold term_from_qq_mor_TM.
+    cbn.
+    etrans. apply maponpaths, (given_TM_to_canonical_te _ _ (_,,W)).
+    etrans. apply maponpaths, (tm_from_qq_mor_te FZ).
+    apply (canonical_TM_to_given_te _ _ (_,,_)).
+Qed.
 
 Lemma term_from_qq_mor_unique 
   {Z : qq_structure_precategory} {Z'} (FZ : Z --> Z')
@@ -623,6 +593,15 @@ Proof.
   use postwhisker_isotoid.
 Qed.
 
+Lemma idtoiso_iso_to_TM_eq 
+  {Y Y' : term_fun_precategory}
+  (FG : iso Y Y')
+: (idtoiso (iso_to_TM_eq _ _ FG) : _ --> _)
+  = term_fun_mor_TM (FG : _ --> _).
+Proof.
+  refine (maponpaths pr1 (idtoiso_isotoid _ _ _ _ _)).
+Qed.
+
 Definition iso_to_id_term_fun_precategory
   (Y Y' : term_fun_precategory)
   : iso Y Y' -> Y = Y'.
@@ -631,15 +610,19 @@ Proof.
   apply subtypeEquality. { intro. apply isaprop_term_fun_structure_axioms. }
   apply total2_paths_f with (iso_to_TM_eq _ _ i).
   rewrite transportf_dirprod.
-  apply dirprodeq; simpl.
+  apply dirprodeq.
   - etrans. apply prewhisker_iso_to_TM_eq.
     apply term_fun_mor_pp. 
   - etrans. refine (transportf_forall _ _ _).
     apply funextsec; intros Γ.
     etrans. refine (transportf_forall _ _ _).
     apply funextsec; intros A.
-    etrans. refine (postwhisker_iso_to_TM_eq i (Q _ _)).
-    apply term_fun_mor_Q.
+    etrans. apply CwF_SplitTypeCat_Equivalence.transportf_pshf.
+    etrans.
+      refine (toforallpaths _ _ _ _ (te _ _)).
+      refine (toforallpaths _ _ _ _ _).
+      apply maponpaths, idtoiso_iso_to_TM_eq.
+    apply term_fun_mor_te.
 Qed.
 
 Lemma has_homsets_term_fun_precategory
@@ -650,7 +633,7 @@ Proof.
   apply homset_property.
   intros. apply isasetaprop, isapropdirprod.
   apply homset_property.
-  repeat (apply impred_isaprop; intro). apply homset_property.
+  repeat (apply impred_isaprop; intro). apply setproperty.
 Qed.
 
 Theorem is_category_term_fun_structure

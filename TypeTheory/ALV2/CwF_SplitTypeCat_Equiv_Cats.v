@@ -214,6 +214,10 @@ Abort.
 
 (* We start by showing that a map of _q_-morphism structures induces a map of term-structures between their canonical term-structures of sections. *)
 
+
+(* TODO: rename and move this section! *)
+Section Rename_me.
+
 (* TODO: naming conventions in this section clash rather with those of [ALV1.CwF_SplitTypeCat_Equivalence]. Consider! *)
 (* TODO: one would expect the type of this to be [nat_trans_data].  However, that name breaks HORRIBLY with general naming conventions: it is not the _type_ of the data (which is un-named for [nat_trans]), but is the _access function_ for that data!  Submit issue for this? *)  
 Lemma tm_from_qq_mor_data {X X' : obj_ext_precat} {F : X --> X'}
@@ -238,13 +242,13 @@ Proof.
   - cbn. exact (toforallpaths _ _ _
                   (nat_trans_ax (obj_ext_mor_TY _) _ _ _) _).
   - cbn. apply PullbackArrowUnique. 
-    * etrans. cbn. apply @pathsinv0, assoc.
+    + etrans. cbn. apply @pathsinv0, assoc.
       etrans. apply maponpaths, comp_ext_compare_π.
       etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, obj_ext_mor_ax.
-      refine (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ (qq_π_Pb _ f A))
-                                          _ _ _ _).
-    * cbn in FZ; cbn.
+      refine (PullbackArrow_PullbackPr1
+                (mk_Pullback _ _ _ _ _ _ (qq_π_Pb _ f A)) _ _ _ _).
+    + cbn in FZ; cbn.
       etrans. apply maponpaths_2, @pathsinv0, assoc.
       etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, @pathsinv0, FZ.
@@ -271,23 +275,6 @@ Proof.
   intros Γ. apply idpath.
 Qed.
 
-(* TODO: upstream to with [tm_from_qq_eq]; and search for uses of that to see where this can be used (should save a good few lines of code). *)
-Lemma tm_from_qq_eq' {X : obj_ext_structure C} (Z : qq_morphism_structure X)
-    {Γ Γ' : C} (f : Γ' --> Γ)
-    (Ase : tm_from_qq Z Γ : hSet) (Ase' : tm_from_qq Z Γ' : hSet)
-    (eA : pr1 Ase' = # (TY X : functor _ _) f (pr1 Ase))
-    (es : pr1 (pr2 Ase') ;; Δ eA ;; qq Z f _ = f ;; pr1 (pr2 Ase))
-  : Ase' = # (tm_from_qq Z : functor _ _) f Ase.
-Proof.
-  use tm_from_qq_eq.
-  - exact eA.
-  - cbn. apply PullbackArrowUnique; cbn.
-    + etrans. apply @pathsinv0, assoc. 
-      etrans. apply maponpaths, comp_ext_compare_π.
-      apply (pr2 (pr2 Ase')).
-    + apply es.
-Qed. (* TODO: why does this take so long? *)
-
 Lemma tm_from_qq_mor_te {X X' : obj_ext_precat} {F : X --> X'}
     {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
     {Γ} (A : Ty X Γ)
@@ -296,7 +283,7 @@ Lemma tm_from_qq_mor_te {X X' : obj_ext_precat} {F : X --> X'}
       (te_from_qq Z' ((obj_ext_mor_TY F : nat_trans _ _) _ A)).
 Proof.
   cbn.
-  use tm_from_qq_eq'.
+  use tm_from_qq_eq_reindex.
   - cbn.
   (* Putting these equalities under [abstract] shaves a couple of seconds off the overall Qed time, but makes the proof script rather less readable. *) 
     etrans. Focus 2. exact (toforallpaths _ _ _ (functor_comp (TY _) _ _) _).
@@ -339,6 +326,8 @@ Proof.
         apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
       apply id_left.
 Time Qed.
+
+End Rename_me.
 
 Definition term_from_qq_mor_TM {X X' : obj_ext_precat} {F : X --> X'}
     {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
