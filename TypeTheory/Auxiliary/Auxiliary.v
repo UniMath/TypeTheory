@@ -1502,14 +1502,14 @@ Lemma isPullback_preShv_to_pointwise {C : precategory} (hsC : has_homsets C)
       (square_commutes_preShv_to_pointwise hsC e c).
 Proof.
   set (XR := @isLimFunctor_is_pointwise_Lim C^op HSET has_homsets_HSET
-            pushout_graph).
+            pullback_graph).
   set (XT1 := pullback_diagram _ f g).
   specialize (XR XT1).
   transparent assert
        (XH : (∏ a : C^op,
         LimCone
           (@colimits.diagram_pointwise C^op HSET has_homsets_HSET
-             pushout_graph XT1 a))).
+             pullback_graph XT1 a))).
     { intro. apply LimConeHSET.  }
     specialize (XR XH).
     specialize (XR W). 
@@ -1527,7 +1527,7 @@ Proof.
     transparent assert (
         HC :  (cone
               (@colimits.diagram_pointwise C^op HSET has_homsets_HSET
-                                               pushout_graph (pullback_diagram (preShv C) f g) c) S)).
+                                               pullback_graph (pullback_diagram (preShv C) f g) c) S)).
     { use mk_cone.
       apply three_rec_dep; cbn.
       - apply h.
