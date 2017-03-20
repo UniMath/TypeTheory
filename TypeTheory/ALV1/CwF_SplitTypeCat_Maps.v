@@ -33,9 +33,11 @@ We define _compatibility_ between a term-structure and a _q_-morphism structure,
 
 Section Compatible_Structures.
 
-Definition iscompatible_term_qq (Y : term_fun_structure C X)
-         (Z : qq_morphism_structure X) : UU
-  := ∏ Γ Γ' A (f : C⟦Γ', Γ⟧),
+Definition iscompatible_term_qq
+    (Y : term_fun_structure C X)
+    (Z : qq_morphism_structure X)
+  : UU
+:= ∏ Γ Γ' A (f : C⟦Γ', Γ⟧),
      te Y A[f] = # (TM _ : functor _ _) (qq Z f A) (te Y A).
 
 Lemma isaprop_iscompatible_term_qq
@@ -47,33 +49,49 @@ Proof.
   apply setproperty.
 Qed.
 
-Definition compatible_term_structure (Z : qq_morphism_structure X) : UU
-  := ∑ Y : term_fun_structure _ X, iscompatible_term_qq Y Z.
+Definition compatible_term_structure (Z : qq_morphism_structure X)
+  : UU
+:= ∑ Y : term_fun_structure _ X, iscompatible_term_qq Y Z.
 
 Coercion term_structure_of_compatible {Z : qq_morphism_structure X}
   : compatible_term_structure Z -> term_fun_structure _ X
 := pr1.
 
-Definition compatible_qq_morphism_structure (Y : term_fun_structure _ X) : UU
-  := ∑ Z : qq_morphism_structure X, iscompatible_term_qq Y Z.
+Definition compatible_qq_morphism_structure (Y : term_fun_structure _ X)
+  : UU
+:= ∑ Z : qq_morphism_structure X, iscompatible_term_qq Y Z.
 
 Coercion qq_morphism_structure_of_compatible {Y : term_fun_structure _ X}
   : compatible_qq_morphism_structure Y -> qq_morphism_structure X
 := pr1.
 
-(* TODO: consider switching this to main definition. *)
 Definition iscompatible'_term_qq
     (Y : term_fun_structure C X)
-    (Z : qq_morphism_structure X) : UU
-  := ∏ Γ Γ' A (f : C⟦Γ', Γ⟧) , Q Y A[f] = #Yo (qq Z f A) ;; Q Y A.
+    (Z : qq_morphism_structure X)
+  : UU
+:= ∏ Γ Γ' A (f : C⟦Γ', Γ⟧) , Q Y A[f] = #Yo (qq Z f A) ;; Q Y A.
 
+(* TODO: try to eliminate older [iscompatible'] entirely, and remove both it and this lemma.  *)
 Definition iscompatible_iscompatible'
     (Y : term_fun_structure C X)
     (Z : qq_morphism_structure X)
   : iscompatible_term_qq Y Z
   <-> iscompatible'_term_qq Y Z.
-Admitted.
-(* TODO: either fix this admit, or drop older [iscompatible] entirely. *)
+Proof.
+  unfold iscompatible_term_qq, iscompatible'_term_qq.
+  split; intros H Γ Γ' A f; specialize (H Γ Γ' A f).
+  - apply nat_trans_eq. { apply homset_property. }
+    intros Γ''. cbn. unfold yoneda_objects_ob, yoneda_morphisms_data.
+    apply funextsec; intros g.
+    etrans. apply maponpaths, H.
+    refine (toforallpaths _ _ _ (!functor_comp (TM Y) _ _) _).
+  - assert (H' := nat_trans_eq_pointwise H); clear H.
+    assert (H'' := toforallpaths _ _ _ (H' _) (identity _)); clear H'.
+    cbn in H''; unfold yoneda_morphisms_data in H''.
+    refine (_ @ H'' @ _).
+    + refine (toforallpaths _ _ _ (!functor_id (TM Y) _) _).
+    + apply maponpaths_2, id_left.
+Qed.
 
 End Compatible_Structures.
 

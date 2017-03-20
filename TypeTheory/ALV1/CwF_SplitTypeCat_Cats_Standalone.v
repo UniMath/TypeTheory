@@ -576,7 +576,7 @@ Lemma prewhisker_iso_to_TM_eq
   (FG : iso Y Y')
   {P : preShv C} (α : TM (Y : term_fun_structure _ X) --> P)
 : transportf (λ P' : preShv C, P' --> P) (iso_to_TM_eq  _ _ FG) α
-  = term_fun_mor_TM (*pr1 (pr2 FG)*) (inv_from_iso FG) ;; α.
+  = term_fun_mor_TM (inv_from_iso FG) ;; α.
 Proof.
   etrans. apply transportf_isotoid.
   apply maponpaths_2.
