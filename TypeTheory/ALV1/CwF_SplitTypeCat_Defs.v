@@ -398,38 +398,39 @@ Arguments qq_morphism_structure [_] _ .
 
 (** * CwF’s, split type-categories *)
 
-(** Details and documentation of these definitions are given with [term_fun_structure] and [qq_morphism_structure] above. *)
+(** Here, we assemble the components above (object-extension structures, term-structures, and _q_-morphism structures) into versions of the definitions of CwF’s and split type-categories.  These are reassociated compared to the canonical definitions; equivalences with those should be provided elsewhere in the library. *)
+(* TODO: give those equivalences here, once they exist. *)
 
-Definition cwf_structure (C : Precategory) : UU 
+Definition cwf'_structure (C : Precategory) : UU 
 := ∑ X : obj_ext_structure C, term_fun_structure C X.
 
-Coercion obj_ext_structure_of_cwf_structure {C : Precategory}
-:= pr1 : cwf_structure C -> obj_ext_structure C.
+Coercion obj_ext_structure_of_cwf'_structure {C : Precategory}
+:= pr1 : cwf'_structure C -> obj_ext_structure C.
 
-Coercion term_fun_structure_of_cwf_structure {C : Precategory}
-:= pr2 : forall XY : cwf_structure C, term_fun_structure C XY.
+Coercion term_fun_structure_of_cwf'_structure {C : Precategory}
+:= pr2 : forall XY : cwf'_structure C, term_fun_structure C XY.
 
-Definition cwf : UU
-:= ∑ C : Precategory, cwf_structure C.
+Definition cwf' : UU
+:= ∑ C : Precategory, cwf'_structure C.
 
-Coercion precategory_of_cwf := pr1 : cwf -> Precategory.
+Coercion precategory_of_cwf' := pr1 : cwf' -> Precategory.
 
-Coercion cwf_structure_of_cwf := pr2 : forall C : cwf, cwf_structure C.
+Coercion cwf'_structure_of_cwf' := pr2 : forall C : cwf', cwf'_structure C.
 
-Definition split_typecat_structure (C : Precategory) : UU 
+Definition split_typecat'_structure (C : Precategory) : UU 
 := ∑ X : obj_ext_structure C, qq_morphism_structure X.
 
-Coercion obj_ext_structure_of_split_typecat_structure {C : Precategory}
-:= pr1 : split_typecat_structure C -> obj_ext_structure C.
+Coercion obj_ext_structure_of_split_typecat'_structure {C : Precategory}
+:= pr1 : split_typecat'_structure C -> obj_ext_structure C.
 
-Coercion qq_morphism_structure_of_split_typecat_structure {C : Precategory}
-:= pr2 : forall XY : split_typecat_structure C, qq_morphism_structure XY.
+Coercion qq_morphism_structure_of_split_typecat'_structure {C : Precategory}
+:= pr2 : forall XY : split_typecat'_structure C, qq_morphism_structure XY.
 
-Definition split_typecat : UU
-  := ∑ C : Precategory, split_typecat_structure C.
+Definition split_typecat' : UU
+  := ∑ C : Precategory, split_typecat'_structure C.
 
-Coercion precategory_of_split_typecat
-:= pr1 : split_typecat -> Precategory.
+Coercion precategory_of_split_typecat'
+:= pr1 : split_typecat' -> Precategory.
 
-Coercion split_typecat_structure_of_split_typecat
-:= pr2 : forall C : split_typecat, split_typecat_structure C.
+Coercion split_typecat'_structure_of_split_typecat'
+:= pr2 : forall C : split_typecat', split_typecat'_structure C.

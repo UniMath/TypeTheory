@@ -7,9 +7,9 @@
 (**
 Contents:
 
-- Main result: an equivalence [weq_RelUnivYo_CwF]
-  between CwF-structures on a precategory [C]
-  and relative universes for [ Yo : C -> preShv C ].
+- Main result: an equivalence [weq_cwf_cwf']
+  between the canonical definition of CwF-structures on a precategory [C] 
+  and the regrouped definition based on object-extension structures.
 *)
 
 Require Import UniMath.Foundations.Sets.
@@ -17,7 +17,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
-Require Import TypeTheory.ALV1.RelativeUniverses.
+Require Import TypeTheory.ALV1.CwF_def.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 
 Set Automatic Introduction.
@@ -26,36 +26,27 @@ Section Fix_Category.
 
 Variable C : Precategory.
 
-(** a [RelUnivYo] on [C] is a [relative_universe] on [Yo : C -> preShv C], i.e.
-    - a morphism of presheaves [pp : Tm -> Ty]
-    - relative comprehension on pp, i.e. for any [X : C] and [f : Yo X -> Ty],
-       - an object [ f^*X : C ]
-       - a dependent projection [ f^*X -> X in C ]
-       - a morphism of presheaves  [ yo f^*X -> Tm ]
-       - such that the square commutes and is a pullback.
-*)
-
-Definition RelUnivYo : UU
-  := @relative_universe C _ Yo.
-
-(** a [cwf_structure] on [C] is
-    - a triple (Ty, (◂ + π)) (the object-extension structure)
-    - a triple (Tm, pp, Q) where
-      - Tm is a presheaf,
-      - pp is a morphism of presheaves Tm -> Ty
-      - Q is a family, for any Γ : C and A : Ty(Γ),
-          Q(A) : yo(Γ◂A) -> Tm
-    - such that squares commute and are pbs
+(** 
+  A [cwf'_structure] on [C] is
+  - a triple (Ty, (◂ + π)) (the object-extension structure)
+  - a triple (Tm, pp, Q) where
+    - Tm is a presheaf,
+    - pp is a morphism of presheaves Tm -> Ty
+    - te is a term, for any Γ : C and A : Ty(Γ),
+        te A : Tm (Γ◂A)
+  - such (te A) has the desired type, and square are pbs
 
   Parentheses are
-   ( (Ty, ◂, π), ( (Tm,(pp,Q)), props) )
+    ( (Ty, (◂ + π)), ( (Tm,(pp,Q)), props) )
 
-*)
+  Meanwhile, as [cwf_structure] on [C] consists of a morphism of presheaves together with a _representation_, which we will inspect in more detail below.
+
+**) 
 
 (** ** Outline of the equivalence:
 
-  We start by reordering the components of [cwf_structure],
-  so that like [RelUnivYo], the morphism of presheaves comes first:
+  We start by reordering the components of [cwf'_structure],
+  so that like [cwf_structure], the morphism of presheaves comes first:
    ( (Ty, Tm, pp), ( ((◂ + π) , Q), props ) )
 
    - the type of triples (Ty,Tm,pp) is just [mor_total (preShv C)];
