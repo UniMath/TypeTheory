@@ -314,6 +314,7 @@ Proof.
 Defined.
 
 
+
 Definition isweq_left_adj_equivalence_on_mor_total {C D : precategory} (F : functor C D) 
            (isC : is_category C) (isD : is_category D)
            (H : adj_equivalence_of_precats F) 
@@ -425,6 +426,29 @@ Proof.
       apply (nat_trans_inv_pointwise_inv_before _ _ (pr2 isD)  _ _ (pr1 eps)).
       apply id_left.
 Defined.
+
+(** ** Fully faithful on isos *)
+
+Definition ff_on_isos {C D : precategory} (F : functor C D) : UU
+  := ∏ c c', isweq (@functor_on_iso _ _ F c c').
+
+Lemma fully_faithful_impl_ff_on_isos {C D : precategory} (F : functor C D) 
+      : fully_faithful F -> ff_on_isos F.
+Proof.
+  intros Fff c c'.
+  use gradth.
+  - intro XR. exists (invmap (weqpair _ (Fff _ _ )) XR). cbn.
+    apply (ff_reflects_is_iso _ _ _ Fff).
+    assert (XT := homotweqinvweq (weqpair _ (Fff c c' ))).
+    cbn in *.
+    apply (transportb (λ i : _ --> _, is_iso i) (XT (pr1 XR) )).
+    apply XR.
+  - cbn. intro i. apply eq_iso. cbn.
+    apply (homotinvweqweq (weqpair _ (Fff _ _ ))).
+  - cbn. intro i. apply eq_iso. cbn.
+    apply (homotweqinvweq (weqpair _ (Fff _ _ ))).
+Defined.
+
 
 (** ** Equivalences of categories *)
 (** Specifically: the composition of (adjoint) equivalences of precats. *)
