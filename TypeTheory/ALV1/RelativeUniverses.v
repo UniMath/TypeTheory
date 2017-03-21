@@ -467,10 +467,11 @@ Definition αpwiso X : iso (S (J X)) (J' (R X))
 
 Definition isweq_is_universe_transfer 
            (R_full : full R) 
-           (S_ff : fully_faithful S) (* we need that S reflects pullbacks and 
-                                        that S is full *)           
+           (S_faithful : faithful S)
   : isweq is_universe_transfer.
 Proof.
+  Search (fully_faithful).
+  set (S_ff := full_and_faithful_implies_fully_faithful _ _ S (S_full,,S_faithful)).
   use (gradth _ _ _ _ ).
   - intro H.
     intros X f.
@@ -497,7 +498,7 @@ Proof.
     + apply Xf.
     + exact ip'.
     + set (hi := (α : nat_trans _ _ ) Xf). cbn in hi.
-      set (XR := hi ;; functor_on_iso J' i ;; q').
+      set (XR := hi ;; functor_on_iso J' i ;; q'). 
       exact (invmap (weq_from_fully_faithful S_ff _ _ ) XR).
     + cbn. apply (invmaponpathsweq (weq_from_fully_faithful S_ff _ _ )).
       cbn. apply pathsinv0.
@@ -591,7 +592,7 @@ Definition isweq_mere_universe_transfer
            (T : functor D' D)
            (eta : iso (C:=[D, D, pr2 D]) (functor_identity D) (S ∙ T))
            (eps : iso (C:=[D', D', pr2 D']) (T ∙ S) (functor_identity D'))
-           (S_ff : fully_faithful S) (* redundant, but that lemma is still missing *)
+           (S_faithful : faithful S) 
   : isweq mere_universe_transfer.
 Proof.
   apply isweqbandfmap_var.
@@ -604,7 +605,7 @@ Proof.
   - intro pp.
     apply isweq_is_universe_transfer.
     + apply R_full.
-    + apply S_ff.
+    + apply S_faithful.
 Defined.
 
 Definition weq_mere_universe_transfer
