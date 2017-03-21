@@ -470,7 +470,6 @@ Definition isweq_is_universe_transfer
            (S_faithful : faithful S)
   : isweq is_universe_transfer.
 Proof.
-  Search (fully_faithful).
   set (S_ff := full_and_faithful_implies_fully_faithful _ _ S (S_full,,S_faithful)).
   use (gradth _ _ _ _ ).
   - intro H.
