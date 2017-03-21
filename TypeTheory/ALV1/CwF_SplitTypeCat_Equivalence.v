@@ -12,7 +12,6 @@ Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
 
-(* TODO: much cleanup needed.  In particular: update terminolog conen, e.g. [qq_] etc.! *)
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
@@ -34,165 +33,109 @@ Section compatible_structures.
 
 Section canonical_TM.
 
-(* TODO: there is a lot of redundancy between the lemmas of this section and [term_to_section] and companions. *)
-
 Variable Z : qq_morphism_structure X.
 Notation ZZ := (pr2 Z).
 Variable Y : compatible_term_structure Z.
 
 Definition canonical_TM_to_given_data
-  : ∏ Γ, (tm_from_qq Z Γ) --> (Tm (pr1 Y) Γ)
-:= (λ (Γ : C^op) (t : tm_from_qq_carrier Γ),
-       (yoneda_weq C (homset_property _) Γ (TM (pr1 Y)))
-         (# Yo (pr1 (pr2 t)) ;; Q (pr1 Y) (pr1 t))).
+  {Γ} (Ase : tm_from_qq Z Γ : hSet) : (Tm Y Γ).
+Proof.
+  refine (# (TM _ : functor _ _) _ (te _ (pr1 Ase))). 
+  exact (pr1 (pr2 Ase)).
+Defined.
 
 Lemma is_nat_trans_canonical_TM_to_given 
- : is_nat_trans (tm_from_qq Z) (TM (pr1 Y) : functor _ _ )
-     canonical_TM_to_given_data.
+ : is_nat_trans (tm_from_qq Z) (TM Y : functor _ _ )
+     (@canonical_TM_to_given_data).
 Proof.
   intros Γ Γ' f.
-  cbn; unfold yoneda_morphisms_data; unfold yoneda_objects_ob.
-  apply funextsec. intro t. cbn.
-  destruct t as [A [s e]].
-  (* now use naturality of (yoneda_weq) on the right-hand side *)
-  assert (XR := nat_trans_ax (natural_trans_yoneda_iso _ (homset_property _) (TM (pr1 Y))) _ _ f). 
-  assert (XR1 := toforallpaths _ _ _ XR); cbn in XR1.
-  set (XX := # Yo s ;; Q (pr1 Y) _ ). 
-  assert (XR2 := XR1 XX).
-  cbn in XR2; unfold yoneda_morphisms_data in XR2.
-  etrans. Focus 2. apply XR2. clear XR2 XR1 XX XR.
-  (* now use compatibility of [Q (Y)] with [qq] *)
-  assert (XT :=  nat_trans_eq_pointwise (pr2 Y _ _ A f)).
-  cbn in XT. unfold yoneda_morphisms_data, yoneda_objects_ob in XT.
-  assert (XT1 := toforallpaths _ _ _ (XT Γ')).
-  etrans. apply XT1.
-  etrans. cbn. apply idpath.
-  apply maponpaths.
-  etrans. apply cancel_postcomposition, id_left.
-  etrans. apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
-  apply cancel_postcomposition, pathsinv0, id_left.
-Time Qed.
+  apply funextsec; intros [A [s e]].
+  unfold canonical_TM_to_given_data; cbn.
+  etrans. apply maponpaths, (pr2 Y).
+  etrans. apply (toforallpaths _ _ _ (!functor_comp (TM Y) _ _ ) _).
+  etrans. Focus 2. apply (toforallpaths _ _ _ (functor_comp (TM Y) _ _ ) _).
+  apply maponpaths_2. 
+  apply (@PullbackArrow_PullbackPr2 C _ _ _ _ _ (mk_Pullback _ _ _ _ _ _ _)).
+Qed.
 
 Definition canonical_TM_to_given : (preShv C) ⟦tm_from_qq Z, TM (pr1 Y)⟧.
 Proof.
-  exists canonical_TM_to_given_data.
+  exists @canonical_TM_to_given_data.
   apply is_nat_trans_canonical_TM_to_given.
 Defined.
 
-Definition given_TM_to_canonical
+(* Naturality of this direction is a bit subtle; we will deduce it below from the fact that it is pointwise inverse to [canonical_TM_to_given]. *)
+Definition given_TM_to_canonical_data
   : ∏ Γ, HSET ⟦ Tm (pr1 Y) Γ, tm_from_qq Z Γ⟧.
 Proof.
-  intro Γ. simpl.
-  intro s'. set (S' := @yy _ (homset_property _) _ _ s').
-  set (ps := (pp (pr1 Y) : nat_trans _ _ )  _ s').
-  assert (XR : S' ;; pp (pr1 Y) = yy ( (pp (pr1 Y) : nat_trans _ _ ) _ s')).
-  { 
-    abstract (
-    apply nat_trans_eq; [ apply has_homsets_HSET | ];
-    intro Γ' ;
-    apply funextsec;
-    intro g; simpl; cbn;
-    assert (XR := nat_trans_ax (pp (pr1 Y)) _ _ g);
-    apply (toforallpaths _ _ _ XR)
-     ) .
-  } 
-    exists ps.
-    set (Pb := pr2 (pr1 Y) Γ ps). 
-    set (T:= section_from_diagonal (pr1 Pb) (pr2 Pb) (S',,XR) ).
-    mkpair.
-    + apply Yo^-1.
-      exact (pr1 T).
-    + abstract (
-          apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ )));
-          etrans ; [ apply functor_comp |];
-          etrans ; [ apply cancel_postcomposition ;
-                     apply (homotweqinvweq (weqpair _
-                            (yoneda_fully_faithful _ (homset_property _) Γ (comp_ext X Γ ps) ))) | ];
-          simpl;
-          match goal with |[ |- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] => 
-                       set (XR3:=HH) end;
-          rewrite (PullbackArrow_PullbackPr1 XR3);
-          apply pathsinv0; refine (functor_id Yo _)
-        ).
-Time Defined.
+  intros Γ t.
+  exists ((pp (pr1 Y) : nat_trans _ _ )  _ t).
+  apply term_to_section.
+Defined. 
 
 Lemma given_to_canonical_to_given Γ
-  : given_TM_to_canonical Γ ;; (canonical_TM_to_given : nat_trans _ _) Γ
+  : given_TM_to_canonical_data Γ ;; (canonical_TM_to_given : nat_trans _ _) Γ
   = identity _ .
 Proof.
-  apply funextsec; intro s.
-  cbn; unfold yoneda_morphisms_data.
-  rewrite id_left.
-  unfold yoneda_map_1.
-  match goal with |[|- _ ( ((_ (_ ?HH _ _ _ _ ) )) _  _ )  = _ ] => set (XR:= HH) end.
-  assert (XR1 := PullbackArrow_PullbackPr2 XR).
-  match goal with |[|- _ ( ((_ (_ ?HH ?E ?H ?K _ ) )) _  _ )  = _ ] => specialize (XR1 E H K)  end.
-  match goal with |[|- _ ( ((_ (_ _ _ _ _ ?HH ) )) _  _ )  = _ ] => specialize (XR1 HH)  end.
-  assert (XR2 := nat_trans_eq_pointwise XR1).
-  assert (XR3 := toforallpaths _ _ _ (XR2 Γ)).
-  simpl in XR3.
-  etrans. apply XR3.
-  apply (toforallpaths _ _ _ (functor_id (TM (pr1 Y)) _ )).
-Time Qed.
+  apply funextsec; intro t.
+  cbn. unfold canonical_TM_to_given_data, given_TM_to_canonical_data.
+  apply term_to_section_recover.
+Qed.
+
+Lemma pp_canonical_TM_to_given
+  : canonical_TM_to_given ;; pp Y
+    = pp_from_qq Z.
+Proof.
+  apply nat_trans_eq. apply homset_property.
+  intros Γ; simpl in Γ. apply funextsec; intros [A [s e]].
+  cbn. unfold canonical_TM_to_given_data.
+  etrans. apply (toforallpaths _ _ _ (nat_trans_ax (pp Y) _ _ s)). 
+  etrans. cbn. apply maponpaths, pp_te.
+  etrans. apply (toforallpaths _ _ _ (!functor_comp (TY X) _ _) _).
+  etrans. apply maponpaths_2, e.
+  apply (toforallpaths _ _ _ (functor_id (TY X) _ ) _).
+Qed.
+
+(* Functions between sets [f : X <--> Y : g] are inverse iff they are _adjoint_, in that [ f x = y <-> x = f y ] for all x, y.
+
+Here we give one direction of that “adjunction”; combined with [given_to_canonical_to_given] above, it implies full inverseness. *) 
+Lemma canonical_TM_to_given_paths_adjoint {Γ:C} Ase t
+  : (canonical_TM_to_given : nat_trans _ _) Γ Ase = t
+  -> Ase = given_TM_to_canonical_data Γ t.
+Proof.
+  destruct Ase as [A [s e]].
+  intros H.
+  (* This [assert] is to enable the [destruct eA] below. *)
+  assert (eA : (pp Y : nat_trans _ _) _ t = A). {
+    etrans. apply maponpaths, (!H).
+    refine (toforallpaths _ _ _ 
+      (nat_trans_eq_pointwise pp_canonical_TM_to_given _)
+      _).
+  }
+  use total2_paths_f.
+  exact (!eA).
+  cbn. destruct eA; cbn. unfold idfun.
+  apply subtypeEquality. { intros x; apply homset_property. }
+  set (temp := proofirrelevance _ (isapropifcontr (term_to_section_aux t))).
+  refine (maponpaths pr1 (temp (_,,_) (_,,_))).
+  - cbn; split.
+    + exact e.
+    + exact H.
+Qed.
 
 Lemma canonical_to_given_to_canonical Γ
-  : (canonical_TM_to_given : nat_trans _ _ )  Γ ;; given_TM_to_canonical Γ = identity _ .
+  : (canonical_TM_to_given : nat_trans _ _ )  Γ
+    ;; given_TM_to_canonical_data Γ
+  = identity _ .
 Proof.
   apply funextsec; intro t.
-  destruct t as [A [s e]].
-  use tm_from_qq_eq.
-  - cbn; unfold yoneda_morphisms_data.  
-    etrans. apply maponpaths, maponpaths, id_left.
-    assert (XR := ! Q_pp (pr1 Y) A).
-    assert (XR1 := nat_trans_eq_pointwise XR Γ).
-    assert (XR2 := toforallpaths _ _ _ XR1 s).
-    cbn in XR2; unfold yoneda_morphisms_data in XR2.
-    etrans. apply XR2.
-    clear XR2 XR1 XR.
-    etrans. apply (maponpaths (fun k => A[k]) e).
-    apply (toforallpaths _ _ _ (functor_id (TY X) _ ) _).
-  (* TODO: the second half could possibly be simplified by
-  [Q_pp_Pb_unique]. *)
-  - apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
-    etrans. apply (functor_comp Yo).
-    etrans. apply cancel_postcomposition.
-            apply (homotweqinvweq
-               (weqpair _ (yoneda_fully_faithful _  (homset_property C) _ _ ))).
-    etrans. Focus 2. simpl. apply idpath.
-    etrans. apply cancel_postcomposition. cbn. apply idpath.
-    Time match goal with |[|- PullbackArrow ?HH _ _ _ ?PP ;; _ = _ ] =>
-            set (XR:= HH); generalize PP end.
-    intro ee.
-    use (MorphismsIntoPullbackEqual (isPullback_Q_pp (pr1 Y) _ )).
-    + etrans. apply (!assoc _ _ _ ).
-      etrans. apply maponpaths. apply (!functor_comp _ _ _ ).
-      etrans. apply maponpaths. apply maponpaths.
-              apply comp_ext_compare_π.
-      etrans. apply (PullbackArrow_PullbackPr1 XR).
-      etrans. Focus 2. refine (functor_comp Yo _ _).
-      etrans. Focus 2. apply maponpaths. apply (!e).
-      apply pathsinv0. refine (functor_id Yo _).
-    + etrans. apply (!assoc _ _ _ ).
-      etrans. apply maponpaths.
-              apply comp_ext_compare_Q.
-      etrans. apply (PullbackArrow_PullbackPr2 XR).
-      simpl; clear XR ee.
-      unfold yoneda_morphisms. unfold yoneda_morphisms_data.
-      apply nat_trans_eq. 
-      * apply (has_homsets_HSET).
-      * intro Γ'.
-        apply funextsec; intro s'.
-        cbn. simpl.
-        rewrite id_left.
-        assert (XR := nat_trans_ax (Q (pr1 Y) A) _ _ s').
-        assert (XR1 := toforallpaths _ _ _ XR).
-        apply pathsinv0, XR1.
-Time Qed.
+  apply pathsinv0, canonical_TM_to_given_paths_adjoint, idpath.
+Qed.
 
 Lemma canonical_TM_to_given_pointwise_iso Γ
   : is_iso ((canonical_TM_to_given : nat_trans _ _) Γ).
 Proof.
-  apply (is_iso_qinv _ (given_TM_to_canonical Γ) ).
+  apply (is_iso_qinv _ (given_TM_to_canonical_data Γ) ).
   split.
   - apply canonical_to_given_to_canonical.
   - apply given_to_canonical_to_given.
@@ -206,19 +149,83 @@ Proof.
   apply canonical_TM_to_given_pointwise_iso.
 Defined.
 
+Definition given_TM_to_canonical_naturality
+  : is_nat_trans (TM Y : functor _ _) (tm_from_qq Z) 
+      (@given_TM_to_canonical_data).
+Proof.
+  refine (is_nat_trans_inv_from_pointwise_inv_ext _
+           canonical_TM_to_given_pointwise_iso).
+  apply homset_property.
+Qed.
+(* TODO: perhaps reorganisae the above a little?  Under the current definitions, [iso_inv_from_iso canonical_TM_to_given_iso] is *not* definitionally equal to [given_TM_to_canonical], which is a little annoying downstream (lemmas about [given_TM_to_canonical] can’t be applied). *)  
+
+Definition given_TM_to_canonical
+  : (TM Y) --> (tm_from_qq Z)
+:= (_ ,, given_TM_to_canonical_naturality).
+
+Lemma pp_given_TM_to_canonical
+  : given_TM_to_canonical ;; pp_from_qq Z
+    = pp Y.
+Proof.
+  apply nat_trans_eq. apply homset_property.
+  intros Γ; apply idpath.
+Qed.
+
+(* TODO: re-state [given_to_canonical_to_given] and [canonical_to_given_to_canonical] as composites of natural transformations? *)
+
+Lemma canonical_TM_to_given_te {Γ:C} A
+  : (canonical_TM_to_given : nat_trans _ _) (Γ ◂ A) (te_from_qq Z A) = te Y A.
+Proof.
+  cbn. unfold canonical_TM_to_given_data. cbn.
+  etrans. apply maponpaths, (pr2 Y).
+  etrans. refine (toforallpaths _ _ _ (!functor_comp (TM Y) _ _ ) _).
+  etrans. apply maponpaths_2; cbn.
+    apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). 
+  apply (toforallpaths _ _ _ (functor_id (TM Y) _) _).
+Qed.
+
+Lemma given_TM_to_canonical_te {Γ:C} A
+  : (given_TM_to_canonical : nat_trans _ _) (Γ ◂ A) (te Y A) = (te_from_qq Z A).
+Proof.
+  etrans. Focus 2. exact (toforallpaths _ _ _ (canonical_to_given_to_canonical _) _).
+  cbn. apply maponpaths, @pathsinv0, canonical_TM_to_given_te.
+Qed.
+
 End canonical_TM.
 
-Lemma unique (Z : qq_morphism_data X)
-             (ZZ : qq_morphism_axioms Z)
-             (Y : compatible_term_structure (Z,,ZZ))
-  : compatible_term_from_qq (Z,,ZZ) = Y.
+(* TODO: upstream this and the following lemma? *)
+Lemma transportf_pshf
+    {P P' : preShv C} (e : P = P')
+    {c : C} (x : (P : functor _ _) c : hSet)
+  : transportf (fun Q : preShv C => (Q : functor _ _) c : hSet) e x
+  = ((idtoiso e : _ --> _) : nat_trans _ _) c x.
 Proof.
+  destruct e; apply idpath.
+Qed.
+
+Lemma transportf_isotoid_pshf
+    {P P' : preShv C} (i : iso P P')
+    {c : C} (x : (P : functor _ _) c : hSet)
+  : transportf (fun Q : preShv C => (Q : functor _ _) c : hSet)
+      (isotoid _ (category_is_category (preShv C)) i) x
+  = ((i : _ --> _) : nat_trans _ _) c x.
+Proof.
+  etrans. apply transportf_pshf.
+  refine (toforallpaths _ _ _ _ x).
+  refine (toforallpaths _ _ _ _ c).
+  apply maponpaths, maponpaths, idtoiso_isotoid.
+Qed.
+
+Lemma compatible_term_structure_equals_canonical
+  {Z : qq_morphism_structure X} (Y : compatible_term_structure Z)
+  : Y = compatible_term_from_qq Z.
+Proof.
+  apply @pathsinv0.
   set (i := isotoid _
                    (category_is_category _)
-                   (canonical_TM_to_given_iso (Z,,ZZ) Y)).
+                   (canonical_TM_to_given_iso Z Y)).
   apply subtypeEquality.
-  { intro. do 4 (apply impred; intro).
-    apply homset_property. }
+  { intro. apply isaprop_iscompatible_term_qq. } 
   destruct Y as [Y YH]. simpl.
   apply subtypeEquality.
   { intro. apply isaprop_term_fun_structure_axioms. }
@@ -227,100 +234,83 @@ Proof.
   use total2_paths_f.
   - apply i.
   - rewrite transportf_dirprod.
-    destruct Y as [tm [p Q]]; simpl.
+    destruct Y as [tm [p te]]; simpl.
     apply dirprodeq; simpl.
     + etrans. eapply pathsinv0.
         apply  (idtoiso_precompose (preShv C)).
       unfold i.
       rewrite idtoiso_inv.
       rewrite idtoiso_isotoid.
+      unfold canonical_TM_to_given_iso. 
       apply nat_trans_eq. 
       * apply has_homsets_HSET.
       * intro Γ. apply idpath.
-    + assert (XR := 
-          (idtoiso_transportf_family_of_morphisms (preShv C))).
-      specialize (XR C (λ B, (TY X : functor _ _ ) B : hSet)).
-      specialize (XR (λ Γ' B, (yoneda C (homset_property _) (Γ' ◂ B)))).
-      etrans. apply XR.
-      clear XR.
+    + etrans. use transportf_forall.
       apply funextsec; intro Γ.
+      etrans. use transportf_forall.
       apply funextsec; intro A.
-      unfold i. rewrite idtoiso_isotoid.
-      apply nat_trans_eq. { apply has_homsets_HSET. }
-      intro Γ'. simpl. cbn.
-      apply funextsec;  intro s.
-      unfold yoneda_morphisms_data.
-      rewrite id_left.
-      clear i.
-      specialize (YH Γ Γ' A (s ;; π _ )). simpl in YH.
-      assert (XR := nat_trans_eq_pointwise YH Γ').
-      assert (XR2 := toforallpaths _ _ _ XR).
-      cbn in XR2.
-      etrans. apply XR2.
-      clear XR2 XR YH.
-      apply maponpaths.
-      unfold yoneda_morphisms_data.
-      match goal with |[|- PullbackArrow ?HH _ _ _ _ ;; _ = _ ] =>
-            apply (PullbackArrow_PullbackPr2 HH) end.
+      etrans. apply transportf_isotoid_pshf.
+      cbn. unfold canonical_TM_to_given_data. cbn.
+      etrans. apply maponpaths, YH.
+      etrans. refine (toforallpaths _ _ _ (!functor_comp tm _ _ ) _).
+      etrans. apply maponpaths_2; cbn.
+        apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). 
+      apply (toforallpaths _ _ _ (functor_id tm _) _).
 Defined.
 
 
-
-(* needs splitness? *)
-Lemma iscontr_compatible_term_structure (Z : qq_morphism_data X) (ZZ : qq_morphism_axioms Z)
-: iscontr (compatible_term_structure (Z,,ZZ)).
+(* Does this really rely on splitness of the term structure? *)
+Lemma iscontr_compatible_term_structure (Z : qq_morphism_structure X)
+: iscontr (compatible_term_structure Z).
 Proof.
-  exists (compatible_term_from_qq (Z,,ZZ)).
+  exists (compatible_term_from_qq Z).
   intro t.
-  apply pathsinv0. apply unique.
+  apply compatible_term_structure_equals_canonical.
 Defined.
 
-Lemma compat_split_comp_eq (Y : term_fun_structure _ X) :
-  ∏ t : compatible_qq_morphism_structure Y,
-  t = compatible_qq_from_term Y.
+Lemma compatible_qq_morphism_structure_equals_canonical
+    {Y : term_fun_structure _ X} (t : compatible_qq_morphism_structure Y)
+  : t = compatible_qq_from_term Y.
 Proof.
-  intro t.
-    apply subtypeEquality.
-    { intro.
-      do 4 (apply impred; intro).
-      apply homset_property. }
-    simpl; apply subtypeEquality.
-    { intro. apply @isaprop_qq_morphism_axioms. }
-    apply subtypeEquality.
-    { intro.
-      do 4 (apply impred; intro).
-      apply isofhleveltotal2. 
-      - apply homset_property.
-      - intro. apply isaprop_isPullback. } 
-    simpl.
-    destruct t as [[t H1] H2]. simpl.
-    destruct t as [q h]; simpl.
-    apply funextsec. intro Γ.
-    apply funextsec; intro Γ'.
-    apply funextsec; intro f.
-    apply funextsec; intro A.    
-    apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
+  apply subtypeEquality.
+  { intro. apply isaprop_iscompatible_term_qq. }
+  simpl; apply subtypeEquality.
+  { intro. apply @isaprop_qq_morphism_axioms. }
+  apply subtypeEquality.
+  { intro.
+    do 4 (apply impred; intro).
+    apply isofhleveltotal2. 
+    - apply homset_property.
+    - intro. apply isaprop_isPullback. } 
+  simpl.
+  destruct t as [[t H1] H2]. simpl.
+  destruct t as [q h]; simpl.
+  apply funextsec. intro Γ.
+  apply funextsec; intro Γ'.
+  apply funextsec; intro f.
+  apply funextsec; intro A.    
+  apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
+  apply pathsinv0.
+  etrans. apply Yo_qq_term_Yo_of_qq.
+  unfold Yo_of_qq.
+  apply pathsinv0.
+  apply PullbackArrowUnique.
+  + etrans. apply maponpaths. cbn. apply idpath.
+    rewrite <- functor_comp.
+    etrans. eapply pathsinv0. refine (functor_comp Yo _ _).
+    apply maponpaths.
+    apply pathsinv0. apply (pr1 (h _ _ _ _ )).
+  + etrans. apply maponpaths. cbn. apply idpath.
     apply pathsinv0.
-    etrans. apply Yo_qq_term_Yo_of_qq.
-    unfold Yo_of_qq.
-    apply pathsinv0.
-    apply PullbackArrowUnique.
-    + etrans. apply maponpaths. cbn. apply idpath.
-      rewrite <- functor_comp.
-      etrans. eapply pathsinv0. refine (functor_comp Yo _ _).
-      apply maponpaths.
-      apply pathsinv0. apply (pr1 (h _ _ _ _ )).
-    + etrans. apply maponpaths. cbn. apply idpath.
-      apply pathsinv0.
-      apply H2.
+    apply (pr1 (iscompatible_iscompatible' _ _) H2).
 Time Qed.
-  
+
 
 Lemma iscontr_compatible_split_comp_structure (Y : term_fun_structure C X)
 : iscontr (compatible_qq_morphism_structure Y).
 Proof.
   exists (compatible_qq_from_term Y).
-  apply compat_split_comp_eq.
+  apply compatible_qq_morphism_structure_equals_canonical.
 Defined.
 
 End compatible_structures.

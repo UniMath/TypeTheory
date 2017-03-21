@@ -200,20 +200,38 @@ Definition term_fun_mor {X X' : obj_ext_Precat C}
 := ∑ FF_TM : TM Y --> TM Y',
        FF_TM ;; pp Y' = pp Y ;; obj_ext_mor_TY F
      × 
-       ∏ {Γ:C} {A : Ty X Γ}, Q Y A ;; FF_TM = #Yo (φ F A) ;; Q Y' _.
+       ∏ {Γ:C} {A : Ty X Γ},
+         (FF_TM : nat_trans _ _) _ (te Y A)
+         = # (TM Y' : functor _ _) (φ F A) (te Y' _).
 
 Definition term_fun_mor_TM {X X'} {Y} {Y'} {F : X --> X'} (FF : term_fun_mor Y Y' F)
   : _ --> _
 := pr1 FF.
+(* TODO: try making this a coercion to [nat_trans]?  (Requires type annotation in this definition so may cause problems elsewhere.) *)
 
 Definition term_fun_mor_pp {X X'} {Y} {Y'} {F : X --> X'} (FF : term_fun_mor Y Y' F)
   : term_fun_mor_TM FF ;; pp Y' = pp Y ;; obj_ext_mor_TY F
 := pr1 (pr2 FF).
 
-Definition term_fun_mor_Q {X X'} {Y} {Y'} {F : X --> X'} (FF : term_fun_mor Y Y' F)
-    {Γ} A
-  : _ = _
+Definition term_fun_mor_te {X X'} {Y} {Y'} {F : X --> X'} (FF : term_fun_mor Y Y' F)
+    {Γ:C} (A : Ty X Γ)
+  : (term_fun_mor_TM FF : nat_trans _ _) _ (te Y A)
+  = # (TM Y' : functor _ _) (φ F A) (te Y' _)
 := pr2 (pr2 FF) Γ A.
+
+Definition term_fun_mor_Q {X X'} {Y} {Y'} {F : X --> X'} (FF : term_fun_mor Y Y' F)
+    {Γ:C} (A : Ty X Γ)
+  : Q Y A ;; term_fun_mor_TM FF = #Yo (φ F A) ;; Q Y' _.
+Proof.
+  apply nat_trans_eq. apply homset_property.
+  intros Γ'; simpl in Γ'.
+(* Insert [cbn] to see what’s actually happening; removed for compile speed. *)
+  unfold yoneda_objects_ob. apply funextsec; intros f.
+  etrans. 
+    refine (toforallpaths _ _ _ (nat_trans_ax (term_fun_mor_TM FF) _ _ _) _).
+  etrans. cbn. apply maponpaths, term_fun_mor_te.
+  refine (toforallpaths _ _ _ (!functor_comp (TM Y') _ _ ) _).
+Qed.
 
 (* TODO: inline in [isaprop_term_fun_mor]? *)
 Lemma term_fun_mor_eq {X X'} {Y} {Y'} {F : X --> X'} (FF FF' : term_fun_mor Y Y' F)
@@ -225,7 +243,7 @@ Proof.
   apply subtypeEquality.
   - intros x; apply isapropdirprod.
     + apply homset_property.
-    + repeat (apply impred_isaprop; intro). apply homset_property.
+    + repeat (apply impred_isaprop; intro). apply setproperty.
   - apply nat_trans_eq. apply has_homsets_HSET. 
     intros Γ. apply funextsec. unfold homot. apply e_TM.
 Qed.
@@ -303,10 +321,8 @@ Proof.
   - intros X Y. simpl; unfold term_fun_mor.
     exists (identity _). apply tpair.
     + etrans. apply id_left. apply pathsinv0, id_right.
-    + intros Γ A. etrans. apply id_right.
-      apply pathsinv0. refine (_ @ id_left _).
-      refine (maponpaths (fun k => k ;; _) _).
-      apply functor_id.
+    + intros Γ A; cbn.
+      refine (toforallpaths _ _ _ (!functor_id (TM _) _) _).
   - intros X0 X1 X2 F G Y0 Y1 Y2 FF GG.
     exists (term_fun_mor_TM FF ;; term_fun_mor_TM GG). apply tpair.
     + etrans. apply @pathsinv0. apply assoc.
@@ -315,13 +331,11 @@ Proof.
       etrans. apply cancel_postcomposition, term_fun_mor_pp.
       apply pathsinv0. apply assoc.
     + intros Γ A.
-      etrans. apply assoc.
-      etrans. apply cancel_postcomposition, term_fun_mor_Q.
-      etrans. apply @pathsinv0, assoc.
-      etrans. apply maponpaths, term_fun_mor_Q.
-      etrans. apply assoc.
-      apply cancel_postcomposition.
-      apply pathsinv0, functor_comp.
+      etrans. cbn. apply maponpaths, term_fun_mor_te.
+      etrans. refine (toforallpaths _ _ _
+                        (nat_trans_ax (term_fun_mor_TM _) _ _ _) _).
+      etrans. cbn. apply maponpaths, term_fun_mor_te.
+      refine (toforallpaths _ _ _ (!functor_comp (TM _) _ _) _).
 Defined.
 
 Definition term_fun_data : disp_precat_data (obj_ext_Precat C)
@@ -343,7 +357,7 @@ Proof.
     apply homset_property.
     intros. apply isasetaprop, isapropdirprod.
     apply homset_property.
-    repeat (apply impred_isaprop; intro). apply homset_property.
+    repeat (apply impred_isaprop; intro). apply setproperty.
 Qed.
 
 Definition term_fun_disp_precat : disp_precat (obj_ext_Precat C)

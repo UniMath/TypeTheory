@@ -21,7 +21,6 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.RelativeUniverses.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
-Require Import TypeTheory.ALV1.CwF_RelUnivYoneda.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Cats_Standalone.
 Require Import TypeTheory.ALV1.CwF_def.
@@ -49,12 +48,12 @@ Type hierarchy is collapsed (logic is inconsistent)
 *)
 
 (** * Equivalence between type of CwF structures on [C] and of rel univs on [Yo C] *)
-Definition weq_RelUnivYo_cwf_structures
-     : ∏ C : Precategory, RelUnivYo C ≃ CwF_SplitTypeCat_Defs.cwf_structure C.
+Definition weq_cwf_structure_RelUnivYo
+     : ∏ C : Precategory, cwf_structure C ≃ @relative_universe C _ Yo.
 Proof.
-  exact weq_RelUnivYo_CwF.
+  exact weq_cwf_structure_RelUnivYo.
 Defined.
-(* Print Assumptions weq_RelUnivYo_cwf_structures. *)
+(* Print Assumptions weq_cwf_structure_RelUnivYo. *)
 (** 
 <<
 Axioms:

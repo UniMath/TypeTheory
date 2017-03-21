@@ -325,6 +325,15 @@ Proof.
   apply postwhisker_isotoid.
 Qed.
 
+Lemma idtoiso_iso_disp_to_TM_eq 
+  {X} {Y Y' : term_fun_disp_precat C X}
+  (FG : iso_disp (identity_iso X) Y Y')
+: (idtoiso (iso_disp_to_TM_eq _ _ _ FG) : _ --> _)
+  = term_fun_mor_TM (FG : _ -->[_] _).
+Proof.
+  refine (maponpaths pr1 (idtoiso_isotoid _ _ _ _ _)).
+Qed.
+
 Definition iso_to_id__term_fun_disp_precat
   {X : obj_ext_Precat C}
   (Y Y' : term_fun_disp_precat C X)
@@ -334,7 +343,7 @@ Proof.
   apply subtypeEquality. { intro. apply isaprop_term_fun_structure_axioms. }
   apply total2_paths_f with (iso_disp_to_TM_eq _ _ _ i).
   rewrite transportf_dirprod.
-  apply dirprodeq; simpl.
+  apply dirprodeq.
   - etrans. apply prewhisker_iso_disp_to_TM_eq.
     etrans. apply term_fun_mor_pp.
     exact (id_right (pp _)).
@@ -342,10 +351,13 @@ Proof.
     apply funextsec; intros Γ.
     etrans. refine (transportf_forall _ _ _).
     apply funextsec; intros A.
-    etrans. refine (postwhisker_iso_disp_to_TM_eq i (Q _ _)).
-    etrans. apply term_fun_mor_Q.
-    etrans. Focus 2. exact (id_left (Q _ A)).
-    apply maponpaths_2. apply functor_id.
+    etrans. apply CwF_SplitTypeCat_Equivalence.transportf_pshf.
+    etrans.
+      refine (toforallpaths _ _ _ _ (te _ _)).
+      refine (toforallpaths _ _ _ _ _).
+      apply maponpaths, idtoiso_iso_disp_to_TM_eq.
+    etrans. apply term_fun_mor_te.
+    refine (toforallpaths _ _ _ (functor_id (TM _) _) _).
 Qed.
 
 Theorem is_category_term_fun_structure
@@ -470,7 +482,7 @@ Definition  strucs_compat_iso_disp_to_id
 Proof.
   intro H.
   do 4 (apply funextsec; intro).
-  apply homset_property.
+  apply setproperty.
 Defined.
 
 Theorem is_category_strucs_compat
