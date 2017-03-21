@@ -13,7 +13,7 @@ Require Import UniMath.CategoryTheory.total2_paths.
 
 
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
-Require Import TypeTheory.OtherDefs.TypeCat.
+Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.OtherDefs.DM.
 Require Import TypeTheory.OtherDefs.DM_to_TypeCat.
 Require Import TypeTheory.OtherDefs.TypeCat_to_DM.
