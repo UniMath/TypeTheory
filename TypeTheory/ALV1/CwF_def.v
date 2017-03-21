@@ -31,6 +31,17 @@ Proof.
   apply (weqtotal2asstor _ (fun xy => C (pr1 xy) (pr2 xy))).
 Defined.
 
+Definition yoneda_induction {C : Precategory} (F : preShv C) (Γ' : C) 
+           (P : ((F : functor _ _ ) Γ' : hSet) -> UU) :
+  (forall K : _ ⟦ Yo Γ', F ⟧, P (invmap (@yy _ _ F Γ') K)) -> 
+  forall A : (F : functor _ _ ) Γ' : hSet, P A.
+Proof.
+  intros H A0.
+  set(XR := homotinvweqweq (@yy _ (homset_property C) F Γ')).
+  rewrite <- XR.
+  apply H.
+Defined.  
+
 End Auxiliary.
 
 (** * Definition of a CwF 
@@ -53,35 +64,33 @@ A (Fiore-style) CwF consists of:
 
 Section Fix_Category.
 
-Variable C : Precategory.
-
-Definition Ty (pp : mor_total (preShv C)) : functor _ _ := target pp.
-Definition Tm (pp : mor_total (preShv C)) : functor _ _ := source pp.
+Context {C : Precategory}.
 
 (** ** Representations of maps of presheaves 
 
-A *representation* of a map Tm —p—> Ty of presheaves consists of data giving, for each (A : Ty Γ), some object and map (π A) : Γ.A Γ, along with a term (te A) over A which is “universal”, in that it represents the fiber of p over A. *)
+A *representation* of a map Tm —p—> Ty of presheaves consists of data illustrating that “every fibre of _p_ is representable”; that is, giving for each (A : Ty Γ), some object and map (π A) : Γ.A Γ, along with a term (te A) over A which is “universal”, in that it represents the fiber of p over A. *)
 
 Section Representation.
 
-Section Fiber_Representation.
+Context (pp : mor_total (preShv C)).
 
-Context (pp : mor_total (preShv C))
-        {Γ : C}
-        (A : Ty pp Γ : hSet).
+Definition Ty : functor _ _ := target pp.
+Definition Tm : functor _ _ := source pp.
 
-Definition cwf_ext : UU := ∑ (ΓA : C), C ⟦ΓA, Γ⟧.
+Definition map_into (Γ : C) : UU
+:= ∑ (ΓA : C), C ⟦ΓA, Γ⟧.
 
-Definition cwf_tm (r : cwf_ext) : UU := 
-  let ΓA := pr1 r in
-  let π := pr2 r in
-  ∑ v : (Tm pp ΓA : hSet), (morphism_from_total pp : nat_trans _ _ ) _ v = #(Ty pp) π A.
+Definition cwf_tm_of_ty {Γ : C} (A : Ty Γ : hSet) : UU
+:= ∑ t : (Tm Γ : hSet),
+    ((pp : _ --> _) : nat_trans _ _ ) _ t
+    = A.
 
-(* Lemma: convert the equality of elements of presheaves into the commutativity of a square involving representables. *)
-Lemma cwf_square_comm
-  (ext : cwf_ext) (ΓA := pr1 ext) (π := pr2 ext)
-  (tm : cwf_tm ext) (v := pr1 tm) (e := pr2 tm)
-  : #Yo π ;; yy A = yy v ;; pp.
+(* Lemma: convert an equality of elements of presheaves
+          into commutativity of a square of maps of presheaves. *)
+Lemma cwf_square_comm {Γ} {A}
+  (ΓAπ : map_into Γ) (ΓA := pr1 ΓAπ) (π := pr2 ΓAπ)
+  (te : cwf_tm_of_ty (# Ty π A)) (t := pr1 te) (e := pr2 te)
+  : #Yo π ;; yy A = yy t ;; pp.
 Proof.
   apply pathsinv0.
   etrans. Focus 2. apply yy_natural.
@@ -89,54 +98,60 @@ Proof.
   apply maponpaths, e.
 Qed.
 
-Definition cwf_fiber_representation : UU
-  := ∑ (ΓAπ : cwf_ext) (ve : cwf_tm ΓAπ), 
+Definition cwf_fiber_representation {Γ : C} (A : Ty Γ : hSet) : UU
+  := ∑ (ΓAπ : map_into Γ) (ve : cwf_tm_of_ty (# Ty (pr2 ΓAπ) A)), 
      isPullback _ _ _ _ (cwf_square_comm ΓAπ ve).
+(* See below for an alternative version [cwf_fiber_representation'], separated into data + axioms *)
 
+Definition cwf_representation : UU 
+  := ∏ Γ (A : Ty Γ : hSet), cwf_fiber_representation A.
 
-Definition cwf_fiber_rep_data : UU
+End Representation.
+
+(** ** Definition of CwF structure, CwF *)
+
+Definition cwf_structure : UU := ∑ pp, (cwf_representation pp).
+
+(* TODO: add notations, coercions, access functions to make this usable! Or perhaps below, after the date-plus-axioms reformulation? *)
+
+End Fix_Category.
+
+Arguments cwf_structure C : clear implicits.
+
+Definition cwf := ∑ C, cwf_structure C.
+
+Arguments cwf_square_comm {C pp Γ A} _ _.
+
+(** * Useful facts about representations *)
+
+Section Representation_Facts.
+
+Context {C : Precategory} (pp : mor_total (preShv C)).
+
+(** ** Data+properties reformulation of definition of representation *)
+
+Section Representation_Regrouping.
+
+Definition cwf_fiber_rep_data {Γ:C} (A : Ty pp Γ : hSet) : UU
   := ∑ (ΓA : C), C ⟦ΓA, Γ⟧ × (Tm pp ΓA : hSet).
 
-(* TODO: consolidate this with [cwf_square_comm], and make organisation/documentation clearer *)
-Section stuff.
+Definition cwf_fiber_rep_ax {Γ:C} {A : Ty pp Γ : hSet}
+   (ΓAπt : cwf_fiber_rep_data A) : UU 
+  := ∑ (H : ((pp : _ --> _) : nat_trans _ _ ) _ (pr2 (pr2 ΓAπt)) = #(Ty pp) (pr1 (pr2 ΓAπt)) A),
+     isPullback _ _ _ _ (cwf_square_comm (pr1 ΓAπt,, pr1 (pr2 ΓAπt)) (_,, H)).
 
-Variable ΓAπt : cwf_fiber_rep_data.
-Let ΓA : C := pr1 ΓAπt.
-Let π : ΓA --> Γ := pr1 (pr2 ΓAπt).
-Let v : Tm pp ΓA : hSet := pr2 (pr2 ΓAπt).
+Definition cwf_fiber_representation' {Γ:C} (A : Ty pp Γ : hSet) : UU
+  := ∑ ΓAπt : cwf_fiber_rep_data A, cwf_fiber_rep_ax ΓAπt.
 
-Definition _foo : (morphism_from_total pp : nat_trans _ _ ) _ v = #(Ty pp) π A
-   -> #Yo π ;; yy A = yy v ;; pp.
+(* TODO: cosmetic only!  Remove? *)
+Definition cwf_fiber_rep_data_weq {Γ:C} (A : Ty pp Γ : hSet)
+  : cwf_fiber_rep_data A ≃ ∑ (ΓA : C) (π : ΓA --> Γ), Tm pp ΓA : hSet.
 Proof.
-  intro H.
-  apply pathsinv0.
-  etrans. Focus 2. apply yy_natural.
-  etrans. apply yy_comp_nat_trans.
-  apply maponpaths, H.
-Qed.
-
-Definition cwf_fiber_rep_ax : UU 
-  := ∑ (H : (morphism_from_total pp : nat_trans _ _ ) _ v = #(Ty pp) π A),
-     isPullback _ _ _ _ (_foo H).
-
-End stuff.
-
-
-Definition cwf_fiber_representation' : UU
-  := ∑ r : cwf_fiber_rep_data, cwf_fiber_rep_ax r.
-
-Definition cwf_fiber_rep_data_weq 
-  : cwf_fiber_rep_data ≃ ∑ (ΓA : C) (π : ΓA --> Γ), Tm pp ΓA : hSet.
-Proof.
-  unfold cwf_fiber_rep_data.
-  set (XR := @weqtotal2asstor ). 
-  specialize (XR C (fun x => x --> Γ)). cbn in XR.
-  specialize (XR (fun Ap => Tm pp (pr1 Ap) : hSet)). cbn in XR.
   apply idweq.
 Defined.
 
-Definition cwf_fiber_representation_weq 
-  : cwf_fiber_representation ≃ cwf_fiber_representation'.
+Definition cwf_fiber_representation_weq {Γ:C} (A : Ty pp Γ : hSet) 
+  : cwf_fiber_representation pp A ≃ cwf_fiber_representation' A.
 Proof.
   unfold cwf_fiber_representation, cwf_fiber_representation'.
   eapply weqcomp.   (* (ΓA,π), ((v,e),P) *)
@@ -147,25 +162,16 @@ Proof.
   eapply weqcomp.
   apply weqtotal2asstor. cbn.
   apply weqfibtototal. intro ΓA.
-  eapply weqcomp. apply weqtotal2asstor.
-  apply idweq.
+  apply weqtotal2asstor.
 Defined.  
 
+End Representation_Regrouping.
 
-Definition yoneda_induction (F : preShv C) (Γ' : C) 
-           (P : ((F : functor _ _ ) Γ' : hSet) -> UU) :
-  (forall K : _ ⟦ Yo Γ', F ⟧, P (invmap (@yy _ _ F Γ') K)) -> 
-  forall A : (F : functor _ _ ) Γ' : hSet, P A.
-Proof.
-  intros H A0.
-  set(XR := homotinvweqweq (@yy _ (homset_property C) F Γ')).
-  rewrite <- XR.
-  apply H.
-Defined.  
+(** ** Uniqueness of representations, when C saturated *)
 
-
-Lemma isaprop_cwf_fiber_representation' :
-  is_category C -> isaprop cwf_fiber_representation'.
+(* TODO: can this be simplified? *)
+Lemma isaprop_cwf_fiber_representation' {Γ:C} (A : Ty pp Γ : hSet)
+  : is_category C -> isaprop (cwf_fiber_representation' A).
 Proof.
   intro isC.
   apply invproofirrelevance.
@@ -248,27 +254,17 @@ Proof.
       apply (PullbackArrow_PullbackPr2 PT e1 e2 e3 e4).
 Qed.      
 
-Lemma isaprop_cwf_fiber_representation :
-  is_category C -> isaprop cwf_fiber_representation.
+Lemma isaprop_cwf_fiber_representation {Γ:C} (A : Ty pp Γ : hSet)
+  : is_category C -> isaprop (cwf_fiber_representation pp A).
 Proof.
   intro H.
-  use isofhlevelweqb.
-  - apply cwf_fiber_representation'.
+  refine (isofhlevelweqb _ _ _).
   - apply cwf_fiber_representation_weq.
   - apply isaprop_cwf_fiber_representation'.
     apply H.
 Defined.
 
-End Fiber_Representation.
-
-Definition cwf_representation (pp : mor_total (preShv C)) : UU 
-  := ∏ Γ (A : Ty pp Γ : hSet), cwf_fiber_representation pp A.
-
-End Representation.
-
-(** ** Definition of CwF structure *)
-
-Definition cwf_structure : UU := ∑ pp, (cwf_representation pp).
+End Representation_Facts.
 
 (* TODO:
 
@@ -276,10 +272,17 @@ Definition cwf_structure : UU := ∑ pp, (cwf_representation pp).
 - add definition of “CwF”
 *)
 
-(** ** Equivalence with relative universe structures on Yoneda *)
+(** * Equivalence with relative universe structures on Yoneda *)
+Section CwF_RelUnivYo.
 
-Definition weq_cwf_fiber_representation_fpullback (pp : mor_total (preShv C))
-           (Γ : C^op) (A : (Ty pp) Γ : hSet)
+Context {C : Precategory}.
+
+Section Representation_FComprehension.
+
+Context (pp : mor_total (preShv C)).
+
+(* TODO: there is considerable redundancy between this and [cwf_fiber_representation_weq] above; in particular, the same reassociation is used. Try to consolidate? *)
+Definition weq_cwf_fiber_representation_fpullback {Γ : C} (A : Ty pp Γ : hSet)
 : cwf_fiber_representation pp A
   ≃ fpullback (yoneda C (homset_property C)) pp (yy A).
 Proof.
@@ -308,7 +311,7 @@ Proof.
     apply weqimplimpl.
     (* TODO: abstract the following, as bidirectional version of [cwf_square_comm]. *)
     + intros e. 
-      refine (cwf_square_comm _ _ (_,,_) (_,,e)).
+      refine (cwf_square_comm (_,,_) (_,,e)).
     + intros ey. 
       assert (ey' := nat_trans_eq_pointwise ey ΓA); clear ey; cbn in ey'.
       assert (ey'' := toforallpaths _ _ _ ey' (identity _)); clear ey';
@@ -328,7 +331,7 @@ Proof.
     apply idweq.
 Time Defined.
 
-Lemma weq_cwf_representation_fcomprehension (pp : mor_total (preShv C))
+Lemma weq_cwf_representation_fcomprehension
   : cwf_representation pp ≃ fcomprehension Yo pp.
 Proof.
   apply weqonsecfibers. intro Γ.
@@ -340,46 +343,56 @@ Proof.
   apply  weq_cwf_fiber_representation_fpullback.
 Defined.
 
+End Representation_FComprehension.
+
 Definition weq_cwf_structure_RelUnivYo 
-  : cwf_structure ≃ @relative_universe C _ Yo.
+  : cwf_structure C ≃ @relative_universe C _ Yo.
 Proof.
   apply weqfibtototal.
   intro pp.
   apply weq_cwf_representation_fcomprehension.
 Defined.
 
+End CwF_RelUnivYo.
 
-(** ** Representable vs represented *)
+Arguments weq_cwf_structure_RelUnivYo _ : clear implicits.
+
+(* The above equivalences allow us to easily deduce a few more nice facts about representations and CwF-structures from the corresponding facts about relative universes. *)
+
+(** ** Representations vs representability *)
 
 (*
-    If the underlying category is univalent [is_category C],
-    then the representation is unique, and hence there is no
-    distinction between 'represented' and 'representable'
-    morphism of presheaves
+    When the underlying category is univalent [is_category C],
+    then representations of a map of presheaves are unique,
+    and hence there is no distinction between “represented” and
+    “representable” morphisms of presheaves.
+
+    For more on this comparison see [RepMaps.v].
 *)
 
-Lemma isaprop_cwf_representation (is : is_category C) (pp : mor_total (preShv C))
+Lemma isaprop_cwf_representation {C : Precategory}
+    (Ccat : is_category C) (pp : mor_total (preShv C))
   : isaprop (cwf_representation pp).
 Proof.
   use isofhlevelweqb.
   - exact (fcomprehension Yo pp).
   - apply weq_cwf_representation_fcomprehension.
   - apply isaprop_fcomprehension. 
-    + apply is.
+    + apply Ccat.
     + apply yoneda_fully_faithful.
 Qed.
 
-End Fix_Category.
+(** ** Descent along Rezk-completion *)
 
-Definition Rezk_on_cwf_structures (C : Precategory)
-           (H : cwf_structure C)
-  : cwf_structure (Rezk_completion C (homset_property _)) .
+Definition Rezk_on_cwf_structures {C : Precategory} (CC : cwf_structure C)
+  : cwf_structure (Rezk_completion C (homset_property _)).
 Proof.
-  apply (invmap (weq_cwf_structure_RelUnivYo _)).
+  apply (invmap (@weq_cwf_structure_RelUnivYo _)).
   apply (Rezk_on_RelUnivYoneda C).
   apply (weq_cwf_structure_RelUnivYo _).
-  exact H.
+  exact CC.
 Defined.
+
 
 
 

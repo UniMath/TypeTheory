@@ -50,7 +50,7 @@ A *representation* of a map Tm —p—> Ty of presheaves consists of data exhibi
 Variable C : Precategory.
 
 Definition mere_cwf_representation (pp : mor_total (preShv C)) : UU
-  := ∏ Γ (A : Ty C pp Γ : hSet), ∥ cwf_fiber_representation C pp A ∥.
+  := ∏ Γ (A : Ty pp Γ : hSet), ∥ cwf_fiber_representation pp A ∥.
 
 (** The important fact: being representable is a proposition, by use of truncation.
     Put differently: the type of representable presheaves is a subtype
@@ -127,7 +127,7 @@ Proof.
   apply weqonsecfibers. intro A.
   apply weqimplimpl.
   - apply hinhfun. apply weq_cwf_fiber_representation_fpullback.
-  - apply hinhfun. apply (invmap (weq_cwf_fiber_representation_fpullback _ _ _ _ )).
+  - apply hinhfun. apply (invmap (weq_cwf_fiber_representation_fpullback _ _)).
   - apply propproperty.
   - apply propproperty.
 Defined.
@@ -168,7 +168,7 @@ Defined.
 *)
 
 Lemma cwf_repmap_diagram (C : Precategory) (X : cwf_structure C) 
-  : from_cwf_to_rep_map _ (Rezk_on_cwf_structures _ X)
+  : from_cwf_to_rep_map _ (Rezk_on_cwf_structures X)
     = 
     Rezk_on_rep_map _ (from_cwf_to_rep_map _ X).
 Proof.

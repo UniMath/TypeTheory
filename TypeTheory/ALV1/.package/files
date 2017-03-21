@@ -6,6 +6,7 @@ CwF_SplitTypeCat_Cats_Standalone.v
 RelativeUniverses.v
 RelUnivYonedaCompletion.v
 CwF_SplitTypeCat_Defs.v
+CwF_Defs_Equiv.v
 TypeCat.v
 TypeCat_Reassoc.v
 Summary.v
