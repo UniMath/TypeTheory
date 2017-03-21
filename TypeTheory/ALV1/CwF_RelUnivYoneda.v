@@ -27,7 +27,7 @@ Section Fix_Category.
 Variable C : Precategory.
 
 (** 
-  A [cwf'_structure] on [C] is
+  A [cwf'_structure] on _C_ is
   - a triple (Ty, (◂ + π)) (the object-extension structure)
   - a triple (Tm, pp, Q) where
     - Tm is a presheaf,
@@ -39,7 +39,13 @@ Variable C : Precategory.
   Parentheses are
     ( (Ty, (◂ + π)), ( (Tm,(pp,Q)), props) )
 
-  Meanwhile, as [cwf_structure] on [C] consists of a morphism of presheaves together with a _representation_, which we will inspect in more detail below.
+  Meanwhile, as [cwf_structure] on _C_ consists of a morphism pp : Ty --> Tm of presheaves together with, for each Γ and A : Ty Γ, a _representation_ of the fiber of Tm over A, which we will inspect in more detail below.
+
+  So the main differences, in the order we will tackle them, are:
+
+  - ordering: _pp_ at the front together;
+  - distributing ∏ over ∑: a single quantification over Γ, A on the outside, vs. quantifying within each component;
+  - association/ordering of the components within the fiber-representation
 
 **) 
 
@@ -50,62 +56,81 @@ Variable C : Precategory.
    ( (Ty, Tm, pp), ( ((◂ + π) , Q), props ) )
 
    - the type of triples (Ty,Tm,pp) is just [mor_total (preShv C)];
-   - the type of triples (◂ + π, Q) is called [comp_data];
-   - the axioms are called [comp_axioms].
+   - the type of triples (◂ + π, Q) is called [rep1_data];
+   - the axioms are called [rep1_axioms].
 
-   A pair [comp_data, comp_axioms] is called [comp], and we 
-   define [icwf_structure] as the type of pairs of 
-   a [mor_total] and a [comp] on it.
+   A pair [rep1_data, rep1_axioms] is called [rep1], and we 
+   define [cwf1_structure] as the type of pairs of 
+   a [mor_total] and a [rep1] on it.
 
-   The equivalence [weq_cwf_icwf : cwf_structure C ≃ icwf_structure C]
+   The equivalence [weq_cwf'_cwf1 : cwf'_structure C ≃ cwf1_structure C]
    is given just (!) by shuffling components.
 
-   Next, we give equivalence [icwf_structure C ≃ RelUnivYo C]
+   Next, we give equivalence [cwf1_structure C ≃ cwf_structure C]
    by constructing, for a given [ (Ty,Tm,pp) : mor_total (preShv C) ],
-   an equivalence [ weq_comp_fcomprehension ] between [ comp pp ] and
-   [ fcomprhension Yo pp ], i.e. comprehensions on [pp] relative to [Yo].   
+   an equivalence [ weq_rep1_fcomprehension ] between [ rep1 pp ] and
+   [ cwf_representation pp ], i.e. representations of all fibers of [pp]. 
 *)
 
-Local Definition Ty (pp : mor_total (preShv C)) : functor _ _ := target pp.
-Local Definition Tm (pp : mor_total (preShv C)) : functor _ _ := source pp.
+(** ** Main intermediate structures: [rep1], [cwf1_structure] *)
 
-(** ** Main intermediate structures: [comp], [icwf_structure] *)
-
-Definition comp_data (pp : mor_total (preShv C)) : UU
+Definition rep1_data (pp : mor_total (preShv C)) : UU
   := 
    ∑ (dpr : ∏ (Γ : C) (A : Ty pp Γ : hSet ), ∑ (ΓA : C), C⟦ΓA, Γ⟧),
-     ∏ Γ (A : Ty pp Γ : hSet), _ ⟦Yo (pr1 (dpr Γ A)) , Tm pp⟧.
+     ∏ Γ (A : Ty pp Γ : hSet), Tm pp (pr1 (dpr Γ A)) : hSet.
 
-Definition ext {pp : mor_total (preShv C)} (Y : comp_data pp) {Γ} A 
+Definition ext {pp : mor_total (preShv C)} (Y : rep1_data pp) Γ A 
   : C 
   := pr1 (pr1 Y Γ A).
-Definition dpr {pp : mor_total (preShv C)} (Y : comp_data pp) {Γ} A 
-  : C⟦ext Y A, Γ⟧ 
+
+Definition dpr {pp : mor_total (preShv C)} (Y : rep1_data pp) {Γ} A 
+  : C⟦ext Y Γ A, Γ⟧ 
   := pr2 (pr1 Y Γ A).
-Definition QQ {pp : mor_total (preShv C)} (Y : comp_data pp) {Γ} A 
-  : _ ⟦Yo (ext Y A) , Tm pp⟧ 
+
+Definition te {pp : mor_total (preShv C)} (Y : rep1_data pp) {Γ:C} A 
+  : Tm pp (ext Y Γ A) : hSet
   := pr2 Y Γ A.
 
-Definition comp_axioms (pp : mor_total (preShv C)) (Y : comp_data pp) : UU :=
-  ∏ Γ (A : Ty pp Γ : hSet),
-        ∑ (e : #Yo (dpr _ A) ;; yy A = QQ Y A ;; pp), isPullback _ _ _ _ e.
+Definition rep1_fiber_axioms {pp : mor_total (preShv C)}
+  {Γ} (A : Ty pp Γ : hSet) 
+  {ΓA : C} (π : ΓA --> Γ) (te : Tm pp ΓA : hSet) : UU
+:=
+  ∑ (e : ((pp : _ --> _) : nat_trans _ _ ) _ te
+         = (# (Ty pp) π A)),
+    isPullback _ _ _ _ (cwf_square_comm (_,,_) (_,,e)).
 
-Definition comp (pp : mor_total (preShv C)) : UU 
-  := ∑ (Y : comp_data pp), comp_axioms _ Y.
+Definition rep1_axioms {pp : mor_total (preShv C)} (Y : rep1_data pp) : UU :=
+  ∏ Γ (A : Ty pp Γ : hSet), rep1_fiber_axioms A (dpr Y A) (te Y A).
 
-Definition icwf_structure := ∑ (pp : mor_total (preShv C)), comp pp.
+Definition rep1 (pp : mor_total (preShv C)) : UU 
+  := ∑ (Y : rep1_data pp), rep1_axioms Y.
 
-(** ** Equivalence between [cwf_structure] and [icwf_structure] *)
+Definition cwf1_structure := ∑ (pp : mor_total (preShv C)), rep1 pp.
 
+
+(* TODO: upstream; and see if this can be used to more easily get other instances of [weqtotal2asstol] that currently need careful use of [specialize]. *)
+Lemma weqtotal2asstol' {X : UU} (P : X → UU) (Q : forall x, P x → UU)
+  : (∑ (x : X) (p : P x), Q x p) ≃ (∑ (y : ∑ x, P x), Q (pr1 y) (pr2 y)).
+Proof.
+  exact (weqtotal2asstol P (fun y => Q (pr1 y) (pr2 y))). 
+Defined.
+
+Lemma weqtotal2asstor' {X : UU} (P : X → UU) (Q : forall x, P x → UU)
+  : (∑ (y : ∑ x, P x), Q (pr1 y) (pr2 y)) ≃ (∑ (x : X) (p : P x), Q x p).
+Proof.
+  exact (weqtotal2asstor P (fun y => Q (pr1 y) (pr2 y))). 
+Defined.
+
+(** ** Equivalence between [cwf_structure] and [cwf1_structure] *)
 
 (* Note: the next lemma might be proved more easily with the specialized lemmas
     [weqtotal2dirprodassoc] and [weqtotal2dirprodassoc']
 *)
 
-Definition weq_comp_cwf_data : 
+Definition weq_rep1_cwf'_data : 
  (∑ X : obj_ext_structure C, term_fun_structure_data C X)
    ≃ 
- ∑ pp : mor_total (preShv C), comp_data pp.
+ ∑ pp : mor_total (preShv C), rep1_data pp.
 Proof.
   eapply weqcomp.
     unfold obj_ext_structure.
@@ -115,77 +140,122 @@ Proof.
         apply weqtotal2dirprodassoc. simpl.
   apply weqfibtototal.
   intro Ty.
-  eapply weqcomp. apply weqfibtototal. intro depr.
-    set (XR := @weqtotal2asstol). unfold term_fun_structure_data.
-    specialize (XR (preShv C)
-                   (fun x =>  x --> TY (Ty,, depr))). simpl in XR.
-    specialize (XR (fun Tmp =>  ∏ (Γ : C^op) (A : (TY (Ty,, depr):functor _ _ ) Γ : hSet), 
-                                 Yo (comp_ext (Ty,,depr) Γ A) --> pr1 Tmp) ).       
-    apply XR. simpl.
   eapply weqcomp.
-    set (XR:= @weqtotal2asstol (∏ Γ : C, (Ty Γ : hSet) → ∑ ΓA : C, ΓA --> Γ)).
-    specialize (XR (fun _ =>  ∑ x0 : functor (opp_precat_data C) hset_precategory_data, 
-                                      nat_trans x0 Ty)).
-    simpl in *.
-    specialize (XR (fun deprTmp => ∏ (Γ : C) (A : (Ty Γ : hSet)),
-                                   nat_trans (yoneda_objects C (homset_property _) (comp_ext (Ty,,pr1 deprTmp) Γ A)) 
-                                             (pr1 (pr2 deprTmp) ))).
-    apply XR.
-  eapply weqcomp. use weqtotal2dirprodcomm. simpl.
-  eapply weqcomp; apply weqtotal2asstor. (* this looks like magic *)
+    apply weqfibtototal; intro depr.
+    apply weqtotal2asstol'.
+  eapply weqcomp.
+    apply weqtotal2asstol'.
+  eapply weqcomp. cbn. use weqtotal2dirprodcomm.
+  eapply weqcomp; apply weqtotal2asstor.
 Defined.
 
-Definition weq_cwf_icwf : cwf_structure C ≃ icwf_structure.
+Definition weq_cwf'_cwf1 : cwf'_structure C ≃ cwf1_structure.
 Proof.
-  eapply weqcomp. Focus 2. 
-    set (XR:= @weqtotal2asstor (mor_total _) (fun pp => comp_data pp) ).
-    specialize (XR (fun XY => comp_axioms (pr1 XY) (pr2 XY))).
-    apply XR.
-  eapply weqcomp.
-    set (XR:= @weqtotal2asstol (obj_ext_structure C) 
-                               (fun X => term_fun_structure_data C X) ).
-    specialize (XR (fun XY => term_fun_structure_axioms C (pr1 XY) (pr2 XY))).
-    apply XR.
+  eapply weqcomp. Focus 2. apply weqtotal2asstor'.
+  eapply weqcomp. apply weqtotal2asstol'.
   use weqbandf.
-  - apply weq_comp_cwf_data.
-  - intro x.
+  - apply weq_rep1_cwf'_data.
+  - intro.
     apply weqonsecfibers.
     intro. 
-    destruct x as [Tydepr [Tm [pp Q]]].
-    destruct Tydepr as [Ty depr].
     exact (idweq _ ).
-Defined.  
+Defined.
 
 (** ** Remainder of the equivalence *)
 
+
+
 (** As per the outline above, it now remains to construct,
   for a given morphism [ pp : Tm --> Ty ] in [ preShv pp ],
-  an equivalence [ comp pp ≃ fcomprehension Yo pp ]. Recall:
+  an equivalence [ rep1 pp ≃ cwf_representation pp ]. Recall:
 
-  a relative comprehension on [pp] is a function giving,
+  a representation of [pp] is a function giving,
   for each [Γ : C] and [f : Yo Γ -> Ty],
-    - an object [ f^*Γ : C ]
-    - a dependent projection [ f^*Γ -> Γ in C ]
-    - a morphism of presheaves  [ yo f^*Γ -> Tm ]
-    - such that the square commutes and is a pullback.
+    - an object and map [ f^*Γ -> Γ in C ];
+    - a term of appropriate type;
+    - such that the induced square of presheaves is a pullback.
 
-  a [comp pp] consists of:
-   - [comp_data], a triple [(◂ + π, Q)] as in a CwF, so
+  a [rep1 pp] consists of:
+   - [rep1_data], a triple [(◂ + π, Q)] as in a CwF, so
      - [◂ + π] : for each [Γ:C] and [A : Ty Γ],
         an object [ Γ ◂ A : C ], and projection [ π : Γ ◂ A -> Γ ]
-     - [Q] : for each [Γ], [A], a map of presheaves [ y (Γ ◂ A) -> Tm ]
-   - some axioms, [comp_axioms].
+     - [Q] : for each [Γ], [A], a tm [ te : Tm (Γ ◂ A) ]
+   - some axioms, [rep1_axioms].
 
   The equivalence between these goes in two steps, essentially:
+ 
+  - distributing the quantification over Γ, A to the outside;
+  - reassociating the sigma-types.
 
-  - the Yoneda lemma: the equivalence between maps
-    [ f : Yo Γ -> Ty ] and types [ A : Ty Γ ];
-  - some reshuffling of pi- and sigma-types.
-
-  The first of these is tackled in [weq_fcomprehension_fcompYo]; 
-  the second, in [weq_comp_comp1], and [weq_fcompYo_comp1],
-  using an intermediate reshuffling [comp1]. 
 *)
+
+Definition rep2_data (pp : mor_total (preShv C)) : UU
+  := ∏ (Γ : C) (A : Ty pp Γ : hSet),
+           (∑ ΓAπ : ∑ ΓA : C, ΓA --> Γ, Tm pp (pr1 ΓAπ) : hSet).
+
+Definition weq_rep2_rep1_data (pp : mor_total (preShv C))
+  : rep2_data pp ≃ rep1_data pp.
+Proof.
+  unfold rep1_data, rep2_data.
+  eapply weqcomp. apply weqonsecfibers; intro; apply weqforalltototal.
+  refine (weqforalltototal _ _).
+Defined.
+
+Definition rep2 (pp : mor_total (preShv C)) : UU 
+  := ∑ (Y : rep2_data pp), rep1_axioms (weq_rep2_rep1_data _ Y).
+
+Definition weq_rep1_representation (pp : mor_total (preShv C))
+  : rep1 pp ≃ cwf_representation pp.
+Proof.
+  simple refine (weqcomp _ _). { exact (rep2 pp). }
+    eapply invweq, weqfp.
+  unfold rep2, cwf_representation.
+  eapply weqcomp. 
+    unfold rep2_data, rep1_axioms.
+    refine (@weqtotaltoforall C (fun Γ => (Ty pp Γ : hSet) -> _)
+      (fun Γ Y => forall A, rep1_fiber_axioms A (pr2 (pr1 (Y A))) (pr2 (Y A)))).
+  apply weqonsecfibers; intro Γ.
+  eapply weqcomp.
+    refine (@weqtotaltoforall _ _
+      (fun A ΓAπt => rep1_fiber_axioms A (pr2 (pr1 ΓAπt)) (pr2 ΓAπt))).
+  apply weqonsecfibers; intro A.
+  unfold cwf_fiber_representation.
+  (* reassociation:
+     ((ΓAπ,t),(e,pb))
+  ~> (ΓAπ,(t,(e,pb)))
+  ~> (ΓAπ,((t,e),pb))
+  *)
+  eapply weqcomp.
+    unfold rep1_fiber_axioms.
+    use wetotal2asstor'.
+  apply weqfp; intros ΓAπ.
+  use wetotal2asstor'.
+Defined.
+
+
+Definition weq_rep1_rep2 (pp : mor_total (preShv C)) : rep1 pp ≃ rep2 pp.
+Proof.
+  set (XR := weqfp (weq_rep1_data pp)).
+  eapply weqcomp. Focus 2. apply XR.
+  apply weqfibtototal. intro y.
+  apply weqonsecfibers. intro Γ. apply weqonsecfibers. intro A.
+  apply idweq.
+Defined.
+
+
+
+
+Definition weq_cwf1_cwf : cwf1_structure ≃ cwf_structure C.
+Proof.
+  apply weqfibtototal.
+Defined.
+
+
+
+
+
+
+
 
 Definition fcompYo (pp : mor_total (preShv C)) : UU
   := ∏ Γ (A : Ty pp Γ : hSet),
@@ -199,60 +269,13 @@ Proof.
   apply (weqonsecbase _ (@yy _ _ _ _ )).
 Defined.
 
-Definition comp1_data (pp : mor_total (preShv C)) : UU
-  := ∏ (Γ : C) (A : Ty pp Γ : hSet),
-           (∑ ΓAp : ∑ ΓA : C, ΓA --> Γ, Yo (pr1 ΓAp) --> Tm pp).
-
-Definition ext1 {pp : mor_total (preShv C)} (Y : comp1_data pp) {Γ} A 
-  : C 
-  := pr1 (pr1 (Y Γ A)).
-Definition dpr1 {pp : mor_total (preShv C)} (Y : comp1_data pp) {Γ} A 
-  : C⟦ext1 Y A, Γ⟧ 
-  := pr2 (pr1 (Y Γ A)).
-Definition QQ1 {pp : mor_total (preShv C)} (Y : comp1_data pp) {Γ} A 
-  : _ ⟦Yo (ext1 Y A) , Tm pp⟧ 
-  := (pr2 (Y Γ A)).
-
-Definition comp1_axioms (pp : mor_total (preShv C)) (Y : comp1_data pp) : UU :=
-  ∏ Γ (A : Ty pp Γ : hSet),
-        ∑ (e : #Yo (dpr1 _ A) ;; yy A = QQ1 Y A ;; pp), isPullback _ _ _ _ e.
-
-Definition comp1 (pp : mor_total (preShv C)) : UU 
-  := ∑ (Y : comp1_data pp), comp1_axioms _ Y.
-
-Definition weq_comp_data (pp : mor_total (preShv C)) : comp_data pp ≃ comp1_data pp.
+Definition weq_fcompYo_rep2 (pp : mor_total (preShv C))
+  : rep2 pp ≃ fcompYo pp.
 Proof.
-  unfold comp_data, comp1_data.
-  eapply weqcomp.
-    set (XR := @weqtotaltoforall C).
-    specialize (XR (fun Γ => (Ty pp Γ : hSet) → ∑ ΓA : C, ΓA --> Γ)).
-    simpl in XR.
-    specialize (XR (fun Γ dpr =>  ∏ (A : Ty pp Γ : hSet), 
-                                  Yo (pr1 (dpr A)) --> Tm pp)).
-    apply XR.
-  apply weqonsecfibers. intro Γ.
-  set (XR := @weqtotaltoforall (Ty pp Γ : hSet) ). simpl in XR.
-  specialize (XR (fun _ => ∑ ΓA : C, ΓA --> Γ)). simpl in XR. 
-  specialize (XR  (fun A ΓAp => Yo (pr1 ΓAp) --> Tm pp)).
-  apply XR.
-Defined.
-
-Definition weq_comp_comp1 (pp : mor_total (preShv C)) : comp pp ≃ comp1 pp.
-Proof.
-  set (XR := weqfp (weq_comp_data pp)).
-  eapply weqcomp. Focus 2. apply XR.
-  apply weqfibtototal. intro y.
-  apply weqonsecfibers. intro Γ. apply weqonsecfibers. intro A.
-  apply idweq.
-Defined.
-
-Definition weq_fcompYo_comp1 (pp : mor_total (preShv C))
-  : comp1 pp ≃ fcompYo pp.
-Proof.
-  unfold fcompYo; unfold comp1.
+  unfold fcompYo; unfold rep2.
   eapply weqcomp.
     set (XR := @weqtotaltoforall C). 
-    unfold comp1_data. unfold comp1_axioms.
+    unfold rep2_data. unfold rep2_axioms.
     specialize (XR (fun Γ => (Ty pp Γ : hSet) 
                              → ∑ ΓAp : ∑ ΓA : C, ΓA --> Γ, Yo (pr1 ΓAp) --> Tm pp)). 
     unfold dpr1, QQ1.
@@ -280,19 +303,19 @@ Proof.
   destruct x as [[XA pA] Q]. exact (idweq _ ).
 Defined.
 
-Lemma weq_comp_fcomprehension (pp : mor_total (preShv C))
-  : comp pp ≃ fcomprehension Yo pp.
+Lemma weq_rep1_fcomprehension (pp : mor_total (preShv C))
+  : rep1 pp ≃ fcomprehension Yo pp.
 Proof.
   apply invweq.
   eapply weqcomp. apply weq_fcomprehension_fcompYo.
-  eapply weqcomp. Focus 2. eapply invweq. apply weq_comp_comp1.
-  apply (invweq (weq_fcompYo_comp1 _ )).
+  eapply weqcomp. Focus 2. eapply invweq. apply weq_rep1_rep2.
+  apply (invweq (weq_fcompYo_rep2 _ )).
 Defined.
 
-Definition weq_iCwF_RelUnivYo : icwf_structure ≃ RelUnivYo.
+Definition weq_cwf1_RelUnivYo : cwf1_structure ≃ RelUnivYo.
 Proof.
   apply weqfibtototal.
-  apply weq_comp_fcomprehension.
+  apply weq_rep1_fcomprehension.
 Defined.   
  
 (** ** Conclusion: an equivalence between [RelUnivYo] and [cwf_structure] *)
@@ -300,8 +323,8 @@ Defined.
 Definition weq_RelUnivYo_CwF : RelUnivYo ≃ cwf_structure C.
 Proof.
   eapply weqcomp.
-   apply (invweq weq_iCwF_RelUnivYo).
-  apply (invweq weq_cwf_icwf).
+   apply (invweq weq_cwf1_RelUnivYo).
+  apply (invweq weq_cwf_cwf1).
 Defined.
 
 
@@ -311,8 +334,8 @@ Defined.
     but we retain them for possible future reference.
 *)
 
-Lemma isaprop_comp_axioms (pp : mor_total (preShv C)) (Y : comp_data pp) 
-  : isaprop (comp_axioms pp Y).
+Lemma isaprop_rep1_axioms (pp : mor_total (preShv C)) (Y : rep1_data pp) 
+  : isaprop (rep1_axioms pp Y).
 Proof.
   do 2 (apply impred; intro).
   apply isofhleveltotal2.
@@ -320,8 +343,8 @@ Proof.
   - intro. apply isaprop_isPullback.
 Qed.
 
-Definition comp_to_fcomprehension (pp : mor_total (preShv C)):
-   comp pp → fcomprehension Yo pp.
+Definition rep1_to_fcomprehension (pp : mor_total (preShv C)):
+   rep1 pp → fcomprehension Yo pp.
 Proof.
   intro H.
   set ( t := pr1 H). set (depr := pr1 t). set (Q := pr2 t). set (Hprop := pr2 H).
@@ -342,8 +365,8 @@ Proof.
 Defined.
 
 
-Definition fcomprehension_to_comp (pp : mor_total (preShv C)):
-  fcomprehension Yo pp → comp pp.
+Definition fcomprehension_to_rep1 (pp : mor_total (preShv C)):
+  fcomprehension Yo pp → rep1 pp.
 Proof.
   intro H. mkpair.
   - mkpair.
@@ -363,11 +386,11 @@ Proof.
 Defined.     
 
 
-Lemma weq_fcomprehension_comp_data (pp : mor_total (preShv C)):
-   @fcomprehension_data _ _ Yo (Ty pp) (Tm pp) ≃ comp_data pp.
+Lemma weq_fcomprehension_rep1_data (pp : mor_total (preShv C)):
+   @fcomprehension_data _ _ Yo (Ty pp) (Tm pp) ≃ rep1_data pp.
 Proof.
   unfold fcomprehension_data.
-  unfold comp_data.
+  unfold rep1_data.
   simpl.
   eapply weqcomp. Focus 2.
     set (XR := @weqforalltototal C).

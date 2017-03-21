@@ -357,13 +357,17 @@ End CwF_RelUnivYo.
 
 Arguments weq_cwf_structure_RelUnivYo _ : clear implicits.
 
+(* The above equivalences allow us to easily deduce a few more nice facts about representations and CwF-structures from the corresponding facts about relative universes. *)
+
 (** ** Representations vs representability *)
 
 (*
     When the underlying category is univalent [is_category C],
     then representations of a map of presheaves are unique,
     and hence there is no distinction between “represented” and
-    “representable” morphisms of presheaves
+    “representable” morphisms of presheaves.
+
+    For more on this comparison see [RepMaps.v].
 *)
 
 Lemma isaprop_cwf_representation {C : Precategory}
@@ -377,6 +381,8 @@ Proof.
     + apply Ccat.
     + apply yoneda_fully_faithful.
 Qed.
+
+(** ** Descent along Rezk-completion *)
 
 Definition Rezk_on_cwf_structures {C : Precategory} (CC : cwf_structure C)
   : cwf_structure (Rezk_completion C (homset_property _)).
