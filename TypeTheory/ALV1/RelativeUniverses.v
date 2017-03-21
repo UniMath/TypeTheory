@@ -86,10 +86,10 @@ End Relative_Comprehension.
 Section Relative_Comprehension_Lemmas.
 
 Context {C : precategory} {D : Precategory} (J : functor C D).
-Context {U tU : D} (p : D ⟦tU, U⟧).
+Context {U tU : D} (pp : D ⟦tU, U⟧).
 
 Lemma isaprop_fpullback_prop {X : C} {f : D ⟦J X, U⟧} (T : fpullback_data J f)
-  : isaprop (fpullback_prop J p T).
+  : isaprop (fpullback_prop J pp T).
 Proof.
   apply isofhleveltotal2.
   - apply homset_property.
@@ -98,8 +98,8 @@ Qed.
 
 Lemma isaprop_fpullback {X : C} (f : D ⟦J X, U⟧) 
       (is_c : is_category C)
-      (HJ : fully_faithful J) (* NOTE: the weaker assumption “ff on isos” should be enough. *)
-  : isaprop (fpullback J p f).
+      (HJ : fully_faithful J) (* NOTE: the weaker assumption “ff on isos” might be enough. *)
+  : isaprop (fpullback J pp f).
 Proof.
   apply invproofirrelevance.
   intros x x'. apply subtypeEquality.
@@ -126,8 +126,8 @@ Proof.
       cbn in *.
       match goal with | [ |- transportf _ ?e _ = _ ] => set (TT := e) end.
       rewrite XT'.
-      destruct m as [q r].
-      destruct m' as [q' r'].
+      destruct m as [p q].
+      destruct m' as [p' q'].
       cbn. 
       apply pathsdirprod.
       * unfold TT.
@@ -157,7 +157,7 @@ Proof.
 Qed.
 
 Lemma isaprop_fcomprehension  (is_c : is_category C) 
-    (HJ : fully_faithful J) : isaprop (fcomprehension J p).
+    (HJ : fully_faithful J) : isaprop (fcomprehension J pp).
 Proof.
   do 2 (apply impred; intro).
   apply isaprop_fpullback; assumption.
@@ -286,7 +286,7 @@ Definition fpullback_induced_with_ess_surj
            (R_es : essentially_surjective R)
            (C'_sat : is_category C')
            (J'_ff : fully_faithful J')
-           (* TODO: only “ff on isos” should be needed; see note at [isaprop_fpullback]. *)
+           (* TODO: only “ff on isos” might suffice; see note at [isaprop_fpullback]. *)
            (S_full : full S)
            (X' : C')
            (g : D' ⟦ J' X', S U ⟧)
@@ -334,7 +334,7 @@ Definition fcomprehension_induced_with_ess_surj
    (R_es : essentially_surjective R)
    (C'_sat : is_category C')
    (J'_ff : fully_faithful J')
-     (* TODO: only “ff on isos” should be needed; see note at [isaprop_fpullback]. *)
+     (* TODO: only “ff on isos” might suffice; see note at [isaprop_fpullback]. *)
    (S_full : full S)
   :  fcomprehension J' (# S (pr1 RUJ)).
 Proof.
@@ -347,7 +347,7 @@ Definition transfer_of_rel_univ_with_ess_surj
     (R_es : essentially_surjective R)
     (C'_sat : is_category C')
     (J'_ff : fully_faithful J')
-     (* TODO: only “ff on isos” should be needed; see note at [isaprop_fpullback]. *)
+     (* TODO: only “ff on isos” might suffice; see note at [isaprop_fpullback]. *)
     (S_full : full S)
   : relative_universe J'.
 Proof.
@@ -395,7 +395,7 @@ Context
   (R_es : essentially_surjective R)
   (C'_sat : is_category C')
   (J'_ff : fully_faithful J')
-  (* TODO: only “ff on isos” should be needed; see note at [isaprop_fpullback]. *)
+  (* TODO: only “ff on isos” might suffice; see note at [isaprop_fpullback]. *)
   (S_full : full S).
 
 Section fix_a_morphism.
@@ -466,11 +466,11 @@ Definition αpwiso X : iso (S (J X)) (J' (R X))
 
 
 Definition isweq_is_universe_transfer 
-           (R_full : full R) (* full on isos might be sufficient *)
-           (S_ff : fully_faithful S) (* we need that S reflects pullbacks and 
-                                        that S is full *)
+           (R_full : full R) 
+           (S_faithful : faithful S)
   : isweq is_universe_transfer.
 Proof.
+  set (S_ff := full_and_faithful_implies_fully_faithful _ _ S (S_full,,S_faithful)).
   use (gradth _ _ _ _ ).
   - intro H.
     intros X f.
@@ -497,7 +497,7 @@ Proof.
     + apply Xf.
     + exact ip'.
     + set (hi := (α : nat_trans _ _ ) Xf). cbn in hi.
-      set (XR := hi ;; functor_on_iso J' i ;; q').
+      set (XR := hi ;; functor_on_iso J' i ;; q'). 
       exact (invmap (weq_from_fully_faithful S_ff _ _ ) XR).
     + cbn. apply (invmaponpathsweq (weq_from_fully_faithful S_ff _ _ )).
       cbn. apply pathsinv0.
@@ -591,7 +591,7 @@ Definition isweq_mere_universe_transfer
            (T : functor D' D)
            (eta : iso (C:=[D, D, pr2 D]) (functor_identity D) (S ∙ T))
            (eps : iso (C:=[D', D', pr2 D']) (T ∙ S) (functor_identity D'))
-           (S_ff : fully_faithful S) (* redundant, but that lemma is still missing *)
+           (S_faithful : faithful S) 
   : isweq mere_universe_transfer.
 Proof.
   apply isweqbandfmap_var.
@@ -604,7 +604,7 @@ Proof.
   - intro pp.
     apply isweq_is_universe_transfer.
     + apply R_full.
-    + apply S_ff.
+    + apply S_faithful.
 Defined.
 
 Definition weq_mere_universe_transfer
