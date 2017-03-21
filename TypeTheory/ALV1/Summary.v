@@ -96,10 +96,10 @@ Context {C : Precategory} (T : CwF_def.cwf_structure C).
 
 Let RC : category := Rezk_completion C (homset_property _ ).
 Let T' : CwF_def.cwf_structure RC := Rezk_on_cwf_structures C T.
-Let Tm : preShv C := CwF_def.Tm _ (pr1 T).
-Let Tm' : preShv RC := CwF_def.Tm _ (pr1 T').
-Let Ty : preShv C := CwF_def.Ty _ (pr1 T).
-Let Ty' : preShv RC := CwF_def.Ty _ (pr1 T').
+Let Tm : preShv C := CwF_def.Tm (pr1 T).
+Let Tm' : preShv RC := CwF_def.Tm (pr1 T').
+Let Ty : preShv C := CwF_def.Ty (pr1 T).
+Let Ty' : preShv RC := CwF_def.Ty (pr1 T').
 
 Let pp : _ ⟦ Tm , Ty ⟧ := pr1 T.
 Let pp' : _ ⟦ Tm' , Ty' ⟧ := pr1 T'.
