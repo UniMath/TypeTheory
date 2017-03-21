@@ -1,5 +1,5 @@
 (**
-  [TypeTheory.ALV1.CwF_RelUnivYoneda]
+  [TypeTheory.ALV1.CwF_Defs_Equiv]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
