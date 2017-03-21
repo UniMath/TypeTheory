@@ -210,6 +210,28 @@ Proof.
     apply idpath.
 Defined.
 
+Definition weqpathscomp0l {X : UU} {x x'} (x'' : X) (e : x = x')
+  : (x' = x'') ≃ (x = x'').
+Proof.
+  exact (_ ,, isweqpathscomp0l x'' e).
+Defined.
+
+Definition weqpathscomp0r {X : UU} (x:X) {x' x''} (e' : x' = x'')
+  : (x = x') ≃ (x = x'').
+Proof.
+  exact (_ ,, isweqpathscomp0r x e').
+Defined.
+
+Definition weq_exchange_args {A B} (C : A -> B -> Type)
+  : (∏ a b, C a b) ≃ (∏ b a, C a b).
+Proof.
+  use weqgradth.
+  - intros f b a; exact (f a b).
+  - intros g a b; exact (g b a).
+  - intros f; apply idpath.
+  - intros g; apply idpath.
+Defined.
+
 Definition isweqbandfmap_var {X Y : UU} (w : X -> Y) 
            (P : X → UU) (Q : Y → UU)
            (fw : ∏ x : X, P x -> Q (w x))

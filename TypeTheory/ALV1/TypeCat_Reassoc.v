@@ -15,7 +15,7 @@ The equivalence is a bit more involved than one might hope; it proceeds in two m
 
 *)
 
-Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.Sets.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
@@ -33,15 +33,15 @@ Section Structural_Reassoc.
 Context
   (T_ty : UU)
   (T_ext : T_ty -> UU)
-  (T_dpr : Π ty, T_ext ty -> UU)
+  (T_dpr : ∏ ty, T_ext ty -> UU)
   (T_reind : T_ty -> UU)
-  (T_q_etc : Π ty ext, (T_dpr ty ext) -> (T_reind ty) -> UU)
+  (T_q_etc : ∏ ty ext, (T_dpr ty ext) -> (T_reind ty) -> UU)
   (T_set : T_ty -> UU)
-  (T_reind_id : Π ty, T_reind ty -> UU)
-  (T_q_id : Π ty ext dpr reind,
+  (T_reind_id : ∏ ty, T_reind ty -> UU)
+  (T_q_id : ∏ ty ext dpr reind,
     (T_q_etc ty ext dpr reind) -> (T_reind_id ty reind) -> UU)
-  (T_reind_comp : Π ty, T_reind ty -> UU)
-  (T_q_comp : Π ty ext dpr reind, 
+  (T_reind_comp : ∏ ty, T_reind ty -> UU)
+  (T_q_comp : ∏ ty ext dpr reind, 
     (T_q_etc ty ext dpr reind) -> (T_reind_comp ty reind) -> UU).
 
 Arguments T_dpr [_] _.
@@ -54,40 +54,40 @@ Arguments T_q_comp [_ _ _ _] _ _.
 (* Parallel the way a split type-cat is built up: *)
 
 Definition struct1 : UU
-  := Σ ty (ext : T_ext ty), T_reind ty.
+  := ∑ ty (ext : T_ext ty), T_reind ty.
 
 Definition struct2 (S1 : struct1)
   (ty := pr1 S1) (ext := pr1 (pr2 S1)) (reind := pr2 (pr2 S1))
-:= Σ dpr, @T_q_etc ty ext dpr reind.
+:= ∑ dpr, @T_q_etc ty ext dpr reind.
 
-Definition struct_total := Σ S1, struct2 S1.
+Definition struct_total := ∑ S1, struct2 S1.
 
 Definition is_split (S : struct_total)
   (ty := pr1 (pr1 S)) (reind := pr2 (pr2 (pr1 S))) (q_etc := pr2 (pr2 S))
 := T_set ty
-  × (Σ reind_id, T_q_id q_etc reind_id)
-  × (Σ reind_comp, T_q_comp q_etc reind_comp).
+  × (∑ reind_id, T_q_id q_etc reind_id)
+  × (∑ reind_comp, T_q_comp q_etc reind_comp).
 
-Definition split_struct := Σ S, is_split S.
+Definition split_struct := ∑ S, is_split S.
 
 (* Reassociated version, close to the version involving object-extension structures *)
 
 Definition pshf_data
-:= Σ (Ty : Σ (ty : T_ty), T_set ty), T_reind (pr1 Ty).
+:= ∑ (Ty : ∑ (ty : T_ty), T_set ty), T_reind (pr1 Ty).
 
 Definition pshf_axioms (F : pshf_data)
   (reind := pr2 F)
 := T_reind_id reind × T_reind_comp reind.
 
 Definition pshf
-:= Σ F, pshf_axioms F.
+:= ∑ F, pshf_axioms F.
 
 Definition ext_struct (F : pshf_data)
   (ty := pr1 (pr1 F)) (reind := pr2 F)
-:= Σ (ext : T_ext ty), T_dpr ext.
+:= ∑ (ext : T_ext ty), T_dpr ext.
 
 Definition obj_ext_struct
-:= Σ (F : pshf), ext_struct (pr1 F).
+:= ∑ (F : pshf), ext_struct (pr1 F).
 
 Definition gen_q_mor_data (X : obj_ext_struct)
   (ext := pr1 (pr2 X)) (dpr := pr2 (pr2 X))
@@ -99,10 +99,10 @@ Definition gen_q_mor_axs {X : obj_ext_struct} (q_etc : gen_q_mor_data X)
 := T_q_id q_etc reind_id × T_q_comp q_etc reind_comp.
 
 Definition gen_q_mor_struct (X : obj_ext_struct)
-:= Σ (q_etc : gen_q_mor_data X), gen_q_mor_axs q_etc.
+:= ∑ (q_etc : gen_q_mor_data X), gen_q_mor_axs q_etc.
 
 Definition reassoc_split_struct
-:= Σ X, gen_q_mor_struct X.
+:= ∑ X, gen_q_mor_struct X.
 
 
 (* Timing test *)
@@ -174,36 +174,36 @@ Section Split_Type_Cat_as_Structural.
 Definition T_ty
   := (CC -> UU).
 Definition T_ext
-  := (λ ty, Π Γ : CC, ty Γ -> CC).
+  := (λ ty, ∏ Γ : CC, ty Γ -> CC).
 Definition T_dpr
-  := (λ ty ext, Π (Γ : CC) (A : ty Γ), ext Γ A --> Γ ).
+  := (λ ty ext, ∏ (Γ : CC) (A : ty Γ), ext Γ A --> Γ ).
 Definition T_reind
-  := (λ ty, Π (Γ : CC) (A : ty Γ) (Γ' : CC), (Γ' --> Γ) -> ty Γ').
+  := (λ ty, ∏ (Γ : CC) (A : ty Γ) (Γ' : CC), (Γ' --> Γ) -> ty Γ').
 Definition T_q_etc
   := (λ ty ext (dpr : T_dpr ty ext) (reind : T_reind ty), 
-     Σ (q : Π (Γ:CC) (A : ty Γ) Γ' (f : Γ' --> Γ),
+     ∑ (q : ∏ (Γ:CC) (A : ty Γ) Γ' (f : Γ' --> Γ),
          (ext Γ' (reind _ A _ f)) --> (ext Γ A))
-       (dpr_q : Π Γ (A : ty Γ) Γ' (f : Γ' --> Γ),
+       (dpr_q : ∏ Γ (A : ty Γ) Γ' (f : Γ' --> Γ),
          q _ A _ f ;; dpr Γ A = dpr Γ' (reind _ A _ f) ;; f),
-       (Π Γ (A : ty Γ) Γ' (f : Γ' --> Γ),
+       (∏ Γ (A : ty Γ) Γ' (f : Γ' --> Γ),
          isPullback _ _ _ _ (dpr_q _ A _ f))).
 Definition T_set
-  := (λ ty : T_ty, Π Γ, isaset (ty Γ)).
+  := (λ ty : T_ty, ∏ Γ, isaset (ty Γ)).
 Definition T_reind_id
-  := (λ ty (reind : T_reind ty), Π Γ A, reind _ A _ (identity Γ) = A).
+  := (λ ty (reind : T_reind ty), ∏ Γ A, reind _ A _ (identity Γ) = A).
 Definition T_q_id
   := (λ ty ext dpr reind (q_etc : T_q_etc ty ext dpr reind)
                          (reind_id : T_reind_id ty reind),
-       Π Γ A, (pr1 q_etc) _ A _ (identity Γ)
+       ∏ Γ A, (pr1 q_etc) _ A _ (identity Γ)
               = idtoiso (maponpaths (ext Γ) (reind_id Γ A))).
 Definition T_reind_comp
   := (λ ty (reind : T_reind ty),
-       Π Γ A Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
+       ∏ Γ A Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
          reind _ A _ (g ;; f) = reind _ (reind _ A _ f) _ g).
 Definition T_q_comp
   := (λ ty ext dpr reind (q_etc : T_q_etc ty ext dpr reind)
                          (reind_comp : T_reind_comp ty reind),
-       Π Γ A Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
+       ∏ Γ A Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
          (pr1 q_etc) _ A _ (g ;; f)
          = idtoiso (maponpaths (ext Γ'') (reind_comp _ A _ f _ g))
                ;; (pr1 q_etc) _ (reind _ A _ f) _ g
@@ -334,7 +334,7 @@ Proof.
   eapply weqcomp.
     exact (@weqtotaltoforall CC
       (λ Γ, (pr1 (pr1 (pr1 F)) Γ → CC))
-      (λ Γ extΓ, Π (A : pr1 (pr1 (pr1 F)) Γ), extΓ A --> Γ)).
+      (λ Γ extΓ, ∏ (A : pr1 (pr1 (pr1 F)) Γ), extΓ A --> Γ)).
   apply weqonsecfibers; intro Γ.
   exact (@weqtotaltoforall _ _ (λ A ΓA, ΓA --> Γ)).
 Defined.
@@ -357,18 +357,18 @@ Proof.
     eapply weqcomp.
       exact (@weqtotaltoforall CC
         (λ Γ, _)
-        (λ Γ dpr_q_Γ, Π A Γ' f, isPullback _ _ _ _ (dpr_q_Γ A Γ' f))).
+        (λ Γ dpr_q_Γ, ∏ A Γ' f, isPullback _ _ _ _ (dpr_q_Γ A Γ' f))).
     apply weqonsecfibers; intro Γ.
     eapply weqcomp.
       exact (@weqtotaltoforall (pr1 (pr1 (pr1 (pr1 X))) Γ)
         (λ A, _)
-        (λ A dpr_q_Γ_A, Π Γ' f, isPullback _ _ _ _ (dpr_q_Γ_A Γ' f))).
+        (λ A dpr_q_Γ_A, ∏ Γ' f, isPullback _ _ _ _ (dpr_q_Γ_A Γ' f))).
     eapply weqcomp.
       apply weqonsecfibers; intro A.
       eapply weqcomp.
         exact (@weqtotaltoforall CC
           (λ Γ', _)
-          (λ Γ' dpr_q_Γ_A_Γ', Π f, isPullback _ _ _ _ (dpr_q_Γ_A_Γ' f))).
+          (λ Γ' dpr_q_Γ_A_Γ', ∏ f, isPullback _ _ _ _ (dpr_q_Γ_A_Γ' f))).
       apply weqonsecfibers; intro Γ'.
       exact (@weqtotaltoforall _
         (λ f, _)
@@ -386,7 +386,7 @@ Definition weq_structural_regrouped
   : reassoc_split_struct
       T_ty T_ext T_dpr T_reind T_q_etc
       T_set T_reind_id T_q_id T_reind_comp T_q_comp
-  ≃ split_typecat_structure CC.
+  ≃ split_typecat'_structure CC.
 Proof.
   use weqbandf. apply weq_structural_obj_ext. intro X. 
   use weqbandf. apply weq_structural_q_mor_data. intros q_etc.
@@ -424,7 +424,7 @@ Section Standalone_to_Regrouped.
 
 Definition weq_standalone_to_regrouped
   : split_type_struct CC
-  ≃ split_typecat_structure CC.
+  ≃ split_typecat'_structure CC.
 Proof.
   eapply weqcomp. apply weq_standalone_structural.
   eapply weqcomp. apply weq_reassoc_direct.
