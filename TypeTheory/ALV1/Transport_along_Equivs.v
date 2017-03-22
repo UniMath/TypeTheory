@@ -4,11 +4,21 @@
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
 
-(** This file provides the result: 
+(** This file provides two results:
 
-  given a universe in [preShv C] relative to the Yoneda embedding [ Yo : C ⟶ preShv C ], 
+  Given a universe in [preShv C] relative to the Yoneda embedding [ Yo : C ⟶ preShv C ], 
   and a fully faithful and essentially surjective functor [F : C ⟶ D],
+  and [D] is a univalent category, then
   we obtain a universe relative to [Yo : D ⟶ preShv D]
+
+  Furthermore, given a weak equivalence [F : C ⟶ D] as above,
+  then we obtain an equivalence of 
+  mere universes on [Yo C] and on [Yo D].
+
+  Put differently, mere universes (and hence representable maps of presheaves)
+  are invariant under weak equivalences, whereas cwf structures
+  are not - even though they can be transported along weak equivalences
+  in the direction of the underlying functor if the target category is univalent.
 
   The results of this file could (should, actually) be instantiated 
   in order to obtain the result of ALV1.RelUnivYonedaCompletion.
@@ -36,11 +46,20 @@ Section fix_category.
 (** 
 Goal: Transfer a (mere) relative universe from the top to the bottom functor
 
+<<<
   C ------------> preShv C
-  |
-  |
-  v
+  |               |  /\
+  | F             |  | precomp with F^op
+  v               V  |
   D ------------> preShv D
+
+>>>
+
+The right vertical down arrow is obtained as the inverse of the equivalence
+given by precomposition with [F^op].
+Indeed, since [F], and hence [F^op] is ff and ess surj, so is
+precomposition with [F^op].
+
 *)
 
 
@@ -92,7 +111,6 @@ Definition has_homsets_preShv X : has_homsets (preShv X).
 Proof.
   apply functor_category_has_homsets.
 Defined.
-
 
 
 Definition epsinv : iso (C:=[_ , _ , has_homsets_preShv _ ])
@@ -177,7 +195,7 @@ Proof.
          fi
          (pr2 fi)
          preserves_pullbacks_ext
-         (F_es)
+         F_es
          Dcat
          (yoneda_fully_faithful _ _ )
          (right_adj_equiv_is_full _ _)
@@ -203,12 +221,12 @@ Proof.
                D
                (preShv D)
                Yo 
-               (F)
+               F
                ext
                fi
                (pr2 fi)
                preserves_pullbacks_ext
-               (F_es) 
+               F_es
                (right_adj_equiv_is_full _ _)
                (full_from_ff _ F_ff)
                (is_category_preShv _ )
