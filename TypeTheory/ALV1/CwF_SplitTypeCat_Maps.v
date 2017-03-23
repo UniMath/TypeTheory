@@ -112,7 +112,7 @@ Proof.
   apply (Q_pp_Pb_unique Y).
   - unfold yoneda_morphisms_data; cbn.
     etrans. apply @pathsinv0, assoc.
-    etrans. apply maponpaths, @pathsinv0, qq_π.
+    etrans. apply maponpaths, qq_π.
     etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths.
       etrans. apply assoc.
@@ -236,8 +236,7 @@ Proof.
             apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
           etrans. Focus 2. apply @pathsinv0, id_right.
           etrans. apply @pathsinv0, assoc.
-          etrans. eapply maponpaths, pathsinv0.
-            apply qq_π.
+          etrans. eapply maponpaths, qq_π.
           etrans. apply assoc.
           etrans. Focus 2. apply id_left.
           apply cancel_postcomposition.
@@ -348,7 +347,7 @@ Definition section_qq_π  (Γ' : C) (f : C⟦ Γ', Γ⟧)
   : s ;; qq Z f A ;; π A = f.
 Proof.
   etrans. apply @pathsinv0, assoc.
-  etrans. apply @maponpaths, @pathsinv0, qq_π.
+  etrans. apply @maponpaths, qq_π.
   etrans. apply assoc.
   etrans. apply cancel_postcomposition. exact e.
   apply id_left.
@@ -386,7 +385,7 @@ Proof.
       apply maponpaths_2.
       cbn.
       etrans. apply @pathsinv0, assoc. 
-      etrans. apply maponpaths, @pathsinv0, qq_π.
+      etrans. apply maponpaths, qq_π.
       etrans. apply assoc.
       etrans. apply maponpaths_2, e.
       apply id_left.
@@ -462,11 +461,12 @@ Definition iscompatible_term_from_qq
   : iscompatible_term_qq term_from_qq Z.
 Proof.
   intros ? ? ? ?.
+  (* TODO: use [tm_from_qq_eq'] here *)
   use tm_from_qq_eq; simpl.
   - etrans. apply (toforallpaths _ _ _ (!functor_comp (TY X) _ _ ) A).
     etrans. Focus 2. apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ ) A).
     apply maponpaths_2; cbn.
-    apply qq_π.
+    apply @pathsinv0, qq_π.
   - apply PullbackArrowUnique.
     + cbn.
       etrans. apply @pathsinv0, assoc.
@@ -475,7 +475,7 @@ Proof.
     + apply (map_into_Pb_unique _ (qq_π_Pb Z _ _)). 
       * cbn.
         etrans. apply @pathsinv0, assoc.
-        etrans. apply maponpaths. apply @pathsinv0, qq_π.
+        etrans. apply maponpaths, qq_π.
         etrans. apply assoc.
         etrans. apply maponpaths_2.
           etrans. apply @pathsinv0, assoc.
@@ -611,16 +611,16 @@ Proof.
   apply XT.
 Qed.
 
-Lemma qq_commutes_1 : π _ ;; f = qq_term ;; π _ .
+Lemma qq_commutes_1 :  qq_term ;; π _ = π _ ;; f.
 Proof.
   assert (XT:= Yo_of_qq_commutes_1).
   rewrite <- Yo_qq_term_Yo_of_qq in XT.
   do 2 rewrite <- functor_comp in XT.
   apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
-  apply XT.
+  apply @pathsinv0, XT.
 Qed.
 
-Definition isPullback_qq : isPullback _ _ _ _ qq_commutes_1.
+Definition isPullback_qq : isPullback _ _ _ _ (!qq_commutes_1).
 Proof.
   use (isPullback_preimage_square _ _ _ Yo).
   - apply homset_property.
@@ -668,10 +668,10 @@ Proof.
       rewrite <- functor_comp.
       etrans. eapply pathsinv0. refine (functor_comp Yo _ _).
       apply maponpaths.
-      rewrite <- assoc. rewrite <- qq_commutes_1 .
+      rewrite <- assoc. rewrite qq_commutes_1 .
       repeat rewrite assoc.
       rewrite assoc4.
-      etrans. apply cancel_postcomposition. apply maponpaths. eapply pathsinv0. apply qq_commutes_1 .
+      etrans. apply cancel_postcomposition. apply maponpaths. eapply qq_commutes_1 .
       apply cancel_postcomposition.
       repeat rewrite assoc.
       apply cancel_postcomposition.

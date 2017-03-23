@@ -223,7 +223,7 @@ Definition isPullback_Q_pp (Y : term_fun_structure) {Γ} (A : Ty X Γ)
   : isPullback _ _ _ _ (Q_pp Y A)
 := pr2 (pr2 Y _ _ ).
 
-(* TODO: look if there are places these can be used to simplify things? *) 
+(* TODO: look for places these three lemmas can be used to simplify proofs *) 
 Definition Q_pp_Pb_pointwise (Y : term_fun_structure) (Γ' Γ : C) (A : Ty X Γ)
   := isPullback_preShv_to_pointwise (homset_property _) (isPullback_Q_pp Y A) Γ'.
 
@@ -299,8 +299,8 @@ Beyond the object extension structure, the only further data in a split type-cat
 Components of [Z : qq_morphism_structure X]:
 
 - [qq Z f A : Γ' ◂ A[f] --> Γ ◂ A]
-- [qq_π Z f A : π _ ;; f = qq Z f A ;; π A]
-- [qq_π_Pb Z f A : isPullback _ _ _ _ (qq_π Z f A)]
+- [qq_π Z f A : qq Z f A ;; π A = π _ ;; f]
+- [qq_π_Pb Z f A : isPullback _ _ _ _ (!qq_π Z f A)]
 - [qq_id], [qq_comp]: functoriality for [qq]
 *)
 
@@ -310,7 +310,7 @@ Definition qq_morphism_data : UU :=
   ∑ q : ∏ {Γ Γ'} (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet), 
            C ⟦Γ' ◂ A [ f ], Γ ◂ A⟧, 
     (∏ Γ Γ' (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet), 
-        ∑ e :  π _ ;; f = q f A ;; π _ , isPullback _ _ _ _ e).
+        ∑ e : q f A ;; π _ = π _ ;; f , isPullback _ _ _ _ (!e)).
 
 Definition qq (Z : qq_morphism_data) {Γ Γ'} (f : C ⟦Γ', Γ⟧)
               (A : (TY X:functor _ _ ) Γ : hSet) 
@@ -318,12 +318,13 @@ Definition qq (Z : qq_morphism_data) {Γ Γ'} (f : C ⟦Γ', Γ⟧)
 := pr1 Z _ _ f A.
 
 (* TODO: consider changing the direction of this equality? *)
-Lemma qq_π (Z : qq_morphism_data) {Γ Γ'} (f : Γ' --> Γ) (A : _ ) : π _ ;; f = qq Z f A ;; π A.
+Lemma qq_π (Z : qq_morphism_data) {Γ Γ'} (f : Γ' --> Γ) (A : _ )
+  : qq Z f A ;; π A = π _ ;; f.
 Proof.
   exact (pr1 (pr2 Z _ _ f A)).
 Qed.
 
-Lemma qq_π_Pb (Z : qq_morphism_data) {Γ Γ'} (f : Γ' --> Γ) (A : _ ) : isPullback _ _ _ _ (qq_π Z f A).
+Lemma qq_π_Pb (Z : qq_morphism_data) {Γ Γ'} (f : Γ' --> Γ) (A : _ ) : isPullback _ _ _ _ (!qq_π Z f A).
 Proof.
   exact (pr2 (pr2 Z _ _ f A)).
 Qed.

@@ -341,12 +341,8 @@ Proof.
   cbn in W, W', FY. unfold iscompatible_term_qq in *. 
   unfold term_fun_mor in FY.
   apply (Q_pp_Pb_unique Y'); simpl; unfold yoneda_morphisms_data.
-  -     (* TODO: name of [obj_ext_mor_ax] unmemorable.  Rename more like [qq_π]? *)
-    etrans. apply @pathsinv0, qq_π.
-      (* TODO: name of [qq_π] misleading, suggests opposite direction. *)
-    apply pathsinv0.
-    etrans. apply @pathsinv0, qq_π.
-    apply idpath.
+  - etrans. apply qq_π.
+    apply pathsinv0, qq_π.
   - etrans. cbn. apply maponpaths, @pathsinv0, (term_fun_mor_te FY).
     etrans. refine (toforallpaths _ _ _
                       (!nat_trans_ax (term_fun_mor_TM _) _ _ _) _).
