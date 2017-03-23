@@ -87,7 +87,8 @@ Proof.
   cbn. apply maponpaths, term_fun_mor_te.
 Qed.
 
-Lemma term_fun_mor_eq {Y} {Y'} (FF FF' : term_fun_mor Y Y')
+(* Defined only locally, since once [isaprop_term_fun_mor_eq] is defined, that should always be used in place of this. *)
+Local Lemma term_fun_mor_eq {Y} {Y'} (FF FF' : term_fun_mor Y Y')
     (e_TM : ∏ Γ (t : Tm Y Γ),
       (term_fun_mor_TM FF : nat_trans _ _) _ t
       = (term_fun_mor_TM FF' : nat_trans _ _) _ t)
@@ -140,7 +141,6 @@ Proof.
   apply Q_comp_ext_compare.
 Qed.
 
-(* TODO: once all obligations proved, replace [term_fun_mor_eq] with this in subsequent proofs. *)
 Lemma isaprop_term_fun_mor {Y} {Y'}
   : isaprop (term_fun_mor Y Y').
 Proof.
@@ -180,12 +180,9 @@ Definition term_fun_data : precategory_data
 Definition term_fun_axioms : is_precategory term_fun_data.
 Proof.
   repeat apply tpair.
-  - intros. apply term_fun_mor_eq. intros.
-    apply idpath.
-  - intros. apply term_fun_mor_eq. intros.
-    apply idpath.
-  - intros. apply term_fun_mor_eq. intros.
-    apply idpath.
+  - intros. apply isaprop_term_fun_mor.
+  - intros. apply isaprop_term_fun_mor.
+  - intros. apply isaprop_term_fun_mor.
 Qed.
 
 
@@ -496,8 +493,6 @@ Defined.
 End Unique_Term_From_QQ.
 
 
-(*
-TODO: scrap this section, and recover it from the displayed version. *) 
 Section Strucs_Equiv_Precats.
 
 Lemma compat_structures_pr1_split_ess_surj
