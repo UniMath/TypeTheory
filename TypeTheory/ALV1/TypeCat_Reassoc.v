@@ -270,12 +270,6 @@ Here we build up an equivalence [weq_structural_regrouped] between (RHS) the reg
 Since the ordering/association of the sigma-type matches, this equivalence could in principle be done in a single declaration by repeated use of [weqbandf].  However, the compilation time becomes infeasaible, so instead we split it up into multiple declarations. *)
 Section Structural_to_Regrouped.
 
-(* Used below in order to admit individual components of incomplete proofs, while keeping the rest of the proof available for computational behaviour in subsequent work. 
-  TODO: remove once done *)
-Definition explicit_admit {A} : A.
-Admitted.
-
-
 Definition weq_structural_pshf_data
   : pshf_data T_ty T_reind T_set
   ≃ functor_data CC^op HSET_category.
