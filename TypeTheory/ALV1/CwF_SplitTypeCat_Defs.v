@@ -29,8 +29,6 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
-Require Import TypeTheory.ALV1.CwF_def.
-
 Set Automatic Introduction.
 
 (** * Object-extension structures 
@@ -179,13 +177,17 @@ Proof.
   apply id_left.
 Qed.
 
-(* Note: if [cwf_square_comm] took its morphism argument un-totaled, then this lemma would be redundant, and it could be inlined for this. *)
+(* Note: essentially a duplicate of [TypeTheory.ALV1.CwF_def.cwf_square_comm].
+  However, using that here would add [CwF_def] as a dependency for this and all subsequent files, which is otherwise not needed; so we repeat the (short) proof to avoid the dependency.  *)
 Lemma term_fun_str_square_comm {Y : term_fun_structure_data}
     {Γ : C} {A : Ty X Γ}
     (e : (pp Y : nat_trans _ _) _ (te Y A) = A [ π A ])
   : #Yo (π A) ;; yy A = Q Y A ;; pp Y.
 Proof.
-  exact (@cwf_square_comm _ (morphism_as_total _) _ _ _ _ _ e).
+  apply pathsinv0.
+  etrans. Focus 2. apply yy_natural.
+  etrans. apply yy_comp_nat_trans.
+  apply maponpaths, e.
 Qed.
 
 Definition term_fun_structure_axioms (Y : term_fun_structure_data) :=
