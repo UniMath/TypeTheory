@@ -61,7 +61,7 @@ Record type_precat_record : Type := {
   dpr_q : ∏ Γ (A : C⟨Γ⟩) Γ' (f : Γ' --> Γ), 
           (q A f) ;; (π A) = (π (A{{f}})) ;; f ;
   reind_pb : ∏ Γ (A : ty Γ) Γ' (f : Γ' --> Γ),
-      isPullback _ _ _ _ (dpr_q _ A _ f)
+      isPullback _ _ _ _ (!dpr_q _ A _ f)
 }.
 
 (** Here we see the components of the definition of a [type_precat].  Under the names of their actual versions below, they are:
@@ -73,7 +73,9 @@ Record type_precat_record : Type := {
 - [reind_type_cat]: a reindexing operation on types, written [A[f]] or [f^*A];
 - [q_type_cat]: for [f : Γ' → Γ], and [A : C Γ], a map [ (Γ' ◂ f^* A) --> (Γ ◂ A) ]; can be seen as the extension of a context morphism by a variable of a new type;
 - [dpr_q_type_cat]: reindexing commutes with dependent projections;
-- [reind_pb_type_cat]: the commutative square thus formed is a pullback. *)
+- [reind_pb_type_cat]: the commutative square thus formed is a pullback. 
+
+One possibly surprising point is that [reind_pb] uses the square whose commutativity is witnessed by [dpr_q] itself, but by its inverse of [dpr_q].  The point is that [dpr_q] is oriented in the more computationally natural direction [(q A f) ;; (π A) = (π (A{{f}})) ;; f ], but at the same time, it’s more natural to think of [π A{{f}}] as the first projection of the pullback and [q A f] the second. *)
 
 End Record_Preview.
 
@@ -129,7 +131,7 @@ Definition type_cat_struct2 {CC : precategory} (C : type_cat_struct1 CC) :=
     (dpr_q : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ), 
       (q _ A _ f) ;; (dpr _ A) = (dpr _ (A{{f}})) ;; f),
     ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ),
-      isPullback (dpr _ A) f (q _ A _ f) (dpr _ (A{{f}})) (dpr_q _ A _ f).
+      isPullback _ _ _ _ (!dpr_q _ A _ f).
 (* TODO: change name [dpr_q] to [q_dpr] throughout, now that composition is diagrammatic order? *)
 
 Definition type_cat_struct (CC : precategory) 
@@ -154,8 +156,7 @@ Definition dpr_q_type_cat {CC : precategory} {C : type_cat_struct CC} {Γ} (A : 
   pr1 (pr2 (pr2 (pr2 C))) _ A _ f.
 
 Definition reind_pb_type_cat {CC : precategory} {C : type_cat_struct CC} {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ)
-  : isPullback (dpr_type_cat A) f (q_type_cat A f) (dpr_type_cat (A{{f}}))
-      (dpr_q_type_cat A f)
+  : isPullback _ _ _ _ (!dpr_q_type_cat A f)
 :=
   pr2 (pr2 (pr2 (pr2 C))) _ A _ f.
 

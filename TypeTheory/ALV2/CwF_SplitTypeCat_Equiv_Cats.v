@@ -157,11 +157,10 @@ Proof.
   - etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths, obj_ext_mor_ax.
       (* TODO: name of [obj_ext_mor_ax] unmemorable.  Rename more like [qq_π]? *)
-    etrans. apply @pathsinv0, qq_π.
-      (* TODO: name of [qq_π] misleading, suggests opposite direction. *)
+    etrans. apply qq_π.
     apply pathsinv0.
     etrans. apply @pathsinv0, assoc.
-    etrans. apply maponpaths, @pathsinv0, qq_π.
+    etrans. apply maponpaths, qq_π.
     etrans. apply assoc. apply cancel_postcomposition.
     etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths. apply comp_ext_compare_π.
@@ -294,7 +293,7 @@ Proof.
     apply PullbackArrowUnique.
     + cbn.
       etrans. apply @pathsinv0, assoc.
-      etrans. apply maponpaths, @pathsinv0, qq_π.
+      etrans. apply maponpaths, qq_π.
       etrans. apply assoc.
       etrans. Focus 2. apply @pathsinv0, id_right.
       etrans. Focus 2. apply id_left.

@@ -17,24 +17,9 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
+Require Import UniMath.CategoryTheory.category_hset_structures.
+
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
-Require Import UniMath.CategoryTheory.category_hset_structures.
-
-(*
-
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
-
-Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.CategoryTheory.category_hset.
-Require Import UniMath.CategoryTheory.category_hset_structures.
-Require Import UniMath.CategoryTheory.yoneda.
-Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.equivalences.
-*)
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Set Automatic Introduction.
@@ -1377,6 +1362,7 @@ End Square_Transfers.
 
 Section on_pullbacks.
 
+(* TODO: make all these implicit *)
   Variable C : precategory.
   Variable hs : has_homsets C.
   Variables a b c d : C.
@@ -1473,7 +1459,21 @@ Section on_pullbacks.
     try apply idpath.
     apply pathsinv0, Hi.
   Qed. 
+
+  (* In fact this is trivial, since the equality doesn’t appear in the type of the pullback. However, it’s convenient for proof scripts. *)
+  Lemma isPullback_indepdent_of_path (sqr_comm' :  f ;; k = g ;; h)
+    : isPullback _ _ _ _ (sqr_comm').
+  Proof.
+    exact Pb.
+  Defined.
  
+  (* In fact, this is judgementally equal to [is_symmetric_isPullback].  However, it is more convenient for applying when reasoning bottom-up. *)
+  Lemma is_symmetric'_isPullback
+    : isPullback _ _ _ _ (!sqr_comm) -> isPullback _ _ _ _ sqr_comm.
+  Proof.
+    refine (is_symmetric_isPullback hs _).
+  Defined.
+
 End on_pullbacks.
 
 Arguments map_into_Pb {_ _ _ _ _ _ _ _ _ } _ _ {_} _ _ _ .

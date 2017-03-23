@@ -260,6 +260,7 @@ Proof.
     - apply homset_property.
     - intro. apply isaprop_isPullback. } 
   simpl.
+  (* TODO: remove these (and check for other unnecessary destructs, now we have primitive projections), but check it doesn’t affect Qed time. *)
   destruct t as [[t H1] H2]. simpl.
   destruct t as [q h]; simpl.
   apply funextsec. intro Γ.
@@ -276,7 +277,7 @@ Proof.
     rewrite <- functor_comp.
     etrans. eapply pathsinv0. refine (functor_comp Yo _ _).
     apply maponpaths.
-    apply pathsinv0. apply (pr1 (h _ _ _ _ )).
+    apply (pr1 (h _ _ _ _ )).
   + etrans. apply maponpaths. cbn. apply idpath.
     apply pathsinv0.
     apply (pr1 (iscompatible_iscompatible' _ _) H2).

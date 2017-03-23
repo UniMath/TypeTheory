@@ -10,6 +10,7 @@
 
 
 Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.ALV1.TypeCat.
@@ -60,7 +61,8 @@ Proof.
         - intros Γ A Γ' f.
           unshelve refine (sqr_comm_of_DM (( DM_from_DM_over A)) _ ).
         - intros.
-          refine (@isPullback_of_DM  _ _ _ _ _ _ _ _ ) .
+          apply is_symmetric_isPullback. { apply hs. }
+          refine (@isPullback_of_DM  _ _ _ _ _ _ _ _ ).
           apply hs. }
 Defined.
 

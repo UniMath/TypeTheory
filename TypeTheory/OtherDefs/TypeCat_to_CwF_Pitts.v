@@ -39,7 +39,7 @@ Since the components of the pre-cat with Families structure are highly successiv
 
 Section CwF_of_Comp. 
 
- 
+(* TODO: here and in other old files, use [Precategory] instead of explicit [has_homsets] assumptions. *)
 Context (CC : precategory) (C : split_type_struct CC) (homs_sets : has_homsets CC).
 
 Definition tt_structure_of_type_cat : tt_structure CC.
@@ -65,16 +65,15 @@ Proof.
     simpl in *.
     intro γ.
     unshelve refine (tpair _ _ _ ).
-    + eapply (map_into_Pb _ _ (dpr_type_cat A)  γ).
+    + eapply (map_into_Pb _ _ γ (dpr_type_cat A)).
       * apply reind_pb_type_cat.
-      * etrans. Focus 2. eapply pathsinv0. apply id_left.
-        etrans. cancel_postcomposition. apply (idpath (γ ;; pr1 H)).
-    {   etrans. eapply pathsinv0. apply assoc.
+      * etrans. apply id_left.
+        apply @pathsinv0.
+        etrans. eapply pathsinv0. apply assoc.
         etrans. apply maponpaths. apply (pr2 H).
         apply id_right.
-    }
     + simpl.
-      apply Pb_map_commutes_2.
+      apply Pb_map_commutes_1.
 Defined.    
 
 Definition tt_reindx_from_type_cat : tt_reindx_struct CC.
@@ -106,6 +105,24 @@ Proof.
   intro; apply homs_sets. simpl.
   apply pathsinv0.
   apply PullbackArrowUnique.
+  + destruct a as [f H]; simpl in *.
+    rewrite <- H.
+    assert (T:=@transportf_total2).
+    assert (T':= T (C Γ) (λ B,  Γ --> Γ ◂ B)). simpl in T'.
+    assert (T'' := T' (λ B f0, f0 ;; dpr_type_cat B = f ;; dpr_type_cat A)).
+    simpl in *.
+    assert (T3 := T'' _ _ (! (reind_id_type_typecat (pr2 C)  Γ A))).
+      (*      assert (T3:= T'' _ _  (! pr1 (pr2 (pr1 (pr2 C))) Γ A) ). *)
+    assert (T4 := T3  (tpair (λ f0 : Γ --> Γ ◂ A, f0;; dpr_type_cat A = f;; dpr_type_cat A) f
+                               (idpath (f;; dpr_type_cat A)))).
+    clear T3 T'' T'. simpl in T4.
+    assert (T5:= base_paths _ _ T4). clear T4; simpl in *.
+    etrans.
+    cancel_postcomposition. apply T5.
+    clear T5.
+
+    apply transportf_dpr_type_cat.
+
   + simpl.
     rewrite id_left.
     destruct a as [f H]; simpl in *.
@@ -138,25 +155,6 @@ Proof.
                      assert (He : e = idpath _ )  end .
     apply (pr1 (pr2 C)).
     rewrite He. apply idpath.
-  +
-      
-    destruct a as [f H]; simpl in *.
-    rewrite <- H.
-    assert (T:=@transportf_total2).
-    assert (T':= T (C Γ) (λ B,  Γ --> Γ ◂ B)). simpl in T'.
-    assert (T'' := T' (λ B f0, f0 ;; dpr_type_cat B = f ;; dpr_type_cat A)).
-    simpl in *.
-    assert (T3 := T'' _ _ (! (reind_id_type_typecat (pr2 C)  Γ A))).
-      (*      assert (T3:= T'' _ _  (! pr1 (pr2 (pr1 (pr2 C))) Γ A) ). *)
-    assert (T4 := T3  (tpair (λ f0 : Γ --> Γ ◂ A, f0;; dpr_type_cat A = f;; dpr_type_cat A) f
-                               (idpath (f;; dpr_type_cat A)))).
-    clear T3 T'' T'. simpl in T4.
-    assert (T5:= base_paths _ _ T4). clear T4; simpl in *.
-    etrans.
-    cancel_postcomposition. apply T5.
-    clear T5.
-
-    apply transportf_dpr_type_cat.
 Qed.
 
 Lemma foo
@@ -178,6 +176,19 @@ Proof.
   intro; apply homs_sets. simpl.
   apply pathsinv0.
   apply PullbackArrowUnique.
+  + match goal with |[|- pr1 (transportf ?P' ?e' ?x') ;; _ = _ ] =>
+                       set (P:=P') ; set (e := e') ; set (x := x') end.
+    assert (T:=@transportf_total2).
+    assert (T':= T (C Γ'') (λ B,  Γ'' --> Γ'' ◂ B)); clear T; simpl in T'.
+    assert (T'' := T' (λ B f0, f0 ;; dpr_type_cat B = identity Γ''));
+      clear T'.
+    assert (T3:= T'' _ _  e x); clear T''.
+    assert (T5:= base_paths _ _ T3); clear T3; simpl in *.
+    etrans. cancel_postcomposition. apply T5.
+    clear T5.
+    etrans. apply transportf_dpr_type_cat.
+    apply (@Pb_map_commutes_1).
+
   + destruct a as [f H]; simpl in *.
     assert (X := reind_comp_term_typecat (pr2 C)).
     eapply pathscomp0. apply maponpaths. apply X.
@@ -217,25 +228,10 @@ Proof.
     assert (b' = idpath _ ).
     { apply (pr1 (pr2 C)). }
     rewrite X; clear X.
-    etrans. cancel_postcomposition. apply (@Pb_map_commutes_1).
+    etrans. cancel_postcomposition. apply (@Pb_map_commutes_2).
     etrans. eapply pathsinv0. apply assoc.
-    etrans. Focus 2. apply assoc. apply maponpaths. apply (@Pb_map_commutes_1).
-
-  + match goal with |[|- pr1 (transportf ?P' ?e' ?x') ;; _ = _ ] =>
-                       set (P:=P') ; set (e := e') ; set (x := x') end.
-    assert (T:=@transportf_total2).
-    assert (T':= T (C Γ'') (λ B,  Γ'' --> Γ'' ◂ B)); clear T; simpl in T'.
-    assert (T'' := T' (λ B f0, f0 ;; dpr_type_cat B = identity Γ''));
-      clear T'.
-    assert (T3:= T'' _ _  e x); clear T''.
-    assert (T5:= base_paths _ _ T3); clear T3; simpl in *.
-    etrans. cancel_postcomposition. apply T5.
-    clear T5.
-    etrans. apply transportf_dpr_type_cat.
-    apply (@Pb_map_commutes_2).
-Admitted.
-(* Qed. *)
-(* Qed takes ages, why? *)
+    etrans. Focus 2. apply assoc. apply maponpaths. apply (@Pb_map_commutes_2).
+Qed.
 
   
 Definition reindx_laws_terms_of_type_cat : reindx_laws_terms  reindx_laws_type_of_type_cat.
@@ -278,8 +274,7 @@ Proof.
           - apply  reind_pb_type_cat.
           - cancel_postcomposition.
             apply (idpath (identity _ )). }
-      * assert (T:= @Pb_map_commutes_2).
-        apply T.
+      * apply Pb_map_commutes_1.
   - intros Γ' γ.
     intro a.
     unfold tt_reindx_comp_1_of_type_cat in *.
@@ -337,17 +332,16 @@ Proof.
     
       eapply map_into_Pb_unique. apply reind_pb_type_cat.
 
-    (* The second pullback projection, to [Γ'], gives the easier of the two branches: *)
-      Focus 2.
+    (* The first pullback projection, to [Γ'], gives the easier of the two branches: *)
       etrans. symmetry;apply assoc.
       etrans.
         apply maponpaths. cancel_postcomposition.
         apply maponpaths, maponpaths. symmetry; apply maponpathscomp0.
       etrans. apply maponpaths. apply idtoiso_dpr_type_cat.
-      etrans. apply Pb_map_commutes_2.
+      etrans. apply Pb_map_commutes_1.
       symmetry. exact a_sec.
 
-    (* The first projection, to [Γ ◂ A ◂ [π A]], is harder.
+    (* The second projection, to [Γ ◂ A ◂ [π A]], is harder.
 
     TODO: LaTeX diagram of this!  See photo from 2015-07-02. 
 
@@ -379,10 +373,10 @@ Proof.
 
     etrans. apply maponpaths, e2. clear e2.
     etrans. apply assoc.
-    etrans. cancel_postcomposition. apply Pb_map_commutes_1.
+    etrans. cancel_postcomposition. apply Pb_map_commutes_2.
     
     etrans. symmetry. apply assoc.
-    etrans. apply maponpaths. apply Pb_map_commutes_1.
+    etrans. apply maponpaths. apply Pb_map_commutes_2.
     etrans. symmetry. apply assoc. apply maponpaths.
     apply id_right.
     + apply homs_sets. 
@@ -411,7 +405,6 @@ Proof.
   apply functtransportf.
   rewrite <- idtoiso_postcompose.
   rewrite q_q_type_cat.
-  assert (T:=@Pb_map_commutes_1).
   match goal with |[ |- _ ;; ?B' ;; ?C'  = _ ]  => set (B:=B'); set (D:=C') end.
   simpl in *.
   match goal with |[ |- map_into_Pb ?B' ?C' ?D' ?E' ?F' ?G' ?Y' ?Z' ?W'  ;; _ ;; _  = _ ] => 
@@ -421,7 +414,7 @@ Proof.
                    set (Y:=Y'); set (Z:=Z')
   end.
   match goal with |[ |- map_into_Pb _ _ _ _ _ _ _ _  ?W'  ;; _ ;; _  = _ ] => set (W:=W') end.
-  assert (T2:=Pb_map_commutes_1 f' g h k x y Y Z W).
+  assert (T2:=Pb_map_commutes_2 f' g h k x y Y Z W).
   unfold B.
   unfold D.
   repeat rewrite assoc.
@@ -437,9 +430,7 @@ Proof.
      apply pathsinv0l. }
   rewrite id_right.
   unfold f'. unfold f' in T2.
-  etrans.
   cancel_postcomposition. apply T2.
-  unfold Y. apply idpath.
 Qed.  
 
 Lemma comp_law_4_of_type_cat : @comp_law_4 _ tt_reindx_type_struct_of_type_cat reindx_laws_of_type_cat.
@@ -447,9 +438,7 @@ Proof.
   unfold comp_law_4.
   simpl. intros Γ A.
   unfold pairing; simpl.
-  etrans.
-  apply Pb_map_commutes_1.
-  apply idpath.
+  apply Pb_map_commutes_2.
 Qed.
 
 
@@ -479,11 +468,6 @@ Proof.
 Defined.
     
 End CwF_of_Comp.
-
-
-
-
-
 
 
 
