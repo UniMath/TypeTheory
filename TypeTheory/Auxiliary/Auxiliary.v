@@ -254,6 +254,37 @@ Proof.
   exact (weqtotal2asstor P (fun y => Q (pr1 y) (pr2 y))). 
 Defined.
 
+Lemma issurjective_hinhpr (A : UU) : issurjective (@hinhpr A).
+Proof.
+  intro a. 
+  apply (squash_to_prop a).
+  - apply propproperty.
+  - intro aa. apply hinhpr.
+    exists aa.
+    apply proofirrelevance.
+    apply propproperty.
+Defined.
+
+Lemma issurjective_bandfmap {X Y : UU} (f : X → Y) (P : X → UU) (Q : Y → UU)
+      (fx : ∏ x : X, P x → Q (f x)) 
+      (Hf : issurjective f)
+      (Hfx : ∏ x, issurjective (fx x))
+  : issurjective (bandfmap f _ _ fx).
+Proof.
+  intros [y q].
+  apply (squash_to_prop (Hf y)).
+  { apply propproperty. }
+  intros [x Hx].
+  induction Hx.
+  apply (squash_to_prop (Hfx _ q)).
+  { apply propproperty. }
+  intros [p Hp].
+  destruct Hp.
+  apply hinhpr.
+  exists (x,,p).
+  apply idpath.
+Defined.
+
 (** ** Other general lemmas *)
 
 (* A slightly surprising but very useful lemma for characterising identity types.
