@@ -241,6 +241,39 @@ Proof.
   apply (isweqbandfmap (weqpair w Hw) _ _ (fun x => weqpair _ (Hfw x))).
 Defined.
 
+
+Lemma issurjective_hinhpr (A : UU) : issurjective (@hinhpr A).
+Proof.
+  intro a. 
+  apply (squash_to_prop a).
+  - apply propproperty.
+  - intro aa. apply hinhpr.
+    exists aa.
+    apply proofirrelevance.
+    apply propproperty.
+Defined.
+
+Lemma issurjective_bandfmap {X Y : UU} (f : X → Y) (P : X → UU) (Q : Y → UU)
+      (fx : ∏ x : X, P x → Q (f x)) 
+      (Hf : issurjective f)
+      (Hfx : ∏ x, issurjective (fx x))
+  : issurjective (bandfmap f _ _ fx).
+Proof.
+  intros [y q].
+  apply (squash_to_prop (Hf y)).
+  { apply propproperty. }
+  intros [x Hx].
+  induction Hx.
+  apply (squash_to_prop (Hfx _ q)).
+  { apply propproperty. }
+  intros [p Hp].
+  destruct Hp.
+  apply hinhpr.
+  exists (x,,p).
+  apply idpath.
+Defined.
+
+
 (*
 Definition rewrite_in_equivalence (A X : UU) (a a' b : A) :
   a = a' → (a' = b) ≃ X → (a = b) ≃ X.

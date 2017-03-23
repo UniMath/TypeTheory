@@ -78,11 +78,13 @@ Definition rep_map : UU
 Definition from_cwf_to_rep_map
   : cwf_structure C -> rep_map.
 Proof.
-  intro H.
-  exists (pr1 H).
-  intros Γ A.
-  exact (hinhpr (pr2 H Γ A)).
+  use bandfmap.
+  - apply idfun.
+  - intros pp H.
+    intros Γ A.
+    exact (hinhpr (H Γ A)).
 Defined.
+
 
 (** The map from [cwf_structure C] to [rep_map C] is
     an equivalence if [C] is univalent.
