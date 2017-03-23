@@ -85,13 +85,12 @@ Defined.
 Definition is_category_opp (C : precategory) (H : is_category C) : is_category (opp_precat C).
 Proof.
   split; intros; simpl in *.
-  Check @opp_iso.
-   - set (H1:=@isweqhomot).
-     set (H2 := H1 _ _ (isotoid_opp C H a b)).
-     apply H2.
-     intro t; induction t.
-     apply eq_iso; apply idpath.
-     apply (pr2 (isotoid_opp C H a b)).
+  - set (H1:=@isweqhomot).
+    set (H2 := H1 _ _ (isotoid_opp C H a b)).
+    apply H2.
+    intro t; induction t.
+    apply eq_iso; apply idpath.
+    apply (pr2 (isotoid_opp C H a b)).
   - intros a b. apply (pr2 H).
 Qed.
  

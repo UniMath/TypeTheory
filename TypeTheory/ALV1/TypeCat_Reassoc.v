@@ -132,7 +132,7 @@ Proof.
     exists (pr2 (pr2 (pr1 S))).
     cbn.
     exact (pr2 (pr1 (pr2 (pr2 S))),, pr2 (pr2 (pr2 (pr2 S)))).
-Time Defined.
+Defined.
 
 Definition r_to_l_reassoc_direct : reassoc_split_struct -> split_struct.
 Proof.
@@ -141,11 +141,11 @@ Proof.
     exists (pr1 (pr1 (pr1 (pr1 (pr1 S)))) ,,
                 (pr1 (pr2 (pr1 S)) ,, (pr2 (pr1 (pr1 (pr1 S)))))).
     exact (pr2 (pr2 (pr1 S)),, pr1 (pr2 S)).
-  Time repeat apply dirprodpair; simpl.
+  repeat apply dirprodpair; simpl.
   - exact (pr2 (pr1 (pr1 (pr1 (pr1 S))))).
   - exact (pr1 (pr2 (pr1 (pr1 S))),, pr1 (pr2 (pr2 S))).
   - exact (pr2 (pr2 (pr1 (pr1 S))),, pr2 (pr2 (pr2 S))).
-Time Defined.
+Defined.
 
 Theorem weq_reassoc_direct : split_struct ≃ reassoc_split_struct.
 Proof.
@@ -153,11 +153,11 @@ Proof.
             l_to_r_reassoc_direct
             r_to_l_reassoc_direct
             _ _).
-  - Time intros [[[ty [ext reind]] [dpr q_etc]] [set [[reind_id q_id] [reind_comp q_comp]]]].
+  - intros [[[ty [ext reind]] [dpr q_etc]] [set [[reind_id q_id] [reind_comp q_comp]]]].
     apply idpath.
-  - Time intros [[[[[ty set] reind] [reind_id reind_comp]] [ext dpr]] [q_etc [q_id q_comp]]].
+  - intros [[[[[ty set] reind] [reind_id reind_comp]] [ext dpr]] [q_etc [q_id q_comp]]].
     apply idpath.
-Time Defined.
+Defined.
 
 End Structural_Reassoc.
 
@@ -215,8 +215,8 @@ Definition eq_standalone_structural
         T_ty T_ext T_dpr T_reind T_q_etc
         T_set T_reind_id T_q_id T_reind_comp T_q_comp.
 Proof.
-  Time apply idpath.
-Time Defined.
+  apply idpath.
+Defined.
 
 Definition weq_standalone_structural
   : split_type_struct CC
@@ -267,7 +267,7 @@ End Split_Type_Cat_as_Structural.
 
 Here we build up an equivalence [weq_structural_regrouped] between (RHS) the regrouped object-extension structure definition of split type-category structures, and (LHS) the structurally-abstracted definition, with the types of components taken from the standalone definition, but re-ordered and re-grouped to match (RHS).
 
-Since the ordering/association of the sigma-type matches, this equivalence could in principle be done in a single declaration by repeated use of [weqbandf].  However, the compilation time becomes infeasaible, so instead we split it up into muptiple declarations. *)
+Since the ordering/association of the sigma-type matches, this equivalence could in principle be done in a single declaration by repeated use of [weqbandf].  However, the compilation time becomes infeasaible, so instead we split it up into multiple declarations. *)
 Section Structural_to_Regrouped.
 
 (* Used below in order to admit individual components of incomplete proofs, while keeping the rest of the proof available for computational behaviour in subsequent work. 
@@ -416,7 +416,7 @@ Proof.
     unfold comp_ext_compare. 
     apply maponpaths, maponpaths, maponpaths.
     apply (pr2 (pr1 (pr1 (pr1 X)))). (* the hset assumption on ty *)
-Time Defined.
+Defined.
 
 End Structural_to_Regrouped.
 
@@ -433,5 +433,5 @@ Defined.
 
 End Standalone_to_Regrouped.
 
-Time End Fix_Category.
+End Fix_Category.
 

@@ -142,8 +142,6 @@ Proof.
        ).
 Defined.
 
-Search (full _ ).
-
 Definition Rezk_eta_full : full (Rezk_eta C (homset_property C)).
 Proof.
   apply full_from_ff.

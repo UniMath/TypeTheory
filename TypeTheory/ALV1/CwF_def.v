@@ -333,7 +333,7 @@ Proof.
     (* Why does so much need to be given explicitly there? *)
   - intros [v e]; cbn.
     apply idweq.
-Time Defined.
+Defined.
 
 Lemma weq_cwf_representation_fcomprehension
   : cwf_representation pp ≃ fcomprehension Yo pp.

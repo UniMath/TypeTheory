@@ -280,7 +280,7 @@ Proof.
   + etrans. apply maponpaths. cbn. apply idpath.
     apply pathsinv0.
     apply (pr1 (iscompatible_iscompatible' _ _) H2).
-Time Qed.
+Qed.
 
 
 Lemma iscontr_compatible_split_comp_structure (Y : term_fun_structure C X)

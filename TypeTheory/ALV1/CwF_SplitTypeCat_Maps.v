@@ -123,7 +123,7 @@ Proof.
   - etrans. refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
     etrans. apply Q_comp_ext_compare.
     apply term_to_section_recover.
-Time Qed.
+Qed.
 
 (** * Term-structures from _q_-morphism structures
 
@@ -252,7 +252,7 @@ Proof.
           apply maponpaths.
           apply @pathsinv0.
           apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). }
-Time Qed.
+Qed.
 
 Definition tm_from_qq : functor _ _
   := tpair _ _ is_functor_tm_from_qq.
@@ -686,7 +686,7 @@ Proof.
       etrans. apply maponpaths. apply cancel_postcomposition. apply Yo_qq_term_Yo_of_qq.
       etrans. apply maponpaths. apply Yo_of_qq_commutes_2 .
       apply comp_ext_compare_Q.
-Time Qed.
+Qed.
 
 Definition qq_from_term
   : qq_morphism_structure X.
