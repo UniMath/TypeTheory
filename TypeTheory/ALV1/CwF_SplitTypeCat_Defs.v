@@ -29,6 +29,8 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
+Require Import TypeTheory.ALV1.CwF_def.
+
 Set Automatic Introduction.
 
 (** * Object-extension structures 
@@ -92,6 +94,14 @@ Proof.
   unfold comp_ext_compare. apply maponpaths, maponpaths.
   apply pathsinv0, maponpathscomp0. 
 Qed.
+
+(* TODO: any reason why comp_ext_compare is the morphism not just the iso?? *)
+Lemma comp_ext_compare_inv {X : obj_ext_structure}
+    {Γ : C} {A A' : Ty X Γ : hSet} (e : A = A')
+  : comp_ext_compare (!e) = inv_from_iso (idtoiso (maponpaths (comp_ext X Γ) e)).
+Proof.
+  destruct e; apply idpath.
+Defined.
 
 Lemma comp_ext_compare_π {X : obj_ext_structure}
     {Γ : C} {A A' : Ty X Γ} (e : A = A')
@@ -169,16 +179,13 @@ Proof.
   apply id_left.
 Qed.
 
-(* Cf. [cwf_square_comm] and [_foo]. TODO: try to unify? *)
+(* Note: if [cwf_square_comm] took its morphism argument un-totaled, then this lemma would be redundant, and it could be inlined for this. *)
 Lemma term_fun_str_square_comm {Y : term_fun_structure_data}
     {Γ : C} {A : Ty X Γ}
     (e : (pp Y : nat_trans _ _) _ (te Y A) = A [ π A ])
   : #Yo (π A) ;; yy A = Q Y A ;; pp Y.
 Proof.
-  apply pathsinv0.
-  etrans. Focus 2. apply yy_natural.
-  etrans. apply yy_comp_nat_trans.
-  apply maponpaths, e.
+  exact (@cwf_square_comm _ (morphism_as_total _) _ _ _ _ _ e).
 Qed.
 
 Definition term_fun_structure_axioms (Y : term_fun_structure_data) :=
@@ -290,8 +297,8 @@ Beyond the object extension structure, the only further data in a split type-cat
 Components of [Z : qq_morphism_structure X]:
 
 - [qq Z f A : Γ' ◂ A[f] --> Γ ◂ A]
-- [qq_π Z f A : π _ ;; f = qq Y f A ;; π A]
-- [qq_π_Pb Z f A : isPullback _ _ _ _ (qq_π Y f A)]
+- [qq_π Z f A : π _ ;; f = qq Z f A ;; π A]
+- [qq_π_Pb Z f A : isPullback _ _ _ _ (qq_π Z f A)]
 - [qq_id], [qq_comp]: functoriality for [qq]
 *)
 
@@ -303,43 +310,53 @@ Definition qq_morphism_data : UU :=
     (∏ Γ Γ' (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet), 
         ∑ e :  π _ ;; f = q f A ;; π _ , isPullback _ _ _ _ e).
 
-Definition qq (Y : qq_morphism_data) {Γ Γ'} (f : C ⟦Γ', Γ⟧)
+Definition qq (Z : qq_morphism_data) {Γ Γ'} (f : C ⟦Γ', Γ⟧)
               (A : (TY X:functor _ _ ) Γ : hSet) 
   : C ⟦Γ' ◂ A [ f ], Γ ◂ A⟧
-:= pr1 Y _ _ f A.
+:= pr1 Z _ _ f A.
 
 (* TODO: consider changing the direction of this equality? *)
-Lemma qq_π (Y : qq_morphism_data) {Γ Γ'} (f : Γ' --> Γ) (A : _ ) : π _ ;; f = qq Y f A ;; π A.
+Lemma qq_π (Z : qq_morphism_data) {Γ Γ'} (f : Γ' --> Γ) (A : _ ) : π _ ;; f = qq Z f A ;; π A.
 Proof.
-  exact (pr1 (pr2 Y _ _ f A)).
+  exact (pr1 (pr2 Z _ _ f A)).
 Qed.
 
-Lemma qq_π_Pb (Y : qq_morphism_data) {Γ Γ'} (f : Γ' --> Γ) (A : _ ) : isPullback _ _ _ _ (qq_π Y f A).
+Lemma qq_π_Pb (Z : qq_morphism_data) {Γ Γ'} (f : Γ' --> Γ) (A : _ ) : isPullback _ _ _ _ (qq_π Z f A).
 Proof.
-  exact (pr2 (pr2 Y _ _ f A)).
+  exact (pr2 (pr2 Z _ _ f A)).
 Qed.
 
-Lemma comp_ext_compare_qq (Y : qq_morphism_data)
+Lemma comp_ext_compare_qq (Z : qq_morphism_data)
   {Γ Γ'} {f f' : C ⟦Γ', Γ⟧} (e : f = f') (A : Ty X Γ) 
-  : comp_ext_compare (maponpaths (λ k : C⟦Γ', Γ⟧, A [k]) e) ;; qq Y f' A
-  = qq Y f A.
+  : comp_ext_compare (maponpaths (λ k : C⟦Γ', Γ⟧, A [k]) e) ;; qq Z f' A
+  = qq Z f A.
 Proof.
   induction e.
   apply id_left.
 Qed.
 
-Definition qq_morphism_axioms (Y : qq_morphism_data) : UU
+Lemma comp_ext_compare_qq_general (Z : qq_morphism_data)
+  {Γ Γ' : C} {f f' : Γ' --> Γ} (e : f = f')
+  {A : Ty X Γ} (eA : A[f] = A[f']) 
+  : comp_ext_compare eA ;; qq Z f' A
+  = qq Z f A.
+Proof.
+  refine (_ @ comp_ext_compare_qq _ e A).
+  apply maponpaths_2, maponpaths, setproperty.
+Qed.
+
+Definition qq_morphism_axioms (Z : qq_morphism_data) : UU
   := 
     (∏ Γ A,
-    qq Y (identity Γ) A
+    qq Z (identity Γ) A
     = comp_ext_compare (toforallpaths _ _ _ (functor_id (TY X) _ ) _ ))
   ×
     (∏ Γ Γ' Γ'' (f : C⟦Γ', Γ⟧) (g : C ⟦Γ'', Γ'⟧) (A : (TY X:functor _ _ ) Γ : hSet),
-    qq Y (g ;; f) A
+    qq Z (g ;; f) A
     = comp_ext_compare
            (toforallpaths _ _ _ (functor_comp (TY X) _ _) A)
-      ;; qq Y g (A [f]) 
-      ;; qq Y f A).
+      ;; qq Z g (A [f]) 
+      ;; qq Z f A).
 
 Definition qq_morphism_structure : UU
   := ∑ Z : qq_morphism_data,
@@ -398,8 +415,10 @@ Arguments qq_morphism_structure [_] _ .
 
 (** * CwF’s, split type-categories *)
 
-(** Here, we assemble the components above (object-extension structures, term-structures, and _q_-morphism structures) into versions of the definitions of CwF’s and split type-categories.  These are reassociated compared to the canonical definitions; equivalences with those should be provided elsewhere in the library. *)
-(* TODO: give those equivalences here, once they exist. *)
+(** Here, we assemble the components above (object-extension structures, term-structures, and _q_-morphism structures) into versions of the definitions of CwF’s and split type-categories.
+
+These are reassociated compared to the canonical definitions; equivalences between these and the canonical ones are provided in [CwF_Defs_Equiv.v] and [TypeCat_Reassoc.v] respectively. *)
+(* TODO: rename one of those files, for consistency (and make sure README up-to-date on filenames). *)
 
 Definition cwf'_structure (C : Precategory) : UU 
 := ∑ X : obj_ext_structure C, term_fun_structure C X.
@@ -434,3 +453,4 @@ Coercion precategory_of_split_typecat'
 
 Coercion split_typecat'_structure_of_split_typecat'
 := pr2 : forall C : split_typecat', split_typecat'_structure C.
+

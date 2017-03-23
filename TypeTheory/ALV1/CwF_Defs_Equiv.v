@@ -94,7 +94,7 @@ Definition rep1_fiber_axioms {pp : mor_total (preShv C)}
 :=
   ∑ (e : ((pp : _ --> _) : nat_trans _ _ ) _ te
          = (# (Ty pp) π A)),
-    isPullback _ _ _ _ (cwf_square_comm (_,,_) (_,,e)).
+    isPullback _ _ _ _ (cwf_square_comm e).
 
 Definition rep1_axioms {pp : mor_total (preShv C)} (Y : rep1_data pp) : UU :=
   ∏ Γ (A : Ty pp Γ : hSet), rep1_fiber_axioms A (dpr Y A) (te Y A).
@@ -103,20 +103,6 @@ Definition rep1 (pp : mor_total (preShv C)) : UU
   := ∑ (Y : rep1_data pp), rep1_axioms Y.
 
 Definition cwf1_structure := ∑ (pp : mor_total (preShv C)), rep1 pp.
-
-
-(* TODO: upstream; and see if this can be used to more easily get other instances of [weqtotal2asstol] that currently need careful use of [specialize]. *)
-Lemma weqtotal2asstol' {X : UU} (P : X → UU) (Q : forall x, P x → UU)
-  : (∑ (x : X) (p : P x), Q x p) ≃ (∑ (y : ∑ x, P x), Q (pr1 y) (pr2 y)).
-Proof.
-  exact (weqtotal2asstol P (fun y => Q (pr1 y) (pr2 y))). 
-Defined.
-
-Lemma weqtotal2asstor' {X : UU} (P : X → UU) (Q : forall x, P x → UU)
-  : (∑ (y : ∑ x, P x), Q (pr1 y) (pr2 y)) ≃ (∑ (x : X) (p : P x), Q x p).
-Proof.
-  exact (weqtotal2asstor P (fun y => Q (pr1 y) (pr2 y))). 
-Defined.
 
 (** ** Equivalence between [cwf_structure] and [cwf1_structure] *)
 

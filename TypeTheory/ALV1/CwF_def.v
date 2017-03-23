@@ -7,8 +7,8 @@
 (**
 Contents:
 
-- the definition of CwFs à la Fiore: [cwf_structure]
-- equivalence between cwf structures and relative universe structures on Yoneda.
+- the definition of CwFs à la Fiore: [cwf_structure], [cwf]
+- equivalence between cwf structures and relative universe structures on Yoneda, [weq_cwf_structure_RelUnivYo]
 
 *)
 
@@ -85,11 +85,11 @@ Definition cwf_tm_of_ty {Γ : C} (A : Ty Γ : hSet) : UU
     ((pp : _ --> _) : nat_trans _ _ ) _ t
     = A.
 
-(* Lemma: convert an equality of elements of presheaves
+(* Lemma: convert an equality giving the type of a term
           into commutativity of a square of maps of presheaves. *)
 Lemma cwf_square_comm {Γ} {A}
-  (ΓAπ : map_into Γ) (ΓA := pr1 ΓAπ) (π := pr2 ΓAπ)
-  (te : cwf_tm_of_ty (# Ty π A)) (t := pr1 te) (e := pr2 te)
+  {ΓA : C} {π : ΓA --> Γ}
+  {t : Tm ΓA : hSet} (e : ((pp : _ --> _) : nat_trans _ _) _ t = # Ty π A)
   : #Yo π ;; yy A = yy t ;; pp.
 Proof.
   apply pathsinv0.
@@ -99,8 +99,8 @@ Proof.
 Qed.
 
 Definition cwf_fiber_representation {Γ : C} (A : Ty Γ : hSet) : UU
-  := ∑ (ΓAπ : map_into Γ) (ve : cwf_tm_of_ty (# Ty (pr2 ΓAπ) A)), 
-     isPullback _ _ _ _ (cwf_square_comm ΓAπ ve).
+  := ∑ (ΓAπ : map_into Γ) (te : cwf_tm_of_ty (# Ty (pr2 ΓAπ) A)), 
+     isPullback _ _ _ _ (cwf_square_comm (pr2 te)).
 (* See below for an alternative version [cwf_fiber_representation'], separated into data + axioms *)
 
 Definition cwf_representation : UU 
@@ -120,7 +120,30 @@ Arguments cwf_structure C : clear implicits.
 
 Definition cwf := ∑ C, cwf_structure C.
 
-Arguments cwf_square_comm {C pp Γ A} _ _.
+Arguments cwf_square_comm {C pp Γ A _ _ _} e.
+
+(** ** Misc lemmas on CwF’s *)
+Section CwF_Lemmas.
+
+Context {C : Precategory} (pp : mor_total (preShv C)).
+
+Lemma cwf_square_comm_converse {Γ : C} {A : Ty pp Γ : hSet}
+    {ΓA : C} {π : ΓA --> Γ}
+    {t : Tm pp ΓA : hSet}
+    (e :  #Yo π ;; yy A = yy t ;; pp)
+  : ((pp : _ --> _) : nat_trans _ _) _ t = # (Ty pp) π A.
+Proof.
+  etrans.
+    apply maponpaths, @pathsinv0.
+    apply (toforallpaths _ _ _ (functor_id (Tm pp) _)).
+  etrans. 
+    assert (e' := nat_trans_eq_pointwise e ΓA); clear e; cbn in e'.
+    refine (toforallpaths _ _ _ (!e') (identity _)).
+  unfold yoneda_morphisms_data.
+  apply maponpaths_2, id_left.
+Qed.
+
+End CwF_Lemmas.
 
 (** * Useful facts about representations *)
 
@@ -138,17 +161,10 @@ Definition cwf_fiber_rep_data {Γ:C} (A : Ty pp Γ : hSet) : UU
 Definition cwf_fiber_rep_ax {Γ:C} {A : Ty pp Γ : hSet}
    (ΓAπt : cwf_fiber_rep_data A) : UU 
   := ∑ (H : ((pp : _ --> _) : nat_trans _ _ ) _ (pr2 (pr2 ΓAπt)) = #(Ty pp) (pr1 (pr2 ΓAπt)) A),
-     isPullback _ _ _ _ (cwf_square_comm (pr1 ΓAπt,, pr1 (pr2 ΓAπt)) (_,, H)).
+     isPullback _ _ _ _ (cwf_square_comm H).
 
 Definition cwf_fiber_representation' {Γ:C} (A : Ty pp Γ : hSet) : UU
   := ∑ ΓAπt : cwf_fiber_rep_data A, cwf_fiber_rep_ax ΓAπt.
-
-(* TODO: cosmetic only!  Remove? *)
-Definition cwf_fiber_rep_data_weq {Γ:C} (A : Ty pp Γ : hSet)
-  : cwf_fiber_rep_data A ≃ ∑ (ΓA : C) (π : ΓA --> Γ), Tm pp ΓA : hSet.
-Proof.
-  apply idweq.
-Defined.
 
 Definition cwf_fiber_representation_weq {Γ:C} (A : Ty pp Γ : hSet) 
   : cwf_fiber_representation pp A ≃ cwf_fiber_representation' A.
@@ -266,10 +282,7 @@ Defined.
 
 End Representation_Facts.
 
-(* TODO:
-
-- move the following out of this file, into CwF_RelUniv_Yoneda
-- add definition of “CwF”
+(* TODO: perhaps move the following section into a separate file [CwF_RelUniv_Yoneda], to make this file more self-contained?
 *)
 
 (** * Equivalence with relative universe structures on Yoneda *)
@@ -280,6 +293,7 @@ Context {C : Precategory}.
 Section Representation_FComprehension.
 
 Context (pp : mor_total (preShv C)).
+
 
 (* TODO: there is considerable redundancy between this and [cwf_fiber_representation_weq] above; in particular, the same reassociation is used. Try to consolidate? *)
 Definition weq_cwf_fiber_representation_fpullback {Γ : C} (A : Ty pp Γ : hSet)
@@ -309,18 +323,8 @@ Proof.
   (* show the two forms of the equality axiom are equivalent *)
   - intros v; simpl.
     apply weqimplimpl.
-    (* TODO: abstract the following, as bidirectional version of [cwf_square_comm]. *)
-    + intros e. 
-      refine (cwf_square_comm (_,,_) (_,,e)).
-    + intros ey. 
-      assert (ey' := nat_trans_eq_pointwise ey ΓA); clear ey; cbn in ey'.
-      assert (ey'' := toforallpaths _ _ _ ey' (identity _)); clear ey';
-      cbn in ey''.
-      etrans. etrans. Focus 2. apply @pathsinv0, ey''.
-      * apply maponpaths, @pathsinv0.
-        apply (toforallpaths _ _ _ (functor_id (Tm pp) _)).
-      * unfold yoneda_morphisms_data.
-        apply maponpaths_2, id_left.
+    + apply @cwf_square_comm.
+    + apply @cwf_square_comm_converse.
     + apply setproperty.
     + refine (homset_property (preShv C) _ _ _
         (fq _

@@ -157,7 +157,7 @@ Proof.
            canonical_TM_to_given_pointwise_iso).
   apply homset_property.
 Qed.
-(* TODO: perhaps reorganisae the above a little?  Under the current definitions, [iso_inv_from_iso canonical_TM_to_given_iso] is *not* definitionally equal to [given_TM_to_canonical], which is a little annoying downstream (lemmas about [given_TM_to_canonical] can’t be applied). *)  
+(* TODO: perhaps reorganise the above a little?  Under the current definitions, [iso_inv_from_iso canonical_TM_to_given_iso] is *not* definitionally equal to [given_TM_to_canonical], which is a little annoying downstream (lemmas about [given_TM_to_canonical] can’t be applied). *)  
 
 Definition given_TM_to_canonical
   : (TM Y) --> (tm_from_qq Z)
@@ -192,29 +192,6 @@ Proof.
 Qed.
 
 End canonical_TM.
-
-(* TODO: upstream this and the following lemma? *)
-Lemma transportf_pshf
-    {P P' : preShv C} (e : P = P')
-    {c : C} (x : (P : functor _ _) c : hSet)
-  : transportf (fun Q : preShv C => (Q : functor _ _) c : hSet) e x
-  = ((idtoiso e : _ --> _) : nat_trans _ _) c x.
-Proof.
-  destruct e; apply idpath.
-Qed.
-
-Lemma transportf_isotoid_pshf
-    {P P' : preShv C} (i : iso P P')
-    {c : C} (x : (P : functor _ _) c : hSet)
-  : transportf (fun Q : preShv C => (Q : functor _ _) c : hSet)
-      (isotoid _ (category_is_category (preShv C)) i) x
-  = ((i : _ --> _) : nat_trans _ _) c x.
-Proof.
-  etrans. apply transportf_pshf.
-  refine (toforallpaths _ _ _ _ x).
-  refine (toforallpaths _ _ _ _ c).
-  apply maponpaths, maponpaths, idtoiso_isotoid.
-Qed.
 
 Lemma compatible_term_structure_equals_canonical
   {Z : qq_morphism_structure X} (Y : compatible_term_structure Z)

@@ -241,16 +241,18 @@ Proof.
   apply (isweqbandfmap (weqpair w Hw) _ _ (fun x => weqpair _ (Hfw x))).
 Defined.
 
-(*
-Definition rewrite_in_equivalence (A X : UU) (a a' b : A) :
-  a = a' → (a' = b) ≃ X → (a = b) ≃ X.
+(* TODO: see if this can be used to more easily get other instances of [weqtotal2asstol] that currently need careful use of [specialize]. *)
+Lemma weqtotal2asstol' {X : UU} (P : X → UU) (Q : forall x, P x → UU)
+  : (∑ (x : X) (p : P x), Q x p) ≃ (∑ (y : ∑ x, P x), Q (pr1 y) (pr2 y)).
 Proof.
-  intros.
-  set  (H:= weqpair _ (isweqpathscomp0l b (!X0))).
-  eapply weqcomp. apply H.
-  apply X1.
+  exact (weqtotal2asstol P (fun y => Q (pr1 y) (pr2 y))). 
 Defined.
-*)
+
+Lemma weqtotal2asstor' {X : UU} (P : X → UU) (Q : forall x, P x → UU)
+  : (∑ (y : ∑ x, P x), Q (pr1 y) (pr2 y)) ≃ (∑ (x : X) (p : P x), Q x p).
+Proof.
+  exact (weqtotal2asstor P (fun y => Q (pr1 y) (pr2 y))). 
+Defined.
 
 (** ** Other general lemmas *)
 
@@ -1756,5 +1758,28 @@ Arguments Pb_map_commutes_2 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 
 (* Lemmas that probably belong in one of the sections above, but haven’t been sorted into them yet.  Mainly a temporary holding pen for lemmas being upstreamed from other files. TODO: empty this bin frequently (but keep it here for re-use). *) 
 Section Unorganised.
+
+(* TODO: upstream this and the following lemma? *)
+Lemma transportf_pshf {C : precategory}
+    {P P' : preShv C} (e : P = P')
+    {c : C} (x : (P : functor _ _) c : hSet)
+  : transportf (fun Q : preShv C => (Q : functor _ _) c : hSet) e x
+  = ((idtoiso e : _ --> _) : nat_trans _ _) c x.
+Proof.
+  destruct e; apply idpath.
+Qed.
+
+Lemma transportf_isotoid_pshf {C : precategory}
+    {P P' : preShv C} (i : iso P P')
+    {c : C} (x : (P : functor _ _) c : hSet)
+  : transportf (fun Q : preShv C => (Q : functor _ _) c : hSet)
+      (isotoid _ (category_is_category (preShv C)) i) x
+  = ((i : _ --> _) : nat_trans _ _) c x.
+Proof.
+  etrans. apply transportf_pshf.
+  refine (toforallpaths _ _ _ _ x).
+  refine (toforallpaths _ _ _ _ c).
+  apply maponpaths, maponpaths, idtoiso_isotoid.
+Qed.
 
 End Unorganised.

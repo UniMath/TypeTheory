@@ -617,7 +617,7 @@ Proof.
     apply funextsec; intros Γ.
     etrans. refine (transportf_forall _ _ _).
     apply funextsec; intros A.
-    etrans. apply CwF_SplitTypeCat_Equivalence.transportf_pshf.
+    etrans. apply transportf_pshf.
     etrans.
       refine (toforallpaths _ _ _ _ (te _ _)).
       refine (toforallpaths _ _ _ _ _).

@@ -301,25 +301,6 @@ Definition pp_from_qq : preShv C ⟦tm_from_qq, TY X⟧
 
 Arguments pp_from_qq : simpl never.
 
-(* TODO: upstream *)
-(* TODO: any reason why comp_ext_compare is the morphism not just the iso?? *)
-Lemma comp_ext_compare_inv
-    {Γ : C} {A A' : Ty X Γ : hSet} (e : A = A')
-  : Δ (!e) = inv_from_iso (idtoiso (maponpaths (comp_ext X Γ) e)).
-Proof.
-  destruct e; apply idpath.
-Defined.
-
-Lemma comp_ext_compare_qq_general
-  {Γ Γ' : C} {f f' : Γ' --> Γ} (e : f = f')
-  {A : Ty X Γ} (eA : A[f] = A[f']) 
-  : comp_ext_compare eA ;; qq Z f' A
-  = qq Z f A.
-Proof.
-  refine (_ @ comp_ext_compare_qq _ e A).
-  apply maponpaths_2, maponpaths, setproperty.
-Qed.
-
 Definition te_from_qq {Γ:C} (A : Ty X Γ)
   : (tm_from_qq : functor _ _) (Γ ◂ A) : hSet.
 Proof.
@@ -373,7 +354,6 @@ Proof.
   apply id_left.
 Qed.
 
-(* TODO: check if this is needed. *)
 Lemma Q_from_qq_reconstruction
     {Γ' : C} ( ft : C ⟦ Γ', Γ ◂ A ⟧ )
   : ft = pr1 (pr2 ((Q_from_qq : nat_trans _ _) Γ' ft)) ;; qq Z ft _ ;; qq Z (π _) A.
