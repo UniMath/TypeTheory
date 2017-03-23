@@ -18,6 +18,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.ALV1.RelativeUniverses.
+Require Import TypeTheory.ALV1.Transport_along_Equivs.
 Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
 
 Set Automatic Introduction.
@@ -386,8 +387,112 @@ Proof.
     + apply yoneda_fully_faithful.
 Qed.
 
-(** ** Descent along Rezk-completion *)
+(** ** Transport along a weak equivalence *)
+Definition transfer_cwf_weak_equiv {C D : Precategory} (F : C ⟶ D)
+           (F_ff : fully_faithful F) (F_es : essentially_surjective F)
+           (Dcat : is_category D) 
+  : cwf_structure C → cwf_structure D.
+Proof.
+  intro CC.
+  apply (invmap (@weq_cwf_structure_RelUnivYo _)).
+  apply (Transfer_of_RelUnivYoneda F F_ff F_es Dcat).
+  apply (weq_cwf_structure_RelUnivYo _).
+  exact CC.
+Defined.
 
+(** *** Recovering the original morphism of presheaves after transport *)
+
+Section CwF_Ftransport_recover.
+
+Context {C D : Precategory} 
+        (F : C ⟶ D)
+        (F_ff : fully_faithful F) 
+        (F_es : essentially_surjective F)
+        (Dcat : is_category D) 
+        (T : cwf_structure C).
+
+Let DD : category := (pr1 D,,Dcat).
+Let T' : cwf_structure D := transfer_cwf_weak_equiv F F_ff F_es Dcat T.
+Let TM : preShv C := Tm (pr1 T).
+Let TM' : preShv DD := Tm (pr1 T').
+Let TY : preShv C := Ty (pr1 T).
+Let TY' : preShv D := Ty (pr1 T').
+
+Let pp : _ ⟦ TM , TY ⟧ := pr1 T.
+Let pp' : _ ⟦ TM' , TY' ⟧ := pr1 T'.
+
+Let hsDop : has_homsets (opp_precat D) := has_homsets_opp (homset_property _).
+
+Let ηη : functor (preShv D) (preShv C) :=
+  pre_composition_functor _ _ _ hsDop (has_homsets_HSET) (functor_opp F).
+
+Let isweq_Fcomp : isweq (pr1 (pr1 (Fop_precomp F))) := 
+adj_equiv_of_cats_is_weq_of_objects 
+               _ _ 
+               (is_category_functor_category _ _ is_category_HSET )
+               (is_category_functor_category _ _ is_category_HSET )
+               _ 
+               (equiv_Fcomp F F_ff F_es).
+
+Lemma Tm_transfer_recover : 
+      TM = ηη TM'.
+Proof.
+  assert (XT := homotweqinvweq (weqpair _ isweq_Fcomp) TM).
+  apply pathsinv0.
+  apply XT.
+Defined.  
+
+Lemma Ty_transfer_recover : 
+   TY = ηη TY'.
+Proof.
+  assert (XT := homotweqinvweq (weqpair _ isweq_Fcomp) TY).
+  apply pathsinv0.
+  apply XT.
+Defined.  
+
+Let Fopequiv : adj_equivalence_of_precats _  := equiv_Fcomp F F_ff F_es.
+
+
+Definition pp'_eta : 
+  preShv C ⟦ ηη TM' , ηη TY' ⟧.
+Proof.
+  apply (# ηη pp').
+Defined.
+
+Definition Tm_iso : iso (ηη TM') TM.
+Proof.
+  set (XR':=  counit_pointwise_iso_from_adj_equivalence Fopequiv TM).
+  apply XR'.
+Defined.
+
+Definition Ty_iso : iso (ηη TY') TY.
+Proof.
+  set (XR':=  counit_pointwise_iso_from_adj_equivalence Fopequiv TY).
+  apply XR'.
+Defined.
+
+Lemma Morphism_of_presheaves_transfer_recover : Tm_iso ;; pp = pp'_eta ;; Ty_iso.
+Proof.
+  assert (XR := nat_trans_ax (counit_from_left_adjoint Fopequiv) _ _ pp).
+  apply pathsinv0.
+  etrans.  Focus 2. apply XR.
+  clear XR.
+  set (TT := #(right_adjoint Fopequiv) pp).
+  set (TTT := #ηη TT).
+  apply maponpaths_2.
+  pathvia TTT. 
+  - apply maponpaths. unfold pp'. 
+    unfold TT.
+    unfold T'.
+    apply idpath.
+  - apply idpath.
+Qed.
+
+End CwF_Ftransport_recover.
+
+
+(** ** Descent along Rezk-completion *)
+(** The construction below is also a special case of [transfer_cwf_weak_equiv] *)
 Definition Rezk_on_cwf_structures {C : Precategory} (CC : cwf_structure C)
   : cwf_structure (Rezk_completion C (homset_property _)).
 Proof.
@@ -396,6 +501,93 @@ Proof.
   apply (weq_cwf_structure_RelUnivYo _).
   exact CC.
 Defined.
+
+Section CwF_RC_recover.
+
+Context {C : Precategory} (T : cwf_structure C).
+
+Let RC : category := Rezk_completion C (homset_property _ ).
+Let T' : cwf_structure RC := Rezk_on_cwf_structures T.
+Let TM : preShv C := Tm (pr1 T).
+Let TM' : preShv RC := Tm (pr1 T').
+Let TY : preShv C := Ty (pr1 T).
+Let TY' : preShv RC := Ty (pr1 T').
+
+Let pp : _ ⟦ TM , TY ⟧ := pr1 T.
+Let pp' : _ ⟦ TM' , TY' ⟧ := pr1 T'.
+
+Let hsRCop : has_homsets (opp_precat RC) := has_homsets_opp (homset_property _).
+
+Let ηη : functor (preShv RC) (preShv C) :=
+  pre_composition_functor _ _ _ hsRCop (has_homsets_HSET) (functor_opp (Rezk_eta C _ )).
+
+Lemma Tm_Rezk_completion_recover : 
+ (*  Tm = functor_composite (functor_opp (Rezk_eta C _ )) Tm'.*)
+      TM = ηη TM'.
+Proof.
+  set (XR := Rezk_opp_weq C (homset_property C) HSET is_category_HSET).
+  assert (XT := homotweqinvweq XR TM).
+  apply pathsinv0.
+  apply XT.
+Defined.  
+
+Lemma Ty_Rezk_completion_recover : 
+(*   Ty = functor_composite (functor_opp (Rezk_eta C _ )) Ty'. *)
+   TY = ηη TY'.
+Proof.
+  set (XR := Rezk_opp_weq C (homset_property C) HSET is_category_HSET).
+  assert (XT := homotweqinvweq XR TY).
+  apply pathsinv0.
+  apply XT.
+Defined.  
+
+
+Let RCequiv : adj_equivalence_of_precats _  := Rezk_op_adj_equiv C (homset_property C) 
+          HSET is_category_HSET.
+
+Lemma has_homsets_preShv (D : precategory) : has_homsets (preShv D).
+Proof.
+  apply functor_category_has_homsets.
+Defined.
+
+Definition RC_pp'_eta : 
+  preShv C ⟦ ηη TM' , ηη TY' ⟧.
+Proof.
+  apply (# ηη pp').
+Defined.
+
+Definition RC_Tm_iso : iso (ηη TM') TM.
+Proof.
+  set (XR':=  counit_pointwise_iso_from_adj_equivalence RCequiv TM).
+  apply XR'.
+Defined.
+
+Definition RC_Ty_iso : iso (ηη TY') TY.
+Proof.
+  set (XR':=  counit_pointwise_iso_from_adj_equivalence RCequiv TY).
+  apply XR'.
+Defined.
+
+
+
+Lemma RC_morphism_of_presheaves_recover : RC_Tm_iso ;; pp = RC_pp'_eta ;; RC_Ty_iso.
+Proof.
+  assert (XR := nat_trans_ax (counit_from_left_adjoint RCequiv) _ _ pp).
+  apply pathsinv0.
+  etrans.  Focus 2. apply XR.
+  clear XR.
+  set (TT := #(right_adjoint RCequiv) pp).
+  set (TTT := #ηη TT).
+  apply maponpaths_2.
+  pathvia TTT. 
+  - apply maponpaths. unfold pp'. 
+    unfold TT.
+    unfold T'.
+    apply idpath.
+  - apply idpath.
+Qed.
+
+End CwF_RC_recover.
 
 
 
