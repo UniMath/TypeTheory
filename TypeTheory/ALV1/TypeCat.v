@@ -90,7 +90,7 @@ we have to split up the definition into several steps:
 
 Section Type_Precats.
 
-Definition type_cat_struct1 (C : precategory) :=
+Definition type_cat_structure1 (C : precategory) :=
   ∑ (ty : C -> UU)
     (ext : ∏ Γ, ty Γ -> C),
       ∏ Γ (A : ty Γ) Γ' (f : Γ' --> Γ), ty Γ'.
@@ -103,12 +103,12 @@ Coercion precat_from_type_precat1 : type_precat1 >-> precategory.
 (** Since the various access functions should eventually apply directly to type-categories
 as well as type-precategories (via coercion from the former to the latter), we drop the [pre] in their names. *)
 
-Definition ty_type_cat {CC : precategory} (C : type_cat_struct1 CC) : CC -> UU 
+Definition ty_type_cat {CC : precategory} (C : type_cat_structure1 CC) : CC -> UU 
  := pr1  C.
 
-Coercion ty_type_cat : type_cat_struct1 >-> Funclass.
+Coercion ty_type_cat : type_cat_structure1 >-> Funclass.
 
-Definition ext_type_cat {CC : precategory} {C : type_cat_struct1 CC} 
+Definition ext_type_cat {CC : precategory} {C : type_cat_structure1 CC} 
   (Γ : CC) (A : C Γ) : CC
    := pr1 (pr2  C) Γ A.
 Notation "Γ ◂ A" := (ext_type_cat Γ A) (at level 45, left associativity).
@@ -118,14 +118,14 @@ Notation "Γ ◂ A" := (ext_type_cat Γ A) (at level 45, left associativity).
   which should in turn be above the level of composition "g;;f",
   to allow expressions like "c◂a[g;;f]". *)
 
-Definition reind_type_cat {CC : precategory} {C : type_cat_struct1 CC}
+Definition reind_type_cat {CC : precategory} {C : type_cat_structure1 CC}
   {Γ : CC} (A : C Γ) {Γ'} (f : Γ' --> Γ) : C Γ'
   := pr2 (pr2 C) Γ A Γ' f.
 Notation "A {{ f }}" := (reind_type_cat A f) (at level 40).
 
 (** * Pullback of dependent projections *)
 
-Definition type_cat_struct2 {CC : precategory} (C : type_cat_struct1 CC) :=
+Definition type_cat_structure2 {CC : precategory} (C : type_cat_structure1 CC) :=
   ∑ (dpr : ∏ Γ (A : C Γ), Γ◂A --> Γ)
     (q : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ), (Γ'◂A{{f}}) --> Γ◂A )
     (dpr_q : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ), 
@@ -134,42 +134,42 @@ Definition type_cat_struct2 {CC : precategory} (C : type_cat_struct1 CC) :=
       isPullback _ _ _ _ (!dpr_q _ A _ f).
 (* TODO: change name [dpr_q] to [q_dpr] throughout, now that composition is diagrammatic order? *)
 
-Definition type_cat_struct (CC : precategory) 
-  := ∑ C : type_cat_struct1 CC , type_cat_struct2 C.
+Definition type_cat_structure (CC : precategory) 
+  := ∑ C : type_cat_structure1 CC , type_cat_structure2 C.
 
-Definition type_precat1_from_type_precat (CC : precategory)(C : type_cat_struct CC) 
-  : type_cat_struct1 _  := pr1 C.
-Coercion type_precat1_from_type_precat : type_cat_struct >-> type_cat_struct1.
+Definition type_precat1_from_type_precat (CC : precategory)(C : type_cat_structure CC) 
+  : type_cat_structure1 _  := pr1 C.
+Coercion type_precat1_from_type_precat : type_cat_structure >-> type_cat_structure1.
 
-Definition dpr_type_cat {CC : precategory}{C : type_cat_struct CC} {Γ} (A : C Γ)
+Definition dpr_type_cat {CC : precategory}{C : type_cat_structure CC} {Γ} (A : C Γ)
   : (Γ◂A) --> Γ
 := pr1 (pr2 C) Γ A.
 
-Definition q_type_cat {CC : precategory} {C : type_cat_struct CC} {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ)
+Definition q_type_cat {CC : precategory} {C : type_cat_structure CC} {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ)
   : (Γ' ◂ A{{f}}) --> (Γ ◂ A) 
 :=
   pr1 (pr2 (pr2 C)) _ A _ f.
 
-Definition dpr_q_type_cat {CC : precategory} {C : type_cat_struct CC} {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ)
+Definition dpr_q_type_cat {CC : precategory} {C : type_cat_structure CC} {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ)
   : (q_type_cat A f) ;; (dpr_type_cat A) = (dpr_type_cat (A{{f}})) ;; f
 :=
   pr1 (pr2 (pr2 (pr2 C))) _ A _ f.
 
-Definition reind_pb_type_cat {CC : precategory} {C : type_cat_struct CC} {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ)
+Definition reind_pb_type_cat {CC : precategory} {C : type_cat_structure CC} {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ)
   : isPullback _ _ _ _ (!dpr_q_type_cat A f)
 :=
   pr2 (pr2 (pr2 (pr2 C))) _ A _ f.
 
 (** * Type-saturation *)
 
-Definition is_type_saturated_type_cat {CC : precategory} (C : type_cat_struct CC) : UU
+Definition is_type_saturated_type_cat {CC : precategory} (C : type_cat_structure CC) : UU
   := ∏ Γ, isincl (λ A : C Γ, tpair (λ X, X --> Γ) (Γ ◂ A) (dpr_type_cat A)).
 
 
 (** * Splitness *)
 
 (** A type-precategory [C] is _split_ if each collection of types [C Γ] is a set, reindexing is strictly functorial, and the [q] maps satisfy the evident functoriality axioms *) 
-Definition is_split_type_cat {CC : precategory} (C : type_cat_struct CC)
+Definition is_split_type_cat {CC : precategory} (C : type_cat_structure CC)
   := (∏ Γ:CC, isaset (C Γ))
      × (∑ (reind_id : ∏ Γ (A : C Γ), A {{identity Γ}} = A),
          ∏ Γ (A : C Γ), q_type_cat A (identity Γ)
@@ -183,7 +183,7 @@ Definition is_split_type_cat {CC : precategory} (C : type_cat_struct CC)
                ;; q_type_cat A f).
 
 Lemma isaprop_is_split_type_cat (CC : precategory) (hs : has_homsets CC)
-       (C : type_cat_struct CC) : isaprop (is_split_type_cat C).
+       (C : type_cat_structure CC) : isaprop (is_split_type_cat C).
 Proof.
   repeat (apply isofhleveltotal2; intros).
   - apply impred; intro; apply isapropisaset.
@@ -195,24 +195,24 @@ Proof.
     apply hs.
 Qed.
 
-Definition split_type_struct (CC : precategory) : UU 
-  := ∑ C : type_cat_struct CC, is_split_type_cat C.
+Definition split_type_structure (CC : precategory) : UU 
+  := ∑ C : type_cat_structure CC, is_split_type_cat C.
 
-Coercion type_cat_from_split (CC : precategory) (C : split_type_struct CC) 
-  : type_cat_struct _ 
+Coercion type_cat_from_split (CC : precategory) (C : split_type_structure CC) 
+  : type_cat_structure _ 
   := pr1 C.
 
-Coercion is_split_from_split_type_cat (CC : precategory) (C : split_type_struct CC)
+Coercion is_split_from_split_type_cat (CC : precategory) (C : split_type_structure CC)
   : is_split_type_cat C
   := pr2 C.
 
-Definition reind_comp_type_cat {CC : precategory} {C : type_cat_struct CC}
+Definition reind_comp_type_cat {CC : precategory} {C : type_cat_structure CC}
            (H : is_split_type_cat C)
   : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
       A {{g;;f}} = A{{f}}{{g}}
   := pr1 (pr2 (pr2 H)).
 
-Definition q_q_type_cat {CC : precategory} {C : split_type_struct CC}
+Definition q_q_type_cat {CC : precategory} {C : split_type_structure CC}
   : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
             q_type_cat A (g ;; f)
             =  idtoiso (maponpaths (fun b => Γ''◂b) (reind_comp_type_cat C _ A _ f _ g))
@@ -230,7 +230,7 @@ Definition type_precat_of_split (C : split_type_precat) := pr1 C.
 
 Section access_functions.
 
-Context {CC : precategory} {C : type_cat_struct CC} (T : is_split_type_cat C).
+Context {CC : precategory} {C : type_cat_structure CC} (T : is_split_type_cat C).
 
 Definition isaset_types_typecat : ∏ Γ:CC, isaset (C Γ) := pr1 T.
 
@@ -268,7 +268,7 @@ Notation "A {{ f }}" := (reind_type_cat A f) (at level 40).
 Section lemmas.
 
 Variable CC : precategory.
-Variable  C : split_type_struct CC.
+Variable  C : split_type_structure CC.
 Variable hs : has_homsets CC.
 
 Lemma transportf_dpr_type_cat (Γ : CC)

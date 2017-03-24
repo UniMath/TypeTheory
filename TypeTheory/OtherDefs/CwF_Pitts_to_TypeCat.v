@@ -67,9 +67,9 @@ Section TypePreCat_of_PreCwF.
    TODO: discuss namine of [has_homsets]: wouldn’t e.g. [homs_are_sets] be clearer? *)
 Context (CC : precategory) (C : cwf_struct CC) (homs_sets : has_homsets CC).
 
-Definition type_cat1_of_precwf : type_cat_struct1 CC.
+Definition type_cat1_of_precwf : type_cat_structure1 CC.
 Proof.
-  unfold type_cat_struct1.
+  unfold type_cat_structure1.
   exists (type C).
   exists (comp_obj ).  
   exact (fun Γ a Γ' f => a{{f}}).
@@ -77,10 +77,10 @@ Defined.
 
 (** We can now assemble the components into a type-precategory: *)
 
-Definition type_cat_of_precwf : type_cat_struct CC.
+Definition type_cat_of_precwf : type_cat_structure CC.
 Proof.
   exists type_cat1_of_precwf.
-  unfold type_cat_struct2.
+  unfold type_cat_structure2.
   exists (@proj_mor CC C).
   exists (@q_precwf CC C).
   exists (@dpr_q_precwf CC C).
