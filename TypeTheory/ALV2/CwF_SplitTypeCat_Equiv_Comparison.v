@@ -68,7 +68,7 @@ Section Compare_Equivs_of_Types.
 Context (X : obj_ext_Precat C).
  
 Theorem compare_term_qq_equivs
-  : term_struc_to_qq_struc_equiv_types X = weq_CwF_SplitTypeCat X.
+  : term_struc_to_qq_struc_equiv_types X = weq_term_qq X.
 Proof.
   apply eq_weq, idpath.
 Defined.

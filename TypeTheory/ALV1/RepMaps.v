@@ -23,6 +23,7 @@ Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.ALV1.CwF_def.
 Require Import TypeTheory.ALV1.RelativeUniverses.
 Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
+Require Import TypeTheory.ALV1.Transport_along_Equivs.
 
 Set Automatic Introduction.
 
@@ -146,6 +147,19 @@ End Fix_Category.
 
 (** ** Equivalence between rep. maps of presheaves on [C] and on its Rezk completion
 *)
+
+Definition transfer_rep_map_weak_equiv {C D : Precategory} (F : C ⟶ D)
+           (F_ff : fully_faithful F) (F_es : essentially_surjective F)
+  : rep_map C ≃ rep_map D.
+Proof.
+  eapply weqcomp.
+    apply weq_rep_map_mere_relative_universe_Yo.
+  eapply weqcomp.
+    apply (Transfer_of_MereRelUnivYoneda F F_ff F_es).
+  apply invweq. apply weq_rep_map_mere_relative_universe_Yo.
+Defined.
+
+(** This could be made an instance of the above *)
 
 Definition Rezk_on_rep_map (C : Precategory)
   : rep_map C ≃ rep_map (Rezk_completion C (homset_property _)).

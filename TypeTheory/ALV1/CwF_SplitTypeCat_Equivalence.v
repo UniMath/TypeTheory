@@ -346,7 +346,7 @@ Proof.
   apply iscontr_compatible_split_comp_structure.
 Defined.
 
-Definition weq_CwF_SplitTypeCat : term_fun_structure C X ≃ qq_morphism_structure X.
+Definition weq_term_qq : term_fun_structure C X ≃ qq_morphism_structure X.
 Proof.
   eapply weqcomp.
     eapply invweq. apply forget_compat_qq.
@@ -359,5 +359,10 @@ End Equivalence.
 
 End Fix_Context.
 
+Definition weq_cwf'_sty' C : cwf'_structure C ≃ split_typecat'_structure C.
+Proof.
+  apply weqfibtototal.
+  intro X. apply weq_term_qq.
+Defined.
 
  
