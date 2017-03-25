@@ -771,7 +771,7 @@ Defined.
 
 
 Lemma equiv_of_types_equal_direct_constr 
-  : equiv_of_types_of_structures ~ weq_CwF_SplitTypeCat X.
+  : equiv_of_types_of_structures ~ weq_term_qq X.
 Proof.
   intro Y.
   apply idpath.

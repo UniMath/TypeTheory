@@ -22,7 +22,7 @@ Section TypeCat_to_DM.
 
 Variable CC : precategory.
 Variable H : is_category CC.  
-Variable C : type_cat_struct CC.
+Variable C : type_cat_structure CC.
 
 Definition iso_to_dpr {Γ Γ'} (γ : Γ --> Γ') : UU
   := ∑ (A : C Γ') (f : iso (Γ'◂ A) Γ),

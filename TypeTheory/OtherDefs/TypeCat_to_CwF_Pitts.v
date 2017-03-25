@@ -18,7 +18,7 @@ Require Import TypeTheory.OtherDefs.CwF_Pitts.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
 (* TODO: move *)
-Lemma idtoiso_q_type_cat {CC : precategory} {C : type_cat_struct CC}
+Lemma idtoiso_q_type_cat {CC : precategory} {C : type_cat_structure CC}
       {Γ : CC} (A : C Γ) {Γ' : CC} {f f' : Γ' --> Γ} (e : f = f') :
       q_type_cat A f
       = (idtoiso (maponpaths (fun f => ext_type_cat Γ' (reind_type_cat A f)) e))
@@ -40,7 +40,7 @@ Since the components of the pre-cat with Families structure are highly successiv
 Section CwF_of_Comp. 
 
 (* TODO: here and in other old files, use [Precategory] instead of explicit [has_homsets] assumptions. *)
-Context (CC : precategory) (C : split_type_struct CC) (homs_sets : has_homsets CC).
+Context (CC : precategory) (C : split_type_structure CC) (homs_sets : has_homsets CC).
 
 Definition tt_structure_of_type_cat : tt_structure CC.
 Proof.

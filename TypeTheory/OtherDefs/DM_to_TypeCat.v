@@ -27,9 +27,9 @@ Variable C : DM_structure CC.
 
 
 
-Definition type_cat_struct1_from_DM : type_cat_struct1 CC.
+Definition type_cat_structure1_from_DM : type_cat_structure1 CC.
 Proof.
-  unfold type_cat_struct1.
+  unfold type_cat_structure1.
   exists (DM_over C).
 (*  exists (fun X => ∑ (Yf : ∑ Y, X --> Y), DM_type C (pr2 Yf)). *)
   refine (tpair _ _ _ ).
@@ -43,13 +43,13 @@ Proof.
       refine (pr2 (pb_DM_of_DM _ _ )).
 Defined.
 
-Definition type_cat_struct2_from_DM : type_cat_struct2 type_cat_struct1_from_DM.
+Definition type_cat_structure2_from_DM : type_cat_structure2 type_cat_structure1_from_DM.
 Proof.
-  unfold type_cat_struct2.
+  unfold type_cat_structure2.
   unshelve refine (tpair _ _ _ ).
   - intros Γ A; simpl.
     unfold ext_type_cat. simpl.
-    unfold type_cat_struct1_from_DM in A. simpl in *.
+    unfold type_cat_structure1_from_DM in A. simpl in *.
     apply (pr2 (pr1 A)).
   - simpl.
     unshelve refine (tpair _ _ _ ).
@@ -66,10 +66,10 @@ Proof.
           apply hs. }
 Defined.
 
-Definition type_cat_struct_from_DM : type_cat_struct CC.
+Definition type_cat_struct_from_DM : type_cat_structure CC.
 Proof.
-  exists type_cat_struct1_from_DM.
-  exact type_cat_struct2_from_DM.
+  exists type_cat_structure1_from_DM.
+  exact type_cat_structure2_from_DM.
 Defined.
 
 Lemma is_type_saturated_type_cat_from_DM : is_type_saturated_type_cat type_cat_struct_from_DM.
