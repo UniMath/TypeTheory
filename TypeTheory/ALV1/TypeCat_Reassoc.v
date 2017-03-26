@@ -422,7 +422,7 @@ End Structural_to_Regrouped.
 
 Section Standalone_to_Regrouped.
 
-Definition weq_standalone_to_regrouped
+Definition weq_standalone_to_regrouped (* TODO: change name (and others in this file) to be more informative *)
   : split_type_struct CC
   ≃ split_typecat'_structure CC.
 Proof.
