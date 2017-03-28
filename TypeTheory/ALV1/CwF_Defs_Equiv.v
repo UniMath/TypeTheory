@@ -216,8 +216,9 @@ Proof.
   use weqtotal2asstol.
 Defined.
 
-Definition weq_cwf'_cwf_structure : cwf'_structure C ≃ cwf_structure C.
+Definition weq_cwf_cwf'_structure : cwf_structure C ≃ cwf'_structure C.
 Proof.
+  apply invweq.
   eapply weqcomp.
   apply weq_cwf'_cwf1_structure.
   apply weqfibtototal; intro pp.
@@ -227,4 +228,4 @@ Defined.
 End Fix_Category.
 
 Arguments weq_cwf'_cwf1_structure _ : clear implicits.
-Arguments weq_cwf'_cwf_structure _ : clear implicits.
+Arguments weq_cwf_cwf'_structure _ : clear implicits.

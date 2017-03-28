@@ -36,7 +36,7 @@ Definition weq_sty_cwf (C : Precategory)
 Proof.
   eapply weqcomp. apply weq_standalone_to_regrouped.
   eapply weqcomp. eapply invweq. apply weq_cwf'_sty'.
-  apply weq_cwf'_cwf_structure.
+  apply invweq, weq_cwf_cwf'_structure.
 Defined.
 
 (** * Map from [cwf_structure C] to [rep_map C] *)
