@@ -67,9 +67,9 @@ Section TypePreCat_of_PreCwF.
    TODO: discuss namine of [has_homsets]: wouldn’t e.g. [homs_are_sets] be clearer? *)
 Context (CC : precategory) (C : cwf_struct CC) (homs_sets : has_homsets CC).
 
-Definition type_cat1_of_precwf : type_cat_structure1 CC.
+Definition type_cat1_of_precwf : typecat_structure1 CC.
 Proof.
-  unfold type_cat_structure1.
+  unfold typecat_structure1.
   exists (type C).
   exists (comp_obj ).  
   exact (fun Γ a Γ' f => a{{f}}).
@@ -77,10 +77,10 @@ Defined.
 
 (** We can now assemble the components into a type-precategory: *)
 
-Definition type_cat_of_precwf : type_cat_structure CC.
+Definition type_cat_of_precwf : typecat_structure CC.
 Proof.
   exists type_cat1_of_precwf.
-  unfold type_cat_structure2.
+  unfold typecat_structure2.
   exists (@proj_mor CC C).
   exists (@q_precwf CC C).
   exists (@dpr_q_precwf CC C).
@@ -93,16 +93,16 @@ Defined.
 (** Moreover, the type-precat of a pre-CwF is always split. *)
 
 Definition issplit_type_precat_of_precwf
-  : is_split_type_cat type_cat_of_precwf.
+  : is_split_typecat type_cat_of_precwf.
 Proof.
-  unfold is_split_type_cat.
+  unfold is_split_typecat.
   repeat split. 
   - (* Types over each object form a set *)
     apply cwf_types_isaset.
   - (* Reindexing along identities *)
     exists (reindx_type_id C).
     intros Γ A. 
-    unfold q_type_cat; simpl. unfold q_precwf.
+    unfold q_typecat; simpl. unfold q_precwf.
     eapply pathscomp0. Focus 2. apply id_left.
     eapply pathscomp0. Focus 2.
       refine (maponpaths (fun q => q ;; _) _).
@@ -115,7 +115,7 @@ Proof.
     apply maponpaths. simpl.
     eapply pathscomp0. apply transport_f_f.
     unshelve refine (_ @ _).
-      exact (transportf (term C (Γ ◂ reind_type_cat A (identity Γ)))
+      exact (transportf (term C (Γ ◂ reind_typecat A (identity Γ)))
         (maponpaths (fun B => B {{π (A {{identity Γ}})}}) (reindx_type_id C Γ A))
         (ν (A {{identity Γ}}))).
     apply term_typeeq_transport_lemma.
@@ -125,12 +125,12 @@ Proof.
   - (* Reindexing along composites *)
     exists (fun Γ A Γ' f Γ'' g => reindx_type_comp C f g A).
     intros Γ A Γ' f Γ'' g.
-    unfold q_type_cat. simpl. 
+    unfold q_typecat. simpl. 
     match goal with [|- _ = ?e ] => 
            pathvia (identity _ ;; e); [| apply id_left] end.
     rewrite assoc.
     rewrite assoc.
-    unfold ext_type_cat. simpl.
+    unfold ext_typecat. simpl.
     rewrite <- cwf_law_4.
     rewrite pairing_transport.
     unfold q_precwf. 

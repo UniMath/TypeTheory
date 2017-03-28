@@ -32,7 +32,7 @@ Require Import TypeTheory.ALV1.RepMaps.
 (** * Equivalence of types between split type structures and families structures *)
 
 Definition weq_sty_cwf (C : Precategory)
-  : split_type_structure C ≃ cwf_structure C.
+  : split_typecat_structure C ≃ cwf_structure C.
 Proof.
   eapply weqcomp. apply weq_standalone_to_regrouped.
   eapply weqcomp. eapply invweq. apply weq_cwf'_sty'.
