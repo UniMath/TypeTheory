@@ -18,11 +18,11 @@ Require Import TypeTheory.OtherDefs.CwF_Pitts.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
 (* TODO: move *)
-Lemma idtoiso_q_type_cat {CC : precategory} {C : typecat_structure CC}
+Lemma idtoiso_q_typecat {CC : precategory} {C : typecat_structure CC}
       {Γ : CC} (A : C Γ) {Γ' : CC} {f f' : Γ' --> Γ} (e : f = f') :
-      q_type_cat A f
-      = (idtoiso (maponpaths (fun f => ext_type_cat Γ' (reind_type_cat A f)) e))
-          ;; q_type_cat A f'.
+      q_typecat A f
+      = (idtoiso (maponpaths (fun f => ext_typecat Γ' (reind_typecat A f)) e))
+          ;; q_typecat A f'.
 Proof.
   intros. destruct e; simpl. sym. apply id_left.
   (* Why the heck doesn’t “symmetry” work here!? *)
@@ -40,33 +40,33 @@ Since the components of the pre-cat with Families structure are highly successiv
 Section CwF_of_Comp. 
 
 (* TODO: here and in other old files, use [Precategory] instead of explicit [has_homsets] assumptions. *)
-Context (CC : precategory) (C : split_type_structure CC) (homs_sets : has_homsets CC).
+Context (CC : precategory) (C : split_typecat_structure CC) (homs_sets : has_homsets CC).
 
-Definition tt_structure_of_type_cat : tt_structure CC.
+Definition tt_structure_of_typecat : tt_structure CC.
 Proof.
   unfold tt_structure.
-  exists (ty_type_cat C).
+  exists (ty_typecat C).
   intros Γ A.
-  exact (∑ f : Γ --> Γ ◂ A, f ;; dpr_type_cat _  = identity _ ). 
+  exact (∑ f : Γ --> Γ ◂ A, f ;; dpr_typecat _  = identity _ ). 
 Defined.
 
 
 (* Maybe some of the below stuff should be opaque, to avoid too much unfolding? *)
-Definition reindx_struct_of_type_cat : reindx_structure tt_structure_of_type_cat.
+Definition reindx_struct_of_typecat : reindx_structure tt_structure_of_typecat.
 Proof.
   unfold reindx_structure.
   unshelve refine (tpair _ _ _ ).
   - intros Γ Γ'.
-    unfold tt_structure_of_type_cat.
+    unfold tt_structure_of_typecat.
     simpl.
     intros A γ.
-    exact (reind_type_cat A γ).
-  - intros Γ Γ' A H. unfold tt_structure_of_type_cat in *.
+    exact (reind_typecat A γ).
+  - intros Γ Γ' A H. unfold tt_structure_of_typecat in *.
     simpl in *.
     intro γ.
     unshelve refine (tpair _ _ _ ).
-    + eapply (map_into_Pb _ _ γ (dpr_type_cat A)).
-      * apply reind_pb_type_cat.
+    + eapply (map_into_Pb _ _ γ (dpr_typecat A)).
+      * apply reind_pb_typecat.
       * etrans. apply id_left.
         apply @pathsinv0.
         etrans. eapply pathsinv0. apply assoc.
@@ -76,31 +76,31 @@ Proof.
       apply Pb_map_commutes_1.
 Defined.    
 
-Definition tt_reindx_from_type_cat : tt_reindx_struct CC.
+Definition tt_reindx_from_typecat : tt_reindx_struct CC.
 Proof.
-  exists tt_structure_of_type_cat.
-  exact reindx_struct_of_type_cat.
+  exists tt_structure_of_typecat.
+  exact reindx_struct_of_typecat.
 Defined.
 
-Lemma reindx_laws_type_of_type_cat : reindx_laws_type tt_reindx_from_type_cat.
+Lemma reindx_laws_type_of_typecat : reindx_laws_type tt_reindx_from_typecat.
 Proof.
   split.
-  - unfold tt_reindx_from_type_cat. simpl.
+  - unfold tt_reindx_from_typecat. simpl.
     intros Γ A.
     apply reind_id_type_typecat. apply (pr2 C).
   - intros.
     apply reind_comp_type_typecat. apply (pr2 C).
 Defined.  (* needs to be transparent for comp_law_3 at least *)
 
-Lemma reindx_law_1_term_of_type_cat 
+Lemma reindx_law_1_term_of_typecat 
   (Γ : CC)
-  (A : tt_reindx_from_type_cat ⟨ Γ ⟩)
-  (a : tt_reindx_from_type_cat ⟨ Γ ⊢ A ⟩) :
+  (A : tt_reindx_from_typecat ⟨ Γ ⟩)
+  (a : tt_reindx_from_typecat ⟨ Γ ⊢ A ⟩) :
    a ⟦ identity Γ ⟧ =
-   transportf (λ B : C Γ, ∑ f : Γ --> Γ ◂ B, f;; dpr_type_cat B = identity Γ)
+   transportf (λ B : C Γ, ∑ f : Γ --> Γ ◂ B, f;; dpr_typecat B = identity Γ)
               (! reind_id_type_typecat (pr2 C) Γ A) a.
 Proof.
-  intros. simpl. unfold tt_reindx_from_type_cat in *. simpl in *.
+  intros. simpl. unfold tt_reindx_from_typecat in *. simpl in *.
   apply subtypeEquality.
   intro; apply homs_sets. simpl.
   apply pathsinv0.
@@ -109,19 +109,19 @@ Proof.
     rewrite <- H.
     assert (T:=@transportf_total2).
     assert (T':= T (C Γ) (λ B,  Γ --> Γ ◂ B)). simpl in T'.
-    assert (T'' := T' (λ B f0, f0 ;; dpr_type_cat B = f ;; dpr_type_cat A)).
+    assert (T'' := T' (λ B f0, f0 ;; dpr_typecat B = f ;; dpr_typecat A)).
     simpl in *.
     assert (T3 := T'' _ _ (! (reind_id_type_typecat (pr2 C)  Γ A))).
       (*      assert (T3:= T'' _ _  (! pr1 (pr2 (pr1 (pr2 C))) Γ A) ). *)
-    assert (T4 := T3  (tpair (λ f0 : Γ --> Γ ◂ A, f0;; dpr_type_cat A = f;; dpr_type_cat A) f
-                               (idpath (f;; dpr_type_cat A)))).
+    assert (T4 := T3  (tpair (λ f0 : Γ --> Γ ◂ A, f0;; dpr_typecat A = f;; dpr_typecat A) f
+                               (idpath (f;; dpr_typecat A)))).
     clear T3 T'' T'. simpl in T4.
     assert (T5:= base_paths _ _ T4). clear T4; simpl in *.
     etrans.
     cancel_postcomposition. apply T5.
     clear T5.
 
-    apply transportf_dpr_type_cat.
+    apply transportf_dpr_typecat.
 
   + simpl.
     rewrite id_left.
@@ -135,11 +135,11 @@ Proof.
 *)
     assert (T:=@transportf_total2).
     assert (T':= T (C Γ) (λ B,  Γ --> Γ ◂ B)). simpl in T'.
-    assert (T'' := T' (λ B f, f ;; dpr_type_cat B = identity Γ)).
+    assert (T'' := T' (λ B f, f ;; dpr_typecat B = identity Γ)).
     simpl in *.
     assert (T3 := T'' _ _ (! (reind_id_type_typecat (pr2 C)  Γ A))).
     (*      assert (T3:= T'' _ _  (! pr1 (pr2 (pr1 (pr2 C))) Γ A)).*)
-    assert (T4 := T3 (tpair (λ f0 : Γ --> Γ ◂ A, f0;; dpr_type_cat A = identity Γ) f H)).
+    assert (T4 := T3 (tpair (λ f0 : Γ --> Γ ◂ A, f0;; dpr_typecat A = identity Γ) f H)).
     clear T3 T'' T'. simpl in T4.
     assert (T5:= base_paths _ _ T4). clear T4; simpl in *.
     etrans.
@@ -161,17 +161,17 @@ Lemma foo
   (Γ Γ' Γ'' : CC)
   (γ : Γ' --> Γ)
   (γ' : Γ'' --> Γ')
-  (A : ( tt_reindx_from_type_cat) ⟨ Γ ⟩)
-  (a : ( tt_reindx_from_type_cat) ⟨ Γ ⊢ A ⟩)
+  (A : ( tt_reindx_from_typecat) ⟨ Γ ⟩)
+  (a : ( tt_reindx_from_typecat) ⟨ Γ ⊢ A ⟩)
   :
    a ⟦ γ';; γ ⟧ =
    transportf
-     (λ B : C Γ'', ∑ f : Γ'' --> Γ'' ◂ B, f;; dpr_type_cat B = identity Γ'')
+     (λ B : C Γ'', ∑ f : Γ'' --> Γ'' ◂ B, f;; dpr_typecat B = identity Γ'')
      (! reind_comp_type_typecat (pr2 C) Γ A Γ' γ Γ'' γ') 
      ((a ⟦ γ ⟧) ⟦ γ' ⟧).
 Proof.
   intros.
-  unfold tt_reindx_from_type_cat in *. simpl.
+  unfold tt_reindx_from_typecat in *. simpl.
   apply subtypeEquality.
   intro; apply homs_sets. simpl.
   apply pathsinv0.
@@ -180,13 +180,13 @@ Proof.
                        set (P:=P') ; set (e := e') ; set (x := x') end.
     assert (T:=@transportf_total2).
     assert (T':= T (C Γ'') (λ B,  Γ'' --> Γ'' ◂ B)); clear T; simpl in T'.
-    assert (T'' := T' (λ B f0, f0 ;; dpr_type_cat B = identity Γ''));
+    assert (T'' := T' (λ B f0, f0 ;; dpr_typecat B = identity Γ''));
       clear T'.
     assert (T3:= T'' _ _  e x); clear T''.
     assert (T5:= base_paths _ _ T3); clear T3; simpl in *.
     etrans. cancel_postcomposition. apply T5.
     clear T5.
-    etrans. apply transportf_dpr_type_cat.
+    etrans. apply transportf_dpr_typecat.
     apply (@Pb_map_commutes_1).
 
   + destruct a as [f H]; simpl in *.
@@ -200,7 +200,7 @@ Proof.
       
     assert (T:=@transportf_total2).
     assert (T':= T (C Γ'') (λ B,  Γ'' --> Γ'' ◂ B)); clear T; simpl in T'.
-    assert (T'' := T' (λ B f0, f0 ;; dpr_type_cat B = identity Γ''));
+    assert (T'' := T' (λ B f0, f0 ;; dpr_typecat B = identity Γ''));
       clear T'.
     simpl in T''.
     assert (T3 := T'' _ _ (! (reind_comp_type_typecat (pr2 C)  Γ A Γ' γ Γ'' γ'))); clear T''.
@@ -234,72 +234,72 @@ Proof.
 Qed.
 
   
-Definition reindx_laws_terms_of_type_cat : reindx_laws_terms  reindx_laws_type_of_type_cat.
+Definition reindx_laws_terms_of_typecat : reindx_laws_terms  reindx_laws_type_of_typecat.
 Proof.
   split.
-  - apply reindx_law_1_term_of_type_cat. 
+  - apply reindx_law_1_term_of_typecat. 
   - intros. apply foo.
 Qed.
 
-Definition reindx_laws_of_type_cat : reindx_laws tt_reindx_from_type_cat.
+Definition reindx_laws_of_typecat : reindx_laws tt_reindx_from_typecat.
 Proof.
-  exists reindx_laws_type_of_type_cat.
-  exact reindx_laws_terms_of_type_cat.
+  exists reindx_laws_type_of_typecat.
+  exact reindx_laws_terms_of_typecat.
 Defined.  (* needs to be transparent for comp_law_3 at least *)
 
-Definition comp_1_struct_of_type_cat : comp_1_struct tt_reindx_from_type_cat.
+Definition comp_1_struct_of_typecat : comp_1_struct tt_reindx_from_typecat.
 Proof.
   unfold comp_1_struct.
   intros Γ A.
   unshelve refine (tpair _ _ _ ).
-  - unfold tt_reindx_from_type_cat in A. simpl in A.
-    exact (ext_type_cat Γ A).
-  - exact (dpr_type_cat A).
+  - unfold tt_reindx_from_typecat in A. simpl in A.
+    exact (ext_typecat Γ A).
+  - exact (dpr_typecat A).
 Defined.
 
-Definition tt_reindx_comp_1_of_type_cat : tt_reindx_comp_1_struct CC .
+Definition tt_reindx_comp_1_of_typecat : tt_reindx_comp_1_struct CC .
 Proof.
-  exists tt_reindx_from_type_cat.
-  exact comp_1_struct_of_type_cat.
+  exists tt_reindx_from_typecat.
+  exact comp_1_struct_of_typecat.
 Defined.
 
-Definition comp_2_struct_of_type_cat : comp_2_struct tt_reindx_comp_1_of_type_cat.
+Definition comp_2_struct_of_typecat : comp_2_struct tt_reindx_comp_1_of_typecat.
 Proof.
   split.
-  - unfold tt_reindx_comp_1_of_type_cat in *.
+  - unfold tt_reindx_comp_1_of_typecat in *.
     simpl in *.
     + unshelve refine (tpair _ _ _ ).
       * { unfold comp_obj. simpl. 
           eapply map_into_Pb.
-          - apply  reind_pb_type_cat.
+          - apply  reind_pb_typecat.
           - cancel_postcomposition.
             apply (idpath (identity _ )). }
       * apply Pb_map_commutes_1.
   - intros Γ' γ.
     intro a.
-    unfold tt_reindx_comp_1_of_type_cat in *.
+    unfold tt_reindx_comp_1_of_typecat in *.
     simpl in *.
-    apply (pr1 a ;; q_type_cat _ _ ).
+    apply (pr1 a ;; q_typecat _ _ ).
 Defined.
 
-Definition tt_reindx_type_struct_of_type_cat : tt_reindx_type_struct CC.
+Definition tt_reindx_type_struct_of_typecat : tt_reindx_type_struct CC.
 Proof.
-  exists tt_reindx_comp_1_of_type_cat.
-  exact  comp_2_struct_of_type_cat.
+  exists tt_reindx_comp_1_of_typecat.
+  exact  comp_2_struct_of_typecat.
 Defined.
 
 
-Lemma comp_laws_1_2_of_type_cat : @comp_laws_1_2 CC
-   tt_reindx_type_struct_of_type_cat reindx_laws_of_type_cat.
+Lemma comp_laws_1_2_of_typecat : @comp_laws_1_2 CC
+   tt_reindx_type_struct_of_typecat reindx_laws_of_typecat.
 Proof.
   unfold comp_laws_1_2.
-  intros Γ A Γ' γ a. unfold tt_reindx_type_struct_of_type_cat.
+  intros Γ A Γ' γ a. unfold tt_reindx_type_struct_of_typecat.
   simpl in * .
   unshelve refine (tpair _ _ _ ).
   * unfold pairing. simpl.
     destruct a as [a a_sec]; simpl in *.
     etrans. eapply pathsinv0. apply assoc.
-    etrans. apply maponpaths. apply dpr_q_type_cat.
+    etrans. apply maponpaths. apply dpr_q_typecat.
     etrans. apply assoc.
     etrans. cancel_postcomposition. apply a_sec.
     apply id_left.
@@ -323,21 +323,21 @@ Proof.
     There are various different ways one can tidy up the two [transportf]s on the LHS in terms of [idtoiso], [maponpaths], and composites (of paths, functions, or morphisms).  We will need them tidied up into two slightly different forms for the two proof branches; it is not obvous what it is best to tidy when.  For now, we tidy up as much as possible before applying [map_into_Pb_unique], and then reassociate as necessary in the two branches. *)
 
       etrans. refine (functtransportf
-                      (@rtype _ tt_reindx_type_struct_of_type_cat _ _ A) _ _ _).
-      etrans. apply transportf_reind_type_cat.
-      etrans. apply maponpaths, transportf_reind_type_cat.
+                      (@rtype _ tt_reindx_type_struct_of_typecat _ _ A) _ _ _).
+      etrans. apply transportf_reind_typecat.
+      etrans. apply maponpaths, transportf_reind_typecat.
       etrans. apply transport_f_f.
       match goal with |[ |- transportf _ ?e' _ = _] => set (e:=e') end.
       etrans. symmetry; apply idtoiso_postcompose.
     
-      eapply map_into_Pb_unique. apply reind_pb_type_cat.
+      eapply map_into_Pb_unique. apply reind_pb_typecat.
 
     (* The first pullback projection, to [Γ'], gives the easier of the two branches: *)
       etrans. symmetry;apply assoc.
       etrans.
         apply maponpaths. cancel_postcomposition.
         apply maponpaths, maponpaths. symmetry; apply maponpathscomp0.
-      etrans. apply maponpaths. apply idtoiso_dpr_type_cat.
+      etrans. apply maponpaths. apply idtoiso_dpr_typecat.
       etrans. apply Pb_map_commutes_1.
       symmetry. exact a_sec.
 
@@ -345,21 +345,21 @@ Proof.
 
     TODO: LaTeX diagram of this!  See photo from 2015-07-02. 
 
-    The main part of the LHS, [pr1 (ν A ⟦ a;; q_type_cat A γ ⟧)], was created as a [map_into_Pb]; we need to use the first component of its definition.  So we need to get the LHS into a form where the first projection of that pullback square appears, i.e. [q_type_cat (reind_type_cat A (dpr_type_cat A)) (a;; q_type_cat A γ)]. *)
+    The main part of the LHS, [pr1 (ν A ⟦ a;; q_typecat A γ ⟧)], was created as a [map_into_Pb]; we need to use the first component of its definition.  So we need to get the LHS into a form where the first projection of that pullback square appears, i.e. [q_typecat (reind_typecat A (dpr_typecat A)) (a;; q_typecat A γ)]. *)
       etrans. symmetry; apply assoc.
       assert (e2 :
-      (idtoiso e;; q_type_cat A γ)
-      = (q_type_cat (reind_type_cat A (dpr_type_cat A)) (a;; q_type_cat A γ))
-          ;; (q_type_cat A (dpr_type_cat A))).
+      (idtoiso e;; q_typecat A γ)
+      = (q_typecat (reind_typecat A (dpr_typecat A)) (a;; q_typecat A γ))
+          ;; (q_typecat A (dpr_typecat A))).
 
       unshelve refine (pre_comp_with_iso_is_inj _ _ _ _ _ _ _ _ _).
       Focus 4.
         etrans. Focus 2. symmetry; apply assoc.
-        etrans. Focus 2. apply q_q_type_cat.
+        etrans. Focus 2. apply q_q_typecat.
       Unfocus.
       apply pr2.
     
-      etrans. Focus 2. symmetry. apply (idtoiso_q_type_cat _ e0).
+      etrans. Focus 2. symmetry. apply (idtoiso_q_typecat _ e0).
       etrans. apply assoc. cancel_postcomposition.
       etrans. apply idtoiso_concat_pr.
       apply maponpaths, maponpaths.
@@ -382,7 +382,7 @@ Proof.
     + apply homs_sets. 
 Qed.
 
-Lemma comp_law_3_of_type_cat : @comp_law_3 CC tt_reindx_type_struct_of_type_cat reindx_laws_of_type_cat.
+Lemma comp_law_3_of_typecat : @comp_law_3 CC tt_reindx_type_struct_of_typecat reindx_laws_of_typecat.
 Proof.
   unfold comp_law_3.
   intros Γ A Γ' Γ'' γ γ' a. simpl in *.
@@ -390,8 +390,8 @@ Proof.
   destruct a as [f H]; simpl in *.
   assert (T:=@transportf_total2).
   assert (T' := T (C Γ'') (λ B, Γ'' --> Γ'' ◂ B) ); clear T.
-  assert (T2 := T' (λ B f0, f0 ;; dpr_type_cat B = identity Γ'')); clear T'. simpl in T2.
-  assert (T3 := T2 _ _ (! reindx_type_comp reindx_laws_of_type_cat γ γ' A)); clear T2; simpl in T3.
+  assert (T2 := T' (λ B f0, f0 ;; dpr_typecat B = identity Γ'')); clear T'. simpl in T2.
+  assert (T3 := T2 _ _ (! reindx_type_comp reindx_laws_of_typecat γ γ' A)); clear T2; simpl in T3.
   match goal with |[ |- _ = pr1 (transportf _ _ ?x) ;; _ ] => set (X := x) end.
   assert (T4 := T3  X); clear T3.
   assert (T5:= base_paths _ _ T4). clear T4; simpl in *.
@@ -404,7 +404,7 @@ Proof.
   cancel_postcomposition.
   apply functtransportf.
   rewrite <- idtoiso_postcompose.
-  rewrite q_q_type_cat.
+  rewrite q_q_typecat.
   match goal with |[ |- _ ;; ?B' ;; ?C'  = _ ]  => set (B:=B'); set (D:=C') end.
   simpl in *.
   match goal with |[ |- map_into_Pb ?B' ?C' ?D' ?E' ?F' ?G' ?Y' ?Z' ?W'  ;; _ ;; _  = _ ] => 
@@ -433,7 +433,7 @@ Proof.
   cancel_postcomposition. apply T2.
 Qed.  
 
-Lemma comp_law_4_of_type_cat : @comp_law_4 _ tt_reindx_type_struct_of_type_cat reindx_laws_of_type_cat.
+Lemma comp_law_4_of_typecat : @comp_law_4 _ tt_reindx_type_struct_of_typecat reindx_laws_of_typecat.
 Proof.
   unfold comp_law_4.
   simpl. intros Γ A.
@@ -442,14 +442,14 @@ Proof.
 Qed.
 
 
-Lemma cwf_laws_of_type_cat : cwf_laws tt_reindx_type_struct_of_type_cat .
+Lemma cwf_laws_of_typecat : cwf_laws tt_reindx_type_struct_of_typecat .
 Proof.
   repeat split.
-  - exists reindx_laws_of_type_cat.
+  - exists reindx_laws_of_typecat.
     repeat split.
-    + apply comp_laws_1_2_of_type_cat. 
-    + apply comp_law_3_of_type_cat. 
-    + apply comp_law_4_of_type_cat.
+    + apply comp_laws_1_2_of_typecat. 
+    + apply comp_law_3_of_typecat. 
+    + apply comp_law_4_of_typecat.
   -  assumption.
   - apply isaset_types_typecat. apply (pr2 C).
   - simpl.
@@ -461,10 +461,10 @@ Proof.
       apply homs_sets.
 Qed.
 
-Definition cwf_of_type_cat : cwf_struct CC.
+Definition cwf_of_typecat : cwf_struct CC.
 Proof.
-  exists tt_reindx_type_struct_of_type_cat.
-  exact cwf_laws_of_type_cat.
+  exists tt_reindx_type_struct_of_typecat.
+  exact cwf_laws_of_typecat.
 Defined.
     
 End CwF_of_Comp.

@@ -136,7 +136,7 @@ Proof.
 Defined.
 
 Definition weq_rep_map_mere_relative_universe_Yo
-  : rep_map ≃ @mere_relative_universe C _ Yo.
+  : rep_map ≃ @weak_relative_universe C _ Yo.
 Proof.
   apply weqfibtototal.
   intro pp.
@@ -155,7 +155,7 @@ Proof.
   eapply weqcomp.
     apply weq_rep_map_mere_relative_universe_Yo.
   eapply weqcomp.
-    apply (Transfer_of_MereRelUnivYoneda F F_ff F_es).
+    apply (Transfer_of_WeakRelUnivYoneda F F_ff F_es).
   apply invweq. apply weq_rep_map_mere_relative_universe_Yo.
 Defined.
 
@@ -167,7 +167,7 @@ Proof.
   eapply weqcomp.
     apply weq_rep_map_mere_relative_universe_Yo.
   eapply weqcomp.
-     apply Rezk_on_RepMaps.
+     apply Rezk_on_WeakRelUnivYo.
   apply invweq.
   apply weq_rep_map_mere_relative_universe_Yo.
 Defined.
