@@ -2,6 +2,12 @@
   [TypeTheory.ALV1.CwF_SplitTypeCat_Maps]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
+
+  Main contents:
+
+  - definition of _compatibility_ between term-structures and _q_-morphism structures [iscompatible_term_qq]
+  - construction, from any term-structure, of a compatible _q_-morphism structure [compatible_qq_from_term]
+  - construction, from any _q_-morphism structure, of a compatible term-structure [compatible_term_from_qq]
 *)
 
 
@@ -22,7 +28,7 @@ Context {C : Precategory} {X : obj_ext_structure C}.
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
-Local Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).
+Local Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).  (* TODO: try generalising this notation to allow using it on arbitrary presheaves?  And possibly add lemmas for invoking presheaf functoriality? *)
 Local Notation "'Tm'" := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
 
 Local Notation Δ := comp_ext_compare.
