@@ -22,11 +22,11 @@ Section TypeCat_to_DM.
 
 Variable CC : precategory.
 Variable H : is_category CC.  
-Variable C : type_cat_structure CC.
+Variable C : typecat_structure CC.
 
 Definition iso_to_dpr {Γ Γ'} (γ : Γ --> Γ') : UU
   := ∑ (A : C Γ') (f : iso (Γ'◂ A) Γ),
-        dpr_type_cat _ = f ;; γ .
+        dpr_typecat _ = f ;; γ .
 
 Definition dm_sub_struct_of_TypeCat : dm_sub_struct CC.
 Proof.
@@ -80,14 +80,14 @@ Proof.
   unshelve refine (tpair _ _ _ ).
   - unshelve refine (mk_Pullback _ _ _ _ _ _ _ ).
     + apply (Γ' ◂ (A{{f}})).
-    + apply (q_type_cat _ _ ;; h).
-    + apply (dpr_type_cat _ ).
+    + apply (q_typecat _ _ ;; h).
+    + apply (dpr_typecat _ ).
     + simpl. unfold dm_sub_struct_of_TypeCat.
       simpl.
       set (T:= postcomp_pb_with_iso CC (pr2 H)).
-      refine (pr1 (T _ _ _ _  (q_type_cat A f) _ _ f _ _ _ _ _ _ )).
+      refine (pr1 (T _ _ _ _  (q_typecat A f) _ _ f _ _ _ _ _ _ )).
       apply is_symmetric_isPullback. exact (pr2 H).
-      apply reind_pb_type_cat.
+      apply reind_pb_typecat.
       sym. assumption.
     + 
       set (T:= postcomp_pb_with_iso CC (pr2 H)).

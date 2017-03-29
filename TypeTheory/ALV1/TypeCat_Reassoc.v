@@ -210,7 +210,7 @@ Definition T_q_comp
                ;; (pr1 q_etc) _ A _ f).
 
 Definition eq_standalone_structural
-  : split_type_structure CC
+  : split_typecat_structure CC
     = split_struct
         T_ty T_ext T_dpr T_reind T_q_etc
         T_set T_reind_id T_q_id T_reind_comp T_q_comp.
@@ -219,7 +219,7 @@ Proof.
 Defined.
 
 Definition weq_standalone_structural
-  : split_type_structure CC
+  : split_typecat_structure CC
     ≃ split_struct
         T_ty T_ext T_dpr T_reind T_q_etc
         T_set T_reind_id T_q_id T_reind_comp T_q_comp.
@@ -230,7 +230,7 @@ Defined.
 (** Alternate construction of [weq_standalone_structural], retained in case it gives better computational behaviour: *)
 
 Definition standalone_to_structural
-  : split_type_structure CC
+  : split_typecat_structure CC
     -> split_struct
         T_ty T_ext T_dpr T_reind T_q_etc
         T_set T_reind_id T_q_id T_reind_comp T_q_comp.
@@ -242,13 +242,13 @@ Definition structural_to_standalone
   : split_struct
         T_ty T_ext T_dpr T_reind T_q_etc
         T_set T_reind_id T_q_id T_reind_comp T_q_comp
-  -> split_type_structure CC.
+  -> split_typecat_structure CC.
 Proof.
   intros S. exact (transportb (fun X => X) eq_standalone_structural S).
 Defined.
 
 Definition weq_standalone_structural_explicit
-  : split_type_structure CC
+  : split_typecat_structure CC
     ≃ split_struct
         T_ty T_ext T_dpr T_reind T_q_etc
         T_set T_reind_id T_q_id T_reind_comp T_q_comp.
@@ -414,7 +414,7 @@ End Structural_to_Regrouped.
 Section Standalone_to_Regrouped.
 
 Definition weq_standalone_to_regrouped
-  : split_type_structure CC
+  : split_typecat_structure CC
   ≃ split_typecat'_structure CC.
 Proof.
   eapply weqcomp. apply weq_standalone_structural.
