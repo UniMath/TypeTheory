@@ -48,11 +48,11 @@ Proof.
   apply is_category_functor_category.
 Defined.
 
-Definition Rezk_on_RepMaps : 
-  mere_relative_universe (yoneda C (homset_property C)) 
-                         ≃ mere_relative_universe (yoneda RC (homset_property _ ) ).
+Definition Rezk_on_WeakRelUnivYo : 
+  weak_relative_universe (yoneda C (homset_property C)) 
+                         ≃ weak_relative_universe (yoneda RC (homset_property _ ) ).
 Proof.
-  use (Transfer_of_MereRelUnivYoneda (Rezk_eta C _ )).
+  use (Transfer_of_WeakRelUnivYoneda (Rezk_eta C _ )).
   - apply Rezk_eta_fully_faithful.
   - apply Rezk_eta_essentially_surjective.
 Defined.

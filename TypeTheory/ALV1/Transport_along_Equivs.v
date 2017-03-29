@@ -13,9 +13,9 @@
 
   Furthermore, given a weak equivalence [F : C ⟶ D] as above,
   then we obtain an equivalence of 
-  mere universes on [Yo C] and on [Yo D].
+  weak universes on [Yo C] and on [Yo D].
 
-  Put differently, mere universes (and hence representable maps of presheaves)
+  Put differently, weak relative universes (and hence representable maps of presheaves)
   are invariant under weak equivalences, whereas cwf structures
   are not - even though they can be transported along weak equivalences
   in the direction of the underlying functor if the target category is univalent.
@@ -44,7 +44,7 @@ Local Notation "[ C , D ]" := (functor_Precategory C D).
 Section fix_category.
 
 (** 
-Goal: Transfer a (mere) relative universe from the top to the bottom functor
+Goal: Transfer a (weak) relative universe from the top to the bottom functor
 
 <<<
   C ------------> preShv C
@@ -210,11 +210,11 @@ Proof.
 Defined.
 
 
-Definition Transfer_of_MereRelUnivYoneda : 
-  mere_relative_universe (yoneda C (homset_property C)) ≃ 
-                         mere_relative_universe (yoneda D (homset_property D)).
+Definition Transfer_of_WeakRelUnivYoneda : 
+  weak_relative_universe (yoneda C (homset_property C)) ≃ 
+                         weak_relative_universe (yoneda D (homset_property D)).
 Proof.
-  set (XR := @weq_mere_universe_transfer 
+  set (XR := @weq_weak_relative_universe_transfer 
                C 
                (preShv C)
                (yoneda C (homset_property C))

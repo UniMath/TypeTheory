@@ -18,7 +18,7 @@ Require Import TypeTheory.OtherDefs.CwF_Pitts.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
 (* TODO: move *)
-Lemma idtoiso_q_type_cat {CC : precategory} {C : type_cat_structure CC}
+Lemma idtoiso_q_type_cat {CC : precategory} {C : typecat_structure CC}
       {Γ : CC} (A : C Γ) {Γ' : CC} {f f' : Γ' --> Γ} (e : f = f') :
       q_type_cat A f
       = (idtoiso (maponpaths (fun f => ext_type_cat Γ' (reind_type_cat A f)) e))

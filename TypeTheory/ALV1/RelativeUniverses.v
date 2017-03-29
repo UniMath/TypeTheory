@@ -175,7 +175,7 @@ End Relative_Comprehension_Lemmas.
 Definition relative_universe {C D : precategory} (J : functor C D) : UU
   := ∑ X : mor_total D, fcomprehension J X.
 
-Definition mere_relative_universe {C D : precategory} (J : functor C D) : UU
+Definition weak_relative_universe {C D : precategory} (J : functor C D) : UU
   := ∑ X : mor_total D, is_universe_relative_to J X.
 
 (** ** Transfer of a relative universe *)
@@ -359,7 +359,7 @@ Defined.
 End Rel_Univ_Structure_Transfer.
 
 
-(** ** Transfer of morphisms that merely are a relative universe: truncation *)
+(** ** Transfer of weak relative universes *)
 
 (** The next section literally copies a proof from the
     preceding section, with the exception of a truncation elimination
@@ -575,8 +575,8 @@ Defined.
 
 End fix_a_morphism.
 
-Definition mere_universe_transfer : 
-  mere_relative_universe J -> mere_relative_universe J'.
+Definition weak_relative_universe_transfer : 
+  weak_relative_universe J -> weak_relative_universe J'.
 Proof.
   use bandfmap.
   - apply (functor_on_mor_total S).
@@ -585,14 +585,14 @@ Proof.
 Defined.
 
 
-Definition isweq_mere_universe_transfer 
+Definition isweq_weak_relative_universe_transfer 
            (R_full : full R)
            (isD : is_category D) (isD' : is_category D')
            (T : functor D' D)
            (eta : iso (C:=[D, D, pr2 D]) (functor_identity D) (S ∙ T))
            (eps : iso (C:=[D', D', pr2 D']) (T ∙ S) (functor_identity D'))
            (S_faithful : faithful S) 
-  : isweq mere_universe_transfer.
+  : isweq weak_relative_universe_transfer.
 Proof.
   apply isweqbandfmap_var.
   - use isweq_equivalence_on_mor_total.
@@ -607,15 +607,15 @@ Proof.
     + apply S_faithful.
 Defined.
 
-Definition weq_mere_universe_transfer
+Definition weq_weak_relative_universe_transfer
            (R_full : full R)
            (isD : is_category D) (isD' : is_category D')
            (T : functor D' D)
            (eta : iso (C:=[D, D, pr2 D]) (functor_identity D) (S ∙ T))
            (eps : iso (C:=[D', D', pr2 D']) (T ∙ S) (functor_identity D'))
            (S_ff : fully_faithful S)
-: mere_relative_universe J ≃ mere_relative_universe J'
-:= weqpair _ (isweq_mere_universe_transfer R_full isD isD' T eta eps S_ff).
+: weak_relative_universe J ≃ weak_relative_universe J'
+:= weqpair _ (isweq_weak_relative_universe_transfer R_full isD isD' T eta eps S_ff).
 
 End Is_universe_relative_to_Transfer.
 
