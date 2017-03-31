@@ -8,7 +8,7 @@
 
 Contents:
 
-- Definition of comprehension structure on a map, relative to a functor: [fcomprehension]
+- Definition of universe structure on a map, relative to a functor: [fcomprehension]
 - [fcomprehension] is a proposition under saturation assumptions: [isaprop_fcomprehension]
 - Definition of a relative universe: [relative_universe] (due to Vladimir Voevodsky)
 - Transfer of a relative universe from one functor to another: [transfer_of_rel_univ_with_ess_surj]
@@ -25,7 +25,7 @@ Set Automatic Introduction.
 
 Local Notation "[ C , D ]" := (functor_Precategory C D).
 
-(** * Relative comprehension structures *)
+(** * Relative universe structures *)
 
 (** Given a map [ p : Ũ —> U ] in a category [D], 
     and a functor [ F : C —> D ], _a comprehension structure for [p] 
@@ -65,7 +65,7 @@ Definition fcomprehension_data := ∏ X (f : D⟦ J X, U⟧), fpullback_data f.
 Definition fcomprehension_prop (Y : fcomprehension_data) :=
           ∏ X f, fpullback_prop (Y X f). 
 
-(** An equivalent form of [fcomprehension], separating its data and properties by interchanging ∑ and ∏ *)
+(**  An equivalent form of [fcomprehension], separating its data and properties by interchanging ∑ and ∏ *)
 Definition fcomprehension_weq :
    fcomprehension ≃ ∑ Y : fcomprehension_data, fcomprehension_prop Y.
 Proof.
@@ -81,7 +81,7 @@ Defined.
 
 End Relative_Comprehension.
 
-(** ** Uniqueness lemmas regarding relative comprehension *)
+(** * Uniqueness of relative universe structures under some assumptions *)
 
 Section Relative_Comprehension_Lemmas.
 
@@ -167,7 +167,7 @@ End Relative_Comprehension_Lemmas.
 
 
 
-(** * Relative universes *)
+(**  Relative universes *)
 
 (** A _universe relative to a functor_ is just a map in the target category, 
     equipped with a relative comprehension structure. *)
@@ -178,7 +178,7 @@ Definition relative_universe {C D : precategory} (J : functor C D) : UU
 Definition weak_relative_universe {C D : precategory} (J : functor C D) : UU
   := ∑ X : mor_total D, is_universe_relative_to J X.
 
-(** ** Transfer of a relative universe *)
+(** * Transfer of a relative universe *)
 
 Section Rel_Univ_Structure_Transfer.
 
@@ -234,6 +234,7 @@ Local Notation tU := (source (pr1 RUJ)).
 Local Notation U :=  (target (pr1 RUJ)).
 Local Notation pp := (morphism_from_total (pr1 RUJ)).
 
+(** ** Transfer along split and split-full functors *)
 
 Definition fcomprehension_induced_with_ess_split
     (R_es : split_ess_surj R)
@@ -281,6 +282,8 @@ Proof.
   exists (morphism_as_total (#S pp)).
   apply fcomprehension_induced_with_ess_split; assumption.
 Defined.
+
+(** ** Transfer along surjective functors *)
 
 Definition fpullback_induced_with_ess_surj
            (R_es : essentially_surjective R)

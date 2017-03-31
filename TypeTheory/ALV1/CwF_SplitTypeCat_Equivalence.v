@@ -31,6 +31,8 @@ Local Notation Δ := comp_ext_compare.
 
 Section compatible_structures.
 
+(** * Every compatible term structure is equal to the canoncial one *)
+
 Section canonical_TM.
 
 Variable Z : qq_morphism_structure X.
@@ -235,6 +237,7 @@ Proof.
       apply (toforallpaths _ _ _ (functor_id tm _) _).
 Defined.
 
+(** * Every compatible q-morphism structure is equal to the canonical one *)
 
 (* Does this really rely on splitness of the term structure? *)
 Lemma iscontr_compatible_term_structure (Z : qq_morphism_structure X)
@@ -346,6 +349,8 @@ Proof.
   apply iscontr_compatible_split_comp_structure.
 Defined.
 
+(** * Equivalence between term structures and q-morphism structures *)
+
 Definition weq_term_qq : term_fun_structure C X ≃ qq_morphism_structure X.
 Proof.
   eapply weqcomp.
@@ -358,6 +363,8 @@ Defined.
 End Equivalence.
 
 End Fix_Context.
+
+(** * Equivalence between types of pairs of object extension, term and q-morphism structures *)
 
 Definition weq_cwf'_sty' C : cwf'_structure C ≃ split_typecat'_structure C.
 Proof.

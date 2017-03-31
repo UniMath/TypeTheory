@@ -145,7 +145,7 @@ Components of [Y : term_fun_structure X]:
 - [Q_pp Y A : #Yo (π A) ;; yy A = Q Y A ;; pp Y]
 - [isPullback_Q_pp Y A : isPullback _ _ _ _ (Q_pp Y A)]
 
- See: Marcelo Fiore, slides 32–34 of _Discrete Generalised Polynomial Functors,_ from talk at ICALP 2012,
+ See: Marcelo Fiore, slides 32–34 of _Discrete Generalised Polynomial Functors_ , from talk at ICALP 2012,
   #(<a href="http://www.cl.cam.ac.uk/~mpf23/talks/ICALP2012.pdf">link</a>)#
   and comments in file [CwF_def].
 
@@ -285,7 +285,7 @@ Section qq_Morphism_Structures.
 
 Context {C : Precategory} {X : obj_ext_structure C}.
 
-(** * _q_-morphism structures, split type-categories
+(** * q-morphism structures, split type-categories
 
 On the other hand, a _q-morphism structure_ (over an object-extension structure) is what is required to constitute a _split type-category_.
 
@@ -294,7 +294,7 @@ Up to ordering/groupoing of the components, these are essentially the _type-cate
 Our terminology follows van den Berg and Garner, _Topological and simplicial models_, Def 2.2.1 #(<a href="http://arxiv.org/abs/1007.4638">arXiv</a>)# 
 in calling this notion a _split_ type-category, and reserving _type-category_ (unqualified) for the weaker version without hSet/splitness assumptions.  We formalise non-split type-categories elsewhere, since they do not extend object-extension structures.
 
-Beyond the object extension structure, the only further data in a split type-category is the morphisms customarily denoted _q(f,a)_ : Γ ◂ _A_ --> Γ (satisfying certain axioms).  We therefore call this data a _q_-morphism structure.
+Beyond the object extension structure, the only further data in a split type-category is the morphisms customarily denoted [qq f A : Γ ◂ A --> Γ] (satisfying certain axioms).  We therefore call this data a _q_-morphism structure.
 
 Components of [Z : qq_morphism_structure X]:
 

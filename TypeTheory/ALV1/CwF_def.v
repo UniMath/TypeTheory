@@ -9,6 +9,8 @@ Contents:
 
 - the definition of CwFs à la Fiore: [cwf_structure], [cwf]
 - equivalence between cwf structures and relative universe structures on Yoneda, [weq_cwf_structure_RelUnivYo]
+- type of representations is a proposition if [C] is univalent [isaprop_cwf_representation]
+- transport of a CwF structure along weak equivalence [transfer_cwf_weak_equiv]
 
 *)
 
@@ -24,6 +26,8 @@ Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
 Set Automatic Introduction.
 
 Section Auxiliary.
+
+(** * Preliminaries *)
 
 (** A version of [weqtotal2asstor] with the type of the [C] argument slightly changed. Perhaps upstream? *)
 Definition weqtotal2asstor' {A} {B : A -> Type} (C : ∏ a, B a -> Type)
@@ -55,7 +59,7 @@ A (Fiore-style) CwF consists of:
 
   This is a mild reformulation of Dybjer’s original definition of CwF’s, replacing the functor [C --> FAM] with an arrow in [preShv C].
 
-  Specifically, we follow: Marcelo Fiore, slides 32–34 of _Discrete Generalised Polynomial Functors,_ from talk at ICALP 2012,
+  Specifically, we follow: Marcelo Fiore, slides 32–34 of _Discrete Generalised Polynomial Functors_ , from talk at ICALP 2012,
   #(<a href="http://www.cl.cam.ac.uk/~mpf23/talks/ICALP2012.pdf">link</a>)#
 
   See also: Marcelo Fiore, _Algebraic Type Theory_, 2008
@@ -291,6 +295,8 @@ Section CwF_RelUnivYo.
 
 Context {C : Precategory}.
 
+(** ** Construction of the equivalence *)
+
 Section Representation_FComprehension.
 
 Context (pp : mor_total (preShv C)).
@@ -362,9 +368,9 @@ End CwF_RelUnivYo.
 
 Arguments weq_cwf_structure_RelUnivYo _ : clear implicits.
 
-(* The above equivalences allow us to easily deduce a few more nice facts about representations and CwF-structures from the corresponding facts about relative universes. *)
+(** The above equivalences allow us to easily deduce a few more nice facts about representations and CwF-structures from the corresponding facts about relative universes. *)
 
-(** ** Representations vs representability *)
+(** ** Consequences of the equivalence: Representations vs representability *)
 
 (*
     When the underlying category is univalent [is_category C],
@@ -387,7 +393,10 @@ Proof.
     + apply yoneda_fully_faithful.
 Qed.
 
-(** ** Transport along a weak equivalence *)
+(** * Transport along a weak equivalence *)
+
+(** ** General case of transport, and recovery of the original map *)
+
 Definition transfer_cwf_weak_equiv {C D : Precategory} (F : C ⟶ D)
            (F_ff : fully_faithful F) (F_es : essentially_surjective F)
            (Dcat : is_category D) 
@@ -400,7 +409,7 @@ Proof.
   exact CC.
 Defined.
 
-(** *** Recovering the original morphism of presheaves after transport *)
+(**  Recovering the original morphism of presheaves after transport *)
 
 Section CwF_Ftransport_recover.
 
@@ -491,7 +500,7 @@ Qed.
 End CwF_Ftransport_recover.
 
 
-(** ** Descent along Rezk-completion *)
+(** ** Special case of transport: Descent along Rezk-completion *)
 (** The construction below is also a special case of [transfer_cwf_weak_equiv] *)
 Definition Rezk_on_cwf_structures {C : Precategory} (CC : cwf_structure C)
   : cwf_structure (Rezk_completion C (homset_property _)).
