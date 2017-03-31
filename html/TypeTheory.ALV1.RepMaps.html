@@ -74,7 +74,7 @@ Contents:
 </div>
 
 <div class="doc">
-<a name="lab25"></a><h1 class="section">Definition of a representable map of presheaves</h1>
+<a name="lab27"></a><h1 class="section">Definition of a representable map of presheaves</h1>
 
 
 <div class="paragraph"> </div>
@@ -108,8 +108,7 @@ A representable map of presheaves consists of
 </div>
 
 <div class="doc">
-<a name="lab26"></a><h2 class="section">Representations of maps of presheaves</h2>
-
+ Representations of maps of presheaves 
 
 <div class="paragraph"> </div>
 
@@ -126,7 +125,7 @@ A *representation* of a map Tm —p—&gt; Ty of presheaves consists of data exh
 <span class="id" title="keyword">Variable</span> <a name="Fix_Category.C"><span class="id" title="variable">C</span></a> : <span class="id" title="definition">Precategory</span>.<br/>
 
 <br/>
-<span class="id" title="keyword">Definition</span> <a name="mere_cwf_representation"><span class="id" title="definition">mere_cwf_representation</span></a> (<span class="id" title="var">pp</span> : <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#mor_total"><span class="id" title="definition">mor_total</span></a> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#Fix_Category.C"><span class="id" title="variable">C</span></a>)) : <span class="id" title="definition">UU</span><br/>
+<span class="id" title="keyword">Definition</span> <a name="is_representable"><span class="id" title="definition">is_representable</span></a> (<span class="id" title="var">pp</span> : <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#mor_total"><span class="id" title="definition">mor_total</span></a> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#Fix_Category.C"><span class="id" title="variable">C</span></a>)) : <span class="id" title="definition">UU</span><br/>
 &nbsp;&nbsp;:= <span class="id" title="notation">∏</span> <span class="id" title="var">Γ</span> (<span class="id" title="var">A</span> : <a class="idref" href="TypeTheory.ALV1.CwF_def.html#Ty"><span class="id" title="definition">Ty</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#pp"><span class="id" title="variable">pp</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a> : <span class="id" title="definition">hSet</span><span class="id" title="notation">),</span> <span class="id" title="notation">∥</span> <a class="idref" href="TypeTheory.ALV1.CwF_def.html#cwf_fiber_representation"><span class="id" title="definition">cwf_fiber_representation</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#pp"><span class="id" title="variable">pp</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#A"><span class="id" title="variable">A</span></a> <span class="id" title="notation">∥</span>.<br/>
 
 <br/>
@@ -143,8 +142,8 @@ The important fact: being representable is a proposition, by use of truncation.
 <div class="code">
 
 <br/>
-<span class="id" title="keyword">Lemma</span> <a name="isaprop_mere_cwf_representation"><span class="id" title="lemma">isaprop_mere_cwf_representation</span></a> (<span class="id" title="var">pp</span> : <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#mor_total"><span class="id" title="definition">mor_total</span></a> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#Fix_Category.C"><span class="id" title="variable">C</span></a>))<br/>
-&nbsp;&nbsp;: <span class="id" title="definition">isaprop</span> (<a class="idref" href="TypeTheory.ALV1.RepMaps.html#mere_cwf_representation"><span class="id" title="definition">mere_cwf_representation</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#pp"><span class="id" title="variable">pp</span></a>).<br/>
+<span class="id" title="keyword">Lemma</span> <a name="isaprop_is_representable"><span class="id" title="lemma">isaprop_is_representable</span></a> (<span class="id" title="var">pp</span> : <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#mor_total"><span class="id" title="definition">mor_total</span></a> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#Fix_Category.C"><span class="id" title="variable">C</span></a>))<br/>
+&nbsp;&nbsp;: <span class="id" title="definition">isaprop</span> (<a class="idref" href="TypeTheory.ALV1.RepMaps.html#is_representable"><span class="id" title="definition">is_representable</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#pp"><span class="id" title="variable">pp</span></a>).<br/>
 <span class="id" title="keyword">Proof</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 (<span class="id" title="tactic">apply</span> <span class="id" title="lemma">impred</span>; <span class="id" title="tactic">intro</span>).<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">propproperty</span>.<br/>
@@ -152,13 +151,17 @@ The important fact: being representable is a proposition, by use of truncation.
 
 <br/>
 <span class="id" title="keyword">Definition</span> <a name="rep_map"><span class="id" title="definition">rep_map</span></a> : <span class="id" title="definition">UU</span> <br/>
-&nbsp;&nbsp;:= <span class="id" title="notation">∑</span> <span class="id" title="var">pp</span> : <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#mor_total"><span class="id" title="definition">mor_total</span></a> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#Fix_Category.C"><span class="id" title="variable">C</span></a>)<span class="id" title="notation">,</span> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#mere_cwf_representation"><span class="id" title="definition">mere_cwf_representation</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#pp"><span class="id" title="variable">pp</span></a>.<br/>
+&nbsp;&nbsp;:= <span class="id" title="notation">∑</span> <span class="id" title="var">pp</span> : <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#mor_total"><span class="id" title="definition">mor_total</span></a> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#Fix_Category.C"><span class="id" title="variable">C</span></a>)<span class="id" title="notation">,</span> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#is_representable"><span class="id" title="definition">is_representable</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#pp"><span class="id" title="variable">pp</span></a>.<br/>
 
 <br/>
 </div>
 
 <div class="doc">
-From a <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.CwF_def.html#cwf_structure"><span class="id" title="definition">cwf_structure</span></a></span> on <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span>, we get a representable map
+<a name="lab28"></a><h1 class="section">Map from cwfs to representable maps of presheaves</h1>
+
+<div class="paragraph"> </div>
+
+ From a <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.CwF_def.html#cwf_structure"><span class="id" title="definition">cwf_structure</span></a></span> on <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span>, we get a representable map
     of presheaves on <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span>, given by
 <ul class="doclist">
 <li> the identity on the first component (the objects and the morphism between them)
@@ -187,7 +190,11 @@ From a <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.CwF_def.h
 </div>
 
 <div class="doc">
-The map from <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.CwF_def.html#cwf_structure"><span class="id" title="definition">cwf_structure</span></a></span> <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> to <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.RepMaps.html#rep_map"><span class="id" title="definition">rep_map</span></a></span> <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> is
+<a name="lab29"></a><h1 class="section">Equivalence from cwfs to rep. maps of presheaves for <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> univalent</h1>
+
+<div class="paragraph"> </div>
+
+ The map from <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.CwF_def.html#cwf_structure"><span class="id" title="definition">cwf_structure</span></a></span> <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> to <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.RepMaps.html#rep_map"><span class="id" title="definition">rep_map</span></a></span> <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> is
     an equivalence if <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> is univalent.
 
 </div>
@@ -229,16 +236,16 @@ Perhaps not obviously, the equivalence <span class="inlinecode"><a class="idref"
 </div>
 
 <div class="doc">
-<a name="lab27"></a><h2 class="section">Equivalence between representable maps of presheaves and mere relative universes</h2>
+<a name="lab30"></a><h1 class="section">Equivalence between representable maps of presheaves and weak relative universes</h1>
 
 </div>
 <div class="code">
 
 <br/>
-<span class="id" title="keyword">Lemma</span> <a name="weq_mere_cwf_representation_is_universe_relative"><span class="id" title="lemma">weq_mere_cwf_representation_is_universe_relative</span></a> (<span class="id" title="var">pp</span> : <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#mor_total"><span class="id" title="definition">mor_total</span></a> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#Fix_Category.C"><span class="id" title="variable">C</span></a>))<br/>
-&nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.RepMaps.html#mere_cwf_representation"><span class="id" title="definition">mere_cwf_representation</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#pp"><span class="id" title="variable">pp</span></a> <span class="id" title="notation">≃</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#is_universe_relative_to"><span class="id" title="definition">is_universe_relative_to</span></a> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#2992071cd8d27cf2d1066e1ad11b67d0"><span class="id" title="notation">Yo</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#pp"><span class="id" title="variable">pp</span></a>.<br/>
+<span class="id" title="keyword">Lemma</span> <a name="weq_is_representable_is_universe_relative"><span class="id" title="lemma">weq_is_representable_is_universe_relative</span></a> (<span class="id" title="var">pp</span> : <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#mor_total"><span class="id" title="definition">mor_total</span></a> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#Fix_Category.C"><span class="id" title="variable">C</span></a>))<br/>
+&nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.RepMaps.html#is_representable"><span class="id" title="definition">is_representable</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#pp"><span class="id" title="variable">pp</span></a> <span class="id" title="notation">≃</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#is_universe_relative_to"><span class="id" title="definition">is_universe_relative_to</span></a> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#2992071cd8d27cf2d1066e1ad11b67d0"><span class="id" title="notation">Yo</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#pp"><span class="id" title="variable">pp</span></a>.<br/>
 <span class="id" title="keyword">Proof</span>.<br/>
-&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#mere_cwf_representation"><span class="id" title="definition">mere_cwf_representation</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#is_representable"><span class="id" title="definition">is_representable</span></a>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#is_universe_relative_to"><span class="id" title="definition">is_universe_relative_to</span></a>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">weqonsecfibers</span>. <span class="id" title="tactic">intro</span> <span class="id" title="var">Γ</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <span class="id" title="definition">weqcomp</span>.<br/>
@@ -253,12 +260,12 @@ Perhaps not obviously, the equivalence <span class="inlinecode"><a class="idref"
 <span class="id" title="keyword">Defined</span>.<br/>
 
 <br/>
-<span class="id" title="keyword">Definition</span> <a name="weq_rep_map_mere_relative_universe_Yo"><span class="id" title="definition">weq_rep_map_mere_relative_universe_Yo</span></a><br/>
+<span class="id" title="keyword">Definition</span> <a name="weq_rep_map_weakRelUnivYo"><span class="id" title="definition">weq_rep_map_weakRelUnivYo</span></a><br/>
 &nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.RepMaps.html#rep_map"><span class="id" title="definition">rep_map</span></a> <span class="id" title="notation">≃</span> @<a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#weak_relative_universe"><span class="id" title="definition">weak_relative_universe</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#Fix_Category.C"><span class="id" title="variable">C</span></a> <span class="id" title="var">_</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#2992071cd8d27cf2d1066e1ad11b67d0"><span class="id" title="notation">Yo</span></a>.<br/>
 <span class="id" title="keyword">Proof</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">weqfibtototal</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">pp</span>.<br/>
-&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#weq_mere_cwf_representation_is_universe_relative"><span class="id" title="lemma">weq_mere_cwf_representation_is_universe_relative</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#weq_is_representable_is_universe_relative"><span class="id" title="lemma">weq_is_representable_is_universe_relative</span></a>.<br/>
 <span class="id" title="keyword">Defined</span>.<br/>
 
 <br/>
@@ -268,7 +275,7 @@ Perhaps not obviously, the equivalence <span class="inlinecode"><a class="idref"
 </div>
 
 <div class="doc">
-<a name="lab28"></a><h2 class="section">Equivalence between rep. maps of presheaves on <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> and on its Rezk completion</h2>
+<a name="lab31"></a><h1 class="section">Equivalence between rep. maps of presheaves on <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> and on its Rezk completion</h1>
 
 
 </div>
@@ -280,10 +287,10 @@ Perhaps not obviously, the equivalence <span class="inlinecode"><a class="idref"
 &nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.RepMaps.html#rep_map"><span class="id" title="definition">rep_map</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#C"><span class="id" title="variable">C</span></a> <span class="id" title="notation">≃</span> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#rep_map"><span class="id" title="definition">rep_map</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#D"><span class="id" title="variable">D</span></a>.<br/>
 <span class="id" title="keyword">Proof</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <span class="id" title="definition">weqcomp</span>.<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#weq_rep_map_mere_relative_universe_Yo"><span class="id" title="definition">weq_rep_map_mere_relative_universe_Yo</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#weq_rep_map_weakRelUnivYo"><span class="id" title="definition">weq_rep_map_weakRelUnivYo</span></a>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <span class="id" title="definition">weqcomp</span>.<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#Transfer_of_WeakRelUnivYoneda"><span class="id" title="definition">Transfer_of_WeakRelUnivYoneda</span></a> <span class="id" title="var">F</span> <span class="id" title="var">F_ff</span> <span class="id" title="var">F_es</span>).<br/>
-&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">invweq</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#weq_rep_map_mere_relative_universe_Yo"><span class="id" title="definition">weq_rep_map_mere_relative_universe_Yo</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">invweq</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#weq_rep_map_weakRelUnivYo"><span class="id" title="definition">weq_rep_map_weakRelUnivYo</span></a>.<br/>
 <span class="id" title="keyword">Defined</span>.<br/>
 
 <br/>
@@ -299,18 +306,18 @@ This could be made an instance of the above
 &nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.RepMaps.html#rep_map"><span class="id" title="definition">rep_map</span></a> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#C"><span class="id" title="variable">C</span></a> <span class="id" title="notation">≃</span> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#rep_map"><span class="id" title="definition">rep_map</span></a> (<span class="id" title="definition">Rezk_completion</span> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#C"><span class="id" title="variable">C</span></a> (<span class="id" title="definition">homset_property</span> <span class="id" title="var">_</span>)).<br/>
 <span class="id" title="keyword">Proof</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <span class="id" title="definition">weqcomp</span>.<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#weq_rep_map_mere_relative_universe_Yo"><span class="id" title="definition">weq_rep_map_mere_relative_universe_Yo</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#weq_rep_map_weakRelUnivYo"><span class="id" title="definition">weq_rep_map_weakRelUnivYo</span></a>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <span class="id" title="definition">weqcomp</span>.<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#Rezk_on_WeakRelUnivYo"><span class="id" title="definition">Rezk_on_WeakRelUnivYo</span></a>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">invweq</span>.<br/>
-&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#weq_rep_map_mere_relative_universe_Yo"><span class="id" title="definition">weq_rep_map_mere_relative_universe_Yo</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#weq_rep_map_weakRelUnivYo"><span class="id" title="definition">weq_rep_map_weakRelUnivYo</span></a>.<br/>
 <span class="id" title="keyword">Defined</span>.<br/>
 
 <br/>
 </div>
 
 <div class="doc">
-<a name="lab29"></a><h2 class="section">Commutativity of a diagram</h2>
+<a name="lab32"></a><h1 class="section">Commutativity of a map from cwfs to rep. maps with transport along Rezk</h1>
 
 <div class="paragraph"> </div>
 
@@ -332,7 +339,7 @@ This could be made an instance of the above
 &nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.RepMaps.html#Rezk_on_rep_map"><span class="id" title="definition">Rezk_on_rep_map</span></a> <span class="id" title="var">_</span> (<a class="idref" href="TypeTheory.ALV1.RepMaps.html#from_cwf_to_rep_map"><span class="id" title="definition">from_cwf_to_rep_map</span></a> <span class="id" title="var">_</span> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#X"><span class="id" title="variable">X</span></a>).<br/>
 <span class="id" title="keyword">Proof</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">subtypeEquality</span>.<br/>
-&nbsp;&nbsp;{ <span class="id" title="tactic">intro</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#isaprop_mere_cwf_representation"><span class="id" title="lemma">isaprop_mere_cwf_representation</span></a>. }<br/>
+&nbsp;&nbsp;{ <span class="id" title="tactic">intro</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RepMaps.html#isaprop_is_representable"><span class="id" title="lemma">isaprop_is_representable</span></a>. }<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="abbreviation">idpath</span>.<br/>
 <span class="id" title="keyword">Qed</span>.<br/>
 

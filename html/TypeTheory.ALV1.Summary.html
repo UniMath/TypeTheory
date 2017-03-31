@@ -62,6 +62,7 @@ Contents:
 <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#"><span class="id" title="library">TypeTheory.ALV1.RelativeUniverses</span></a>.<br/>
 <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#"><span class="id" title="library">TypeTheory.ALV1.CwF_SplitTypeCat_Defs</span></a>.<br/>
 <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#"><span class="id" title="library">TypeTheory.ALV1.RelUnivYonedaCompletion</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#"><span class="id" title="library">TypeTheory.ALV1.CwF_SplitTypeCat_Maps</span></a>.<br/>
 <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#"><span class="id" title="library">TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence</span></a>.<br/>
 <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Cats_Standalone.html#"><span class="id" title="library">TypeTheory.ALV1.CwF_SplitTypeCat_Cats_Standalone</span></a>.<br/>
 <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.ALV1.CwF_def.html#"><span class="id" title="library">TypeTheory.ALV1.CwF_def</span></a>.<br/>
@@ -74,7 +75,84 @@ Contents:
 </div>
 
 <div class="doc">
-<a name="lab73"></a><h1 class="section">Equivalence of types between split type structures and families structures</h1>
+<a name="lab86"></a><h1 class="section">Equivalence of types between split type structures and families structures</h1>
+
+<div class="paragraph"> </div>
+
+<a name="lab87"></a><h2 class="section">Equivalence between two versions of cwf structures</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="weq_cwf_cwf'_structure"><span class="id" title="definition">weq_cwf_cwf'_structure</span></a> (<span class="id" title="var">C</span> : <span class="id" title="definition">Precategory</span>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.CwF_def.html#cwf_structure"><span class="id" title="definition">cwf_structure</span></a> <a class="idref" href="TypeTheory.ALV1.Summary.html#C"><span class="id" title="variable">C</span></a> <span class="id" title="notation">≃</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#cwf'_structure"><span class="id" title="definition">cwf'_structure</span></a> <a class="idref" href="TypeTheory.ALV1.Summary.html#C"><span class="id" title="variable">C</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="TypeTheory.ALV1.CwF_Defs_Equiv.html#weq_cwf_cwf'_structure"><span class="id" title="definition">weq_cwf_cwf'_structure</span></a> <span class="id" title="var">_</span> ).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab88"></a><h2 class="section">Equivalence between two versions of split typecat structures</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="weq_standalone_to_regrouped"><span class="id" title="definition">weq_standalone_to_regrouped</span></a> (<span class="id" title="var">C</span> : <span class="id" title="definition">Precategory</span>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.TypeCat.html#split_typecat_structure"><span class="id" title="definition">split_typecat_structure</span></a> <a class="idref" href="TypeTheory.ALV1.Summary.html#C"><span class="id" title="variable">C</span></a> <span class="id" title="notation">≃</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#split_typecat'_structure"><span class="id" title="definition">split_typecat'_structure</span></a> <a class="idref" href="TypeTheory.ALV1.Summary.html#C"><span class="id" title="variable">C</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="TypeTheory.ALV1.TypeCat_Reassoc.html#weq_standalone_to_regrouped"><span class="id" title="definition">weq_standalone_to_regrouped</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab89"></a><h2 class="section">Compatible <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#qq"><span class="id" title="definition">qq</span></a></span> from term structure and vice versa</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="compatible_qq_from_term"><span class="id" title="definition">compatible_qq_from_term</span></a> {<span class="id" title="var">C</span> : <span class="id" title="definition">Precategory</span>} <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<span class="id" title="var">X</span> : <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#obj_ext_structure"><span class="id" title="definition">obj_ext_structure</span></a> <a class="idref" href="TypeTheory.ALV1.Summary.html#C"><span class="id" title="variable">C</span></a>} (<span class="id" title="var">Y</span> : <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#term_fun_structure"><span class="id" title="definition">term_fun_structure</span></a> <a class="idref" href="TypeTheory.ALV1.Summary.html#C"><span class="id" title="variable">C</span></a> <a class="idref" href="TypeTheory.ALV1.Summary.html#X"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#compatible_qq_morphism_structure"><span class="id" title="definition">compatible_qq_morphism_structure</span></a> <a class="idref" href="TypeTheory.ALV1.Summary.html#Y"><span class="id" title="variable">Y</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#compatible_qq_from_term"><span class="id" title="definition">compatible_qq_from_term</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="compatible_term_from_qq"><span class="id" title="definition">compatible_term_from_qq</span></a> {<span class="id" title="var">C</span> : <span class="id" title="definition">Precategory</span>} <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<span class="id" title="var">X</span> : <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#obj_ext_structure"><span class="id" title="definition">obj_ext_structure</span></a> <a class="idref" href="TypeTheory.ALV1.Summary.html#C"><span class="id" title="variable">C</span></a>} (<span class="id" title="var">Z</span> : <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#qq_morphism_structure"><span class="id" title="definition">qq_morphism_structure</span></a> <a class="idref" href="TypeTheory.ALV1.Summary.html#X"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#compatible_term_structure"><span class="id" title="definition">compatible_term_structure</span></a> <a class="idref" href="TypeTheory.ALV1.Summary.html#Z"><span class="id" title="variable">Z</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#compatible_term_from_qq"><span class="id" title="definition">compatible_term_from_qq</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab90"></a><h2 class="section">Auxiliary equivalence between the reordered structures</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="weq_cwf'_sty'"><span class="id" title="definition">weq_cwf'_sty'</span></a> (<span class="id" title="var">C</span> : <span class="id" title="definition">Precategory</span>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#cwf'_structure"><span class="id" title="definition">cwf'_structure</span></a> <a class="idref" href="TypeTheory.ALV1.Summary.html#C"><span class="id" title="variable">C</span></a> <span class="id" title="notation">≃</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#split_typecat'_structure"><span class="id" title="definition">split_typecat'_structure</span></a> <a class="idref" href="TypeTheory.ALV1.Summary.html#C"><span class="id" title="variable">C</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#weq_cwf'_sty'"><span class="id" title="definition">weq_cwf'_sty'</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab91"></a><h2 class="section">Main construction: equivalence between split typecat structures and cwf structures</h2>
 
 </div>
 <div class="code">
@@ -83,16 +161,16 @@ Contents:
 <span class="id" title="keyword">Definition</span> <a name="weq_sty_cwf"><span class="id" title="definition">weq_sty_cwf</span></a> (<span class="id" title="var">C</span> : <span class="id" title="definition">Precategory</span>)<br/>
 &nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.TypeCat.html#split_typecat_structure"><span class="id" title="definition">split_typecat_structure</span></a> <a class="idref" href="TypeTheory.ALV1.Summary.html#C"><span class="id" title="variable">C</span></a> <span class="id" title="notation">≃</span> <a class="idref" href="TypeTheory.ALV1.CwF_def.html#cwf_structure"><span class="id" title="definition">cwf_structure</span></a> <a class="idref" href="TypeTheory.ALV1.Summary.html#C"><span class="id" title="variable">C</span></a>.<br/>
 <span class="id" title="keyword">Proof</span>.<br/>
-&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <span class="id" title="definition">weqcomp</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.TypeCat_Reassoc.html#weq_standalone_to_regrouped"><span class="id" title="definition">weq_standalone_to_regrouped</span></a>.<br/>
-&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <span class="id" title="definition">weqcomp</span>. <span class="id" title="tactic">eapply</span> <span class="id" title="definition">invweq</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#weq_cwf'_sty'"><span class="id" title="definition">weq_cwf'_sty'</span></a>.<br/>
-&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">invweq</span>, <a class="idref" href="TypeTheory.ALV1.CwF_Defs_Equiv.html#weq_cwf_cwf'_structure"><span class="id" title="definition">weq_cwf_cwf'_structure</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <span class="id" title="definition">weqcomp</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.Summary.html#weq_standalone_to_regrouped"><span class="id" title="definition">weq_standalone_to_regrouped</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <span class="id" title="definition">weqcomp</span>. <span class="id" title="tactic">eapply</span> <span class="id" title="definition">invweq</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.Summary.html#weq_cwf'_sty'"><span class="id" title="definition">weq_cwf'_sty'</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">invweq</span>, <a class="idref" href="TypeTheory.ALV1.Summary.html#weq_cwf_cwf'_structure"><span class="id" title="definition">weq_cwf_cwf'_structure</span></a>.<br/>
 <span class="id" title="keyword">Defined</span>.<br/>
 
 <br/>
 </div>
 
 <div class="doc">
-<a name="lab74"></a><h1 class="section">Map from <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.CwF_def.html#cwf_structure"><span class="id" title="definition">cwf_structure</span></a></span> <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> to <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.RepMaps.html#rep_map"><span class="id" title="definition">rep_map</span></a></span> <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span></h1>
+<a name="lab92"></a><h1 class="section">Map from <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.CwF_def.html#cwf_structure"><span class="id" title="definition">cwf_structure</span></a></span> <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> to <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.RepMaps.html#rep_map"><span class="id" title="definition">rep_map</span></a></span> <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span></h1>
  and proof that the map is an equivalence when <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> is univalent 
 </div>
 <div class="code">
@@ -118,7 +196,7 @@ Contents:
 </div>
 
 <div class="doc">
-<a name="lab75"></a><h1 class="section">Transfer of <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.CwF_def.html#cwf_structure"><span class="id" title="definition">cwf_structure</span></a></span>s along weak equivalences</h1>
+<a name="lab93"></a><h1 class="section">Transfer of <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.CwF_def.html#cwf_structure"><span class="id" title="definition">cwf_structure</span></a></span>s along weak equivalences</h1>
 
 </div>
 <div class="code">
@@ -136,7 +214,7 @@ Contents:
 </div>
 
 <div class="doc">
-<a name="lab76"></a><h1 class="section">Transfer of <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.RepMaps.html#rep_map"><span class="id" title="definition">rep_map</span></a></span>s along weak equivalences</h1>
+<a name="lab94"></a><h1 class="section">Transfer of <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.RepMaps.html#rep_map"><span class="id" title="definition">rep_map</span></a></span>s along weak equivalences</h1>
 
 </div>
 <div class="code">
@@ -153,7 +231,7 @@ Contents:
 </div>
 
 <div class="doc">
-<a name="lab77"></a><h1 class="section">Transfer of relative universe from Yoneda on a category to Yoneda on its Rezk completion</h1>
+<a name="lab95"></a><h1 class="section">Transfer of relative universe from Yoneda on a category to Yoneda on its Rezk completion</h1>
 
 </div>
 <div class="code">
@@ -180,7 +258,7 @@ Type hierarchy is collapsed (logic is inconsistent)
 
 <div class="paragraph"> </div>
 
-<a name="lab78"></a><h1 class="section">Equivalence between type of CwF structures on <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> and of rel univs on <span class="inlinecode"><span class="id" title="var">Yo</span></span> <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span></h1>
+<a name="lab96"></a><h1 class="section">Equivalence between type of CwF structures on <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> and of rel univs on <span class="inlinecode"><span class="id" title="var">Yo</span></span> <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span></h1>
 
 </div>
 <div class="code">
@@ -206,7 +284,7 @@ Type hierarchy is collapsed (logic is inconsistent)
 
 <div class="paragraph"> </div>
 
-<a name="lab79"></a><h1 class="section">Transfer of CwF structure from a category to its Rezk completion</h1>
+<a name="lab97"></a><h1 class="section">Transfer of CwF structure from a category to its Rezk completion</h1>
 
 </div>
 <div class="code">
@@ -237,7 +315,7 @@ Type hierarchy is collapsed (logic is inconsistent)
 
 <div class="paragraph"> </div>
 
-<a name="lab80"></a><h1 class="section">Equivalence of types between term structures and <i>q</i>-morphism structures</h1>
+<a name="lab98"></a><h1 class="section">Equivalence of types between term structures and <i>q</i>-morphism structures</h1>
 
 </div>
 <div class="code">
@@ -264,7 +342,7 @@ Type hierarchy is collapsed (logic is inconsistent)
 
 <div class="paragraph"> </div>
 
-<a name="lab81"></a><h1 class="section">Equivalence of categories between term structures and <i>q</i>-morphism structures, over a fixed object extension structure</h1>
+<a name="lab99"></a><h1 class="section">Equivalence of categories between term structures and <i>q</i>-morphism structures, over a fixed object extension structure</h1>
 
 </div>
 <div class="code">
@@ -297,7 +375,7 @@ Type hierarchy is collapsed (logic is inconsistent)
 
 <div class="paragraph"> </div>
 
-<a name="lab82"></a><h1 class="section">Equivalence of types between term structures and <i>q</i>-morphism structures, over a fixed object extension structures</h1>
+<a name="lab100"></a><h1 class="section">Equivalence of types between term structures and <i>q</i>-morphism structures, over a fixed object extension structures</h1>
 
 </div>
 <div class="code">

@@ -38,7 +38,7 @@ Contents:
 <div class="paragraph"> </div>
 
 <ul class="doclist">
-<li> Definition of comprehension structure on a map, relative to a functor: <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension"><span class="id" title="definition">fcomprehension</span></a></span>
+<li> Definition of universe structure on a map, relative to a functor: <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension"><span class="id" title="definition">fcomprehension</span></a></span>
 
 </li>
 <li> <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension"><span class="id" title="definition">fcomprehension</span></a></span> is a proposition under saturation assumptions: <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#isaprop_fcomprehension"><span class="id" title="lemma">isaprop_fcomprehension</span></a></span>
@@ -76,7 +76,7 @@ Contents:
 </div>
 
 <div class="doc">
-<a name="lab42"></a><h1 class="section">Relative comprehension structures</h1>
+<a name="lab50"></a><h1 class="section">Relative universe structures</h1>
 
 <div class="paragraph"> </div>
 
@@ -131,7 +131,7 @@ Contents:
 </div>
 
 <div class="doc">
-An equivalent form of <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension"><span class="id" title="definition">fcomprehension</span></a></span>, separating its data and properties by interchanging ∑ and ∏ 
+ An equivalent form of <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension"><span class="id" title="definition">fcomprehension</span></a></span>, separating its data and properties by interchanging ∑ and ∏ 
 </div>
 <div class="code">
 <span class="id" title="keyword">Definition</span> <a name="fcomprehension_weq"><span class="id" title="definition">fcomprehension_weq</span></a> :<br/>
@@ -154,7 +154,7 @@ An equivalent form of <span class="inlinecode"><a class="idref" href="TypeTheory
 </div>
 
 <div class="doc">
-<a name="lab43"></a><h2 class="section">Uniqueness lemmas regarding relative comprehension</h2>
+<a name="lab51"></a><h1 class="section">Uniqueness of relative universe structures under some assumptions</h1>
 
 </div>
 <div class="code">
@@ -251,8 +251,7 @@ An equivalent form of <span class="inlinecode"><a class="idref" href="TypeTheory
 </div>
 
 <div class="doc">
-<a name="lab44"></a><h1 class="section">Relative universes</h1>
-
+ Relative universes 
 <div class="paragraph"> </div>
 
  A <i>universe relative to a functor</i> is just a map in the target category, 
@@ -272,7 +271,7 @@ An equivalent form of <span class="inlinecode"><a class="idref" href="TypeTheory
 </div>
 
 <div class="doc">
-<a name="lab45"></a><h2 class="section">Transfer of a relative universe</h2>
+<a name="lab52"></a><h1 class="section">Transfer of a relative universe</h1>
 
 </div>
 <div class="code">
@@ -356,6 +355,15 @@ On top of this, we then assume either
 <span class="id" title="keyword">Local</span> <span class="id" title="keyword">Notation</span> <a name="pp"><span class="id" title="abbreviation">pp</span></a> := (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#morphism_from_total"><span class="id" title="definition">morphism_from_total</span></a> (<span class="id" title="projection">pr1</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.RUJ"><span class="id" title="variable">RUJ</span></a>)).<br/>
 
 <br/>
+</div>
+
+<div class="doc">
+<a name="lab53"></a><h2 class="section">Transfer along split and split-full functors</h2>
+
+</div>
+<div class="code">
+
+<br/>
 <span class="id" title="keyword">Definition</span> <a name="fcomprehension_induced_with_ess_split"><span class="id" title="definition">fcomprehension_induced_with_ess_split</span></a><br/>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">R_es</span> : <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#split_ess_surj"><span class="id" title="definition">split_ess_surj</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.R"><span class="id" title="variable">R</span></a>)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">S_sf</span> : <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#split_full"><span class="id" title="definition">split_full</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.S"><span class="id" title="variable">S</span></a>)<br/>
@@ -403,6 +411,15 @@ On top of this, we then assume either
 &nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#morphism_as_total"><span class="id" title="definition">morphism_as_total</span></a> (<span class="id" title="notation">#</span><a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.S"><span class="id" title="variable">S</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#pp"><span class="id" title="abbreviation">pp</span></a>)).<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension_induced_with_ess_split"><span class="id" title="definition">fcomprehension_induced_with_ess_split</span></a>; <span class="id" title="tactic">assumption</span>.<br/>
 <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab54"></a><h2 class="section">Transfer along surjective functors</h2>
+
+</div>
+<div class="code">
 
 <br/>
 <span class="id" title="keyword">Definition</span> <a name="fpullback_induced_with_ess_surj"><span class="id" title="definition">fpullback_induced_with_ess_surj</span></a><br/>
@@ -487,7 +504,7 @@ On top of this, we then assume either
 </div>
 
 <div class="doc">
-<a name="lab46"></a><h2 class="section">Transfer of weak relative universes</h2>
+<a name="lab55"></a><h2 class="section">Transfer of weak relative universes</h2>
 
 <div class="paragraph"> </div>
 

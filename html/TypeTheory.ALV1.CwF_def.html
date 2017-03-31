@@ -44,6 +44,12 @@ Contents:
 <li> equivalence between cwf structures and relative universe structures on Yoneda, <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.Summary.html#weq_cwf_structure_RelUnivYo"><span class="id" title="definition">weq_cwf_structure_RelUnivYo</span></a></span>
 
 </li>
+<li> type of representations is a proposition if <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> is univalent <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.CwF_def.html#isaprop_cwf_representation"><span class="id" title="lemma">isaprop_cwf_representation</span></a></span>
+
+</li>
+<li> transport of a CwF structure along weak equivalence <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.CwF_def.html#transfer_cwf_weak_equiv"><span class="id" title="definition">transfer_cwf_weak_equiv</span></a></span>
+
+</li>
 </ul>
 
 <div class="paragraph"> </div>
@@ -73,7 +79,11 @@ Contents:
 </div>
 
 <div class="doc">
-A version of <span class="inlinecode"><span class="id" title="lemma">weqtotal2asstor</span></span> with the type of the <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> argument slightly changed. Perhaps upstream? 
+<a name="lab13"></a><h1 class="section">Preliminaries</h1>
+
+<div class="paragraph"> </div>
+
+ A version of <span class="inlinecode"><span class="id" title="lemma">weqtotal2asstor</span></span> with the type of the <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> argument slightly changed. Perhaps upstream? 
 </div>
 <div class="code">
 <span class="id" title="keyword">Definition</span> <a name="weqtotal2asstor'"><span class="id" title="definition">weqtotal2asstor'</span></a> {<span class="id" title="var">A</span>} {<span class="id" title="var">B</span> : <a class="idref" href="TypeTheory.ALV1.CwF_def.html#A"><span class="id" title="variable">A</span></a> <a class="idref" href="http://coq.inria.fr/distrib/8.6/stdlib/Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="keyword">Type</span>} (<span class="id" title="var">C</span> : <span class="id" title="notation">∏</span> <span class="id" title="var">a</span><span class="id" title="notation">,</span> <a class="idref" href="TypeTheory.ALV1.CwF_def.html#B"><span class="id" title="variable">B</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_def.html#a"><span class="id" title="variable">a</span></a> <a class="idref" href="http://coq.inria.fr/distrib/8.6/stdlib/Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="keyword">Type</span>)<br/>
@@ -101,7 +111,7 @@ A version of <span class="inlinecode"><span class="id" title="lemma">weqtotal2as
 </div>
 
 <div class="doc">
-<a name="lab13"></a><h1 class="section">Definition of a CwF</h1>
+<a name="lab14"></a><h1 class="section">Definition of a CwF</h1>
 
 
 <div class="paragraph"> </div>
@@ -125,7 +135,7 @@ A (Fiore-style) CwF consists of:
 
 <div class="paragraph"> </div>
 
-  Specifically, we follow: Marcelo Fiore, slides 32–34 of <i>Discrete Generalised Polynomial Functors,_ from talk at ICALP 2012,
+  Specifically, we follow: Marcelo Fiore, slides 32–34 of <i>Discrete Generalised Polynomial Functors</i> , from talk at ICALP 2012,
   (<a href="http://www.cl.cam.ac.uk/~mpf23/talks/ICALP2012.pdf">link</a>)
 
 <div class="paragraph"> </div>
@@ -152,7 +162,7 @@ A (Fiore-style) CwF consists of:
 </div>
 
 <div class="doc">
-<a name="lab14"></a><h2 class="section">Representations of maps of presheaves</h2>
+<a name="lab15"></a><h2 class="section">Representations of maps of presheaves</h2>
 
 
 <div class="paragraph"> </div>
@@ -209,7 +219,7 @@ A *representation* of a map Tm —p—&gt; Ty of presheaves consists of data ill
 </div>
 
 <div class="doc">
-<a name="lab15"></a><h2 class="section">Definition of CwF structure, CwF</h2>
+<a name="lab16"></a><h2 class="section">Definition of CwF structure, CwF</h2>
 
 </div>
 <div class="code">
@@ -235,7 +245,7 @@ A *representation* of a map Tm —p—&gt; Ty of presheaves consists of data ill
 </div>
 
 <div class="doc">
-<a name="lab16"></a><h2 class="section">Misc lemmas on CwF’s</h2>
+<a name="lab17"></a><h2 class="section">Misc lemmas on CwF’s</h2>
 
 </div>
 <div class="code">
@@ -268,7 +278,7 @@ A *representation* of a map Tm —p—&gt; Ty of presheaves consists of data ill
 </div>
 
 <div class="doc">
-<a name="lab17"></a><h1 class="section">Useful facts about representations</h1>
+<a name="lab18"></a><h1 class="section">Useful facts about representations</h1>
 
 </div>
 <div class="code">
@@ -283,7 +293,7 @@ A *representation* of a map Tm —p—&gt; Ty of presheaves consists of data ill
 </div>
 
 <div class="doc">
-<a name="lab18"></a><h2 class="section">Data+properties reformulation of definition of representation</h2>
+<a name="lab19"></a><h2 class="section">Data+properties reformulation of definition of representation</h2>
 
 </div>
 <div class="code">
@@ -326,7 +336,7 @@ A *representation* of a map Tm —p—&gt; Ty of presheaves consists of data ill
 </div>
 
 <div class="doc">
-<a name="lab19"></a><h2 class="section">Uniqueness of representations, when C saturated</h2>
+<a name="lab20"></a><h2 class="section">Uniqueness of representations, when C saturated</h2>
 
 </div>
 <div class="code">
@@ -436,7 +446,7 @@ A *representation* of a map Tm —p—&gt; Ty of presheaves consists of data ill
 </div>
 
 <div class="doc">
-<a name="lab20"></a><h1 class="section">Equivalence with relative universe structures on Yoneda</h1>
+<a name="lab21"></a><h1 class="section">Equivalence with relative universe structures on Yoneda</h1>
 
 </div>
 <div class="code">
@@ -444,6 +454,15 @@ A *representation* of a map Tm —p—&gt; Ty of presheaves consists of data ill
 
 <br/>
 <span class="id" title="keyword">Context</span> {<span class="id" title="var">C</span> : <span class="id" title="definition">Precategory</span>}.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab22"></a><h2 class="section">Construction of the equivalence</h2>
+
+</div>
+<div class="code">
 
 <br/>
 <span class="id" title="keyword">Section</span> <a name="CwF_RelUnivYo.Representation_FComprehension"><span class="id" title="section">Representation_FComprehension</span></a>.<br/>
@@ -513,12 +532,13 @@ A *representation* of a map Tm —p—&gt; Ty of presheaves consists of data ill
 <span class="id" title="var">Arguments</span> <a class="idref" href="TypeTheory.ALV1.CwF_def.html#weq_cwf_structure_RelUnivYo"><span class="id" title="definition">weq_cwf_structure_RelUnivYo</span></a> <span class="id" title="var">_</span> : <span class="id" title="tactic">clear</span> <span class="id" title="var">implicits</span>.<br/>
 
 <br/>
-
-<br/>
 </div>
 
 <div class="doc">
-<a name="lab21"></a><h2 class="section">Representations vs representability</h2>
+The above equivalences allow us to easily deduce a few more nice facts about representations and CwF-structures from the corresponding facts about relative universes. 
+<div class="paragraph"> </div>
+
+<a name="lab23"></a><h2 class="section">Consequences of the equivalence: Representations vs representability</h2>
 
 </div>
 <div class="code">
@@ -542,10 +562,16 @@ A *representation* of a map Tm —p—&gt; Ty of presheaves consists of data ill
 </div>
 
 <div class="doc">
-<a name="lab22"></a><h2 class="section">Transport along a weak equivalence</h2>
+<a name="lab24"></a><h1 class="section">Transport along a weak equivalence</h1>
+
+<div class="paragraph"> </div>
+
+<a name="lab25"></a><h2 class="section">General case of transport, and recovery of the original map</h2>
 
 </div>
 <div class="code">
+
+<br/>
 <span class="id" title="keyword">Definition</span> <a name="transfer_cwf_weak_equiv"><span class="id" title="definition">transfer_cwf_weak_equiv</span></a> {<span class="id" title="var">C</span> <span class="id" title="var">D</span> : <span class="id" title="definition">Precategory</span>} (<span class="id" title="var">F</span> : <a class="idref" href="TypeTheory.ALV1.CwF_def.html#C"><span class="id" title="variable">C</span></a> <span class="id" title="notation">⟶</span> <a class="idref" href="TypeTheory.ALV1.CwF_def.html#D"><span class="id" title="variable">D</span></a>)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">F_ff</span> : <span class="id" title="definition">fully_faithful</span> <a class="idref" href="TypeTheory.ALV1.CwF_def.html#F"><span class="id" title="variable">F</span></a>) (<span class="id" title="var">F_es</span> : <span class="id" title="definition">essentially_surjective</span> <a class="idref" href="TypeTheory.ALV1.CwF_def.html#F"><span class="id" title="variable">F</span></a>)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">Dcat</span> : <span class="id" title="definition">is_category</span> <a class="idref" href="TypeTheory.ALV1.CwF_def.html#D"><span class="id" title="variable">D</span></a>) <br/>
@@ -562,8 +588,7 @@ A *representation* of a map Tm —p—&gt; Ty of presheaves consists of data ill
 </div>
 
 <div class="doc">
-<a name="lab23"></a><h3 class="section">Recovering the original morphism of presheaves after transport</h3>
-
+ Recovering the original morphism of presheaves after transport 
 </div>
 <div class="code">
 
@@ -673,7 +698,7 @@ A *representation* of a map Tm —p—&gt; Ty of presheaves consists of data ill
 </div>
 
 <div class="doc">
-<a name="lab24"></a><h2 class="section">Descent along Rezk-completion</h2>
+<a name="lab26"></a><h2 class="section">Special case of transport: Descent along Rezk-completion</h2>
  The construction below is also a special case of <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.CwF_def.html#transfer_cwf_weak_equiv"><span class="id" title="definition">transfer_cwf_weak_equiv</span></a></span> 
 </div>
 <div class="code">
