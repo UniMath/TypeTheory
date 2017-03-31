@@ -37,7 +37,7 @@ Require Import TypeTheory.ALV1.RelativeUniverses.
 
 Set Automatic Introduction.
 
-(** * Instantiating the data and hypotheses of transfer of relative universes to Yoneda *)
+(** * Transfer of relative universes to Yoneda along weak equivalence *)
 
 Local Notation "[ C , D ]" := (functor_Precategory C D).
 
@@ -68,6 +68,8 @@ Context {C D : Precategory}
         (F_ff : fully_faithful F)
         (F_es : essentially_surjective F).
 
+(** ** The square of functors, and a natural isomorphism *)
+
 Definition Fop_precomp : preShv D ⟶ preShv C.
 Proof.
   use (pre_composition_functor C^op D^op HSET _ _ (functor_opp F) ).
@@ -97,7 +99,7 @@ Proof.
   - apply es_Fop_precomp.
 Defined.
 
-(** ** The right vertical functor *)
+(** *** The right vertical functor *)
 
 Definition ext : functor (preShv C) (preShv D).
 Proof.
@@ -105,7 +107,7 @@ Proof.
 Defined.
 
 
-(** ** The right vertical functor *)
+(** *** The right vertical functor *)
 
 Definition has_homsets_preShv X : has_homsets (preShv X).
 Proof.
@@ -130,7 +132,7 @@ Proof.
   apply XR.
 Defined.
 
-(** ** The natural isomorphism *)
+(** *** The natural isomorphism *)
 
 Definition fi : iso (C:=[C, preShv D])
           (functor_composite Yo ext)
@@ -161,9 +163,9 @@ Proof.
 Defined.
 
 
+(** ** Proof of the properties of the functors involved *)
 
-
-(** ** Right vertical functor preserves pullbacks *)
+(** *** Right vertical functor preserves pullbacks *)
 
 (* TODO: should be an instance of “right adjoints preserve pullbacks”. *)
 Lemma preserves_pullbacks_ext
@@ -177,7 +179,7 @@ Proof.
   assumption.
 Defined.
 
-(** ** The instantiation *)
+(** * Transfer of a relative universe *)
 
 Definition Transfer_of_RelUnivYoneda (Dcat : is_category D) (X : @relative_universe C _ Yo)
   : relative_universe
@@ -209,6 +211,7 @@ Proof.
   apply is_category_functor_category.
 Defined.
 
+(** * Transfer of a relative weak universe *)
 
 Definition Transfer_of_WeakRelUnivYoneda : 
   weak_relative_universe (yoneda C (homset_property C)) ≃ 

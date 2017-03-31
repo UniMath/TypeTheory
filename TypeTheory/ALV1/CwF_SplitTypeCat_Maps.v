@@ -33,11 +33,13 @@ Local Notation "'Tm'" := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 
 
 Local Notation Δ := comp_ext_compare.
 
-(** * Definition of compatibility
+(** * Compatibility between term-structures and q-morphism structures
 
 We define _compatibility_ between a term-structure and a _q_-morphism structure, as a commutativity condition between the _q_-morphisms and the maps _Q_ of the term-structure.  *)
 
 Section Compatible_Structures.
+
+(** ** Definitions *)
 
 Definition iscompatible_term_qq
     (Y : term_fun_structure C X)
@@ -77,6 +79,8 @@ Definition iscompatible'_term_qq
   : UU
 := ∏ Γ Γ' A (f : C⟦Γ', Γ⟧) , Q Y A[f] = #Yo (qq Z f A) ;; Q Y A.
 
+(** ** Misc lemmas on compatibility *)
+
 (* TODO: try to eliminate older [iscompatible'] entirely, and remove both it and this lemma.  *)
 Definition iscompatible_iscompatible'
     (Y : term_fun_structure C X)
@@ -101,7 +105,7 @@ Qed.
 
 End Compatible_Structures.
 
-(** ** Misc lemmas *)
+
 
 (* TODO: find more natural home for this *)
 Lemma map_from_term_recover

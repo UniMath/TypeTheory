@@ -40,7 +40,7 @@ A representable map of presheaves consists of
 
 Section Fix_Category.
 
-(** ** Representations of maps of presheaves 
+(**  Representations of maps of presheaves 
 
 A *representation* of a map Tm —p—> Ty of presheaves consists of data exhibiting, 
   for each (A : Ty Γ), the fiber of p over A as represented by some object Γ.A over Γ. 
@@ -70,6 +70,8 @@ Qed.
 Definition rep_map : UU 
   := ∑ pp : mor_total (preShv C), is_representable pp.
 
+(** * Map from cwfs to representable maps of presheaves *)
+
 (** From a [cwf_structure] on [C], we get a representable map
     of presheaves on [C], given by
     - the identity on the first component (the objects and the morphism between them)
@@ -86,6 +88,7 @@ Proof.
     exact (hinhpr (H Γ A)).
 Defined.
 
+(** * Equivalence from cwfs to rep. maps of presheaves for [C] univalent *)
 
 (** The map from [cwf_structure C] to [rep_map C] is
     an equivalence if [C] is univalent.
@@ -116,7 +119,7 @@ Proof.
 Defined.
 
 
-(** ** Equivalence between representable maps of presheaves and weak relative universes *)
+(** * Equivalence between representable maps of presheaves and weak relative universes *)
 
 Lemma weq_is_representable_is_universe_relative (pp : mor_total (preShv C))
   : is_representable pp ≃ is_universe_relative_to Yo pp.
@@ -145,7 +148,7 @@ Defined.
 
 End Fix_Category.
 
-(** ** Equivalence between rep. maps of presheaves on [C] and on its Rezk completion
+(** * Equivalence between rep. maps of presheaves on [C] and on its Rezk completion
 *)
 
 Definition transfer_rep_map_weak_equiv {C D : Precategory} (F : C ⟶ D)
@@ -173,7 +176,7 @@ Proof.
 Defined.
 
 
-(** ** Commutativity of a diagram *)
+(** * Commutativity of a map from cwfs to rep. maps with transport along Rezk*)
 (**
 <<<
   cwf(C) ------> rep_map(C)
