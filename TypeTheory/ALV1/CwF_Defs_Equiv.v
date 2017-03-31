@@ -45,7 +45,7 @@ Section Fix_Category.
 
 Context {C : Precategory}.
 
-(** ** First step of the equivalence:
+(** * Definition of an intermediate structure
 
   We start by reordering the components of [cwf'_structure],
   so that like [cwf_structure], the morphism of presheaves comes first:
@@ -104,7 +104,7 @@ Definition rep1 (pp : mor_total (preShv C)) : UU
 
 Definition cwf1_structure := ∑ (pp : mor_total (preShv C)), rep1 pp.
 
-(** ** Equivalence between [cwf_structure] and [cwf1_structure] *)
+(** * Equivalence between [cwf'_structure] and intermediate [cwf1_structure] *)
 
 (* Note: the next lemma might be proved more easily with the specialized lemmas
     [weqtotal2dirprodassoc] and [weqtotal2dirprodassoc']
@@ -144,7 +144,7 @@ Proof.
     exact (idweq _ ).
 Defined.
 
-(** ** Second half of the equivalence *)
+(** * Equivalence between [cwf_structure] and intermediate *)
 
 (** As per the outline above, it now remains to construct,
   for a given morphism [ pp : Tm --> Ty ] in [ preShv pp ],
@@ -215,6 +215,8 @@ Proof.
   apply weqfibtototal; intros ΓAπ.
   use weqtotal2asstol.
 Defined.
+
+(** * Main result: equivalence between [cwf_structure C] and [cwf'_structure C] *)
 
 Definition weq_cwf_cwf'_structure : cwf_structure C ≃ cwf'_structure C.
 Proof.
