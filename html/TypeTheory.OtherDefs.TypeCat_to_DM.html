@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>TypeTheory.OtherDefs.TypeCat_to_DM</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library TypeTheory.OtherDefs.TypeCat_to_DM</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+
+<div class="paragraph"> </div>
+
+ Ahrens, Lumsdaine, Voevodsky, 2015
+
+<div class="paragraph"> </div>
+
+ Contents:
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> Definition of a Category with Display maps from a Comprehension Category
+      (assumption of saturatedness needed for pullbacks forming hprop)
+
+</li>
+</ul>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">UniMath.CategoryTheory.total2_paths</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">UniMath.CategoryTheory.limits.pullbacks</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.Auxiliary.UnicodeNotations.html#"><span class="id" title="library">TypeTheory.Auxiliary.UnicodeNotations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.ALV1.TypeCat.html#"><span class="id" title="library">TypeTheory.ALV1.TypeCat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.OtherDefs.DM.html#"><span class="id" title="library">TypeTheory.OtherDefs.DM</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#"><span class="id" title="library">TypeTheory.Auxiliary.Auxiliary</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab212"></a><h1 class="section">Construction of Comprehension precategory from Display map precategory</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a name="TypeCat_to_DM"><span class="id" title="section">TypeCat_to_DM</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Variable</span> <a name="TypeCat_to_DM.CC"><span class="id" title="variable">CC</span></a> : <span class="id" title="definition">precategory</span>.<br/>
+<span class="id" title="keyword">Variable</span> <a name="TypeCat_to_DM.H"><span class="id" title="variable">H</span></a> : <span class="id" title="definition">is_category</span> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#TypeCat_to_DM.CC"><span class="id" title="variable">CC</span></a>.<br/>
+<span class="id" title="keyword">Variable</span> <a name="TypeCat_to_DM.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="TypeTheory.ALV1.TypeCat.html#typecat_structure"><span class="id" title="definition">typecat_structure</span></a> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#TypeCat_to_DM.CC"><span class="id" title="variable">CC</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="iso_to_dpr"><span class="id" title="definition">iso_to_dpr</span></a> {<span class="id" title="var">Γ</span> <span class="id" title="var">Γ'</span>} (<span class="id" title="var">γ</span> : <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a> <span class="id" title="notation">--&gt;</span> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#530641ccab6ad93b36bab5ed00cbc670"><span class="id" title="variable">Γ'</span></a>) : <span class="id" title="definition">UU</span><br/>
+&nbsp;&nbsp;:= <span class="id" title="notation">∑</span> <span class="id" title="notation">(</span><span class="id" title="var">A</span> : <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#TypeCat_to_DM.C"><span class="id" title="variable">C</span></a> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#530641ccab6ad93b36bab5ed00cbc670"><span class="id" title="variable">Γ'</span></a>) (<span class="id" title="var">f</span> : <span class="id" title="definition">iso</span> (<a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#530641ccab6ad93b36bab5ed00cbc670"><span class="id" title="variable">Γ'</span></a><a class="idref" href="TypeTheory.ALV1.TypeCat.html#078b30ca909c3e2074786281452f402f"><span class="id" title="notation">◂</span></a> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#A"><span class="id" title="variable">A</span></a>) <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a><span class="id" title="notation">),</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.TypeCat.html#dpr_typecat"><span class="id" title="definition">dpr_typecat</span></a> <span class="id" title="var">_</span> <span class="id" title="notation">=</span> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#f"><span class="id" title="variable">f</span></a> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#f741603d4924d149d3f5d71b37a4cf6c"><span class="id" title="notation">;;</span></a> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#b0e5ed29efd576246de3282fa163293b"><span class="id" title="variable">γ</span></a> .<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="dm_sub_struct_of_TypeCat"><span class="id" title="definition">dm_sub_struct_of_TypeCat</span></a> : <a class="idref" href="TypeTheory.OtherDefs.DM.html#dm_sub_struct"><span class="id" title="definition">dm_sub_struct</span></a> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#TypeCat_to_DM.CC"><span class="id" title="variable">CC</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.OtherDefs.DM.html#dm_sub_struct"><span class="id" title="definition">dm_sub_struct</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">Γ</span> <span class="id" title="var">Γ'</span> <span class="id" title="var">γ</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="definition">ishinh</span> (<a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#iso_to_dpr"><span class="id" title="definition">iso_to_dpr</span></a> <span class="id" title="var">γ</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="dm_sub_closed_under_iso_of_TypeCat"><span class="id" title="lemma">dm_sub_closed_under_iso_of_TypeCat</span></a> : <a class="idref" href="TypeTheory.OtherDefs.DM.html#dm_sub_closed_under_iso"><span class="id" title="definition">dm_sub_closed_under_iso</span></a> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#dm_sub_struct_of_TypeCat"><span class="id" title="definition">dm_sub_struct_of_TypeCat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.OtherDefs.DM.html#dm_sub_closed_under_iso"><span class="id" title="definition">dm_sub_closed_under_iso</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">Δ</span> <span class="id" title="var">Γ</span> <span class="id" title="var">γ</span> <span class="id" title="var">Δ'</span> <span class="id" title="var">δ</span> <span class="id" title="var">h</span> <span class="id" title="var">HT</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#dm_sub_struct_of_TypeCat"><span class="id" title="definition">dm_sub_struct_of_TypeCat</span></a> <span class="id" title="keyword">in</span> <span class="id" title="var">γ</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">γ</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">γ</span> <span class="id" title="var">A</span>]. <span class="id" title="tactic">simpl</span> <span class="id" title="keyword">in</span> *. <span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.OtherDefs.DM.html#DM_type"><span class="id" title="definition">DM_type</span></a> <span class="id" title="keyword">in</span> <span class="id" title="var">A</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">A</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">A'</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">hinhpr</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">clear</span> <span class="id" title="var">A</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">A'</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">A</span> [<span class="id" title="var">f</span> <span class="id" title="var">TH</span>]].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#iso_to_dpr"><span class="id" title="definition">iso_to_dpr</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">A</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">T</span>:= <span class="id" title="definition">iso_comp</span> <span class="id" title="var">f</span> <span class="id" title="var">h</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">T</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <span class="id" title="var">T</span>. <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">TH</span>; <span class="id" title="tactic">clear</span> <span class="id" title="var">TH</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- <span class="id" title="definition">assoc</span>. <span class="id" title="tactic">apply</span> <span class="id" title="definition">maponpaths</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">sym</span>. <span class="id" title="tactic">assumption</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="pb_of_DM_of_TypeCat"><span class="id" title="definition">pb_of_DM_of_TypeCat</span></a> : <a class="idref" href="TypeTheory.OtherDefs.DM.html#pb_of_DM_struct"><span class="id" title="definition">pb_of_DM_struct</span></a> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#dm_sub_struct_of_TypeCat"><span class="id" title="definition">dm_sub_struct_of_TypeCat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.OtherDefs.DM.html#pb_of_DM_struct"><span class="id" title="definition">pb_of_DM_struct</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">Δ</span> <span class="id" title="var">Γ</span> <span class="id" title="var">γ</span> <span class="id" title="var">Γ'</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">γ</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">γ</span> <span class="id" title="var">B</span>]. <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span> | [ |- ?<span class="id" title="var">T</span> ] =&gt; <span class="id" title="tactic">assert</span> (<span class="id" title="var">X</span> : <span class="id" title="definition">isaprop</span> <span class="id" title="var">T</span>) <span class="id" title="keyword">end</span>.<br/>
+&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> <span class="id" title="lemma">isofhleveltotal2</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#isaprop_Pullback"><span class="id" title="definition">isaprop_Pullback</span></a>. <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span>. <span class="id" title="tactic">apply</span> <span class="id" title="lemma">isapropishinh</span>.<br/>
+&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.OtherDefs.DM.html#DM_type"><span class="id" title="definition">DM_type</span></a> <span class="id" title="keyword">in</span> <span class="id" title="var">B</span>. <span class="id" title="tactic">simpl</span> <span class="id" title="keyword">in</span> *.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#dm_sub_struct_of_TypeCat"><span class="id" title="definition">dm_sub_struct_of_TypeCat</span></a> <span class="id" title="keyword">in</span> <span class="id" title="var">B</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">T</span>:= <span class="id" title="definition">hProppair</span> <span class="id" title="var">_</span> <span class="id" title="var">X</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">T'</span>:= <span class="id" title="var">B</span> <span class="id" title="var">T</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">T'</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <span class="id" title="var">T</span>; <span class="id" title="tactic">simpl</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">clear</span> <span class="id" title="var">X</span> <span class="id" title="var">T</span> <span class="id" title="var">T'</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">T</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#iso_to_dpr"><span class="id" title="definition">iso_to_dpr</span></a> <span class="id" title="keyword">in</span> <span class="id" title="var">T</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">T</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">A</span> [<span class="id" title="var">h</span> <span class="id" title="var">e</span>]].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">clear</span> <span class="id" title="var">B</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">unshelve</span> <span class="id" title="tactic">refine</span> (<span class="id" title="constructor">tpair</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> ).<br/>
+&nbsp;&nbsp;- <span class="id" title="var">unshelve</span> <span class="id" title="tactic">refine</span> (<span class="id" title="definition">mk_Pullback</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> ).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<span class="id" title="var">Γ'</span> <a class="idref" href="TypeTheory.ALV1.TypeCat.html#078b30ca909c3e2074786281452f402f"><span class="id" title="notation">◂</span></a> <a class="idref" href="TypeTheory.ALV1.TypeCat.html#078b30ca909c3e2074786281452f402f"><span class="id" title="notation">(</span></a><span class="id" title="var">A</span><a class="idref" href="TypeTheory.ALV1.TypeCat.html#c8f7be9f05acb140649fde26af19625a"><span class="id" title="notation">{{</span></a><span class="id" title="var">f</span><a class="idref" href="TypeTheory.ALV1.TypeCat.html#c8f7be9f05acb140649fde26af19625a"><span class="id" title="notation">}}</span></a><a class="idref" href="TypeTheory.ALV1.TypeCat.html#078b30ca909c3e2074786281452f402f"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="TypeTheory.ALV1.TypeCat.html#q_typecat"><span class="id" title="definition">q_typecat</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#f741603d4924d149d3f5d71b37a4cf6c"><span class="id" title="notation">;;</span></a> <span class="id" title="var">h</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="TypeTheory.ALV1.TypeCat.html#dpr_typecat"><span class="id" title="definition">dpr_typecat</span></a> <span class="id" title="var">_</span> ).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#dm_sub_struct_of_TypeCat"><span class="id" title="definition">dm_sub_struct_of_TypeCat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">T</span>:= <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#postcomp_pb_with_iso"><span class="id" title="lemma">postcomp_pb_with_iso</span></a> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#TypeCat_to_DM.CC"><span class="id" title="variable">CC</span></a> (<span class="id" title="projection">pr2</span> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#TypeCat_to_DM.H"><span class="id" title="variable">H</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="projection">pr1</span> (<span class="id" title="var">T</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>  (<a class="idref" href="TypeTheory.ALV1.TypeCat.html#q_typecat"><span class="id" title="definition">q_typecat</span></a> <span class="id" title="var">A</span> <span class="id" title="var">f</span>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">f</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> )).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">is_symmetric_isPullback</span>. <span class="id" title="tactic">exact</span> (<span class="id" title="projection">pr2</span> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#TypeCat_to_DM.H"><span class="id" title="variable">H</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.TypeCat.html#reind_pb_typecat"><span class="id" title="definition">reind_pb_typecat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">sym</span>. <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">T</span>:= <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#postcomp_pb_with_iso"><span class="id" title="lemma">postcomp_pb_with_iso</span></a> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#TypeCat_to_DM.CC"><span class="id" title="variable">CC</span></a> (<span class="id" title="projection">pr2</span> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#TypeCat_to_DM.H"><span class="id" title="variable">H</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> (<span class="id" title="projection">pr2</span> (<span class="id" title="var">T</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)).<br/>
+&nbsp;- <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">hinhpr</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#iso_to_dpr"><span class="id" title="definition">iso_to_dpr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<span class="id" title="var">A</span><a class="idref" href="TypeTheory.ALV1.TypeCat.html#c8f7be9f05acb140649fde26af19625a"><span class="id" title="notation">{{</span></a><span class="id" title="var">f</span><a class="idref" href="TypeTheory.ALV1.TypeCat.html#c8f7be9f05acb140649fde26af19625a"><span class="id" title="notation">}}</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<span class="id" title="definition">identity_iso</span> <span class="id" title="var">_</span> ).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">sym</span>. <span class="id" title="tactic">apply</span> <span class="id" title="definition">id_left</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="dm_sub_pb_of_TypeCat"><span class="id" title="definition">dm_sub_pb_of_TypeCat</span></a> : <a class="idref" href="TypeTheory.OtherDefs.DM.html#dm_sub_pb"><span class="id" title="definition">dm_sub_pb</span></a> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#TypeCat_to_DM.CC"><span class="id" title="variable">CC</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#dm_sub_struct_of_TypeCat"><span class="id" title="definition">dm_sub_struct_of_TypeCat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#pb_of_DM_of_TypeCat"><span class="id" title="definition">pb_of_DM_of_TypeCat</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="DM_structure_of_TypeCat"><span class="id" title="definition">DM_structure_of_TypeCat</span></a> : <a class="idref" href="TypeTheory.OtherDefs.DM.html#DM_structure"><span class="id" title="definition">DM_structure</span></a> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#TypeCat_to_DM.CC"><span class="id" title="variable">CC</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#dm_sub_pb_of_TypeCat"><span class="id" title="definition">dm_sub_pb_of_TypeCat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#dm_sub_closed_under_iso_of_TypeCat"><span class="id" title="lemma">dm_sub_closed_under_iso_of_TypeCat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span>. <span class="id" title="tactic">apply</span> <span class="id" title="lemma">isapropishinh</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="TypeTheory.OtherDefs.TypeCat_to_DM.html#TypeCat_to_DM"><span class="id" title="section">TypeCat_to_DM</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

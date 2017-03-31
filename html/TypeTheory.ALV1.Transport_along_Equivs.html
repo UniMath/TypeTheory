@@ -1,0 +1,360 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>TypeTheory.ALV1.Transport_along_Equivs</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library TypeTheory.ALV1.Transport_along_Equivs</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+  <span class="inlinecode"><span class="id" title="var">TypeTheory.ALV1.Transport_Along_Equivs</span></span>
+
+<div class="paragraph"> </div>
+
+  Part of the <span class="inlinecode"><span class="id" title="var">TypeTheory</span></span> library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
+
+<div class="paragraph"> </div>
+
+ This file provides two results:
+
+<div class="paragraph"> </div>
+
+  Given a universe in <span class="inlinecode"><a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a></span> <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> relative to the Yoneda embedding <span class="inlinecode"></span> <span class="inlinecode"><span class="id" title="var">Yo</span></span> <span class="inlinecode">:</span> <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> <span class="inlinecode">⟶</span> <span class="inlinecode"><a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a></span> <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> <span class="inlinecode"></span>, 
+  and a fully faithful and essentially surjective functor <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.category_of_elements.html#category_of_elements_covariant.F"><span class="id" title="variable">F</span></a></span> <span class="inlinecode">:</span> <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> <span class="inlinecode">⟶</span> <span class="inlinecode"><a class="idref" href="TypeTheory.Displayed_Cats.Constructions.html#Functor.D"><span class="id" title="variable">D</span></a></span>,
+  and <span class="inlinecode"><a class="idref" href="TypeTheory.Displayed_Cats.Constructions.html#Functor.D"><span class="id" title="variable">D</span></a></span> is a univalent category, then
+  we obtain a universe relative to <span class="inlinecode"><span class="id" title="var">Yo</span></span> <span class="inlinecode">:</span> <span class="inlinecode"><a class="idref" href="TypeTheory.Displayed_Cats.Constructions.html#Functor.D"><span class="id" title="variable">D</span></a></span> <span class="inlinecode">⟶</span> <span class="inlinecode"><a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a></span> <span class="inlinecode"><a class="idref" href="TypeTheory.Displayed_Cats.Constructions.html#Functor.D"><span class="id" title="variable">D</span></a></span>
+
+<div class="paragraph"> </div>
+
+  Furthermore, given a weak equivalence <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.category_of_elements.html#category_of_elements_covariant.F"><span class="id" title="variable">F</span></a></span> <span class="inlinecode">:</span> <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> <span class="inlinecode">⟶</span> <span class="inlinecode"><a class="idref" href="TypeTheory.Displayed_Cats.Constructions.html#Functor.D"><span class="id" title="variable">D</span></a></span> as above,
+  then we obtain an equivalence of 
+  weak universes on <span class="inlinecode"><span class="id" title="var">Yo</span></span> <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> and on <span class="inlinecode"><span class="id" title="var">Yo</span></span> <span class="inlinecode"><a class="idref" href="TypeTheory.Displayed_Cats.Constructions.html#Functor.D"><span class="id" title="variable">D</span></a></span>.
+
+<div class="paragraph"> </div>
+
+  Put differently, weak relative universes (and hence representable maps of presheaves)
+  are invariant under weak equivalences, whereas cwf structures
+  are not - even though they can be transported along weak equivalences
+  in the direction of the underlying functor if the target category is univalent.
+
+<div class="paragraph"> </div>
+
+  The results of this file could (should, actually) be instantiated 
+  in order to obtain the result of ALV1.RelUnivYonedaCompletion.
+
+<div class="paragraph"> </div>
+
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">UniMath.Foundations.Sets</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">UniMath.CategoryTheory.precomp_ess_surj</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.Auxiliary.CategoryTheoryImports.html#"><span class="id" title="library">TypeTheory.Auxiliary.CategoryTheoryImports</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#"><span class="id" title="library">TypeTheory.Auxiliary.Auxiliary</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.Auxiliary.UnicodeNotations.html#"><span class="id" title="library">TypeTheory.Auxiliary.UnicodeNotations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#"><span class="id" title="library">TypeTheory.ALV1.RelativeUniverses</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Set</span> <span class="id" title="var">Automatic</span> <span class="id" title="var">Introduction</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab57"></a><h1 class="section">Instantiating the data and hypotheses of transfer of relative universes to Yoneda</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Notation</span> "[ C , D ]" := (<span class="id" title="definition">functor_Precategory</span> <span class="id" title="var">C</span> <span class="id" title="var">D</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a name="fix_category"><span class="id" title="section">fix_category</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+Goal: Transfer a (weak) relative universe from the top to the bottom functor
+
+<div class="paragraph"> </div>
+
+<pre>&lt;
+  C ------------&gt; preShv C
+  |               |  /\
+  | F             |  | precomp with F^op
+  v               V  |
+  D ------------&gt; preShv D
+
+</pre>
+&gt;
+
+<div class="paragraph"> </div>
+
+The right vertical down arrow is obtained as the inverse of the equivalence
+given by precomposition with <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.category_of_elements.html#category_of_elements_covariant.F"><span class="id" title="variable">F</span></a>^<span class="id" title="var">op</span></span>.
+Indeed, since <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.category_of_elements.html#category_of_elements_covariant.F"><span class="id" title="variable">F</span></a></span>, and hence <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.category_of_elements.html#category_of_elements_covariant.F"><span class="id" title="variable">F</span></a>^<span class="id" title="var">op</span></span> is ff and ess surj, so is
+precomposition with <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.category_of_elements.html#category_of_elements_covariant.F"><span class="id" title="variable">F</span></a>^<span class="id" title="var">op</span></span>.
+
+<div class="paragraph"> </div>
+
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Context</span> {<span class="id" title="var">C</span> <span class="id" title="var">D</span> : <span class="id" title="definition">Precategory</span>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">F</span> : <span class="id" title="definition">functor</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#C"><span class="id" title="variable">C</span></a> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#D"><span class="id" title="variable">D</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">F_ff</span> : <span class="id" title="definition">fully_faithful</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#F"><span class="id" title="variable">F</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">F_es</span> : <span class="id" title="definition">essentially_surjective</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#F"><span class="id" title="variable">F</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="Fop_precomp"><span class="id" title="definition">Fop_precomp</span></a> : <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.D"><span class="id" title="variable">D</span></a> <span class="id" title="notation">⟶</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.C"><span class="id" title="variable">C</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> (<span class="id" title="definition">pre_composition_functor</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.C"><span class="id" title="variable">C</span></a><span class="id" title="notation">^</span><span class="id" title="notation">op</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.D"><span class="id" title="variable">D</span></a><span class="id" title="notation">^</span><span class="id" title="notation">op</span> <span class="id" title="notation">HSET</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<span class="id" title="definition">functor_opp</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.F"><span class="id" title="variable">F</span></a>) ).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">has_homsets_opp</span>. <span class="id" title="tactic">apply</span> <span class="id" title="definition">homset_property</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="ff_Fop_precomp"><span class="id" title="definition">ff_Fop_precomp</span></a> : <span class="id" title="definition">fully_faithful</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#Fop_precomp"><span class="id" title="definition">Fop_precomp</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">pre_composition_with_ess_surj_and_fully_faithful_is_fully_faithful</span>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <span class="id" title="lemma">opp_functor_essentially_surjective</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.F_es"><span class="id" title="variable">F_es</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <span class="id" title="lemma">opp_functor_fully_faithful</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.F_ff"><span class="id" title="variable">F_ff</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="es_Fop_precomp"><span class="id" title="definition">es_Fop_precomp</span></a> : <span class="id" title="definition">essentially_surjective</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#Fop_precomp"><span class="id" title="definition">Fop_precomp</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">pre_composition_essentially_surjective</span>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <span class="id" title="lemma">opp_functor_essentially_surjective</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.F_es"><span class="id" title="variable">F_es</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <span class="id" title="lemma">opp_functor_fully_faithful</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.F_ff"><span class="id" title="variable">F_ff</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="equiv_Fcomp"><span class="id" title="definition">equiv_Fcomp</span></a> : <span class="id" title="definition">adj_equivalence_of_precats</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#Fop_precomp"><span class="id" title="definition">Fop_precomp</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">rad_equivalence_of_precats</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <span class="id" title="lemma">is_category_functor_category</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#ff_Fop_precomp"><span class="id" title="definition">ff_Fop_precomp</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#es_Fop_precomp"><span class="id" title="definition">es_Fop_precomp</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab58"></a><h2 class="section">The right vertical functor</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="ext"><span class="id" title="definition">ext</span></a> : <span class="id" title="definition">functor</span> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.C"><span class="id" title="variable">C</span></a>) (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.D"><span class="id" title="variable">D</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="definition">right_adjoint</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#equiv_Fcomp"><span class="id" title="definition">equiv_Fcomp</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab59"></a><h2 class="section">The right vertical functor</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="has_homsets_preShv"><span class="id" title="definition">has_homsets_preShv</span></a> <span class="id" title="var">X</span> : <span class="id" title="definition">has_homsets</span> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#X"><span class="id" title="variable">X</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">functor_category_has_homsets</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="epsinv"><span class="id" title="definition">epsinv</span></a> : <span class="id" title="definition">iso</span> (<span class="id" title="var">C</span>:=<span class="id" title="notation">[</span><span class="id" title="var">_</span> <span class="id" title="notation">,</span> <span class="id" title="var">_</span> <span class="id" title="notation">,</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#has_homsets_preShv"><span class="id" title="definition">has_homsets_preShv</span></a> <span class="id" title="var">_</span> <span class="id" title="notation">]</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="definition">functor_identity</span> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.C"><span class="id" title="variable">C</span></a>)) (<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#ext"><span class="id" title="definition">ext</span></a> <span class="id" title="notation">∙</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#Fop_precomp"><span class="id" title="definition">Fop_precomp</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">XR'</span>:= (<span class="id" title="definition">counit_iso_from_adj_equivalence_of_precats</span> (<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#has_homsets_preShv"><span class="id" title="definition">has_homsets_preShv</span></a> <span class="id" title="var">_</span> ) <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#equiv_Fcomp"><span class="id" title="definition">equiv_Fcomp</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">iso_inv_from_iso</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">XR'</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="etainv"><span class="id" title="definition">etainv</span></a> : <span class="id" title="definition">iso</span> (<span class="id" title="var">C</span>:=<span class="id" title="notation">[</span> <span class="id" title="var">_</span> <span class="id" title="notation">,</span> <span class="id" title="var">_</span> <span class="id" title="notation">,</span> <span class="id" title="notation">(</span><a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#has_homsets_preShv"><span class="id" title="definition">has_homsets_preShv</span></a> <span class="id" title="var">_</span> <span class="id" title="notation">)]</span>) <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#Fop_precomp"><span class="id" title="definition">Fop_precomp</span></a> <span class="id" title="notation">∙</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#ext"><span class="id" title="definition">ext</span></a>) (<span class="id" title="definition">functor_identity</span> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.D"><span class="id" title="variable">D</span></a>)).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">XR</span> := (<span class="id" title="definition">unit_iso_from_adj_equivalence_of_precats</span> (<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#has_homsets_preShv"><span class="id" title="definition">has_homsets_preShv</span></a> <span class="id" title="var">_</span> ) <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#equiv_Fcomp"><span class="id" title="definition">equiv_Fcomp</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">iso_inv_from_iso</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">XR</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab60"></a><h2 class="section">The natural isomorphism</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="fi"><span class="id" title="definition">fi</span></a> : <span class="id" title="definition">iso</span> (<span class="id" title="var">C</span>:=<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#189c37af092953abce9e8a9108bf32e6"><span class="id" title="notation">[</span></a><a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.C"><span class="id" title="variable">C</span></a><a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#189c37af092953abce9e8a9108bf32e6"><span class="id" title="notation">,</span></a> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.D"><span class="id" title="variable">D</span></a><a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#189c37af092953abce9e8a9108bf32e6"><span class="id" title="notation">]</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="definition">functor_composite</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#2992071cd8d27cf2d1066e1ad11b67d0"><span class="id" title="notation">Yo</span></a> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#ext"><span class="id" title="definition">ext</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="definition">functor_composite</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.F"><span class="id" title="variable">F</span></a> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#2992071cd8d27cf2d1066e1ad11b67d0"><span class="id" title="notation">Yo</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">T</span>:= @<span class="id" title="definition">iso_from_fully_faithful_reflection</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="definition">pre_composition_functor</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.C"><span class="id" title="variable">C</span></a><span class="id" title="notation">^</span><span class="id" title="notation">op</span> <span class="id" title="var">_</span> <span class="id" title="notation">HSET</span> (<span class="id" title="lemma">has_homsets_opp</span> (<span class="id" title="definition">homset_property</span> <span class="id" title="var">_</span>) ) <span class="id" title="lemma">has_homsets_HSET</span> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="definition">functor_opp</span> (<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.F"><span class="id" title="variable">F</span></a>)))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">XTT</span> := <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#ff_Fop_precomp"><span class="id" title="definition">ff_Fop_precomp</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">specialize</span> (<span class="id" title="var">T</span> <span class="id" title="var">XTT</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">XR</span> := <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#iso_from_iso_with_postcomp"><span class="id" title="lemma">iso_from_iso_with_postcomp</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="var">XR</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<span class="id" title="lemma">functor_category_has_homsets</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> )<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="lemma">functor_category_has_homsets</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> )  <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">XTT</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <span class="id" title="definition">iso_comp</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#functor_assoc_iso"><span class="id" title="definition">functor_assoc_iso</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <span class="id" title="definition">iso_comp</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#functor_precomp_iso"><span class="id" title="definition">functor_precomp_iso</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">counit_iso_from_adj_equivalence_of_precats</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <span class="id" title="definition">iso_comp</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#functor_comp_id_iso"><span class="id" title="definition">functor_comp_id_iso</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<span class="id" title="definition">yoneda_functor_precomp_nat_trans</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> ).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">functor_iso_if_pointwise_iso</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">c</span>. <span class="id" title="tactic">apply</span> <span class="id" title="lemma">is_iso_yoneda_functor_precomp</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.F_ff"><span class="id" title="variable">F_ff</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab61"></a><h2 class="section">Right vertical functor preserves pullbacks</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="preserves_pullbacks_ext"><span class="id" title="lemma">preserves_pullbacks_ext</span></a><br/>
+&nbsp;&nbsp;: <span class="id" title="definition">maps_pb_squares_to_pb_squares</span> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.C"><span class="id" title="variable">C</span></a>) (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.D"><span class="id" title="variable">D</span></a>) <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#ext"><span class="id" title="definition">ext</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> ? ? ? ? ? ? ? ? ? ?.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">isPullback_image_square</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">functor_category_has_homsets</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#right_adj_equiv_is_ff"><span class="id" title="lemma">right_adj_equiv_is_ff</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#right_adj_equiv_is_ess_sur"><span class="id" title="lemma">right_adj_equiv_is_ess_sur</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assumption</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab62"></a><h2 class="section">The instantiation</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="Transfer_of_RelUnivYoneda"><span class="id" title="definition">Transfer_of_RelUnivYoneda</span></a> (<span class="id" title="var">Dcat</span> : <span class="id" title="definition">is_category</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.D"><span class="id" title="variable">D</span></a>) (<span class="id" title="var">X</span> : @<a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#relative_universe"><span class="id" title="definition">relative_universe</span></a> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.C"><span class="id" title="variable">C</span></a> <span class="id" title="var">_</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#2992071cd8d27cf2d1066e1ad11b67d0"><span class="id" title="notation">Yo</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#relative_universe"><span class="id" title="definition">relative_universe</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((<span class="id" title="definition">yoneda</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.D"><span class="id" title="variable">D</span></a> (<span class="id" title="definition">homset_property</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.D"><span class="id" title="variable">D</span></a>) : <span class="id" title="definition">functor</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.D"><span class="id" title="variable">D</span></a> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.D"><span class="id" title="variable">D</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="definition">functor</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.D"><span class="id" title="variable">D</span></a> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.D"><span class="id" title="variable">D</span></a>)).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#transfer_of_rel_univ_with_ess_surj"><span class="id" title="definition">transfer_of_rel_univ_with_ess_surj</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#2992071cd8d27cf2d1066e1ad11b67d0"><span class="id" title="notation">Yo</span></a> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">X</span> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#2992071cd8d27cf2d1066e1ad11b67d0"><span class="id" title="notation">Yo</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.F"><span class="id" title="variable">F</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#ext"><span class="id" title="definition">ext</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fi"><span class="id" title="definition">fi</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="projection">pr2</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fi"><span class="id" title="definition">fi</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#preserves_pullbacks_ext"><span class="id" title="lemma">preserves_pullbacks_ext</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.F_es"><span class="id" title="variable">F_es</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">Dcat</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="lemma">yoneda_fully_faithful</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> )<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#right_adj_equiv_is_full"><span class="id" title="lemma">right_adj_equiv_is_full</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="is_category_preShv"><span class="id" title="lemma">is_category_preShv</span></a> <span class="id" title="var">X</span> : <span class="id" title="definition">is_category</span> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#X"><span class="id" title="variable">X</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">is_category_functor_category</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="Transfer_of_WeakRelUnivYoneda"><span class="id" title="definition">Transfer_of_WeakRelUnivYoneda</span></a> : <br/>
+&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#weak_relative_universe"><span class="id" title="definition">weak_relative_universe</span></a> (<span class="id" title="definition">yoneda</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.C"><span class="id" title="variable">C</span></a> (<span class="id" title="definition">homset_property</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.C"><span class="id" title="variable">C</span></a>)) <span class="id" title="notation">≃</span> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#weak_relative_universe"><span class="id" title="definition">weak_relative_universe</span></a> (<span class="id" title="definition">yoneda</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.D"><span class="id" title="variable">D</span></a> (<span class="id" title="definition">homset_property</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.D"><span class="id" title="variable">D</span></a>)).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">XR</span> := @<a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#weq_weak_relative_universe_transfer"><span class="id" title="definition">weq_weak_relative_universe_transfer</span></a> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.C"><span class="id" title="variable">C</span></a> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="definition">yoneda</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.C"><span class="id" title="variable">C</span></a> (<span class="id" title="definition">homset_property</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.C"><span class="id" title="variable">C</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.D"><span class="id" title="variable">D</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.D"><span class="id" title="variable">D</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#2992071cd8d27cf2d1066e1ad11b67d0"><span class="id" title="notation">Yo</span></a> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.F"><span class="id" title="variable">F</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#ext"><span class="id" title="definition">ext</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fi"><span class="id" title="definition">fi</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="projection">pr2</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fi"><span class="id" title="definition">fi</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#preserves_pullbacks_ext"><span class="id" title="lemma">preserves_pullbacks_ext</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.F_es"><span class="id" title="variable">F_es</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#right_adj_equiv_is_full"><span class="id" title="lemma">right_adj_equiv_is_full</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#full_from_ff"><span class="id" title="lemma">full_from_ff</span></a> <span class="id" title="var">_</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category.F_ff"><span class="id" title="variable">F_ff</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#is_category_preShv"><span class="id" title="lemma">is_category_preShv</span></a> <span class="id" title="var">_</span> )<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#is_category_preShv"><span class="id" title="lemma">is_category_preShv</span></a> <span class="id" title="var">_</span> )<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#Fop_precomp"><span class="id" title="definition">Fop_precomp</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;).<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <span class="id" title="var">XR</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#epsinv"><span class="id" title="definition">epsinv</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#etainv"><span class="id" title="definition">etainv</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#right_adj_equiv_is_ff"><span class="id" title="lemma">right_adj_equiv_is_ff</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#fix_category"><span class="id" title="section">fix_category</span></a>.<br/>
+
+<br/>
+
+<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>
