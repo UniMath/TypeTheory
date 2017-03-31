@@ -53,7 +53,7 @@ Definition fpullback {X : C} (f : D ⟦J X, U⟧) :=
 Coercion fpullback_data_from_fpullback {X : C} {f : D ⟦J X, U⟧} (T : fpullback f) :
    fpullback_data f := pr1 T.
 
-Definition fcomprehension := ∏ X (f : D⟦J X, U⟧), fpullback f.
+Definition rel_universe_structure := ∏ X (f : D⟦J X, U⟧), fpullback f.
 
 Definition is_universe_relative_to : UU
   := ∏ (X : C) (f : D⟦J X, _ ⟧), ∥ fpullback f ∥ .
@@ -61,13 +61,13 @@ Definition is_universe_relative_to : UU
 (* TODO: add arguments declaration to make [U], [tU] explicit in this 
    def not depending on [p].  
    OR make it depend on [p] (which it conceptually should, though it formally doesn’t). *)
-Definition fcomprehension_data := ∏ X (f : D⟦ J X, U⟧), fpullback_data f.
-Definition fcomprehension_prop (Y : fcomprehension_data) :=
+Definition rel_universe_structure_data := ∏ X (f : D⟦ J X, U⟧), fpullback_data f.
+Definition rel_universe_structure_prop (Y : rel_universe_structure_data) :=
           ∏ X f, fpullback_prop (Y X f). 
 
-(**  An equivalent form of [fcomprehension], separating its data and properties by interchanging ∑ and ∏ *)
-Definition fcomprehension_weq :
-   fcomprehension ≃ ∑ Y : fcomprehension_data, fcomprehension_prop Y.
+(**  An equivalent form of [rel_universe_structure], separating its data and properties by interchanging ∑ and ∏ *)
+Definition weq_rel_universe_structure_ :
+   rel_universe_structure ≃ ∑ Y : rel_universe_structure_data, rel_universe_structure_prop Y.
 Proof.
   eapply weqcomp. Focus 2.
     set (XR:=@weqforalltototal (ob C)).
@@ -156,8 +156,8 @@ Proof.
         apply X1.
 Qed.
 
-Lemma isaprop_fcomprehension  (is_c : is_category C) 
-    (HJ : fully_faithful J) : isaprop (fcomprehension J pp).
+Lemma isaprop_rel_universe_structure  (is_c : is_category C) 
+    (HJ : fully_faithful J) : isaprop (rel_universe_structure J pp).
 Proof.
   do 2 (apply impred; intro).
   apply isaprop_fpullback; assumption.
@@ -173,7 +173,7 @@ End Relative_Comprehension_Lemmas.
     equipped with a relative comprehension structure. *)
 
 Definition relative_universe {C D : precategory} (J : functor C D) : UU
-  := ∑ X : mor_total D, fcomprehension J X.
+  := ∑ X : mor_total D, rel_universe_structure J X.
 
 Definition weak_relative_universe {C D : precategory} (J : functor C D) : UU
   := ∑ X : mor_total D, is_universe_relative_to J X.
@@ -236,10 +236,10 @@ Local Notation pp := (morphism_from_total (pr1 RUJ)).
 
 (** ** Transfer along split and split-full functors *)
 
-Definition fcomprehension_induced_with_ess_split
+Definition rel_universe_structure_induced_with_ess_split
     (R_es : split_ess_surj R)
     (S_sf : split_full S)
-  :  fcomprehension J' (# S (pr1 RUJ)).
+  :  rel_universe_structure J' (# S (pr1 RUJ)).
 Proof.
   cbn in α, α', α'_α.
   intros X' g.
@@ -280,7 +280,7 @@ Definition transfer_of_rel_univ_with_ess_split
   : relative_universe J'.
 Proof.
   exists (morphism_as_total (#S pp)).
-  apply fcomprehension_induced_with_ess_split; assumption.
+  apply rel_universe_structure_induced_with_ess_split; assumption.
 Defined.
 
 (** ** Transfer along surjective functors *)
@@ -333,13 +333,13 @@ Proof.
     apply id_left.
 Defined.
 
-Definition fcomprehension_induced_with_ess_surj
+Definition rel_universe_structure_induced_with_ess_surj
    (R_es : essentially_surjective R)
    (C'_sat : is_category C')
    (J'_ff : fully_faithful J')
      (* TODO: only “ff on isos” might suffice; see note at [isaprop_fpullback]. *)
    (S_full : full S)
-  :  fcomprehension J' (# S (pr1 RUJ)).
+  :  rel_universe_structure J' (# S (pr1 RUJ)).
 Proof.
   cbn in α, α', α'_α.
   intros X' g.
@@ -355,7 +355,7 @@ Definition transfer_of_rel_univ_with_ess_surj
   : relative_universe J'.
 Proof.
   exists (morphism_as_total (#S pp)).
-  apply fcomprehension_induced_with_ess_surj; assumption.
+  apply rel_universe_structure_induced_with_ess_surj; assumption.
 Defined.
 
 
