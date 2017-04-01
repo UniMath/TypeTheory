@@ -342,8 +342,8 @@ Proof.
     apply idweq.
 Defined.
 
-Lemma weq_cwf_representation_fcomprehension
-  : cwf_representation pp ≃ fcomprehension Yo pp.
+Lemma weq_cwf_representation_rel_universe_structure
+  : cwf_representation pp ≃ rel_universe_structure Yo pp.
 Proof.
   apply weqonsecfibers. intro Γ.
   (* convert the type argument under [yy] *) 
@@ -361,7 +361,7 @@ Definition weq_cwf_structure_RelUnivYo
 Proof.
   apply weqfibtototal.
   intro pp.
-  apply weq_cwf_representation_fcomprehension.
+  apply weq_cwf_representation_rel_universe_structure.
 Defined.
 
 End CwF_RelUnivYo.
@@ -386,9 +386,9 @@ Lemma isaprop_cwf_representation {C : Precategory}
   : isaprop (cwf_representation pp).
 Proof.
   use isofhlevelweqb.
-  - exact (fcomprehension Yo pp).
-  - apply weq_cwf_representation_fcomprehension.
-  - apply isaprop_fcomprehension. 
+  - exact (rel_universe_structure Yo pp).
+  - apply weq_cwf_representation_rel_universe_structure.
+  - apply isaprop_rel_universe_structure.
     + apply Ccat.
     + apply yoneda_fully_faithful.
 Qed.
