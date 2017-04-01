@@ -38,10 +38,10 @@ Contents:
 <div class="paragraph"> </div>
 
 <ul class="doclist">
-<li> Definition of universe structure on a map, relative to a functor: <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension"><span class="id" title="definition">fcomprehension</span></a></span>
+<li> Definition of universe structure on a map, relative to a functor: <span class="inlinecode"><span class="id" title="var">fcomprehension</span></span>
 
 </li>
-<li> <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension"><span class="id" title="definition">fcomprehension</span></a></span> is a proposition under saturation assumptions: <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#isaprop_fcomprehension"><span class="id" title="lemma">isaprop_fcomprehension</span></a></span>
+<li> <span class="inlinecode"><span class="id" title="var">fcomprehension</span></span> is a proposition under saturation assumptions: <span class="inlinecode"><span class="id" title="var">isaprop_fcomprehension</span></span>
 
 </li>
 <li> Definition of a relative universe: <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#relative_universe"><span class="id" title="definition">relative_universe</span></a></span> (due to Vladimir Voevodsky)
@@ -116,26 +116,26 @@ Contents:
 &nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fpullback_data"><span class="id" title="definition">fpullback_data</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#f"><span class="id" title="variable">f</span></a> := <span class="id" title="projection">pr1</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#T"><span class="id" title="variable">T</span></a>.<br/>
 
 <br/>
-<span class="id" title="keyword">Definition</span> <a name="fcomprehension"><span class="id" title="definition">fcomprehension</span></a> := <span class="id" title="notation">∏</span> <span class="id" title="var">X</span> (<span class="id" title="var">f</span> : <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension.D"><span class="id" title="variable">D</span></a><span class="id" title="notation">⟦</span><a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension.J"><span class="id" title="variable">J</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#X"><span class="id" title="variable">X</span></a><span class="id" title="notation">,</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension.U"><span class="id" title="variable">U</span></a><span class="id" title="notation">⟧</span><span class="id" title="notation">),</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fpullback"><span class="id" title="definition">fpullback</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#f"><span class="id" title="variable">f</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a name="rel_universe_structure"><span class="id" title="definition">rel_universe_structure</span></a> := <span class="id" title="notation">∏</span> <span class="id" title="var">X</span> (<span class="id" title="var">f</span> : <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension.D"><span class="id" title="variable">D</span></a><span class="id" title="notation">⟦</span><a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension.J"><span class="id" title="variable">J</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#X"><span class="id" title="variable">X</span></a><span class="id" title="notation">,</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension.U"><span class="id" title="variable">U</span></a><span class="id" title="notation">⟧</span><span class="id" title="notation">),</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fpullback"><span class="id" title="definition">fpullback</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#f"><span class="id" title="variable">f</span></a>.<br/>
 
 <br/>
 <span class="id" title="keyword">Definition</span> <a name="is_universe_relative_to"><span class="id" title="definition">is_universe_relative_to</span></a> : <span class="id" title="definition">UU</span><br/>
 &nbsp;&nbsp;:= <span class="id" title="notation">∏</span> <span class="id" title="notation">(</span><span class="id" title="var">X</span> : <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension.C"><span class="id" title="variable">C</span></a>) (<span class="id" title="var">f</span> : <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension.D"><span class="id" title="variable">D</span></a><span class="id" title="notation">⟦</span><a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension.J"><span class="id" title="variable">J</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#X"><span class="id" title="variable">X</span></a><span class="id" title="notation">,</span> <span class="id" title="var">_</span> <span class="id" title="notation">⟧</span><span class="id" title="notation">),</span> <span class="id" title="notation">∥</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fpullback"><span class="id" title="definition">fpullback</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#f"><span class="id" title="variable">f</span></a> <span class="id" title="notation">∥</span> .<br/>
 
 <br/>
-<span class="id" title="keyword">Definition</span> <a name="fcomprehension_data"><span class="id" title="definition">fcomprehension_data</span></a> := <span class="id" title="notation">∏</span> <span class="id" title="var">X</span> (<span class="id" title="var">f</span> : <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension.D"><span class="id" title="variable">D</span></a><span class="id" title="notation">⟦</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension.J"><span class="id" title="variable">J</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#X"><span class="id" title="variable">X</span></a><span class="id" title="notation">,</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension.U"><span class="id" title="variable">U</span></a><span class="id" title="notation">⟧</span><span class="id" title="notation">),</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fpullback_data"><span class="id" title="definition">fpullback_data</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#f"><span class="id" title="variable">f</span></a>.<br/>
-<span class="id" title="keyword">Definition</span> <a name="fcomprehension_prop"><span class="id" title="definition">fcomprehension_prop</span></a> (<span class="id" title="var">Y</span> : <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension_data"><span class="id" title="definition">fcomprehension_data</span></a>) :=<br/>
+<span class="id" title="keyword">Definition</span> <a name="rel_universe_structure_data"><span class="id" title="definition">rel_universe_structure_data</span></a> := <span class="id" title="notation">∏</span> <span class="id" title="var">X</span> (<span class="id" title="var">f</span> : <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension.D"><span class="id" title="variable">D</span></a><span class="id" title="notation">⟦</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension.J"><span class="id" title="variable">J</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#X"><span class="id" title="variable">X</span></a><span class="id" title="notation">,</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension.U"><span class="id" title="variable">U</span></a><span class="id" title="notation">⟧</span><span class="id" title="notation">),</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fpullback_data"><span class="id" title="definition">fpullback_data</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#f"><span class="id" title="variable">f</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a name="rel_universe_structure_prop"><span class="id" title="definition">rel_universe_structure_prop</span></a> (<span class="id" title="var">Y</span> : <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#rel_universe_structure_data"><span class="id" title="definition">rel_universe_structure_data</span></a>) :=<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="notation">∏</span> <span class="id" title="var">X</span> <span class="id" title="var">f</span><span class="id" title="notation">,</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fpullback_prop"><span class="id" title="definition">fpullback_prop</span></a> (<a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Y"><span class="id" title="variable">Y</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#X"><span class="id" title="variable">X</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#f"><span class="id" title="variable">f</span></a>).<br/>
 
 <br/>
 </div>
 
 <div class="doc">
- An equivalent form of <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension"><span class="id" title="definition">fcomprehension</span></a></span>, separating its data and properties by interchanging ∑ and ∏ 
+ An equivalent form of <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#rel_universe_structure"><span class="id" title="definition">rel_universe_structure</span></a></span>, separating its data and properties by interchanging ∑ and ∏ 
 </div>
 <div class="code">
-<span class="id" title="keyword">Definition</span> <a name="fcomprehension_weq"><span class="id" title="definition">fcomprehension_weq</span></a> :<br/>
-&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension"><span class="id" title="definition">fcomprehension</span></a> <span class="id" title="notation">≃</span> <span class="id" title="notation">∑</span> <span class="id" title="var">Y</span> : <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension_data"><span class="id" title="definition">fcomprehension_data</span></a><span class="id" title="notation">,</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension_prop"><span class="id" title="definition">fcomprehension_prop</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Y"><span class="id" title="variable">Y</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a name="weq_rel_universe_structure_"><span class="id" title="definition">weq_rel_universe_structure_</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#rel_universe_structure"><span class="id" title="definition">rel_universe_structure</span></a> <span class="id" title="notation">≃</span> <span class="id" title="notation">∑</span> <span class="id" title="var">Y</span> : <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#rel_universe_structure_data"><span class="id" title="definition">rel_universe_structure_data</span></a><span class="id" title="notation">,</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#rel_universe_structure_prop"><span class="id" title="definition">rel_universe_structure_prop</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Y"><span class="id" title="variable">Y</span></a>.<br/>
 <span class="id" title="keyword">Proof</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <span class="id" title="definition">weqcomp</span>. <span class="id" title="var">Focus</span> 2.<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">XR</span>:=@<span class="id" title="definition">weqforalltototal</span> (<span class="id" title="definition">ob</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension.C"><span class="id" title="variable">C</span></a>)).<br/>
@@ -237,8 +237,8 @@ Contents:
 <span class="id" title="keyword">Qed</span>.<br/>
 
 <br/>
-<span class="id" title="keyword">Lemma</span> <a name="isaprop_fcomprehension"><span class="id" title="lemma">isaprop_fcomprehension</span></a>  (<span class="id" title="var">is_c</span> : <span class="id" title="definition">is_category</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension_Lemmas.C"><span class="id" title="variable">C</span></a>) <br/>
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">HJ</span> : <span class="id" title="definition">fully_faithful</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension_Lemmas.J"><span class="id" title="variable">J</span></a>) : <span class="id" title="definition">isaprop</span> (<a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension"><span class="id" title="definition">fcomprehension</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension_Lemmas.J"><span class="id" title="variable">J</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension_Lemmas.pp"><span class="id" title="variable">pp</span></a>).<br/>
+<span class="id" title="keyword">Lemma</span> <a name="isaprop_rel_universe_structure"><span class="id" title="lemma">isaprop_rel_universe_structure</span></a>  (<span class="id" title="var">is_c</span> : <span class="id" title="definition">is_category</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension_Lemmas.C"><span class="id" title="variable">C</span></a>) <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">HJ</span> : <span class="id" title="definition">fully_faithful</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension_Lemmas.J"><span class="id" title="variable">J</span></a>) : <span class="id" title="definition">isaprop</span> (<a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#rel_universe_structure"><span class="id" title="definition">rel_universe_structure</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension_Lemmas.J"><span class="id" title="variable">J</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Relative_Comprehension_Lemmas.pp"><span class="id" title="variable">pp</span></a>).<br/>
 <span class="id" title="keyword">Proof</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 (<span class="id" title="tactic">apply</span> <span class="id" title="lemma">impred</span>; <span class="id" title="tactic">intro</span>).<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#isaprop_fpullback"><span class="id" title="lemma">isaprop_fpullback</span></a>; <span class="id" title="tactic">assumption</span>.<br/>
@@ -261,7 +261,7 @@ Contents:
 
 <br/>
 <span class="id" title="keyword">Definition</span> <a name="relative_universe"><span class="id" title="definition">relative_universe</span></a> {<span class="id" title="var">C</span> <span class="id" title="var">D</span> : <span class="id" title="definition">precategory</span>} (<span class="id" title="var">J</span> : <span class="id" title="definition">functor</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#C"><span class="id" title="variable">C</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#D"><span class="id" title="variable">D</span></a>) : <span class="id" title="definition">UU</span><br/>
-&nbsp;&nbsp;:= <span class="id" title="notation">∑</span> <span class="id" title="var">X</span> : <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#mor_total"><span class="id" title="definition">mor_total</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#D"><span class="id" title="variable">D</span></a><span class="id" title="notation">,</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension"><span class="id" title="definition">fcomprehension</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#J"><span class="id" title="variable">J</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#X"><span class="id" title="variable">X</span></a>.<br/>
+&nbsp;&nbsp;:= <span class="id" title="notation">∑</span> <span class="id" title="var">X</span> : <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#mor_total"><span class="id" title="definition">mor_total</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#D"><span class="id" title="variable">D</span></a><span class="id" title="notation">,</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#rel_universe_structure"><span class="id" title="definition">rel_universe_structure</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#J"><span class="id" title="variable">J</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#X"><span class="id" title="variable">X</span></a>.<br/>
 
 <br/>
 <span class="id" title="keyword">Definition</span> <a name="weak_relative_universe"><span class="id" title="definition">weak_relative_universe</span></a> {<span class="id" title="var">C</span> <span class="id" title="var">D</span> : <span class="id" title="definition">precategory</span>} (<span class="id" title="var">J</span> : <span class="id" title="definition">functor</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#C"><span class="id" title="variable">C</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#D"><span class="id" title="variable">D</span></a>) : <span class="id" title="definition">UU</span><br/>
@@ -271,7 +271,48 @@ Contents:
 </div>
 
 <div class="doc">
-<a name="lab52"></a><h1 class="section">Transfer of a relative universe</h1>
+<a name="lab52"></a><h2 class="section">Forgetful function from relative universes to relative weak universes</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="weak_from_relative_universe"><span class="id" title="definition">weak_from_relative_universe</span></a> {<span class="id" title="var">C</span> <span class="id" title="var">D</span> : <span class="id" title="definition">precategory</span>} (<span class="id" title="var">J</span> : <span class="id" title="definition">functor</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#C"><span class="id" title="variable">C</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#D"><span class="id" title="variable">D</span></a>) <br/>
+&nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#relative_universe"><span class="id" title="definition">relative_universe</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#J"><span class="id" title="variable">J</span></a> <span class="id" title="notation">→</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#weak_relative_universe"><span class="id" title="definition">weak_relative_universe</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#J"><span class="id" title="variable">J</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <span class="id" title="definition">bandfmap</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <span class="id" title="definition">idfun</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">cbn</span>. <span class="id" title="tactic">intros</span> <span class="id" title="var">p</span> <span class="id" title="var">H</span> <span class="id" title="var">Γ</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">hinhpr</span>. <span class="id" title="tactic">apply</span> <span class="id" title="var">H</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="weq_relative_universe_weak_relative_universe"><span class="id" title="lemma">weq_relative_universe_weak_relative_universe</span></a> {<span class="id" title="var">C</span> <span class="id" title="var">D</span> : <span class="id" title="definition">Precategory</span>} (<span class="id" title="var">J</span> : <span class="id" title="definition">functor</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#C"><span class="id" title="variable">C</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#D"><span class="id" title="variable">D</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">Ccat</span> : <span class="id" title="definition">is_category</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#C"><span class="id" title="variable">C</span></a>) (<span class="id" title="var">J_ff</span> : <span class="id" title="definition">fully_faithful</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#J"><span class="id" title="variable">J</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#relative_universe"><span class="id" title="definition">relative_universe</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#J"><span class="id" title="variable">J</span></a> <span class="id" title="notation">≃</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#weak_relative_universe"><span class="id" title="definition">weak_relative_universe</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#J"><span class="id" title="variable">J</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">weqfibtototal</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">weqonsecfibers</span>. <span class="id" title="tactic">intro</span> <span class="id" title="var">Γ</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">weqonsecfibers</span>. <span class="id" title="tactic">intro</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#truncation_weq"><span class="id" title="definition">truncation_weq</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#isaprop_fpullback"><span class="id" title="lemma">isaprop_fpullback</span></a> <span class="id" title="var">J</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">Ccat</span> <span class="id" title="var">J_ff</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Goal</span> <span class="id" title="notation">∏</span> <span class="id" title="notation">(</span><span class="id" title="var">C</span> <span class="id" title="var">D</span> : <span class="id" title="definition">Precategory</span>) (<span class="id" title="var">J</span> : <span class="id" title="definition">functor</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#C"><span class="id" title="variable">C</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#D"><span class="id" title="variable">D</span></a>) <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">Ccat</span> : <span class="id" title="definition">is_category</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#C"><span class="id" title="variable">C</span></a>) (<span class="id" title="var">J_ff</span> : <span class="id" title="definition">fully_faithful</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#J"><span class="id" title="variable">J</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">X</span> : <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#relative_universe"><span class="id" title="definition">relative_universe</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#J"><span class="id" title="variable">J</span></a><span class="id" title="notation">),</span><br/>
+&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#weak_from_relative_universe"><span class="id" title="definition">weak_from_relative_universe</span></a> <span class="id" title="var">_</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#X"><span class="id" title="variable">X</span></a> <span class="id" title="notation">=</span> <br/>
+&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#weq_relative_universe_weak_relative_universe"><span class="id" title="lemma">weq_relative_universe_weak_relative_universe</span></a> <span class="id" title="var">_</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Ccat"><span class="id" title="variable">Ccat</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#J_ff"><span class="id" title="variable">J_ff</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#X"><span class="id" title="variable">X</span></a>.<br/>
+<span class="id" title="tactic">intros</span>; <span class="id" title="tactic">apply</span> <span class="id" title="abbreviation">idpath</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab53"></a><h1 class="section">Transfer of a relative universe</h1>
 
 </div>
 <div class="code">
@@ -358,16 +399,16 @@ On top of this, we then assume either
 </div>
 
 <div class="doc">
-<a name="lab53"></a><h2 class="section">Transfer along split and split-full functors</h2>
+<a name="lab54"></a><h2 class="section">Transfer along split and split-full functors</h2>
 
 </div>
 <div class="code">
 
 <br/>
-<span class="id" title="keyword">Definition</span> <a name="fcomprehension_induced_with_ess_split"><span class="id" title="definition">fcomprehension_induced_with_ess_split</span></a><br/>
+<span class="id" title="keyword">Definition</span> <a name="rel_universe_structure_induced_with_ess_split"><span class="id" title="definition">rel_universe_structure_induced_with_ess_split</span></a><br/>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">R_es</span> : <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#split_ess_surj"><span class="id" title="definition">split_ess_surj</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.R"><span class="id" title="variable">R</span></a>)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">S_sf</span> : <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#split_full"><span class="id" title="definition">split_full</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.S"><span class="id" title="variable">S</span></a>)<br/>
-&nbsp;&nbsp;:  <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension"><span class="id" title="definition">fcomprehension</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.J'"><span class="id" title="variable">J'</span></a> (<span class="id" title="notation">#</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.S"><span class="id" title="variable">S</span></a> (<span class="id" title="projection">pr1</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.RUJ"><span class="id" title="variable">RUJ</span></a>)).<br/>
+&nbsp;&nbsp;:  <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#rel_universe_structure"><span class="id" title="definition">rel_universe_structure</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.J'"><span class="id" title="variable">J'</span></a> (<span class="id" title="notation">#</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.S"><span class="id" title="variable">S</span></a> (<span class="id" title="projection">pr1</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.RUJ"><span class="id" title="variable">RUJ</span></a>)).<br/>
 <span class="id" title="keyword">Proof</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="keyword">in</span> <span class="id" title="var">α</span>, <span class="id" title="var">α'</span>, <span class="id" title="var">α'_α</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">X'</span> <span class="id" title="var">g</span>.<br/>
@@ -409,14 +450,14 @@ On top of this, we then assume either
 &nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#relative_universe"><span class="id" title="definition">relative_universe</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.J'"><span class="id" title="variable">J'</span></a>.<br/>
 <span class="id" title="keyword">Proof</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#morphism_as_total"><span class="id" title="definition">morphism_as_total</span></a> (<span class="id" title="notation">#</span><a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.S"><span class="id" title="variable">S</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#pp"><span class="id" title="abbreviation">pp</span></a>)).<br/>
-&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension_induced_with_ess_split"><span class="id" title="definition">fcomprehension_induced_with_ess_split</span></a>; <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#rel_universe_structure_induced_with_ess_split"><span class="id" title="definition">rel_universe_structure_induced_with_ess_split</span></a>; <span class="id" title="tactic">assumption</span>.<br/>
 <span class="id" title="keyword">Defined</span>.<br/>
 
 <br/>
 </div>
 
 <div class="doc">
-<a name="lab54"></a><h2 class="section">Transfer along surjective functors</h2>
+<a name="lab55"></a><h2 class="section">Transfer along surjective functors</h2>
 
 </div>
 <div class="code">
@@ -471,13 +512,13 @@ On top of this, we then assume either
 <span class="id" title="keyword">Defined</span>.<br/>
 
 <br/>
-<span class="id" title="keyword">Definition</span> <a name="fcomprehension_induced_with_ess_surj"><span class="id" title="definition">fcomprehension_induced_with_ess_surj</span></a><br/>
+<span class="id" title="keyword">Definition</span> <a name="rel_universe_structure_induced_with_ess_surj"><span class="id" title="definition">rel_universe_structure_induced_with_ess_surj</span></a><br/>
 &nbsp;&nbsp;&nbsp;(<span class="id" title="var">R_es</span> : <span class="id" title="definition">essentially_surjective</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.R"><span class="id" title="variable">R</span></a>)<br/>
 &nbsp;&nbsp;&nbsp;(<span class="id" title="var">C'_sat</span> : <span class="id" title="definition">is_category</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.C'"><span class="id" title="variable">C'</span></a>)<br/>
 &nbsp;&nbsp;&nbsp;(<span class="id" title="var">J'_ff</span> : <span class="id" title="definition">fully_faithful</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.J'"><span class="id" title="variable">J'</span></a>)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
 &nbsp;&nbsp;&nbsp;(<span class="id" title="var">S_full</span> : <span class="id" title="definition">full</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.S"><span class="id" title="variable">S</span></a>)<br/>
-&nbsp;&nbsp;:  <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension"><span class="id" title="definition">fcomprehension</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.J'"><span class="id" title="variable">J'</span></a> (<span class="id" title="notation">#</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.S"><span class="id" title="variable">S</span></a> (<span class="id" title="projection">pr1</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.RUJ"><span class="id" title="variable">RUJ</span></a>)).<br/>
+&nbsp;&nbsp;:  <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#rel_universe_structure"><span class="id" title="definition">rel_universe_structure</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.J'"><span class="id" title="variable">J'</span></a> (<span class="id" title="notation">#</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.S"><span class="id" title="variable">S</span></a> (<span class="id" title="projection">pr1</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.RUJ"><span class="id" title="variable">RUJ</span></a>)).<br/>
 <span class="id" title="keyword">Proof</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="keyword">in</span> <span class="id" title="var">α</span>, <span class="id" title="var">α'</span>, <span class="id" title="var">α'_α</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">X'</span> <span class="id" title="var">g</span>.<br/>
@@ -494,7 +535,7 @@ On top of this, we then assume either
 &nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#relative_universe"><span class="id" title="definition">relative_universe</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.J'"><span class="id" title="variable">J'</span></a>.<br/>
 <span class="id" title="keyword">Proof</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#morphism_as_total"><span class="id" title="definition">morphism_as_total</span></a> (<span class="id" title="notation">#</span><a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#Rel_Univ_Structure_Transfer.S"><span class="id" title="variable">S</span></a> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#pp"><span class="id" title="abbreviation">pp</span></a>)).<br/>
-&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension_induced_with_ess_surj"><span class="id" title="definition">fcomprehension_induced_with_ess_surj</span></a>; <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#rel_universe_structure_induced_with_ess_surj"><span class="id" title="definition">rel_universe_structure_induced_with_ess_surj</span></a>; <span class="id" title="tactic">assumption</span>.<br/>
 <span class="id" title="keyword">Defined</span>.<br/>
 
 <br/>
@@ -504,7 +545,7 @@ On top of this, we then assume either
 </div>
 
 <div class="doc">
-<a name="lab55"></a><h2 class="section">Transfer of weak relative universes</h2>
+<a name="lab56"></a><h2 class="section">Transfer of weak relative universes</h2>
 
 <div class="paragraph"> </div>
 

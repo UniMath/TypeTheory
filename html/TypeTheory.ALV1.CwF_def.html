@@ -41,7 +41,7 @@ Contents:
 <li> the definition of CwFs à la Fiore: <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.CwF_def.html#cwf_structure"><span class="id" title="definition">cwf_structure</span></a></span>, <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.CwF_def.html#cwf"><span class="id" title="definition">cwf</span></a></span>
 
 </li>
-<li> equivalence between cwf structures and relative universe structures on Yoneda, <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.Summary.html#weq_cwf_structure_RelUnivYo"><span class="id" title="definition">weq_cwf_structure_RelUnivYo</span></a></span>
+<li> equivalence between cwf structures and relative universe structures on Yoneda, <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.CwF_def.html#weq_cwf_structure_RelUnivYo"><span class="id" title="definition">weq_cwf_structure_RelUnivYo</span></a></span>
 
 </li>
 <li> type of representations is a proposition if <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> is univalent <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.CwF_def.html#isaprop_cwf_representation"><span class="id" title="lemma">isaprop_cwf_representation</span></a></span>
@@ -502,8 +502,8 @@ A *representation* of a map Tm —p—&gt; Ty of presheaves consists of data ill
 <span class="id" title="keyword">Defined</span>.<br/>
 
 <br/>
-<span class="id" title="keyword">Lemma</span> <a name="weq_cwf_representation_fcomprehension"><span class="id" title="lemma">weq_cwf_representation_fcomprehension</span></a><br/>
-&nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.CwF_def.html#cwf_representation"><span class="id" title="definition">cwf_representation</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_def.html#CwF_RelUnivYo.Representation_FComprehension.pp"><span class="id" title="variable">pp</span></a> <span class="id" title="notation">≃</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension"><span class="id" title="definition">fcomprehension</span></a> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#2992071cd8d27cf2d1066e1ad11b67d0"><span class="id" title="notation">Yo</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_def.html#CwF_RelUnivYo.Representation_FComprehension.pp"><span class="id" title="variable">pp</span></a>.<br/>
+<span class="id" title="keyword">Lemma</span> <a name="weq_cwf_representation_rel_universe_structure"><span class="id" title="lemma">weq_cwf_representation_rel_universe_structure</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.CwF_def.html#cwf_representation"><span class="id" title="definition">cwf_representation</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_def.html#CwF_RelUnivYo.Representation_FComprehension.pp"><span class="id" title="variable">pp</span></a> <span class="id" title="notation">≃</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#rel_universe_structure"><span class="id" title="definition">rel_universe_structure</span></a> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#2992071cd8d27cf2d1066e1ad11b67d0"><span class="id" title="notation">Yo</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_def.html#CwF_RelUnivYo.Representation_FComprehension.pp"><span class="id" title="variable">pp</span></a>.<br/>
 <span class="id" title="keyword">Proof</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">weqonsecfibers</span>. <span class="id" title="tactic">intro</span> <span class="id" title="var">Γ</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <span class="id" title="definition">weqcomp</span>.<br/>
@@ -522,7 +522,7 @@ A *representation* of a map Tm —p—&gt; Ty of presheaves consists of data ill
 <span class="id" title="keyword">Proof</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">weqfibtototal</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">pp</span>.<br/>
-&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_def.html#weq_cwf_representation_fcomprehension"><span class="id" title="lemma">weq_cwf_representation_fcomprehension</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_def.html#weq_cwf_representation_rel_universe_structure"><span class="id" title="lemma">weq_cwf_representation_rel_universe_structure</span></a>.<br/>
 <span class="id" title="keyword">Defined</span>.<br/>
 
 <br/>
@@ -551,9 +551,9 @@ The above equivalences allow us to easily deduce a few more nice facts about rep
 &nbsp;&nbsp;: <span class="id" title="definition">isaprop</span> (<a class="idref" href="TypeTheory.ALV1.CwF_def.html#cwf_representation"><span class="id" title="definition">cwf_representation</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_def.html#pp"><span class="id" title="variable">pp</span></a>).<br/>
 <span class="id" title="keyword">Proof</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="var">use</span> <span class="id" title="lemma">isofhlevelweqb</span>.<br/>
-&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#fcomprehension"><span class="id" title="definition">fcomprehension</span></a> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#2992071cd8d27cf2d1066e1ad11b67d0"><span class="id" title="notation">Yo</span></a> <span class="id" title="var">pp</span>).<br/>
-&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_def.html#weq_cwf_representation_fcomprehension"><span class="id" title="lemma">weq_cwf_representation_fcomprehension</span></a>.<br/>
-&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#isaprop_fcomprehension"><span class="id" title="lemma">isaprop_fcomprehension</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#rel_universe_structure"><span class="id" title="definition">rel_universe_structure</span></a> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#2992071cd8d27cf2d1066e1ad11b67d0"><span class="id" title="notation">Yo</span></a> <span class="id" title="var">pp</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_def.html#weq_cwf_representation_rel_universe_structure"><span class="id" title="lemma">weq_cwf_representation_rel_universe_structure</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#isaprop_rel_universe_structure"><span class="id" title="lemma">isaprop_rel_universe_structure</span></a>.<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <span class="id" title="var">Ccat</span>.<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <span class="id" title="lemma">yoneda_fully_faithful</span>.<br/>
 <span class="id" title="keyword">Qed</span>.<br/>
