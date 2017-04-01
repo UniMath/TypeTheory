@@ -1,5 +1,5 @@
 (**
-  [TypeTheory.ALV1.Summary]
+  [Articles.ALV_2017]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
