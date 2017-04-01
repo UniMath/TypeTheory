@@ -178,6 +178,38 @@ Definition relative_universe {C D : precategory} (J : functor C D) : UU
 Definition weak_relative_universe {C D : precategory} (J : functor C D) : UU
   := ∑ X : mor_total D, is_universe_relative_to J X.
 
+(** ** Forgetful function from relative universes to relative weak universes *)
+
+Definition weak_from_relative_universe {C D : precategory} (J : functor C D) 
+  : relative_universe J → weak_relative_universe J.
+Proof.
+  use bandfmap.
+  - apply idfun.
+  - cbn. intros p H Γ f.
+    apply hinhpr. apply H.
+Defined.
+
+Lemma weq_relative_universe_weak_relative_universe {C D : Precategory} (J : functor C D)
+      (Ccat : is_category C) (J_ff : fully_faithful J)
+  : relative_universe J ≃ weak_relative_universe J.
+Proof.
+  apply weqfibtototal.
+  intro p.
+  apply weqonsecfibers. intro Γ.
+  apply weqonsecfibers. intro f.
+  apply truncation_weq.
+  apply (isaprop_fpullback J _ _ Ccat J_ff).
+Defined.
+
+Goal ∏ (C D : Precategory) (J : functor C D) 
+     (Ccat : is_category C) (J_ff : fully_faithful J)
+     (X : relative_universe J),
+  weak_from_relative_universe _ X = 
+  weq_relative_universe_weak_relative_universe _ Ccat J_ff X.
+intros; apply idpath.
+Qed.    
+
+
 (** * Transfer of a relative universe *)
 
 Section Rel_Univ_Structure_Transfer.
