@@ -22,7 +22,7 @@ Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
 (* TODO: globalise upstream? *)
-Notation "# F" := (functor_over_on_morphisms F)
+Notation "# F" := (disp_functor_on_morphisms F)
   (at level 3) : mor_disp_scope.
 
 (* TODO: as ever, upstream when possible. *)
@@ -30,13 +30,13 @@ Section Auxiliary.
 
 (* The following definition takes unfair advantage of the fact that  [functor_composite (functor_identity _) (functor_identity _)]
   is judgementally(!) equal to [functor_identity _]. *)
-Definition functor_over_id_composite
+Definition disp_functor_id_composite
   {C : Precategory}
   {CC DD EE : disp_precat C}
-  (FF : functor_over (functor_identity _) CC DD)
-  (GG : functor_over (functor_identity _) DD EE)
-: functor_over (functor_identity _) CC EE
-:= functor_over_composite FF GG.
+  (FF : disp_functor (functor_identity _) CC DD)
+  (GG : disp_functor (functor_identity _) DD EE)
+: disp_functor (functor_identity _) CC EE
+:= disp_functor_composite FF GG.
 
 End Auxiliary.
 
@@ -87,15 +87,15 @@ Definition compat_structures_disp_precat
   := sigma_disp_precat strucs_compat_disp_precat.
 
 Definition compat_structures_pr1_disp_functor
-  : functor_over (functor_identity _)
+  : disp_functor (functor_identity _)
       compat_structures_disp_precat (term_fun_disp_precat C)
-:= functor_over_id_composite
+:= disp_functor_id_composite
      (sigmapr1_disp_functor _) (dirprodpr1_disp_functor _ _).
 
 Definition compat_structures_pr2_disp_functor
-  : functor_over (functor_identity _)
+  : disp_functor (functor_identity _)
       compat_structures_disp_precat (qq_structure_disp_precat C)
-:= functor_over_id_composite
+:= disp_functor_id_composite
      (sigmapr1_disp_functor _) (dirprodpr2_disp_functor _ _).
 
 (* TODO: once the equivalence has been redone at the displayed level, the following are probably redundant/obsolete and should be removed. *)
@@ -495,16 +495,16 @@ End Strucs_Equiv_Precats.
 Section Strucs_Disp_Equiv.
 
 Lemma compat_structures_pr1_ess_split
-  : functor_over_disp_ess_split_surj (compat_structures_pr1_disp_functor).
+  : disp_functor_disp_ess_split_surj (compat_structures_pr1_disp_functor).
 Proof.
-  unfold functor_over_disp_ess_split_surj.
+  unfold disp_functor_disp_ess_split_surj.
   intros X Y.
   exists ((Y,, qq_from_term Y),,iscompatible_qq_from_term Y).
   apply identity_iso_disp.
 Defined.
 
 Lemma compat_structures_pr1_ff
-  : functor_over_ff (compat_structures_pr1_disp_functor).
+  : disp_functor_ff (compat_structures_pr1_disp_functor).
 Proof.
   intros X X' YZW YZW'.
   destruct YZW as [ [Y Z] W].
@@ -554,16 +554,16 @@ Proof.
 Defined.
 
 Lemma compat_structures_pr2_ess_split
-  : functor_over_disp_ess_split_surj (compat_structures_pr2_disp_functor).
+  : disp_functor_disp_ess_split_surj (compat_structures_pr2_disp_functor).
 Proof.
-  unfold functor_over_disp_ess_split_surj.
+  unfold disp_functor_disp_ess_split_surj.
   intros X Z.
   exists ((term_from_qq Z,, Z),,iscompatible_term_from_qq Z).
   apply identity_iso_disp.
 Defined.
 
 Lemma compat_structures_pr2_ff
-  : functor_over_ff (compat_structures_pr2_disp_functor).
+  : disp_functor_ff (compat_structures_pr2_disp_functor).
 Proof.
   intros X X' YZW YZW'.
   destruct YZW as [ [Y Z] W].
@@ -626,7 +626,7 @@ Proof.
   eapply functor_composite.
   - eapply fiber_functor.
     exact compat_structures_pr1_inverse_over_id.
-    (* TODO: make lemma [fiber_functor_over_id] *)
+    (* TODO: make lemma [fiber_disp_functor_id] *)
   - exact (fiber_functor compat_structures_pr2_equiv_over_id X).
 Defined.
 
