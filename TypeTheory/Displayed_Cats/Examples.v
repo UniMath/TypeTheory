@@ -21,6 +21,7 @@ Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Require Import TypeTheory.Displayed_Cats.Auxiliary.
 Require Import TypeTheory.Displayed_Cats.Core.
+Require Import TypeTheory.Displayed_Cats.Limits.
 
 Local Open Scope mor_disp_scope.
 
@@ -253,6 +254,129 @@ Qed.
 Definition disp_precat_functor_alg : disp_precat C := _ ,, disp_precat_functor_alg_axioms.
 
 Definition total_functor_alg : precategory := total_precat disp_precat_functor_alg.
+
+
+
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
+
+Local Notation "'π'" := (pr1_precat disp_precat_functor_alg).
+
+Definition creates_limits_functor_alg
+  : creates_limits disp_precat_functor_alg.
+Proof.
+  intros J D x L isL.
+  unfold creates_limit. cbn.
+  transparent assert (FC : (cone (mapdiagram π D) (F x))).
+  { use mk_cone.
+    - intro j. 
+      eapply compose.
+      apply ((#F)%cat (coneOut L j )).
+      cbn. exact (pr2 (dob D j)).
+    - abstract (
+      intros; cbn;
+      assert (XR := pr2 (dmor D e)); cbn in XR;
+      etrans; [eapply pathsinv0; apply assoc |];
+      etrans; [apply maponpaths, (!XR) |];
+      etrans; [apply assoc |];
+      apply maponpaths_2;
+      rewrite <- functor_comp;
+      apply maponpaths;
+      apply (coneOutCommutes L)
+      ).
+  }
+  transparent assert (LL : (LimCone (mapdiagram π D))).
+  { use mk_LimCone. apply x. apply L. apply isL. }
+  mkpair.
+  - mkpair.
+    + mkpair.
+      * use (limArrow LL). apply FC.
+      * abstract (
+          mkpair ;
+          [
+            intro j; cbn;
+            set (XR := limArrowCommutes LL _ FC); cbn in XR;
+            apply pathsinv0; apply XR 
+          | cbn; intros i j e;
+            apply subtypeEquality;
+            [ intro; apply homset_property |];
+            cbn; apply (coneOutCommutes L)
+          ]).
+    + abstract (
+      intro t; cbn;
+      use total2_paths_f;
+      [ cbn; 
+        apply (limArrowUnique LL);
+        induction t as [t [H1 H2]]; cbn in *;
+        intro j;
+        apply pathsinv0, H1 |];
+      apply proofirrelevance;
+      apply isofhleveltotal2;
+      [ apply impred_isaprop; intro; apply homset_property |];
+      intros; do 3 (apply impred_isaprop; intro);
+        apply (homset_property (total_precat _ )) 
+        ).
+  - cbn.
+    intros x' CC.
+    set (πCC := mapcone π D CC). 
+    use unique_exists.
+    + mkpair. 
+      * cbn. 
+        use (limArrow LL _ πCC). 
+      * set (XR := limArrowCommutes LL).
+        cbn in XR.
+        set (H1:= coneOutCommutes CC). simpl in H1.
+        destruct x' as [c a]. cbn.
+        unfold disp_precat_functor_alg in a. cbn in a.
+        cbn in πCC.
+        transparent assert (X : (cone (mapdiagram π D) (F c))).
+        { use mk_cone.
+          - intro j. 
+            apply (λ f, a · f). cbn.
+            apply (coneOut CC j).
+          - abstract (
+            intros u v e; cbn;
+            rewrite <- assoc;
+            apply maponpaths;
+            apply (maponpaths pr1 (coneOutCommutes CC _ _ _ ))
+                  ).
+        } 
+        {
+          transitivity (limArrow LL _ X).
+          - apply (limArrowUnique LL).
+            intro j. rewrite <- assoc.
+            rewrite (limArrowCommutes LL).
+            cbn.
+            rewrite assoc.
+            rewrite <- functor_comp.
+            etrans. apply maponpaths_2. apply maponpaths.
+            apply (limArrowCommutes LL). cbn.
+            set (H := pr2 (coneOut CC j)).  cbn in H. apply H.
+          - apply pathsinv0.
+            use (limArrowUnique LL).
+            intro j.
+            rewrite <- assoc.
+            rewrite (limArrowCommutes LL).
+            cbn.
+            apply idpath.            
+        }
+    + simpl.
+      intro j.
+      apply subtypeEquality.
+      { intro. apply homset_property. }
+      cbn. apply (limArrowCommutes LL).
+    + intros.
+      apply impred_isaprop. intro t. (apply (homset_property (total_precat _ ))).
+    + simpl. 
+      intros.
+      apply subtypeEquality.
+      { intro. apply homset_property. }
+      apply (limArrowUnique LL).
+      intro u.
+      specialize (X u).
+      apply (maponpaths pr1 X).
+Defined.
+
 
 End functor_algebras.
 
