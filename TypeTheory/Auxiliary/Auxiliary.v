@@ -53,16 +53,61 @@ Arguments functor_on_inv_from_iso {_ _} _  {_ _} f.
 
 (** * Path-algebra: general lemmas about transport, equivalences, etc. *)
 
-Lemma weqhomot {A B : UU} (f : A -> B) (w : A ≃ B) (H : w ~ f) : isweq f.
-Proof.
-  apply isweqhomot with w. apply H. apply weqproperty.
-Defined.
-
 (** A useful lemma for binary functions, generalising e.g. [cancel_postcomposition]: *)
 (*TODO: look carefully for this in the library *)
 Definition maponpaths_2 {X Y Z : UU} (f : X -> Y -> Z) {x x'} (e : x = x') y
   : f x y = f x' y
 := maponpaths (fun x => f x y) e.
+
+
+(** TODO: see https://github.com/UniMath/UniMath/issues/677 *)
+Lemma pr1_issurjective' {X : UU} {P : X -> UU} :
+  (∏ x : X, ∥ P x ∥) -> issurjective (pr1 : (∑ x, P x) -> X).
+Proof.
+  intros ne x. simple refine (hinhuniv _ (ne x)).
+  intros p. apply hinhpr.
+  exact ((x,,p),,idpath _).
+Defined.
+
+Lemma fibers_inhab_if_pr1_issurjective {X : UU} {P : X -> UU} :
+  (∏ x : X, ∥ P x ∥) <- issurjective (pr1 : (∑ x, P x) -> X).
+Proof.
+  intros ne x. simple refine (hinhuniv _ (ne x)).
+  intros p. apply hinhpr.
+  cbn in p.
+  destruct p as [[a b] c].
+  cbn in *.
+  induction c. 
+  assumption.
+Defined.
+
+(* TODO : upstream *)
+Lemma isaprop_fiber_if_isinclpr1 
+  : ∏ (X : UU) (isasetX : isaset X) (P : X → UU), (∏ x : X, isaprop (P x)) <- isincl (pr1 : (∑ x, P x) -> X).
+Proof.
+  intros X isasetX P H x.
+  unfold isincl in H. unfold isofhlevelf in H.
+  apply invproofirrelevance.
+  intros p p'.
+  assert (X0 :  x,,p = x,,p').
+  { specialize (H x).
+    assert (H1 :  (x,,p),, idpath _ = ((x,,p'),,idpath _ : hfiber pr1 x)).
+    { apply proofirrelevance. apply H. }
+    apply (base_paths _ _ H1).
+  } 
+  set (XR := fiber_paths X0). cbn in XR.
+  etrans. Focus 2. apply XR.
+  apply pathsinv0. 
+  etrans. apply maponpaths_2. apply (isasetX _ _ _ (idpath x)).
+  apply idpath_transportf.
+Defined.
+
+
+Lemma weqhomot {A B : UU} (f : A -> B) (w : A ≃ B) (H : w ~ f) : isweq f.
+Proof.
+  apply isweqhomot with w. apply H. apply weqproperty.
+Defined.
+
 
 Lemma pr1_transportf (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
    (a a' : A) (e : a = a') (xs : ∑ b : B a, P _ b):
