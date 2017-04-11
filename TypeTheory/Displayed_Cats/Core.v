@@ -877,6 +877,38 @@ Qed.
 Definition pr1_precat : functor total_precat C
   := (pr1_precat_data ,, pr1_precat_is_functor).
 
+
+
+Lemma full_pr1_precat  (H : ∏ (a b : total_precat)  (x : C ⟦ pr1 a, pr1 b ⟧), 
+                            ∥ pr2 a -->[ x] pr2 b ∥) 
+  : full pr1_precat.
+Proof.
+  intros a b. 
+  use pr1_issurjective'.
+  apply H.
+Defined.
+
+Lemma faithful_pr1_precat (H : ∏ (a b : total_precat) (x : C ⟦ pr1 a, pr1 b ⟧), 
+                               isaprop (pr2 a -->[ x] pr2 b))
+  : faithful pr1_precat.  
+Proof.
+  intros a b. cbn.
+  apply isinclpr1.
+  apply H.
+Defined.
+
+
+Definition fully_faithful_pr1_precat (H : ∏ (a b : total_precat) (x : C ⟦ pr1 a, pr1 b ⟧), 
+                                          iscontr (pr2 a -->[ x] pr2 b))
+  : fully_faithful pr1_precat.
+Proof.
+  intros a b.
+  apply isweqpr1.
+  apply H.
+Defined.
+
+
+
 (** ** Isomorphisms and saturation *)
 
 Definition is_iso_total {xx yy : total_precat} (ff : xx --> yy)
