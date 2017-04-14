@@ -95,7 +95,7 @@ Proof.
     + intro. apply isasetaprop. apply homset_property.
 Qed.
 
-Definition cod_disp : disp_precat C
+Definition disp_codomain : disp_precat C
   := (cod_disp_data ,, cod_disp_axioms).
 
 End Codomain_Disp.
@@ -106,7 +106,7 @@ Context {C:Precategory}.
 
 Definition isPullback_cartesian_in_cod_disp
     { Γ Γ' : C } {f : Γ' --> Γ}
-    {p : cod_disp _ Γ} {p' : cod_disp _ Γ'} (ff : p' -->[f] p)
+    {p : disp_codomain _ Γ} {p' : disp_codomain _ Γ'} (ff : p' -->[f] p)
   : (isPullback _ _ _ _ (pr2 ff)) -> is_cartesian ff.
 Proof.
   intros Hpb Δ g q hh.
@@ -137,7 +137,7 @@ Qed.
 
 Definition cartesian_isPullback_in_cod_disp
     { Γ Γ' : C } {f : Γ' --> Γ}
-    {p : cod_disp _ Γ} {p' : cod_disp _ Γ'} (ff : p' -->[f] p)
+    {p : disp_codomain _ Γ} {p' : disp_codomain _ Γ'} (ff : p' -->[f] p)
   : (isPullback _ _ _ _ (pr2 ff)) <- is_cartesian ff.
 Proof.
   intros cf c h k H.
@@ -164,7 +164,7 @@ Proof.
     + intros. 
       match goal with |[|- isofhlevel 1 (?x = _ )] => 
                        set (X := x) end.
-      set (XR := @homsets_disp _ (cod_disp C )). 
+      set (XR := @homsets_disp _ (disp_codomain C )). 
       specialize (XR _ _ _ _ _ X).
       apply XR.
   - cbn. intro. apply isapropdirprod; apply homset_property.
@@ -183,7 +183,7 @@ Qed.
 
 Definition cartesian_iff_isPullback
     { Γ Γ' : C } {f : Γ' --> Γ}
-    {p : cod_disp _ Γ} {p' : cod_disp _ Γ'} (ff : p' -->[f] p)
+    {p : disp_codomain _ Γ} {p' : disp_codomain _ Γ'} (ff : p' -->[f] p)
   : (isPullback _ _ _ _ (pr2 ff)) <-> is_cartesian ff.
 Proof.
   split.
