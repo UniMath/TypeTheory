@@ -23,11 +23,104 @@ Require Import TypeTheory.Displayed_Cats.Auxiliary.
 Require Import TypeTheory.Displayed_Cats.Core.
 Require Import TypeTheory.Displayed_Cats.Constructions.
 Require Import TypeTheory.Displayed_Cats.Limits.
+Require Import TypeTheory.Displayed_Cats.Fibrations.
 
 Local Open Scope mor_disp_scope.
 
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
+
+(** * Displayed category of groups *)
+
+Module group.
+
+Definition grp_structure_data (X : hSet) : UU 
+  := (X -> X -> X) × X × (X -> X).
+Definition mult {X : hSet} (G : grp_structure_data X)
+           : X -> X -> X := pr1 G.
+Definition e {X : hSet} (G : grp_structure_data X)
+           : X := pr1 (pr2 G).
+Definition inv {X : hSet} (G : grp_structure_data X)
+           : X -> X := pr2 (pr2 G).
+
+Definition grp_structure_axioms {X : hSet}
+           (G : grp_structure_data X) : UU
+  := (∏ x y z : X, mult G x (mult G y z) = mult G (mult G x y) z)
+       ×
+     (∏ x : X, mult G x (e G) = x)
+       ×
+     (∏ x : X, mult G (e G) x = x)
+       ×
+     (∏ x : X, mult G x (inv G x) = e G)
+       ×
+     (∏ x : X, mult G (inv G x) x = e G).
+
+Definition grp_assoc {X : hSet} {G : grp_structure_data X}
+           (GH : grp_structure_axioms G)
+  : ∏ x y z : X, mult G x (mult G y z) = mult G (mult G x y) z := pr1 GH.
+Definition grp_e_r {X : hSet} {G : grp_structure_data X}
+           (GH : grp_structure_axioms G)
+  : ∏ x : X, mult G x (e G) = x := pr1 (pr2 GH).
+Definition grp_e_l {X : hSet} {G : grp_structure_data X}
+           (GH : grp_structure_axioms G)
+  : ∏ x : X, mult G (e G) x = x := pr1 (pr2 (pr2 GH)).
+Definition grp_inv_r {X : hSet} {G : grp_structure_data X}
+           (GH : grp_structure_axioms G)
+  : ∏ x : X, mult G x (inv G x) = e G := pr1 (pr2 (pr2 (pr2 GH))).
+Definition grp_inv_l {X : hSet} {G : grp_structure_data X}
+           (GH : grp_structure_axioms G)
+  : ∏ x : X, mult G (inv G x) x = e G := pr2 (pr2 (pr2 (pr2 GH))).
+
+Definition grp_structure (X : hSet) : UU
+  := ∑ G : grp_structure_data X, grp_structure_axioms G.
+Coercion grp_data {X} (G : grp_structure X) : grp_structure_data X := pr1 G.
+Coercion grp_axioms {X} (G : grp_structure X) : grp_structure_axioms _ := pr2 G.
+
+Definition is_grp_hom {X Y : hSet} (f : X -> Y) 
+           (GX : grp_structure X) (GY : grp_structure Y) : UU
+           := (∏ x x', f (mult GX x x') = mult GY (f x) (f x'))
+                ×
+              (f (e GX) = e GY).
+Definition grp_hom_mult {X Y : hSet} {f : X -> Y}
+           {GX : grp_structure X} {GY : grp_structure Y} 
+           (is : is_grp_hom f GX GY)
+           : ∏ x x', f (mult GX x x') = mult GY (f x) (f x') := pr1 is.
+Definition grp_hom_e {X Y : hSet} {f : X -> Y}
+           {GX : grp_structure X} {GY : grp_structure Y} 
+           (is : is_grp_hom f GX GY)
+           : f (e GX) = e GY := pr2 is.
+
+Definition isaprop_is_grp_hom {X Y : hSet} (f : X -> Y) 
+           (GX : grp_structure X) (GY : grp_structure Y) 
+  : isaprop (is_grp_hom f GX GY).
+Proof.
+  repeat apply (isofhleveldirprod);
+  repeat (apply impred; intro);
+  apply setproperty.
+Qed.
+
+Definition disp_grp : disp_precat hset_Precategory. 
+Proof.
+  use disp_struct.
+  - exact grp_structure.
+  - intros X Y GX GY f. exact (is_grp_hom f GX GY).
+  - intros.  apply isaprop_is_grp_hom. 
+  - intros. simpl.
+    repeat split; intros; apply idpath.
+  - intros ? ? ? ? ? ? ? ? Gf Gg  ; simpl in *;
+    repeat split; intros; simpl; cbn.
+    + rewrite (grp_hom_mult Gf).
+      apply (grp_hom_mult Gg).
+    + rewrite (grp_hom_e Gf).
+      apply (grp_hom_e Gg).
+Defined.
+
+
+End group.
+
+
+
+
 
 (** * Displayed category of topological spaces *)
 
@@ -257,6 +350,29 @@ Definition disp_precat_functor_alg : disp_precat C := _ ,, disp_precat_functor_a
 Definition total_functor_alg : precategory := total_precat disp_precat_functor_alg.
 
 
+Definition functor_alg_isofib : is_isofibration disp_precat_functor_alg.
+Proof.
+  intros c c' i d.
+  cbn in *.
+  mkpair.
+  - exact (compose (compose (functor_on_iso F i) d) (iso_inv_from_iso i)).
+  - cbn. unfold iso_disp. cbn.
+    mkpair.
+    + abstract (
+          etrans; [eapply pathsinv0; apply id_right |];
+          repeat rewrite <- assoc;
+          do 2 apply maponpaths;
+          apply pathsinv0; apply iso_after_iso_inv
+        ).
+    + mkpair.
+      * cbn. repeat rewrite assoc.
+        rewrite <- functor_comp.
+        rewrite iso_after_iso_inv.
+        rewrite functor_id.
+        rewrite id_left. apply idpath.
+      * split; apply homset_property.
+Defined.
+
 
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
@@ -377,7 +493,6 @@ Proof.
       specialize (X u).
       apply (maponpaths pr1 X).
 Defined.
-
 
 End functor_algebras.
 
