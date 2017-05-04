@@ -32,7 +32,7 @@ Section Auxiliary.
   is judgementally(!) equal to [functor_identity _]. *)
 Definition disp_functor_id_composite
   {C : Precategory}
-  {CC DD EE : disp_precat C}
+  {CC DD EE : disp_cat C}
   (FF : disp_functor (functor_identity _) CC DD)
   (GG : disp_functor (functor_identity _) DD EE)
 : disp_functor (functor_identity _) CC EE
@@ -55,8 +55,8 @@ Section Compatible_Disp_Cat.
 (* TODO: rename [strucs_compat_FOO] to [strucs_iscompat_FOO] throughout, to disambiguate these from the sigma’d displayed-precat [compat_structures]. *)
 
 Definition strucs_compat_ob_mor
-  : disp_precat_ob_mor (total_precat
-      (term_fun_disp_precat C × qq_structure_disp_precat C)).
+  : disp_cat_ob_mor (total_precat
+      (term_fun_disp_cat C × qq_structure_disp_cat C)).
 Proof.
   use tpair.
   - intros XYZ. exact (iscompatible_term_qq (pr1 (pr2 XYZ)) (pr2 (pr2 XYZ))).
@@ -65,42 +65,42 @@ Proof.
 Defined.
 
 Definition strucs_compat_id_comp
-  : disp_precat_id_comp _ strucs_compat_ob_mor.
+  : disp_cat_id_comp _ strucs_compat_ob_mor.
 Proof.
   split; intros; exact tt.
 Qed.
 
-Definition strucs_compat_data : disp_precat_data _
+Definition strucs_compat_data : disp_cat_data _
   := ( _ ,, strucs_compat_id_comp).
 
-Definition strucs_compat_axioms : disp_precat_axioms _ strucs_compat_data.
+Definition strucs_compat_axioms : disp_cat_axioms _ strucs_compat_data.
 Proof.
   repeat apply tpair; intros; try apply isasetaprop; apply isapropunit.
 Qed.
 
-Definition strucs_compat_disp_precat
-  : disp_precat (total_precat
-      (term_fun_disp_precat C × qq_structure_disp_precat C))
+Definition strucs_compat_disp_cat
+  : disp_cat (total_precat
+      (term_fun_disp_cat C × qq_structure_disp_cat C))
 := ( _ ,, strucs_compat_axioms).
 
-Definition compat_structures_disp_precat
-  := sigma_disp_precat strucs_compat_disp_precat.
+Definition compat_structures_disp_cat
+  := sigma_disp_cat strucs_compat_disp_cat.
 
 Definition compat_structures_pr1_disp_functor
   : disp_functor (functor_identity _)
-      compat_structures_disp_precat (term_fun_disp_precat C)
+      compat_structures_disp_cat (term_fun_disp_cat C)
 := disp_functor_id_composite
      (sigmapr1_disp_functor _) (dirprodpr1_disp_functor _ _).
 
 Definition compat_structures_pr2_disp_functor
   : disp_functor (functor_identity _)
-      compat_structures_disp_precat (qq_structure_disp_precat C)
+      compat_structures_disp_cat (qq_structure_disp_cat C)
 := disp_functor_id_composite
      (sigmapr1_disp_functor _) (dirprodpr2_disp_functor _ _).
 
 (* TODO: once the equivalence has been redone at the displayed level, the following are probably redundant/obsolete and should be removed. *)
 Definition compat_structures_precat
-  := total_precat (strucs_compat_disp_precat).
+  := total_precat (strucs_compat_disp_cat).
 
 Definition compat_structures_pr1_functor
   : functor compat_structures_precat (term_fun_structure_precat C)
@@ -118,14 +118,14 @@ End Compatible_Disp_Cat.
 
 (** * Lemmas towards an equivalence *)
 
-(** In the following two sections, we prove lemmas which should amount to the fact that the two projections from [compat_structures_disp_precat C] to [term_fun_disp_precat C] and [qq_structure_precat C] are each equivalences (of displayed categories).
+(** In the following two sections, we prove lemmas which should amount to the fact that the two projections from [compat_structures_disp_cat C] to [term_fun_disp_cat C] and [qq_structure_precat C] are each equivalences (of displayed categories).
 
 We don’t yet have the infrastructure on displayed categories to put it together as that fact; for now we put it together just as equivalences of _total_ precategories. *)
  
 Section Unique_QQ_From_Term.
 
-Lemma qq_from_term_ob {X : obj_ext_precat} (Y : term_fun_disp_precat C X)
-  : ∑ (Z : qq_structure_disp_precat C X), strucs_compat_disp_precat (X ,, (Y ,, Z)).
+Lemma qq_from_term_ob {X : obj_ext_precat} (Y : term_fun_disp_cat C X)
+  : ∑ (Z : qq_structure_disp_cat C X), strucs_compat_disp_cat (X ,, (Y ,, Z)).
 Proof.
   exists (qq_from_term Y).
   apply iscompatible_qq_from_term.
@@ -143,10 +143,10 @@ Proof.
 Qed.
 
 Lemma qq_from_term_mor {X X' : obj_ext_precat} {F : X --> X'}
-  {Y : term_fun_disp_precat C X} {Y'} (FY : Y -->[F] Y')
-  {Z : qq_structure_disp_precat C X} {Z'}
-  (W : strucs_compat_disp_precat (X,,(Y,,Z)))
-  (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
+  {Y : term_fun_disp_cat C X} {Y'} (FY : Y -->[F] Y')
+  {Z : qq_structure_disp_cat C X} {Z'}
+  (W : strucs_compat_disp_cat (X,,(Y,,Z)))
+  (W' : strucs_compat_disp_cat (X',,(Y',,Z')))
   : ∑ (FZ : Z -->[F] Z'), W -->[(F,,(FY,,FZ))] W'.
 Proof.
   refine (_,, tt).
@@ -180,10 +180,10 @@ Proof.
 Time Qed.
 
 Lemma qq_from_term_mor_unique {X X' : obj_ext_precat} {F : X --> X'}
-  {Y : term_fun_disp_precat C X} {Y'} (FY : Y -->[F] Y')
-  {Z : qq_structure_disp_precat C X} {Z'}
-  (W : strucs_compat_disp_precat (X,,(Y,,Z)))
-  (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
+  {Y : term_fun_disp_cat C X} {Y'} (FY : Y -->[F] Y')
+  {Z : qq_structure_disp_cat C X} {Z'}
+  (W : strucs_compat_disp_cat (X,,(Y,,Z)))
+  (W' : strucs_compat_disp_cat (X',,(Y',,Z')))
   : isaprop (∑ (FZ : Z -->[F] Z'), W -->[(F,,(FY,,FZ))] W').
 Proof.
   apply isofhleveltotal2.
@@ -195,8 +195,8 @@ End Unique_QQ_From_Term.
 
 Section Unique_Term_From_QQ.
 
-Lemma term_from_qq_ob {X : obj_ext_precat} (Z : qq_structure_disp_precat C X)
-  : ∑ (Y : term_fun_disp_precat C X), strucs_compat_disp_precat (X ,, (Y ,, Z)).
+Lemma term_from_qq_ob {X : obj_ext_precat} (Z : qq_structure_disp_cat C X)
+  : ∑ (Y : term_fun_disp_cat C X), strucs_compat_disp_cat (X ,, (Y ,, Z)).
 Proof.
   exists (term_from_qq Z).
   apply iscompatible_term_from_qq.
@@ -204,10 +204,10 @@ Defined.
 
 (** The next main goal is the following statement.  However, the construction of the morphism of term structures is rather large; so we factor the first component (the map of term presheaves) into several steps, going explicitly via the canonical term-structure constructed from sections [term_fun_from_qq], before returning to this in [term_from_qq_mor] below. *)
 Lemma term_from_qq_mor {X X' : obj_ext_precat} {F : X --> X'}
-  {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
-  {Y : term_fun_disp_precat C X} {Y'}
-  (W : strucs_compat_disp_precat (X,,(Y,,Z)))
-  (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
+  {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
+  {Y : term_fun_disp_cat C X} {Y'}
+  (W : strucs_compat_disp_cat (X,,(Y,,Z)))
+  (W' : strucs_compat_disp_cat (X',,(Y',,Z')))
   : ∑ (FY : Y -->[F] Y'), W -->[(F,,(FY,,FZ))] W'.
 Abort.
 
@@ -220,7 +220,7 @@ Section Rename_me.
 (* TODO: naming conventions in this section clash rather with those of [ALV1.CwF_SplitTypeCat_Equivalence]. Consider! *)
 (* TODO: one would expect the type of this to be [nat_trans_data].  However, that name breaks HORRIBLY with general naming conventions: it is not the _type_ of the data (which is un-named for [nat_trans]), but is the _access function_ for that data!  Submit issue for this? *)  
 Lemma tm_from_qq_mor_data {X X' : obj_ext_precat} {F : X --> X'}
-    {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
+    {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
   : forall Γ : C, (tm_from_qq Z Γ) --> (tm_from_qq Z' Γ).
 Proof.
   intros Γ Ase.
@@ -232,7 +232,7 @@ Proof.
 Defined.
 
 Lemma tm_from_qq_mor_naturality {X X' : obj_ext_precat} {F : X --> X'}
-    {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
+    {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
   : is_nat_trans (tm_from_qq Z) (tm_from_qq Z') (tm_from_qq_mor_data FZ).
 Proof.
   intros Γ Γ' f; cbn in Γ, Γ', f.
@@ -258,7 +258,7 @@ Proof.
 Time Qed.
 
 Lemma tm_from_qq_mor_TM {X X' : obj_ext_precat} {F : X --> X'}
-    {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
+    {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
   : nat_trans (tm_from_qq Z) (tm_from_qq Z').
 Proof.
   exists (tm_from_qq_mor_data FZ).
@@ -266,7 +266,7 @@ Proof.
 Defined.
 
 Lemma tm_from_qq_mor_pp {X X' : obj_ext_precat} {F : X --> X'}
-    {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
+    {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
   : (tm_from_qq_mor_TM FZ : preShv C ⟦ _ , _ ⟧) ;; pp_from_qq Z'
   = pp_from_qq Z;; obj_ext_mor_TY F.
 Proof.
@@ -275,7 +275,7 @@ Proof.
 Qed.
 
 Lemma tm_from_qq_mor_te {X X' : obj_ext_precat} {F : X --> X'}
-    {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
+    {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
     {Γ} (A : Ty X Γ)
   : tm_from_qq_mor_TM FZ _ (te_from_qq Z A)
   = # (tm_from_qq Z') (φ F A)
@@ -329,10 +329,10 @@ Time Qed.
 End Rename_me.
 
 Definition term_from_qq_mor_TM {X X' : obj_ext_precat} {F : X --> X'}
-    {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
-    {Y : term_fun_disp_precat C X} {Y'}
-    (W : strucs_compat_disp_precat (X,,(Y,,Z)))
-    (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
+    {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
+    {Y : term_fun_disp_cat C X} {Y'}
+    (W : strucs_compat_disp_cat (X,,(Y,,Z)))
+    (W' : strucs_compat_disp_cat (X',,(Y',,Z')))
   : TM (Y : term_fun_structure _ _) --> TM (Y' : term_fun_structure _ _).
 Proof.
   refine ( _ ;; (tm_from_qq_mor_TM FZ : preShv C ⟦ _ , _ ⟧) ;; _).
@@ -342,10 +342,10 @@ Defined.
 (* TODO: better, construct these three parts as maps of qq-morphism structures, and put them together directly as that. *)
 
 Lemma term_from_qq_mor {X X' : obj_ext_precat} {F : X --> X'}
-  {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
-  {Y : term_fun_disp_precat C X} {Y'}
-  (W : strucs_compat_disp_precat (X,,(Y,,Z)))
-  (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
+  {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
+  {Y : term_fun_disp_cat C X} {Y'}
+  (W : strucs_compat_disp_cat (X,,(Y,,Z)))
+  (W' : strucs_compat_disp_cat (X',,(Y',,Z')))
   : ∑ (FY : Y -->[F] Y'), W -->[(F,,(FY,,FZ))] W'.
 Proof.
   simpl in W, W'; unfold iscompatible_term_qq in W, W'. (* Readability *)
@@ -369,10 +369,10 @@ Proof.
 Defined.
 
 Lemma term_from_qq_mor_unique {X X' : obj_ext_precat} {F : X --> X'}
-  {Z : qq_structure_disp_precat C X} {Z'} (FZ : Z -->[F] Z')
-  {Y : term_fun_disp_precat C X} {Y'}
-  (W : strucs_compat_disp_precat (X,,(Y,,Z)))
-  (W' : strucs_compat_disp_precat (X',,(Y',,Z')))
+  {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
+  {Y : term_fun_disp_cat C X} {Y'}
+  (W : strucs_compat_disp_cat (X,,(Y,,Z)))
+  (W' : strucs_compat_disp_cat (X',,(Y',,Z')))
   : isaprop (∑ (FY : Y -->[F] Y'), W -->[(F,,(FY,,FZ))] W').
 Proof.
   apply isofhleveltotal2.
@@ -548,7 +548,7 @@ Definition compat_structures_pr1_equiv_over_id
 
 Definition compat_structures_pr1_inverse_over_id
      : equiv_over_id
-         (term_fun_disp_precat C) compat_structures_disp_precat.
+         (term_fun_disp_cat C) compat_structures_disp_cat.
 Proof.
   exact (equiv_inv _ (compat_structures_pr1_is_equiv_over_id)).
 Defined.
@@ -607,7 +607,7 @@ Definition compat_structures_pr2_equiv_over_id
 
 Definition compat_structures_pr2_inverse_over_id
      : equiv_over_id
-         (qq_structure_disp_precat C) compat_structures_disp_precat.
+         (qq_structure_disp_cat C) compat_structures_disp_cat.
 Proof.
   exact (equiv_inv _ (compat_structures_pr2_is_equiv_over_id)).
 Defined.
@@ -620,8 +620,8 @@ Context (X : obj_ext_Precat C).
 
 Definition term_struc_to_qq_struc_fiber_functor
   : functor
-      (fiber_precategory (term_fun_disp_precat C) X)
-      (fiber_precategory (qq_structure_disp_precat C) X).
+      (fiber_precategory (term_fun_disp_cat C) X)
+      (fiber_precategory (qq_structure_disp_cat C) X).
 Proof.
   eapply functor_composite.
   - eapply fiber_functor.
