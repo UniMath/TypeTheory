@@ -8,8 +8,8 @@
 Main definitions:
 
 - [obj_ext_precat]
-- [term_fun_disp_precat], [term_fun_structure_precat]
-- [qq_structure_disp_precat], [qq_structure_precat]
+- [term_fun_disp_cat], [term_fun_structure_precat]
+- [qq_structure_disp_cat], [qq_structure_precat]
 *)
 
 Require Import UniMath.Foundations.Sets.
@@ -309,13 +309,13 @@ Proof.
   destruct eF. apply idpath.
 Qed.
  
-Definition term_fun_ob_mor : disp_precat_ob_mor (obj_ext_Precat C).
+Definition term_fun_ob_mor : disp_cat_ob_mor (obj_ext_Precat C).
 Proof.
   exists (fun X => term_fun_structure C X).
   exact @term_fun_mor.
 Defined.
 
-Definition term_fun_id_comp : disp_precat_id_comp _ term_fun_ob_mor.
+Definition term_fun_id_comp : disp_cat_id_comp _ term_fun_ob_mor.
 Proof.
   apply tpair.
   - intros X Y. simpl; unfold term_fun_mor.
@@ -338,10 +338,10 @@ Proof.
       refine (toforallpaths _ _ _ (!functor_comp (TM _) _ _) _).
 Defined.
 
-Definition term_fun_data : disp_precat_data (obj_ext_Precat C)
+Definition term_fun_data : disp_cat_data (obj_ext_Precat C)
   := (_ ,, term_fun_id_comp).
 
-Definition term_fun_axioms : disp_precat_axioms _ term_fun_data.
+Definition term_fun_axioms : disp_cat_axioms _ term_fun_data.
 Proof.
   repeat apply tpair.
   - intros. apply term_fun_mor_eq. intros.
@@ -360,15 +360,15 @@ Proof.
     repeat (apply impred_isaprop; intro). apply setproperty.
 Qed.
 
-Definition term_fun_disp_precat : disp_precat (obj_ext_Precat C)
+Definition term_fun_disp_cat : disp_cat (obj_ext_Precat C)
   := (_ ,, term_fun_axioms).
 
 Definition term_fun_structure_precat : precategory
-  := total_precat term_fun_disp_precat.
+  := total_precat term_fun_disp_cat.
 
 End Term_Fun_Structure_Precat.
 
-Arguments term_fun_disp_precat _ : clear implicits.
+Arguments term_fun_disp_cat _ : clear implicits.
 Arguments term_fun_structure_precat _ : clear implicits.
 
 (** * Precategory of _q_-morphism-structures *)
@@ -376,7 +376,7 @@ Section qq_Structure_Precat.
 
 Context {C : Precategory}.
 
-Definition qq_structure_ob_mor : disp_precat_ob_mor (obj_ext_Precat C).
+Definition qq_structure_ob_mor : disp_cat_ob_mor (obj_ext_Precat C).
 Proof.
   exists (fun X => qq_morphism_structure X).
   intros X X' Z Z' F.
@@ -394,7 +394,7 @@ Proof.
   repeat (apply impred_isaprop; intro). apply homset_property.
 Qed.
 
-Definition qq_structure_id_comp : disp_precat_id_comp _ qq_structure_ob_mor.
+Definition qq_structure_id_comp : disp_cat_id_comp _ qq_structure_ob_mor.
 Proof.
   apply tpair.
   - intros X Z; cbn.
@@ -426,23 +426,23 @@ Proof.
     apply pathsinv0, comp_ext_compare_comp_general.
 Qed.
 
-Definition qq_structure_data : disp_precat_data (obj_ext_Precat C)
+Definition qq_structure_data : disp_cat_data (obj_ext_Precat C)
   := (_ ,, qq_structure_id_comp).
 
-Definition qq_structure_axioms : disp_precat_axioms _ qq_structure_data.
+Definition qq_structure_axioms : disp_cat_axioms _ qq_structure_data.
 Proof.
   repeat apply tpair; intros;
     try apply isasetaprop; apply isaprop_qq_structure_mor.
 Qed.
 
-Definition qq_structure_disp_precat : disp_precat (obj_ext_Precat C)
+Definition qq_structure_disp_cat : disp_cat (obj_ext_Precat C)
   := (_ ,, qq_structure_axioms).
 
 Definition qq_structure_precat : precategory
-  := total_precat (qq_structure_disp_precat).
+  := total_precat (qq_structure_disp_cat).
 
 End qq_Structure_Precat.
 
-Arguments qq_structure_disp_precat _ : clear implicits.
+Arguments qq_structure_disp_cat _ : clear implicits.
 Arguments qq_structure_precat _ : clear implicits.
 

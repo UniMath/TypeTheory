@@ -289,8 +289,8 @@ Definition compat_structures_precategory
 
 (* should this be the name of the compatible pairs category? *)
 (*
-Definition compat_structures_disp_precat
-  := sigma_disp_precat strucs_compat_disp_precat.
+Definition compat_structures_disp_cat
+  := sigma_disp_cat strucs_compat_disp_cat.
 *)
 
 

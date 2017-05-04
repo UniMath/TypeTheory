@@ -24,7 +24,7 @@ Section Auxiliary.
 
 Lemma transportf_term_fun_mor_TM {C : Precategory}
   {X X' : obj_ext_Precat C} {F F' : X --> X'} (e : F = F')
-  {Y : term_fun_disp_precat C X} {Y'} (FY : Y -->[F] Y')
+  {Y : term_fun_disp_cat C X} {Y'} (FY : Y -->[F] Y')
   : term_fun_mor_TM (transportf _ e FY) = term_fun_mor_TM FY.
 Proof.
   destruct e; apply idpath.
@@ -276,7 +276,7 @@ Section Is_Category_Families_Strucs.
 (* TODO: inline *) 
 Lemma isaprop_whatever
   (x : obj_ext_Precat C)
-  (d d' : (term_fun_disp_precat C) x)
+  (d d' : (term_fun_disp_cat C) x)
   : isaprop (iso_disp (identity_iso x) d d').
 Proof.
   apply isofhleveltotal2.
@@ -286,7 +286,7 @@ Qed.
 
 Definition iso_disp_to_TM_eq
   (X : obj_ext_Precat C)
-  (Y Y' : (term_fun_disp_precat C) X)
+  (Y Y' : (term_fun_disp_cat C) X)
   : iso_disp (identity_iso X) Y Y'
   -> TM (Y : term_fun_structure _ X) = TM (Y' : term_fun_structure _ X).
 Proof.
@@ -304,7 +304,7 @@ Proof.
 Defined.
 
 Lemma prewhisker_iso_disp_to_TM_eq 
-  {X} {Y Y' : term_fun_disp_precat C X}
+  {X} {Y Y' : term_fun_disp_cat C X}
   (FG : iso_disp (identity_iso X) Y Y')
   {P : preShv C} (α : TM (Y : term_fun_structure _ X) --> P)
 : transportf (λ P' : preShv C, P' --> P) (iso_disp_to_TM_eq _ _ _ FG) α
@@ -316,7 +316,7 @@ Proof.
 Qed.
 
 Lemma postwhisker_iso_disp_to_TM_eq 
-  {X} {Y Y' : term_fun_disp_precat C X}
+  {X} {Y Y' : term_fun_disp_cat C X}
   (FG : iso_disp (identity_iso X) Y Y')
   {P : preShv C} (α : P --> TM (Y : term_fun_structure _ X))
 : transportf (λ P' : preShv C, P --> P') (iso_disp_to_TM_eq _ _ _ FG) α
@@ -326,7 +326,7 @@ Proof.
 Qed.
 
 Lemma idtoiso_iso_disp_to_TM_eq 
-  {X} {Y Y' : term_fun_disp_precat C X}
+  {X} {Y Y' : term_fun_disp_cat C X}
   (FG : iso_disp (identity_iso X) Y Y')
 : (idtoiso (iso_disp_to_TM_eq _ _ _ FG) : _ --> _)
   = term_fun_mor_TM (FG : _ -->[_] _).
@@ -334,9 +334,9 @@ Proof.
   refine (maponpaths pr1 (idtoiso_isotoid _ _ _ _ _)).
 Qed.
 
-Definition iso_to_id__term_fun_disp_precat
+Definition iso_to_id__term_fun_disp_cat
   {X : obj_ext_Precat C}
-  (Y Y' : term_fun_disp_precat C X)
+  (Y Y' : term_fun_disp_cat C X)
   : iso_disp (identity_iso _) Y Y' -> Y = Y'.
 Proof.
   intros i.
@@ -361,11 +361,11 @@ Proof.
 Qed.
 
 Theorem is_category_term_fun_structure
-  : is_category_disp (term_fun_disp_precat C).
+  : is_univalent_disp (term_fun_disp_cat C).
 Proof.
-  apply is_category_disp_from_fibers.
+  apply is_univalent_disp_from_fibers.
   intros X.
-  apply eq_equiv_from_retraction with iso_to_id__term_fun_disp_precat.
+  apply eq_equiv_from_retraction with iso_to_id__term_fun_disp_cat.
   - intros. apply eq_iso_disp, isaprop_term_fun_mor.
 Qed.
 
@@ -398,7 +398,7 @@ Qed.
 
 Lemma isaprop_iso_disp_qq_morphism_structure 
   (x : obj_ext_Precat C)
-  (d d' : (qq_structure_disp_precat C) x)
+  (d d' : (qq_structure_disp_cat C) x)
   : isaprop (iso_disp (identity_iso x) d d').
 Proof.
   apply (isofhleveltotal2 1).
@@ -428,7 +428,7 @@ Defined.
 
 Definition qq_structure_iso_disp_to_id
   (x : obj_ext_Precat C)
-  (d d' : (qq_structure_disp_precat C) x)
+  (d d' : (qq_structure_disp_cat C) x)
   : iso_disp (identity_iso x) d d' → d = d'.
 Proof.
   intro H. 
@@ -447,9 +447,9 @@ Proof.
 Defined.  
   
 Theorem is_category_qq_morphism
-  : is_category_disp (qq_structure_disp_precat C).
+  : is_univalent_disp (qq_structure_disp_cat C).
 Proof.
-  apply is_category_disp_from_fibers.
+  apply is_univalent_disp_from_fibers.
   intros x d d'. 
   use isweqimplimpl. 
   - apply qq_structure_iso_disp_to_id.
@@ -461,9 +461,9 @@ End Is_Category_qq_Strucs.
 
 Section Is_Category_Compat_Strucs.
 
-Lemma isaprop_iso_disp_strucs_compat_disp_precat
-  (x : total_precat (term_fun_disp_precat C × qq_structure_disp_precat C))
-  (d d' : strucs_compat_disp_precat x)
+Lemma isaprop_iso_disp_strucs_compat_disp_cat
+  (x : total_precat (term_fun_disp_cat C × qq_structure_disp_cat C))
+  (d d' : strucs_compat_disp_cat x)
   : isaprop (iso_disp (identity_iso x) d d').
 Proof.
   unfold iso_disp.
@@ -476,8 +476,8 @@ Qed.
 
 
 Definition  strucs_compat_iso_disp_to_id
-  (x : total_precat (term_fun_disp_precat C × qq_structure_disp_precat C))
-  (d d' : strucs_compat_disp_precat x)
+  (x : total_precat (term_fun_disp_cat C × qq_structure_disp_cat C))
+  (d d' : strucs_compat_disp_cat x)
   : iso_disp (identity_iso x) d d' → d = d'.
 Proof.
   intro H.
@@ -486,15 +486,15 @@ Proof.
 Defined.
 
 Theorem is_category_strucs_compat
-  : is_category_disp (@strucs_compat_disp_precat C).
+  : is_univalent_disp (@strucs_compat_disp_cat C).
 Proof.
-  apply is_category_disp_from_fibers.
+  apply is_univalent_disp_from_fibers.
   intros x d d'.
   use isweqimplimpl.
   - apply strucs_compat_iso_disp_to_id.
   - apply hlevelntosn.
     apply CwF_SplitTypeCat_Maps.isaprop_iscompatible_term_qq.
-  - apply isaprop_iso_disp_strucs_compat_disp_precat.
+  - apply isaprop_iso_disp_strucs_compat_disp_cat.
 Defined.
 
 End Is_Category_Compat_Strucs.
