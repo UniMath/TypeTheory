@@ -201,7 +201,7 @@ Lemma compatible_term_structure_equals_canonical
 Proof.
   apply @pathsinv0.
   set (i := isotoid _
-                   (category_is_category _)
+                   (univalent_category_is_univalent _)
                    (canonical_TM_to_given_iso Z Y)).
   apply subtypeEquality.
   { intro. apply isaprop_iscompatible_term_qq. } 

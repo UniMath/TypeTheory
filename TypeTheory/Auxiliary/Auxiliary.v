@@ -401,7 +401,7 @@ Defined.
 
 
 Definition isweq_left_adj_equivalence_on_mor_total {C D : precategory} (F : functor C D) 
-           (isC : is_category C) (isD : is_category D)
+           (isC : is_univalent C) (isD : is_univalent D)
            (H : adj_equivalence_of_precats F) 
 : isweq (functor_on_mor_total F).
 Proof.
@@ -460,7 +460,7 @@ Proof.
 Defined.
 
 Definition isweq_equivalence_on_mor_total {C D : precategory}
-           (isC : is_category C) (isD : is_category D)
+           (isC : is_univalent C) (isD : is_univalent D)
            (F : functor C D) (G : functor D C)
            (eta : iso (C:= [_ , _ , pr2 isC ]) (functor_identity C) (F ∙ G))
            (eps : iso (C:= [_ , _ , pr2 isD ]) (G ∙ F) (functor_identity D))
@@ -1005,29 +1005,30 @@ Qed.
 
 (* Access function for [is_category] of categories.
   TODO: check naming is consistent with other similar access functions. *)
-Definition category_is_category (C : category) : is_category C
+(*Definition category_is_category (C : univalent_category) : is_univalent C
   := pr2 C.
-Coercion category_is_category : category >-> is_category.
+*)
+Coercion univalent_category_is_univalent : univalent_category >-> is_univalent.
 
 (* TODO: raise issue in [CategoryTheory.precategories]: delete [category_has_homsets], since now redundant with [homset_property], since [category] coerces to [Precategory]. *)
 
 (* TODO: raise issue: should the [HSET] provided be this by default, and current [HSET] be renamed to [HSET_precategory]? *)
-Definition HSET_category : category.
+Definition HSET_univalent_category : univalent_category.
 Proof.
   exists HSET; split.
-  - apply is_category_HSET.
+  - apply is_univalent_HSET.
   - apply has_homsets_HSET.
 Defined.
 
-Definition functor_category (C : precategory) (D : category)
-  : category.
+Definition functor_univalent_category (C : precategory) (D : univalent_category)
+  : univalent_category.
 Proof.
   exists (functor_precategory C D (homset_property D)); split.
-  - apply is_category_functor_category.
+  - apply is_univalent_functor_category.
   - apply functor_category_has_homsets.
 Defined.
 
-Definition preShv C := functor_category C^op HSET_category.
+Definition preShv C := functor_univalent_category C^op HSET_univalent_category.
 
 Notation "'Yo'" := (yoneda _ (homset_property _) : functor _ (preShv _)).
 Notation "'Yo^-1'" := (invweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
@@ -1075,7 +1076,7 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma forall_isotid (A : precategory) (a_is : is_category A) 
+Lemma forall_isotid (A : precategory) (a_is : is_univalent A) 
       (a a' : A) (P : iso a a' -> UU) :
   (∏ e, P (idtoiso e)) → ∏ i, P i.
 Proof.
@@ -1085,7 +1086,7 @@ Proof.
 Defined.
 
 Lemma transportf_isotoid_functor 
-  (A X : precategory) (H : is_category A)
+  (A X : precategory) (H : is_univalent A)
   (K : functor A X)
    (a a' : A) (p : iso a a') (b : X) (f : K a --> b) :
  transportf (fun a0 => K a0 --> b) (isotoid _ H p) f = #K (inv_from_iso p) ;; f.
@@ -1155,7 +1156,7 @@ Qed.
 (* Left-handed counterpart to [transportf_isotoid], which could be called [prewhisker_isotoid] analogously — neither of these is a fully general transport lemma, they’re about specific cases.
 
   TODO: look for dupes in library; move; consider naming conventions; rename D to C. *)
-Lemma postwhisker_isotoid {D : precategory} (H : is_category D)
+Lemma postwhisker_isotoid {D : precategory} (H : is_univalent D)
     {a b b' : D} (f : a --> b) (p : iso b b')
   : transportf (fun b0 => a --> b0) (isotoid _ H p) f
   = f ;; p.
@@ -1694,7 +1695,7 @@ End Pullbacks_hSet.
 will be an instance of a general lemma to be proved
    in UniMath
 *)
-Definition isaprop_Pullback (C : precategory) (H : is_category C)
+Definition isaprop_Pullback (C : precategory) (H : is_univalent C)
            (a b c : C) (f : b --> a) (g : c --> a)
 : isaprop (Pullback f g).
 Proof.
@@ -1849,7 +1850,7 @@ Lemma transportf_isotoid_pshf {C : precategory}
     {P P' : preShv C} (i : iso P P')
     {c : C} (x : (P : functor _ _) c : hSet)
   : transportf (fun Q : preShv C => (Q : functor _ _) c : hSet)
-      (isotoid _ (category_is_category (preShv C)) i) x
+      (isotoid _ (univalent_category_is_univalent (preShv C)) i) x
   = ((i : _ --> _) : nat_trans _ _) c x.
 Proof.
   etrans. apply transportf_pshf.

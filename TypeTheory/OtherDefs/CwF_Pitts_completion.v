@@ -25,7 +25,7 @@ Implicit Arguments iso.
 
 (** How to get a functor from RC(C) to D when having one from C to D **)
 
-Definition Rezk_functor (C : precategory) (hs : has_homsets C) (D : category) 
+Definition Rezk_functor (C : precategory) (hs : has_homsets C) (D : univalent_category) 
     (F : functor C D) 
   :  functor (Rezk_completion C hs) D.
 Proof.
@@ -71,7 +71,7 @@ Proof.
   - apply opp_iso_opp_iso_inv.
 Defined.
 
-Definition isotoid_opp (C : precategory) (H : is_category C) (a b : opp_precat C) : 
+Definition isotoid_opp (C : precategory) (H : is_univalent C) (a b : opp_precat C) : 
    weq (a = b) (iso (opp_precat C) a b).
 Proof.
   eapply weqcomp.
@@ -82,7 +82,7 @@ Proof.
 Defined.
 
 
-Definition is_category_opp (C : precategory) (H : is_category C) : is_category (opp_precat C).
+Definition is_category_opp (C : precategory) (H : is_univalent C) : is_univalent (opp_precat C).
 Proof.
   split; intros; simpl in *.
   - set (H1:=@isweqhomot).
@@ -94,7 +94,7 @@ Proof.
   - intros a b. apply (pr2 H).
 Qed.
  
-Definition opp_cat (C : category) : category.
+Definition opp_cat (C : univalent_category) : univalent_category.
 Proof.
   exists (opp_precat C).
   apply is_category_opp.
@@ -136,7 +136,7 @@ Definition type_functor : functor _ _ := tpair _ _ type_is_functor.
 
 Definition RC_type_functor : functor (Rezk_completion CC (has_homsets_cwf C)) (opp_precat HSET).
 Proof.  
-  apply (Rezk_functor CC _ (opp_cat HSET_category)).
+  apply (Rezk_functor CC _ (opp_cat HSET_univalent_category)).
   apply type_functor.
 Defined.
   

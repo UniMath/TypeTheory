@@ -192,7 +192,7 @@ End Representation_Regrouping.
 
 (* TODO: can this be simplified? *)
 Lemma isaprop_cwf_fiber_representation' {Γ:C} (A : Ty pp Γ : hSet)
-  : is_category C -> isaprop (cwf_fiber_representation' A).
+  : is_univalent C -> isaprop (cwf_fiber_representation' A).
 Proof.
   intro isC.
   apply invproofirrelevance.
@@ -276,7 +276,7 @@ Proof.
 Qed.      
 
 Lemma isaprop_cwf_fiber_representation {Γ:C} (A : Ty pp Γ : hSet)
-  : is_category C -> isaprop (cwf_fiber_representation pp A).
+  : is_univalent C -> isaprop (cwf_fiber_representation pp A).
 Proof.
   intro H.
   refine (isofhlevelweqb _ _ _).
@@ -382,7 +382,7 @@ Arguments weq_cwf_structure_RelUnivYo _ : clear implicits.
 *)
 
 Lemma isaprop_cwf_representation {C : Precategory}
-    (Ccat : is_category C) (pp : mor_total (preShv C))
+    (Ccat : is_univalent C) (pp : mor_total (preShv C))
   : isaprop (cwf_representation pp).
 Proof.
   use isofhlevelweqb.
@@ -399,7 +399,7 @@ Qed.
 
 Definition transfer_cwf_weak_equiv {C D : Precategory} (F : C ⟶ D)
            (F_ff : fully_faithful F) (F_es : essentially_surjective F)
-           (Dcat : is_category D) 
+           (Dcat : is_univalent D) 
   : cwf_structure C → cwf_structure D.
 Proof.
   intro CC.
@@ -417,10 +417,10 @@ Context {C D : Precategory}
         (F : C ⟶ D)
         (F_ff : fully_faithful F) 
         (F_es : essentially_surjective F)
-        (Dcat : is_category D) 
+        (Dcat : is_univalent D) 
         (T : cwf_structure C).
 
-Let DD : category := (pr1 D,,Dcat).
+Let DD : univalent_category := (pr1 D,,Dcat).
 Let T' : cwf_structure D := transfer_cwf_weak_equiv F F_ff F_es Dcat T.
 Let TM : preShv C := Tm (pr1 T).
 Let TM' : preShv DD := Tm (pr1 T').
@@ -438,8 +438,8 @@ Let ηη : functor (preShv D) (preShv C) :=
 Let isweq_Fcomp : isweq (pr1 (pr1 (Fop_precomp F))) := 
 adj_equiv_of_cats_is_weq_of_objects 
                _ _ 
-               (is_category_functor_category _ _ is_category_HSET )
-               (is_category_functor_category _ _ is_category_HSET )
+               (is_univalent_functor_category _ _ is_univalent_HSET )
+               (is_univalent_functor_category _ _ is_univalent_HSET )
                _ 
                (equiv_Fcomp F F_ff F_es).
 
@@ -515,7 +515,7 @@ Section CwF_RC_recover.
 
 Context {C : Precategory} (T : cwf_structure C).
 
-Let RC : category := Rezk_completion C (homset_property _ ).
+Let RC : univalent_category := Rezk_completion C (homset_property _ ).
 Let T' : cwf_structure RC := Rezk_on_cwf_structures T.
 Let TM : preShv C := Tm (pr1 T).
 Let TM' : preShv RC := Tm (pr1 T').
@@ -534,7 +534,7 @@ Lemma Tm_Rezk_completion_recover :
  (*  Tm = functor_composite (functor_opp (Rezk_eta C _ )) Tm'.*)
       TM = ηη TM'.
 Proof.
-  set (XR := Rezk_opp_weq C (homset_property C) HSET is_category_HSET).
+  set (XR := Rezk_opp_weq C (homset_property C) HSET is_univalent_HSET).
   assert (XT := homotweqinvweq XR TM).
   apply pathsinv0.
   apply XT.
@@ -544,7 +544,7 @@ Lemma Ty_Rezk_completion_recover :
 (*   Ty = functor_composite (functor_opp (Rezk_eta C _ )) Ty'. *)
    TY = ηη TY'.
 Proof.
-  set (XR := Rezk_opp_weq C (homset_property C) HSET is_category_HSET).
+  set (XR := Rezk_opp_weq C (homset_property C) HSET is_univalent_HSET).
   assert (XT := homotweqinvweq XR TY).
   apply pathsinv0.
   apply XT.
@@ -552,7 +552,7 @@ Defined.
 
 
 Let RCequiv : adj_equivalence_of_precats _  := Rezk_op_adj_equiv C (homset_property C) 
-          HSET is_category_HSET.
+          HSET is_univalent_HSET.
 
 Lemma has_homsets_preShv (D : precategory) : has_homsets (preShv D).
 Proof.

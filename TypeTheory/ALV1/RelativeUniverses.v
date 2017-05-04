@@ -97,7 +97,7 @@ Proof.
 Qed.
 
 Lemma isaprop_fpullback {X : C} (f : D ⟦J X, U⟧) 
-      (is_c : is_category C)
+      (is_c : is_univalent C)
       (HJ : fully_faithful J) (* NOTE: the weaker assumption “ff on isos” might be enough. *)
   : isaprop (fpullback J pp f).
 Proof.
@@ -156,7 +156,7 @@ Proof.
         apply X1.
 Qed.
 
-Lemma isaprop_rel_universe_structure  (is_c : is_category C) 
+Lemma isaprop_rel_universe_structure  (is_c : is_univalent C) 
     (HJ : fully_faithful J) : isaprop (rel_universe_structure J pp).
 Proof.
   do 2 (apply impred; intro).
@@ -190,7 +190,7 @@ Proof.
 Defined.
 
 Lemma weq_relative_universe_weak_relative_universe {C D : Precategory} (J : functor C D)
-      (Ccat : is_category C) (J_ff : fully_faithful J)
+      (Ccat : is_univalent C) (J_ff : fully_faithful J)
   : relative_universe J ≃ weak_relative_universe J.
 Proof.
   apply weqfibtototal.
@@ -202,7 +202,7 @@ Proof.
 Defined.
 
 Goal ∏ (C D : Precategory) (J : functor C D) 
-     (Ccat : is_category C) (J_ff : fully_faithful J)
+     (Ccat : is_univalent C) (J_ff : fully_faithful J)
      (X : relative_universe J),
   weak_from_relative_universe _ X = 
   weq_relative_universe_weak_relative_universe _ Ccat J_ff X.
@@ -319,7 +319,7 @@ Defined.
 
 Definition fpullback_induced_with_ess_surj
            (R_es : essentially_surjective R)
-           (C'_sat : is_category C')
+           (C'_sat : is_univalent C')
            (J'_ff : fully_faithful J')
            (* TODO: only “ff on isos” might suffice; see note at [isaprop_fpullback]. *)
            (S_full : full S)
@@ -367,7 +367,7 @@ Defined.
 
 Definition rel_universe_structure_induced_with_ess_surj
    (R_es : essentially_surjective R)
-   (C'_sat : is_category C')
+   (C'_sat : is_univalent C')
    (J'_ff : fully_faithful J')
      (* TODO: only “ff on isos” might suffice; see note at [isaprop_fpullback]. *)
    (S_full : full S)
@@ -380,7 +380,7 @@ Defined.
 
 Definition transfer_of_rel_univ_with_ess_surj
     (R_es : essentially_surjective R)
-    (C'_sat : is_category C')
+    (C'_sat : is_univalent C')
     (J'_ff : fully_faithful J')
      (* TODO: only “ff on isos” might suffice; see note at [isaprop_fpullback]. *)
     (S_full : full S)
@@ -428,7 +428,7 @@ Let α_α' := nat_trans_eq_pointwise (iso_inv_after_iso αiso).
 
 Context
   (R_es : essentially_surjective R)
-  (C'_sat : is_category C')
+  (C'_sat : is_univalent C')
   (J'_ff : fully_faithful J')
   (* TODO: only “ff on isos” might suffice; see note at [isaprop_fpullback]. *)
   (S_full : full S).
@@ -622,7 +622,7 @@ Defined.
 
 Definition isweq_weak_relative_universe_transfer 
            (R_full : full R)
-           (isD : is_category D) (isD' : is_category D')
+           (isD : is_univalent D) (isD' : is_univalent D')
            (T : functor D' D)
            (eta : iso (C:=[D, D, pr2 D]) (functor_identity D) (S ∙ T))
            (eps : iso (C:=[D', D', pr2 D']) (T ∙ S) (functor_identity D'))
@@ -644,7 +644,7 @@ Defined.
 
 Definition weq_weak_relative_universe_transfer
            (R_full : full R)
-           (isD : is_category D) (isD' : is_category D')
+           (isD : is_univalent D) (isD' : is_univalent D')
            (T : functor D' D)
            (eta : iso (C:=[D, D, pr2 D]) (functor_identity D) (S ∙ T))
            (eps : iso (C:=[D', D', pr2 D']) (T ∙ S) (functor_identity D'))

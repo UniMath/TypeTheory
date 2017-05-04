@@ -379,7 +379,7 @@ Defined.
 
 Section lemmas.
 
-  Definition DM_equal {CC} (H : is_category CC) (D D' : DM_structure CC)
+  Definition DM_equal {CC} (H : is_univalent CC) (D D' : DM_structure CC)
              (X : ∏ Δ Γ (f : Δ --> Γ), DM_type D f → DM_type D' f)
              (X' : ∏ Δ Γ (f : Δ --> Γ), DM_type D' f → DM_type D f)
   : D = D'.

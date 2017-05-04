@@ -553,7 +553,7 @@ Definition iso_to_TM_eq
 Proof.
   intro i.
   use isotoid.
-  - apply category_is_category.
+  - apply univalent_category_is_univalent.
   - exists (term_fun_mor_TM (i : _ --> _)).
     apply is_iso_from_is_z_iso.
     exists (term_fun_mor_TM (inv_from_iso i)).
@@ -627,8 +627,8 @@ Proof.
   repeat (apply impred_isaprop; intro). apply setproperty.
 Qed.
 
-Theorem is_category_term_fun_structure
-  : is_category term_fun_precategory.
+Theorem is_univalent_term_fun_structure
+  : is_univalent term_fun_precategory.
 Proof.
   split.
   - apply eq_equiv_from_retraction with iso_to_id_term_fun_precategory.
@@ -708,8 +708,8 @@ Proof.
   intros a b. apply isasetaprop. apply isaprop_qq_structure_mor.
 Qed.
 
-Theorem is_category_qq_morphism
-  : is_category qq_structure_precategory.
+Theorem is_univalent_qq_morphism
+  : is_univalent qq_structure_precategory.
 Proof.
   split.
   - intros d d'. 
@@ -763,8 +763,8 @@ Definition equiv_of_types_of_structures
   : term_fun_precategory ≃ qq_structure_precategory.
 Proof.
   use (weq_on_objects_from_adj_equiv_of_cats _ _
-           is_category_term_fun_structure
-           is_category_qq_morphism
+           is_univalent_term_fun_structure
+           is_univalent_qq_morphism
            _
            equiv_of_structures).
 Defined.

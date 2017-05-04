@@ -94,7 +94,7 @@ Defined.
 Definition equiv_Fcomp : adj_equivalence_of_precats Fop_precomp.
 Proof.
   apply rad_equivalence_of_precats.
-  - apply is_category_functor_category.
+  - apply is_univalent_functor_category.
   - apply ff_Fop_precomp.
   - apply es_Fop_precomp.
 Defined.
@@ -181,7 +181,7 @@ Defined.
 
 (** * Transfer of a relative universe *)
 
-Definition Transfer_of_RelUnivYoneda (Dcat : is_category D) (X : @relative_universe C _ Yo)
+Definition Transfer_of_RelUnivYoneda (Dcat : is_univalent D) (X : @relative_universe C _ Yo)
   : relative_universe
       ((yoneda D (homset_property D) : functor D (preShv D))
        :
@@ -206,9 +206,9 @@ Defined.
 
 
 
-Lemma is_category_preShv X : is_category (preShv X).
+Lemma is_category_preShv X : is_univalent (preShv X).
 Proof.
-  apply is_category_functor_category.
+  apply is_univalent_functor_category.
 Defined.
 
 (** * Transfer of a relative weak universe *)

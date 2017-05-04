@@ -21,7 +21,7 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Section TypeCat_to_DM.
 
 Variable CC : precategory.
-Variable H : is_category CC.  
+Variable H : is_univalent CC.  
 Variable C : typecat_structure CC.
 
 Definition iso_to_dpr {Γ Γ'} (γ : Γ --> Γ') : UU
