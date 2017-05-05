@@ -373,7 +373,7 @@ Arguments weq_cwf_structure_RelUnivYo _ : clear implicits.
 (** ** Consequences of the equivalence: Representations vs representability *)
 
 (*
-    When the underlying category is univalent [is_category C],
+    When the underlying category is univalent [is_univalent C],
     then representations of a map of presheaves are unique,
     and hence there is no distinction between “represented” and
     “representable” morphisms of presheaves.

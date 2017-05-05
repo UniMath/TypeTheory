@@ -323,7 +323,7 @@ Concisely: to show that a family of functions [w : forall a b, a = b -> P a b] a
  
 Often one can save a bit of work with this (since the other direction of inverseness may not be so obvious in individual cases).
 
-TODO: move; consider naming; see if this can be used to simplify other proofs of [is_category] and similar? *)
+TODO: move; consider naming; see if this can be used to simplify other proofs of [is_univalent] and similar? *)
 Lemma eq_equiv_from_retraction {A} {P : A -> A -> UU} 
     (w : forall a b, a = b -> P a b)
     (v : forall a b, P a b -> a = b)
@@ -1003,11 +1003,6 @@ Qed.
 
 (** ** Misc lemmas/definitions on (pre)categories *)
 
-(* Access function for [is_category] of categories.
-  TODO: check naming is consistent with other similar access functions. *)
-(*Definition category_is_category (C : univalent_category) : is_univalent C
-  := pr2 C.
-*)
 Coercion univalent_category_is_univalent : univalent_category >-> is_univalent.
 
 (* TODO: raise issue in [CategoryTheory.precategories]: delete [category_has_homsets], since now redundant with [homset_property], since [category] coerces to [Precategory]. *)
