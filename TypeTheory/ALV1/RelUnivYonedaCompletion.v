@@ -43,7 +43,7 @@ Proof.
   apply Rezk_eta_fully_faithful.
 Defined.
 
-Lemma is_category_preShv X : is_univalent (preShv X).
+Lemma is_univalent_preShv X : is_univalent (preShv X).
 Proof.
   apply is_univalent_functor_category.
 Defined.

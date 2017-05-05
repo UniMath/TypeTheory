@@ -206,7 +206,7 @@ Defined.
 
 
 
-Lemma is_category_preShv X : is_univalent (preShv X).
+Lemma is_univalent_preShv X : is_univalent (preShv X).
 Proof.
   apply is_univalent_functor_category.
 Defined.
@@ -232,8 +232,8 @@ Proof.
                F_es
                (right_adj_equiv_is_full _ _)
                (full_from_ff _ F_ff)
-               (is_category_preShv _ )
-               (is_category_preShv _ )
+               (is_univalent_preShv _ )
+               (is_univalent_preShv _ )
                Fop_precomp
       ).
   use XR.

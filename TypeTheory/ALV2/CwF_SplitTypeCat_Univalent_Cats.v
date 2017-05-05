@@ -43,7 +43,7 @@ Local Notation Δ := comp_ext_compare.
 Local Notation φ := obj_ext_mor_φ.
 
 
-Section Is_Category_Obj_Ext_1.
+Section Is_Univalent_Obj_Ext_1.
 
 Definition obj_ext_iso_alt (X X' : obj_ext_Precat C) : UU :=
   ∑ F_TY : iso (TY X) (TY X'),
@@ -92,11 +92,11 @@ Proof.
   admit.
 Abort.
 
-End Is_Category_Obj_Ext_1.
+End Is_Univalent_Obj_Ext_1.
 
-(* TODO: above here and below here are two mostly separate approaches to [is_category_obj_ext].  Once one is complete, most of the other can probably be pruned *)
+(* TODO: above here and below here are two mostly separate approaches to [is_univalent_obj_ext].  Once one is complete, most of the other can probably be pruned *)
 
-Section Is_Category_Obj_Ext_2.
+Section Is_Univalent_Obj_Ext_2.
 
 (* TODO: move*)
 Definition obj_ext_to_preShv_functor_data
@@ -269,9 +269,9 @@ Proof.
     (* lemma foo2 above: [φ] of an [idtoiso] is… what? *) 
 Abort.
 
-End Is_Category_Obj_Ext_2.
+End Is_Univalent_Obj_Ext_2.
 
-Section Is_Category_Families_Strucs.
+Section Is_Univalent_Families_Strucs.
 
 (* TODO: inline *) 
 Lemma isaprop_whatever
@@ -360,7 +360,7 @@ Proof.
     refine (toforallpaths _ _ _ (functor_id (TM _) _) _).
 Qed.
 
-Theorem is_category_term_fun_structure
+Theorem is_univalent_term_fun_structure
   : is_univalent_disp (term_fun_disp_cat C).
 Proof.
   apply is_univalent_disp_from_fibers.
@@ -369,9 +369,9 @@ Proof.
   - intros. apply eq_iso_disp, isaprop_term_fun_mor.
 Qed.
 
-End Is_Category_Families_Strucs.
+End Is_Univalent_Families_Strucs.
 
-Section Is_Category_qq_Strucs.
+Section Is_Univalent_qq_Strucs.
 
 Lemma isaset_qq_morphism_structure (x : obj_ext_structure C) 
   : isaset (qq_morphism_structure x).
@@ -446,7 +446,7 @@ Proof.
   rewrite X. apply id_left.
 Defined.  
   
-Theorem is_category_qq_morphism
+Theorem is_univalent_qq_morphism
   : is_univalent_disp (qq_structure_disp_cat C).
 Proof.
   apply is_univalent_disp_from_fibers.
@@ -457,9 +457,9 @@ Proof.
   - apply isaprop_iso_disp_qq_morphism_structure.
 Defined.
 
-End Is_Category_qq_Strucs.
+End Is_Univalent_qq_Strucs.
 
-Section Is_Category_Compat_Strucs.
+Section Is_Univalent_Compat_Strucs.
 
 Lemma isaprop_iso_disp_strucs_compat_disp_cat
   (x : total_precat (term_fun_disp_cat C × qq_structure_disp_cat C))
@@ -485,7 +485,7 @@ Proof.
   apply setproperty.
 Defined.
 
-Theorem is_category_strucs_compat
+Theorem is_univalent_strucs_compat
   : is_univalent_disp (@strucs_compat_disp_cat C).
 Proof.
   apply is_univalent_disp_from_fibers.
@@ -497,6 +497,6 @@ Proof.
   - apply isaprop_iso_disp_strucs_compat_disp_cat.
 Defined.
 
-End Is_Category_Compat_Strucs.
+End Is_Univalent_Compat_Strucs.
 
 End Fix_Context.
