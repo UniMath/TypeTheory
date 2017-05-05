@@ -22,7 +22,7 @@ Local Set Automatic Introduction.
 
 Section Auxiliary.
 
-Lemma transportf_term_fun_mor_TM {C : Precategory}
+Lemma transportf_term_fun_mor_TM {C : category}
   {X X' : obj_ext_Precat C} {F F' : X --> X'} (e : F = F')
   {Y : term_fun_disp_cat C X} {Y'} (FY : Y -->[F] Y')
   : term_fun_mor_TM (transportf _ e FY) = term_fun_mor_TM FY.
@@ -34,7 +34,7 @@ End Auxiliary.
 
 Section Fix_Context.
 
-Context {C : Precategory}.
+Context {C : category}.
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).

@@ -36,7 +36,7 @@ Proof.
   apply (weqtotal2asstor _ (fun xy => C (pr1 xy) (pr2 xy))).
 Defined.
 
-Definition yoneda_induction {C : Precategory} (F : preShv C) (Γ' : C) 
+Definition yoneda_induction {C : category} (F : preShv C) (Γ' : C) 
            (P : ((F : functor _ _ ) Γ' : hSet) -> UU) :
   (forall K : _ ⟦ Yo Γ', F ⟧, P (invmap (@yy _ _ F Γ') K)) -> 
   forall A : (F : functor _ _ ) Γ' : hSet, P A.
@@ -69,7 +69,7 @@ A (Fiore-style) CwF consists of:
 
 Section Fix_Category.
 
-Context {C : Precategory}.
+Context {C : category}.
 
 (** ** Representations of maps of presheaves 
 
@@ -130,7 +130,7 @@ Arguments cwf_square_comm {C pp Γ A _ _ _} e.
 (** ** Misc lemmas on CwF’s *)
 Section CwF_Lemmas.
 
-Context {C : Precategory} (pp : mor_total (preShv C)).
+Context {C : category} (pp : mor_total (preShv C)).
 
 Lemma cwf_square_comm_converse {Γ : C} {A : Ty pp Γ : hSet}
     {ΓA : C} {π : ΓA --> Γ}
@@ -154,7 +154,7 @@ End CwF_Lemmas.
 
 Section Representation_Facts.
 
-Context {C : Precategory} (pp : mor_total (preShv C)).
+Context {C : category} (pp : mor_total (preShv C)).
 
 (** ** Data+properties reformulation of definition of representation *)
 
@@ -293,7 +293,7 @@ End Representation_Facts.
 (** * Equivalence with relative universe structures on Yoneda *)
 Section CwF_RelUnivYo.
 
-Context {C : Precategory}.
+Context {C : category}.
 
 (** ** Construction of the equivalence *)
 
@@ -381,7 +381,7 @@ Arguments weq_cwf_structure_RelUnivYo _ : clear implicits.
     For more on this comparison see [RepMaps.v].
 *)
 
-Lemma isaprop_cwf_representation {C : Precategory}
+Lemma isaprop_cwf_representation {C : category}
     (Ccat : is_univalent C) (pp : mor_total (preShv C))
   : isaprop (cwf_representation pp).
 Proof.
@@ -397,7 +397,7 @@ Qed.
 
 (** ** General case of transport, and recovery of the original map *)
 
-Definition transfer_cwf_weak_equiv {C D : Precategory} (F : C ⟶ D)
+Definition transfer_cwf_weak_equiv {C D : category} (F : C ⟶ D)
            (F_ff : fully_faithful F) (F_es : essentially_surjective F)
            (Dcat : is_univalent D) 
   : cwf_structure C → cwf_structure D.
@@ -413,7 +413,7 @@ Defined.
 
 Section CwF_Ftransport_recover.
 
-Context {C D : Precategory} 
+Context {C D : category} 
         (F : C ⟶ D)
         (F_ff : fully_faithful F) 
         (F_es : essentially_surjective F)
@@ -502,7 +502,7 @@ End CwF_Ftransport_recover.
 
 (** ** Special case of transport: Descent along Rezk-completion *)
 (** The construction below is also a special case of [transfer_cwf_weak_equiv] *)
-Definition Rezk_on_cwf_structures {C : Precategory} (CC : cwf_structure C)
+Definition Rezk_on_cwf_structures {C : category} (CC : cwf_structure C)
   : cwf_structure (Rezk_completion C (homset_property _)).
 Proof.
   apply (invmap (@weq_cwf_structure_RelUnivYo _)).
@@ -513,7 +513,7 @@ Defined.
 
 Section CwF_RC_recover.
 
-Context {C : Precategory} (T : cwf_structure C).
+Context {C : category} (T : cwf_structure C).
 
 Let RC : univalent_category := Rezk_completion C (homset_property _ ).
 Let T' : cwf_structure RC := Rezk_on_cwf_structures T.

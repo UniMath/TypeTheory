@@ -31,7 +31,7 @@ Section Auxiliary.
 (* The following definition takes unfair advantage of the fact that  [functor_composite (functor_identity _) (functor_identity _)]
   is judgementally(!) equal to [functor_identity _]. *)
 Definition disp_functor_id_composite
-  {C : Precategory}
+  {C : category}
   {CC DD EE : disp_cat C}
   (FF : disp_functor (functor_identity _) CC DD)
   (GG : disp_functor (functor_identity _) DD EE)
@@ -42,7 +42,7 @@ End Auxiliary.
 
 Section Fix_Context.
 
-Context {C : Precategory}.
+Context {C : category}.
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).

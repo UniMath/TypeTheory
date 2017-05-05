@@ -129,7 +129,7 @@ Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 
 
 Section Families_Structures.
 
-Context {C : Precategory} {X : obj_ext_structure C}.
+Context {C : category} {X : obj_ext_structure C}.
 
 (** * Families structures 
 
@@ -281,9 +281,9 @@ Section qq_Morphism_Structures.
 
 (* NOTE: most of this section does not require the [homset_property] for [C]. If the few lemmas that do require it were moved out of the section, e.g. [isaprop_qq_morphism_axioms], then would could take [C] as just a [precategory] here. Perhaps worth doing so?
 
-(Another alternative would be adding an extra argument of type [has_homsets C] to [isaprop_qq_morphism_axioms], but that’s less convenient for later use than just having [C] be a [Precategory] in those lemmas.) *)
+(Another alternative would be adding an extra argument of type [has_homsets C] to [isaprop_qq_morphism_axioms], but that’s less convenient for later use than just having [C] be a [category] in those lemmas.) *)
 
-Context {C : Precategory} {X : obj_ext_structure C}.
+Context {C : category} {X : obj_ext_structure C}.
 
 (** * q-morphism structures, split type-categories
 
@@ -423,36 +423,36 @@ Arguments qq_morphism_structure [_] _ .
 These are reassociated compared to the canonical definitions; equivalences between these and the canonical ones are provided in [CwF_Defs_Equiv.v] and [TypeCat_Reassoc.v] respectively. *)
 (* TODO: rename one of those files, for consistency (and make sure README up-to-date on filenames). *)
 
-Definition cwf'_structure (C : Precategory) : UU 
+Definition cwf'_structure (C : category) : UU 
 := ∑ X : obj_ext_structure C, term_fun_structure C X.
 
-Coercion obj_ext_structure_of_cwf'_structure {C : Precategory}
+Coercion obj_ext_structure_of_cwf'_structure {C : category}
 := pr1 : cwf'_structure C -> obj_ext_structure C.
 
-Coercion term_fun_structure_of_cwf'_structure {C : Precategory}
+Coercion term_fun_structure_of_cwf'_structure {C : category}
 := pr2 : forall XY : cwf'_structure C, term_fun_structure C XY.
 
 Definition cwf' : UU
-:= ∑ C : Precategory, cwf'_structure C.
+:= ∑ C : category, cwf'_structure C.
 
-Coercion precategory_of_cwf' := pr1 : cwf' -> Precategory.
+Coercion precategory_of_cwf' := pr1 : cwf' -> category.
 
 Coercion cwf'_structure_of_cwf' := pr2 : forall C : cwf', cwf'_structure C.
 
-Definition split_typecat'_structure (C : Precategory) : UU 
+Definition split_typecat'_structure (C : category) : UU 
 := ∑ X : obj_ext_structure C, qq_morphism_structure X.
 
-Coercion obj_ext_structure_of_split_typecat'_structure {C : Precategory}
+Coercion obj_ext_structure_of_split_typecat'_structure {C : category}
 := pr1 : split_typecat'_structure C -> obj_ext_structure C.
 
-Coercion qq_morphism_structure_of_split_typecat'_structure {C : Precategory}
+Coercion qq_morphism_structure_of_split_typecat'_structure {C : category}
 := pr2 : forall XY : split_typecat'_structure C, qq_morphism_structure XY.
 
 Definition split_typecat' : UU
-  := ∑ C : Precategory, split_typecat'_structure C.
+  := ∑ C : category, split_typecat'_structure C.
 
 Coercion precategory_of_split_typecat'
-:= pr1 : split_typecat' -> Precategory.
+:= pr1 : split_typecat' -> category.
 
 Coercion split_typecat'_structure_of_split_typecat'
 := pr2 : forall C : split_typecat', split_typecat'_structure C.

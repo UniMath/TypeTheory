@@ -39,10 +39,10 @@ End Auxiliary.
 
 Local Notation Δ := comp_ext_compare.
  
-(** * Precategory of object-extension structures *)
+(** * category of object-extension structures *)
 Section Obj_Ext_Precat.
 
-Context {C : Precategory}.
+Context {C : category}.
 
 Definition obj_ext_mor (X X' : obj_ext_structure C)
   := ∑ F_TY : TY X --> TY X',
@@ -170,7 +170,7 @@ Proof.
     intros φ. apply isasetaprop. apply homset_property.
 Qed.
 
-Definition obj_ext_Precat : Precategory
+Definition obj_ext_Precat : category
   := (obj_ext_precat ,, obj_ext_has_homsets).
 
 (** ** Utility lemmas *)
@@ -189,10 +189,10 @@ Arguments obj_ext_Precat _ : clear implicits.
 Local Notation φ := obj_ext_mor_φ.
 
 
-(** * Precategory of term structures *)
+(** * category of term structures *)
 Section Term_Fun_Structure_Precat.
 
-Context {C : Precategory}.
+Context {C : category}.
 
 Definition term_fun_mor {X X' : obj_ext_Precat C}
     (Y : term_fun_structure C X) (Y' : term_fun_structure C X') (F : X --> X')
@@ -371,10 +371,10 @@ End Term_Fun_Structure_Precat.
 Arguments term_fun_disp_cat _ : clear implicits.
 Arguments term_fun_structure_precat _ : clear implicits.
 
-(** * Precategory of _q_-morphism-structures *)
+(** * category of _q_-morphism-structures *)
 Section qq_Structure_Precat.
 
-Context {C : Precategory}.
+Context {C : category}.
 
 Definition qq_structure_ob_mor : disp_cat_ob_mor (obj_ext_Precat C).
 Proof.

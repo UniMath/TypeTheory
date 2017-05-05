@@ -17,11 +17,11 @@ Set Automatic Introduction.
 
 (** * Instantiating the hypotheses of transfer of relative universes to Yoneda *)
 
-Local Notation "[ C , D ]" := (functor_Precategory C D).
+Local Notation "[ C , D ]" := (functor_category C D).
 
 Section fix_category.
 
-Variable C : Precategory.
+Variable C : category.
 Let RC : univalent_category := Rezk_completion C (homset_property _).
 
 Definition Rezk_on_RelUnivYoneda (X : @relative_universe C _ Yo)

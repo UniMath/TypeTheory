@@ -20,7 +20,7 @@ Open Scope mor_scope.
 
 Section Fix_Context.
 
-Context {C : Precategory} (X : obj_ext_structure C).
+Context {C : category} (X : obj_ext_structure C).
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).

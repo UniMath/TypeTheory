@@ -45,11 +45,11 @@ Local Notation Δ := comp_ext_compare.
 
 Section fix_cat_obj_ext.
 
-Variable C : Precategory.
+Variable C : category.
 Variable X : obj_ext_structure C.
 
 
-(** * Precategory of term-structures *)
+(** * category of term-structures *)
 Section Term_Fun_Structure_Precat.
 
 Definition term_fun_mor 
@@ -202,7 +202,7 @@ Qed.
 
 End Term_Fun_Structure_Precat.
 
-(** * Precategory of _q_-morphism-structures *)
+(** * category of _q_-morphism-structures *)
 
 Section qq_Structure_Precat.
 

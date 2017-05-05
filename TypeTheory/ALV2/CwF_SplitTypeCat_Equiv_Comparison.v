@@ -44,7 +44,7 @@ End Auxiliary.
 
 Section Fix_Context.
 
-Context {C : Precategory}.
+Context {C : category}.
 
 (** * Equivalence of types of term-structures and _q_-morphism structures, constructed categorically *)
 Section Equiv_of_Types_from_Cats.

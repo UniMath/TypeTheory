@@ -1005,7 +1005,7 @@ Qed.
 
 Coercion univalent_category_is_univalent : univalent_category >-> is_univalent.
 
-(* TODO: raise issue in [CategoryTheory.precategories]: delete [category_has_homsets], since now redundant with [homset_property], since [category] coerces to [Precategory]. *)
+(* TODO: raise issue in [CategoryTheory.precategories]: delete [category_has_homsets], since now redundant with [homset_property], since [category] coerces to [category]. *)
 
 (* TODO: raise issue: should the [HSET] provided be this by default, and current [HSET] be renamed to [HSET_precategory]? *)
 Definition HSET_univalent_category : univalent_category.
@@ -1272,7 +1272,7 @@ Definition reflects_pullbacks {C D : precategory} (F : functor C D) : UU
        (H : h · f = k · g),
      isPullback _ _ _ _ (functor_on_square _ _ F H) -> isPullback _ _ _ _ H.
 
-Lemma ff_reflects_pullbacks {C D : Precategory} {F : functor C D} 
+Lemma ff_reflects_pullbacks {C D : category} {F : functor C D} 
       (F_ff : fully_faithful F) : reflects_pullbacks F.
 Proof.
   do 10 intro. 
@@ -1312,7 +1312,7 @@ Proof.
 Qed.
 
 (* Generalisation of [isPulback_iso_of_morphisms].  TODO: prove, move. *)
-Lemma isPullback_transfer_iso {C : Precategory}
+Lemma isPullback_transfer_iso {C : category}
       {a b c d : C}
       {f : b --> a} {g : c --> a} {p1 : d --> b} {p2 : d --> c}
       (H : p1 ;; f = p2;; g)
@@ -1384,7 +1384,7 @@ Proof.
   Qed.
 
 (* Generalisation of [isPulback_iso_of_morphisms].  TODO: prove, move. *)
-Lemma commutes_and_is_pullback_transfer_iso {C : Precategory}
+Lemma commutes_and_is_pullback_transfer_iso {C : category}
       {a b c d : C}
       {f : b --> a} {g : c --> a} {p1 : d --> b} {p2 : d --> c}
       {a' b' c' d' : C}
