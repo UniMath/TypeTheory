@@ -48,7 +48,7 @@ A *representation* of a map Tm —p—> Ty of presheaves consists of data exhibi
 *)
 
 
-Variable C : Precategory.
+Variable C : category.
 
 Definition is_representable (pp : mor_total (preShv C)) : UU
   := ∏ Γ (A : Ty pp Γ : hSet), ∥ cwf_fiber_representation pp A ∥.
@@ -151,7 +151,7 @@ End Fix_Category.
 (** * Equivalence between rep. maps of presheaves on [C] and on its Rezk completion
 *)
 
-Definition transfer_rep_map_weak_equiv {C D : Precategory} (F : C ⟶ D)
+Definition transfer_rep_map_weak_equiv {C D : category} (F : C ⟶ D)
            (F_ff : fully_faithful F) (F_es : essentially_surjective F)
   : rep_map C ≃ rep_map D.
 Proof.
@@ -164,7 +164,7 @@ Defined.
 
 (** This could be made an instance of the above *)
 
-Definition Rezk_on_rep_map (C : Precategory)
+Definition Rezk_on_rep_map (C : category)
   : rep_map C ≃ rep_map (Rezk_completion C (homset_property _)).
 Proof.
   eapply weqcomp.
@@ -186,7 +186,7 @@ Defined.
 >>>
 *)
 
-Lemma cwf_repmap_diagram (C : Precategory) (X : cwf_structure C) 
+Lemma cwf_repmap_diagram (C : category) (X : cwf_structure C) 
   : from_cwf_to_rep_map _ (Rezk_on_cwf_structures X)
     = 
     Rezk_on_rep_map _ (from_cwf_to_rep_map _ X).

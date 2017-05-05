@@ -23,7 +23,7 @@ Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Set Automatic Introduction.
 
-Local Notation "[ C , D ]" := (functor_Precategory C D).
+Local Notation "[ C , D ]" := (functor_category C D).
 
 (** * Relative universe structures *)
 
@@ -85,7 +85,7 @@ End Relative_Comprehension.
 
 Section Relative_Comprehension_Lemmas.
 
-Context {C : precategory} {D : Precategory} (J : functor C D).
+Context {C : precategory} {D : category} (J : functor C D).
 Context {U tU : D} (pp : D ⟦tU, U⟧).
 
 Lemma isaprop_fpullback_prop {X : C} {f : D ⟦J X, U⟧} (T : fpullback_data J f)
@@ -189,7 +189,7 @@ Proof.
     apply hinhpr. apply H.
 Defined.
 
-Lemma weq_relative_universe_weak_relative_universe {C D : Precategory} (J : functor C D)
+Lemma weq_relative_universe_weak_relative_universe {C D : category} (J : functor C D)
       (Ccat : is_univalent C) (J_ff : fully_faithful J)
   : relative_universe J ≃ weak_relative_universe J.
 Proof.
@@ -201,7 +201,7 @@ Proof.
   apply (isaprop_fpullback J _ _ Ccat J_ff).
 Defined.
 
-Goal ∏ (C D : Precategory) (J : functor C D) 
+Goal ∏ (C D : category) (J : functor C D) 
      (Ccat : is_univalent C) (J_ff : fully_faithful J)
      (X : relative_universe J),
   weak_from_relative_universe _ X = 
@@ -220,11 +220,11 @@ Section Rel_Univ_Structure_Transfer.
     in which the right-hand functor _S_ preserves pullbacks. *)
 
 Context
-   {C : precategory} {D : Precategory}
+   {C : precategory} {D : category}
    (J : functor C D)
    (RUJ : relative_universe J)
 
-   {C' : precategory} {D' : Precategory}
+   {C' : precategory} {D' : category}
    (J' : functor C' D')
 
    (R : functor C C') (S : functor D D')
@@ -407,10 +407,10 @@ End Rel_Univ_Structure_Transfer.
 Section Is_universe_relative_to_Transfer.
 
 Context
-   {C : precategory} {D : Precategory}
+   {C : precategory} {D : category}
    (J : functor C D)
 
-   {C' : precategory} {D' : Precategory}
+   {C' : precategory} {D' : category}
    (J' : functor C' D')
 
    (R : functor C C') (S : functor D D')

@@ -39,7 +39,7 @@ Set Automatic Introduction.
 
 (** * Transfer of relative universes to Yoneda along weak equivalence *)
 
-Local Notation "[ C , D ]" := (functor_Precategory C D).
+Local Notation "[ C , D ]" := (functor_category C D).
 
 Section fix_category.
 
@@ -63,7 +63,7 @@ precomposition with [F^op].
 *)
 
 
-Context {C D : Precategory}
+Context {C D : category}
         (F : functor C D)
         (F_ff : fully_faithful F)
         (F_es : essentially_surjective F).

@@ -39,7 +39,7 @@ Since the components of the pre-cat with Families structure are highly successiv
 
 Section CwF_of_Comp. 
 
-(* TODO: here and in other old files, use [Precategory] instead of explicit [has_homsets] assumptions. *)
+(* TODO: here and in other old files, use [category] instead of explicit [has_homsets] assumptions. *)
 Context (CC : precategory) (C : split_typecat_structure CC) (homs_sets : has_homsets CC).
 
 Definition tt_structure_of_typecat : tt_structure CC.

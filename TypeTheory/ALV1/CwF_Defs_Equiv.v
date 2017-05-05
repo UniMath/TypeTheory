@@ -43,7 +43,7 @@ Set Automatic Introduction.
 
 Section Fix_Category.
 
-Context {C : Precategory}.
+Context {C : category}.
 
 (** * Definition of an intermediate structure
 

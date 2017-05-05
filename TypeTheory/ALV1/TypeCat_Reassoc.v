@@ -163,7 +163,7 @@ End Structural_Reassoc.
 
 Section Fix_Category.
 
-Context {CC : Precategory}.
+Context {CC : category}.
 
 (** ** Equivalence between split type-cat structures and their structurally-abstracted version 
 
