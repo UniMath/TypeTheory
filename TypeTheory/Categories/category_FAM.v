@@ -232,7 +232,7 @@ Definition FAM_obj_eq_type_2 (A B : obj_UU) : UU
   := 
   ∑ f : pr1 A ≃ pr1 B, ∏ a : pr1 A, iso (pr2 A a) (pr2 B (f a)).
 
-Lemma FAM_obj_weq_2 (A B : obj) (H : is_category C) :
+Lemma FAM_obj_weq_2 (A B : obj) (H : is_univalent C) :
   FAM_obj_eq_type A B ≃ FAM_obj_eq_type_2 A B.
 Proof.
   unfold FAM_obj_eq_type, FAM_obj_eq_type_2.
@@ -456,7 +456,7 @@ Proof.
   - simpl. intros. apply invweq. apply FAM_is_iso_weq. assumption.
 Defined.
 
-Definition FAM_obj_weq (A B : ob FAM) (H : is_category C)
+Definition FAM_obj_weq (A B : ob FAM) (H : is_univalent C)
 : (A = B) ≃ ∑ (f : A --> B), is_iso f.
 Proof.
   apply (weqcomp (FAM_obj_weq_1 A B)).
@@ -489,7 +489,7 @@ Proof.
   exists (idweq _). intros; apply identity_iso.
 Defined.
 
-Lemma FAM_obj_weq_2_id (A : ob FAM) (H : is_category C)
+Lemma FAM_obj_weq_2_id (A : ob FAM) (H : is_univalent C)
   : (FAM_obj_weq_2 A A H (FAM_id1 A)) = FAM_id2 A.
 Proof.
   apply (total2_paths_f (idpath _)).
@@ -538,7 +538,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma FAM_obj_weq_idpath (A : ob FAM) (H : is_category C)
+Lemma FAM_obj_weq_idpath (A : ob FAM) (H : is_univalent C)
   : (FAM_obj_weq A A H (idpath A)) = identity_iso A.
 Proof.
   unfold FAM_obj_weq.
@@ -554,7 +554,7 @@ Proof.
 Admitted.
 (* TODO: can we improve efficiency here? *)
 
-Theorem FAM_is_category : is_category C -> is_category FAM.
+Theorem FAM_is_univalent : is_univalent C -> is_univalent FAM.
 Proof.
   intros H. split.
   - intros A B.

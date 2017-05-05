@@ -31,7 +31,7 @@ Local Notation "γ ## a" := (pairing γ a) (at level 75).
 Section DM_of_CwF.
 
 (** assumption of [CC] being saturated is essential: we need pullbacks to be propositions *)
-Context (CC : precategory) (C : cwf_struct CC) (H : is_category CC).
+Context (CC : precategory) (C : cwf_struct CC) (H : is_univalent CC).
 
 (** Being isomorphic to a dependent projection *)
 Definition iso_to_dpr {Γ Γ'} (γ : Γ --> Γ') : UU

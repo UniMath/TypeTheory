@@ -95,7 +95,7 @@ Defined.
 *)
 
 Definition weq_cwf_rep_map : 
-  is_category C -> cwf_structure C ≃ rep_map.
+  is_univalent C -> cwf_structure C ≃ rep_map.
 Proof.
   intro H.
   apply weqfibtototal.
@@ -112,7 +112,7 @@ Defined.
     defined by hand.
 *)
 
-Lemma cwf_natural_rep_map_def (H : is_category C) (X : cwf_structure C)
+Lemma cwf_natural_rep_map_def (H : is_univalent C) (X : cwf_structure C)
       : weq_cwf_rep_map H X = from_cwf_to_rep_map X.
 Proof.
   apply idpath.

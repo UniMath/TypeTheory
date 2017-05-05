@@ -22,7 +22,7 @@ Local Notation "[ C , D ]" := (functor_Precategory C D).
 Section fix_category.
 
 Variable C : Precategory.
-Let RC : category := Rezk_completion C (homset_property _).
+Let RC : univalent_category := Rezk_completion C (homset_property _).
 
 Definition Rezk_on_RelUnivYoneda (X : @relative_universe C _ Yo)
   : relative_universe
@@ -33,7 +33,7 @@ Proof.
   use (Transfer_of_RelUnivYoneda (Rezk_eta C _) ).
   - apply Rezk_eta_fully_faithful.
   - apply Rezk_eta_essentially_surjective.
-  - apply category_is_category.
+  - apply univalent_category_is_univalent.
   - apply X.
 Defined.
 
@@ -43,9 +43,9 @@ Proof.
   apply Rezk_eta_fully_faithful.
 Defined.
 
-Lemma is_category_preShv X : is_category (preShv X).
+Lemma is_category_preShv X : is_univalent (preShv X).
 Proof.
-  apply is_category_functor_category.
+  apply is_univalent_functor_category.
 Defined.
 
 Definition Rezk_on_WeakRelUnivYo : 

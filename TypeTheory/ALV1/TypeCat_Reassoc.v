@@ -272,7 +272,7 @@ Section Structural_to_Regrouped.
 
 Definition weq_structural_pshf_data
   : pshf_data T_ty T_reind T_set
-  ≃ functor_data CC^op HSET_category.
+  ≃ functor_data CC^op HSET_univalent_category.
 Proof.
   use weqbandf.
     apply weqtotaltoforall.

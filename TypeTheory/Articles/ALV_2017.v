@@ -97,7 +97,7 @@ Proof.
   exact (from_cwf_to_rep_map C).
 Defined.
 
-Definition isweq_from_cwf_to_rep (C : Precategory) (Ccat: is_category C)
+Definition isweq_from_cwf_to_rep (C : Precategory) (Ccat: is_univalent C)
   : isweq (weq_cwf_rep_map C Ccat).
 Proof.
   use isweqhomot.
@@ -110,7 +110,7 @@ Defined.
 
 Definition transfer_cwf_weak_equivalence {C D : Precategory} (F : C ⟶ D)
   : fully_faithful F → essentially_surjective F
-    → is_category D → 
+    → is_univalent D → 
     cwf_structure C → cwf_structure D.
 Proof.
   apply transfer_cwf_weak_equiv.
@@ -134,7 +134,7 @@ Proof.
     apply Rezk_on_rep_map.
   apply invweq.
   use (weqpair _ (isweq_from_cwf_to_rep _ _ )).
-  apply category_is_category.
+  apply univalent_category_is_univalent.
 Defined.
 
 

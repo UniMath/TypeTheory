@@ -54,7 +54,7 @@ Definition obj_ext_iso_alt (X X' : obj_ext_Precat C) : UU :=
 (* TODO: anstract this as a general function on any [category] (if there isn’t one already provided). *) 
 Definition is_saturated_preShv (F G : preShv C) : F = G ≃ iso F G.
 Proof.
-  apply (weqpair idtoiso (pr1 (category_is_category _) _ _ )).
+  apply (weqpair idtoiso (pr1 (univalent_category_is_univalent _) _ _ )).
 Defined.
 
 Definition weq_eq_obj_ext_iso_alt (X X' : obj_ext_Precat C) :
@@ -150,13 +150,13 @@ Proof.
   apply id_right.
 Qed.
 
-Definition iso_to_obj_ext_eq (H : is_category C)
+Definition iso_to_obj_ext_eq (H : is_univalent C)
   {X X' : obj_ext_Precat C}
 : (iso X X') -> (X = X').
 Proof.
   intros F.
   apply (total2_paths_f (isotoid _
-    (category_is_category _)
+    (univalent_category_is_univalent _)
     (functor_on_iso obj_ext_to_preShv_functor F))).
   etrans. apply transportf_obj_ext.
   apply funextsec; intro Γ; apply funextsec; intro A.
@@ -246,8 +246,8 @@ Proof.
   rewrite funextsec_idpath; apply idpath.
 Qed.
 
-Theorem is_category_obj_ext (H : is_category C)
-  : is_category (obj_ext_Precat C).
+Theorem is_univalent_obj_ext (H : is_univalent C)
+  : is_univalent (obj_ext_Precat C).
 Proof.
   split. Focus 2. apply homset_property.
   apply (eq_equiv_from_retraction _ (@iso_to_obj_ext_eq H)). 
@@ -292,7 +292,7 @@ Definition iso_disp_to_TM_eq
 Proof.
   intro i.
   use isotoid.
-  - apply category_is_category.
+  - apply univalent_category_is_univalent.
   - exists (term_fun_mor_TM (i : _ -->[_] _)).
     apply is_iso_from_is_z_iso.
     exists (term_fun_mor_TM (inv_mor_disp_from_iso i)).

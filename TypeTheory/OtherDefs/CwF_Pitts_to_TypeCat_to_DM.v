@@ -24,7 +24,7 @@ Require Import TypeTheory.OtherDefs.TypeCat_to_DM.
 
 Section compare_maps.
 
-  Context (CC : precategory) (C : cwf_struct CC) (H : is_category CC).
+  Context (CC : precategory) (C : cwf_struct CC) (H : is_univalent CC).
 
   Lemma maps_equal : DM_structure_of_TypeCat _ H (type_cat_of_precwf _ C (pr2 H)) = DM_structure_of_CwF _ C H.
   Proof.

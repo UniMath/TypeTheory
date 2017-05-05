@@ -188,7 +188,7 @@ Proof.
     apply idpath.
 Defined.
 
-Lemma bla (H : is_category C) (ac bd : ∫) :
+Lemma bla (H : is_univalent C) (ac bd : ∫) :
   ac = bd ≃ ∑ p : iso (pr1 ac) (pr1 bd), #F p (pr2 ac) = pr2 bd. 
 Proof.
   eapply weqcomp.
@@ -203,7 +203,7 @@ Proof.
     apply idweq.
 Defined.
 
-Definition foobar (H : is_category C) (ac bd : ∫) :
+Definition foobar (H : is_univalent C) (ac bd : ∫) :
   ac = bd ≃ iso ac bd.
 Proof.
   eapply weqcomp.
@@ -215,7 +215,7 @@ Defined.
 
 (*  needs better computational behaviour in previous lemmas *)
 
-Definition is_category_Elem  (H : is_category C) : is_category ∫.
+Definition is_univalent_Elem  (H : is_univalent C) : is_univalent ∫.
 Proof.
   split.
   - intros a b.
