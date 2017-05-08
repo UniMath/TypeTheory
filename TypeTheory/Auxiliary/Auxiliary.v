@@ -1005,7 +1005,7 @@ Qed.
 
 Coercion univalent_category_is_univalent : univalent_category >-> is_univalent.
 
-(* TODO: raise issue in [CategoryTheory.precategories]: delete [category_has_homsets], since now redundant with [homset_property], since [category] coerces to [category]. *)
+(* TODO: raise issue in [CategoryTheory.Categories]: delete [category_has_homsets], since now redundant with [homset_property], since [category] coerces to [category]. *)
 
 (* TODO: raise issue: should the [HSET] provided be this by default, and current [HSET] be renamed to [HSET_precategory]? *)
 Definition HSET_univalent_category : univalent_category.

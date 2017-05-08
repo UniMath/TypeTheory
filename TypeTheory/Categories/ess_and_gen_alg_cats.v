@@ -118,7 +118,7 @@ Proof.
     rewrite idtomor_left.
     rewrite id_right.
     rewrite idtomor_left.
-    apply precategories.assoc.
+    apply Categories.assoc.
  - split.
    + apply H. 
    + apply isaset_total2. apply isaset_dirprod; try assumption.
