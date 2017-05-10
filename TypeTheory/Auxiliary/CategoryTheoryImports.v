@@ -8,7 +8,7 @@
 
 Require Export UniMath.CategoryTheory.limits.pullbacks.
 Require Export UniMath.Foundations.Propositions.
-Require Export UniMath.CategoryTheory.precategories.
+Require Export UniMath.CategoryTheory.Categories.
 Require Export UniMath.CategoryTheory.functor_categories.
 Require Export UniMath.CategoryTheory.opp_precat.
 Require Export UniMath.CategoryTheory.functor_categories.
