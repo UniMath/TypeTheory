@@ -124,6 +124,9 @@ coq/build/CoqMakefile.make
 # for Coq generated documentation
 html/*
 
+# for Jekyll generated website
+_site/*
+
 # swap files
 *~
 *.swp
