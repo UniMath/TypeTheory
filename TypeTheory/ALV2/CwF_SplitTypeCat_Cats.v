@@ -364,7 +364,7 @@ Definition term_fun_disp_cat : disp_cat (obj_ext_Precat C)
   := (_ ,, term_fun_axioms).
 
 Definition term_fun_structure_precat : precategory
-  := total_precat term_fun_disp_cat.
+  := total_category term_fun_disp_cat.
 
 End Term_Fun_Structure_Precat.
 
@@ -439,7 +439,7 @@ Definition qq_structure_disp_cat : disp_cat (obj_ext_Precat C)
   := (_ ,, qq_structure_axioms).
 
 Definition qq_structure_precat : precategory
-  := total_precat (qq_structure_disp_cat).
+  := total_category (qq_structure_disp_cat).
 
 End qq_Structure_Precat.
 

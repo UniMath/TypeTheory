@@ -462,7 +462,7 @@ End Is_Univalent_qq_Strucs.
 Section Is_Univalent_Compat_Strucs.
 
 Lemma isaprop_iso_disp_strucs_compat_disp_cat
-  (x : total_precat (term_fun_disp_cat C × qq_structure_disp_cat C))
+  (x : total_category (term_fun_disp_cat C × qq_structure_disp_cat C))
   (d d' : strucs_compat_disp_cat x)
   : isaprop (iso_disp (identity_iso x) d d').
 Proof.
@@ -476,7 +476,7 @@ Qed.
 
 
 Definition  strucs_compat_iso_disp_to_id
-  (x : total_precat (term_fun_disp_cat C × qq_structure_disp_cat C))
+  (x : total_category (term_fun_disp_cat C × qq_structure_disp_cat C))
   (d d' : strucs_compat_disp_cat x)
   : iso_disp (identity_iso x) d d' → d = d'.
 Proof.

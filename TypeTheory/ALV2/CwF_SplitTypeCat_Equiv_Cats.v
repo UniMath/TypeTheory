@@ -55,7 +55,7 @@ Section Compatible_Disp_Cat.
 (* TODO: rename [strucs_compat_FOO] to [strucs_iscompat_FOO] throughout, to disambiguate these from the sigma’d displayed-precat [compat_structures]. *)
 
 Definition strucs_compat_ob_mor
-  : disp_cat_ob_mor (total_precat
+  : disp_cat_ob_mor (total_category
       (term_fun_disp_cat C × qq_structure_disp_cat C)).
 Proof.
   use tpair.
@@ -79,7 +79,7 @@ Proof.
 Qed.
 
 Definition strucs_compat_disp_cat
-  : disp_cat (total_precat
+  : disp_cat (total_category
       (term_fun_disp_cat C × qq_structure_disp_cat C))
 := ( _ ,, strucs_compat_axioms).
 
@@ -100,18 +100,18 @@ Definition compat_structures_pr2_disp_functor
 
 (* TODO: once the equivalence has been redone at the displayed level, the following are probably redundant/obsolete and should be removed. *)
 Definition compat_structures_precat
-  := total_precat (strucs_compat_disp_cat).
+  := total_category (strucs_compat_disp_cat).
 
 Definition compat_structures_pr1_functor
   : functor compat_structures_precat (term_fun_structure_precat C)
 := functor_composite
-     (pr1_precat _)
+     (pr1_category _)
      (total_functor (dirprodpr1_disp_functor _ _)).
 
 Definition compat_structures_pr2_functor
   : functor compat_structures_precat (qq_structure_precat C)
 := functor_composite
-     (pr1_precat _)
+     (pr1_category _)
      (total_functor (dirprodpr2_disp_functor _ _)).
 
 End Compatible_Disp_Cat.
