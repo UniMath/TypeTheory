@@ -620,8 +620,8 @@ Context (X : obj_ext_Precat C).
 
 Definition term_struc_to_qq_struc_fiber_functor
   : functor
-      (fiber_precategory (term_fun_disp_cat C) X)
-      (fiber_precategory (qq_structure_disp_cat C) X).
+      (fiber_category (term_fun_disp_cat C) X)
+      (fiber_category (qq_structure_disp_cat C) X).
 Proof.
   eapply functor_composite.
   - eapply fiber_functor.
@@ -635,9 +635,9 @@ Definition term_struc_to_qq_struc_is_equiv
       term_struc_to_qq_struc_fiber_functor.
 Proof.
   use comp_adj_equivalence_of_precats.
-  - apply has_homsets_fiber.
-  - apply has_homsets_fiber.
-  - apply has_homsets_fiber.
+  - apply homset_property. 
+  - apply homset_property. 
+  - apply homset_property. 
   - apply fiber_equiv.
     apply is_equiv_of_equiv_over_id.
   - apply fiber_equiv.
