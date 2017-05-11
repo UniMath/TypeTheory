@@ -543,7 +543,7 @@ Qed.
 
 End Strucs_Equiv_Precats.
 
-Section Is_Category_Families_Strucs.
+Section Is_Univalent_Families_Strucs.
 
 
 Definition iso_to_TM_eq
@@ -636,9 +636,9 @@ Proof.
   - apply has_homsets_term_fun_precategory. 
 Qed.
 
-End Is_Category_Families_Strucs.
+End Is_Univalent_Families_Strucs.
 
-Section Is_Category_qq_Strucs.
+Section Is_Univalent_qq_Strucs.
 
 Lemma isaset_qq_morphism_structure (x : obj_ext_structure C) 
   : isaset (qq_morphism_structure x).
@@ -720,7 +720,7 @@ Proof.
   - apply has_homsets_qq_structure_precategory.
 Qed.
 
-End Is_Category_qq_Strucs.
+End Is_Univalent_qq_Strucs.
 
 Lemma has_homsets_compat_structures_precategory  
   : has_homsets compat_structures_precategory.

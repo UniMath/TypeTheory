@@ -138,7 +138,7 @@ Definition pb_type_of_DM {CC : precategory} (H : dm_sub_struct CC)
  *)
 
 (*
-Definition Pullback_of_pb_type {CC : precategory} (sat : is_category CC) (H : dm_sub_struct CC)
+Definition Pullback_of_pb_type {CC : precategory} (sat : is_univalent CC) (H : dm_sub_struct CC)
       {Δ Γ} (γ : DM H Δ Γ) {Γ'} (f : Γ' --> Γ)
 :  pb_type_of_DM _ γ f → Pullback _ γ f.
 Proof.
@@ -155,7 +155,7 @@ Search (isofhlevel _ _ -> isofhlevel _ _ ).
 *)
 
 (*
-Definition pb_type_of_DM_weq_Pb {CC : precategory} (sat : is_category CC) (H : dm_sub_struct CC)
+Definition pb_type_of_DM_weq_Pb {CC : precategory} (sat : is_univalent CC) (H : dm_sub_struct CC)
       {Δ Γ} (γ : DM H Δ Γ) {Γ'} (f : Γ' --> Γ)
 :  (∏ Γ Γ' (γ : Γ --> Γ'), isaprop (DM_type H γ)) →
    isaprop (pb_type_of_DM _ γ f).
@@ -184,7 +184,7 @@ Proof.
  *)
 
 (*
-Definition pb_type_of_DM_weq_Pb {CC : precategory} (sat : is_category CC) (H : dm_sub_struct CC)
+Definition pb_type_of_DM_weq_Pb {CC : precategory} (sat : is_univalent CC) (H : dm_sub_struct CC)
       {Δ Γ} (γ : DM H Δ Γ) {Γ'} (f : Γ' --> Γ)
 :  (∏ Γ Γ' (γ : Γ --> Γ'), isaprop (DM_type H γ)) →
    isaprop (pb_type_of_DM _ γ f).

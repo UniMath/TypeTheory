@@ -82,7 +82,7 @@ Proof.
 Defined.
 
 
-Definition is_category_opp (C : precategory) (H : is_univalent C) : is_univalent (opp_precat C).
+Definition is_univalent_opp (C : precategory) (H : is_univalent C) : is_univalent (opp_precat C).
 Proof.
   split; intros; simpl in *.
   - set (H1:=@isweqhomot).
@@ -94,10 +94,10 @@ Proof.
   - intros a b. apply (pr2 H).
 Qed.
  
-Definition opp_cat (C : univalent_category) : univalent_category.
+Definition opp_univalent_cat (C : univalent_category) : univalent_category.
 Proof.
   exists (opp_precat C).
-  apply is_category_opp.
+  apply is_univalent_opp.
   apply (pr2 C).
 Defined.
 
@@ -136,7 +136,7 @@ Definition type_functor : functor _ _ := tpair _ _ type_is_functor.
 
 Definition RC_type_functor : functor (Rezk_completion CC (has_homsets_cwf C)) (opp_precat HSET).
 Proof.  
-  apply (Rezk_functor CC _ (opp_cat HSET_univalent_category)).
+  apply (Rezk_functor CC _ (opp_univalent_cat HSET_univalent_category)).
   apply type_functor.
 Defined.
   
