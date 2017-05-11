@@ -5,4 +5,4 @@ A formalisation of the mathematical study of type theories, in the setting of un
 
 Browsable html versions of the development:
 
-- Tag `2017-displayed-cats-arxiv`: [TOC](code/2017-displayed-cats-arxiv/toc.html), [index](code/2017-displayed-cats-arxiv/index.html)
+- Tag `2017-displayed-cats-arxiv`: [TOC](coqdoc/2017-displayed-cats-arxiv/toc.html), [index](coqdoc/2017-displayed-cats-arxiv/index.html)
