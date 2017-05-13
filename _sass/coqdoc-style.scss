@@ -6,7 +6,7 @@
     height: 0.75em;
 }
 
-/* Contents */
+/* Main content */
 
 .doc { margin: 0px;
     font-size: 100%;
@@ -15,12 +15,10 @@
  }
 
 .code {
-    display: block;
-    padding: 10px;
-    font-size: 110%;
-    font-family: monospace;
-    max-width: 400em;
-    line-height: 100% }
+    @extend pre;
+    font-family: monospace; 
+    line-height: 110%;
+     }
 
 .inlinecode {
     display: inline;
@@ -54,6 +52,39 @@
     color: rgb(50%,50%,80%);
 }
 
+
+/* TOC */
+
+
+/* Index */
+
+/* Most of the following is just to reset intrusive table styling set up by the ambient theme */
+
+#main {
+  table {
+    width:100%;
+  }
+  
+  table {
+    border: none;
+    margin-bottom: none;
+    text-align: left;
+   }
+  
+  th {
+    font-family: 'Arvo', Helvetica, Arial, sans-serif;
+  	font-size: 18px;
+  	font-weight: normal;
+    padding: inherit;
+    background: inherit;
+    color: inherit;
+   }
+
+  td {
+    padding: inherit;
+    background: inherit;
+   }
+}
 
 /* Inference rules */
 

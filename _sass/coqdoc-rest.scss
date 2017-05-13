@@ -41,38 +41,3 @@ body { padding: 0px 0px;
 }
 
 /* Index */
-
-#index {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-}
-
-#index #frontispiece {
-    margin: 1em auto;
-    padding: 1em;
-    width: 60%;
-}
-
-.booktitle { font-size : 140%  }
-.authors { font-size : 90%;
-	         line-height: 115%;  }
-.moreauthors { font-size : 60%  }
-
-#index #entrance {
-    text-align: center;
-}
-
-#index #entrance .spacer {
-    margin: 0 30px 0 30px;
-}
-
-#index #footer {
-    position: absolute;
-    bottom: 0;
-}
-
-ul.doclist {
-    margin-top: 0em;
-    margin-bottom: 0em;
-}
