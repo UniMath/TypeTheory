@@ -1,0 +1,85 @@
+
+/* General-purpose */
+
+/* Used for paragraph-separation throughout */
+.paragraph {
+    height: 0.75em;
+}
+
+/* Contents */
+
+.doc { margin: 0px;
+    font-size: 100%;
+    line-height: 125%;
+    color: black;
+ }
+
+.code {
+    display: block;
+    padding: 10px;
+    font-size: 110%;
+    font-family: monospace;
+    max-width: 400em;
+    line-height: 100% }
+
+.inlinecode {
+    display: inline;
+    color: #666666;
+    font-family: monospace }
+
+.doc .inlinecode {
+    display: inline;
+    font-size: 120%;
+    color: rgb(30%,30%,70%);
+    font-family: monospace }
+
+.doc .inlinecode .id {
+    color: rgb(30%,30%,70%);
+}
+
+.inlinecodenm {
+    display: inline;
+    color: #444444;
+}
+
+.doc .code {
+    display: inline;
+    font-size: 120%;
+    color: rgb(30%,30%,70%);
+    font-family: monospace }
+
+.comment {
+    display: inline;
+    font-family: monospace;
+    color: rgb(50%,50%,80%);
+}
+
+
+/* Inference rules */
+
+table.infrule {
+  border: 0px;
+  margin-left: 50px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+td.infrule {
+    font-family: monospace;
+    text-align: center;
+/*    color: rgb(35%,35%,70%);  */
+    padding: 0px;
+    line-height: 100%;
+}
+
+tr.infrulemiddle hr {
+    margin: 1px 0 1px 0;
+}
+
+.infrulenamecol {
+    color: rgb(60%,60%,60%);
+    font-size: 80%;
+    padding-left: 1em;
+    padding-bottom: 0.1em
+}
+
