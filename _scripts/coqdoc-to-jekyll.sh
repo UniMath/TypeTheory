@@ -1,8 +1,11 @@
 
 # Usage:
-# run “coqdoc-to-jekyll.sh your-tag” to process all the html files in “coqdoc/your-tag” appropriately
+# run “_scripts/coqdoc-to-jekyll.sh coqdoc/your-tag” to process all html files
+# in “coqdoc/your-tag” appropriately, removing the standard coqdoc-produced
+# header and footer blocks and replacing them with a yaml frontmatter block
+# to integrate them into the ambient Jekyll theme.
 
-for filename in coqdoc/$1/*.html; do
+for filename in $1/*.html; do
 # delete first 10 lines
   sed -i .bak '1,10d' $filename
 # delete last 3 lines:
@@ -15,5 +18,9 @@ for filename in coqdoc/$1/*.html; do
 # move back
   mv $filename.temp $filename
 done
-rm coqdoc/$1/*.html.bak
+
+perl -pi -e "s/title: index/title: Index/g" $1/index.html
+perl -pi -e "s/title: toc/title: Table of contents/g" $1/toc.html
+
+rm $1/*.html.bak
   
