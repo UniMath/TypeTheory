@@ -126,6 +126,7 @@ html/*
 
 # for Jekyll generated website
 _site/*
+Gemfile.lock
 
 # swap files
 *~
