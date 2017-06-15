@@ -15,6 +15,7 @@ PACKAGES += ALV2
 PACKAGES += OtherDefs
 PACKAGES += Categories
 PACKAGES += Articles
+PACKAGES += Instances
 ############################################
 # other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= no 
