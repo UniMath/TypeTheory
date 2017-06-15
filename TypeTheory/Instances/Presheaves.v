@@ -461,39 +461,16 @@ Lemma subst_pair_subst {Γ Δ Θ : PreShv C} (σ1 : Δ --> Γ) (σ2 : Θ --> Δ)
 Proof.
 apply (nat_trans_eq has_homsets_HSET); simpl; intros I.
 apply funextsec; intro ρ.
-apply pair_path_in2.
-unfold transportb.
-match goal with |[ |- _ = pr1 (transportf _ ?p ?x) _ _ ] => set (X := x); set (P := p) end.
-transparent assert (BB : (∏ a : Θ ⊢, UU)).
-{
-intros a0.
-apply (∏ (I : C) (ρ : pr1 ((pr1 Θ) I)), pr1 ((pr1 a0) (make_ob I ρ))).
-}
-transparent assert (CC : (∏ a : [(∫ Θ)^op, HSET, has_homsets_HSET], BB a → UU)).
-{
-intros a0 b0.
-apply (∏ (I J : C) (f : C ⟦ J, I ⟧) (ρ : pr1 ((pr1 Θ) I)),
-       # (pr1 (a0)) (mor_to_el_mor f ρ) (b0 I ρ) = b0 J (# (pr1 Θ) f ρ)).
-}
-generalize (@transportf_total2 _ BB CC _ _ P X).
-intros XX.
-assert ((transportf (λ x, Θ ⊢ x) P X) =
-        transportf (λ x : Θ ⊢, ∑ y : BB x, CC x y) P X).
-{
-  apply idpath.
-  }
-apply pathsinv0.
-etrans; [apply (eqtohomot (eqtohomot (maponpaths pr1 X0) I) ρ)|].
-rewrite XX.
-simpl.
-clear XX X0 CC.
-unfold BB; clear BB.
+apply pair_path_in2, pathsinv0; unfold transportb.
+set (P := ! subst_type_comp σ2 σ1 A).
+set (B := (λ a0 : Θ ⊢, ∏ (I : C) (ρ : pr1 (pr1 Θ I)), pr1 (pr1 a0 (make_ob I ρ)))).
+etrans; [apply (eqtohomot (eqtohomot
+                          (maponpaths pr1 (@transportf_total2 _ B _ _ _ P _)) I) ρ)|].
+unfold B; simpl.
 rewrite !transportf_forall.
-apply pathsinv0.
-apply (@transportf_transpose _ (λ x : opp_precat_data (cat_of_elems_data Θ) ⟶ hset_precategory_data, pr1 ((pr1 x) (make_ob I ρ))) _ _ P).
-unfold transportb, P.
-rewrite pathsinv0inv0.
-etrans; [apply (transportf_TypeIn I ρ _ _ (subst_type_comp σ2 σ1 A) (pr1 a I (pr1 σ2 I ρ)))|].
+apply pathsinv0, (@transportf_transpose _ (λ x : Θ ⊢, pr1 ((pr1 x) (make_ob I ρ))) _ _ P).
+unfold transportb, P; rewrite pathsinv0inv0.
+etrans; [apply (transportf_TypeIn I ρ _ _ (subst_type_comp σ2 σ1 A) _)|].
 now rewrite base_paths_subst_type_comp, toforallpaths_funextsec, idpath_transportf.
 Qed.
 
