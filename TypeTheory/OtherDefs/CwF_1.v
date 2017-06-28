@@ -14,10 +14,10 @@
 *)
 
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
