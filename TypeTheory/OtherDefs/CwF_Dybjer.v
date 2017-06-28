@@ -12,10 +12,11 @@
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.category_hset.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
+Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Categories.category_FAM.
+
 
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
