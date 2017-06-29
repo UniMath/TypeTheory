@@ -16,6 +16,7 @@ PACKAGES += OtherDefs
 PACKAGES += Categories
 PACKAGES += Articles
 PACKAGES += Instances
+PACKAGES += Csystems
 ############################################
 # other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= no 
