@@ -1,0 +1,300 @@
+---
+layout: default
+title: TypeTheory.Categories.ess_and_gen_alg_cats
+---
+
+{% raw %}
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library TypeTheory.Categories.ess_and_gen_alg_cats</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a name="lab232"></a><h1 class="section">Categories in essentially algebraic and generalized algebraic style</h1>
+
+<div class="paragraph"> </div>
+
+
+<div class="paragraph"> </div>
+
+    Essentially algebraic categories:
+<ul class="doclist">
+<li> a type of objects
+
+</li>
+<li> a type of morphisms
+
+</li>
+<li> composition is partially defined 
+
+</li>
+</ul>
+
+<div class="paragraph"> </div>
+
+    Generalized algebraic categories:
+<ul class="doclist">
+<li> a type of objects
+
+</li>
+<li> a family of types of morphisms, parametrized by pairs of objects
+
+</li>
+<li> composition is a dependent function
+
+</li>
+</ul>
+
+<div class="paragraph"> </div>
+
+In this file, we define functions back and forth and show that 
+    the two variants are equivalent
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">UniMath.Foundations.Sets</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.Auxiliary.UnicodeNotations.html#"><span class="id" title="library">TypeTheory.Auxiliary.UnicodeNotations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#"><span class="id" title="library">TypeTheory.Categories.ess_alg_categories</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab233"></a><h1 class="section">From generalized algebraic precategories to essentially algebraic ones.</h1>
+
+<div class="paragraph"> </div>
+
+ We need extra assumption that the gen. alg. precategory has hom-sets 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a name="ess_alg_from_gen_alg"><span class="id" title="section">ess_alg_from_gen_alg</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Variable</span> <a name="ess_alg_from_gen_alg.C"><span class="id" title="variable">C</span></a> : <span class="id" title="definition">precategory</span>.<br/>
+<span class="id" title="keyword">Variable</span> <a name="ess_alg_from_gen_alg.hs"><span class="id" title="variable">hs</span></a> : <span class="id" title="definition">has_homsets</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#ess_alg_from_gen_alg.C"><span class="id" title="variable">C</span></a>.<br/>
+<span class="id" title="keyword">Variable</span> <a name="ess_alg_from_gen_alg.H"><span class="id" title="variable">H</span></a> : <span class="id" title="definition">isaset</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#ess_alg_from_gen_alg.C"><span class="id" title="variable">C</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="idtomor_left"><span class="id" title="lemma">idtomor_left</span></a> (<span class="id" title="var">a</span> <span class="id" title="var">b</span> : <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#ess_alg_from_gen_alg.C"><span class="id" title="variable">C</span></a>) (<span class="id" title="var">f</span> : <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#a"><span class="id" title="variable">a</span></a> <span class="id" title="notation">--&gt;</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#b"><span class="id" title="variable">b</span></a>) (<span class="id" title="var">e</span> : <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#b"><span class="id" title="variable">b</span></a> <span class="id" title="notation">=</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#b"><span class="id" title="variable">b</span></a>) : <br/>
+&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#f"><span class="id" title="variable">f</span></a> <span class="id" title="notation">;;</span> <span class="id" title="definition">idtomor</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#e"><span class="id" title="variable">e</span></a> <span class="id" title="notation">=</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#f"><span class="id" title="variable">f</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">H1</span> := <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#ess_alg_from_gen_alg.H"><span class="id" title="variable">H</span></a> <span class="id" title="var">b</span> <span class="id" title="var">b</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">H2</span>:=<span class="id" title="lemma">proofirrelevance</span> <span class="id" title="var">_</span> <span class="id" title="var">H1</span> <span class="id" title="var">e</span> (<span class="id" title="abbreviation">idpath</span> <span class="id" title="var">_</span> )).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">H2</span>. <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="definition">id_right</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="abbreviation">idpath</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="idtomor_right"><span class="id" title="lemma">idtomor_right</span></a> (<span class="id" title="var">a</span> <span class="id" title="var">b</span> : <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#ess_alg_from_gen_alg.C"><span class="id" title="variable">C</span></a>) (<span class="id" title="var">f</span> : <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#a"><span class="id" title="variable">a</span></a> <span class="id" title="notation">--&gt;</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#b"><span class="id" title="variable">b</span></a>) (<span class="id" title="var">e</span> : <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#a"><span class="id" title="variable">a</span></a> <span class="id" title="notation">=</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#a"><span class="id" title="variable">a</span></a>) : <br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="definition">idtomor</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#e"><span class="id" title="variable">e</span></a> <span class="id" title="notation">;;</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#f"><span class="id" title="variable">f</span></a> <span class="id" title="notation">=</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#f"><span class="id" title="variable">f</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">H1</span> := <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#ess_alg_from_gen_alg.H"><span class="id" title="variable">H</span></a> <span class="id" title="var">a</span> <span class="id" title="var">a</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">H2</span>:=<span class="id" title="lemma">proofirrelevance</span> <span class="id" title="var">_</span> <span class="id" title="var">H1</span> <span class="id" title="var">e</span> (<span class="id" title="abbreviation">idpath</span> <span class="id" title="var">_</span> )).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">H2</span>. <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="definition">id_left</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="abbreviation">idpath</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="obmor"><span class="id" title="definition">obmor</span></a> : <span class="id" title="definition">UU</span> <span class="id" title="notation">×</span> <span class="id" title="definition">UU</span> := <span class="id" title="definition">dirprodpair</span> (<span class="id" title="definition">ob</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#ess_alg_from_gen_alg.C"><span class="id" title="variable">C</span></a>) (<span class="id" title="definition">total_morphisms</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#ess_alg_from_gen_alg.C"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="graph_from_gen_alg"><span class="id" title="definition">graph_from_gen_alg</span></a> : <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#graph"><span class="id" title="definition">graph</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#obmor"><span class="id" title="definition">obmor</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<span class="id" title="definition">precategory_source</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#ess_alg_from_gen_alg.C"><span class="id" title="variable">C</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="definition">precategory_target</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#ess_alg_from_gen_alg.C"><span class="id" title="variable">C</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="graph_from_gen_alg_comp"><span class="id" title="definition">graph_from_gen_alg_comp</span></a> : @<a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#comp_op"><span class="id" title="definition">comp_op</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#graph_from_gen_alg"><span class="id" title="definition">graph_from_gen_alg</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">e</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<span class="id" title="definition">dirprodpair</span> (<span class="id" title="projection">pr1</span> (<span class="id" title="projection">pr1</span> <span class="id" title="var">f</span>)) (<span class="id" title="projection">pr2</span> (<span class="id" title="projection">pr1</span> <span class="id" title="var">g</span>))).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="notation">(</span><span class="id" title="projection">pr2</span> <span class="id" title="var">f</span> <span class="id" title="notation">;;</span> <span class="id" title="definition">idtomor</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">e</span><span class="id" title="notation">)</span> <span class="id" title="notation">;;</span> <span class="id" title="projection">pr2</span> <span class="id" title="var">g</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="graph_w_comp_from_gen_alg"><span class="id" title="definition">graph_w_comp_from_gen_alg</span></a> : <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#graph_w_comp"><span class="id" title="definition">graph_w_comp</span></a> := <br/>
+&nbsp;&nbsp;<span class="id" title="constructor">tpair</span> <span class="id" title="var">_</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#graph_from_gen_alg"><span class="id" title="definition">graph_from_gen_alg</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#graph_from_gen_alg_comp"><span class="id" title="definition">graph_from_gen_alg_comp</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="id_op1"><span class="id" title="definition">id_op1</span></a> : @<a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#id_op"><span class="id" title="definition">id_op</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#graph_w_comp_from_gen_alg"><span class="id" title="definition">graph_w_comp_from_gen_alg</span></a> := <br/>
+&nbsp;&nbsp;<span class="id" title="notation">λ</span> <span class="id" title="var">c</span> : <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#ess_alg_from_gen_alg.C"><span class="id" title="variable">C</span></a><span class="id" title="notation">,</span> <span class="id" title="constructor">tpair</span> <span class="id" title="var">_</span> (<span class="id" title="definition">dirprodpair</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#c"><span class="id" title="variable">c</span></a>) (<span class="id" title="definition">identity</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#c"><span class="id" title="variable">c</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+This proof should probably be transparent, since otherwise identity does not compute 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="ess_alg_cat_axioms_from_gen_alg"><span class="id" title="lemma">ess_alg_cat_axioms_from_gen_alg</span></a> : <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#ess_alg_cat_axioms"><span class="id" title="definition">ess_alg_cat_axioms</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#graph_w_comp_from_gen_alg"><span class="id" title="definition">graph_w_comp_from_gen_alg</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>; [ | <span class="id" title="tactic">split</span>].<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exists</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#id_op1"><span class="id" title="definition">id_op1</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#id_comp_l_ax"><span class="id" title="definition">id_comp_l_ax</span></a>. <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">intros</span> <span class="id" title="var">f</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">f</span> <span class="id" title="keyword">as</span> [[<span class="id" title="var">a</span> <span class="id" title="var">b</span>] <span class="id" title="var">f</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simpl</span> <span class="id" title="keyword">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#target"><span class="id" title="definition">target</span></a>, <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#source"><span class="id" title="definition">source</span></a> <span class="id" title="keyword">in</span> <span class="id" title="var">p</span>. <span class="id" title="tactic">simpl</span> <span class="id" title="keyword">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <span class="id" title="definition">precategory_source</span>, <span class="id" title="definition">precategory_target</span> <span class="id" title="keyword">in</span> <span class="id" title="var">p</span>. <span class="id" title="tactic">simpl</span> <span class="id" title="keyword">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#graph_from_gen_alg_comp"><span class="id" title="definition">graph_from_gen_alg_comp</span></a>. <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">maponpaths</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="definition">id_left</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#idtomor_right"><span class="id" title="lemma">idtomor_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="abbreviation">idpath</span>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">intros</span> <span class="id" title="var">f</span> <span class="id" title="var">p</span>. <span class="id" title="tactic">destruct</span> <span class="id" title="var">f</span> <span class="id" title="keyword">as</span> [[<span class="id" title="var">a</span> <span class="id" title="var">b</span>] <span class="id" title="var">f</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simpl</span> <span class="id" title="keyword">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#target"><span class="id" title="definition">target</span></a>, <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#source"><span class="id" title="definition">source</span></a> <span class="id" title="keyword">in</span> <span class="id" title="var">p</span>. <span class="id" title="tactic">simpl</span> <span class="id" title="keyword">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <span class="id" title="definition">precategory_source</span>, <span class="id" title="definition">precategory_target</span> <span class="id" title="keyword">in</span> <span class="id" title="var">p</span>. <span class="id" title="tactic">simpl</span> <span class="id" title="keyword">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#graph_from_gen_alg_comp"><span class="id" title="definition">graph_from_gen_alg_comp</span></a>. <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">maponpaths</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="definition">id_right</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#idtomor_left"><span class="id" title="lemma">idtomor_left</span></a>. <span class="id" title="tactic">apply</span> <span class="id" title="abbreviation">idpath</span>. }<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">h</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span> <span class="id" title="var">p'</span> <span class="id" title="var">q'</span>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#graph_from_gen_alg_comp"><span class="id" title="definition">graph_from_gen_alg_comp</span></a>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">maponpaths</span>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">f</span> <span class="id" title="keyword">as</span> [[<span class="id" title="var">a</span> <span class="id" title="var">b</span>] <span class="id" title="var">f</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">g</span> <span class="id" title="keyword">as</span> [[<span class="id" title="var">b'</span> <span class="id" title="var">c</span>] <span class="id" title="var">g</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">h</span> <span class="id" title="keyword">as</span> [[<span class="id" title="var">c'</span> <span class="id" title="var">d</span>] <span class="id" title="var">h</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simpl</span> <span class="id" title="keyword">in</span> *. <span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#target"><span class="id" title="definition">target</span></a>, <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#source"><span class="id" title="definition">source</span></a> <span class="id" title="keyword">in</span> *; <span class="id" title="tactic">simpl</span> <span class="id" title="keyword">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <span class="id" title="definition">precategory_source</span>, <span class="id" title="definition">precategory_target</span> <span class="id" title="keyword">in</span> *; <span class="id" title="tactic">simpl</span> <span class="id" title="keyword">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> (<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span> | [ <span class="id" title="var">H</span> : <span class="id" title="var">_</span> <span class="id" title="notation">=</span> <span class="id" title="var">_</span> |- <span class="id" title="var">_</span> ] =&gt; <span class="id" title="tactic">destruct</span> <span class="id" title="var">H</span> <span class="id" title="keyword">end</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="definition">id_right</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#idtomor_left"><span class="id" title="lemma">idtomor_left</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="definition">id_right</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#idtomor_left"><span class="id" title="lemma">idtomor_left</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">Categories.assoc</span>.<br/>
+&nbsp;- <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#ess_alg_from_gen_alg.H"><span class="id" title="variable">H</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <span class="id" title="lemma">isaset_total2</span>. <span class="id" title="tactic">apply</span> <span class="id" title="lemma">isaset_dirprod</span>; <span class="id" title="tactic">try</span> <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#ess_alg_from_gen_alg.hs"><span class="id" title="variable">hs</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#ess_alg_from_gen_alg"><span class="id" title="section">ess_alg_from_gen_alg</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab234"></a><h1 class="section">From ess. alg. categories to gen. alg. ones</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a name="gen_alg_from_ess_alg"><span class="id" title="section">gen_alg_from_ess_alg</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Variable</span> <a name="gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#ess_alg_cat"><span class="id" title="definition">ess_alg_cat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="hom"><span class="id" title="definition">hom</span></a> (<span class="id" title="var">a</span> <span class="id" title="var">b</span> : <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a>) : <span class="id" title="definition">UU</span> := <span class="id" title="notation">∑</span> <span class="id" title="var">f</span> : <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#mor"><span class="id" title="definition">mor</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a><span class="id" title="notation">,</span> <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#source"><span class="id" title="definition">source</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#f"><span class="id" title="variable">f</span></a> <span class="id" title="notation">=</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#a"><span class="id" title="variable">a</span></a> <span class="id" title="notation">×</span> <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#target"><span class="id" title="definition">target</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#f"><span class="id" title="variable">f</span></a> <span class="id" title="notation">=</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#b"><span class="id" title="variable">b</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="hom_eq"><span class="id" title="lemma">hom_eq</span></a> (<span class="id" title="var">a</span> <span class="id" title="var">b</span> : <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a>) (<span class="id" title="var">f</span> <span class="id" title="var">f'</span> : <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#hom"><span class="id" title="definition">hom</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#a"><span class="id" title="variable">a</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#b"><span class="id" title="variable">b</span></a>) : <span class="id" title="projection">pr1</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#f"><span class="id" title="variable">f</span></a> <span class="id" title="notation">=</span> <span class="id" title="projection">pr1</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#f'"><span class="id" title="variable">f'</span></a> <span class="id" title="notation">→</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#f"><span class="id" title="variable">f</span></a> <span class="id" title="notation">=</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#f'"><span class="id" title="variable">f'</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">subtypeEquality</span>; <span class="id" title="tactic">try</span> <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>. <span class="id" title="tactic">apply</span> <span class="id" title="definition">isapropdirprod</span>; <span class="id" title="tactic">apply</span> (<a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#isaset_objects"><span class="id" title="definition">isaset_objects</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a> (<span class="id" title="projection">pr2</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a>)).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="composition"><span class="id" title="definition">composition</span></a> {<span class="id" title="var">a</span> <span class="id" title="var">b</span> <span class="id" title="var">c</span> : <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a>} (<span class="id" title="var">f</span> : <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#hom"><span class="id" title="definition">hom</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#a"><span class="id" title="variable">a</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#b"><span class="id" title="variable">b</span></a>) (<span class="id" title="var">g</span> : <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#hom"><span class="id" title="definition">hom</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#b"><span class="id" title="variable">b</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#c"><span class="id" title="variable">c</span></a>) : <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#hom"><span class="id" title="definition">hom</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#a"><span class="id" title="variable">a</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#c"><span class="id" title="variable">c</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">H</span> : <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#target"><span class="id" title="definition">target</span></a> (<span class="id" title="projection">pr1</span> <span class="id" title="var">f</span>) <span class="id" title="notation">=</span> <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#source"><span class="id" title="definition">source</span></a> (<span class="id" title="projection">pr1</span> <span class="id" title="var">g</span>)).<br/>
+&nbsp;&nbsp;{ <span class="id" title="tactic">eapply</span> <span class="id" title="definition">pathscomp0</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<span class="id" title="projection">pr2</span> (<span class="id" title="projection">pr2</span> <span class="id" title="var">f</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<span class="id" title="notation">!</span><span class="id" title="projection">pr1</span> (<span class="id" title="projection">pr2</span> <span class="id" title="var">g</span>)). }<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#comp"><span class="id" title="definition">comp</span></a> (<span class="id" title="projection">pr1</span> <span class="id" title="var">f</span>) (<span class="id" title="projection">pr1</span> <span class="id" title="var">g</span>) <span class="id" title="var">H</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">f</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">f</span> [<span class="id" title="var">fs</span> <span class="id" title="var">ft</span>]].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">g</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">g</span> [<span class="id" title="var">gs</span> <span class="id" title="var">gt</span>]]. <span class="id" title="tactic">simpl</span> <span class="id" title="keyword">in</span> *.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">eapply</span> <span class="id" title="definition">pathscomp0</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#comp_source"><span class="id" title="definition">comp_source</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">eapply</span> <span class="id" title="definition">pathscomp0</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#comp_target"><span class="id" title="definition">comp_target</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">assumption</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="composition_assoc"><span class="id" title="definition">composition_assoc</span></a> (<span class="id" title="var">a</span> <span class="id" title="var">b</span> <span class="id" title="var">c</span> <span class="id" title="var">d</span> : <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a>) (<span class="id" title="var">f</span> : <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#hom"><span class="id" title="definition">hom</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#a"><span class="id" title="variable">a</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#b"><span class="id" title="variable">b</span></a>) (<span class="id" title="var">g</span> : <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#hom"><span class="id" title="definition">hom</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#b"><span class="id" title="variable">b</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#c"><span class="id" title="variable">c</span></a>) (<span class="id" title="var">h</span> : <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#hom"><span class="id" title="definition">hom</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#d"><span class="id" title="variable">d</span></a>):<br/>
+&nbsp;&nbsp;<a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#composition"><span class="id" title="definition">composition</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#f"><span class="id" title="variable">f</span></a> (<a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#composition"><span class="id" title="definition">composition</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#g"><span class="id" title="variable">g</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#h"><span class="id" title="variable">h</span></a>) <span class="id" title="notation">=</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#composition"><span class="id" title="definition">composition</span></a> (<a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#composition"><span class="id" title="definition">composition</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#f"><span class="id" title="variable">f</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#g"><span class="id" title="variable">g</span></a>) <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#h"><span class="id" title="variable">h</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#hom_eq"><span class="id" title="lemma">hom_eq</span></a>, <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#assoc"><span class="id" title="definition">assoc</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="identity"><span class="id" title="definition">identity</span></a> (<span class="id" title="var">a</span> : <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a>) : <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#hom"><span class="id" title="definition">hom</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#a"><span class="id" title="variable">a</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#a"><span class="id" title="variable">a</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#id"><span class="id" title="definition">id</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a> <span class="id" title="var">a</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#id_source"><span class="id" title="definition">id_source</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#id_target"><span class="id" title="definition">id_target</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="precategory_ob_mor_from_ess_alg_cat"><span class="id" title="definition">precategory_ob_mor_from_ess_alg_cat</span></a> : <span class="id" title="definition">precategory_ob_mor</span>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="notation">λ</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span><span class="id" title="notation">,</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#hom"><span class="id" title="definition">hom</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#a"><span class="id" title="variable">a</span></a> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#b"><span class="id" title="variable">b</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="precategory_data_from_ess_alg_cat"><span class="id" title="definition">precategory_data_from_ess_alg_cat</span></a> : <span class="id" title="definition">precategory_data</span>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#precategory_ob_mor_from_ess_alg_cat"><span class="id" title="definition">precategory_ob_mor_from_ess_alg_cat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#identity"><span class="id" title="definition">identity</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> @<a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#composition"><span class="id" title="definition">composition</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="is_precategory_precategory_data_from_ess_alg_cat"><span class="id" title="lemma">is_precategory_precategory_data_from_ess_alg_cat</span></a> : <br/>
+&nbsp;&nbsp;<span class="id" title="definition">is_precategory</span> (<a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#precategory_data_from_ess_alg_cat"><span class="id" title="definition">precategory_data_from_ess_alg_cat</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#hom_eq"><span class="id" title="lemma">hom_eq</span></a>. <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#id_comp_l"><span class="id" title="definition">id_comp_l</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="projection">pr1</span> (<span class="id" title="projection">pr2</span> <span class="id" title="var">f</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#hom_eq"><span class="id" title="lemma">hom_eq</span></a>, <a class="idref" href="TypeTheory.Categories.ess_alg_categories.html#id_comp_r"><span class="id" title="definition">id_comp_r</span></a>, (<span class="id" title="projection">pr2</span> (<span class="id" title="projection">pr2</span> <span class="id" title="var">f</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#composition_assoc"><span class="id" title="definition">composition_assoc</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="precategory_from_ess_alg_cat"><span class="id" title="definition">precategory_from_ess_alg_cat</span></a> : <span class="id" title="definition">precategory</span> := <br/>
+&nbsp;&nbsp;<span class="id" title="constructor">tpair</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#is_precategory_precategory_data_from_ess_alg_cat"><span class="id" title="lemma">is_precategory_precategory_data_from_ess_alg_cat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg"><span class="id" title="section">gen_alg_from_ess_alg</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+{% endraw %}

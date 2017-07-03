@@ -1,0 +1,241 @@
+---
+layout: default
+title: TypeTheory.OtherDefs.CwF_Pitts_completion
+---
+
+{% raw %}
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library TypeTheory.OtherDefs.CwF_Pitts_completion</h1>
+
+<div class="code">
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab196"></a><h1 class="section">From preCwFs to CwFs</h1>
+
+<div class="paragraph"> </div>
+
+  Contents:
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> not much yet
+
+</li>
+</ul>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">UniMath.Foundations.Sets</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">UniMath.CategoryTheory.functor_categories</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">UniMath.CategoryTheory.limits.pullbacks</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">UniMath.CategoryTheory.opp_precat</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">UniMath.CategoryTheory.yoneda</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">UniMath.CategoryTheory.rezk_completion</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#"><span class="id" title="library">TypeTheory.Auxiliary.Auxiliary</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.Auxiliary.UnicodeNotations.html#"><span class="id" title="library">TypeTheory.Auxiliary.UnicodeNotations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.Auxiliary.CategoryTheoryImports.html#"><span class="id" title="library">TypeTheory.Auxiliary.CategoryTheoryImports</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts.html#"><span class="id" title="library">TypeTheory.OtherDefs.CwF_Pitts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.Categories.category_of_elements.html#"><span class="id" title="library">TypeTheory.Categories.category_of_elements</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Set</span> <span class="id" title="var">Automatic</span> <span class="id" title="var">Introduction</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Implicit Arguments</span> <span class="id" title="definition">iso</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+How to get a functor from RC(C) to D when having one from C to D 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="Rezk_functor"><span class="id" title="definition">Rezk_functor</span></a> (<span class="id" title="var">C</span> : <span class="id" title="definition">precategory</span>) (<span class="id" title="var">hs</span> : <span class="id" title="definition">has_homsets</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#C"><span class="id" title="variable">C</span></a>) (<span class="id" title="var">D</span> : <span class="id" title="definition">univalent_category</span>) <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">F</span> : <span class="id" title="definition">functor</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#C"><span class="id" title="variable">C</span></a> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#D"><span class="id" title="variable">D</span></a>) <br/>
+&nbsp;&nbsp;:  <span class="id" title="definition">functor</span> (<span class="id" title="definition">Rezk_completion</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#C"><span class="id" title="variable">C</span></a> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#hs"><span class="id" title="variable">hs</span></a>) <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#D"><span class="id" title="variable">D</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">H</span>:=<span class="id" title="lemma">Rezk_eta_Universal_Property</span> <span class="id" title="var">C</span> <span class="id" title="var">hs</span> <span class="id" title="var">D</span>  (<span class="id" title="projection">pr2</span> <span class="id" title="var">D</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="definition">invmap</span> (<span class="id" title="definition">weqpair</span> <span class="id" title="var">_</span>  <span class="id" title="var">H</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">F</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The opposite precategory of a saturated category is saturated. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="opp_iso_inv"><span class="id" title="definition">opp_iso_inv</span></a> {<span class="id" title="var">C</span> : <span class="id" title="definition">precategory</span>} {<span class="id" title="var">a</span> <span class="id" title="var">b</span> : <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#C"><span class="id" title="variable">C</span></a>} : <span class="id" title="definition">iso</span> (<span class="id" title="definition">opp_precat</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#C"><span class="id" title="variable">C</span></a>) <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#a"><span class="id" title="variable">a</span></a> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#b"><span class="id" title="variable">b</span></a> <span class="id" title="notation">→</span> <span class="id" title="definition">iso</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#C"><span class="id" title="variable">C</span></a> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#b"><span class="id" title="variable">b</span></a> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#a"><span class="id" title="variable">a</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">H</span>:= <span class="id" title="lemma">is_z_iso_from_is_iso</span> <span class="id" title="var">f</span> (<span class="id" title="projection">pr2</span> <span class="id" title="var">f</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<span class="id" title="projection">pr1</span> <span class="id" title="var">f</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">is_iso_from_is_z_iso</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<span class="id" title="projection">pr1</span> <span class="id" title="var">H</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<span class="id" title="projection">pr2</span> (<span class="id" title="projection">pr2</span> <span class="id" title="var">H</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<span class="id" title="projection">pr1</span> (<span class="id" title="projection">pr2</span> <span class="id" title="var">H</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="opp_iso_opp_iso_inv"><span class="id" title="lemma">opp_iso_opp_iso_inv</span></a> (<span class="id" title="var">C</span> : <span class="id" title="definition">precategory</span>) (<span class="id" title="var">a</span> <span class="id" title="var">b</span> : <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#C"><span class="id" title="variable">C</span></a>) (<span class="id" title="var">f</span> : <span class="id" title="definition">iso</span> (<span class="id" title="definition">opp_precat</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#C"><span class="id" title="variable">C</span></a>) <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#a"><span class="id" title="variable">a</span></a> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#b"><span class="id" title="variable">b</span></a>) : <br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="definition">opp_iso</span> (<a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#opp_iso_inv"><span class="id" title="definition">opp_iso_inv</span></a> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#f"><span class="id" title="variable">f</span></a>) <span class="id" title="notation">=</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#f"><span class="id" title="variable">f</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">eq_iso</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="abbreviation">idpath</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="opp_iso_inv_opp_iso"><span class="id" title="lemma">opp_iso_inv_opp_iso</span></a> (<span class="id" title="var">C</span> : <span class="id" title="definition">precategory</span>) (<span class="id" title="var">a</span> <span class="id" title="var">b</span> : <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#C"><span class="id" title="variable">C</span></a>) (<span class="id" title="var">f</span> : <span class="id" title="definition">iso</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#C"><span class="id" title="variable">C</span></a> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#a"><span class="id" title="variable">a</span></a> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#b"><span class="id" title="variable">b</span></a>) : <br/>
+&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#opp_iso_inv"><span class="id" title="definition">opp_iso_inv</span></a> (<span class="id" title="definition">opp_iso</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#f"><span class="id" title="variable">f</span></a>) <span class="id" title="notation">=</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#f"><span class="id" title="variable">f</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">eq_iso</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="abbreviation">idpath</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="weq_opp_iso"><span class="id" title="definition">weq_opp_iso</span></a> (<span class="id" title="var">C</span> : <span class="id" title="definition">precategory</span>) (<span class="id" title="var">a</span> <span class="id" title="var">b</span> : <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#C"><span class="id" title="variable">C</span></a>) : <br/>
+&nbsp;&nbsp;<span class="id" title="definition">iso</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#C"><span class="id" title="variable">C</span></a> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#a"><span class="id" title="variable">a</span></a> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#b"><span class="id" title="variable">b</span></a> <span class="id" title="notation">≃</span> <span class="id" title="definition">iso</span> (<span class="id" title="definition">opp_precat</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#C"><span class="id" title="variable">C</span></a>) <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#b"><span class="id" title="variable">b</span></a> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#a"><span class="id" title="variable">a</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<span class="id" title="definition">opp_iso</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="lemma">gradth</span> (@<span class="id" title="definition">opp_iso</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>  ) (@<a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#opp_iso_inv"><span class="id" title="definition">opp_iso_inv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> )).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#opp_iso_inv_opp_iso"><span class="id" title="lemma">opp_iso_inv_opp_iso</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#opp_iso_opp_iso_inv"><span class="id" title="lemma">opp_iso_opp_iso_inv</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="isotoid_opp"><span class="id" title="definition">isotoid_opp</span></a> (<span class="id" title="var">C</span> : <span class="id" title="definition">precategory</span>) (<span class="id" title="var">H</span> : <span class="id" title="definition">is_univalent</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#C"><span class="id" title="variable">C</span></a>) (<span class="id" title="var">a</span> <span class="id" title="var">b</span> : <span class="id" title="definition">opp_precat</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#C"><span class="id" title="variable">C</span></a>) : <br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="definition">weq</span> (<a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#a"><span class="id" title="variable">a</span></a> <span class="id" title="notation">=</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#b"><span class="id" title="variable">b</span></a>) (<span class="id" title="definition">iso</span> (<span class="id" title="definition">opp_precat</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#C"><span class="id" title="variable">C</span></a>) <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#a"><span class="id" title="variable">a</span></a> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#b"><span class="id" title="variable">b</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <span class="id" title="definition">weqcomp</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <span class="id" title="definition">weqpathsinv0</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">eapply</span> <span class="id" title="definition">weqcomp</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<span class="id" title="definition">weqpair</span> (@<span class="id" title="definition">idtoiso</span> <span class="id" title="var">C</span> <span class="id" title="var">b</span> <span class="id" title="var">a</span>) (<span class="id" title="projection">pr1</span> <span class="id" title="var">H</span> <span class="id" title="var">b</span> <span class="id" title="var">a</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#weq_opp_iso"><span class="id" title="definition">weq_opp_iso</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="is_univalent_opp"><span class="id" title="definition">is_univalent_opp</span></a> (<span class="id" title="var">C</span> : <span class="id" title="definition">precategory</span>) (<span class="id" title="var">H</span> : <span class="id" title="definition">is_univalent</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#C"><span class="id" title="variable">C</span></a>) : <span class="id" title="definition">is_univalent</span> (<span class="id" title="definition">opp_precat</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#C"><span class="id" title="variable">C</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>; <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="keyword">in</span> *.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">set</span> (<span class="id" title="var">H1</span>:=@<span class="id" title="lemma">isweqhomot</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">H2</span> := <span class="id" title="var">H1</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#isotoid_opp"><span class="id" title="definition">isotoid_opp</span></a> <span class="id" title="var">C</span> <span class="id" title="var">H</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">H2</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">t</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">t</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">eq_iso</span>; <span class="id" title="tactic">apply</span> <span class="id" title="abbreviation">idpath</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="projection">pr2</span> (<a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#isotoid_opp"><span class="id" title="definition">isotoid_opp</span></a> <span class="id" title="var">C</span> <span class="id" title="var">H</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span>. <span class="id" title="tactic">apply</span> (<span class="id" title="projection">pr2</span> <span class="id" title="var">H</span>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="opp_univalent_cat"><span class="id" title="definition">opp_univalent_cat</span></a> (<span class="id" title="var">C</span> : <span class="id" title="definition">univalent_category</span>) : <span class="id" title="definition">univalent_category</span>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<span class="id" title="definition">opp_precat</span> <span class="id" title="var">C</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#is_univalent_opp"><span class="id" title="definition">is_univalent_opp</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="projection">pr2</span> <span class="id" title="var">C</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab197"></a><h1 class="section">Saturating a CwF</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a name="CwF_completion"><span class="id" title="section">CwF_completion</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Context</span> (<span class="id" title="var">CC</span> : <span class="id" title="definition">precategory</span>) (<span class="id" title="var">C</span> : <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts.html#cwf_struct"><span class="id" title="definition">cwf_struct</span></a> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#CC"><span class="id" title="variable">CC</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab198"></a><h2 class="section">The "type" part of a CwF</h2>
+
+<div class="paragraph"> </div>
+
+ The "type" part is a functor into the opposite of HSET.
+    We thus obtain a "type" functor on RC(C) by univ property
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="type_hSet"><span class="id" title="definition">type_hSet</span></a> (<span class="id" title="var">Γ</span> : <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#CwF_completion.CC"><span class="id" title="variable">CC</span></a>) : <span class="id" title="definition">hSet</span> := <span class="id" title="definition">hSetpair</span> (<a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#CwF_completion.C"><span class="id" title="variable">C</span></a><a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts.html#028a11f0a2834a1ec28da5fb3b03142c"><span class="id" title="notation">⟨</span></a><a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a><a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts.html#028a11f0a2834a1ec28da5fb3b03142c"><span class="id" title="notation">⟩</span></a>) (<a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts.html#cwf_types_isaset"><span class="id" title="definition">cwf_types_isaset</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> ).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="type_functor_data"><span class="id" title="definition">type_functor_data</span></a> : <span class="id" title="definition">functor_data</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#CwF_completion.CC"><span class="id" title="variable">CC</span></a> (<span class="id" title="definition">opp_precat</span> <span class="id" title="notation">HSET</span>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#type_hSet"><span class="id" title="definition">type_hSet</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">Γ</span> <span class="id" title="var">Γ'</span> <span class="id" title="var">γ</span> <span class="id" title="var">A</span>. <span class="id" title="tactic">exact</span> (<a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts.html#rtype"><span class="id" title="definition">rtype</span></a> <span class="id" title="var">A</span> <span class="id" title="var">γ</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="type_is_functor"><span class="id" title="definition">type_is_functor</span></a> : <span class="id" title="definition">is_functor</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#type_functor_data"><span class="id" title="definition">type_functor_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>; <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">Γ</span>. <span class="id" title="tactic">apply</span> <span class="id" title="definition">funextfun</span>; <span class="id" title="tactic">intro</span> <span class="id" title="var">A</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts.html#reindx_type_id"><span class="id" title="definition">reindx_type_id</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts.html#reindx_laws_from_cwf_struct"><span class="id" title="definition">reindx_laws_from_cwf_struct</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">Γ</span> <span class="id" title="var">Γ'</span> <span class="id" title="var">Γ''</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span>. <span class="id" title="tactic">apply</span> <span class="id" title="definition">funextfun</span>; <span class="id" title="tactic">intro</span> <span class="id" title="var">A</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts.html#reindx_type_comp"><span class="id" title="definition">reindx_type_comp</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts.html#reindx_laws_from_cwf_struct"><span class="id" title="definition">reindx_laws_from_cwf_struct</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="type_functor"><span class="id" title="definition">type_functor</span></a> : <span class="id" title="definition">functor</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> := <span class="id" title="constructor">tpair</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#type_is_functor"><span class="id" title="definition">type_is_functor</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="RC_type_functor"><span class="id" title="definition">RC_type_functor</span></a> : <span class="id" title="definition">functor</span> (<span class="id" title="definition">Rezk_completion</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#CwF_completion.CC"><span class="id" title="variable">CC</span></a> (<a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts.html#has_homsets_cwf"><span class="id" title="definition">has_homsets_cwf</span></a> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#CwF_completion.C"><span class="id" title="variable">C</span></a>)) (<span class="id" title="definition">opp_precat</span> <span class="id" title="notation">HSET</span>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#Rezk_functor"><span class="id" title="definition">Rezk_functor</span></a> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#CwF_completion.CC"><span class="id" title="variable">CC</span></a> <span class="id" title="var">_</span> (<a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#opp_univalent_cat"><span class="id" title="definition">opp_univalent_cat</span></a> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#HSET_univalent_category"><span class="id" title="definition">HSET_univalent_category</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#type_functor"><span class="id" title="definition">type_functor</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab199"></a><h2 class="section">The "term" part of a CwF</h2>
+ The "term" part is a functor from the category of elements of "type"
+    into (the opposite of) sets.
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="TypeTheory.OtherDefs.CwF_Pitts_completion.html#CwF_completion"><span class="id" title="section">CwF_completion</span></a>.<br/>
+
+<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+{% endraw %}
