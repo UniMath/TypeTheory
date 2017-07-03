@@ -1,0 +1,122 @@
+---
+layout: default
+title: TypeTheory.ALV1.RelUnivYonedaCompletion
+---
+
+{% raw %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>TypeTheory.ALV1.RelUnivYonedaCompletion</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library TypeTheory.ALV1.RelUnivYonedaCompletion</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+  <span class="inlinecode"><a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#"><span class="id" title="library">TypeTheory.ALV1.RelUnivYonedaCompletion</span></a></span>
+
+<div class="paragraph"> </div>
+
+  Part of the <span class="inlinecode"><span class="id" title="var">TypeTheory</span></span> library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
+
+<div class="paragraph"> </div>
+
+ This file provides the result: given a universe in <span class="inlinecode"><a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a></span> <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> relative to the Yoneda embedding <span class="inlinecode"></span> <span class="inlinecode"><span class="id" title="var">Yo</span></span> <span class="inlinecode">:</span> <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> <span class="inlinecode">-&gt;</span> <span class="inlinecode"><a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a></span> <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span> <span class="inlinecode"></span>, this transfers to a similar relative universe in <span class="inlinecode"></span> <span class="inlinecode"><a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a></span> <span class="inlinecode">(<a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#fix_category.RC"><span class="id" title="variable">RC</span></a></span> <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a>)</span> <span class="inlinecode"></span>. i.e. on the Rezk-completion of <span class="inlinecode"><a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a></span>. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">UniMath.Foundations.Sets</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.Auxiliary.CategoryTheoryImports.html#"><span class="id" title="library">TypeTheory.Auxiliary.CategoryTheoryImports</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#"><span class="id" title="library">TypeTheory.Auxiliary.Auxiliary</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.Auxiliary.UnicodeNotations.html#"><span class="id" title="library">TypeTheory.Auxiliary.UnicodeNotations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#"><span class="id" title="library">TypeTheory.ALV1.RelativeUniverses</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#"><span class="id" title="library">TypeTheory.ALV1.Transport_along_Equivs</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Set</span> <span class="id" title="var">Automatic</span> <span class="id" title="var">Introduction</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab57"></a><h1 class="section">Instantiating the hypotheses of transfer of relative universes to Yoneda</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Notation</span> "[ C , D ]" := (<span class="id" title="definition">functor_Precategory</span> <span class="id" title="var">C</span> <span class="id" title="var">D</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a name="fix_category"><span class="id" title="section">fix_category</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Variable</span> <a name="fix_category.C"><span class="id" title="variable">C</span></a> : <span class="id" title="definition">Precategory</span>.<br/>
+<span class="id" title="keyword">Let</span> <a name="fix_category.RC"><span class="id" title="variable">RC</span></a> : <span class="id" title="definition">category</span> := <span class="id" title="definition">Rezk_completion</span> <a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#fix_category.C"><span class="id" title="variable">C</span></a> (<span class="id" title="definition">homset_property</span> <span class="id" title="var">_</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="Rezk_on_RelUnivYoneda"><span class="id" title="definition">Rezk_on_RelUnivYoneda</span></a> (<span class="id" title="var">X</span> : @<a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#relative_universe"><span class="id" title="definition">relative_universe</span></a> <a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#fix_category.C"><span class="id" title="variable">C</span></a> <span class="id" title="var">_</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#2992071cd8d27cf2d1066e1ad11b67d0"><span class="id" title="notation">Yo</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#relative_universe"><span class="id" title="definition">relative_universe</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((<span class="id" title="definition">yoneda</span> <a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#fix_category.RC"><span class="id" title="variable">RC</span></a> (<span class="id" title="definition">homset_property</span> <a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#fix_category.RC"><span class="id" title="variable">RC</span></a>) : <span class="id" title="definition">functor</span> <a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#fix_category.RC"><span class="id" title="variable">RC</span></a> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#fix_category.RC"><span class="id" title="variable">RC</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="definition">functor</span> <a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#fix_category.RC"><span class="id" title="variable">RC</span></a> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#fix_category.RC"><span class="id" title="variable">RC</span></a>)).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#Transfer_of_RelUnivYoneda"><span class="id" title="definition">Transfer_of_RelUnivYoneda</span></a> (<span class="id" title="definition">Rezk_eta</span> <a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#fix_category.C"><span class="id" title="variable">C</span></a> <span class="id" title="var">_</span>) ).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <span class="id" title="lemma">Rezk_eta_fully_faithful</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <span class="id" title="lemma">Rezk_eta_essentially_surjective</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#category_is_category"><span class="id" title="definition">category_is_category</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <span class="id" title="var">X</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="Rezk_eta_full"><span class="id" title="definition">Rezk_eta_full</span></a> : <span class="id" title="definition">full</span> (<span class="id" title="definition">Rezk_eta</span> <a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#fix_category.C"><span class="id" title="variable">C</span></a> (<span class="id" title="definition">homset_property</span> <a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#fix_category.C"><span class="id" title="variable">C</span></a>)).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#full_from_ff"><span class="id" title="lemma">full_from_ff</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">Rezk_eta_fully_faithful</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="is_category_preShv"><span class="id" title="lemma">is_category_preShv</span></a> <span class="id" title="var">X</span> : <span class="id" title="definition">is_category</span> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#X"><span class="id" title="variable">X</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">is_category_functor_category</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="Rezk_on_WeakRelUnivYo"><span class="id" title="definition">Rezk_on_WeakRelUnivYo</span></a> : <br/>
+&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#weak_relative_universe"><span class="id" title="definition">weak_relative_universe</span></a> (<span class="id" title="definition">yoneda</span> <a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#fix_category.C"><span class="id" title="variable">C</span></a> (<span class="id" title="definition">homset_property</span> <a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#fix_category.C"><span class="id" title="variable">C</span></a>)) <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="notation">≃</span> <a class="idref" href="TypeTheory.ALV1.RelativeUniverses.html#weak_relative_universe"><span class="id" title="definition">weak_relative_universe</span></a> (<span class="id" title="definition">yoneda</span> <a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#fix_category.RC"><span class="id" title="variable">RC</span></a> (<span class="id" title="definition">homset_property</span> <span class="id" title="var">_</span> ) ).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="TypeTheory.ALV1.Transport_along_Equivs.html#Transfer_of_WeakRelUnivYoneda"><span class="id" title="definition">Transfer_of_WeakRelUnivYoneda</span></a> (<span class="id" title="definition">Rezk_eta</span> <a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#fix_category.C"><span class="id" title="variable">C</span></a> <span class="id" title="var">_</span> )).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <span class="id" title="lemma">Rezk_eta_fully_faithful</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <span class="id" title="lemma">Rezk_eta_essentially_surjective</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="TypeTheory.ALV1.RelUnivYonedaCompletion.html#fix_category"><span class="id" title="section">fix_category</span></a>.<br/>
+
+<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+{% endraw %}
