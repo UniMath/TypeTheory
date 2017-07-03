@@ -1,0 +1,101 @@
+.doc { margin: 0px;
+    font-size: 100%;
+    line-height: 125%;
+    color: black;
+ }
+
+.code {
+    @extend pre;
+    font-family: $code-font-stack; 
+    line-height: 110%;
+     }
+
+.inlinecode {
+    display: inline;
+    color: #666666;
+    font-family: $code-font-stack }
+
+.doc .inlinecode {
+    display: inline;
+    /* font-size: 120%; */
+    color: rgb(30%,30%,70%);
+    font-family: $code-font-stack }
+
+.doc .inlinecode .id {
+    color: rgb(30%,30%,70%);
+}
+
+.inlinecodenm {
+    display: inline;
+    color: #444444;
+}
+
+.doc .code {
+    display: inline;
+    font-size: 120%;
+    color: rgb(30%,30%,70%);
+    font-family: $code-font-stack }
+
+.comment {
+    display: inline;
+    font-family: $code-font-stack;
+    color: rgb(50%,50%,80%);
+}
+
+.paragraph {
+    height: 0.75em;
+}
+
+/* To reset intrusive table styling set up by the ambient theme */
+
+#main {
+  table {
+    width:100%;
+  }
+  
+  table {
+    border: none;
+    margin-bottom: none;
+    text-align: left;
+   }
+  
+  th {
+    padding: inherit;
+    background: inherit;
+    color: inherit;
+   }
+
+  td {
+    padding: inherit;
+    background: inherit;
+   }
+}
+
+/* Inference rules */
+
+table.infrule {
+  border: 0px;
+  margin-left: 50px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+td.infrule {
+    font-family: $code-font-stack;
+    text-align: center;
+/*    color: rgb(35%,35%,70%);  */
+    padding: 0px;
+    line-height: 100%;
+}
+
+tr.infrulemiddle hr {
+    margin: 1px 0 1px 0;
+}
+
+.infrulenamecol {
+    color: rgb(60%,60%,60%);
+    font-size: 80%;
+    padding-left: 1em;
+    padding-bottom: 0.1em
+}
+

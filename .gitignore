@@ -124,6 +124,10 @@ coq/build/CoqMakefile.make
 # for Coq generated documentation
 html/*
 
+# for Jekyll generated website
+_site/*
+Gemfile.lock
+
 # swap files
 *~
 *.swp

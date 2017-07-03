@@ -1,0 +1,43 @@
+body { padding: 0px 0px;
+       margin: 0px 0px;
+       background-color: white }
+
+#page { display: block;
+        padding: 0px;
+        margin: 0px;
+        padding-bottom: 10px; }
+
+#header { display: block;
+          position: relative;
+          padding: 0;
+          margin: 0;
+          vertical-align: middle;
+          border-bottom-style: solid;
+          border-width: thin }
+
+#header h1 { padding: 0;
+             margin: 0;}
+
+
+/* Contents */
+
+
+/* Pied de page */
+
+#footer { font-size: 65%;
+          font-family: sans-serif; }
+
+
+
+/* TOC */
+
+#toc h2 {
+    padding: 10px;
+    background-color: rgb(60%,60%,100%);
+}
+
+#toc li {
+    padding-bottom: 8px;
+}
+
+/* Index */

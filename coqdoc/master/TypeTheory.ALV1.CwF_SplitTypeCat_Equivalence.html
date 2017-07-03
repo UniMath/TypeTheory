@@ -1,0 +1,466 @@
+---
+layout: default
+title: TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence
+---
+
+{% raw %}
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+  <span class="inlinecode"><span class="id" title="library">TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence</span></span>
+
+<div class="paragraph"> </div>
+
+  Part of the <span class="inlinecode"><span class="id" title="var">TypeTheory</span></span> library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">UniMath.Foundations.Sets</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.Auxiliary.CategoryTheoryImports.html#"><span class="id" title="library">TypeTheory.Auxiliary.CategoryTheoryImports</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#"><span class="id" title="library">TypeTheory.Auxiliary.Auxiliary</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.Auxiliary.UnicodeNotations.html#"><span class="id" title="library">TypeTheory.Auxiliary.UnicodeNotations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#"><span class="id" title="library">TypeTheory.ALV1.CwF_SplitTypeCat_Defs</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#"><span class="id" title="library">TypeTheory.ALV1.CwF_SplitTypeCat_Maps</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Set</span> <span class="id" title="var">Automatic</span> <span class="id" title="var">Introduction</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">mor_scope</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a name="Fix_Context"><span class="id" title="section">Fix_Context</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Context</span> {<span class="id" title="var">C</span> : <span class="id" title="definition">category</span>} (<span class="id" title="var">X</span> : <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#obj_ext_structure"><span class="id" title="definition">obj_ext_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#C"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Notation</span> "Γ ◂ A" := (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#comp_ext"><span class="id" title="definition">comp_ext</span></a> <span class="id" title="var">_</span> <span class="id" title="var">Γ</span> <span class="id" title="var">A</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 30).<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Notation</span> "'Ty'" := (<span class="id" title="keyword">fun</span> <span class="id" title="var">X</span> <span class="id" title="var">Γ</span> =&gt; (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#TY"><span class="id" title="definition">TY</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#X"><span class="id" title="variable">X</span></a> : <span class="id" title="definition">functor</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a> : <span class="id" title="definition">hSet</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 10).<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Notation</span> "A [ f ]" := (<span class="id" title="notation">#</span> <span class="id" title="notation">(</span><a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#TY"><span class="id" title="definition">TY</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.X"><span class="id" title="variable">X</span></a> : <span class="id" title="definition">functor</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="notation">)</span> <span class="id" title="var">f</span> <span class="id" title="var">A</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 4).<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Notation</span> "'Tm'" := (<span class="id" title="keyword">fun</span> <span class="id" title="var">Y</span> <span class="id" title="var">Γ</span> =&gt; (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#TM"><span class="id" title="definition">TM</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Y"><span class="id" title="variable">Y</span></a> : <span class="id" title="definition">functor</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a> : <span class="id" title="definition">hSet</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 10).<br/>
+
+<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Notation</span> <a name="d44f383ce45b5283439ea630afb544d5"><span class="id" title="abbreviation">Δ</span></a> := <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#comp_ext_compare"><span class="id" title="definition">comp_ext_compare</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a name="Fix_Context.compatible_structures"><span class="id" title="section">compatible_structures</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab33"></a><h1 class="section">Every compatible term structure is equal to the canoncial one</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a name="Fix_Context.compatible_structures.canonical_TM"><span class="id" title="section">canonical_TM</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Variable</span> <a name="Fix_Context.compatible_structures.canonical_TM.Z"><span class="id" title="variable">Z</span></a> : <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#qq_morphism_structure"><span class="id" title="definition">qq_morphism_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.X"><span class="id" title="variable">X</span></a>.<br/>
+<span class="id" title="keyword">Notation</span> <a name="ZZ"><span class="id" title="abbreviation">ZZ</span></a> := (<span class="id" title="projection">pr2</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Z"><span class="id" title="variable">Z</span></a>).<br/>
+<span class="id" title="keyword">Variable</span> <a name="Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a> : <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#compatible_term_structure"><span class="id" title="definition">compatible_term_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Z"><span class="id" title="variable">Z</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="canonical_TM_to_given_data"><span class="id" title="definition">canonical_TM_to_given_data</span></a><br/>
+&nbsp;&nbsp;{<span class="id" title="var">Γ</span>} (<span class="id" title="var">Ase</span> : <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#tm_from_qq"><span class="id" title="definition">tm_from_qq</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Z"><span class="id" title="variable">Z</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a> : <span class="id" title="definition">hSet</span>) : (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#8c8af83d6d385124272c1386e6c5a3a7"><span class="id" title="notation">Tm</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="notation">#</span> <span class="id" title="notation">(</span><a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#TM"><span class="id" title="definition">TM</span></a> <span class="id" title="var">_</span> : <span class="id" title="definition">functor</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><span class="id" title="notation">)</span> <span class="id" title="var">_</span> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#te"><span class="id" title="definition">te</span></a> <span class="id" title="var">_</span> (<span class="id" title="projection">pr1</span> <span class="id" title="var">Ase</span>))).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="projection">pr1</span> (<span class="id" title="projection">pr2</span> <span class="id" title="var">Ase</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="is_nat_trans_canonical_TM_to_given"><span class="id" title="lemma">is_nat_trans_canonical_TM_to_given</span></a> <br/>
+&nbsp;: <span class="id" title="definition">is_nat_trans</span> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#tm_from_qq"><span class="id" title="definition">tm_from_qq</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Z"><span class="id" title="variable">Z</span></a>) (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#TM"><span class="id" title="definition">TM</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a> : <span class="id" title="definition">functor</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> )<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(@<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_TM_to_given_data"><span class="id" title="definition">canonical_TM_to_given_data</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">Γ</span> <span class="id" title="var">Γ'</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">funextsec</span>; <span class="id" title="tactic">intros</span> [<span class="id" title="var">A</span> [<span class="id" title="var">s</span> <span class="id" title="var">e</span>]].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_TM_to_given_data"><span class="id" title="definition">canonical_TM_to_given_data</span></a>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">etrans</span>. <span class="id" title="tactic">apply</span> <span class="id" title="definition">maponpaths</span>, (<span class="id" title="projection">pr2</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">etrans</span>. <span class="id" title="tactic">apply</span> (<span class="id" title="definition">toforallpaths</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<span class="id" title="notation">!</span><span class="id" title="definition">functor_comp</span> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#TM"><span class="id" title="definition">TM</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> ) <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">etrans</span>. <span class="id" title="var">Focus</span> 2. <span class="id" title="tactic">apply</span> (<span class="id" title="definition">toforallpaths</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<span class="id" title="definition">functor_comp</span> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#TM"><span class="id" title="definition">TM</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> ) <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (@<span class="id" title="lemma">PullbackArrow_PullbackPr2</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.C"><span class="id" title="variable">C</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<span class="id" title="definition">mk_Pullback</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="canonical_TM_to_given"><span class="id" title="definition">canonical_TM_to_given</span></a> : <span class="id" title="notation">(</span><a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.C"><span class="id" title="variable">C</span></a><span class="id" title="notation">)</span> <span class="id" title="notation">⟦</span><a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#tm_from_qq"><span class="id" title="definition">tm_from_qq</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Z"><span class="id" title="variable">Z</span></a><span class="id" title="notation">,</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#TM"><span class="id" title="definition">TM</span></a> (<span class="id" title="projection">pr1</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a>)<span class="id" title="notation">⟧</span>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> @<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_TM_to_given_data"><span class="id" title="definition">canonical_TM_to_given_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#is_nat_trans_canonical_TM_to_given"><span class="id" title="lemma">is_nat_trans_canonical_TM_to_given</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="given_TM_to_canonical_data"><span class="id" title="definition">given_TM_to_canonical_data</span></a><br/>
+&nbsp;&nbsp;: <span class="id" title="notation">∏</span> <span class="id" title="var">Γ</span><span class="id" title="notation">,</span> <span class="id" title="notation">HSET</span> <span class="id" title="notation">⟦</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#8c8af83d6d385124272c1386e6c5a3a7"><span class="id" title="notation">Tm</span></a> (<span class="id" title="projection">pr1</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a>) <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a><span class="id" title="notation">,</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#tm_from_qq"><span class="id" title="definition">tm_from_qq</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Z"><span class="id" title="variable">Z</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a><span class="id" title="notation">⟧</span>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">Γ</span> <span class="id" title="var">t</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> ((<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#pp"><span class="id" title="definition">pp</span></a> (<span class="id" title="projection">pr1</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a>) : <span class="id" title="definition">nat_trans</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> )  <span class="id" title="var">_</span> <span class="id" title="var">t</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#term_to_section"><span class="id" title="lemma">term_to_section</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="given_to_canonical_to_given"><span class="id" title="lemma">given_to_canonical_to_given</span></a> <span class="id" title="var">Γ</span><br/>
+&nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#given_TM_to_canonical_data"><span class="id" title="definition">given_TM_to_canonical_data</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#f741603d4924d149d3f5d71b37a4cf6c"><span class="id" title="notation">;;</span></a> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_TM_to_given"><span class="id" title="definition">canonical_TM_to_given</span></a> : <span class="id" title="definition">nat_trans</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a><br/>
+&nbsp;&nbsp;<span class="id" title="notation">=</span> <span class="id" title="definition">identity</span> <span class="id" title="var">_</span> .<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">funextsec</span>; <span class="id" title="tactic">intro</span> <span class="id" title="var">t</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">cbn</span>. <span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_TM_to_given_data"><span class="id" title="definition">canonical_TM_to_given_data</span></a>, <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#given_TM_to_canonical_data"><span class="id" title="definition">given_TM_to_canonical_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#term_to_section_recover"><span class="id" title="lemma">term_to_section_recover</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="pp_canonical_TM_to_given"><span class="id" title="lemma">pp_canonical_TM_to_given</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_TM_to_given"><span class="id" title="definition">canonical_TM_to_given</span></a> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#f741603d4924d149d3f5d71b37a4cf6c"><span class="id" title="notation">;;</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#pp"><span class="id" title="definition">pp</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="notation">=</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#pp_from_qq"><span class="id" title="definition">pp_from_qq</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Z"><span class="id" title="variable">Z</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">nat_trans_eq</span>. <span class="id" title="tactic">apply</span> <span class="id" title="definition">homset_property</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">Γ</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="keyword">in</span> <span class="id" title="var">Γ</span>. <span class="id" title="tactic">apply</span> <span class="id" title="definition">funextsec</span>; <span class="id" title="tactic">intros</span> [<span class="id" title="var">A</span> [<span class="id" title="var">s</span> <span class="id" title="var">e</span>]].<br/>
+&nbsp;&nbsp;<span class="id" title="var">cbn</span>. <span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_TM_to_given_data"><span class="id" title="definition">canonical_TM_to_given_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">etrans</span>. <span class="id" title="tactic">apply</span> (<span class="id" title="definition">toforallpaths</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<span class="id" title="definition">nat_trans_ax</span> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#pp"><span class="id" title="definition">pp</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">s</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="var">etrans</span>. <span class="id" title="var">cbn</span>. <span class="id" title="tactic">apply</span> <span class="id" title="definition">maponpaths</span>, <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#pp_te"><span class="id" title="definition">pp_te</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">etrans</span>. <span class="id" title="tactic">apply</span> (<span class="id" title="definition">toforallpaths</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<span class="id" title="notation">!</span><span class="id" title="definition">functor_comp</span> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#TY"><span class="id" title="definition">TY</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.X"><span class="id" title="variable">X</span></a>) <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">etrans</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>, <span class="id" title="var">e</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="definition">toforallpaths</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<span class="id" title="definition">functor_id</span> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#TY"><span class="id" title="definition">TY</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.X"><span class="id" title="variable">X</span></a>) <span class="id" title="var">_</span> ) <span class="id" title="var">_</span>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="canonical_TM_to_given_paths_adjoint"><span class="id" title="lemma">canonical_TM_to_given_paths_adjoint</span></a> {<span class="id" title="var">Γ</span>:<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.C"><span class="id" title="variable">C</span></a>} <span class="id" title="var">Ase</span> <span class="id" title="var">t</span><br/>
+&nbsp;&nbsp;: (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_TM_to_given"><span class="id" title="definition">canonical_TM_to_given</span></a> : <span class="id" title="definition">nat_trans</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Ase"><span class="id" title="variable">Ase</span></a> <span class="id" title="notation">=</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#t"><span class="id" title="variable">t</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/8.5pl3/stdlib/Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Ase"><span class="id" title="variable">Ase</span></a> <span class="id" title="notation">=</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#given_TM_to_canonical_data"><span class="id" title="definition">given_TM_to_canonical_data</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#t"><span class="id" title="variable">t</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">Ase</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">A</span> [<span class="id" title="var">s</span> <span class="id" title="var">e</span>]].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">eA</span> : (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#pp"><span class="id" title="definition">pp</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a> : <span class="id" title="definition">nat_trans</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <span class="id" title="var">_</span> <span class="id" title="var">t</span> <span class="id" title="notation">=</span> <span class="id" title="var">A</span>). {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>. <span class="id" title="tactic">apply</span> <span class="id" title="definition">maponpaths</span>, (<span class="id" title="notation">!</span><span class="id" title="var">H</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="definition">toforallpaths</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="definition">nat_trans_eq_pointwise</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#pp_canonical_TM_to_given"><span class="id" title="lemma">pp_canonical_TM_to_given</span></a> <span class="id" title="var">_</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <span class="id" title="lemma">total2_paths_f</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="notation">!</span><span class="id" title="var">eA</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">cbn</span>. <span class="id" title="tactic">destruct</span> <span class="id" title="var">eA</span>; <span class="id" title="var">cbn</span>. <span class="id" title="tactic">unfold</span> <span class="id" title="definition">idfun</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">subtypeEquality</span>. { <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>; <span class="id" title="tactic">apply</span> <span class="id" title="definition">homset_property</span>. }<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">temp</span> := <span class="id" title="lemma">proofirrelevance</span> <span class="id" title="var">_</span> (<span class="id" title="lemma">isapropifcontr</span> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#term_to_section_aux"><span class="id" title="lemma">term_to_section_aux</span></a> <span class="id" title="var">t</span>))).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="definition">maponpaths</span> <span class="id" title="projection">pr1</span> (<span class="id" title="var">temp</span> (<span class="id" title="var">_</span><span class="id" title="notation">,,</span><span class="id" title="var">_</span>) (<span class="id" title="var">_</span><span class="id" title="notation">,,</span><span class="id" title="var">_</span>))).<br/>
+&nbsp;&nbsp;- <span class="id" title="var">cbn</span>; <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <span class="id" title="var">e</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <span class="id" title="var">H</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="canonical_to_given_to_canonical"><span class="id" title="lemma">canonical_to_given_to_canonical</span></a> <span class="id" title="var">Γ</span><br/>
+&nbsp;&nbsp;: (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_TM_to_given"><span class="id" title="definition">canonical_TM_to_given</span></a> : <span class="id" title="definition">nat_trans</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> )  <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#f741603d4924d149d3f5d71b37a4cf6c"><span class="id" title="notation">;;</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#given_TM_to_canonical_data"><span class="id" title="definition">given_TM_to_canonical_data</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a><br/>
+&nbsp;&nbsp;<span class="id" title="notation">=</span> <span class="id" title="definition">identity</span> <span class="id" title="var">_</span> .<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">funextsec</span>; <span class="id" title="tactic">intro</span> <span class="id" title="var">t</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">pathsinv0</span>, <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_TM_to_given_paths_adjoint"><span class="id" title="lemma">canonical_TM_to_given_paths_adjoint</span></a>, <span class="id" title="abbreviation">idpath</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="canonical_TM_to_given_pointwise_iso"><span class="id" title="lemma">canonical_TM_to_given_pointwise_iso</span></a> <span class="id" title="var">Γ</span><br/>
+&nbsp;&nbsp;: <span class="id" title="definition">is_iso</span> ((<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_TM_to_given"><span class="id" title="definition">canonical_TM_to_given</span></a> : <span class="id" title="definition">nat_trans</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="definition">is_iso_qinv</span> <span class="id" title="var">_</span> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#given_TM_to_canonical_data"><span class="id" title="definition">given_TM_to_canonical_data</span></a> <span class="id" title="var">Γ</span>) ).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_to_given_to_canonical"><span class="id" title="lemma">canonical_to_given_to_canonical</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#given_to_canonical_to_given"><span class="id" title="lemma">given_to_canonical_to_given</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="canonical_TM_to_given_iso"><span class="id" title="definition">canonical_TM_to_given_iso</span></a><br/>
+&nbsp;&nbsp;: @<span class="id" title="definition">iso</span> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.C"><span class="id" title="variable">C</span></a>) (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#tm_from_qq"><span class="id" title="definition">tm_from_qq</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Z"><span class="id" title="variable">Z</span></a>) (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#TM"><span class="id" title="definition">TM</span></a> (<span class="id" title="projection">pr1</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a>)).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_TM_to_given"><span class="id" title="definition">canonical_TM_to_given</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">functor_iso_if_pointwise_iso</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_TM_to_given_pointwise_iso"><span class="id" title="lemma">canonical_TM_to_given_pointwise_iso</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="given_TM_to_canonical_naturality"><span class="id" title="definition">given_TM_to_canonical_naturality</span></a><br/>
+&nbsp;&nbsp;: <span class="id" title="definition">is_nat_trans</span> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#TM"><span class="id" title="definition">TM</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a> : <span class="id" title="definition">functor</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#tm_from_qq"><span class="id" title="definition">tm_from_qq</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Z"><span class="id" title="variable">Z</span></a>) <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(@<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#given_TM_to_canonical_data"><span class="id" title="definition">given_TM_to_canonical_data</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="lemma">is_nat_trans_inv_from_pointwise_inv_ext</span> <span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_TM_to_given_pointwise_iso"><span class="id" title="lemma">canonical_TM_to_given_pointwise_iso</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">homset_property</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="given_TM_to_canonical"><span class="id" title="definition">given_TM_to_canonical</span></a><br/>
+&nbsp;&nbsp;: <span class="id" title="notation">(</span><a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#TM"><span class="id" title="definition">TM</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a><span class="id" title="notation">)</span> <span class="id" title="notation">--&gt;</span> <span class="id" title="notation">(</span><a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#tm_from_qq"><span class="id" title="definition">tm_from_qq</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Z"><span class="id" title="variable">Z</span></a><span class="id" title="notation">)</span><br/>
+:= (<span class="id" title="var">_</span> <span class="id" title="notation">,,</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#given_TM_to_canonical_naturality"><span class="id" title="definition">given_TM_to_canonical_naturality</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="pp_given_TM_to_canonical"><span class="id" title="lemma">pp_given_TM_to_canonical</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#given_TM_to_canonical"><span class="id" title="definition">given_TM_to_canonical</span></a> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#f741603d4924d149d3f5d71b37a4cf6c"><span class="id" title="notation">;;</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#pp_from_qq"><span class="id" title="definition">pp_from_qq</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Z"><span class="id" title="variable">Z</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="notation">=</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#pp"><span class="id" title="definition">pp</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">nat_trans_eq</span>. <span class="id" title="tactic">apply</span> <span class="id" title="definition">homset_property</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">Γ</span>; <span class="id" title="tactic">apply</span> <span class="id" title="abbreviation">idpath</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="canonical_TM_to_given_te"><span class="id" title="lemma">canonical_TM_to_given_te</span></a> {<span class="id" title="var">Γ</span>:<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.C"><span class="id" title="variable">C</span></a>} <span class="id" title="var">A</span><br/>
+&nbsp;&nbsp;: (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_TM_to_given"><span class="id" title="definition">canonical_TM_to_given</span></a> : <span class="id" title="definition">nat_trans</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#1a5636f573bfce30d6d57166fcb7ae61"><span class="id" title="notation">◂</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#A"><span class="id" title="variable">A</span></a>) (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#te_from_qq"><span class="id" title="definition">te_from_qq</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Z"><span class="id" title="variable">Z</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#A"><span class="id" title="variable">A</span></a>) <span class="id" title="notation">=</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#te"><span class="id" title="definition">te</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#A"><span class="id" title="variable">A</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">cbn</span>. <span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_TM_to_given_data"><span class="id" title="definition">canonical_TM_to_given_data</span></a>. <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">etrans</span>. <span class="id" title="tactic">apply</span> <span class="id" title="definition">maponpaths</span>, (<span class="id" title="projection">pr2</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">etrans</span>. <span class="id" title="tactic">refine</span> (<span class="id" title="definition">toforallpaths</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<span class="id" title="notation">!</span><span class="id" title="definition">functor_comp</span> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#TM"><span class="id" title="definition">TM</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> ) <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">etrans</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="lemma">PullbackArrow_PullbackPr2</span> (<span class="id" title="definition">mk_Pullback</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="definition">toforallpaths</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<span class="id" title="definition">functor_id</span> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#TM"><span class="id" title="definition">TM</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a>) <span class="id" title="var">_</span>) <span class="id" title="var">_</span>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="given_TM_to_canonical_te"><span class="id" title="lemma">given_TM_to_canonical_te</span></a> {<span class="id" title="var">Γ</span>:<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.C"><span class="id" title="variable">C</span></a>} <span class="id" title="var">A</span><br/>
+&nbsp;&nbsp;: (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#given_TM_to_canonical"><span class="id" title="definition">given_TM_to_canonical</span></a> : <span class="id" title="definition">nat_trans</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#1b004e48cd1f64e22d5c000cf0d7f047"><span class="id" title="variable">Γ</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#1a5636f573bfce30d6d57166fcb7ae61"><span class="id" title="notation">◂</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#A"><span class="id" title="variable">A</span></a>) (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#te"><span class="id" title="definition">te</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Y"><span class="id" title="variable">Y</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#A"><span class="id" title="variable">A</span></a>) <span class="id" title="notation">=</span> <span class="id" title="notation">(</span><a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#te_from_qq"><span class="id" title="definition">te_from_qq</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM.Z"><span class="id" title="variable">Z</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#A"><span class="id" title="variable">A</span></a><span class="id" title="notation">)</span>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">etrans</span>. <span class="id" title="var">Focus</span> 2. <span class="id" title="tactic">exact</span> (<span class="id" title="definition">toforallpaths</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_to_given_to_canonical"><span class="id" title="lemma">canonical_to_given_to_canonical</span></a> <span class="id" title="var">_</span>) <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">cbn</span>. <span class="id" title="tactic">apply</span> <span class="id" title="definition">maponpaths</span>, @<span class="id" title="definition">pathsinv0</span>, <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_TM_to_given_te"><span class="id" title="lemma">canonical_TM_to_given_te</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures.canonical_TM"><span class="id" title="section">canonical_TM</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="compatible_term_structure_equals_canonical"><span class="id" title="lemma">compatible_term_structure_equals_canonical</span></a><br/>
+&nbsp;&nbsp;{<span class="id" title="var">Z</span> : <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#qq_morphism_structure"><span class="id" title="definition">qq_morphism_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.X"><span class="id" title="variable">X</span></a>} (<span class="id" title="var">Y</span> : <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#compatible_term_structure"><span class="id" title="definition">compatible_term_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Z"><span class="id" title="variable">Z</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Y"><span class="id" title="variable">Y</span></a> <span class="id" title="notation">=</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#compatible_term_from_qq"><span class="id" title="definition">compatible_term_from_qq</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Z"><span class="id" title="variable">Z</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> @<span class="id" title="definition">pathsinv0</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">i</span> := <span class="id" title="definition">isotoid</span> <span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="definition">univalent_category_is_univalent</span> <span class="id" title="var">_</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_TM_to_given_iso"><span class="id" title="definition">canonical_TM_to_given_iso</span></a> <span class="id" title="var">Z</span> <span class="id" title="var">Y</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">subtypeEquality</span>.<br/>
+&nbsp;&nbsp;{ <span class="id" title="tactic">intro</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#isaprop_iscompatible_term_qq"><span class="id" title="lemma">isaprop_iscompatible_term_qq</span></a>. } <br/>
+&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">Y</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">Y</span> <span class="id" title="var">YH</span>]. <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">subtypeEquality</span>.<br/>
+&nbsp;&nbsp;{ <span class="id" title="tactic">intro</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#isaprop_term_fun_structure_axioms"><span class="id" title="lemma">isaprop_term_fun_structure_axioms</span></a>. }<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">Y</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">Y</span> <span class="id" title="var">YH'</span>]; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <span class="id" title="lemma">total2_paths_f</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <span class="id" title="var">i</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">rewrite</span> <span class="id" title="definition">transportf_dirprod</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">Y</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">tm</span> [<span class="id" title="var">p</span> <span class="id" title="var">te</span>]]; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">dirprodeq</span>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">etrans</span>. <span class="id" title="tactic">eapply</span> <span class="id" title="definition">pathsinv0</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span>  (<span class="id" title="lemma">idtoiso_precompose</span> (<a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#preShv"><span class="id" title="definition">preShv</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.C"><span class="id" title="variable">C</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <span class="id" title="var">i</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="lemma">idtoiso_inv</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="lemma">idtoiso_isotoid</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_TM_to_given_iso"><span class="id" title="definition">canonical_TM_to_given_iso</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">nat_trans_eq</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> <span class="id" title="lemma">has_homsets_HSET</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intro</span> <span class="id" title="var">Γ</span>. <span class="id" title="tactic">apply</span> <span class="id" title="abbreviation">idpath</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">etrans</span>. <span class="id" title="var">use</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#transportf_forall"><span class="id" title="lemma">transportf_forall</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">funextsec</span>; <span class="id" title="tactic">intro</span> <span class="id" title="var">Γ</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>. <span class="id" title="var">use</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#transportf_forall"><span class="id" title="lemma">transportf_forall</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">funextsec</span>; <span class="id" title="tactic">intro</span> <span class="id" title="var">A</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#transportf_isotoid_pshf"><span class="id" title="lemma">transportf_isotoid_pshf</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>. <span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#canonical_TM_to_given_data"><span class="id" title="definition">canonical_TM_to_given_data</span></a>. <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>. <span class="id" title="tactic">apply</span> <span class="id" title="definition">maponpaths</span>, <span class="id" title="var">YH</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>. <span class="id" title="tactic">refine</span> (<span class="id" title="definition">toforallpaths</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<span class="id" title="notation">!</span><span class="id" title="definition">functor_comp</span> <span class="id" title="var">tm</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> ) <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="lemma">PullbackArrow_PullbackPr2</span> (<span class="id" title="definition">mk_Pullback</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="definition">toforallpaths</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<span class="id" title="definition">functor_id</span> <span class="id" title="var">tm</span> <span class="id" title="var">_</span>) <span class="id" title="var">_</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab34"></a><h1 class="section">Every compatible q-morphism structure is equal to the canonical one</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="iscontr_compatible_term_structure"><span class="id" title="lemma">iscontr_compatible_term_structure</span></a> (<span class="id" title="var">Z</span> : <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#qq_morphism_structure"><span class="id" title="definition">qq_morphism_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.X"><span class="id" title="variable">X</span></a>)<br/>
+: <span class="id" title="definition">iscontr</span> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#compatible_term_structure"><span class="id" title="definition">compatible_term_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Z"><span class="id" title="variable">Z</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#compatible_term_from_qq"><span class="id" title="definition">compatible_term_from_qq</span></a> <span class="id" title="var">Z</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">t</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#compatible_term_structure_equals_canonical"><span class="id" title="lemma">compatible_term_structure_equals_canonical</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="compatible_qq_morphism_structure_equals_canonical"><span class="id" title="lemma">compatible_qq_morphism_structure_equals_canonical</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<span class="id" title="var">Y</span> : <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#term_fun_structure"><span class="id" title="definition">term_fun_structure</span></a> <span class="id" title="var">_</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.X"><span class="id" title="variable">X</span></a>} (<span class="id" title="var">t</span> : <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#compatible_qq_morphism_structure"><span class="id" title="definition">compatible_qq_morphism_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Y"><span class="id" title="variable">Y</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#t"><span class="id" title="variable">t</span></a> <span class="id" title="notation">=</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#compatible_qq_from_term"><span class="id" title="definition">compatible_qq_from_term</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Y"><span class="id" title="variable">Y</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">subtypeEquality</span>.<br/>
+&nbsp;&nbsp;{ <span class="id" title="tactic">intro</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#isaprop_iscompatible_term_qq"><span class="id" title="lemma">isaprop_iscompatible_term_qq</span></a>. }<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simpl</span>; <span class="id" title="tactic">apply</span> <span class="id" title="lemma">subtypeEquality</span>.<br/>
+&nbsp;&nbsp;{ <span class="id" title="tactic">intro</span>. <span class="id" title="tactic">apply</span> @<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#isaprop_qq_morphism_axioms"><span class="id" title="lemma">isaprop_qq_morphism_axioms</span></a>. }<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">subtypeEquality</span>.<br/>
+&nbsp;&nbsp;{ <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 4 (<span class="id" title="tactic">apply</span> <span class="id" title="lemma">impred</span>; <span class="id" title="tactic">intro</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">isofhleveltotal2</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <span class="id" title="definition">homset_property</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span>. <span class="id" title="tactic">apply</span> <span class="id" title="lemma">isaprop_isPullback</span>. } <br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">t</span> <span class="id" title="keyword">as</span> [[<span class="id" title="var">t</span> <span class="id" title="var">H1</span>] <span class="id" title="var">H2</span>]. <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">t</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">q</span> <span class="id" title="var">h</span>]; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">funextsec</span>. <span class="id" title="tactic">intro</span> <span class="id" title="var">Γ</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">funextsec</span>; <span class="id" title="tactic">intro</span> <span class="id" title="var">Γ'</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">funextsec</span>; <span class="id" title="tactic">intro</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">funextsec</span>; <span class="id" title="tactic">intro</span> <span class="id" title="var">A</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="definition">invmaponpathsweq</span> (<span class="id" title="definition">weqpair</span> <span class="id" title="var">_</span> (<span class="id" title="lemma">yoneda_fully_faithful</span> <span class="id" title="var">_</span> (<span class="id" title="definition">homset_property</span> <span class="id" title="var">_</span>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> ))).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">pathsinv0</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">etrans</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#Yo_qq_term_Yo_of_qq"><span class="id" title="lemma">Yo_qq_term_Yo_of_qq</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#Yo_of_qq"><span class="id" title="definition">Yo_of_qq</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">pathsinv0</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">PullbackArrowUnique</span>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="var">etrans</span>. <span class="id" title="tactic">apply</span> <span class="id" title="definition">maponpaths</span>. <span class="id" title="var">cbn</span>. <span class="id" title="tactic">apply</span> <span class="id" title="abbreviation">idpath</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- <span class="id" title="definition">functor_comp</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>. <span class="id" title="tactic">eapply</span> <span class="id" title="definition">pathsinv0</span>. <span class="id" title="tactic">refine</span> (<span class="id" title="definition">functor_comp</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#2992071cd8d27cf2d1066e1ad11b67d0"><span class="id" title="notation">Yo</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">maponpaths</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="projection">pr1</span> (<span class="id" title="var">h</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> )).<br/>
+&nbsp;&nbsp;+ <span class="id" title="var">etrans</span>. <span class="id" title="tactic">apply</span> <span class="id" title="definition">maponpaths</span>. <span class="id" title="var">cbn</span>. <span class="id" title="tactic">apply</span> <span class="id" title="abbreviation">idpath</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">pathsinv0</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="projection">pr1</span> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#iscompatible_iscompatible'"><span class="id" title="definition">iscompatible_iscompatible'</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) <span class="id" title="var">H2</span>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="iscontr_compatible_split_comp_structure"><span class="id" title="lemma">iscontr_compatible_split_comp_structure</span></a> (<span class="id" title="var">Y</span> : <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#term_fun_structure"><span class="id" title="definition">term_fun_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.C"><span class="id" title="variable">C</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.X"><span class="id" title="variable">X</span></a>)<br/>
+: <span class="id" title="definition">iscontr</span> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#compatible_qq_morphism_structure"><span class="id" title="definition">compatible_qq_morphism_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Y"><span class="id" title="variable">Y</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#compatible_qq_from_term"><span class="id" title="definition">compatible_qq_from_term</span></a> <span class="id" title="var">Y</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#compatible_qq_morphism_structure_equals_canonical"><span class="id" title="lemma">compatible_qq_morphism_structure_equals_canonical</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.compatible_structures"><span class="id" title="section">compatible_structures</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a name="Fix_Context.Equivalence"><span class="id" title="section">Equivalence</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="T1"><span class="id" title="definition">T1</span></a> : <span class="id" title="definition">UU</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="notation">∑</span> <span class="id" title="var">Y</span> : <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#term_fun_structure"><span class="id" title="definition">term_fun_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.C"><span class="id" title="variable">C</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.X"><span class="id" title="variable">X</span></a><span class="id" title="notation">,</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#compatible_qq_morphism_structure"><span class="id" title="definition">compatible_qq_morphism_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Y"><span class="id" title="variable">Y</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="T2"><span class="id" title="definition">T2</span></a> : <span class="id" title="definition">UU</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="notation">∑</span> <span class="id" title="var">Z</span> : <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#qq_morphism_structure"><span class="id" title="definition">qq_morphism_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.X"><span class="id" title="variable">X</span></a><span class="id" title="notation">,</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#compatible_term_structure"><span class="id" title="definition">compatible_term_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Z"><span class="id" title="variable">Z</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="shuffle"><span class="id" title="definition">shuffle</span></a> : <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#T1"><span class="id" title="definition">T1</span></a> <span class="id" title="notation">≃</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#T2"><span class="id" title="definition">T2</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <span class="id" title="definition">weqcomp</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#T1"><span class="id" title="definition">T1</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#compatible_qq_morphism_structure"><span class="id" title="definition">compatible_qq_morphism_structure</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">XR</span> := @<span class="id" title="definition">weqtotal2asstol</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">specialize</span> (<span class="id" title="var">XR</span> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#term_fun_structure"><span class="id" title="definition">term_fun_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.C"><span class="id" title="variable">C</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.X"><span class="id" title="variable">X</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">specialize</span> (<span class="id" title="var">XR</span> (<span class="id" title="keyword">fun</span> <span class="id" title="var">_</span> =&gt; <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#qq_morphism_structure"><span class="id" title="definition">qq_morphism_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.X"><span class="id" title="variable">X</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simpl</span> <span class="id" title="keyword">in</span> <span class="id" title="var">XR</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">specialize</span> (<span class="id" title="var">XR</span> (<span class="id" title="keyword">fun</span> <span class="id" title="var">YZ</span> =&gt; <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#iscompatible_term_qq"><span class="id" title="definition">iscompatible_term_qq</span></a> (<span class="id" title="projection">pr1</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#YZ"><span class="id" title="variable">YZ</span></a>) (<span class="id" title="projection">pr2</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#YZ"><span class="id" title="variable">YZ</span></a>))).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">XR</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <span class="id" title="definition">weqcomp</span>. <span class="id" title="var">Focus</span> 2.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#T2"><span class="id" title="definition">T2</span></a>. <span class="id" title="tactic">unfold</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#compatible_term_structure"><span class="id" title="definition">compatible_term_structure</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">XR</span> := @<span class="id" title="lemma">weqtotal2asstor</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">specialize</span> (<span class="id" title="var">XR</span> (<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#qq_morphism_structure"><span class="id" title="definition">qq_morphism_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.X"><span class="id" title="variable">X</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">specialize</span> (<span class="id" title="var">XR</span> (<span class="id" title="keyword">fun</span> <span class="id" title="var">_</span> =&gt; <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#term_fun_structure"><span class="id" title="definition">term_fun_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.C"><span class="id" title="variable">C</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.X"><span class="id" title="variable">X</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simpl</span> <span class="id" title="keyword">in</span> <span class="id" title="var">XR</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">specialize</span> (<span class="id" title="var">XR</span> (<span class="id" title="keyword">fun</span> <span class="id" title="var">YZ</span> =&gt; <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Maps.html#iscompatible_term_qq"><span class="id" title="definition">iscompatible_term_qq</span></a> (<span class="id" title="projection">pr2</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#YZ"><span class="id" title="variable">YZ</span></a>) (<span class="id" title="projection">pr1</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#YZ"><span class="id" title="variable">YZ</span></a>))).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">XR</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <span class="id" title="definition">weqbandf</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <span class="id" title="definition">weqdirprodcomm</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span>. <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">idweq</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="forget_compat_term"><span class="id" title="definition">forget_compat_term</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#T2"><span class="id" title="definition">T2</span></a> <span class="id" title="notation">≃</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#qq_morphism_structure"><span class="id" title="definition">qq_morphism_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.X"><span class="id" title="variable">X</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="projection">pr1</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">isweqpr1</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> [<span class="id" title="var">z</span> <span class="id" title="var">zz</span>].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#iscontr_compatible_term_structure"><span class="id" title="lemma">iscontr_compatible_term_structure</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="forget_compat_qq"><span class="id" title="definition">forget_compat_qq</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#T1"><span class="id" title="definition">T1</span></a> <span class="id" title="notation">≃</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#term_fun_structure"><span class="id" title="definition">term_fun_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.C"><span class="id" title="variable">C</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.X"><span class="id" title="variable">X</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="projection">pr1</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">isweqpr1</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#iscontr_compatible_split_comp_structure"><span class="id" title="lemma">iscontr_compatible_split_comp_structure</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab35"></a><h1 class="section">Equivalence between term structures and q-morphism structures</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="weq_term_qq"><span class="id" title="definition">weq_term_qq</span></a> : <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#term_fun_structure"><span class="id" title="definition">term_fun_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.C"><span class="id" title="variable">C</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.X"><span class="id" title="variable">X</span></a> <span class="id" title="notation">≃</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#qq_morphism_structure"><span class="id" title="definition">qq_morphism_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.X"><span class="id" title="variable">X</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <span class="id" title="definition">weqcomp</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <span class="id" title="definition">invweq</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#forget_compat_qq"><span class="id" title="definition">forget_compat_qq</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <span class="id" title="definition">weqcomp</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#shuffle"><span class="id" title="definition">shuffle</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#forget_compat_term"><span class="id" title="definition">forget_compat_term</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context.Equivalence"><span class="id" title="section">Equivalence</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#Fix_Context"><span class="id" title="section">Fix_Context</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab36"></a><h1 class="section">Equivalence between types of pairs of object extension, term and q-morphism structures</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="weq_cwf'_sty'"><span class="id" title="definition">weq_cwf'_sty'</span></a> <span class="id" title="var">C</span> : <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#cwf'_structure"><span class="id" title="definition">cwf'_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#C"><span class="id" title="variable">C</span></a> <span class="id" title="notation">≃</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Defs.html#split_typecat'_structure"><span class="id" title="definition">split_typecat'_structure</span></a> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#C"><span class="id" title="variable">C</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="definition">weqfibtototal</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">X</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.html#weq_term_qq"><span class="id" title="definition">weq_term_qq</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+{% endraw %}
