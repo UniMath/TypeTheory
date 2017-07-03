@@ -20,7 +20,7 @@ title: TypeTheory.Displayed_Cats.SIP
 </div>
 
 <div class="doc">
-<a name="lab166"></a><h1 class="section">The Structure Identity Principle</h1>
+<a name="lab167"></a><h1 class="section">The Structure Identity Principle</h1>
 
 
 <div class="paragraph"> </div>
@@ -56,7 +56,7 @@ A short proof of the SIP (HoTT book, chapter 9.8)
 </div>
 
 <div class="doc">
-<a name="lab167"></a><h1 class="section">The Structure Identity Principle</h1>
+<a name="lab168"></a><h1 class="section">The Structure Identity Principle</h1>
 
 </div>
 <div class="code">
@@ -68,7 +68,7 @@ A short proof of the SIP (HoTT book, chapter 9.8)
 </div>
 
 <div class="doc">
-<a name="lab168"></a><h2 class="section">The data and properties according to HoTT book, chapter 9.8</h2>
+<a name="lab169"></a><h2 class="section">The data and properties according to HoTT book, chapter 9.8</h2>
 
 </div>
 <div class="code">
@@ -76,7 +76,7 @@ A short proof of the SIP (HoTT book, chapter 9.8)
 <br/>
 <span class="id" title="keyword">Variable</span> <a name="SIP.C"><span class="id" title="variable">C</span></a> : <span class="id" title="definition">category</span>.<br/>
 <span class="id" title="keyword">Variable</span> <a name="SIP.univC"><span class="id" title="variable">univC</span></a> : <span class="id" title="definition">is_univalent</span> <a class="idref" href="TypeTheory.Displayed_Cats.SIP.html#SIP.C"><span class="id" title="variable">C</span></a>.<br/>
-<span class="id" title="keyword">Variable</span> <a name="SIP.P"><span class="id" title="variable">P</span></a> : <span class="id" title="definition">ob</span> <a class="idref" href="TypeTheory.Displayed_Cats.SIP.html#SIP.C"><span class="id" title="variable">C</span></a> <a class="idref" href="http://coq.inria.fr/distrib/8.5pl3/stdlib/Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="definition">UU</span>.<br/>
+<span class="id" title="keyword">Variable</span> <a name="SIP.P"><span class="id" title="variable">P</span></a> : <span class="id" title="definition">ob</span> <a class="idref" href="TypeTheory.Displayed_Cats.SIP.html#SIP.C"><span class="id" title="variable">C</span></a> <a class="idref" href="http://coq.inria.fr/distrib/8.6.0/stdlib/Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="definition">UU</span>.<br/>
 <span class="id" title="keyword">Variable</span> <a name="SIP.Pisset"><span class="id" title="variable">Pisset</span></a> : <span class="id" title="notation">∏</span> <span class="id" title="var">x</span><span class="id" title="notation">,</span> <span class="id" title="definition">isaset</span> (<a class="idref" href="TypeTheory.Displayed_Cats.SIP.html#SIP.P"><span class="id" title="variable">P</span></a> <a class="idref" href="TypeTheory.Displayed_Cats.SIP.html#x"><span class="id" title="variable">x</span></a>).<br/>
 <span class="id" title="keyword">Variable</span> <a name="SIP.H"><span class="id" title="variable">H</span></a> : <span class="id" title="notation">∏</span> <span class="id" title="notation">(</span><span class="id" title="var">x</span> <span class="id" title="var">y</span> : <a class="idref" href="TypeTheory.Displayed_Cats.SIP.html#SIP.C"><span class="id" title="variable">C</span></a><span class="id" title="notation">),</span> <a class="idref" href="TypeTheory.Displayed_Cats.SIP.html#SIP.P"><span class="id" title="variable">P</span></a> <a class="idref" href="TypeTheory.Displayed_Cats.SIP.html#x"><span class="id" title="variable">x</span></a> <span class="id" title="notation">→</span> <a class="idref" href="TypeTheory.Displayed_Cats.SIP.html#SIP.P"><span class="id" title="variable">P</span></a> <a class="idref" href="TypeTheory.Displayed_Cats.SIP.html#y"><span class="id" title="variable">y</span></a> <span class="id" title="notation">→</span> <a class="idref" href="TypeTheory.Displayed_Cats.SIP.html#SIP.C"><span class="id" title="variable">C</span></a><span class="id" title="notation">⟦</span><a class="idref" href="TypeTheory.Displayed_Cats.SIP.html#x"><span class="id" title="variable">x</span></a><span class="id" title="notation">,</span><a class="idref" href="TypeTheory.Displayed_Cats.SIP.html#y"><span class="id" title="variable">y</span></a><span class="id" title="notation">⟧</span> <span class="id" title="notation">→</span> <span class="id" title="definition">UU</span>.<br/>
 <span class="id" title="var">Arguments</span> <span class="id" title="var">H</span> {<span class="id" title="var">_</span> <span class="id" title="var">_</span>} <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> .<br/>
@@ -91,7 +91,7 @@ A short proof of the SIP (HoTT book, chapter 9.8)
 </div>
 
 <div class="doc">
-<a name="lab169"></a><h2 class="section">A displayed precategory from the data</h2>
+<a name="lab170"></a><h2 class="section">A displayed precategory from the data</h2>
 
 </div>
 <div class="code">
@@ -104,7 +104,7 @@ A short proof of the SIP (HoTT book, chapter 9.8)
 </div>
 
 <div class="doc">
-<a name="lab170"></a><h2 class="section">Displayed category from SIP data is univalent</h2>
+<a name="lab171"></a><h2 class="section">Displayed category from SIP data is univalent</h2>
 
 </div>
 <div class="code">
@@ -128,7 +128,7 @@ A short proof of the SIP (HoTT book, chapter 9.8)
 </div>
 
 <div class="doc">
-<a name="lab171"></a><h2 class="section">The conclusion of SIP: total category is univalent</h2>
+<a name="lab172"></a><h2 class="section">The conclusion of SIP: total category is univalent</h2>
 
 </div>
 <div class="code">

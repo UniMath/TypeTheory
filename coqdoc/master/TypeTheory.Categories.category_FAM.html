@@ -20,7 +20,7 @@ title: TypeTheory.Categories.category_FAM
 </div>
 
 <div class="doc">
-<a name="lab224"></a><h1 class="section">The category FAM(C)</h1>
+<a name="lab225"></a><h1 class="section">The category FAM(C)</h1>
 
 <div class="paragraph"> </div>
 
@@ -45,11 +45,11 @@ title: TypeTheory.Categories.category_FAM
 <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">UniMath.Foundations.UnivalenceAxiom</span>.<br/>
 <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">UniMath.CategoryTheory.Categories</span>.<br/>
 <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">UniMath.CategoryTheory.functor_categories</span>.<br/>
-<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">UniMath.CategoryTheory.category_hset</span>.<br/>
 <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">UniMath.CategoryTheory.yoneda</span>.<br/>
 <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <span class="id" title="library">UniMath.CategoryTheory.rezk_completion</span>.<br/>
 
 <br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.Auxiliary.CategoryTheoryImports.html#"><span class="id" title="library">TypeTheory.Auxiliary.CategoryTheoryImports</span></a>.<br/>
 <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.Auxiliary.Auxiliary.html#"><span class="id" title="library">TypeTheory.Auxiliary.Auxiliary</span></a>.<br/>
 <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="TypeTheory.Auxiliary.UnicodeNotations.html#"><span class="id" title="library">TypeTheory.Auxiliary.UnicodeNotations</span></a>.<br/>
 
@@ -285,7 +285,7 @@ title: TypeTheory.Categories.category_FAM
 </div>
 
 <div class="doc">
-<a name="lab225"></a><h2 class="section"><span class="inlinecode"><a class="idref" href="TypeTheory.Categories.category_FAM.html#FAM"><span class="id" title="definition">FAM</span></a>(<a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a>)</span> is saturated if C is</h2>
+<a name="lab226"></a><h2 class="section"><span class="inlinecode"><a class="idref" href="TypeTheory.Categories.category_FAM.html#FAM"><span class="id" title="definition">FAM</span></a>(<a class="idref" href="TypeTheory.Categories.ess_and_gen_alg_cats.html#gen_alg_from_ess_alg.C"><span class="id" title="variable">C</span></a>)</span> is saturated if C is</h2>
  we construct an equivalence between equalities between (A,f) and (B,g) and isos between them,
    by composing many "small" equivalences
 
@@ -504,7 +504,7 @@ Characterisation of isos in <span class="inlinecode"><a class="idref" href="Type
 <span class="id" title="keyword">Qed</span>.<br/>
 
 <br/>
-<span class="id" title="keyword">Lemma</span> <a name="isaprop_FAM_is_iso"><span class="id" title="lemma">isaprop_FAM_is_iso</span></a> {<span class="id" title="var">A</span> <span class="id" title="var">B</span> : <a class="idref" href="TypeTheory.Categories.category_FAM.html#FAM"><span class="id" title="definition">FAM</span></a>} (<span class="id" title="var">f</span> : <a class="idref" href="TypeTheory.Categories.category_FAM.html#A"><span class="id" title="variable">A</span></a> <span class="id" title="notation">--&gt;</span> <a class="idref" href="TypeTheory.Categories.category_FAM.html#B"><span class="id" title="variable">B</span></a>) : <span class="id" title="definition">has_homsets</span> <a class="idref" href="TypeTheory.Categories.category_FAM.html#FAM.C"><span class="id" title="variable">C</span></a> <a class="idref" href="http://coq.inria.fr/distrib/8.5pl3/stdlib/Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="definition">isaprop</span> (<a class="idref" href="TypeTheory.Categories.category_FAM.html#FAM_is_iso"><span class="id" title="definition">FAM_is_iso</span></a> <a class="idref" href="TypeTheory.Categories.category_FAM.html#f"><span class="id" title="variable">f</span></a>).<br/>
+<span class="id" title="keyword">Lemma</span> <a name="isaprop_FAM_is_iso"><span class="id" title="lemma">isaprop_FAM_is_iso</span></a> {<span class="id" title="var">A</span> <span class="id" title="var">B</span> : <a class="idref" href="TypeTheory.Categories.category_FAM.html#FAM"><span class="id" title="definition">FAM</span></a>} (<span class="id" title="var">f</span> : <a class="idref" href="TypeTheory.Categories.category_FAM.html#A"><span class="id" title="variable">A</span></a> <span class="id" title="notation">--&gt;</span> <a class="idref" href="TypeTheory.Categories.category_FAM.html#B"><span class="id" title="variable">B</span></a>) : <span class="id" title="definition">has_homsets</span> <a class="idref" href="TypeTheory.Categories.category_FAM.html#FAM.C"><span class="id" title="variable">C</span></a> <a class="idref" href="http://coq.inria.fr/distrib/8.6.0/stdlib/Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="definition">isaprop</span> (<a class="idref" href="TypeTheory.Categories.category_FAM.html#FAM_is_iso"><span class="id" title="definition">FAM_is_iso</span></a> <a class="idref" href="TypeTheory.Categories.category_FAM.html#f"><span class="id" title="variable">f</span></a>).<br/>
 <span class="id" title="keyword">Proof</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">HC</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="lemma">isofhleveltotal2</span>.<br/>
@@ -516,7 +516,7 @@ Characterisation of isos in <span class="inlinecode"><a class="idref" href="Type
 
 <br/>
 <span class="id" title="keyword">Lemma</span> <a name="FAM_is_iso_weq"><span class="id" title="lemma">FAM_is_iso_weq</span></a> {<span class="id" title="var">A</span> <span class="id" title="var">B</span> : <a class="idref" href="TypeTheory.Categories.category_FAM.html#FAM"><span class="id" title="definition">FAM</span></a>} (<span class="id" title="var">f</span> : <a class="idref" href="TypeTheory.Categories.category_FAM.html#A"><span class="id" title="variable">A</span></a> <span class="id" title="notation">--&gt;</span> <a class="idref" href="TypeTheory.Categories.category_FAM.html#B"><span class="id" title="variable">B</span></a>)<br/>
-&nbsp;&nbsp;: <span class="id" title="definition">has_homsets</span> <a class="idref" href="TypeTheory.Categories.category_FAM.html#FAM.C"><span class="id" title="variable">C</span></a> <a class="idref" href="http://coq.inria.fr/distrib/8.5pl3/stdlib/Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="definition">is_iso</span> <a class="idref" href="TypeTheory.Categories.category_FAM.html#f"><span class="id" title="variable">f</span></a> <span class="id" title="notation">≃</span> <a class="idref" href="TypeTheory.Categories.category_FAM.html#FAM_is_iso"><span class="id" title="definition">FAM_is_iso</span></a> <a class="idref" href="TypeTheory.Categories.category_FAM.html#f"><span class="id" title="variable">f</span></a>.<br/>
+&nbsp;&nbsp;: <span class="id" title="definition">has_homsets</span> <a class="idref" href="TypeTheory.Categories.category_FAM.html#FAM.C"><span class="id" title="variable">C</span></a> <a class="idref" href="http://coq.inria.fr/distrib/8.6.0/stdlib/Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="definition">is_iso</span> <a class="idref" href="TypeTheory.Categories.category_FAM.html#f"><span class="id" title="variable">f</span></a> <span class="id" title="notation">≃</span> <a class="idref" href="TypeTheory.Categories.category_FAM.html#FAM_is_iso"><span class="id" title="definition">FAM_is_iso</span></a> <a class="idref" href="TypeTheory.Categories.category_FAM.html#f"><span class="id" title="variable">f</span></a>.<br/>
 <span class="id" title="keyword">Proof</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">HC</span>. <span class="id" title="tactic">apply</span> <span class="id" title="definition">weqimplimpl</span>.<br/>
 &nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="TypeTheory.Categories.category_FAM.html#FAM_is_iso_from_is_iso"><span class="id" title="lemma">FAM_is_iso_from_is_iso</span></a>.<br/>
@@ -661,7 +661,7 @@ Characterisation of isos in <span class="inlinecode"><a class="idref" href="Type
 <span class="id" title="var">Admitted</span>.<br/>
 
 <br/>
-<span class="id" title="keyword">Theorem</span> <a name="FAM_is_univalent"><span class="id" title="lemma">FAM_is_univalent</span></a> : <span class="id" title="definition">is_univalent</span> <a class="idref" href="TypeTheory.Categories.category_FAM.html#FAM.C"><span class="id" title="variable">C</span></a> <a class="idref" href="http://coq.inria.fr/distrib/8.5pl3/stdlib/Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="definition">is_univalent</span> <a class="idref" href="TypeTheory.Categories.category_FAM.html#FAM"><span class="id" title="definition">FAM</span></a>.<br/>
+<span class="id" title="keyword">Theorem</span> <a name="FAM_is_univalent"><span class="id" title="lemma">FAM_is_univalent</span></a> : <span class="id" title="definition">is_univalent</span> <a class="idref" href="TypeTheory.Categories.category_FAM.html#FAM.C"><span class="id" title="variable">C</span></a> <a class="idref" href="http://coq.inria.fr/distrib/8.6.0/stdlib/Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="definition">is_univalent</span> <a class="idref" href="TypeTheory.Categories.category_FAM.html#FAM"><span class="id" title="definition">FAM</span></a>.<br/>
 <span class="id" title="keyword">Proof</span>.<br/>
 &nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>. <span class="id" title="tactic">split</span>.<br/>
 &nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">A</span> <span class="id" title="var">B</span>.<br/>
