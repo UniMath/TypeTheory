@@ -184,36 +184,28 @@ Lemma ltower_over_ftn { T : ltower } { A : T } ( n : nat )
 Proof .
   intros T A n . 
   induction n .
-  intros . 
-  apply idpath . 
+  + intros . 
+    apply idpath . 
 
-  intros. 
-  rewrite <- ftn_ft . 
-  rewrite <- ftn_ft . 
-  assert ( int : ft ( pr1 X ) = pr1 ( ft X ) ) . 
-  change ( ft X ) with ( ltower_over_ft X ) . 
-  unfold ltower_over_ft . 
-  destruct ( isover_choice (isov_isov X) ) as [ isov | eq ] . 
-  simpl . 
-  apply idpath . 
+  + intros. 
+    rewrite <- ftn_ft . 
+    rewrite <- ftn_ft . 
+    assert ( int : ft ( pr1 X ) = pr1 ( ft X ) ) . 
+    - change ( ft X ) with ( ltower_over_ft X ) . 
+      unfold ltower_over_ft . 
+      destruct ( isover_choice (isov_isov X) ) as [ isov | eq ] . 
+      *  simpl . 
+         apply idpath . 
 
-  assert ( absd : empty ) . 
-  change ( ll X ) with ( ll ( pr1 X ) - ll A ) in ge .
-  rewrite <- eq in ge . 
-  rewrite natminusnn in ge . 
-(*
-  apply ( ge ( natgthsn0 _ ) ) . 
-*)
-  admit.
-
-  destruct absd .
-  rewrite int . 
-  refine ( IHn ( ft X ) _ ) . 
-  apply ( ll_ft_gtn ge ) . 
-(*
+      *  change ( ll X ) with ( ll ( pr1 X ) - ll A ) in ge .
+         rewrite <- eq in ge . 
+         rewrite natminusnn in ge .
+         destruct (nopathsfalsetotrue ge).
+    -  rewrite int . 
+       refine ( IHn ( ft X ) _ ) . 
+       apply ( ll_ft_gtn ge ) . 
 Defined.
-*)
-Admitted.
+
 
 (** **** Standard constructions of over-objects *)
 
