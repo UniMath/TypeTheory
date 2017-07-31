@@ -260,4 +260,4 @@ Identity Coercion StTt_to_Fun: StTt_type >-> Funclass .
 
 
 
-(* End of the file lBsystems_TS_ST.v *)
+(* End of the file TS_ST.v *)

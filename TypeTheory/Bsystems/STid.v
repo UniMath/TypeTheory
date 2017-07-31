@@ -63,4 +63,4 @@ Identity Coercion StTtid_to_Fun: StTtid_type >-> Funclass .
 
 
 
-(* End of the file lBsystem_STid.v *)
+(* End of the file STid.v *)

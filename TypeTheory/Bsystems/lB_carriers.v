@@ -107,5 +107,4 @@ Definition ll_dd_geh { BB : lBsystem_carrier } ( r : Tilde BB ) : ll ( dd r ) >=
 
 
    
-(* End of the file lBsystems_carriers.v *)
-
+(* End of the file lB_carriers.v *)

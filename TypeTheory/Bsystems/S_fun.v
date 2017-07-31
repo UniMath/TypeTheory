@@ -202,4 +202,4 @@ Definition ltower_fun_S { BB : lBsystem_carrier }
 
   
 
-(* The end of the file lBsystems_S_fun.v *)
+(* The end of the file S_fun.v *)

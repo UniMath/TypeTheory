@@ -114,4 +114,4 @@ Definition StTtid { BB : lB_nu } : @StTtid_type BB := pr2 ( pr2 ( pr2 BB ) ) .
 
 
 
-(* End of the file lB_non_unital.v *) 
+(* End of the file lB_non_unital.v *)
