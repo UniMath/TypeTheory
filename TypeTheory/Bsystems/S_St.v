@@ -1,5 +1,4 @@
-(** * Operations S and St on carriers of lB-systems and 
-their properties SSt and StSt .
+(** * Operations S and St on carriers of lB-systems and their properties SSt and StSt .
 
 by Vladimir Voevodsky, file created on Jan. 6, 2015 *)
 
@@ -12,18 +11,18 @@ Require Export TypeTheory.Bsystems.lB_carriers.
 
 
 
-(* **** Operation(s) S  
+(** ** Operation(s) S  
 
 Note: both the domain of definition of operations S and the type of the axiom 1a of operations 
-S are obtainable from the same for operations T by removing the condition T_dom_gt0 and 
-replacing ( ft X1 ) by ( dd r ). This leads to the possibility of almost direct copy-and_paste
+S are obtainable from the same for operations T by removing the condition [T_dom_gt0] and 
+replacing [ft X1] by [dd r]. This leads to the possibility of almost direct copy-and-paste
 of many proofs concerning T into the context of S. 
 
 Operations T and S are different in the forms of axiom 0 and axiom 1b . 
 
 *)
 
-(** Domains of definition of operations of type S *)
+(** *** Domains of definition of operations of type S *)
 
 
 Definition S_dom { BB : lBsystem_carrier } ( r : Tilde BB ) ( X : BB ) :=
@@ -71,11 +70,13 @@ Proof .
 Defined .  
 
 
-(** The type objects of which are candidates for operations S on an lB-system. *)
+(** *** The type objects of which are candidates for operations S on an lB-system. *)
  
 
 Definition S_ops_type ( BB : lBsystem_carrier ) :=
   forall ( r : Tilde BB ) ( Y : BB ) ( inn : S_dom r Y ) , BB .
+
+(** Notice that the indices in [BB] are not specified here, see [S_ax0_type] below. *)
 
 Lemma S_equals_2 { BB : lBsystem_carrier } { r : Tilde BB } { Y Y' : BB } ( S : S_ops_type BB )
       ( eq : Y = Y' ) ( inn : S_dom r Y ) ( inn' : S_dom r Y' )  :
@@ -90,10 +91,13 @@ Defined.
 
 
 
-(** The zeros property (later an axiom) of an operation of type S *)
+(** *** The zeroth property (later an axiom) of an operation of type S *)
 
 Definition S_ax0_type { BB : lBsystem_carrier } ( S : S_ops_type BB ) :=
   forall ( r : Tilde BB ) ( Y : BB ) ( inn : S_dom r Y ) , ll ( S r Y inn ) = ll Y - 1 .
+
+(** This definition gives the missing element of Definition 2.1.4(c) in arXiv:1410.5389v1 *)
+
 Identity Coercion S_ax0_to_Fun: S_ax0_type >-> Funclass . 
 
 Lemma ll_S_gt0 { BB : lBsystem_carrier }
@@ -107,21 +111,30 @@ Proof.
 Defined.
 
 
-(** The first property (later an axiom) of an operation of type S *)
+(** *** The first property (later an axiom) of an operation of type S *)
 
 Definition S_ax1a_type { BB : lBsystem_carrier } ( S : S_ops_type BB ) :=
   forall ( r : Tilde BB ) ( Y : BB ) ( inn : S_dom r Y ) ( isab : isabove ( ft Y ) ( dd r ) ) ,
     ft ( S r Y inn ) = S r ( ft Y ) isab .
+
+(** This definition corresponds to the first case in Definition 2.5.4 in arXiv:1410.5389v1.
+
+Typo in the preprint: X comes from B{m+2} without tilde.
+ *)
+
 Identity Coercion S_ax1a_to_Fun: S_ax1a_type >-> Funclass . 
 
 Definition S_ax1b_type { BB : lBsystem_carrier } ( S : S_ops_type BB ) :=
   forall ( r : Tilde BB ) ( Y : BB ) ( inn : S_dom r Y ) ,
     isabove ( S r Y inn ) ( ft ( dd r ) ) .
+
+(** This is not the second case in Definition 2.5.4 in arXiv:1410.5389v1 *)
+
 Identity Coercion S_ax1b_to_Fun: S_ax1b_type >-> Funclass . 
 
 
 
-(** The computation of the iterated ft of ( S r Y ) .  *)
+(** *** The computation of the iterated ft of ( S r Y ) .  *)
           
 Lemma ftn_S { BB : lBsystem_carrier } { S : S_ops_type BB } ( ax1a : S_ax1a_type S )
       ( n : nat ) { r : Tilde BB } { Y : BB } ( isab : isabove ( ftn n Y ) ( dd r ) )
@@ -129,19 +142,20 @@ Lemma ftn_S { BB : lBsystem_carrier } { S : S_ops_type BB } ( ax1a : S_ax1a_type
   ftn n ( S r Y inn ) = S r ( ftn n Y ) isab .
 Proof .
   intros BB S ax1a n . induction n as [ | n IHn ] .
-  intros .
-  rewrite ( noparts_S_dom inn isab ) . 
-  apply idpath . 
-
-  intros .
+  + intros .
+    rewrite ( noparts_S_dom inn isab ) . 
+    apply idpath . 
+  + intros .
   change ( ftn (Datatypes.S n) (S r Y inn) ) with ( ft ( ftn n (S r Y inn) ) ) .
-  assert ( isab' : isabove ( ftn n Y ) ( dd r ) ) .
-  exact ( isabove_ft_inv isab ) . 
-  
+  assert ( isab' : isabove ( ftn n Y ) ( dd r ) ) by exact ( isabove_ft_inv isab ) . 
   rewrite ( IHn r Y isab' inn ) . 
   refine ( ax1a _ _ _ _ ) . 
-
 Defined.
+
+(** Now get the second case in Definition 2.5.4 in arXiv:1410.5389v1 from [S_ax1b_type] 
+
+Typo in the preprint: Y there is undefined and should be replaced by dd(s).
+*)
 
 Lemma ft_S { BB : lBsystem_carrier } { S : S_ops_type BB } { r : Tilde BB } { Y : BB }
       ( ax0 : S_ax0_type S ) ( ax1b : S_ax1b_type S ) ( iseq : ft Y = dd r )
@@ -161,7 +175,10 @@ Proof.
 Defined.
 
 
-(** The isover and isabove properties of the expressions S r Y *)
+
+
+(** *** The isover and isabove properties of the expressions S r Y *)
+(** We prove just monotonicity in the second argument with respect to [isover] and [isabove] *)
 
 
 Lemma isover_S_S_2 { BB : lBsystem_carrier }
@@ -171,7 +188,7 @@ Lemma isover_S_S_2 { BB : lBsystem_carrier }
 Proof .
   intros . 
   unfold isover in * .
-  repeat rewrite ax0 .
+  do 2 rewrite ax0 .
   simpl .
   assert ( isab : isabove ( ftn ( ll Y - ll Y') Y ) ( dd r ) ) .
   rewrite <- is . 
@@ -191,7 +208,7 @@ Lemma isabove_S_S_2 { BB : lBsystem_carrier }
 Proof .
   intros .
   refine ( isabove_constr _ _ ) .
-  repeat rewrite ax0 .
+  do 2 rewrite ax0 .
   refine ( natgthandminusinvr _ _ ) .
   exact ( isabove_gth is ) .
 
@@ -203,14 +220,17 @@ Defined.
 
 
 
-(** **** Operation(s) St  *)
+(** ** Operation(s) St (S tilde in the paper)  *)
 
 
-(** Domains of definition of operations of type St *)
+(** *** Domains of definition of operations of type St *)
 
 
 Definition St_dom { BB : lBsystem_carrier } ( r : Tilde BB ) ( s : Tilde BB ) :=
   S_dom r ( dd s ) .
+
+(** Notice that r and s are interchanged w.r.t. Definition 2.1.4(d) in arXiv:1410.5389v1,
+but not the order of arguments. *)
 
 Identity Coercion St_dom_to_S_dom : St_dom >-> S_dom . 
 
@@ -240,23 +260,26 @@ Defined.
 
 
 
-(** The type objects of which are candidates for operations St on an lB-system. *)
+(** *** The type objects of which are candidates for operations St on an lB-system. *)
  
 
 Definition St_ops_type ( BB : lBsystem_carrier ) :=
   forall ( r : Tilde BB ) ( s : Tilde BB ) ( inn : St_dom r s ) , Tilde BB .
+
+(** Notice that the indices in [Tilde BB] are not specified here, see [St_ax0_type] below. *)
+
 Identity Coercion St_ops_to_Fun: St_ops_type >-> Funclass . 
 
 
-(** The zeros property (later an axiom) of an operation of type St 
-It will be shown to be a corollary of the first property of St and the zeros property of S. 
+(** *** The zeroth property (later an axiom) of an operation of type St 
+It will be shown to be a corollary of the first property of St and the zeroth property of S. 
 However it is convenient to have it separately for the use in the definition of a prelBsystem. *)
 
 Definition St_ax0_type { BB : lBsystem_carrier } ( St : St_ops_type BB ) :=
   forall ( r s : Tilde BB ) ( inn : St_dom r s ) ,
     ll ( dd ( St r s inn ) ) = ll ( dd s ) - 1 .
 
-(** The first property (later an axiom) of an operation of type St *)
+(** *** The first property (later an axiom) of an operation of type St *)
 
 
 Definition St_ax1_type { BB : lBsystem_carrier }
@@ -264,6 +287,9 @@ Definition St_ax1_type { BB : lBsystem_carrier }
            ( St : St_ops_type BB ) := 
   forall ( r : Tilde BB ) ( s : Tilde BB ) ( inn : St_dom r s ) ,
     dd ( St r s inn ) = S r ( dd s ) inn .
+
+(** This definition corresponds to Definition 2.5.5 in arXiv:1410.5389v1 *)
+
 Identity Coercion St_ax1_to_Fun: St_ax1_type >-> Funclass .
 
 Lemma St_ax1_to_St_ax0 { BB : lBsystem_carrier }
@@ -279,8 +305,8 @@ Proof .
 Defined.
 
 
-(** Implications of the zeros and first properties of operations of type S and St
-that are required for the formulation of the properties StS and StSt *)
+(** *** Implications of the zeroth and first properties of operations of type S and St that are required for the formulation of the properties StS and StSt *)
+(** Those two announced properties have the unique name SS-condition in the paper. *)
 
 
 Lemma ll_dd_St { BB : lBsystem_carrier } { S : S_ops_type BB } { St : St_ops_type BB }
@@ -362,6 +388,10 @@ Definition SSt_type { BB : lBsystem_carrier } { S : S_ops_type BB }
     S ( St r s innrs ) ( S r Y ( St_S_dom_comp innrs inn ) )
       ( S_dom_rs_sY_to_Strs_SrY ax0 ax1a ax1t innrs inn ) =
     S r ( S s Y inn ) ( S_dom_rs_sY_to_r_SsY ax1b innrs inn ) .
+
+
+(** This definition corresponds to Definition 3.1.2(a) in arXiv:1410.5389v1 *)
+
 Identity Coercion SSt_to_Fun: SSt_type >-> Funclass . 
 
 
@@ -373,7 +403,10 @@ Definition StSt_type { BB : lBsystem_carrier } { S : S_ops_type BB }
   forall ( r s t : Tilde BB ) ( innrs : St_dom r s ) ( innst : St_dom s t ) ,
     St ( St r s innrs ) ( St r t ( St_St_dom_comp innrs innst ) )
       ( St_dom_rs_st_to_Strs_Strt ax0 ax1a ax1t innrs innst ) =
-    St r ( St s t innst ) ( St_dom_rs_st_to_r_Stst ax1b ax1t innrs innst ) . 
+    St r ( St s t innst ) ( St_dom_rs_st_to_r_Stst ax1b ax1t innrs innst ) .
+
+(** This definition corresponds to Definition 3.1.2(b) in arXiv:1410.5389v1 *)
+
 Identity Coercion StSt_to_Fun: StSt_type >-> Funclass . 
 
 
