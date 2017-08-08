@@ -375,10 +375,6 @@ Defined.
 
 
 
-
-
-
-
 (** Property SSt *)
 
 Definition SSt_type { BB : lBsystem_carrier } { S : S_ops_type BB }
@@ -408,9 +404,6 @@ Definition StSt_type { BB : lBsystem_carrier } { S : S_ops_type BB }
 (** This definition corresponds to Definition 3.1.2(b) in arXiv:1410.5389v1 *)
 
 Identity Coercion StSt_to_Fun: StSt_type >-> Funclass . 
-
-
-
 
 
 
