@@ -1,4 +1,4 @@
-(** ** Pre-lB-systems 
+(** * Non-unital pre-lB-systems 
 
 By Vladimir Voevodsky, started on Jan. 24, 2015 *)
 
@@ -9,11 +9,9 @@ Require Export TypeTheory.Bsystems.S_fun .
 
 
 
-(** ** Non-unital pre-lB-systems *) 
+(** ** The main layers *)
 
-(** *** The main layers *)
-
-(** **** The structure formed by operations T *)
+(** *** The structure formed by operations T *)
 
 Definition T_layer_0 ( BB : lBsystem_carrier ) :=
   total2 ( fun T : T_ops_type BB =>  T_ax0_type T ) .
@@ -23,7 +21,7 @@ Definition T_layer_0_to_T_ops_type ( BB : lBsystem_carrier ) ( T : T_layer_0 BB 
 Coercion T_layer_0_to_T_ops_type : T_layer_0 >-> T_ops_type .
 
 
-(** **** The structure formed by operations Tt *)
+(** *** The structure formed by operations Tt *)
 
 Definition Tt_layer_0 ( BB : lBsystem_carrier ) :=
   total2 ( fun Tt : Tt_ops_type BB => Tt_ax0_type Tt ) .
@@ -33,7 +31,7 @@ Definition Tt_layer_0_to_Tt_ops_type ( BB : lBsystem_carrier ) :
 Coercion Tt_layer_0_to_Tt_ops_type : Tt_layer_0 >-> Tt_ops_type .
 
 
-(** **** The structure formed by operations S *)
+(** *** The structure formed by operations S *)
 
 
 Definition S_layer_0 ( BB : lBsystem_carrier ) :=
@@ -45,7 +43,7 @@ Coercion S_layer_0_to_S_ops_type : S_layer_0 >-> S_ops_type .
 
 
 
-(** **** The structure formed by operations St *)
+(** *** The structure formed by operations St *)
 
 
 Definition St_layer_0 ( BB : lBsystem_carrier ) :=
@@ -57,7 +55,7 @@ Coercion St_layer_0_to_St_ops_type : St_layer_0 >-> St_ops_type .
 
 
 
-(** **** Complete definition of a non-unital pre-lB-system *)
+(** ** Complete definition of a non-unital pre-lB-system *)
 
 Definition prelBsystem_non_unital :=
   total2 ( fun BB : lBsystem_carrier =>
