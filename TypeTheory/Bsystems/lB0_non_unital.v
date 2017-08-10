@@ -18,7 +18,7 @@ Require Export TypeTheory.Bsystems.dlt .
 Definition T_layer ( BB : lBsystem_carrier ) :=
   total2 ( fun T : T_layer_0 BB => dirprod ( T_ax1a_type T ) ( T_ax1b_type T ) ) .
 
-(** Warning: [T_layer_0] refers to a pre-B-system, [T_layer] refers to a B0-system. *)
+(** Warning: [T_layer_0] refers to a pre-lB-system, [T_layer] refers to a lB0-system. *)
 
 Definition T_layer_to_T_layer_0 ( BB : lBsystem_carrier ) : T_layer BB -> T_layer_0 BB :=
   pr1 . 

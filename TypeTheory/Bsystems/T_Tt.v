@@ -296,7 +296,7 @@ Identity Coercion Tt_ops_to_Fun: Tt_ops_type >-> Funclass .
 (** *** The zeroth property (later an axiom) of an operation of type Tt
  
 It will be shown to be a corollary of the first property of Tt and the zeroth property of T. 
-However it is convenient to have it separately for the use in the definition of a prelBsystem. *)
+However it is convenient to have it separately for the use in the definition of a pre-lB-system. *)
 
 Definition Tt_ax0_type { BB : lBsystem_carrier } ( Tt : Tt_ops_type BB ) :=
   forall ( X : BB ) ( s : Tilde BB ) ( inn : Tt_dom X s ) ,

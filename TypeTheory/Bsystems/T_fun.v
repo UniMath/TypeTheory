@@ -483,7 +483,7 @@ Definition ltower_Tj_fun { BB : lBsystem_carrier }
 
 
 
-(** *** Function Tprod for pointed l-Bsystems *)
+(** *** Function Tprod for pointed lB-systems *)
 
 
 Definition Tprod_fun { BB : lBsystem_carrier } 

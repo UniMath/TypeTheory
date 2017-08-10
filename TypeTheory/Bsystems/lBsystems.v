@@ -4,7 +4,10 @@ Vladimir Voevodsky.
 
 Started December 3, 2014. 
 
-A companion code to the paper "B-systems". 
+A companion code to the paper "B-systems".
+
+The presence of the length function explains that the systems have "lB" in their name.
+Another implementation based on sequences of sets could be envisaged.
 
  *)
 

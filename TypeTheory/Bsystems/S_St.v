@@ -273,7 +273,7 @@ Identity Coercion St_ops_to_Fun: St_ops_type >-> Funclass .
 
 (** *** The zeroth property (later an axiom) of an operation of type St 
 It will be shown to be a corollary of the first property of St and the zeroth property of S. 
-However it is convenient to have it separately for the use in the definition of a prelBsystem. *)
+However it is convenient to have it separately for the use in the definition of a pre-lB-system. *)
 
 Definition St_ax0_type { BB : lBsystem_carrier } ( St : St_ops_type BB ) :=
   forall ( r s : Tilde BB ) ( inn : St_dom r s ) ,

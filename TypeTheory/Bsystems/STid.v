@@ -7,8 +7,7 @@ Unset Automatic Introduction.
 Require Export TypeTheory.Bsystems.T_Tt .
 Require Export TypeTheory.Bsystems.S_St .
 
-(** *** Properties of the domains of definition of operations S and St required to formulate 
-the properties STid and StTtid *)
+(** *** Properties of the domains of definition of operations S and St required to formulate the properties STid and StTtid *)
 
 Lemma  S_dom_STid { BB : lBsystem_carrier }
            { T : T_ops_type BB } ( Tax1b : T_ax1b_type T )
