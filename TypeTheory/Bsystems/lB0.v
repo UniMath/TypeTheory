@@ -30,7 +30,8 @@ Definition lB0system :=
   total2 ( fun BB : lB0system_non_unital => dlt_layer ( @T_op BB ) ) .
 
 (** This definition corresponds to the addition of Definition 2.6 in arXiv:1410.5389v1
-    of the axiom [dlt_ax1_type], only the packaging order is different in irrelevant ways. *)
+    of the axiom [dlt_ax1_type], only the packaging order is different in irrelevant ways
+    ([lB0system_to_prelBystem] below is not just a projection). *)
 
 Definition lB0system_pr1 : lB0system -> lB0system_non_unital := pr1 .
 Coercion lB0system_pr1 : lB0system >-> lB0system_non_unital .

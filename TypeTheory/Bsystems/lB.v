@@ -1,4 +1,4 @@
-(** * The type of the unital lBsystems
+(** * The type of the unital lB-systems
 
 By Vladimir Voevodsky, started on Jan. 18, 2015 *)
 
@@ -8,34 +8,34 @@ Require Export TypeTheory.Bsystems.lB_non_unital.
 Require Export TypeTheory.Bsystems.lB0.
 
 
-(** Condition dltT *)
+(** *** Condition dltT *)
 
 Definition dltT_type { BB : lB_nu } ( dlt : dlt_layer ( @T_op BB ) ) :=
   dlt.dltT_type ( @T_ax0 BB ) ( @T_ax1b BB ) ( @Tt_op BB ) ( dlt_ax1 dlt ) . 
 
-(** Condition dltS *)
+(** *** Condition dltS *)
 
 Definition dltS_type { BB : lB_nu } ( dlt : dlt_layer ( @T_op BB ) ) :=
   dlt.dltS_type ( @T_ax1b BB ) ( @S_ax0 BB ) ( @St_op BB ) ( dlt_ax1 dlt ) .
 
 
-(** Condition SdltT *)
+(** *** Condition SdltT *)
 
 Definition SdltT_type { BB : lB_nu } ( dlt : dlt_layer ( @T_op BB ) ) :=
   dlt.SdltT_type ( @T_ax0 BB ) ( @T_ax1a BB ) ( dlt_ax1 dlt ) ( @S_op BB ) .
 
-(** Condition StdltTt *)
+(** *** Condition StdltTt *)
 
 Definition StdltTt_type { BB : lB_nu } ( dlt : dlt_layer ( @T_op BB ) ) :=
   dlt.StdltTt_type ( @T_ax0 BB ) ( @T_ax1a BB ) ( dlt_ax1 dlt ) ( @Tt_ax1 BB ) ( @St_op BB ) .
 
-(** Condition dltSid *)
+(** *** Condition dltSid *)
 
 Definition dltSid_type { BB : lB_nu } ( dlt : dlt_layer ( @T_op BB ) ) :=
   dlt.dltSid_type ( @T_ax1b BB ) ( dlt_ax1 dlt ) ( @St_op BB ) .
 
 
-(** Unital lBsystem *)
+(** *** Unital lB-system *)
 
 Definition lB :=
   total2 ( fun BB : lB_nu =>
@@ -44,7 +44,12 @@ Definition lB :=
                ( dirprod
                    ( dirprod ( dltT_type dlt ) ( dltS_type dlt ) )
                    ( dirprod ( SdltT_type dlt ) ( StdltTt_type dlt ) ) )
-               ( dltSid_type dlt ) ) ) . 
+               ( dltSid_type dlt ) ) ) .
+
+(** This definition corresponds to the addition of Definition 3.2 in arXiv:1410.5389v1
+    of the axioms, only the packaging order is different in irrelevant ways
+    ([lB_to_lB0] below is not just a projection). *)
+
 
 
 Definition lB_to_lB_nu : lB -> lB_nu := pr1 .

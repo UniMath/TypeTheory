@@ -83,7 +83,9 @@ Definition lB_nu :=
                ( dirprod
                    ( dirprod ( TT_TTt_layer BB ) ( SSt_StSt_layer BB ) )
                    ( dirprod ( TS_TtS_layer BB ) ( ST_StTt_layer BB ) ) )
-               ( STid_layer BB ) ) . 
+               ( STid_layer BB ) ) .
+
+(** This definition corresponds to Definition 3.1 in arXiv:1410.5389v1. *)
                                                              
                                                              
 Definition lB_nu_pr1 : lB_nu -> lB0system_non_unital := pr1 .
