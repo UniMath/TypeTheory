@@ -63,6 +63,10 @@ Definition prelBsystem_non_unital :=
                ( dirprod ( T_layer_0 BB ) ( Tt_layer_0 BB ) )
                ( dirprod ( S_layer_0 BB ) ( St_layer_0 BB ) ) ) .
 
+(** This definition closely corresponds to Definition 2.1 in arXiv:1410.5389v1. What is different
+    is the underlying notion of [lBsystem_carrier] that is less specific on [TildeB] and already
+    requires that [B] is pointed (there is only one element of length 0). *)
+
 Definition prelBsystem_non_unital_pr1 : prelBsystem_non_unital -> lBsystem_carrier := pr1 .
 Coercion  prelBsystem_non_unital_pr1 : prelBsystem_non_unital >-> lBsystem_carrier .
 
