@@ -1,4 +1,4 @@
-(** ** The functions of the over-towers defined by T and their iterations. 
+(** * The functions of the over-towers defined by T and their iterations. 
 
 by Vladimir Voevodsky, started on Jan. 22, 2015 *)
 
@@ -7,20 +7,21 @@ Unset Automatic Introduction.
 Require Export TypeTheory.Bsystems.T_Tt .
 
 
-(** *** The definition of an extended operation T and its elementary properties. *)
+(** ** The definition of an extended operation T and its elementary properties. *)
 
 Definition T_ext_dom { BB : lBsystem_carrier } ( X1 X2 : BB ) :=
   dirprod ( ll X1 > 0 ) ( isover X2 ( ft X1 ) ) .
+
+(** The only difference with [T_dom] is the possibility that X2 is ft X1. *)
 
 Definition T_ext_dom_constr { BB : lBsystem_carrier } { X1 X2 : BB }
            ( gt0 : ll X1 > 0 ) ( isov : isover X2 ( ft X1 ) ) : T_ext_dom X1 X2 :=
   dirprodpair gt0 isov . 
 
-Definition T_ext_dom_gt0 { BB : lBsystem_carrier } { X1 X2 : BB } ( inn : T_ext_dom X1 X2 ) :=
-  pr1 inn .
+Definition T_ext_dom_gt0 { BB : lBsystem_carrier } { X1 X2 : BB } ( inn : T_ext_dom X1 X2 ) :
+  ll X1 > 0:= pr1 inn .
 
-Definition T_ext_dom_isov { BB : lBsystem_carrier } { X1 X2 : BB } ( inn : T_ext_dom X1 X2 ) :=
-  pr2 inn .
+Definition T_ext_dom_isov { BB : lBsystem_carrier } { X1 X2 : BB } ( inn : T_ext_dom X1 X2 ) : isover X2 ( ft X1 ) := pr2 inn .
 
 Definition T_dom_to_T_ext_dom { BB : lBsystem_carrier } { X1 X2 : BB } ( inn : T_dom X1 X2 ) :
   T_ext_dom X1 X2 := T_ext_dom_constr ( T_dom_gt0 inn ) ( T_dom_isabove inn ) . 
@@ -36,11 +37,11 @@ Definition T_ext { BB : lBsystem_carrier } ( T : T_ops_type BB )
 Proof .
   intros. set ( gt0 := pr1 inn ) . set ( isov := pr2 inn ) . 
   destruct ( ovab_choice isov ) as [ isab | eq ] . 
-  exact ( T _ _ ( dirprodpair gt0 isab ) ) . 
-
-  exact X1 .
-
+  + exact ( T _ _ ( dirprodpair gt0 isab ) ) . 
+  + exact X1 .
 Defined.
+
+(** The second case is the corner case motivated by the first line of p.4 of arXiv:1410.5389v1 when there is no item after En. *)
 
 Lemma isover_T_ext { BB : lBsystem_carrier }
       ( T : T_ops_type BB ) ( ax1b : T_ax1b_type T )
@@ -50,14 +51,12 @@ Proof .
   intros .
   unfold T_ext . 
   destruct ( ovab_choice (pr2 inn) ) as [ isab | eq ] .
-  exact ( ax1b _ _ _ ) . 
-
-  exact ( isover_XX _ ) . 
-
+  + exact ( ax1b _ _ _ ) . 
+  + exact ( isover_XX _ ) . 
 Defined.
 
 
-  
+(** [T_ext] is monotone in its argument [X2] w.r.t. [isover]: *)  
 
 Lemma isover_T_ext_T_ext_2 { BB : lBsystem_carrier }
       { T : T_ops_type BB } ( ax0 :  T_ax0_type T ) ( ax1a : T_ax1a_type T ) ( ax1b : T_ax1b_type T )
@@ -66,22 +65,17 @@ Lemma isover_T_ext_T_ext_2 { BB : lBsystem_carrier }
 Proof .
   intros . unfold T_ext .
   destruct ( ovab_choice (pr2 inn) ) as [ isab | eq ] .
-  destruct ( ovab_choice (pr2 inn') ) as [ isab' | eq' ] .
-  apply ( isover_T_T_2 ax0 ax1a _ _ is ) . 
-
-  exact ( ax1b _ _ _ ) . 
-
-  destruct ( ovab_choice (pr2 inn') ) as [ isab' | eq' ] .
-  assert ( absd : empty ) .
-  rewrite eq in is . 
-  assert ( ge := isover_geh is ) .  
-  assert ( gt := isabove_gth isab' ) . 
-  exact ( natgthnegleh gt ge ) . 
-
-  destruct absd . 
-
-  exact ( isover_XX _ ) . 
-
+  + destruct ( ovab_choice (pr2 inn') ) as [ isab' | eq' ] .
+    * apply ( isover_T_T_2 ax0 ax1a _ _ is ) . 
+    * exact ( ax1b _ _ _ ) . 
+  + destruct ( ovab_choice (pr2 inn') ) as [ isab' | eq' ] .
+    * assert ( absd : empty ) .
+      rewrite eq in is . 
+      assert ( ge := isover_geh is ) .  
+      assert ( gt := isabove_gth isab' ) . 
+      exact ( natgthnegleh gt ge ) . 
+      destruct absd . 
+    * exact ( isover_XX _ ) . 
 Defined.
 
 
@@ -105,6 +99,7 @@ Proof .
 
 Defined.
 
+(** [T_fun_int] is monotone in the argument [X2'] w.r.t. [isover]: *)
 
 Lemma isovmonot_T_fun { BB : lBsystem_carrier }
       { T : T_ops_type BB } ( ax0 : T_ax0_type T ) ( ax1a : T_ax1a_type T ) ( ax1b : T_ax1b_type T )
@@ -129,30 +124,27 @@ Lemma ll_T_fun { BB : lBsystem_carrier }
   ll ( T_fun_int ax1b gt0 X2' ) = ll X2' .
 Proof.
   intros. 
-  change _ with ( ll ( T_ext T ( dirprodpair gt0 ( pr2 X2' ) ) ) - ll X1 = ll X2' ) .
+  change ( ll ( T_ext T ( dirprodpair gt0 ( pr2 X2' ) ) ) - ll X1 = ll X2' ) .
   change ( ll X2' ) with ( ll ( pr1 X2' ) - ll ( ft X1 ) ) . 
   unfold T_ext . 
   destruct (ovab_choice (pr2 (dirprodpair gt0 (pr2 X2')))) as [ isab | eq ] . 
-  rewrite ax0 . 
-  rewrite ll_ft .
-  assert ( ge : ll (pr1 X2') >= ll X1 ) .
-  apply natgthminus1togeh . 
-  rewrite <- ll_ft . 
-  apply ( isabove_gth isab ) . 
+  + rewrite ax0 . 
+    rewrite ll_ft .
+    assert ( ge : ll (pr1 X2') >= ll X1 ) .
+    apply natgthminus1togeh . 
+    rewrite <- ll_ft . 
+    apply ( isabove_gth isab ) . 
   
-  rewrite <- natassocmpeq . 
-  rewrite ( natpluscomm _ 1 ) . 
-  apply natassocpmeq . 
-  apply ge .
-
-  apply ge .
-
-  apply ( @natgthminus1togeh 1 _ gt0 ) .
-  rewrite natminusnn . 
-  rewrite eq . 
-  rewrite natminusnn . 
-  apply idpath .
-
+    rewrite <- natassocmpeq . 
+    * rewrite ( natpluscomm _ 1 ) . 
+      apply natassocpmeq . 
+      apply ge .
+    * apply ge .
+    * apply ( @natgthminus1togeh 1 _ gt0 ) .
+  + rewrite natminusnn . 
+    rewrite eq . 
+    rewrite natminusnn . 
+    apply idpath .
 Defined.
 
 Opaque ll_T_fun . 
@@ -164,7 +156,7 @@ Lemma isllmonot_T_fun { BB : lBsystem_carrier }
 Proof.
   intros. unfold isllmonot . 
   intros X Y .
-  repeat rewrite ( ll_T_fun ax0 ) . 
+  do 2 rewrite ( ll_T_fun ax0 ) . 
   apply idpath . 
 
 Defined.
@@ -175,12 +167,10 @@ Lemma isbased_T_fun { BB : lBsystem_carrier }
       { T : T_ops_type BB } ( ax0 : T_ax0_type T ) ( ax1b : T_ax1b_type T )
       { X1 : BB } ( gt0 : ll X1 > 0 ) : isbased ( T_fun_int ax1b gt0 ) .
 Proof.
-  intros. unfold isbased.  intros X eq0 . 
+  intros. red.  intros X eq0 . 
   rewrite ll_T_fun . 
-  exact eq0.
-
-  exact ax0.
-
+  + exact eq0.
+  + exact ax0.
 Defined.
 
 Opaque isbased_T_fun.
@@ -197,14 +187,14 @@ Definition T_fun { BB : lBsystem_carrier }
   
 
 
-(** *** Definition of Tj_fun as iterations of the functions T_fun *)
+(** ** Definition of Tj_fun as iterations of the functions T_fun *)
 
-(** **** Construction of Tj *)
+(** *** Construction of Tj *)
 
 
-(** The construction of a function requires only an operation of type T_ops_type satisfying a consition 
-of type T_ax1b_type but the proof that it is an ltower function requires other two properties of this 
-operation. *) 
+(** The construction of a function requires only an operation of type [T_ops_type] satisfying
+    a condition of type [T_ax1b_type] but the proof that it is an ltower function requires
+    two other properties of this operation. *) 
 
 Definition Tj_fun { BB : lBsystem_carrier }
            { T : T_ops_type BB } ( ax0 : T_ax0_type T ) ( ax1a : T_ax1a_type T ) ( ax1b : T_ax1b_type T )
@@ -493,7 +483,7 @@ Definition ltower_Tj_fun { BB : lBsystem_carrier }
 
 
 
-(** *** Function Tprod for pointed l-Bsystems *)
+(** *** Function Tprod for pointed lB-systems *)
 
 
 Definition Tprod_fun { BB : lBsystem_carrier } 
@@ -529,15 +519,10 @@ Proof.
   change (isoverll0 (ll_cntr BB) X) with ( isabove_to_isover isab ) . 
   rewrite Tj_fun_compt . 
   simpl .
-  assert ( int : (isover_ft' isab) = (isoverll0 (ll_cntr BB) (ft X)) ) . apply proofirrelevance . 
-  apply isaprop_isover .
-  
+  assert ( int : (isover_ft' isab) = (isoverll0 (ll_cntr BB) (ft X)) ) by apply proofirrelevance, isaprop_isover . 
   rewrite int .
-  assert ( int' : gt0 = (isabove_gt0 isab) ) .
-  apply proofirrelevance . apply ( pr2 ( _ > _ ) ) .
-
+  assert ( int' : gt0 = (isabove_gt0 isab) ) by apply proofirrelevance, ( pr2 ( _ > _ ) ) .
   rewrite int' . apply idpath . 
-
 Defined.
 
 

@@ -19,10 +19,8 @@ Definition S_ext { BB : lBsystem_carrier } ( S : S_ops_type BB )
 Proof .
   intros. 
   destruct ( ovab_choice inn ) as [ isab | eq ] . 
-  exact ( S _ _ isab ) . 
-
-  exact ( ft ( dd r ) ) .
-
+  + exact ( S _ _ isab ) . 
+  + exact ( ft ( dd r ) ) .
 Defined.
 
 Lemma isover_S_ext { BB : lBsystem_carrier }
@@ -33,10 +31,8 @@ Proof .
   intros .
   unfold S_ext . 
   destruct ( ovab_choice inn ) as [ isab | eq ] .
-  exact ( ax1b _ _ _ ) . 
-
-  exact ( isover_XX _ ) . 
-
+  + exact ( ax1b _ _ _ ) . 
+  + exact ( isover_XX _ ) . 
 Defined.
 
 
@@ -48,15 +44,14 @@ Proof.
   unfold S_ext . 
   simpl . 
   destruct ( ovab_choice inn ) as [ isab | eq ] . 
-  apply ax0 . 
-
-  rewrite ll_ft .  
-  rewrite eq . 
-  apply idpath .
-
+  + apply ax0 . 
+  + rewrite ll_ft .  
+    rewrite eq . 
+    apply idpath .
 Defined.
 
 
+(** [S_ext] is monotone in its argument [X] w.r.t. [isover]: *)  
 
 Lemma isover_S_ext_S_ext_2 { BB : lBsystem_carrier }
       { S : S_ops_type BB } ( ax0 :  S_ax0_type S ) ( ax1a : S_ax1a_type S ) ( ax1b : S_ax1b_type S )
@@ -65,22 +60,18 @@ Lemma isover_S_ext_S_ext_2 { BB : lBsystem_carrier }
 Proof .
   intros . unfold S_ext .
   destruct ( ovab_choice inn ) as [ isab | eq ] .
-  destruct ( ovab_choice inn' ) as [ isab' | eq' ] .
-  apply ( isover_S_S_2 ax0 ax1a _ _ is ) . 
+  + destruct ( ovab_choice inn' ) as [ isab' | eq' ] .
+    * apply ( isover_S_S_2 ax0 ax1a _ _ is ) . 
+    * exact ( ax1b _ _ _ ) . 
+  + destruct ( ovab_choice inn' ) as [ isab' | eq' ] .
+    * assert ( absd : empty ) .
+      rewrite eq in is . 
+      assert ( ge := isover_geh is ) .  
+      assert ( gt := isabove_gth isab' ) . 
+      exact ( natgthnegleh gt ge ) . 
 
-  exact ( ax1b _ _ _ ) . 
-
-  destruct ( ovab_choice inn' ) as [ isab' | eq' ] .
-  assert ( absd : empty ) .
-  rewrite eq in is . 
-  assert ( ge := isover_geh is ) .  
-  assert ( gt := isabove_gth isab' ) . 
-  exact ( natgthnegleh gt ge ) . 
-
-  destruct absd . 
-
-  exact ( isover_XX _ ) . 
-
+      destruct absd . 
+    * exact ( isover_XX _ ) . 
 Defined.
 
 
@@ -97,11 +88,12 @@ Proof .
   intros .
   set ( X2 := pr1 X2' ) . set ( isov := pr2 X2' : isover X2 ( dd r ) ) .
   split with ( S_ext S isov )  .
-
   apply ( isover_S_ext S ax1b ) .
-
 Defined.
+(** Analogous to the construction for [T_fun_int]. *)
 
+
+(** [S_fun] is monotone in the argument [X2'] w.r.t. [isover]: *)
 
 Lemma isovmonot_S_fun { BB : lBsystem_carrier }
       { S : S_ops_type BB } ( ax0 : S_ax0_type S ) ( ax1a : S_ax1a_type S ) ( ax1b : S_ax1b_type S )
@@ -115,7 +107,6 @@ Proof .
   apply ( isover_S_ext_S_ext_2 ax0 ax1a ax1b ) .
   apply isovmonot_pocto . 
   exact isov . 
-
 Defined.
 
 Definition ovmonot_S_fun { BB : lBsystem_carrier }
@@ -129,22 +120,19 @@ Lemma ll_S_fun { BB : lBsystem_carrier }
       { r : Tilde BB } ( X2' : ltower_over ( dd r ) ) : ll ( S_fun ax1b r X2' ) = ll X2' .
 Proof.
   intros .
-  change _ with ( ll ( pr1 ( S_fun ax1b r X2' ) ) - ll ( ft ( dd r ) ) = ll ( pr1 X2' ) - ll ( dd r ) ) .  
+  change ( ll ( pr1 ( S_fun ax1b r X2' ) ) - ll ( ft ( dd r ) ) = ll ( pr1 X2' ) - ll ( dd r ) ) .  
   unfold S_fun . unfold S_ext . 
   simpl . 
   destruct ( ovab_choice (pr2 X2') ) as [ isab | eq ] . 
-  rewrite ax0 . 
-  rewrite ll_ft . 
-  apply natmiusmius1mminus1 . 
-  apply ( isabove_gt0 isab ) . 
-
-  apply ll_dd . 
-
-  rewrite natminusnn . 
-  rewrite eq . 
-  rewrite natminusnn . 
-  apply idpath .
-
+  + rewrite ax0 . 
+    rewrite ll_ft . 
+    apply natmiusmius1mminus1 . 
+    * apply ( isabove_gt0 isab ) . 
+    * apply ll_dd . 
+  + rewrite natminusnn . 
+    rewrite eq . 
+    rewrite natminusnn . 
+    apply idpath .
 Defined.
 
 
@@ -154,12 +142,9 @@ Lemma isllmonot_S_fun { BB : lBsystem_carrier }
 Proof.
   intros. unfold isllmonot. intros X Y .
   repeat rewrite ll_S_fun .
-  apply idpath .
-
-  apply ax0.
-
-  apply ax0.
-
+  + apply idpath .
+  + apply ax0.
+  + apply ax0.
 Defined.
 
 
@@ -169,11 +154,8 @@ Lemma isbased_S_fun { BB : lBsystem_carrier }
 Proof.
   intros. unfold isbased. intros X eq0 .
   rewrite ll_S_fun . 
-
-  exact eq0.
-
-  exact ax0.
-
+  + exact eq0.
+  + exact ax0.
 Defined.
 
 
@@ -185,11 +167,7 @@ Definition ltower_fun_S { BB : lBsystem_carrier }
                     ( isllmonot_S_fun ax0 ax1b r )
                     ( isbased_S_fun ax0 ax1b r ) . 
 
-
-
-
-
-
+(** analogous to [T_fun] - notice the variation in naming *)
 
 
 

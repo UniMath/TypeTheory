@@ -1,4 +1,4 @@
-(** * Carriers of the B-systems defined in terms of two sorts and the length function 
+(** * Carriers of the lB-systems defined in terms of two sorts and the length function 
 
 by Vladimir Voevodsky, file created on Jan. 6, 2015 *)
 
@@ -8,7 +8,7 @@ Require Export TypeTheory.Csystems.hSet_ltowers.
 
 
 
-(** **** lBsystem carriers *)
+(** **** lB-system carriers *)
 
 Definition lBsystem_carrier :=
   total2 ( fun B :  hSet_pltower =>
@@ -18,7 +18,7 @@ Definition lBsystem_carrier :=
 
 
 (** Note: the condition that the carrier of an lB-system is based on an h-set is used for the first
-time in the formulation of the condition TT (later an axiom TT of the lBsystems). It is possible to avoid 
+time in the formulation of the condition TT (later an axiom TT of the lB-systems). It is possible to avoid 
 the use of the h-set condition in the formulation of the TT and other axioms at the cost of making the 
 domains of applicability of these axioms to have a much longer description or of introducing additional
 axioms to ensure that Lemma isover_T_T_2 and similar lemmas needed for the formulation of other axioms 

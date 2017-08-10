@@ -1,4 +1,4 @@
-(** ** Non unital lBsystems
+(** * Non-unital lB-systems
 
 By Vladimir Voevodsky, started on Jan. 16, 2015 *)
 
@@ -11,7 +11,7 @@ Require Export TypeTheory.Bsystems.lB0.
 
 
 
-(** Conditions TT and TTt *)
+(** *** Conditions TT and TTt *)
 
 Definition TT_type { BB : lB0system_non_unital } :=
   T_Tt.TT_type ( @T_ax0 BB ) ( @T_ax1a BB ) ( @T_ax1b BB ) .
@@ -23,7 +23,7 @@ Definition TT_TTt_layer ( BB : lB0system_non_unital ) := dirprod ( @TT_type BB )
                    
 
 
-(** Conditions SSt and StSt *)
+(** *** Conditions SSt and StSt *)
 
 Definition SSt_type { BB : lB0system_non_unital } :=
   S_St.SSt_type ( @S_ax0 BB ) ( @S_ax1a BB ) ( @S_ax1b BB ) ( @St_ax1 BB ) .
@@ -35,7 +35,7 @@ Definition SSt_StSt_layer ( BB : lB0system_non_unital ) := dirprod ( @SSt_type B
 
 
 
-(** Conditions TS and TtS *)
+(** *** Conditions TS and TtS *)
 
 Definition TS_type { BB : lB0system_non_unital } :=
   TS_ST.TS_type ( @T_ax1b BB ) ( @S_ax0 BB ) ( @S_ax1a BB ) ( @S_ax1b BB ) .
@@ -48,7 +48,7 @@ Definition TS_TtS_layer ( BB : lB0system_non_unital ) := dirprod ( @TS_type BB )
 
 
 
-(** Conditions STt and StTt *)
+(** *** Conditions STt and StTt *)
 
 Definition STt_type { BB : lB0system_non_unital } :=
   TS_ST.STt_type ( @T_ax0 BB ) ( @T_ax1a BB ) ( @Tt_ax1 BB ) ( @S_ax1b BB ) . 
@@ -60,7 +60,7 @@ Definition ST_StTt_layer ( BB : lB0system_non_unital ) := dirprod ( @STt_type BB
 
 
 
-(** Conditions STid and StTtid *) 
+(** *** Conditions STid and StTtid *) 
 
 Definition STid_type { BB : lB0system_non_unital } :=
   STid.STid_type ( @T_ax1b BB ) ( @S_op BB ) . 
@@ -74,7 +74,7 @@ Definition STid_layer ( BB : lB0system_non_unital ) := dirprod ( @STid_type BB )
 
 
 
-(** Complete non-unital lBsystem *)
+(** *** Complete definition of non-unital lB-system *)
 
 
 Definition lB_nu :=
@@ -83,7 +83,9 @@ Definition lB_nu :=
                ( dirprod
                    ( dirprod ( TT_TTt_layer BB ) ( SSt_StSt_layer BB ) )
                    ( dirprod ( TS_TtS_layer BB ) ( ST_StTt_layer BB ) ) )
-               ( STid_layer BB ) ) . 
+               ( STid_layer BB ) ) .
+
+(** This definition corresponds to Definition 3.1 in arXiv:1410.5389v1. *)
                                                              
                                                              
 Definition lB_nu_pr1 : lB_nu -> lB0system_non_unital := pr1 .
