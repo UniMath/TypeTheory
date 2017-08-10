@@ -1,4 +1,4 @@
-(** ** lB0-systems
+(** * Unital lB0-systems
 
 By Vladimir Voevodsky, split off lB0systems.v on March 3, 2015 *)
 
@@ -8,13 +8,7 @@ Require Export TypeTheory.Bsystems.lB0_non_unital.
 
 
 
-
-
-(** ** lB0-systems (unital) *)
-
-(** *** The kain layers *)
-
-(** **** The layer associated with operations dlt *)
+(** *** The layer associated with operations dlt *)
 
 Definition dlt_layer { BB : lBsystem_carrier } ( T : T_ops_type BB ) :=
   total2 ( fun dlt : dlt_layer_0 BB => dlt_ax1_type T dlt ) .
@@ -29,11 +23,14 @@ Definition dlt_ax1 { BB : lBsystem_carrier } { T : T_ops_type BB } ( dlt : dlt_l
 
 
 
-(** **** Complete definition of a unital lB0-system *)
+(** *** Complete definition of a unital lB0-system *)
 
 
 Definition lB0system :=
   total2 ( fun BB : lB0system_non_unital => dlt_layer ( @T_op BB ) ) .
+
+(** This definition corresponds to the addition of Definition 2.6 in arXiv:1410.5389v1
+    of the axiom [dlt_ax1_type], only the packaging order is different in irrelevant ways. *)
 
 Definition lB0system_pr1 : lB0system -> lB0system_non_unital := pr1 .
 Coercion lB0system_pr1 : lB0system >-> lB0system_non_unital .
@@ -51,4 +48,3 @@ Coercion lB0system_to_prelBystem : lB0system >-> prelBsystem .
 
 
 (* End of the file lB0.v *)
-
