@@ -771,12 +771,9 @@ Proof.
         assert (eq'' : H'' = H3) by (apply proofirrelevance, isaprop_isover).
         rewrite eq''.
         clear HeqH'' H'' eq'' eq.
-        destruct eq'.
+        induction eq'.
         cbn in H3.
-        unfold H3. apply P0. 
-        
-        (* in dependent rewrite hell !!! *)
-        (* not really *)
+        unfold H3. apply P0.         
   }
   intros.
   red in isov.
@@ -785,8 +782,10 @@ Proof.
   assert ( eq' : isov = (transportf (isover X) (! isov) (isover_X_ftnX X (ll X - ll Γ))) ) .
   { apply proofirrelevance.
     apply isasetB. }
-Admitted.
-(* Defined. *)
+  induction eq'.
+  apply P'ok.
+Defined.
+
   
 
 (* End of the file hSet_ltowers.v *)
