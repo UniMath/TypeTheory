@@ -710,6 +710,81 @@ Proof.
 
 Defined.*)
   
+(** * induction principle according to Lemma 2.2 of http://www.tac.mta.ca/tac/volumes/31/36/31-36.pdf *)
+(** first a version that explicitly mentions natural numbers *)
+
+Definition isover_ind_one_sided_int { BB : ltower }
+           ( Γ : BB )
+           ( P : forall {X : BB} (n : nat) , Γ = ftn n X  -> UU )
+           ( P0 : P 0 (@paths_refl _ _))
+           ( Pft : forall ( X : BB ) (n : nat) ( eq : Γ = ftn (S n) X ) , P n (eq @ ! (ftn_ft _ _)) -> P (S n) eq)
+  : forall ( X : BB )  (n : nat) ( eq: Γ = ftn n X ) , P n eq.
+Proof.
+  intros until n . revert X.  induction n as [ | n IHn ]; intros.
+  + change _ with ( Γ = X ) in eq . 
+    rewrite <- eq . 
+    apply P0 .
+  + apply Pft.
+    apply IHn.
+Defined.
+
+(** the induction principle we were after *)
+(** notice the use of hSet_ltower - this ought to be avoided *)
+
+Definition isover_ind_one_sided { BB : hSet_ltower }
+           ( Γ : BB )
+           ( P : forall {X : BB} , isover X Γ -> UU )
+           ( P0 : P (isover_XX Γ) )
+           ( Pft : forall ( X : BB ) ( isab : isabove X Γ ) , P ( isover_ft' isab) -> P isab)
+  : forall ( X : BB ) ( isov : isover X Γ ) , P isov.
+Proof.
+  intros BB Γ P P0 Pft.
+  set (P' := fun {X:BB} {n: nat} (eq: Γ = ftn n X) => P _ (transportf _ (!eq) (isover_X_ftnX X n))).
+  assert (P'ok : forall ( X : BB )  (n : nat) ( eq: Γ = ftn n X ) , P' X n eq).
+  { apply isover_ind_one_sided_int.
+    + red. exact P0.
+    + intros X n eq IHn.
+      red. red in IHn.
+      set (H := transportf (isover (ft X)) (! (eq @ ! ftn_ft n X)) (isover_X_ftnX (ft X) n)).
+      destruct ( natgehchoice _ _ ( natgehn0 ( ll X ) ) ) as [ gt0 | eq0 ] .
+      * assert (isab : isabove X Γ).
+        { rewrite eq. apply isabove_X_ftnX; try assumption.
+           (* Search ( _ > _). *) apply natgthsn0. }
+        specialize Pft with X isab.
+        assert (eq' : isover_ft' isab = H).
+        { apply proofirrelevance.
+          apply isaprop_isover. } 
+        assert (H' : P X isab).
+        { apply Pft. rewrite eq'. exact IHn. }
+        red in isab.
+        assert (eq'' : pr2 isab = transportf (isover X) (! eq) (isover_X_ftnX X (S n))).
+        { apply proofirrelevance.
+          apply isaprop_isover. }
+        rewrite <- eq''.
+        exact H'.
+      * clear IHn H Pft P'.
+        assert (eq' : Γ = X).
+        { rewrite <- (ftnX_eq_X (S n) eq0) .
+           exact eq. }
+        clear eq0. remember (transportf (isover X) (! eq) (isover_X_ftnX X (S n))) as H''.
+        set (H3 := transportf (isover X) (! eq') (isover_XX X)).
+        assert (eq'' : H'' = H3) by (apply proofirrelevance, isaprop_isover).
+        rewrite eq''.
+        clear HeqH'' H'' eq'' eq.
+        induction eq'.
+        cbn in H3.
+        unfold H3. apply P0.         
+  }
+  intros.
+  red in isov.
+  specialize P'ok with X (ll X - ll Γ) isov.
+  red in P'ok.
+  assert ( eq' : isov = (transportf (isover X) (! isov) (isover_X_ftnX X (ll X - ll Γ))) ) .
+  { apply proofirrelevance.
+    apply isasetB. }
+  induction eq'.
+  apply P'ok.
+Defined.
 
   
 
