@@ -15,9 +15,9 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
-Require Import TypeTheory.Displayed_Cats.Auxiliary.
-Require Import TypeTheory.Displayed_Cats.Core.
-Require Import TypeTheory.Displayed_Cats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
 Require Import TypeTheory.OtherDefs.DM.
 
