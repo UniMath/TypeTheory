@@ -650,7 +650,7 @@ Lemma form_adjunction_comp
       (functor_composite F F') (functor_composite G' G)
       unit_comp counit_comp.
 Proof.
-  mkpair; cbn in *; simpl in *.
+  use tpair; cbn in *; simpl in *.
   (* The proof of each triangle identity roughly goes as follows:
      - overall, we have a composite of four arrows;
      - apply naturality to pull the middle two past each other;
@@ -734,11 +734,11 @@ Definition comp_adj_equivalence_of_precats
   : adj_equivalence_of_precats (functor_composite F F').
 Proof.
   exists (comp_adjunction HF HF').
-  mkpair.
+  use tpair.
   - intro. apply is_iso_comp_is_iso.
     + apply (pr1 (pr2 HF)).
     + simpl. apply functor_is_iso_is_iso, (pr1 (pr2 HF')).
-  - intro. apply is_iso_comp_is_iso.
+  - cbn. intro. apply is_iso_comp_is_iso.
     + apply functor_is_iso_is_iso, (pr2 (pr2 HF)).
     + apply (pr2 (pr2 HF')).
 Defined.
@@ -806,9 +806,9 @@ Qed.
 
 Definition is_left_adjoint_inv : is_left_adjoint G.
 Proof.
-  mkpair.
+  use tpair.
   - apply F.
-  - mkpair.
+  - use tpair.
     exists (pr1 (iso_inv_from_iso εiso)).
     exact (pr1 (iso_inv_from_iso ηiso)).
     apply form_adjunction_inv.
@@ -847,7 +847,7 @@ Let Finv {a b} g := (invweq (weq_from_fully_faithful Fff a b) g).
 
 Definition G_ff_split_data : functor_data B A.
 Proof.
-  mkpair.
+  use tpair.
   - intro b. exact (pr1 (Fses b)).
   - intros b b' f'; cbn.
     apply Finv.
@@ -893,7 +893,7 @@ Qed.
 Definition ε_ff_split
   : nat_trans (functor_composite G_ff_split F) (functor_identity B).
 Proof.
-  mkpair.
+  use tpair.
   - intro b.
     exact (pr2 (Fses b)).
   - apply is_nat_trans_ε_ff_split.
@@ -922,7 +922,7 @@ Qed.
 
 Definition η_ff_split : nat_trans (functor_identity A) (functor_composite F G_ff_split).
 Proof.
-  mkpair.
+  use tpair.
   -  intro a.
      apply Finv.
      apply (inv_from_iso (pr2 (Fses _ ))).
@@ -952,9 +952,9 @@ Qed.
 
 Definition adj_equivalence_of_precats_ff_split : adj_equivalence_of_precats F.
 Proof.
-  mkpair.
+  use tpair.
   - exists G_ff_split.
-    mkpair.
+    use tpair.
     + exists η_ff_split. 
       exact ε_ff_split. 
     + apply form_adjunction_ff_split. 
@@ -1181,7 +1181,7 @@ Definition nat_iso_from_pointwise_iso (D E : precategory)
   : iso F G.
 Proof.
   use functor_iso_from_pointwise_iso .
-  mkpair.
+  use tpair.
   - intro d. apply a.
   - apply H.
   - intro d. apply (pr2 (a d)).
@@ -1543,7 +1543,7 @@ Proof.
     apply (toforallpaths _ _ _ ehk).
     split. apply (toforallpaths _ _ _ eh). apply (toforallpaths _ _ _ ek).
     split. apply (toforallpaths _ _ _ eh'). apply (toforallpaths _ _ _ ek').
-  - mkpair. 
+  - use tpair. 
     + intros x. refine (pr1 (H_existence (h x) (k x) _)). apply (toforallpaths _ _ _ ehk).
     + simpl.
       split; apply funextsec; intro x.
@@ -1665,7 +1665,7 @@ Proof.
         + exact (Empty_set_rect _ ).
     }
     specialize (XR HC).
-    mkpair.
+    use tpair.
   - exists (pr1 (iscontrpr1 XR)).
     split.
     + apply (pr2 (pr1 XR) One).

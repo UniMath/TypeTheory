@@ -528,7 +528,7 @@ Proof.
     { apply propproperty. } 
     intros [ip' Hip'].
     apply hinhpr.
-    repeat mkpair.
+    repeat (use tpair).
     + apply Xf.
     + exact ip'.
     + set (hi := (α : nat_trans _ _ ) Xf). cbn in hi.

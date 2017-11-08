@@ -297,11 +297,11 @@ Definition compat_structures_disp_cat
 Definition compat_structures_pr1_functor
   : functor compat_structures_precategory term_fun_precategory.
 Proof.
-  mkpair.
-  - mkpair.
+  use tpair.
+  - use tpair.
     + exact (fun YZp => pr1 (pr1 YZp)).
     + intros a b f. apply (pr1 f).
-  - mkpair.
+  - use tpair.
     + intro c. apply idpath.
     + intros a b c f g. apply idpath.
 Defined.
@@ -309,11 +309,11 @@ Defined.
 Definition compat_structures_pr2_functor
   : functor compat_structures_precategory qq_structure_precategory.
 Proof.
-  mkpair.
-  - mkpair.
+  use tpair.
+  - use tpair.
     + exact (fun YZp => pr2 (pr1 YZp)).
     + intros a b f. apply (pr2 f).
-  - mkpair.
+  - use tpair.
     + intro c. apply idpath.
     + intros a b c f g. apply idpath.
 Defined.
