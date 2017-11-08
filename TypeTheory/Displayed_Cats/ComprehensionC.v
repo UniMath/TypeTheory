@@ -217,11 +217,11 @@ Qed.
 
 Definition comp_cat_of_dm :  comprehension_cat_structure C.
 Proof.
-  mkpair.
+  use tpair.
   - apply DM_disp. apply H.
-  - mkpair. 
+  - use tpair. 
     + apply is_fibration_DM_disp.
-    + mkpair. 
+    + use tpair. 
       * apply comprehension_of_dm_structure.
       * apply is_cartesian_comprehension_of_dm_structure.
 Defined.

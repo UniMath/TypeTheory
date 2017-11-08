@@ -213,7 +213,7 @@ Definition mkTermIn {Γ : PreShv C} (A : Γ ⊢)
   (Hu : ∏ I J (f : C ⟦ J, I ⟧) (ρ : pr1 ((pr1 Γ) I)),
         # (pr1 A) (mor_to_el_mor f ρ) (u I ρ) = u J (# (pr1 Γ) f ρ)) : Γ ⊢ A.
 Proof.
-mkpair.
+use tpair.
 - exact u.
 - abstract (exact Hu).
 Defined.
@@ -228,13 +228,13 @@ Qed.
 Definition ctx_ext {Γ : PreShv C} (A : Γ ⊢) : PreShv C.
 Proof.
 use mk_functor.
-- mkpair.
+- use tpair.
   + simpl; intros I.
     use total2_hSet.
     * apply (pr1 Γ I).
     * intros ρ.
       apply (pr1 A (make_ob I ρ)).
-  + intros I J f ρu.
+  + cbn. intros I J f ρu.
     exists (# (pr1 Γ) f (pr1 ρu)).
     apply (# (pr1 A) (mor_to_el_mor f (pr1 ρu)) (pr2 ρu)).
 - split.
@@ -488,7 +488,7 @@ Definition TermInSection {Γ : PreShv C} (A : Γ ⊢) : UU :=
 Lemma TermIn_to_TermInSection {Γ : PreShv C} (A : Γ ⊢) : TermIn A → TermInSection A.
 Proof.
 intros a.
-mkpair.
+use tpair.
 - apply (term_to_subst _ a).
 - abstract (apply (nat_trans_eq has_homsets_HSET);
             now intros I; simpl; apply funextfun).
@@ -589,7 +589,7 @@ Local Notation "Γ ⋆ A" := (@ctx_ext _ Γ A) (at level 30).
 
 Definition PreShv_TypeCat : typecat_structure (PreShv C).
 Proof.
-mkpair.
+use tpair.
 - exists (λ Γ, Γ ⊢).
   exists (λ Γ A, Γ ⋆ A).
   intros Γ A Δ σ.
@@ -626,7 +626,7 @@ Defined.
 
 Lemma PreShv_reindx_structure : reindx_structure PreShv_tt_structure.
 Proof.
-mkpair.
+use tpair.
 - intros Γ Δ A σ.
   exact (A⦃σ⦄).
 - intros Γ Δ A a σ.
@@ -635,7 +635,7 @@ Defined.
 
 Definition PreShv_tt_reindx_type_struct : tt_reindx_type_struct (PreShv C).
 Proof.
-mkpair.
+use tpair.
 + exists (PreShv_tt_structure,,PreShv_reindx_structure).
   intros Γ A.
   exists (Γ ⋆ A).
@@ -649,13 +649,13 @@ Defined.
 
 Lemma PreShv_reindx_laws : reindx_laws PreShv_tt_reindx_type_struct.
 Proof.
-mkpair.
-- mkpair.
+use tpair.
+- use tpair.
   + intros Γ A.
     apply subst_type_id.
   + intros Γ Δ Θ σ1 σ2 A.
     apply (subst_type_comp hsC).
-- mkpair.
+- use tpair.
   + intros Γ A a.
     apply (subst_term_id hsC a).
   + intros Γ Δ Θ σ1 σ2 A a.

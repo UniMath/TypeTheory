@@ -123,28 +123,27 @@ Abort.
 
 Definition l_to_r_reassoc_direct : split_struct -> reassoc_split_struct.
 Proof.
-    intros S.
-    mkpair.
-      mkpair.
-        exists ((pr1 (pr1 (pr1 S)),, pr1 (pr2 S)),, pr2 (pr2 (pr1 (pr1 S)))).
-        exact (pr1 (pr1 (pr2 (pr2 S))),, pr1 (pr2 (pr2 (pr2 S)))).
-      exact (pr1 (pr2 (pr1 (pr1 S))),, pr1 (pr2 (pr1 S))).
-    exists (pr2 (pr2 (pr1 S))).
-    cbn.
+  intros S.
+  use tpair.
+  - use tpair.
+    + exists ((pr1 (pr1 (pr1 S)),, pr1 (pr2 S)),, pr2 (pr2 (pr1 (pr1 S)))).
+      exact (pr1 (pr1 (pr2 (pr2 S))),, pr1 (pr2 (pr2 (pr2 S)))).
+    + exact (pr1 (pr2 (pr1 (pr1 S))),, pr1 (pr2 (pr1 S))).
+  - exists (pr2 (pr2 (pr1 S))).
     exact (pr2 (pr1 (pr2 (pr2 S))),, pr2 (pr2 (pr2 (pr2 S)))).
 Defined.
 
 Definition r_to_l_reassoc_direct : reassoc_split_struct -> split_struct.
 Proof.
   intros S.
-  mkpair.
-    exists (pr1 (pr1 (pr1 (pr1 (pr1 S)))) ,,
+  use tpair.
+  - exists (pr1 (pr1 (pr1 (pr1 (pr1 S)))) ,,
                 (pr1 (pr2 (pr1 S)) ,, (pr2 (pr1 (pr1 (pr1 S)))))).
     exact (pr2 (pr2 (pr1 S)),, pr1 (pr2 S)).
-  repeat apply dirprodpair; simpl.
-  - exact (pr2 (pr1 (pr1 (pr1 (pr1 S))))).
-  - exact (pr1 (pr2 (pr1 (pr1 S))),, pr1 (pr2 (pr2 S))).
-  - exact (pr2 (pr2 (pr1 (pr1 S))),, pr2 (pr2 (pr2 S))).
+  - repeat apply dirprodpair; simpl.
+    + exact (pr2 (pr1 (pr1 (pr1 (pr1 S))))).
+    + exact (pr1 (pr2 (pr1 (pr1 S))),, pr1 (pr2 (pr2 S))).
+    + exact (pr2 (pr2 (pr1 (pr1 S))),, pr2 (pr2 (pr2 S))).
 Defined.
 
 Theorem weq_reassoc_direct : split_struct ≃ reassoc_split_struct.

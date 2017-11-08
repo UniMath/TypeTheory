@@ -647,9 +647,9 @@ End qq_from_term.
 
 Definition qq_from_term_data : qq_morphism_data X.
 Proof.
-  mkpair.
+  use tpair.
   - intros. apply qq_term.
-  - intros. simpl.
+  - cbn. intros. simpl.
     exists (qq_commutes_1 _ _ _ _ ).
     apply isPullback_qq.
 Defined.
