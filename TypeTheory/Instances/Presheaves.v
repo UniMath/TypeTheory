@@ -305,7 +305,7 @@ Lemma subst_term_prf {Γ Δ : PreShv C} (σ : Δ --> Γ) (A : Γ ⊢) (a : Γ �
 Proof.
 set (eq := eqtohomot (nat_trans_ax σ I J f) ρ).
 set (x := # (pr1 A) (mor_to_el_mor f (pr1 σ I ρ)) (pr1 a I (pr1 σ I ρ))).
-pathvia (transportb (λ x, pr1 ((pr1 A) (make_ob J x))) eq x).
+intermediate_path (transportb (λ x, pr1 ((pr1 A) (make_ob J x))) eq x).
 { apply pathsinv0.
   etrans; [use transportf_make_ob|].
   etrans; [apply transportf_PreShv|]; cbn.
@@ -316,7 +316,7 @@ pathvia (transportb (λ x, pr1 ((pr1 A) (make_ob J x))) eq x).
   generalize (base_paths_maponpaths_make_ob _ _ (!eq)); simpl; intros H.
   now rewrite H, idpath_transportf. }
 set (w := pr1 a J (# (pr1 Γ) f (pr1 σ I ρ))).
-pathvia (transportb (λ x, pr1 ((pr1 A) (make_ob J x))) eq w).
+intermediate_path (transportb (λ x, pr1 ((pr1 A) (make_ob J x))) eq w).
 { now apply maponpaths, (pr2 a I J f (pr1 σ _ ρ)). }
 now apply transportf_term.
 Qed.
@@ -671,7 +671,7 @@ Defined.
 (*   repeat split. *)
 (*   + intros Γ A Δ σ a. *)
 (*     exists (subst_pair_p hsC σ a). *)
-(*     pathvia (transportf (λ x, Δ ⊢ x) *)
+(*     intermediate_path (transportf (λ x, Δ ⊢ x) *)
 (*             (subst_type_pair_p hsC σ a) (subst_term hsC (subst_pair hsC σ a) (@ctx_last _ hsC _ A))). *)
 (*     admit. (* this should be provable, but painful *) *)
 (*     apply subst_pair_q. *)

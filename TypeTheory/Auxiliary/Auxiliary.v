@@ -572,7 +572,7 @@ Proof.
   - intro g.
     unfold inv. repeat rewrite functor_comp.
     match goal with |[|- ?f1 ;; ?f2 ;; ?f3 = _ ] =>
-       pathvia ((f1 ;; ηinv _ ) ;; (η _ ;; f2) ;; f3) end.
+       intermediate_path ((f1 ;; ηinv _ ) ;; (η _ ;; f2) ;; f3) end.
     + repeat rewrite <- assoc. apply maponpaths.
       repeat rewrite assoc.
       etrans. Focus 2. do 2 apply cancel_postcomposition. eapply pathsinv0, iso_after_iso_inv.
@@ -1480,7 +1480,7 @@ Section on_pullbacks.
     set (T:=@map_into_Pb _ (x ;; f)(y ;; g)).
     assert  (TH : x ;; f ;; k = y ;; g ;; h).
     { rewrite H. repeat rewrite <- assoc. rewrite sqr_comm. apply idpath. }
-    pathvia (T TH).
+    intermediate_path (T TH).
     apply PullbackArrowUnique. apply idpath. assumption.
     apply pathsinv0. apply PullbackArrowUnique. apply pathsinv0; assumption.
     apply idpath.
