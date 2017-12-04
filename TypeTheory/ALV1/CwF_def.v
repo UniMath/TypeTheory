@@ -489,7 +489,7 @@ Proof.
   set (TT := #(right_adjoint Fopequiv) pp).
   set (TTT := #ηη TT).
   apply maponpaths_2.
-  pathvia TTT. 
+  intermediate_path TTT. 
   - apply maponpaths. unfold pp'. 
     unfold TT.
     unfold T'.
@@ -588,7 +588,7 @@ Proof.
   set (TT := #(right_adjoint RCequiv) pp).
   set (TTT := #ηη TT).
   apply maponpaths_2.
-  pathvia TTT. 
+  intermediate_path TTT. 
   - apply maponpaths. unfold pp'. 
     unfold TT.
     unfold T'.

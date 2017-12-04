@@ -127,7 +127,7 @@ Proof.
     intros Γ A Γ' f Γ'' g.
     unfold q_typecat. simpl. 
     match goal with [|- _ = ?e ] => 
-           pathvia (identity _ ;; e); [| apply id_left] end.
+           intermediate_path (identity _ ;; e); [| apply id_left] end.
     rewrite assoc.
     rewrite assoc.
     unfold ext_typecat. simpl.
