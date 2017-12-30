@@ -255,7 +255,7 @@ Defined.
 Definition weq_exchange_args {A B} (C : A -> B -> Type)
   : (∏ a b, C a b) ≃ (∏ b a, C a b).
 Proof.
-  use weqgradth.
+  use weq_iso.
   - intros f b a; exact (f a b).
   - intros g a b; exact (g b a).
   - intros f; apply idpath.

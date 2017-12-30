@@ -440,7 +440,7 @@ Lemma FAM_obj_weq_4 (A B : ob FAM) :
      isweq f1 × ∏ a, is_iso (f2 a))
   ≃ ∑ (f : A --> B), FAM_is_iso f.
 Proof.
-  unshelve refine (weqgradth _ _ _ _).
+  use weq_iso.
   - intros [f1 [f2 [wf1 wf2]]]. exists (tpair _ f1 f2). exists wf1. exact wf2.
   - intros [[f1 f2] [wf1 wf2]]. exists f1. exists f2. exists wf1. exact wf2.
   - intros [f1 [f2 [wf1 wf2]]]. simpl. apply idpath.
