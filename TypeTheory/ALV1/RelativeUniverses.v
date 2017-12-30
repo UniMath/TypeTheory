@@ -110,7 +110,7 @@ Proof.
     destruct x' as [a' m']. cbn in *.
     destruct H as [H isP].
     destruct H' as [H' isP'].
-    simple refine (total2_paths_f _ _ ).
+    use total2_paths_f.
     + unfold fpullback_prop in *.
       set (T1 := mk_Pullback _ _ _ _ _ _ isP).
       set (T2 := mk_Pullback _ _ _ _ _ _ isP').
@@ -284,13 +284,13 @@ Proof.
   destruct A as [e isPb]. cbn in e, isPb.
   assert (Sfp := S_pb _ _ _ _ _ _ _ _ _ isPb); clear S_pb.
   set (HSfp := functor_on_square D D' S e) in *; clearbody HSfp.
-  simple refine (tpair _ _ _ ).
+  use tpair.
   { exists (R Xf); split.
     - exact (#R p ;; i).
     - refine (α' Xf ;; #S q).
   }
   cbn. unfold fpullback_prop.
-  simple refine (commutes_and_is_pullback_transfer_iso _ _ _ _ _ Sfp).
+  use (commutes_and_is_pullback_transfer_iso _ _ _ _ _ Sfp).
   - apply identity_iso.
   - refine (iso_comp _ (functor_on_iso J' i)).
     exists (α _); apply α_iso.
@@ -343,13 +343,13 @@ Proof.
   destruct A as [e isPb]. cbn in e, isPb.
   assert (Sfp := S_pb _ _ _ _ _ _ _ _ _ isPb); clear S_pb.
   set (HSfp := functor_on_square D D' S e) in *; clearbody HSfp.
-  simple refine (tpair _ _ _ ).
+  use tpair.
   { exists (R Xf); split.
     - exact (#R p ;; i).
     - refine (α' Xf ;; #S q).
   }
   cbn. unfold fpullback_prop.
-  simple refine (commutes_and_is_pullback_transfer_iso _ _ _ _ _ Sfp).
+  use (commutes_and_is_pullback_transfer_iso _ _ _ _ _ Sfp).
   - apply identity_iso.
   - refine (iso_comp _ (functor_on_iso J' i)).
     exists (α _); apply α_iso.
@@ -465,13 +465,13 @@ Proof.
   assert (Sfp := S_pb _ _ _ _ _ _ _ _ _ isPb); clear S_pb.
   set (HSfp := functor_on_square D D' S e) in *; clearbody HSfp.
   apply hinhpr.
-  simple refine (tpair _ _ _ ).
+  use tpair.
   { exists (R Xf); split.
     - exact (#R p ;; i).
     - refine (α' Xf ;; #S q).
   }
   cbn. unfold fpullback_prop.
-  simple refine (commutes_and_is_pullback_transfer_iso _ _ _ _ _ Sfp).
+  use (commutes_and_is_pullback_transfer_iso _ _ _ _ _ Sfp).
   - apply identity_iso.
   - refine (iso_comp _ (functor_on_iso J' i)).
     exists (α _). apply α_iso. apply is_iso_α.

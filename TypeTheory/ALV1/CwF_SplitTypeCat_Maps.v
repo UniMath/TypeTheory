@@ -94,12 +94,12 @@ Proof.
     intros Γ''. cbn. unfold yoneda_objects_ob, yoneda_morphisms_data.
     apply funextsec; intros g.
     etrans. apply maponpaths, H.
-    refine (toforallpaths _ _ _ (!functor_comp (TM Y) _ _) _).
+    use (toforallpaths _ _ _ (!functor_comp (TM Y) _ _)).
   - assert (H' := nat_trans_eq_pointwise H); clear H.
     assert (H'' := toforallpaths _ _ _ (H' _) (identity _)); clear H'.
     cbn in H''; unfold yoneda_morphisms_data in H''.
     refine (_ @ H'' @ _).
-    + refine (toforallpaths _ _ _ (!functor_id (TM Y) _) _).
+    + use (toforallpaths _ _ _ (!functor_id (TM Y) _)).
     + apply maponpaths_2, id_left.
 Qed.
 
@@ -175,7 +175,7 @@ Defined.
 Definition tm_from_qq_functor_data : functor_data C^op HSET.
 Proof.
   exists tm_from_qq_functor_ob.
-  refine tm_from_qq_functor_mor.
+  exact tm_from_qq_functor_mor.
 Defined.
 
 Lemma section_eq_from_tm_from_qq_eq {Γ}
@@ -198,7 +198,7 @@ Proof.
   use total2_paths_f; simpl.
     apply eA.
   apply subtypeEquality. intro; apply homset_property.
-  simpl. eapply pathscomp0. refine (pr1_transportf _ _ _ _ _ eA _).
+  simpl. eapply pathscomp0. use (pr1_transportf _ _ _ _ _ eA).
   simpl. eapply pathscomp0. apply functtransportf.
   eapply pathscomp0. eapply pathsinv0. apply idtoiso_postcompose.
   exact es.
@@ -372,7 +372,7 @@ Proof.
   etrans. {
     apply maponpaths_2.
     apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). }
-  refine (_ @ id_right _).  
+  use (_ @ id_right _).  
   etrans. apply @pathsinv0, assoc.
   apply maponpaths.
   apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
@@ -391,7 +391,7 @@ Proof.
     use tm_from_qq_eq. cbn. 
     + etrans.
         apply @pathsinv0.
-        refine (toforallpaths _ _ _ (functor_comp (TY X) _ _ ) A).
+        use (toforallpaths _ _ _ (functor_comp (TY X) _ _ ) A).
       apply maponpaths_2.
       cbn.
       etrans. apply @pathsinv0, assoc. 
@@ -401,13 +401,13 @@ Proof.
       apply id_left.
     + use (map_into_Pb_unique _ (qq_π_Pb Z _ _  )).
       * cbn.
-        refine (_ @ !e).
+        use (_ @ !e).
         etrans. apply @pathsinv0, assoc.
         etrans. apply @maponpaths, comp_ext_compare_π.
         apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
       * etrans. apply @pathsinv0, assoc.
-        simple refine (maponpaths _ _ @ _).
-            { refine (qq Z _ _ ;; qq Z _ _). }
+        use (maponpaths _ _ @ _).
+            { use (qq Z _ _ ;; qq Z _ _). }
           { etrans. Focus 2. {
             eapply iso_inv_on_right.
             etrans. Focus 2. apply @pathsinv0, assoc. 
@@ -440,7 +440,7 @@ Proof.
     apply maponpaths.
     etrans. apply maponpaths.
       apply @pathsinv0, iso_inv_on_right.
-      refine (_ @ !assoc _ _ _).
+      use (_ @ !assoc _ _ _).
       apply qq_comp.
     etrans. Focus 2. 
       exact (comp_ext_compare_qq Z (!e1) _).
@@ -565,7 +565,7 @@ We first construct maps of presheaves that will be the image of the _q_-morphism
 
 Definition Yo_of_qq : _ ⟦Yo (Γ' ◂ A[f]), Yo (Γ ◂ A) ⟧.
 Proof.
-  simple refine (PullbackArrow Xk _ _ _ _ ).
+  use (PullbackArrow Xk).
   - apply (#Yo (π _) ;; #Yo f ). 
   - apply (Q Y).
   - abstract (
@@ -665,7 +665,7 @@ Proof.
     apply PullbackArrowUnique. 
     + etrans. apply maponpaths. cbn. apply idpath. 
       rewrite <- functor_comp.
-      etrans. eapply pathsinv0. refine (functor_comp Yo _ _).
+      etrans. eapply pathsinv0. use (functor_comp Yo).
       apply maponpaths. rewrite (@comp_ext_compare_π _ X).
       apply pathsinv0. apply id_right.
     + etrans. apply maponpaths. cbn. apply idpath.
@@ -676,7 +676,7 @@ Proof.
     sym. apply PullbackArrowUnique.
     + etrans. apply maponpaths. cbn. apply idpath.
       rewrite <- functor_comp.
-      etrans. eapply pathsinv0. refine (functor_comp Yo _ _).
+      etrans. eapply pathsinv0. use (functor_comp Yo).
       apply maponpaths.
       rewrite <- assoc. rewrite qq_commutes_1 .
       repeat rewrite assoc.

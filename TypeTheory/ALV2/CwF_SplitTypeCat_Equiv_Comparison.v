@@ -52,7 +52,7 @@ Section Equiv_of_Types_from_Cats.
 Definition term_struc_to_qq_struc_equiv_types (X : obj_ext_Precat C)
   : term_fun_structure C X ≃ qq_morphism_structure X.
 Proof.
-  refine (weq_on_objects_from_adj_equiv_of_cats _ _ _ _ _ 
+  use (weq_on_objects_from_adj_equiv_of_cats _ _ _ _ _ 
          (term_struc_to_qq_struc_is_equiv _)).
   - apply is_univalent_fiber, is_univalent_term_fun_structure.
   - apply is_univalent_fiber, is_univalent_qq_morphism.
@@ -79,7 +79,7 @@ Lemma qq_compat_implies_eq (Y : term_fun_structure C X) {Z Z'}
   -> Z = Z'.
 Proof.
   intros W W'.
-  refine (@maponpaths _ _ pr1 (Z,,W) (Z',,W') _).
+  use (@maponpaths _ _ pr1 (Z,,W) (Z',,W')).
   apply isapropifcontr, iscontr_compatible_split_comp_structure.
 Defined.
 

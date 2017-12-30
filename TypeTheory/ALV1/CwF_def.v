@@ -143,7 +143,7 @@ Proof.
     apply (toforallpaths _ _ _ (functor_id (Tm pp) _)).
   etrans. 
     assert (e' := nat_trans_eq_pointwise e ΓA); clear e; cbn in e'.
-    refine (toforallpaths _ _ _ (!e') (identity _)).
+    use (toforallpaths _ _ _ (!e') (identity _)).
   unfold yoneda_morphisms_data.
   apply maponpaths_2, id_left.
 Qed.
@@ -208,7 +208,7 @@ Proof.
   destruct x' as [ΓA' m']. cbn in *.
   destruct H as [H isP].
   destruct H' as [H' isP'].
-  simple refine (total2_paths_f _ _ ).
+  use (total2_paths_f).
   - set (T1 := mk_Pullback _ _ _ _ _ _ isP).
     set (T2 := mk_Pullback _ _ _ _ _ _ isP').
     set (i := iso_from_Pullback_to_Pullback T1 T2). cbn in i.
@@ -273,7 +273,7 @@ Proof.
       match goal with |[|- PullbackArrow _ _ _ _ ?E4    ;; _ = _ ] 
                        => set (e4 := E4) end.
       apply (PullbackArrow_PullbackPr2 PT e1 e2 e3 e4).
-Qed.      
+Qed.   
 
 Lemma isaprop_cwf_fiber_representation {Γ:C} (A : Ty pp Γ : hSet)
   : is_univalent C -> isaprop (cwf_fiber_representation pp A).
@@ -319,13 +319,13 @@ Proof.
     apply weqtotal2asstor'.
   eapply weqcomp. Focus 2.
     eapply weqtotal2asstol.
-  eapply weqcomp. Focus 2.
+    eapply weqcomp. Focus 2.
     refine (weqfibtototal _ _ _).
     intro. apply weqtotal2asstor'.
   (* convert the term argument under [yy] *)
   apply weqfibtototal. intros [ΓA π]; simpl.
-  simple refine (weqbandf _ _ _ _).
-    simple refine (weqbandf _ _ _ _).
+  use weqbandf.
+    use weqbandf.
       apply yy.
   (* show the two forms of the equality axiom are equivalent *)
   - intros v; simpl.
@@ -333,7 +333,7 @@ Proof.
     + apply @cwf_square_comm.
     + apply @cwf_square_comm_converse.
     + apply setproperty.
-    + refine (homset_property (preShv C) _ _ _
+    + use (homset_property (preShv C) _ _ _
         (fq _
           (ΓA,, π,, invmap (yoneda_weq C (homset_property C) ΓA (Tm pp)) v)
         ;; _)).
@@ -348,7 +348,7 @@ Proof.
   apply weqonsecfibers. intro Γ.
   (* convert the type argument under [yy] *) 
   eapply weqcomp.
-    Focus 2. eapply invweq. 
+    Focus 2. eapply invweq.
     refine (weqonsecbase _ _). apply yy.
   apply weqonsecfibers. intro A.
   apply  weq_cwf_fiber_representation_fpullback.

@@ -344,7 +344,7 @@ Lemma comp_ext_compare_qq_general (Z : qq_morphism_data)
   : comp_ext_compare eA ;; qq Z f' A
   = qq Z f A.
 Proof.
-  refine (_ @ comp_ext_compare_qq _ e A).
+  use (_ @ comp_ext_compare_qq _ e A).
   apply maponpaths_2, maponpaths, setproperty.
 Qed.
 

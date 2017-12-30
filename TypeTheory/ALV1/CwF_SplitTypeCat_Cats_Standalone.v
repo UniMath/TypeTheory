@@ -83,7 +83,7 @@ Proof.
   intros Γ'; simpl in Γ'.
   unfold yoneda_objects_ob. apply funextsec; intros f.
   etrans. 
-    refine (toforallpaths _ _ _ (nat_trans_ax (term_fun_mor_TM FF) _ _ _) _).
+    use (toforallpaths _ _ _ (nat_trans_ax (term_fun_mor_TM FF) _ _ _)).
   cbn. apply maponpaths, term_fun_mor_te.
 Qed.
 
@@ -117,7 +117,7 @@ Proof.
     simpl in Pb.
   apply (pullback_HSET_elements_unique Pb); clear Pb.
   - unfold yoneda_morphisms_data; cbn.
-    etrans. refine (pr2 (term_to_section t')). apply pathsinv0.
+    etrans. use (pr2 (term_to_section t')). apply pathsinv0.
     etrans. Focus 2. refine (pr2 (term_to_section t)).
     etrans. apply @pathsinv0, assoc.
     apply maponpaths.
@@ -210,9 +210,9 @@ Definition qq_structure_ob_mor : precategory_ob_mor.
 Proof.
   exists (qq_morphism_structure X).
   intros Z Z'.
-  refine (∏ Γ' Γ (f : C ⟦ Γ' , Γ ⟧) (A : Ty X Γ), _).
-  refine (qq Z f A  = _).
-  refine (qq Z' f _ ).
+  use (∏ Γ' Γ (f : C ⟦ Γ' , Γ ⟧) (A : Ty X Γ), _).
+  use (qq Z f A  = _).
+  use (qq Z' f).
 Defined.
 
 Lemma isaprop_qq_structure_mor
@@ -344,8 +344,8 @@ Proof.
   - etrans. apply qq_π.
     apply pathsinv0, qq_π.
   - etrans. cbn. apply maponpaths, @pathsinv0, (term_fun_mor_te FY).
-    etrans. refine (toforallpaths _ _ _
-                      (!nat_trans_ax (term_fun_mor_TM _) _ _ _) _).
+    etrans. use (toforallpaths _ _ _
+                      (!nat_trans_ax (term_fun_mor_TM _) _ _ _)).
     etrans. cbn. apply maponpaths, @pathsinv0, W.
     etrans. apply term_fun_mor_te.
     apply W'.
@@ -401,9 +401,9 @@ Proof.
   use tm_from_qq_eq.
   - apply idpath.
   - etrans. apply id_right.
-    cbn. apply PullbackArrowUnique. 
-    + refine (PullbackArrow_PullbackPr1
-                (mk_Pullback _ _ _ _ _ _ (qq_π_Pb _ f A)) _ _ _ _).
+    cbn. apply PullbackArrowUnique.
+    + use (PullbackArrow_PullbackPr1
+                (mk_Pullback _ _ _ _ _ _ (qq_π_Pb _ f A))).
     + cbn; cbn in FZ. etrans. apply maponpaths, @pathsinv0, FZ.
       apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). 
 Qed.
@@ -447,9 +447,9 @@ Definition term_from_qq_mor_TM
     (W' : iscompatible_term_qq Y' Z')
   : TM (Y : term_fun_structure _ _) --> TM (Y' : term_fun_structure _ _).
 Proof.
-  refine ( _ ;; (tm_from_qq_mor_TM FZ : preShv C ⟦ _ , _ ⟧) ;; _).
-  - refine (given_TM_to_canonical _ _ (Y,,W)).
-  - refine (canonical_TM_to_given _ _ (Y',,W')).
+  use ( _ ;; (tm_from_qq_mor_TM FZ : preShv C ⟦ _ , _ ⟧) ;; _).
+  - exact (given_TM_to_canonical _ _ (Y,,W)).
+  - exact (canonical_TM_to_given _ _ (Y',,W')).
 Defined.
 
 Lemma term_from_qq_mor
@@ -590,7 +590,7 @@ Lemma idtoiso_iso_to_TM_eq
 : (idtoiso (iso_to_TM_eq _ _ FG) : _ --> _)
   = term_fun_mor_TM (FG : _ --> _).
 Proof.
-  refine (maponpaths pr1 (idtoiso_isotoid _ _ _ _ _)).
+  use (maponpaths pr1 (idtoiso_isotoid _ _ _ _ _)).
 Qed.
 
 Definition iso_to_id_term_fun_precategory
@@ -604,9 +604,9 @@ Proof.
   apply dirprodeq.
   - etrans. apply prewhisker_iso_to_TM_eq.
     apply term_fun_mor_pp. 
-  - etrans. refine (transportf_forall _ _ _).
+  - etrans. use transportf_forall.
     apply funextsec; intros Γ.
-    etrans. refine (transportf_forall _ _ _).
+    etrans. use transportf_forall.
     apply funextsec; intros A.
     etrans. apply transportf_pshf.
     etrans.
