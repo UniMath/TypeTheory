@@ -148,7 +148,7 @@ Defined.
 
 Theorem weq_reassoc_direct : split_struct ≃ reassoc_split_struct.
 Proof.
-  refine (weqgradth
+  refine (weq_iso
             l_to_r_reassoc_direct
             r_to_l_reassoc_direct
             _ _).
@@ -252,7 +252,7 @@ Definition weq_standalone_structural_explicit
         T_ty T_ext T_dpr T_reind T_q_etc
         T_set T_reind_id T_q_id T_reind_comp T_q_comp.
 Proof.
-  refine (weqgradth
+  refine (weq_iso
             standalone_to_structural
             structural_to_standalone
             _ _).

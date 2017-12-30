@@ -122,6 +122,7 @@ describe:; git describe --dirty --long --always --abbrev=40 --all
 	echo '# It is made by automatically (by code in Makefile)' ;\
 	echo ;\
 	echo '-Q TypeTheory TypeTheory' ;\
+	echo '-arg "$(OTHERFLAGS)"' ;\
 	echo ;\
 	for i in $(PACKAGES) ;\
 	do <TypeTheory/$$i/.package/files $(FILES_FILTER) |sed "s=^=TypeTheory/$$i/="  ;\
