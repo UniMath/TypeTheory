@@ -42,7 +42,7 @@ Variable Y : compatible_term_structure Z.
 Definition canonical_TM_to_given_data
   {Γ} (Ase : tm_from_qq Z Γ : hSet) : (Tm Y Γ).
 Proof.
-  refine (# (TM _ : functor _ _) _ (te _ (pr1 Ase))). 
+  use (# (TM _ : functor _ _) _ (te _ (pr1 Ase))). 
   exact (pr1 (pr2 Ase)).
 Defined.
 
@@ -110,16 +110,15 @@ Proof.
   (* This [assert] is to enable the [destruct eA] below. *)
   assert (eA : (pp Y : nat_trans _ _) _ t = A). {
     etrans. apply maponpaths, (!H).
-    refine (toforallpaths _ _ _ 
-      (nat_trans_eq_pointwise pp_canonical_TM_to_given _)
-      _).
+    use (toforallpaths _ _ _ 
+      (nat_trans_eq_pointwise pp_canonical_TM_to_given _)).
   }
   use total2_paths_f.
   exact (!eA).
   cbn. destruct eA; cbn. unfold idfun.
   apply subtypeEquality. { intros x; apply homset_property. }
   set (temp := proofirrelevance _ (isapropifcontr (term_to_section_aux t))).
-  refine (maponpaths pr1 (temp (_,,_) (_,,_))).
+  use (maponpaths pr1 (temp (_,,_) (_,,_))).
   - cbn; split.
     + exact e.
     + exact H.
@@ -155,7 +154,7 @@ Definition given_TM_to_canonical_naturality
   : is_nat_trans (TM Y : functor _ _) (tm_from_qq Z) 
       (@given_TM_to_canonical_data).
 Proof.
-  refine (is_nat_trans_inv_from_pointwise_inv_ext _
+  use (is_nat_trans_inv_from_pointwise_inv_ext _
            canonical_TM_to_given_pointwise_iso).
   apply homset_property.
 Qed.
@@ -180,7 +179,7 @@ Lemma canonical_TM_to_given_te {Γ:C} A
 Proof.
   cbn. unfold canonical_TM_to_given_data. cbn.
   etrans. apply maponpaths, (pr2 Y).
-  etrans. refine (toforallpaths _ _ _ (!functor_comp (TM Y) _ _ ) _).
+  etrans. use (toforallpaths _ _ _ (!functor_comp (TM Y) _ _ )).
   etrans. apply maponpaths_2; cbn.
     apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). 
   apply (toforallpaths _ _ _ (functor_id (TM Y) _) _).
@@ -231,7 +230,7 @@ Proof.
       etrans. apply transportf_isotoid_pshf.
       cbn. unfold canonical_TM_to_given_data. cbn.
       etrans. apply maponpaths, YH.
-      etrans. refine (toforallpaths _ _ _ (!functor_comp tm _ _ ) _).
+      etrans. use (toforallpaths _ _ _ (!functor_comp tm _ _ )).
       etrans. apply maponpaths_2; cbn.
         apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). 
       apply (toforallpaths _ _ _ (functor_id tm _) _).
@@ -278,7 +277,7 @@ Proof.
   apply PullbackArrowUnique.
   + etrans. apply maponpaths. cbn. apply idpath.
     rewrite <- functor_comp.
-    etrans. eapply pathsinv0. refine (functor_comp Yo _ _).
+    etrans. eapply pathsinv0. use (functor_comp Yo).
     apply maponpaths.
     apply (pr1 (h _ _ _ _ )).
   + etrans. apply maponpaths. cbn. apply idpath.

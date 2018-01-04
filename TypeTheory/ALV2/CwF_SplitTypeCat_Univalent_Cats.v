@@ -166,7 +166,7 @@ Proof.
     refine (toforallpaths _ _ _ _ A).
     refine (toforallpaths _ _ _ _ Γ).
     eapply pathsinv0, maponpaths.
-    refine (maponpaths pr1 (functor_on_iso_inv _ _ obj_ext_to_preShv_functor _ _ _)).
+    use (maponpaths pr1 (functor_on_iso_inv _ _ obj_ext_to_preShv_functor _ _ _)).
   }
   set (F' := inv_from_iso F).
   set (FF' := iso_after_iso_inv F).
@@ -214,7 +214,7 @@ Proof.
               = pr2 X').
   { etrans. Focus 2. apply e'.
     apply pathsinv0.
-    etrans. refine (transportf_forall _ _ _). simpl.
+    etrans. use (transportf_forall _ _ _). simpl.
     apply funextsec; intros Γ.
     apply (transportf_forall_var _
      (fun (T : functor C^op hset_precategory) => T Γ : hSet)).
@@ -222,7 +222,7 @@ Proof.
   intros Γ A; simpl in A. 
   refine (_ ;; _).
     Focus 2. eapply idtoiso.
-    refine (maponpaths pr1 (toforallpaths _ _ _
+    use (maponpaths pr1 (toforallpaths _ _ _
               (toforallpaths _ _ _ H Γ) _)).
   apply Δ. destruct e; apply idpath.
   Set Printing Notations.
@@ -256,12 +256,12 @@ Proof.
   apply obj_ext_mor_eq'.
   - intros Γ; apply toforallpaths; revert Γ; apply toforallpaths.
     apply maponpaths.
-    refine (@maponpaths _ _ pr1
+    use (@maponpaths _ _ pr1
       (functor_on_iso (obj_ext_to_preShv_functor) _)
-      (functor_on_iso _ _) _).
+      (functor_on_iso _ _)).
     etrans. apply @pathsinv0, maponpaths_idtoiso.
     etrans. apply maponpaths, base_total2_paths.
-    apply (idtoiso_isotoid _ _ _ _ _).
+    use (idtoiso_isotoid).
   - intros e_TY Γ A.
     etrans. apply maponpaths_2. apply foo2. unfold foo.
     etrans. apply maponpaths_2. apply maponpaths.
@@ -331,7 +331,7 @@ Lemma idtoiso_iso_disp_to_TM_eq
 : (idtoiso (iso_disp_to_TM_eq _ _ _ FG) : _ --> _)
   = term_fun_mor_TM (FG : _ -->[_] _).
 Proof.
-  refine (maponpaths pr1 (idtoiso_isotoid _ _ _ _ _)).
+  exact (maponpaths pr1 (idtoiso_isotoid _ _ _ _ _)).
 Qed.
 
 Definition iso_to_id__term_fun_disp_cat
@@ -357,7 +357,7 @@ Proof.
       refine (toforallpaths _ _ _ _ _).
       apply maponpaths, idtoiso_iso_disp_to_TM_eq.
     etrans. apply term_fun_mor_te.
-    refine (toforallpaths _ _ _ (functor_id (TM _) _) _).
+    exact (toforallpaths _ _ _ (functor_id (TM _) _) _).
 Qed.
 
 Theorem is_univalent_term_fun_structure

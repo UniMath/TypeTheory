@@ -149,7 +149,7 @@ Lemma qq_from_term_mor {X X' : obj_ext_precat} {F : X --> X'}
   (W' : strucs_compat_disp_cat (X',,(Y',,Z')))
   : ∑ (FZ : Z -->[F] Z'), W -->[(F,,(FY,,FZ))] W'.
 Proof.
-  refine (_,, tt).
+  use (_,, tt).
   intros Γ' Γ f A.
   cbn in W, W', FY. unfold iscompatible_term_qq in *. 
   unfold term_fun_mor in FY.
@@ -167,8 +167,8 @@ Proof.
     apply obj_ext_mor_ax.
   - etrans. exact (toforallpaths _ _ _ (functor_comp (TM _) _ _) _).
     etrans. cbn. apply maponpaths, @pathsinv0, (term_fun_mor_te FY).
-    etrans. refine (toforallpaths _ _ _
-                      (!nat_trans_ax (term_fun_mor_TM _) _ _ _) _).
+    etrans. use (toforallpaths _ _ _
+                      (!nat_trans_ax (term_fun_mor_TM _) _ _ _)).
     etrans. cbn. apply maponpaths, @pathsinv0, W.
     etrans. apply term_fun_mor_te.
     apply pathsinv0.
@@ -245,8 +245,8 @@ Proof.
       etrans. apply maponpaths, comp_ext_compare_π.
       etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, obj_ext_mor_ax.
-      refine (PullbackArrow_PullbackPr1
-                (mk_Pullback _ _ _ _ _ _ (qq_π_Pb _ f A)) _ _ _ _).
+      use (PullbackArrow_PullbackPr1
+                (mk_Pullback _ _ _ _ _ _ (qq_π_Pb _ f A))).
     + cbn in FZ; cbn.
       etrans. apply maponpaths_2, @pathsinv0, assoc.
       etrans. apply @pathsinv0, assoc.
@@ -335,9 +335,9 @@ Definition term_from_qq_mor_TM {X X' : obj_ext_precat} {F : X --> X'}
     (W' : strucs_compat_disp_cat (X',,(Y',,Z')))
   : TM (Y : term_fun_structure _ _) --> TM (Y' : term_fun_structure _ _).
 Proof.
-  refine ( _ ;; (tm_from_qq_mor_TM FZ : preShv C ⟦ _ , _ ⟧) ;; _).
-  - refine (given_TM_to_canonical _ _ (Y,,W)).
-  - refine (canonical_TM_to_given _ _ (Y',,W')).
+  use ( _ ;; (tm_from_qq_mor_TM FZ : preShv C ⟦ _ , _ ⟧) ;; _).
+  - exact (given_TM_to_canonical _ _ (Y,,W)).
+  - exact (canonical_TM_to_given _ _ (Y',,W')).
 Defined.
 (* TODO: better, construct these three parts as maps of qq-morphism structures, and put them together directly as that. *)
 
@@ -350,7 +350,7 @@ Lemma term_from_qq_mor {X X' : obj_ext_precat} {F : X --> X'}
 Proof.
   simpl in W, W'; unfold iscompatible_term_qq in W, W'. (* Readability *)
   simpl in Y, Y'.  (* To avoid needing casts [Y : term_fun_structure _]. *)
-  refine (_,,tt). simpl; unfold term_fun_mor.
+  use (_,,tt). simpl; unfold term_fun_mor.
   exists (term_from_qq_mor_TM FZ W W').
   apply dirprodpair; try intros Γ A.
   - etrans. apply @pathsinv0, assoc.
@@ -417,12 +417,12 @@ Proof.
       set (cd := iscontrpr1 (H (pr1 ab) (pr2 ab))). 
         exact ((pr1 ab,, (pr2 ab,, pr1 cd)),, pr2 cd).
     + intros abcd; destruct abcd as [ [a [b c] ] d]; simpl.
-      refine (@maponpaths _ _ 
+      use (@maponpaths _ _ 
         (fun cd : ∑ c' : C a, (D a b c') => (a,, b,, (pr1 cd)),, (pr2 cd))
-        _ (_,, _) _).
+        _ (_,, _)).
       apply proofirrelevancecontr, H.
     + intros ab; destruct ab as [a b]. apply idpath. }
-  use (structural_lemma _ _ _ (fun _ _ _ => unit) _ ).
+  use (structural_lemma _ _ _ (fun _ _ _ => unit)).
 (* these are all the arguments to structural_lemma 
          (obj_ext_mor X X') 
                         (fun f' => term_fun_mor Y Y' f') 
@@ -479,12 +479,12 @@ Proof.
       set (bd := iscontrpr1 (H (pr1 ac) (pr2 ac))). 
         exact ((pr1 ac,, (pr1 bd,, pr2 ac)),, pr2 bd).
     + intros abcd; destruct abcd as [ [a [b c] ] d]; simpl.
-      refine (@maponpaths _ _ 
+      use (@maponpaths _ _ 
         (fun bd : ∑ b' : B a, (D a b' c) => (a,, (pr1 bd),, c),, (pr2 bd))
-        _ (_,, _) _).
+        _ (_,, _)).
       apply proofirrelevancecontr, H.
     + intros ac; destruct ac as [a c]. apply idpath. }
-  simple refine (structural_lemma _ _ _ (fun _ _ _ => unit) _).
+  use (structural_lemma _ _ _ (fun _ _ _ => unit)).
   intros FX FY. apply iscontraprop1.
   - exact (term_from_qq_mor_unique FY W W').
   - exact (term_from_qq_mor FY W W').
@@ -523,12 +523,12 @@ Proof.
       set (cd := iscontrpr1 (H b)). 
         exact ((b,,pr1 cd),, pr2 cd).
     + intros bcd; destruct bcd as [ [b c] d]; simpl.
-      refine (@maponpaths _ _ 
+      use (@maponpaths _ _ 
         (fun cd : ∑ c', (D b c') => (b,, (pr1 cd)),, (pr2 cd))
-        _ (_,, _) _).
+        _ (_,, _)).
       apply proofirrelevancecontr, H.
     + intros b; apply idpath. }
-  simple refine (structural_lemma _ _ (fun _ _  => unit) _).
+  use (structural_lemma _ _ (fun _ _  => unit)).
   intros FY. apply iscontraprop1.
   - exact (qq_from_term_mor_unique FY W W').
   - exact (qq_from_term_mor FY W W').
@@ -582,12 +582,12 @@ Proof.
       set (bd := iscontrpr1 (H c)). 
         exact ((pr1 bd,,c),, pr2 bd).
     + intros bcd; destruct bcd as [ [b c] d]; simpl.
-      refine (@maponpaths _ _ 
+      use (@maponpaths _ _ 
         (fun bd : ∑ b', (D b' c) => ((pr1 bd),, c),, (pr2 bd))
-        _ (_,, _) _).
+        _ (_,, _)).
       apply proofirrelevancecontr, H.
     + intros c; apply idpath. }
-  simple refine (structural_lemma _ _ (fun _ _ => unit) _).
+  use (structural_lemma _ _ (fun _ _ => unit)).
   intros FY. apply iscontraprop1.
   - exact (term_from_qq_mor_unique FY W W').
   - exact (term_from_qq_mor FY W W').

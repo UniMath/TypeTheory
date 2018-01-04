@@ -182,7 +182,7 @@ Definition weq_rep2_rep1_data (pp : mor_total (preShv C))
 Proof.
   unfold rep1_data, rep2_data.
   eapply weqcomp. apply weqonsecfibers; intro; apply weqforalltototal.
-  refine (weqforalltototal _ _).
+  use weqforalltototal.
 Defined.
 
 Definition rep2 (pp : mor_total (preShv C)) : UU 
@@ -191,16 +191,16 @@ Definition rep2 (pp : mor_total (preShv C)) : UU
 Definition weq_rep1_representation (pp : mor_total (preShv C))
   : rep1 pp ≃ cwf_representation pp.
 Proof.
-  simple refine (weqcomp _ _). { exact (rep2 pp). }
+  use weqcomp. { exact (rep2 pp). }
     eapply invweq, weqfp.
   unfold rep2, cwf_representation.
   eapply weqcomp. 
     unfold rep2_data, rep1_axioms.
-    refine (@weqtotaltoforall C (fun Γ => (Ty pp Γ : hSet) -> _)
+    use (@weqtotaltoforall C (fun Γ => (Ty pp Γ : hSet) -> _)
       (fun Γ Y => forall A, rep1_fiber_axioms A (pr2 (pr1 (Y A))) (pr2 (Y A)))).
   apply weqonsecfibers; intro Γ.
   eapply weqcomp.
-    refine (@weqtotaltoforall _ _
+    use (@weqtotaltoforall _ _
       (fun A ΓAπt => rep1_fiber_axioms A (pr2 (pr1 ΓAπt)) (pr2 ΓAπt))).
   apply weqonsecfibers; intro A.
   unfold cwf_fiber_representation.

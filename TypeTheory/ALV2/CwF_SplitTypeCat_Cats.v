@@ -85,20 +85,20 @@ Proof.
     apply e_TY.
   apply funextsec; intros Γ; apply funextsec; intros A.
   use total2_paths_f. Focus 2. apply homset_property.
-  refine (_ @ e_comp Γ A).
+  use (_ @ e_comp Γ A).
   etrans.
     apply maponpaths.
     refine (toforallpaths _ _ _ _ _).
     etrans. refine (toforallpaths _ _ _ _ _).
       refine (transportf_forall _ _ _). simpl.
     refine (transportf_forall _ _ _). simpl.
-  etrans. refine (pr1_transportf (nat_trans _ _) _ _ _ _ _ _).
+  etrans. use (pr1_transportf (nat_trans _ _)).
   simpl.
-  etrans. refine (@functtransportf (nat_trans _ _) _ _ _ _ _ _ _).
+  etrans. use (@functtransportf (nat_trans _ _)).
   etrans. apply @pathsinv0, idtoiso_postcompose.
   apply maponpaths.
   etrans. apply maponpaths, maponpaths. apply @pathsinv0.
-    refine (@maponpathscomp (nat_trans _ _) _ _ _ _ _ _ _).
+    use (@maponpathscomp (nat_trans _ _)).
   apply (maponpaths Δ), setproperty.
 Qed.
 
@@ -228,9 +228,9 @@ Proof.
 (* Insert [cbn] to see what’s actually happening; removed for compile speed. *)
   unfold yoneda_objects_ob. apply funextsec; intros f.
   etrans. 
-    refine (toforallpaths _ _ _ (nat_trans_ax (term_fun_mor_TM FF) _ _ _) _).
+    use (toforallpaths _ _ _ (nat_trans_ax (term_fun_mor_TM FF) _ _ _)).
   etrans. cbn. apply maponpaths, term_fun_mor_te.
-  refine (toforallpaths _ _ _ (!functor_comp (TM Y') _ _ ) _).
+  use (toforallpaths _ _ _ (!functor_comp (TM Y') _ _ )).
 Qed.
 
 (* TODO: inline in [isaprop_term_fun_mor]? *)
@@ -263,8 +263,8 @@ Proof.
     simpl in Pb.
   apply (pullback_HSET_elements_unique Pb); clear Pb.
   - unfold yoneda_morphisms_data; cbn.
-    etrans. refine (pr2 (term_to_section t')). apply pathsinv0.
-    etrans. Focus 2. refine (pr2 (term_to_section t)).
+    etrans. use (pr2 (term_to_section t')). apply pathsinv0.
+    etrans. Focus 2. use (pr2 (term_to_section t)).
     etrans. apply @pathsinv0, assoc.
     etrans. apply @pathsinv0, assoc.
     apply maponpaths.
@@ -322,7 +322,7 @@ Proof.
     exists (identity _). apply tpair.
     + etrans. apply id_left. apply pathsinv0, id_right.
     + intros Γ A; cbn.
-      refine (toforallpaths _ _ _ (!functor_id (TM _) _) _).
+      use (toforallpaths _ _ _ (!functor_id (TM _) _)).
   - intros X0 X1 X2 F G Y0 Y1 Y2 FF GG.
     exists (term_fun_mor_TM FF ;; term_fun_mor_TM GG). apply tpair.
     + etrans. apply @pathsinv0. apply assoc.
@@ -332,10 +332,10 @@ Proof.
       apply pathsinv0. apply assoc.
     + intros Γ A.
       etrans. cbn. apply maponpaths, term_fun_mor_te.
-      etrans. refine (toforallpaths _ _ _
-                        (nat_trans_ax (term_fun_mor_TM _) _ _ _) _).
+      etrans. use (toforallpaths _ _ _
+                        (nat_trans_ax (term_fun_mor_TM _) _ _ _)).
       etrans. cbn. apply maponpaths, term_fun_mor_te.
-      refine (toforallpaths _ _ _ (!functor_comp (TM _) _ _) _).
+      use (toforallpaths _ _ _ (!functor_comp (TM _) _ _)).
 Defined.
 
 Definition term_fun_data : disp_cat_data (obj_ext_Precat C)
@@ -380,11 +380,11 @@ Definition qq_structure_ob_mor : disp_cat_ob_mor (obj_ext_Precat C).
 Proof.
   exists (fun X => qq_morphism_structure X).
   intros X X' Z Z' F.
-  refine (∏ Γ' Γ (f : C ⟦ Γ' , Γ ⟧) (A : Ty X Γ), _).
-  refine (qq Z f A ;; φ F A = _).
-  refine (φ F _ ;; Δ _ ;; qq Z' f _).
+  use (∏ Γ' Γ (f : C ⟦ Γ' , Γ ⟧) (A : Ty X Γ), _).
+  use (qq Z f A ;; φ F A = _).
+  use (φ F _ ;; Δ _ ;; qq Z' f _).
   revert A; apply toforallpaths.
-  refine (nat_trans_ax (obj_ext_mor_TY F) _ _ _).
+  use (nat_trans_ax (obj_ext_mor_TY F)).
 Defined.
 
 Lemma isaprop_qq_structure_mor

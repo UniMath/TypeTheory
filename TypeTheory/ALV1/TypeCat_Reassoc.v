@@ -148,10 +148,7 @@ Defined.
 
 Theorem weq_reassoc_direct : split_struct ≃ reassoc_split_struct.
 Proof.
-  refine (weq_iso
-            l_to_r_reassoc_direct
-            r_to_l_reassoc_direct
-            _ _).
+  use (weq_iso l_to_r_reassoc_direct r_to_l_reassoc_direct).
   - intros [[[ty [ext reind]] [dpr q_etc]] [set [[reind_id q_id] [reind_comp q_comp]]]].
     apply idpath.
   - intros [[[[[ty set] reind] [reind_id reind_comp]] [ext dpr]] [q_etc [q_id q_comp]]].
@@ -252,10 +249,7 @@ Definition weq_standalone_structural_explicit
         T_ty T_ext T_dpr T_reind T_q_etc
         T_set T_reind_id T_q_id T_reind_comp T_q_comp.
 Proof.
-  refine (weq_iso
-            standalone_to_structural
-            structural_to_standalone
-            _ _).
+  use (weq_iso standalone_to_structural structural_to_standalone).
   - intros; apply idpath.
   - intros; apply idpath.
 Defined.
