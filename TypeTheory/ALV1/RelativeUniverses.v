@@ -229,8 +229,118 @@ Definition total (U : relative_universe J) : D
 Definition relative_universe_fpullback (U : relative_universe J)
   : forall (X:C) (f : J X --> base U), fpullback J (mor U) f
 := pr2 U.
+Coercion relative_universe_fpullback : relative_universe >-> Funclass.
 
 End Relative_Universe_Accessors.
+
+Section Extension_Functoriality.
+(* In case J : C —> D is fully faithful, the J-pullback operation a relative universe on J is automatically functorial, and the structure morphisms are natural with respect to that.
+
+  For general J, these data+conditions should probably be added to the definition of a relative universe.  However, for fully faithful J, they exist uniquely. *)
+
+(* TODO: 
+
+- define a type [rel_universe_functoriality], given as the sigma-type of the four following lemmas;
+- show (by the four following lemmas, plus a little more work) that this type is contractible for fully faithful [J].
+- possibly rename the current definition of relative universe to eg [simple_relative_universe], and redefine [relative_universe] to include the functoriality. 
+*)
+
+Context {C D : precategory} {J : C ⟶ D} (HJ : fully_faithful J)
+  (U : relative_universe J).
+ 
+Definition rel_universe_fpullback_mor
+    {X : C} {f : J X --> base U}
+    {X' : C} {f' : J X' --> base U}
+    (g : X --> X') (e : # J g ;; f' = f)
+  : fpb_obj _ (U X f) --> fpb_obj _ (U X' f').
+Proof.
+  apply (fully_faithful_inv_hom HJ).
+  use (map_into_Pb _ _ _ _ _ (pr2 (pr2 (U _ _)))).
+  - apply (# J). exact (fp _ _ ;; g). 
+  - apply fq.
+  - refine (_ @ _). { apply maponpaths_2. apply functor_comp. }
+    refine (_ @ _). { apply pathsinv0, assoc. }
+    refine (_ @ _). { apply maponpaths, e. }
+    exact (pr1 (pr2 (U X f))).
+Defined.
+
+(* TODO: change [fpb_obj] to [fpb_ob], and make arg implicit *)
+(* TODO: add access function [fpb_isPullback]. *)
+
+Definition rel_universe_fpullback_mor_id
+    {X : C} (f : J X --> base U)
+    (e := maponpaths_2 _ (functor_id _ _) _ @ id_left _)
+  : rel_universe_fpullback_mor (identity X) e
+  = identity (fpb_obj _ (U X f)).
+Proof.
+  refine (_ @ _). Focus 2. { apply fully_faithful_inv_identity. } Unfocus.
+  apply (maponpaths (fully_faithful_inv_hom _ _ _)). 
+  apply (map_into_Pb_unique _ (pr2 (pr2 (U _ _)))).
+  - refine (_ @ _). { apply Pb_map_commutes_1. }
+    refine (_ @ _). { apply maponpaths, id_right. }
+    apply pathsinv0, id_left.
+  - refine (_ @ _). { apply Pb_map_commutes_2. }
+    apply pathsinv0, id_left.
+Qed.
+    
+Definition rel_universe_fpullback_mor_comp
+    {X : C} {f : J X --> base U}
+    {X' : C} {f' : J X' --> base U}
+    {X'' : C} {f'' : J X'' --> base U}
+    (g : X --> X') (e : # J g ;; f' = f)
+    (g' : X' --> X'') (e' : # J g' ;; f'' = f')
+    (e'' := (maponpaths_2 _ (functor_comp _ _ _) _)
+            @ !(assoc _ _ _) @ (maponpaths _ e') @ e)
+  : rel_universe_fpullback_mor (g ;; g') e''
+    = rel_universe_fpullback_mor g e
+    ;; rel_universe_fpullback_mor g' e'.
+Proof.
+  refine (_ @ _). Focus 2. { apply fully_faithful_inv_comp. } Unfocus.
+  apply (maponpaths (fully_faithful_inv_hom _ _ _)).
+  apply (map_into_Pb_unique _ (pr2 (pr2 (U _ _)))).
+  - refine (_ @ _). { apply Pb_map_commutes_1. }
+    refine (_ @ _). Focus 2.
+    { apply pathsinv0.
+      refine (_ @ _). { apply pathsinv0, assoc. } 
+      refine (_ @ _). { apply maponpaths, Pb_map_commutes_1. }
+      refine (_ @ _). { apply maponpaths, functor_comp. }
+      refine (_ @ _). { apply assoc. }
+      apply maponpaths_2, Pb_map_commutes_1.
+    } Unfocus.
+    refine (_ @ _). { apply maponpaths, assoc. }
+    apply functor_comp.
+  - refine (_ @ _). { apply Pb_map_commutes_2. }
+    apply pathsinv0.
+    refine (_ @ _). { apply pathsinv0, assoc. } 
+    refine (_ @ _). { apply maponpaths, Pb_map_commutes_2. }
+    apply Pb_map_commutes_2.    
+Qed.
+
+Definition rel_universe_fp_nat
+    {X : C} {f : J X --> base U}
+    {X' : C} {f' : J X' --> base U}
+    (g : X --> X') (e : # J g ;; f' = f)
+  : rel_universe_fpullback_mor g e ;; fp _ _ = fp _ _ ;; g.
+Proof.
+  apply (invmaponpathsweq (weq_from_fully_faithful HJ _ _)). 
+  refine (_ @ _). { apply functor_comp. }
+  refine (_ @ _).
+    { apply maponpaths_2, (homotweqinvweq (weq_from_fully_faithful _ _ _)). }
+  apply Pb_map_commutes_1.
+Qed.
+
+Definition rel_universe_fq_nat
+    {X : C} {f : J X --> base U}
+    {X' : C} {f' : J X' --> base U}
+    (g : X --> X') (e : # J g ;; f' = f)
+  : # J (rel_universe_fpullback_mor g e) ;; fq _ _ = fq _ _.
+Proof.
+  refine (_ @ _).
+    { apply maponpaths_2, (homotweqinvweq (weq_from_fully_faithful _ _ _)). }
+  apply Pb_map_commutes_2.
+Qed.
+
+End Extension_Functoriality.
 
 
 (** * Transfer of relative universes *)
@@ -678,69 +788,4 @@ Definition weq_weak_relative_universe_transfer
 End Is_universe_relative_to_Transfer.
 
 
-(* TODO: move up *)
-Coercion relative_universe_fpullback : relative_universe >-> Funclass.
-
-Section Extension_Functoriality.
-(* In case J : C —> D is fully faithful, the J-pullback operation a relative universe on J is automatically functorial, and the structure morphisms natural with respect to that. *)
-
-Context {C D : precategory} {J : C ⟶ D} (HJ : fully_faithful J)
-  (U : relative_universe J).
- 
-Definition rel_universe_fpullback_mor
-    {X : C} {f : J X --> base U}
-    {X' : C} {f' : J X' --> base U}
-    (g : X --> X') (e : # J g ;; f' = f)
-  : fpb_obj _ (U X f) --> fpb_obj _ (U X' f').
-Proof.
-  apply (fully_faithful_inv_hom HJ).
-  use (map_into_Pb _ _ _ _ _ (pr2 (pr2 (U _ _)))).
-  - apply (# J). exact (fp _ _ ;; g). 
-  - apply fq.
-  - refine (_ @ _). { apply maponpaths_2. apply functor_comp. }
-    refine (_ @ _). { apply pathsinv0, assoc. }
-    refine (_ @ _). { apply maponpaths, e. }
-    exact (pr1 (pr2 (U X f))).
-Defined.
-
-(* TODO: change [fpb_obj] to [fpb_ob], and make arg implicit *)
-(* TODO: add access function [fpb_isPullback]. *)
-
-Definition rel_universe_fpullback_mor_comp
-    {X : C} {f : J X --> base U}
-    {X' : C} {f' : J X' --> base U}
-    {X'' : C} {f'' : J X'' --> base U}
-    (g : X --> X') (e : # J g ;; f' = f)
-    (g' : X' --> X'') (e' : # J g' ;; f'' = f')
-    (e'' := (maponpaths_2 _ (functor_comp _ _ _) _)
-            @ !(assoc _ _ _) @ (maponpaths _ e') @ e)
-  : rel_universe_fpullback_mor (g ;; g') e''
-    = rel_universe_fpullback_mor g e
-    ;; rel_universe_fpullback_mor g' e'.
-Proof.
-  refine (_ @ _). Focus 2. {
-    apply fully_faithful_inv_comp.
-  } Unfocus.
-  apply (maponpaths (fully_faithful_inv_hom _ _ _)).
-  apply (map_into_Pb_unique _ (pr2 (pr2 (U _ _)))).
-  - refine (_ @ _). { apply Pb_map_commutes_1. }
-    refine (_ @ _). Focus 2.
-    { apply pathsinv0.
-      refine (_ @ _). { apply pathsinv0, assoc. } 
-      refine (_ @ _). { apply maponpaths, Pb_map_commutes_1. }
-      refine (_ @ _). { apply maponpaths, functor_comp. }
-      refine (_ @ _). { apply assoc. }
-      apply maponpaths_2, Pb_map_commutes_1.
-    } Unfocus.
-    refine (_ @ _). { apply maponpaths, assoc. }
-    apply functor_comp.
-  - refine (_ @ _). { apply Pb_map_commutes_2. }
-    apply pathsinv0.
-    refine (_ @ _). { apply pathsinv0, assoc. } 
-    refine (_ @ _). { apply maponpaths, Pb_map_commutes_2. }
-    apply Pb_map_commutes_2.    
-Qed.
-
-
-End Extension_Functoriality.
 (* *)
