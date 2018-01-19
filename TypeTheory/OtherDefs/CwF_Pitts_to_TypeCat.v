@@ -141,13 +141,13 @@ Proof.
     + refine (pairing_mapeq _ X' _ _ ).
       unfold X; clear X; unfold X'; clear X'.
       etrans. Focus 2.  eapply pathsinv0.
-            cancel_postcomposition. apply cwf_law_3.
+            apply maponpaths_2. apply cwf_law_3.
       etrans. Focus 2. eapply pathsinv0.  apply assoc.
       etrans. apply assoc.
-      cancel_postcomposition.
+      apply maponpaths_2.
       etrans. Focus 2. eapply pathsinv0. apply cwf_law_1.
       etrans; [ | eapply pathsinv0; apply assoc ].
-      cancel_postcomposition. sym. apply cwf_law_1.
+      apply maponpaths_2. sym. apply cwf_law_1.
     + apply maponpaths.
       match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
                        generalize e; generalize e' end.

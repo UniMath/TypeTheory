@@ -394,7 +394,7 @@ Proof.
       symmetry. apply functtransportf.
       
     + eapply pathscomp0. Focus 2. apply gf2.
-      eapply pathscomp0. cancel_postcomposition.
+      eapply pathscomp0. apply maponpaths_2.
         eapply pathscomp0. apply (functtransportf (A ₂)).
         symmetry; apply idtoiso_postcompose.
       symmetry. eapply pathscomp0. apply (functtransportf (B ₂)).

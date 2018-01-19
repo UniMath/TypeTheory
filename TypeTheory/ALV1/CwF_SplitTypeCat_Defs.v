@@ -173,7 +173,7 @@ Lemma comp_ext_compare_Q Y Γ (A A' : Ty X Γ) (e : A = A') :
   #Yo (comp_ext_compare e) ;; Q Y A' = Q Y A . 
 Proof.
   induction e. 
-  etrans. apply cancel_postcomposition. apply functor_id.
+  etrans. apply maponpaths_2, functor_id.
   apply id_left.
 Qed.
 

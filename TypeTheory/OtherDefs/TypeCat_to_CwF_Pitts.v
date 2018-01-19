@@ -118,7 +118,7 @@ Proof.
     clear T3 T'' T'. simpl in T4.
     assert (T5:= base_paths _ _ T4). clear T4; simpl in *.
     etrans.
-    cancel_postcomposition. apply T5.
+    apply maponpaths_2. apply T5.
     clear T5.
 
     apply transportf_dpr_typecat.
@@ -143,7 +143,7 @@ Proof.
     clear T3 T'' T'. simpl in T4.
     assert (T5:= base_paths _ _ T4). clear T4; simpl in *.
     etrans.
-    cancel_postcomposition. apply T5.
+    apply maponpaths_2. apply T5.
     
     clear T5.
       
@@ -184,7 +184,7 @@ Proof.
       clear T'.
     assert (T3:= T'' _ _  e x); clear T''.
     assert (T5:= base_paths _ _ T3); clear T3; simpl in *.
-    etrans. cancel_postcomposition. apply T5.
+    etrans. apply maponpaths_2. apply T5.
     clear T5.
     etrans. apply transportf_dpr_typecat.
     apply (@Pb_map_commutes_1).
@@ -210,17 +210,17 @@ Proof.
     assert (T4 := T3 E); clear T3. 
     assert (T5:= base_paths _ _ T4); clear T4; simpl in *.
     rewrite <- assoc.
-    etrans. cancel_postcomposition. apply T5.
+    etrans. apply maponpaths_2. apply T5.
       
     clear T5.
     clear E.
 
     etrans. apply assoc.
-    etrans. cancel_postcomposition. apply assoc.
+    etrans. apply maponpaths_2. apply assoc.
     rewrite idtoiso_postcompose.
     
-    etrans. eapply pathsinv0. cancel_postcomposition.
-      cancel_postcomposition. apply functtransportf.
+    etrans. eapply pathsinv0. apply maponpaths_2.
+      apply maponpaths_2. apply functtransportf.
     rewrite transport_f_f.
 
     match goal with |[|- transportf ?a ?b ?c ;; _ ;; _ = _ ] =>
@@ -228,7 +228,7 @@ Proof.
     assert (b' = idpath _ ).
     { apply (pr1 (pr2 C)). }
     rewrite X; clear X.
-    etrans. cancel_postcomposition. apply (@Pb_map_commutes_2).
+    etrans. apply maponpaths_2. apply (@Pb_map_commutes_2).
     etrans. eapply pathsinv0. apply assoc.
     etrans. Focus 2. apply assoc. apply maponpaths. apply (@Pb_map_commutes_2).
 Qed.
@@ -272,7 +272,7 @@ Proof.
       * { unfold comp_obj. simpl. 
           eapply map_into_Pb.
           - apply  reind_pb_typecat.
-          - cancel_postcomposition.
+          - apply maponpaths_2.
             apply (idpath (identity _ )). }
       * apply Pb_map_commutes_1.
   - intros Γ' γ.
@@ -301,7 +301,7 @@ Proof.
     etrans. eapply pathsinv0. apply assoc.
     etrans. apply maponpaths. apply dpr_q_typecat.
     etrans. apply assoc.
-    etrans. cancel_postcomposition. apply a_sec.
+    etrans. apply maponpaths_2. apply a_sec.
     apply id_left.
   * simpl.
     apply subtypeEquality'.
@@ -335,7 +335,7 @@ Proof.
     (* The first pullback projection, to [Γ'], gives the easier of the two branches: *)
       etrans. symmetry;apply assoc.
       etrans.
-        apply maponpaths. cancel_postcomposition.
+        apply maponpaths. apply maponpaths_2.
         apply maponpaths, maponpaths. symmetry; apply maponpathscomp0.
       etrans. apply maponpaths. apply idtoiso_dpr_typecat.
       etrans. apply Pb_map_commutes_1.
@@ -360,7 +360,7 @@ Proof.
       apply pr2.
     
       etrans. Focus 2. symmetry. apply (idtoiso_q_typecat _ e0).
-      etrans. apply assoc. cancel_postcomposition.
+      etrans. apply assoc. apply maponpaths_2.
       etrans. apply idtoiso_concat_pr.
       apply maponpaths, maponpaths.
      
@@ -373,7 +373,7 @@ Proof.
 
     etrans. apply maponpaths, e2. clear e2.
     etrans. apply assoc.
-    etrans. cancel_postcomposition. apply Pb_map_commutes_2.
+    etrans. apply maponpaths_2. apply Pb_map_commutes_2.
     
     etrans. symmetry. apply assoc.
     etrans. apply maponpaths. apply Pb_map_commutes_2.
@@ -397,11 +397,11 @@ Proof.
   assert (T5:= base_paths _ _ T4). clear T4; simpl in *.
   sym.
   etrans.
-  cancel_postcomposition.
+  apply maponpaths_2.
   apply T5.
   clear T5. unfold X; clear X; simpl in *.
   etrans.
-  cancel_postcomposition.
+  apply maponpaths_2.
   apply functtransportf.
   rewrite <- idtoiso_postcompose.
   rewrite q_q_typecat.
@@ -418,10 +418,10 @@ Proof.
   unfold B.
   unfold D.
   repeat rewrite assoc.
-  etrans. cancel_postcomposition.  cancel_postcomposition. eapply pathsinv0. apply assoc.
+  etrans. apply maponpaths_2.  apply maponpaths_2. eapply pathsinv0. apply assoc.
   rewrite idtoiso_concat_pr.
 
-  etrans. cancel_postcomposition. cancel_postcomposition. apply maponpaths.
+  etrans. apply maponpaths_2. apply maponpaths_2. apply maponpaths.
   eapply pathsinv0. apply idtoiso_eq_idpath. 
   {  rewrite <- maponpathscomp0.
      apply maponpaths_eq_idpath.
@@ -430,7 +430,7 @@ Proof.
      apply pathsinv0l. }
   rewrite id_right.
   unfold f'. unfold f' in T2.
-  cancel_postcomposition. apply T2.
+  apply maponpaths_2. apply T2.
 Qed.  
 
 Lemma comp_law_4_of_typecat : @comp_law_4 _ tt_reindx_type_struct_of_typecat reindx_laws_of_typecat.

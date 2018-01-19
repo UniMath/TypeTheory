@@ -328,7 +328,7 @@ Proof.
     + etrans. apply @pathsinv0. apply assoc.
       etrans. apply maponpaths, term_fun_mor_pp.
       etrans. apply assoc.
-      etrans. apply cancel_postcomposition, term_fun_mor_pp.
+      etrans. apply maponpaths_2, term_fun_mor_pp.
       apply pathsinv0. apply assoc.
     + intros Γ A.
       etrans. cbn. apply maponpaths, term_fun_mor_te.
@@ -404,13 +404,13 @@ Proof.
     etrans. apply @pathsinv0, assoc. 
     etrans. apply id_left.
     etrans.
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       apply comp_ext_compare_id_general.
     apply id_left.
   - intros X0 X1 X2 F G Z0 Z1 Z2.
     intros FF GG Γ Γ' f A. cbn.
     etrans. apply assoc.
-    etrans. apply cancel_postcomposition, FF.
+    etrans. apply maponpaths_2, FF.
     etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths, GG.
     etrans. apply @pathsinv0, assoc.
@@ -418,9 +418,9 @@ Proof.
     apply maponpaths.
     etrans. apply assoc.
     etrans. Focus 2. apply @pathsinv0, assoc.
-    apply cancel_postcomposition.
+    apply maponpaths_2.
     etrans. apply assoc.
-    etrans. apply cancel_postcomposition, Δ_φ.
+    etrans. apply maponpaths_2, Δ_φ.
     etrans. apply @pathsinv0, assoc.
     apply maponpaths.
     apply pathsinv0, comp_ext_compare_comp_general.

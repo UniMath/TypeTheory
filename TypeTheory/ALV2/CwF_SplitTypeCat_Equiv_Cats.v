@@ -161,7 +161,7 @@ Proof.
     apply pathsinv0.
     etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths, qq_π.
-    etrans. apply assoc. apply cancel_postcomposition.
+    etrans. apply assoc. apply maponpaths_2.
     etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths. apply comp_ext_compare_π.
     apply obj_ext_mor_ax.

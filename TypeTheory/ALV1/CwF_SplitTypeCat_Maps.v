@@ -126,9 +126,9 @@ Proof.
     etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths.
       etrans. apply assoc.
-      apply cancel_postcomposition, comp_ext_compare_π.
+      apply maponpaths_2, comp_ext_compare_π.
     etrans. apply assoc.
-    etrans. Focus 2. apply id_left. apply cancel_postcomposition.
+    etrans. Focus 2. apply id_left. apply maponpaths_2.
     exact (pr2 (term_to_section _)).
   - etrans. refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
     etrans. apply Q_comp_ext_compare.
@@ -249,7 +249,7 @@ Proof.
           etrans. eapply maponpaths, qq_π.
           etrans. apply assoc.
           etrans. Focus 2. apply id_left.
-          apply cancel_postcomposition.
+          apply maponpaths_2.
           etrans. apply @pathsinv0, assoc.
           rewrite @comp_ext_compare_π.
           apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
@@ -359,7 +359,7 @@ Proof.
   etrans. apply @pathsinv0, assoc.
   etrans. apply @maponpaths, qq_π.
   etrans. apply assoc.
-  etrans. apply cancel_postcomposition. exact e.
+  etrans. apply maponpaths_2. exact e.
   apply id_left.
 Qed.
 
@@ -681,19 +681,19 @@ Proof.
       rewrite <- assoc. rewrite qq_commutes_1 .
       repeat rewrite assoc.
       rewrite assoc4.
-      etrans. apply cancel_postcomposition. apply maponpaths. eapply qq_commutes_1 .
-      apply cancel_postcomposition.
+      etrans. apply maponpaths_2. apply maponpaths. eapply qq_commutes_1 .
+      apply maponpaths_2.
       repeat rewrite assoc.
-      apply cancel_postcomposition.
+      apply maponpaths_2.
       apply comp_ext_compare_π.
     + etrans. apply maponpaths. cbn. apply idpath.
-      etrans. apply cancel_postcomposition. apply functor_comp.
+      etrans. apply maponpaths_2. apply functor_comp.
       rewrite <- assoc.
       rewrite Yo_qq_term_Yo_of_qq.
       rewrite  Yo_of_qq_commutes_2 .
-      etrans. apply cancel_postcomposition. apply functor_comp.
+      etrans. apply maponpaths_2. apply functor_comp.
       rewrite <- assoc.
-      etrans. apply maponpaths. apply cancel_postcomposition. apply Yo_qq_term_Yo_of_qq.
+      etrans. apply maponpaths. apply maponpaths_2. apply Yo_qq_term_Yo_of_qq.
       etrans. apply maponpaths. apply Yo_of_qq_commutes_2 .
       apply comp_ext_compare_Q.
 Qed.

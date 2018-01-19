@@ -45,7 +45,6 @@ Tactic Notation "etrans" := eapply pathscomp0.
 Tactic Notation "rew_trans_@" := repeat (etrans ; [ apply transport_f_f |]).
 Tactic Notation "sym" := apply pathsinv0.
 Tactic Notation "assoc" := apply @pathsinv0, path_assoc.
-Tactic Notation "cancel_postcomposition" := apply cancel_postcomposition.
 
 (** * Some argument settings *)
 
@@ -53,7 +52,7 @@ Arguments functor_on_inv_from_iso {_ _} _  {_ _} f.
 
 (** * Path-algebra: general lemmas about transport, equivalences, etc. *)
 
-(** A useful lemma for binary functions, generalising e.g. [cancel_postcomposition]: *)
+(** A useful lemma for binary functions, generalising e.g. [apply maponpaths_2]: *)
 (*TODO: look carefully for this in the library *)
 Definition maponpaths_2 {X Y Z : UU} (f : X -> Y -> Z) {x x'} (e : x = x') y
   : f x y = f x' y
@@ -567,7 +566,7 @@ Proof.
     rewrite <- assoc.
     etrans. apply maponpaths. apply XR.
     rewrite assoc.
-    etrans. apply cancel_postcomposition. apply iso_after_iso_inv.
+    etrans. apply maponpaths_2. apply iso_after_iso_inv.
     apply id_left.
   - intro g.
     unfold inv. repeat rewrite functor_comp.
@@ -575,15 +574,15 @@ Proof.
        intermediate_path ((f1 ;; ηinv _ ) ;; (η _ ;; f2) ;; f3) end.
     + repeat rewrite <- assoc. apply maponpaths.
       repeat rewrite assoc.
-      etrans. Focus 2. do 2 apply cancel_postcomposition. eapply pathsinv0, iso_after_iso_inv.
+      etrans. Focus 2. do 2 apply maponpaths_2. eapply pathsinv0, iso_after_iso_inv.
       rewrite id_left. apply idpath.
     + assert (XR := nat_trans_ax η). simpl in XR. rewrite <- XR. clear XR.
       repeat rewrite <- assoc.
       etrans. do 3 apply maponpaths. apply  triangle_id_right_ad. rewrite id_right.
       rewrite assoc.
       etrans. Focus 2. apply id_left.
-      apply cancel_postcomposition.
-      etrans. apply cancel_postcomposition. apply functor_on_inv_from_iso.
+      apply maponpaths_2.
+      etrans. apply maponpaths_2. apply functor_on_inv_from_iso.
       assert (XR := triangle_id_right_ad (pr2 (pr1 GG))).
       simpl in XR.
       unfold ηinv. simpl.
@@ -1134,9 +1133,6 @@ Proof.
   apply idpath.
 Qed.
 
-
-Arguments cancel_postcomposition [C a b c] f f' g _ .
-
 Lemma idtoiso_postcompose_idtoiso_pre {C : precategory} {a b c : C} 
       (g : a --> b) (f : a --> c)
       (p : b = c) 
@@ -1211,7 +1207,7 @@ Proof.
     clear XTT;
     assert (XTT:=homotweqinvweq (weq_from_fully_faithful Hff (F d) (G d)  ));
     simpl in *;
-    etrans; [| apply cancel_postcomposition; apply (!XTT _ )];
+    etrans; [| apply maponpaths_2; apply (!XTT _ )];
     apply XR
     ).
 Defined.
