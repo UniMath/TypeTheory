@@ -112,34 +112,11 @@ Definition commutes_lax_functor_square
 
 End Functor_Squares.
 
-Section Relative_Universe_Accessors.
-
-Context {C D : precategory} {J : functor C D}.
-
-(* NOTE: it would be nice to have at least [base] as a coercion, and perhaps also [mor].  But when one declarest them as such and tries to use them, they are not found (presumably since they don’t satisfy the “uniform inheritance condition”, according to a warning given at delcaration time). *)
-
-Definition mor (U : relative_universe J) : mor_total D := pr1 U.
-
-Definition base (U : relative_universe J) : D
-  := target (mor U).
-
-Definition total (U : relative_universe J) : D
-  := source (mor U).
-(* TODO: would it work more cleanly to have the total come via an object of the slice over the base? *)
-
-Definition relative_universe_fpullback (U : relative_universe J)
-  : forall (X:C) (f : J X --> base U), fpullback J (mor U) f
-:= pr2 U.
-
-End Relative_Universe_Accessors.
-
 Section Relative_Universe_Functor.
 
 Context {C D : precategory} {J : functor C D} (U : relative_universe J)
         {C' D' : precategory} {J' : functor C' D'} (U' : relative_universe J')
         (FGα : lax_functor_square J J').
-
-Coercion relative_universe_fpullback : relative_universe >-> Funclass.
 
 Definition relative_universe_functor : UU.
 Proof.
