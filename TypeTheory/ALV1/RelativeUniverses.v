@@ -40,9 +40,9 @@ Context {U tU : D} (p : D ⟦tU, U⟧).
 Definition fpullback_data {X : C} (f : D ⟦J X, U⟧) : UU 
   := ∑ Xf : C, C⟦Xf, X⟧ × D⟦J Xf, tU⟧.
 
-Definition fpb_obj  {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f) : C := pr1 T.
-Definition fp {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f) : C⟦fpb_obj T, X⟧ := pr1 (pr2 T).
-Definition fq {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f) : D⟦ J (fpb_obj T), tU⟧ := pr2 (pr2 T).
+Definition fpb_ob  {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f) : C := pr1 T.
+Definition fp {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f) : C⟦fpb_ob T, X⟧ := pr1 (pr2 T).
+Definition fq {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f) : D⟦ J (fpb_ob T), tU⟧ := pr2 (pr2 T).
 
 Definition fpullback_prop {X : C} {f : D ⟦J X, U⟧} (T : fpullback_data f) : UU
   := commutes_and_is_pullback f p (#J (fp T)) (fq T).
@@ -58,12 +58,12 @@ Definition rel_universe_structure := ∏ X (f : D⟦J X, U⟧), fpullback f.
 Definition is_universe_relative_to : UU
   := ∏ (X : C) (f : D⟦J X, _ ⟧), ∥ fpullback f ∥ .
 
-(* TODO: add arguments declaration to make [U], [tU] explicit in this 
-   def not depending on [p].  
-   OR make it depend on [p] (which it conceptually should, though it formally doesn’t). *)
-Definition rel_universe_structure_data := ∏ X (f : D⟦ J X, U⟧), fpullback_data f.
-Definition rel_universe_structure_prop (Y : rel_universe_structure_data) :=
-          ∏ X f, fpullback_prop (Y X f). 
+(* NOTE: [rel_universe_structure_data] never uses [p], only [U] and [tU]; so when section variables are generalised, it doesn’t depend on [p], even though conceptually perhaps it should. *)
+Definition rel_universe_structure_data
+  := ∏ X (f : D⟦ J X, U⟧), fpullback_data f.
+
+Definition rel_universe_structure_prop (Y : rel_universe_structure_data)
+  := ∏ X f, fpullback_prop (Y X f). 
 
 (**  An equivalent form of [rel_universe_structure], separating its data and properties by interchanging ∑ and ∏ *)
 Definition weq_rel_universe_structure_ :
@@ -80,6 +80,11 @@ Proof.
 Defined.
 
 End Relative_Comprehension.
+
+Arguments fpb_ob [_ _ _ _ _ _ _] _.
+Arguments fp [_ _ _ _ _ _ _] _.
+Arguments fq [_ _ _ _ _ _ _] _.
+Arguments rel_universe_structure_data [_ _] _ _ _.
 
 (** * Uniqueness of relative universe structures under some assumptions *)
 
@@ -252,11 +257,11 @@ Definition rel_universe_fpullback_mor
     {X : C} {f : J X --> base U}
     {X' : C} {f' : J X' --> base U}
     (g : X --> X') (e : # J g ;; f' = f)
-  : fpb_obj _ (U X f) --> fpb_obj _ (U X' f').
+  : fpb_ob (U X f) --> fpb_ob (U X' f').
 Proof.
   apply (fully_faithful_inv_hom HJ).
   use (map_into_Pb _ _ _ _ _ (pr2 (pr2 (U _ _)))).
-  - apply (# J). exact (fp _ _ ;; g). 
+  - apply (# J). exact (fp _ ;; g). 
   - apply fq.
   - refine (_ @ _). { apply maponpaths_2. apply functor_comp. }
     refine (_ @ _). { apply pathsinv0, assoc. }
@@ -264,14 +269,13 @@ Proof.
     exact (pr1 (pr2 (U X f))).
 Defined.
 
-(* TODO: change [fpb_obj] to [fpb_ob], and make arg implicit *)
 (* TODO: add access function [fpb_isPullback]. *)
 
 Definition rel_universe_fpullback_mor_id
     {X : C} (f : J X --> base U)
     (e := maponpaths_2 _ (functor_id _ _) _ @ id_left _)
   : rel_universe_fpullback_mor (identity X) e
-  = identity (fpb_obj _ (U X f)).
+  = identity (fpb_ob (U X f)).
 Proof.
   refine (_ @ _). Focus 2. { apply fully_faithful_inv_identity. } Unfocus.
   apply (maponpaths (fully_faithful_inv_hom _ _ _)). 
@@ -320,7 +324,7 @@ Definition rel_universe_fp_nat
     {X : C} {f : J X --> base U}
     {X' : C} {f' : J X' --> base U}
     (g : X --> X') (e : # J g ;; f' = f)
-  : rel_universe_fpullback_mor g e ;; fp _ _ = fp _ _ ;; g.
+  : rel_universe_fpullback_mor g e ;; fp _ = fp _ ;; g.
 Proof.
   apply (invmaponpathsweq (weq_from_fully_faithful HJ _ _)). 
   refine (_ @ _). { apply functor_comp. }
@@ -333,7 +337,7 @@ Definition rel_universe_fq_nat
     {X : C} {f : J X --> base U}
     {X' : C} {f' : J X' --> base U}
     (g : X --> X') (e : # J g ;; f' = f)
-  : # J (rel_universe_fpullback_mor g e) ;; fq _ _ = fq _ _.
+  : # J (rel_universe_fpullback_mor g e) ;; fq _ = fq _.
 Proof.
   refine (_ @ _).
     { apply maponpaths_2, (homotweqinvweq (weq_from_fully_faithful _ _ _)). }

@@ -128,17 +128,17 @@ Proof.
     exact (comm_square (# G (mor U)) (mor U')).
   - (* ϕ : comparison maps between “context extensions” *)
     refine (forall (X:C) (f : J X --> base U), F _ --> _).
-    + exact (fpb_obj _ (U X f)). (* TODO: make [fpb_obj] arg implicit! *)
-    + refine (fpb_obj _ (U' (F X) _)).
+    + exact (fpb_ob (U X f)).
+    + refine (fpb_ob (U' (F X) _)).
       refine (_ ;; cod_comm_square t).
       refine (_ ;; # G f).
       exact (α _).
   - refine (forall (X:C) (f : J X --> base U), _ × _).
     + (* ϕ is over the base *)
-      exact (ϕ X f ;; fp _ _ = # F (fp _ _)).
+      exact (ϕ X f ;; fp _ = # F (fp _)).
     + (* ϕ commutes with the canonical pullback morphism *)
-      exact (#J' (ϕ X f) ;; (fq _ _)
-             = α (fpb_obj _ (U X f)) ;; #G (fq _ _) ;; dom_comm_square t).
+      exact (#J' (ϕ X f) ;; (fq _)
+             = α (fpb_ob (U X f)) ;; #G (fq _) ;; dom_comm_square t).
   - (* ϕ is natural *)
     (* TODO: give this, once we have added the missing functoriality condition in the definition of relative universes. *)
     exact unit.

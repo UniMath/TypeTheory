@@ -334,7 +334,7 @@ Proof.
     + apply @cwf_square_comm_converse.
     + apply setproperty.
     + use (homset_property (preShv C) _ _ _
-        (fq _
+        (fq
           (ΓA,, π,, invmap (yoneda_weq C (homset_property C) ΓA (Tm pp)) v)
         ;; _)).
     (* Why does so much need to be given explicitly there? *)
