@@ -17,10 +17,12 @@ In this file, we define functions back and forth and show that
 
 
 Require Import UniMath.Foundations.Sets.
-
-Require Import TypeTheory.Auxiliary.UnicodeNotations.
+Require Import UniMath.CategoryTheory.Categories.
+Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Categories.ess_alg_categories.
 
+Open Scope cat.
+Open Scope cat_deprecated.
 
 (** * From generalized algebraic precategories to essentially algebraic ones.*)
 

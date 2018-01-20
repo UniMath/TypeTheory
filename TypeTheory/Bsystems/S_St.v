@@ -146,7 +146,7 @@ Proof .
     rewrite ( noparts_S_dom inn isab ) . 
     apply idpath . 
   + intros .
-  change ( ftn (succ n) (S r Y inn) ) with ( ft ( ftn n (S r Y inn) ) ) .
+  change ( ftn (Preamble.S n) (S r Y inn) ) with ( ft ( ftn n (S r Y inn) ) ) .
   assert ( isab' : isabove ( ftn n Y ) ( dd r ) ) by exact ( isabove_ft_inv isab ) . 
   rewrite ( IHn r Y isab' inn ) . 
   refine ( ax1a _ _ _ _ ) . 

@@ -9,6 +9,8 @@ Contents:
 
 *)
 
+Require Import UniMath.Foundations.Sets.
+Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
