@@ -14,7 +14,6 @@ Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.rezk_completion.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
-Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.OtherDefs.CwF_Pitts.
 Require Import TypeTheory.Categories.category_of_elements.

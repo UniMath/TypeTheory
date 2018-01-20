@@ -11,7 +11,6 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.opp_precat.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
-Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Set Automatic Introduction.

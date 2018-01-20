@@ -50,7 +50,7 @@ include build/CoqMakefile.make
 endif
 everything: all html install
 OTHERFLAGS += $(MOREFLAGS)
-OTHERFLAGS += -indices-matter -type-in-type -w none
+OTHERFLAGS += -noinit -indices-matter -type-in-type -w none
 ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
 endif

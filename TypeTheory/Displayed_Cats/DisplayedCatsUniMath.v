@@ -2,7 +2,7 @@
 
 
 Require Export UniMath.CategoryTheory.DisplayedCats.Auxiliary.
-Require Export UniMath.CategoryTheory.DisplayedCats.Core.
+(* Require Export UniMath.CategoryTheory.DisplayedCats.Core. *)
 Require Export UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 Require Export UniMath.CategoryTheory.DisplayedCats.Fibrations.
@@ -14,4 +14,4 @@ Require Export UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Export UniMath.CategoryTheory.DisplayedCats.Limits.
 Require Export UniMath.CategoryTheory.DisplayedCats.Examples.
 
-Require Export UniMath.Topology.CategoryTop.
+(* Require Export UniMath.Topology.CategoryTop. *)

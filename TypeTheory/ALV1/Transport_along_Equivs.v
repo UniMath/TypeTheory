@@ -31,7 +31,6 @@ Require Import UniMath.CategoryTheory.precomp_ess_surj.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
-Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.ALV1.RelativeUniverses.
 
 

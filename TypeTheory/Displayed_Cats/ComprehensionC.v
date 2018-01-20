@@ -10,10 +10,10 @@ category over [C]. Objects over [c:C] are display maps into [c].
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
-Require Import TypeTheory.Auxiliary.UnicodeNotations.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
@@ -99,7 +99,7 @@ Lemma cartesian_functor_from_fibration
     {C C' : category} {F : functor C C'}
     {D : disp_cat C} {D' : disp_cat C'} {FF : disp_functor F D D'}
     (H : forall (c c' : C) (f : c' --> c) (d : D c),
-      ∥ { ff : cartesian_lift d f & is_cartesian (#FF ff) } ∥)
+      ∥ total2 (fun ff : cartesian_lift d f => is_cartesian (#FF ff)) ∥)
   : is_cartesian_disp_functor FF.
 Proof.
   intros c c' f d d' ff ff_cart.
