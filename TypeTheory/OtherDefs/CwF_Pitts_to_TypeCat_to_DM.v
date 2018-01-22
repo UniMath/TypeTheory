@@ -9,11 +9,12 @@ Contents:
 
 *)
 
+Require Import UniMath.Foundations.Sets.
+Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 
-Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.OtherDefs.CwF_Pitts.
 Require Import TypeTheory.OtherDefs.DM.

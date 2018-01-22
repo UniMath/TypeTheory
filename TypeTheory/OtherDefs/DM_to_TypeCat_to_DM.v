@@ -8,11 +8,12 @@
       (assumption of saturatedness needed for pullbacks forming hprop)
 *)
 
+Require Import UniMath.Foundations.Sets.
+Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
+Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.total2_paths.
 
-
-Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.OtherDefs.DM.
 Require Import TypeTheory.OtherDefs.DM_to_TypeCat.

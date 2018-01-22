@@ -4,6 +4,7 @@ by Vladimir Voevodsky, file created on Jan. 6, 2015 *)
 
 Unset Automatic Introduction.
 
+Require Export UniMath.Foundations.Sets.
 Require Export TypeTheory.Bsystems.lB_carriers.
 
 
@@ -133,20 +134,19 @@ Definition S_ax1b_type { BB : lBsystem_carrier } ( S : S_ops_type BB ) :=
 Identity Coercion S_ax1b_to_Fun: S_ax1b_type >-> Funclass . 
 
 
-
 (** *** The computation of the iterated ft of ( S r Y ) .  *)
           
 Lemma ftn_S { BB : lBsystem_carrier } { S : S_ops_type BB } ( ax1a : S_ax1a_type S )
       ( n : nat ) { r : Tilde BB } { Y : BB } ( isab : isabove ( ftn n Y ) ( dd r ) )
       ( inn : S_dom r Y ) :
-  ftn n ( S r Y inn ) = S r ( ftn n Y ) isab .
+  ftn n (S r Y inn ) = S r ( ftn n Y ) isab .
 Proof .
   intros BB S ax1a n . induction n as [ | n IHn ] .
   + intros .
     rewrite ( noparts_S_dom inn isab ) . 
     apply idpath . 
   + intros .
-  change ( ftn (Datatypes.S n) (S r Y inn) ) with ( ft ( ftn n (S r Y inn) ) ) .
+  change ( ftn (Preamble.S n) (S r Y inn) ) with ( ft ( ftn n (S r Y inn) ) ) .
   assert ( isab' : isabove ( ftn n Y ) ( dd r ) ) by exact ( isabove_ft_inv isab ) . 
   rewrite ( IHn r Y isab' inn ) . 
   refine ( ax1a _ _ _ _ ) . 

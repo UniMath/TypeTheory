@@ -17,7 +17,9 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
-Require Import TypeTheory.Auxiliary.UnicodeNotations.
+
+Open Scope cat.
+Open Scope cat_deprecated.
 
 Set Automatic Introduction.
 

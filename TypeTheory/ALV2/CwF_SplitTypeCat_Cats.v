@@ -15,7 +15,6 @@ Main definitions:
 Require Import UniMath.Foundations.Sets.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
-Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 

@@ -11,11 +11,11 @@
 
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.total2_paths.
+Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+Require Import TypeTheory.Auxiliary.Auxiliary.
 
-Require Import TypeTheory.Auxiliary.UnicodeNotations.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.OtherDefs.CwF_Pitts.
-Require Import TypeTheory.Auxiliary.Auxiliary.
 
 (* TODO: move *)
 Lemma idtoiso_q_typecat {CC : precategory} {C : typecat_structure CC}

@@ -20,7 +20,7 @@ Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
 Require Import UniMath.CategoryTheory.categories.category_hset_structures.
 
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
-Require Import TypeTheory.Auxiliary.UnicodeNotations.
+(* Require Import TypeTheory.Auxiliary.UnicodeNotations. *)
 
 Set Automatic Introduction.
 
@@ -1650,15 +1650,15 @@ Proof.
       - simpl. apply (h ;; (pr1 f c)).
       - apply k.
       - use three_rec_dep; use three_rec_dep.
-        + exact (Empty_set_rect _ ).
+        + exact (empty_rect _ ).
         + intro. apply idpath.
-        + exact (Empty_set_rect _ ).
-        + exact (Empty_set_rect _ ).
-        + exact (Empty_set_rect _ ).
-        + exact (Empty_set_rect _ ).
-        + exact (Empty_set_rect _ ).
+        + exact (empty_rect _ ).
+        + exact (empty_rect _ ).
+        + exact (empty_rect _ ).
+        + exact (empty_rect _ ).
+        + exact (empty_rect _ ).
         + intro; apply (!H).
-        + exact (Empty_set_rect _ ).
+        + exact (empty_rect _ ).
     }
     specialize (XR HC).
     use tpair.
