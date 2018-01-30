@@ -52,6 +52,10 @@ Definition fpullback {X : C} (f : D ⟦J X, U⟧) :=
 Coercion fpullback_data_from_fpullback {X : C} {f : D ⟦J X, U⟧} (T : fpullback f) :
    fpullback_data f := pr1 T.
 
+Definition isPullback_fpullback
+           {X : C} {f : D ⟦J X, U⟧ } (Y : fpullback f)
+  : isPullback _ _ _ _ _ := pr2 (pr2 Y).
+
 Definition rel_universe_structure := ∏ X (f : D⟦J X, U⟧), fpullback f.
 
 Definition is_universe_relative_to : UU
@@ -249,7 +253,7 @@ Section Extension_Functoriality.
 - possibly rename the current definition of relative universe to eg [simple_relative_universe], and redefine [relative_universe] to include the functoriality. 
 *)
 
-Context {C D : precategory} {J : C ⟶ D}
+Context {C D : category} {J : C ⟶ D}
   (U : relative_universe J).
 
 Definition fpullback_mor_type : UU
@@ -263,12 +267,19 @@ Section fpb_mor_section.
 Variable fpb_mor : fpullback_mor_type.
 Arguments fpb_mor [ _ _ _ _ ] _ _ .
 
+
 Definition id_fpb_mor_type : UU :=
   forall {X : C} (f : J X --> base U),
   let e := maponpaths_2 _ (functor_id _ _) _ @ id_left _
   in
    fpb_mor (identity X) e
   = identity (fpb_ob (U X f)).
+
+Lemma isaprop_id_fpb_mor_type : isaprop id_fpb_mor_type.
+Proof.
+  do 2 (apply impred; intro).
+  apply (homset_property C).
+Qed.
 
 Definition comp_fpb_mor_type : UU :=
   forall {X : C} {f : J X --> base U}
@@ -281,11 +292,24 @@ Definition comp_fpb_mor_type : UU :=
     fpb_mor (g ;; g') e''
      = fpb_mor g e ;; fpb_mor g' e'.
 
+Lemma isaprop_comp_fpb_mor_type : isaprop comp_fpb_mor_type.
+Proof.
+  do 10 (apply impred; intro).
+  apply (homset_property C).
+Qed.
+
 Definition fp_nat_fpb_mor_type : UU :=
   forall {X : C} {f : J X --> base U}
          {X' : C} {f' : J X' --> base U}
          (g : X --> X') (e : # J g ;; f' = f),
     fpb_mor g e ;; fp _ = fp _ ;; g.
+
+Lemma isaprop_fp_nat_fpb_mor_type : isaprop fp_nat_fpb_mor_type.
+Proof.
+  do 6 (apply impred; intro).
+  apply (homset_property C).
+Qed.
+  
 
 Definition fq_nat_fpb_mor_type : UU :=
   forall {X : C} {f : J X --> base U}
@@ -293,10 +317,17 @@ Definition fq_nat_fpb_mor_type : UU :=
          (g : X --> X') (e : # J g ;; f' = f),
     # J (fpb_mor g e) ;; fq _ = fq _.
 
+Lemma isaprop_fq_nat_fpb_mor_type : isaprop fq_nat_fpb_mor_type.
+Proof.
+  do 6 (apply impred; intro).
+  apply (homset_property D).
+Qed.
+
 End fpb_mor_section.
 
 Definition functorial_structure_relu : UU
   := ∑ fpb_mor : fpullback_mor_type,
+                 
                  id_fpb_mor_type fpb_mor
                                  × comp_fpb_mor_type fpb_mor
                                  × fp_nat_fpb_mor_type fpb_mor
@@ -358,6 +389,7 @@ Proof.
 Defined.
 
 (* TODO: add access function [fpb_isPullback]. *)
+(* DONE: see [isPullback_fpullback] *)
 
 Definition rel_universe_fpullback_mor_id
     {X : C} (f : J X --> base U)
@@ -441,6 +473,44 @@ Proof.
   - exact @rel_universe_fp_nat.
   - exact @rel_universe_fq_nat.
 Defined.
+
+Lemma isaprop_functorial_structure_relu : isaprop functorial_structure_relu.
+Proof.
+  apply invproofirrelevance.
+  intros xf xf'.
+  apply subtypeEquality.
+  { intro x. repeat (apply isapropdirprod).
+    - apply isaprop_id_fpb_mor_type.
+    - apply isaprop_comp_fpb_mor_type.
+    - apply isaprop_fp_nat_fpb_mor_type.
+    - apply isaprop_fq_nat_fpb_mor_type. }
+  apply funextsec; intro X.
+  apply funextsec; intro f.
+  apply funextsec; intro X'.
+  apply funextsec; intro f'.
+  apply funextsec; intro g.
+  apply funextsec; intro e.
+  apply (invmaponpathsweq (weq_from_fully_faithful HJ _ _)).
+  cbn.
+  set (UXf' := U X' f').
+  set (P:= isPullback_fpullback _ _ UXf').
+  set (PP := @map_into_Pb_unique _ _ _ _ _ _ _ _ _ _ P).
+  use (map_into_Pb_unique _ P).
+  - destruct xf as [F [H1 [H2 [H3 H4]]]].
+    destruct xf' as [F' [H1' [H2' [H3' H4']]]].
+    cbn.
+    etrans.
+    {
+      etrans. { apply pathsinv0. apply functor_comp. }
+              apply maponpaths. apply H3. }
+    apply pathsinv0.
+    etrans. { apply pathsinv0. apply functor_comp. }
+            apply maponpaths. apply H3'.
+  - destruct xf as [F [H1 [H2 [H3 H4]]]].
+    destruct xf' as [F' [H1' [H2' [H3' H4']]]].
+    cbn.
+    etrans. apply H4. apply pathsinv0. apply H4'.
+Qed.
 
 End Extension_Functoriality.
 
