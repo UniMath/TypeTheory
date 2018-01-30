@@ -370,6 +370,8 @@ Proof.
   repeat split; assumption.
 Defined.
 
+Section functorial_structure_from_ff.
+
 Context (HJ : fully_faithful J).
 
 Definition rel_universe_fpullback_mor
@@ -474,7 +476,10 @@ Proof.
   - exact @rel_universe_fq_nat.
 Defined.
 
-Lemma isaprop_functorial_structure_relu : isaprop functorial_structure_relu.
+End functorial_structure_from_ff.
+
+Lemma isaprop_functorial_structure_relu (HJ : faithful J)
+  : isaprop functorial_structure_relu.
 Proof.
   apply invproofirrelevance.
   intros xf xf'.
@@ -490,8 +495,7 @@ Proof.
   apply funextsec; intro f'.
   apply funextsec; intro g.
   apply funextsec; intro e.
-  apply (invmaponpathsweq (weq_from_fully_faithful HJ _ _)).
-  cbn.
+  apply (isweqonpathsincl _ (HJ _ _ )).
   set (UXf' := U X' f').
   set (P:= isPullback_fpullback _ _ UXf').
   set (PP := @map_into_Pb_unique _ _ _ _ _ _ _ _ _ _ P).
@@ -512,11 +516,13 @@ Proof.
     etrans. apply H4. apply pathsinv0. apply H4'.
 Qed.
 
-Lemma iscontr_functorial_structure_relu : iscontr functorial_structure_relu.
+Lemma iscontr_functorial_structure_relu (HJ : fully_faithful J)
+  : iscontr functorial_structure_relu.
 Proof.
   apply iscontraprop1.
-  apply isaprop_functorial_structure_relu.
-  apply ff_functorial_structure_relu.
+  - apply isaprop_functorial_structure_relu.
+    apply (pr2 (fully_faithful_implies_full_and_faithful _ _ _ HJ)).
+  - apply ff_functorial_structure_relu. apply HJ.
 Defined.
 
 End Extension_Functoriality.
