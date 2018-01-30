@@ -20,7 +20,6 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
-
 Set Automatic Introduction.
 
 Local Notation "[ C , D ]" := (functor_category C D).
@@ -250,9 +249,98 @@ Section Extension_Functoriality.
 - possibly rename the current definition of relative universe to eg [simple_relative_universe], and redefine [relative_universe] to include the functoriality. 
 *)
 
-Context {C D : precategory} {J : C ⟶ D} (HJ : fully_faithful J)
+Context {C D : precategory} {J : C ⟶ D}
   (U : relative_universe J).
- 
+
+Definition fpullback_mor_type : UU
+  := forall (X : C) (f : J X --> base U)
+            (X' : C) (f' : J X' --> base U)
+            (g : X --> X') (e : # J g ;; f' = f)
+  , fpb_ob (U X f) --> fpb_ob (U X' f').
+
+Section fpb_mor_section.
+
+Variable fpb_mor : fpullback_mor_type.
+Arguments fpb_mor [ _ _ _ _ ] _ _ .
+
+Definition id_fpb_mor_type : UU :=
+  forall {X : C} (f : J X --> base U),
+  let e := maponpaths_2 _ (functor_id _ _) _ @ id_left _
+  in
+   fpb_mor (identity X) e
+  = identity (fpb_ob (U X f)).
+
+Definition comp_fpb_mor_type : UU :=
+  forall {X : C} {f : J X --> base U}
+         {X' : C} {f' : J X' --> base U}
+         {X'' : C} {f'' : J X'' --> base U}
+         (g : X --> X') (e : # J g ;; f' = f)
+         (g' : X' --> X'') (e' : # J g' ;; f'' = f'),
+    let e'' := (maponpaths_2 _ (functor_comp _ _ _) _)
+            @ !(assoc _ _ _) @ (maponpaths _ e') @ e in
+    fpb_mor (g ;; g') e''
+     = fpb_mor g e ;; fpb_mor g' e'.
+
+Definition fp_nat_fpb_mor_type : UU :=
+  forall {X : C} {f : J X --> base U}
+         {X' : C} {f' : J X' --> base U}
+         (g : X --> X') (e : # J g ;; f' = f),
+    fpb_mor g e ;; fp _ = fp _ ;; g.
+
+Definition fq_nat_fpb_mor_type : UU :=
+  forall {X : C} {f : J X --> base U}
+         {X' : C} {f' : J X' --> base U}
+         (g : X --> X') (e : # J g ;; f' = f),
+    # J (fpb_mor g e) ;; fq _ = fq _.
+
+End fpb_mor_section.
+
+Definition functorial_structure_relu : UU
+  := ∑ fpb_mor : fpullback_mor_type,
+                 id_fpb_mor_type fpb_mor
+                                 × comp_fpb_mor_type fpb_mor
+                                 × fp_nat_fpb_mor_type fpb_mor
+                                 × fq_nat_fpb_mor_type fpb_mor.
+
+Definition fpb_mor (Y : functorial_structure_relu)
+           {X : C} {f : J X --> base U}
+           {X' : C} {f' : J X' --> base U}
+           (g : X --> X') (e : # J g ;; f' = f)
+  : fpb_ob (U X f) --> fpb_ob (U X' f')
+  := pr1 Y _ _ _ _ g e.
+
+Definition id_fpb_mor (Y : functorial_structure_relu)
+  : id_fpb_mor_type (@fpb_mor Y)
+  := pr1 (pr2 Y).                                                                       
+
+Definition comp_fpb_mor (Y : functorial_structure_relu)
+  : comp_fpb_mor_type (@fpb_mor Y)
+  := pr1 (pr2 (pr2 Y)).                                                                       
+
+Definition fp_nat_fpb_mor (Y : functorial_structure_relu)
+  : fp_nat_fpb_mor_type (@fpb_mor Y)
+  := pr1 (pr2 (pr2 (pr2 Y))).                                                                       
+
+Definition fq_nat_fpb_mor (Y : functorial_structure_relu)
+  : fq_nat_fpb_mor_type (@fpb_mor Y)
+  := pr2 (pr2 (pr2 (pr2 Y))).                                                                       
+
+
+Definition mk_functorial_structure_relu
+           (fpb_mor : fpullback_mor_type)
+  : id_fpb_mor_type fpb_mor
+    -> comp_fpb_mor_type fpb_mor
+    -> fp_nat_fpb_mor_type fpb_mor
+    -> fq_nat_fpb_mor_type fpb_mor
+    -> functorial_structure_relu.
+Proof.
+  intros.
+  exists fpb_mor.
+  repeat split; assumption.
+Defined.
+
+Context (HJ : fully_faithful J).
+
 Definition rel_universe_fpullback_mor
     {X : C} {f : J X --> base U}
     {X' : C} {f' : J X' --> base U}
@@ -343,6 +431,16 @@ Proof.
     { apply maponpaths_2, (homotweqinvweq (weq_from_fully_faithful _ _ _)). }
   apply Pb_map_commutes_2.
 Qed.
+
+Definition ff_functorial_structure_relu : functorial_structure_relu.
+Proof.
+  use mk_functorial_structure_relu.
+  - exact @rel_universe_fpullback_mor.
+  - exact @rel_universe_fpullback_mor_id.
+  - exact @rel_universe_fpullback_mor_comp.
+  - exact @rel_universe_fp_nat.
+  - exact @rel_universe_fq_nat.
+Defined.
 
 End Extension_Functoriality.
 
