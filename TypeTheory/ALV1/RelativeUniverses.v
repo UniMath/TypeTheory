@@ -512,6 +512,13 @@ Proof.
     etrans. apply H4. apply pathsinv0. apply H4'.
 Qed.
 
+Lemma iscontr_functorial_structure_relu : iscontr functorial_structure_relu.
+Proof.
+  apply iscontraprop1.
+  apply isaprop_functorial_structure_relu.
+  apply ff_functorial_structure_relu.
+Defined.
+
 End Extension_Functoriality.
 
 
