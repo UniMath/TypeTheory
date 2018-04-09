@@ -2,19 +2,21 @@
 
 by Vladimir Voevodsky, file created on Jan. 6, 2015 *)
 
-Unset Automatic Introduction.
 
-Require Export TypeTheory.Csystems.hSet_ltowers.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import TypeTheory.Csystems.prelim.
+Require Import TypeTheory.Csystems.lTowers.
+Require Import TypeTheory.Csystems.ltowers_over .
+
+Require Import TypeTheory.Csystems.hSet_ltowers.
 
 
 
 (** **** lB-system carriers *)
 
 Definition lBsystem_carrier :=
-  total2 ( fun B :  hSet_pltower =>
-             total2 ( fun TildeB : hSet =>
-                        total2 ( fun dd : TildeB -> B =>
-                                   forall r : TildeB , ll ( dd r ) > 0 ) ) ) .
+  ∑ (B :  hSet_pltower)(TildeB : hSet)( dd : TildeB -> B ),
+                                   forall r : TildeB , ll ( dd r ) > 0.
 
 
 (** Note: the condition that the carrier of an lB-system is based on an h-set is used for the first
@@ -29,7 +31,6 @@ hold. *)
 Definition lBsystem_carrier_constr { B : hSet_pltower } { TildeB : hSet }
            ( dd : TildeB -> B ) ( is : forall r : TildeB, ll ( dd r ) > 0 ) : lBsystem_carrier .
 Proof .
-  intros . 
   split with B . 
 
   split with TildeB . 
@@ -50,7 +51,7 @@ Definition Tilde : lBsystem_carrier -> UU := fun BB => pr1 ( pr2 BB ) .
 Definition dd { BB : lBsystem_carrier } : Tilde BB -> BB := pr1 ( pr2 ( pr2 BB ) ) .
 
 Definition Tilde_dd { BB : lBsystem_carrier } ( X : BB ) :=
-  total2 ( fun r : Tilde BB => dd r = X ) .
+  ∑ r : Tilde BB, dd r = X.
 
 Definition Tilde_dd_pr1 { BB : lBsystem_carrier } { X : BB } : Tilde_dd X -> Tilde BB := pr1 .
 Coercion Tilde_dd_pr1 : Tilde_dd >-> Tilde . 

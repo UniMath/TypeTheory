@@ -5,66 +5,42 @@ lBsystems_carriers.v
 
 *)
 
-Unset Automatic Introduction.
-
-Require Export TypeTheory.Csystems.prelim.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import TypeTheory.Csystems.prelim.
 
 
 (** To uu0a.v *)
 
-Lemma iscontrpathsfrom { T : UU } ( A : T ) :
-  iscontr ( total2 ( fun X : T => A = X ) ) .
-Proof .
-  intros .
-  split with ( tpair _ A ( idpath A ) ) . 
-  intro t . 
-  destruct t as [ t e ] .
-  destruct e . 
-  apply idpath . 
-
+Lemma iscontrpathsfrom { T : UU } ( A : T ): iscontr (∑ X : T, A = X).
+Proof.
+  exists ( tpair _ A ( idpath A ) ).
+  intro t. 
+  induction t as [ t e ].
+  induction e. 
+  apply idpath. 
 Defined.
-
-
-
-
-
   
 
-(** We formalize the sequences of types ...->B_{n+1}->B_n->...->B_0
+(** We formalize the sequences of types ...->B_{n+1}->B_n->...->B_0 as one type B with a length function ll and an endomorphism ft. *)
 
-as one type B with a length function ll and an endomorphism ft. *)
+Definition ltower_str_data ( T : UU ):= ( T -> nat ) × ( T -> T ).
 
-
-Definition ltower_str_data ( T : UU ) :=  dirprod ( T -> nat ) ( T -> T ) .
-
-Definition ltower_str ( T : UU ) :=
-  total2 ( fun str :ltower_str_data T =>
-             dirprod 
-               ( forall X : T , ( pr1 str ) ( pr2 str X ) = pr1 str X - 1 )
-               ( forall ( X : T ) ( e : pr1 str X = 0 ) , pr2 str X = X ) ) .
+Definition ltower_str ( T : UU ):=
+  ∑ str : ltower_str_data T,
+         ( forall X : T , ( pr1 str ) ( pr2 str X ) = pr1 str X - 1 ) ×
+         ( forall ( X : T ) ( e : pr1 str X = 0 ) , pr2 str X = X ).
 
 
-Definition ltower := total2 ( fun T : UU => ltower_str T ) .
+Definition ltower := ∑ T : UU, ltower_str T.
 
 Definition ltower_constr { T : UU } ( ll : T -> nat ) ( ft : T -> T )
            ( ll_ft_eq : forall X : T , ll ( ft X ) = ll X - 1 )
-           ( ll0_eq : forall ( X : T ) ( e : ll X = 0 ) , ft X = X ) : ltower .
-Proof .
-  intros .
-  split with T .
-  
-  split with ( dirprodpair ll ft ) .
-
-  exact ( dirprodpair ll_ft_eq ll0_eq ) . 
-
+           ( ll0_eq : forall ( X : T ) ( e : ll X = 0 ) , ft X = X ): ltower.
+Proof.
+  exists T.
+  exists (ll ,, ft).
+  exact (ll_ft_eq ,, ll0_eq ). 
 Defined.
-
-
-
-
-
-
-
 
 
   
@@ -77,81 +53,87 @@ See pretowers.v
 
 *)
 
-Definition ltower_data_pr1 : ltower -> UU := pr1 .
-Coercion ltower_data_pr1 : ltower >-> UU .
+Definition ltower_data_pr1: ltower -> UU := pr1.
+Coercion ltower_data_pr1: ltower >-> UU.
 
-Definition ll { X : ltower } : X -> nat := pr1 ( pr1 ( pr2 X ) ) . 
+Definition ll { X : ltower }: X -> nat := pr1 ( pr1 ( pr2 X ) ).
 
-Definition ft { X : ltower } : X -> X := pr2 ( pr1 ( pr2 X ) ) .
+Definition ft { X : ltower }: X -> X := pr2 ( pr1 ( pr2 X ) ).
 
-Definition ftn { X : ltower } ( n : nat ) : X -> X := iteration ( @ft X ) n . 
+Definition ftn { X : ltower } ( n : nat ): X -> X := iteration ( @ft X ) n.
 
 
-Definition ll_ft { T : ltower } ( X : T ) : ll ( ft X ) = ll X - 1 :=
-  pr1 ( pr2 ( pr2 T ) ) X .
+Definition ll_ft { T : ltower } ( X : T ): ll ( ft X ) = ll X - 1 :=
+  pr1 ( pr2 ( pr2 T ) ) X.
 
-Definition ftX_eq_X { T : ltower } { X : T } ( e : ll X = 0 ) : ft X = X :=
-  pr2 ( pr2 ( pr2 T ) ) X e . 
+Definition ftX_eq_X { T : ltower } { X : T } ( e : ll X = 0 ): ft X = X :=
+  pr2 ( pr2 ( pr2 T ) ) X e.
 
 
 (** Some useful lemmas about ltower *)
 
-Lemma ll_ftn { BB : ltower } ( n : nat ) ( X : BB ) : ll ( ftn n X ) = ll X - n . 
+Lemma ll_ftn { BB : ltower } ( n : nat ) ( X : BB ): ll ( ftn n X ) = ll X - n. 
 Proof.
-  intros BB n .
-  induction n as [ | n IHn ] .
-  intro . rewrite natminuseqn . apply idpath . 
-  intro . change ( ftn ( S n ) X ) with ( ft ( ftn n X ) ) .  rewrite ( ll_ft _ ) . 
-  rewrite ( IHn X ) .  rewrite ( natminusassoc _ _ _ ) .  rewrite ( natpluscomm n 1 ) . 
-  apply idpath .
+  revert X.
+  induction n as [ | n IHn ]; intro X.
+  - rewrite natminuseqn.
+    apply idpath. 
+  - change ( ftn ( S n ) X ) with ( ft ( ftn n X ) ).
+    rewrite ( ll_ft _ ). 
+    rewrite ( IHn X ).
+    rewrite ( natminusassoc _ _ _ ).
+    rewrite ( natpluscomm n 1 ). 
+    apply idpath.
 Defined .
 
   
-Lemma ftn_ft { BB : ltower } ( n : nat ) ( X : BB ) :
-  ftn n ( ft X ) = ftn ( 1 + n ) X .
-Proof .
-  intros . induction n as [ | n IHn ] .
-  apply idpath . 
-  apply ( maponpaths ( @ft BB ) IHn ) . 
-Defined.
-
-Lemma ftn_ftn { BB : ltower } ( m n : nat ) ( X : BB ) :
-  ftn m ( ftn n X ) = ftn ( m + n ) X .
+Lemma ftn_ft { BB : ltower } ( n : nat ) ( X : BB ):
+  ftn n ( ft X ) = ftn ( 1 + n ) X.
 Proof.
-  intros .  induction m as [ | m IHm ] . 
-  exact ( idpath _ ) .
-  apply ( maponpaths ft ) . 
-  exact IHm .
+  induction n as [ | n IHn ].
+  - apply idpath. 
+  - apply ( maponpaths ( @ft BB ) IHn ). 
 Defined.
 
 
-Lemma lltowergehll { BB : ltower } { X1 X2 : BB } ( gt : ll X2 > ll X1 ) :
-  ll ( ft X2 ) >= ll X1 .
+Lemma ftn_ftn { BB : ltower } ( m n : nat ) ( X : BB ):
+  ftn m ( ftn n X ) = ftn ( m + n ) X.
 Proof.
-  intros. rewrite ( ll_ft X2 ) . apply ( natgthtominus1geh gt ) . 
-Defined .
+  induction m as [ | m IHm ]. 
+  - exact ( idpath _ ).
+  - apply ( maponpaths ft ). 
+    exact IHm.
+Defined.
 
-Lemma llgehll { BB : ltower } { X1 X2 : BB } ( gt : ll X2 > ll ( ft X1 ) ) :
-  ll X2 >= ll X1 .
+
+Lemma lltowergehll { BB : ltower } { X1 X2 : BB } ( gt : ll X2 > ll X1 ):
+  ll ( ft X2 ) >= ll X1.
 Proof.
-  intros. rewrite ( ll_ft X1 ) in gt . apply ( natgthminus1togeh gt ) . 
-Defined .
+  rewrite ( ll_ft X2 ).
+  apply ( natgthtominus1geh gt ). 
+Defined.
 
-Lemma ll_ft_gtn { T : ltower } { X : T } { n : nat } ( gtsn : ll X >= S n ) : ll ( ft X ) >= n .
+
+Lemma llgehll { BB : ltower } { X1 X2 : BB } ( gt : ll X2 > ll ( ft X1 ) ):
+  ll X2 >= ll X1.
 Proof.
-  intros.
-  rewrite ll_ft . 
-  assert ( int := natgehandminusr _ _ 1 gtsn ) . 
-  change ( S n - 1 ) with ( n - 0 ) in int .
-  rewrite natminuseqn in int . 
-  apply int .
+  rewrite ( ll_ft X1 ) in gt.
+  apply ( natgthminus1togeh gt ). 
+Defined.
 
+
+Lemma ll_ft_gtn { T : ltower } { X : T } { n : nat } ( gtsn : ll X >= S n ): ll ( ft X ) >= n.
+Proof.
+  rewrite ll_ft. 
+  set ( int := natgehandminusr _ _ 1 gtsn ). 
+  change ( S n - 1 ) with ( n - 0 ) in int.
+  rewrite natminuseqn in int. 
+  apply int.
 Defined.
 
 
 Lemma S_ll_ft { T : ltower } { X : T } ( gt0 : ll X > 0 ) : 1 + ll ( ft X ) = ll X .
 Proof.
-  intros .
   rewrite ll_ft .
   rewrite natpluscomm .
   apply ( minusplusnmm _ _ ( gth0_to_geh1 gt0 ) ) .
@@ -160,7 +142,7 @@ Defined.
 
 Definition ftnX_eq_X { T : ltower } ( n : nat ) { X : T } ( eq : ll X = 0 ) : ftn n X = X .
 Proof.
-  intros until n . induction n as [ | n IHn ] .
+  revert X eq. induction n as [ | n IHn ] .
   intros .  apply idpath . 
 
   intros .  
@@ -193,7 +175,7 @@ Definition isover { BB : ltower } ( X A : BB ) := ( A = ftn ( ll X - ll A ) X ) 
 Lemma isover_geh { BB : ltower } { X A : BB } ( is : isover X A ) :
   ll X >= ll A .
 Proof.
-  intros . unfold isover in is . 
+  unfold isover in is . 
   assert ( int : ll A = ll ( ftn (ll X - ll A) X ) ) . exact ( maponpaths ll is ) .
 
   rewrite int . rewrite ll_ftn . exact ( natminuslehn _ _ ) .
@@ -202,14 +184,14 @@ Defined.
 
 Lemma isover_XX { BB : ltower } ( X : BB ) : isover X X .
 Proof.
-  intros . unfold isover . rewrite natminusnn . apply idpath . 
+   unfold isover . rewrite natminusnn . apply idpath . 
 
 Defined.
 
 Lemma isover_trans { BB : ltower } { X A A' : BB } :
   isover X A -> isover A A' -> isover X A' .
 Proof.
-  intros BB X A A' .  unfold isover in * .
+  unfold isover in * .
   set ( llA := ll A ) . set ( llA' := ll A' ) . 
   intro is1 . intro is2 .
   assert ( gte1 := isover_geh is1 ) .
@@ -227,7 +209,6 @@ Defined.
 
 Lemma isover_X_ftX { BB : ltower } ( X : BB ) : isover X ( ft X ) .
 Proof.
-  intros . 
   unfold isover .
   destruct ( natgehchoice _ _ ( natgehn0 ( ll X ) ) )  as [ gt | eq ] . 
   rewrite ll_ft . 
@@ -245,7 +226,6 @@ Defined.
 
 Lemma isover_X_ftnX { BB : ltower } ( X : BB ) ( n : nat ) : isover X ( ftn n X ) .
 Proof .
-  intros . 
   induction n as [ | n IHn ] . 
   exact ( isover_XX _ ) . 
 
@@ -259,7 +239,7 @@ Defined.
 Lemma isover_X_ftA { BB : ltower } { X A : BB }
       ( is : isover X A ) : isover X ( ft A ) .
 Proof.
-  intros. exact ( isover_trans is ( isover_X_ftX _ ) ) . 
+  exact ( isover_trans is ( isover_X_ftX _ ) ) . 
 
 Defined.
 
@@ -268,7 +248,7 @@ Defined.
 Lemma isover_ft { BB : ltower } { X A : BB }
       ( is : isover X A ) ( gt : ll X > ll A ) : isover ( ft X ) A .
 Proof.
-  intros. unfold isover in * . 
+  unfold isover in * . 
   rewrite ftn_ft . rewrite ll_ft . rewrite <- lB_2014_12_07_l1 .
   exact is .
 
@@ -279,7 +259,7 @@ Defined.
 Lemma isover_ftn { BB : ltower } { n : nat } { X A : BB } 
       ( is : isover X A ) ( gte : ll X - ll A >= n ) : isover ( ftn n X ) A .
 Proof.
-  intros BB n. induction n as [ | n IHn ] .
+  revert X A is gte. induction n as [ | n IHn ] .
   intros .  exact is .
 
   intros . simpl .
@@ -301,7 +281,6 @@ Defined .
 Lemma isover_choice { BB : ltower } { X A : BB }
       ( is : isover X A ) : coprod ( isover ( ft X ) A ) ( A = X ) .
 Proof .
-  intros . 
   destruct ( natgehchoice _ _ ( isover_geh is ) ) as [ gt | eq ] . 
   exact ( ii1 ( isover_ft is gt ) ) . 
 
@@ -319,18 +298,17 @@ Defined.
 
 
 Definition isabove { BB : ltower } ( X A : BB ) :=
-  dirprod ( ll X > ll A ) ( isover X A ) .
+  ( ll X > ll A ) × ( isover X A ) .
 
 Definition isabove_constr { BB : ltower } { X A : BB }
            ( gt : ll X > ll A ) ( isov : isover X A ) : isabove X A :=
-  tpair _ gt isov . 
+  gt ,, isov . 
 
 Definition isabove_gth { BB : ltower } { X A : BB } ( is : isabove X A ) :
   ll X > ll A := pr1 is .
 
 Lemma isabove_gt0 { BB : ltower } { X A : BB } ( is : isabove X A ) : ll X > 0 .
 Proof .
-  intros .
   exact ( natgthgehtrans _ _ _ ( isabove_gth is ) ( natgehn0 _ ) ) .
 
 Defined.
@@ -344,7 +322,6 @@ Coercion isabove_to_isover : isabove >-> isover .
 
 Lemma isabove_X_ftX { BB : ltower } ( X : BB ) ( gt0 : ll X > 0 ) : isabove X ( ft X ) .
 Proof .
-  intros .
   refine ( isabove_constr _ _ ) .
   rewrite ll_ft . 
   exact ( natgthnnmius1 gt0 ) . 
@@ -356,7 +333,6 @@ Defined.
 Lemma isabove_X_ftnX { BB : ltower } { X : BB } { n : nat } ( gt0' : n > 0 ) ( gt0 : ll X > 0 ) :
   isabove X ( ftn n X ) .
 Proof.
-  intros .
   induction n as [ | n IHn ] .
   destruct ( negnatgthnn _ gt0' ) .
 
@@ -379,7 +355,7 @@ Defined.
 Lemma isabove_X_ftA { BB : ltower } { X A : BB }
       ( is : isabove X A ) : isabove X ( ft A ) .
 Proof .
-  intros . refine ( isabove_constr _ _ ) .
+  refine ( isabove_constr _ _ ) .
   rewrite ll_ft . 
   exact ( natgthgehtrans _ _ _ ( isabove_gth is ) ( natminuslehn _ 1 ) ) . 
 
@@ -391,7 +367,7 @@ Defined.
 Lemma isabove_X_ftA' { BB : ltower } { X A : BB }
       ( is : isover X A ) ( gt0 : ll A > 0 ) : isabove X ( ft A ) .
 Proof .
-  intros . refine ( isabove_constr _ _ ) .
+  refine ( isabove_constr _ _ ) .
   rewrite ll_ft .
   refine ( natgehgthtrans _ _ _ ( isover_geh is ) _ ) .
   exact ( natgthnnmius1 gt0 ) . 
@@ -405,7 +381,7 @@ Defined.
 Lemma isabove_trans { BB : ltower } { X A A' : BB } :
   isabove X A -> isabove A A' -> isabove X A' .
 Proof.
-  intros BB X A A' is is' . refine ( isabove_constr _ _ ) .
+  intros is is' . refine ( isabove_constr _ _ ) .
   exact ( istransnatgth _ _ _ ( isabove_gth is ) ( isabove_gth is' ) ) .
 
   exact ( isover_trans is is' ) .
@@ -415,7 +391,7 @@ Defined.
 Lemma isabov_trans { BB : ltower } { X A A' : BB } :
   isabove X A -> isover A A' -> isabove X A' .
 Proof.
-  intros BB X A A' is is' . refine ( isabove_constr _ _ ) .
+  intros is is' . refine ( isabove_constr _ _ ) .
   exact ( natgthgehtrans _ _ _ ( isabove_gth is ) ( isover_geh is' ) ) .
 
   exact ( isover_trans is is' ) .
@@ -425,7 +401,7 @@ Defined.
 Lemma isovab_trans { BB : ltower } { X A A' : BB } :
   isover X A -> isabove A A' -> isabove X A' .
 Proof.
-  intros BB X A A' is is' . refine ( isabove_constr _ _ ) .
+  intros is is' . refine ( isabove_constr _ _ ) .
   exact ( natgehgthtrans _ _ _ ( isover_geh is ) ( isabove_gth is' ) ) .
 
   exact ( isover_trans is is' ) .
@@ -445,14 +421,14 @@ Defined.
 Lemma isover_ft' { BB : ltower } { X A : BB } ( is : isabove X A ) :
   isover ( ft X ) A .
 Proof .
-  intros . exact ( isover_ft is ( isabove_gth is ) ) . 
+  exact ( isover_ft is ( isabove_gth is ) ) . 
 
 Defined.
 
 Lemma isabove_ft_inv { BB : ltower } { X A : BB } ( is : isabove ( ft X ) A ) :
   isabove X A .
 Proof .
-  intros . exact ( isovab_trans ( isover_X_ftX _ ) is ) .  
+  exact ( isovab_trans ( isover_X_ftX _ ) is ) .  
 
 Defined.
 
@@ -460,7 +436,6 @@ Defined.
 Lemma ovab_choice { BB : ltower } { X A : BB } ( isov : isover X A ) :
   coprod ( isabove X A ) ( X = A ) .
 Proof .
-  intros .
   destruct ( natgehchoice _ _ ( isover_geh isov ) ) as [ gth | eq ] . 
   exact ( ii1 ( tpair _ gth isov ) ) .
 
@@ -475,7 +450,6 @@ Defined.
 Lemma isabove_choice { BB : ltower } { X A : BB } ( isab : isabove X A ) :
   coprod ( isabove ( ft X ) A ) ( A = ft X ) . 
 Proof.
-  intros .
   assert ( isov := isover_ft' isab ) . 
   assert ( gte : ll ( ft X ) >= ll A ) .
   exact ( lltowergehll ( isabove_gth isab ) ) .
@@ -493,7 +467,7 @@ Defined.
 Lemma isabove_choice_n { BB : ltower } ( n : nat ) { X A : BB } ( isab : isabove X A ) :
   coprod ( isabove ( ftn n X ) A ) ( isover A ( ftn n X ) ) .
 Proof .
-  intros BB n . induction n as [ | n IHn ] .
+  revert X A isab. induction n as [ | n IHn ] .
   intros . 
   exact ( ii1 isab ) . 
 
@@ -526,11 +500,11 @@ Definition isovmonot { T1 T2 : ltower } ( f : T1 -> T2 ) :=
   forall ( X Y : T1 ) , isover X Y -> isover ( f X ) ( f Y ) .
 
 Definition ovmonot_fun ( T1 T2 : ltower ) :=
-  total2 ( fun f : T1 -> T2 => isovmonot f ) . 
+  ∑ f : T1 -> T2, isovmonot f . 
 
 Definition ovmonot_fun_constr { T1 T2 : ltower }
            ( f : T1 -> T2 ) ( is : forall ( X Y : T1 ) , isover X Y -> isover ( f X ) ( f Y ) ) :
-  ovmonot_fun T1 T2 := tpair _ f is .
+  ovmonot_fun T1 T2 := f ,, is .
 
 
 Definition ovmonot_fun_pr1 ( T1 T2 : ltower ) : ovmonot_fun T1 T2 -> ( T1 -> T2 ) := pr1 . 
@@ -543,7 +517,7 @@ Coercion ovmonot_fun_pr1 : ovmonot_fun >-> Funclass .
 Definition isovmonot_funcomp { T1 T2 T3 : ltower } { f : T1 -> T2 } { g : T2 -> T3 }
            ( isf : isovmonot f ) ( isg : isovmonot g ) : isovmonot ( funcomp f g ) .
 Proof .
-  intros . unfold isovmonot .  
+  unfold isovmonot .  
   intros X Y is . 
   apply isg . 
   apply isf . 
@@ -565,7 +539,6 @@ Definition isllmonot { T1 T2 : ltower } ( f : T1 -> T2 ) : UU :=
 Lemma isllmonot_funcomp { T1 T2 T3 : ltower } { f : T1 -> T2 } { g : T2 -> T3 }
       ( isf : isllmonot f ) ( isg : isllmonot g ) : isllmonot ( funcomp f g ) .
 Proof.
-  intros.
   unfold isllmonot.
   intros X Y .
   assert ( int1 : ll ( g ( f X ) ) - ll ( g ( f Y ) ) = ll ( f X ) - ll ( f Y ) ) .
@@ -582,7 +555,6 @@ Defined.
 Lemma ft_f_X { T1 T2 : ltower } ( f : T1 -> T2 ) ( is1 : isovmonot f ) ( is2 : isllmonot f )
       { X : T1 } ( gt0 : ll X > 0 ) : ft ( f X ) = f ( ft X ) .
 Proof.
-  intros.
   assert ( isov := isover_X_ftX X ) . 
   assert ( isov' := is1 _ _ isov ) .
   unfold isover in isov' . 
@@ -605,7 +577,7 @@ Definition isbased { T1 T2 : ltower } ( f : T1 -> T2 ) : UU :=
 Lemma isbased_funcomp { T1 T2 T3 : ltower } { f : T1 -> T2 } { g : T2 -> T3 }
       ( isf : isbased f ) ( isg : isbased g ) : isbased ( funcomp f g ) .
 Proof.
-  intros. unfold isbased. intros X0 eq0 . unfold funcomp.  
+  unfold isbased. intros X0 eq0 . unfold funcomp.  
   apply isg . 
   apply isf .
   exact eq0 .
@@ -623,12 +595,12 @@ Defined.
 
 
 Definition isltower_fun { T1 T2 : ltower } ( f : T1 -> T2 ) : UU :=
-  dirprod ( isovmonot f )
-          ( dirprod ( isllmonot f ) ( isbased f ) ) .
+  ( isovmonot f ) ×
+          ( ( isllmonot f ) × ( isbased f ) ) .
 
 
 Definition ltower_fun ( T1 T2 : ltower ) :=
-  total2 ( fun f : T1 -> T2 => isltower_fun f ) .
+  ∑ f : T1 -> T2, isltower_fun f .
 
 Definition ltower_fun_to_ovmonot_fun ( T1 T2 : ltower ) ( f : ltower_fun T1 T2 ) :
   ovmonot_fun T1 T2 := ovmonot_fun_constr _ ( pr1 ( pr2 f ) ) . 
@@ -651,15 +623,14 @@ Definition isbased_pr { T1 T2 : ltower } ( f : ltower_fun T1 T2 ) : isbased f :=
 Definition ltower_fun_constr { T1 T2 : ltower } { f : T1 -> T2 }
            ( is1 : isovmonot f ) ( is2 : isllmonot f ) ( is3 : isbased f ) :
   ltower_fun T1 T2 :=
-  tpair _ f ( dirprodpair is1 ( dirprodpair is2 is3 ) ) . 
+  f ,, ( is1 ,, ( is2 ,, is3 ) ) . 
 
 
 
 Definition ltower_funcomp { T1 T2 T3 : ltower } ( f : ltower_fun T1 T2 ) ( g : ltower_fun T2 T3 ) :
   ltower_fun T1 T3 .
 Proof.
-  intros.
-  simple refine ( ltower_fun_constr _ _ _ ) . 
+  use ltower_fun_constr. 
   apply ( funcomp f g ) . 
 
   apply ( isovmonot_funcomp ( isovmonot_pr f ) ( isovmonot_pr g ) ) . 
@@ -672,8 +643,7 @@ Defined.
 
 Definition ltower_idfun ( T : ltower ) : ltower_fun T T .
 Proof.
-  intros.
-  refine ( ltower_fun_constr _ _ _ ) . 
+  use ltower_fun_constr. 
   apply idfun . 
 
   unfold isovmonot . 
@@ -707,9 +677,9 @@ A pointed ltower is an ltower such that the type of its elements of length 0 is 
 
 
 Definition ispointed_type ( T : ltower ) :=
-  iscontr ( total2 ( fun X : T => ll X = 0 ) ) .
+  iscontr ( ∑ X : T, ll X = 0 ) .
 
-Definition pltower := total2 ( fun T : ltower => ispointed_type T ) .
+Definition pltower := ∑ T : ltower, ispointed_type T.
 
 Definition pltower_constr { T : ltower } ( is : ispointed_type T ) : pltower := tpair _ _ is . 
 
@@ -738,7 +708,7 @@ Lemma isoverll0 { T : pltower }
       { X1 : T } ( eq0 : ll X1 = 0 )
       ( X2 : T ) : isover X2 X1 .
 Proof .
-  intros . set ( is := pr2 T ) . 
+  set ( is := pr2 T ) . 
   unfold isover . 
   assert ( eq0' : ll ( ftn ( ll X2 - ll X1 ) X2 ) = 0 ) . 
   rewrite ll_ftn . 
@@ -758,7 +728,7 @@ Definition isover_cntr { T : pltower } ( X : T ) : isover X ( cntr T ) :=
 Lemma noparts_ispointed { T : pltower }
       { X Y : T } ( eqX : ll X = 0 ) ( eqY : ll Y = 0 ) : X = Y .
 Proof .
-  intros . set ( is := pr2 T ) . 
+  set ( is := pr2 T ) . 
   set ( int := proofirrelevancecontr is ( tpair _ _ eqX ) ( tpair _ _ eqY ) ) . 
   apply ( maponpaths pr1 int ) . 
 

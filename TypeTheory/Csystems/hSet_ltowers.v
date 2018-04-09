@@ -2,16 +2,19 @@
 
 by Vladimir Voevodsky. File created on January 30, 2015. *)
 
-Unset Automatic Introduction.
 
-Require Export TypeTheory.Csystems.ltowers_over .
+Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import TypeTheory.Csystems.prelim.
+Require Import TypeTheory.Csystems.lTowers.
+
+Require Import TypeTheory.Csystems.ltowers_over .
 
 
 
-Definition hSet_ltower := total2 ( fun T : ltower => isaset T ) .
+Definition hSet_ltower := ∑ T : ltower, isaset T .
 
 Definition hSet_ltower_constr ( T : ltower ) ( is : isaset T ) : hSet_ltower :=
-  tpair _ T is . 
+  T ,, is. 
 
 Definition hSet_ltower_pr1 : hSet_ltower -> ltower := pr1 . 
 Coercion hSet_ltower_pr1 : hSet_ltower >-> ltower .
@@ -20,13 +23,12 @@ Definition isasetB ( T : hSet_ltower ) : isaset T := pr2 T .
 
 Lemma isaprop_isover { T : hSet_ltower } ( X A : T ) : isaprop ( isover X A ) .
 Proof .
-  intros . exact ( isasetB _ _ _ ) . 
+  exact ( isasetB _ _ _ ) . 
 
 Defined.
 
 Lemma isaprop_isabove { T : hSet_ltower } ( X A : T ) : isaprop ( isabove X A ) . 
 Proof. 
-  intros . 
   apply isapropdirprod . 
   exact ( pr2 ( _ > _ ) ) .
 
@@ -34,10 +36,10 @@ Proof.
 
 Defined .
 
-Definition hSet_pltower := total2 ( fun T : hSet_ltower => ispointed_type T ) .
+Definition hSet_pltower := ∑ T : hSet_ltower, ispointed_type T.
 
 Definition hSet_pltower_constr ( T : hSet_ltower ) ( is : ispointed_type T ) : hSet_pltower :=
-  tpair _ T is . 
+  T ,, is. 
 
 
 Definition hSet_pltowers_to_pltowers : hSet_pltower -> pltower :=
@@ -52,7 +54,6 @@ Coercion hSet_pltowers_pr1 : hSet_pltower >-> hSet_ltower .
 Lemma isinvovmonot_pocto { T : hSet_ltower } { A : T } { X Y : ltower_over A }
       ( isov : isover ( pocto X ) ( pocto Y ) ) : isover X Y .  
 Proof .
-  intros . 
   refine ( invmaponpathsincl pr1 _ _ _ _ ) . 
   apply isinclpr1 . 
   intro x . 
@@ -72,7 +73,6 @@ Defined.
 
 Lemma isaset_ltower_over { T : hSet_ltower } ( X : T ) : isaset ( ltower_over X ) .
 Proof .
-  intros . 
   apply ( isofhleveltotal2 2 ) . 
   exact ( pr2 T ) . 
 
@@ -99,8 +99,7 @@ Definition hSet_pltower_over { T : hSet_ltower } ( X : T ) : hSet_pltower :=
 Lemma isovmonot_to_ltower_over { T : hSet_pltower }
       { X Y : T } ( isov : isover X Y ) : isover ( to_ltower_over X ) ( to_ltower_over Y ) .
 Proof .
-  intros .
-  refine ( @isinvovmonot_pocto T ( cntr T ) (to_ltower_over X) (to_ltower_over Y) isov ) . 
+  use ( @isinvovmonot_pocto T ( cntr T ) (to_ltower_over X) (to_ltower_over Y) isov ) . 
 
 Defined.
 
@@ -120,8 +119,7 @@ Definition ltower_fun_to_ltower_over { T : hSet_pltower }  :
 Definition lft { T : hSet_ltower }
            { X : T } { X' : ltower_over X } ( X'' : ltower_over ( pocto X' ) ) : ltower_over X' .
 Proof .
-  intros .
-  simple refine (obj_over_constr _ ) .
+  use obj_over_constr.
   split with ( pocto X'' ) . 
   apply ( isover_trans ( isov_isov X'' ) ( isov_isov X' ) ) .
   apply isinvovmonot_pocto . 
@@ -134,7 +132,6 @@ Lemma ll_lft { T : hSet_ltower }
       { X : T } { X' : ltower_over X } ( X'' : ltower_over ( pocto X' ) ) :
   ll ( lft X'' ) = ll X'' .
 Proof.
-  intros .
   change _ with
   ( ll ( pr1 X'' ) - ll X - ( ll ( pr1 X' ) - ll X ) = ll ( pr1 X'' ) - ll ( pr1 X' ) ) .
   rewrite natminusassoc . 
@@ -149,7 +146,7 @@ Defined.
 Lemma isovmonot_lft { T : hSet_ltower }
       { X : T } ( X' : ltower_over X ) : isovmonot ( @lft _ _ X' ) .
 Proof .
-  intros . unfold isovmonot . 
+  unfold isovmonot . 
   intros X0 Y isov . 
   apply ( @isinvovmonot_pocto ( hSet_ltower_over X ) ) .
   simpl . 
@@ -164,7 +161,6 @@ Defined.
 Lemma isllmonot_lft { T : hSet_ltower }
       { X : T } ( X' : ltower_over X ) : isllmonot ( @lft _ _ X' ) .
 Proof .
-  intros .
   unfold isllmonot . intros .
   repeat rewrite ll_lft . 
   apply idpath . 
@@ -174,7 +170,7 @@ Defined.
 Lemma isbased_lft { T : hSet_ltower }
       { X : T } ( X' : ltower_over X ) : isbased ( @lft _ _ X' ) .
 Proof.
-  intros. unfold isbased. intros X0 eq0. rewrite ll_lft. exact eq0 .
+  unfold isbased. intros X0 eq0. rewrite ll_lft. exact eq0 .
 
 Defined.
 
@@ -199,8 +195,7 @@ Definition ltower_fun_lft { T : hSet_ltower } { X : T } ( X' : ltower_over X ) :
 Definition ovmonot_over { T1 T2 : hSet_ltower } ( f : ovmonot_fun T1 T2 )
            ( X : T1 ) : ovmonot_fun ( ltower_over X ) ( ltower_over ( f X ) ) .
 Proof .
-  intros . 
-  simple refine ( ovmonot_fun_constr _ _ ) .
+  use ovmonot_fun_constr.
   intro X' . 
   split with ( f ( pocto X' ) ) . 
   apply ( pr2 f ) . 
@@ -218,7 +213,6 @@ Defined.
 Lemma isllmonot_ovmonot_over { T1 T2 : hSet_ltower } { f : ovmonot_fun T1 T2 } ( isf : isllmonot f )
       ( X : T1 ) : isllmonot ( ovmonot_over f X ) .
 Proof.
-  intros.
   unfold isllmonot .
   intros X0 Y . 
   change _ with ( ll ( f ( pr1 X0 ) ) - ll ( f X ) - ( ll ( f ( pr1 Y ) ) - ll ( f X ) ) =
@@ -232,7 +226,7 @@ Lemma isbased_ovmonot_over { T1 T2 : hSet_ltower }
       { f : ovmonot_fun T1 T2 } ( isf : isllmonot f ) 
       ( X : T1 ) : isbased ( ovmonot_over f X ) .
 Proof.
-  intros. unfold isbased. intros X0 eq0 . 
+  unfold isbased. intros X0 eq0 . 
   change _ with ( ll ( pr1 X0 ) - ll X = 0 ) in eq0 . 
   change _ with ( ll ( f ( pr1 X0 ) ) - ll ( f X ) = 0 ) .
   rewrite isf . 
@@ -261,7 +255,6 @@ Definition ltower_fun_over { T1 T2 : hSet_ltower } ( f : ovmonot_fun T1 T2 ) ( i
 Definition to_over_pocto  { T : hSet_ltower } { X : T } ( X' : ltower_over X )
            ( X'' : ltower_over X' ) : ltower_over ( pocto X' ) .
 Proof .
-  intros .
   split with ( pocto ( pocto X'' ) ) . 
   apply isovmonot_pocto . 
   apply ( isov_isov X'' ) .
@@ -273,7 +266,6 @@ Defined.
 Lemma isovmonot_to_over_pocto { T : hSet_ltower } { X : T } ( X' : ltower_over X ) :
   isovmonot ( to_over_pocto X' ) . 
 Proof .
-  intros.
   unfold isovmonot. 
   intros X0 Y isov .
   simpl .
@@ -293,7 +285,6 @@ Definition ovmonot_to_over_pocto  { T : hSet_ltower } { X : T } ( X' : ltower_ov
 Lemma ll_to_over_pocto { T : hSet_ltower } { X : T } ( X' : ltower_over X )
       ( X'' : ltower_over X' ) : ll ( to_over_pocto X' X'' ) = ll X'' .
 Proof .
-  intros .
   change _ with ( ll ( pr1 ( pr1 X'' ) ) - ll ( pr1 X' ) =
                 ll ( pr1 ( pr1 X'' ) ) - ll X - ( ll ( pr1 X' ) - ll X ) ) . 
   rewrite natminusassoc . 
@@ -307,7 +298,6 @@ Defined.
 Lemma isllmonot_to_over_pocto { T : hSet_ltower } { X : T } ( X' : ltower_over X ) :
   isllmonot ( to_over_pocto X' ) .
 Proof .
-  intros .
   unfold isllmonot . intros X0 Y .
   repeat rewrite ll_to_over_pocto . 
   apply idpath . 
@@ -318,7 +308,7 @@ Defined.
 Lemma isbased_to_over_pocto { T : hSet_ltower } { X : T } ( X' : ltower_over X ) :
   isbased ( to_over_pocto X' ) .
 Proof.
-  intros. unfold isbased .  intros X0 eq0 . 
+  unfold isbased .  intros X0 eq0 . 
   rewrite ll_to_over_pocto . 
   exact eq0 .
 
@@ -343,7 +333,6 @@ Definition ovmonot_second { T : hSet_ltower }
            ( X' : ltower_over X ) :
   ovmonot_fun ( ltower_over ( pocto X' ) ) ( ltower_over ( pocto ( f X' ) ) ) .
 Proof .
-  intros .
   set ( int1 :=
           ovmonot_funcomp ( ovmonot_lft X' )
                           ( @ovmonot_over ( hSet_ltower_over X ) ( hSet_ltower_over Y ) f X' ) ) .  
@@ -357,8 +346,7 @@ Lemma isllmonot_ovmonot_second { T : hSet_ltower }
       ( f : ovmonot_fun ( ltower_over X ) ( ltower_over Y ) ) ( isf : isllmonot f ) 
       ( X' : ltower_over X ) : isllmonot ( ovmonot_second f X' ) .
 Proof .
-  intros .
-  refine ( isllmonot_funcomp _ _ ) . refine ( isllmonot_funcomp _ _ ) . 
+  use isllmonot_funcomp. use isllmonot_funcomp.
   apply isllmonot_lft . 
 
   refine ( @isllmonot_ovmonot_over ( hSet_ltower_over _ ) ( hSet_ltower_over _ ) _ isf X' ) . 
@@ -373,7 +361,7 @@ Lemma isbased_second { T : hSet_ltower }
            ( X' : ltower_over X ) :
   isbased ( ovmonot_second f X' ) .
 Proof.
-  intros. unfold isbased. intros X0 eq0 .
+  unfold isbased. intros X0 eq0 .
   unfold ovmonot_second .
   apply isbased_funcomp. 
   apply isbased_funcomp.
@@ -411,7 +399,7 @@ Definition isover_ind_int { BB : ltower }
            ( Pcomp : forall ( X Y : BB ) , P X ( ft X ) -> P ( ft X ) Y -> P X Y ) :
   forall ( n : nat ) ( X Y : BB ) ( eq : Y = ftn n X ) , P X Y .
 Proof.
-  intros until n .  induction n as [ | n IHn ] .
+  induction n as [ | n IHn ] .
   intros . change _ with ( Y = X ) in eq . 
   rewrite eq . 
   apply P0 .
@@ -443,7 +431,6 @@ Lemma isover_ind_int_XX { BB : hSet_ltower }
            ( n : nat ) ( eq0 : n = 0 ) ( X : BB ) ( eq : X = ftn n X ) :
   isover_ind_int P P0 Pft Pcomp n X X eq = P0 X .
 Proof. 
-  intros .
   set ( Y := X ) . 
   change _ with ( Y = ftn n X ) in eq . 
   change _ with (isover_ind_int P P0 Pft Pcomp n X Y eq = P0 X).
@@ -461,7 +448,6 @@ Lemma isover_ind_int_isab_eq_in_BB { BB : hSet_ltower }
       { n m : nat } ( eqn : n = S m ) { X Y : BB } ( eq : Y = ftn n X ) :
   Y = ftn m ( ft X ) .
 Proof .
-  intros .
   rewrite ftn_ft . 
   change ( 1 + m ) with ( S m ) . 
   rewrite <- eqn . 
@@ -480,7 +466,7 @@ Lemma isover_ind_int_isab { BB : hSet_ltower }
   isover_ind_int P P0 Pft Pcomp n X Y eq =
   Pcomp _ _ ( Pft X gt0 ) ( isover_ind_int P P0 Pft Pcomp m ( ft X ) Y eq' ) .
 Proof. 
-  intros until m .  intro eqn . rewrite eqn .
+  revert X Y gt0 eq eq'. rewrite eqn .
   intros .
   simpl .
   destruct (natgehchoice (ll X) 0 (natgehn0 (ll X))) as [ gt0' | eq0 ] . 
@@ -517,7 +503,7 @@ Lemma isover_ind_int_X_ftX { BB : hSet_ltower }
            ( n : nat ) ( eq1 : n = 1 ) ( X : BB ) ( eq : ft X = ftn n X ) ( gt0 : ll X > 0 ) :
   isover_ind_int P P0 Pft Pcomp n X ( ft X ) eq = Pft X gt0 .
 Proof.
-  intros until n. intro eq1 . rewrite eq1 . 
+  revert X eq gt0. rewrite eq1 . 
   intros X eq . assert ( eqq : eq = idpath _ ) . apply isasetB . 
   rewrite eqq . intro . 
   simpl .
@@ -525,10 +511,9 @@ Proof.
   assert ( eq' : gt0 = gt0' ) . apply proofirrelevance .  apply ( pr2 ( _ > _ ) ) . 
   rewrite eq' . apply Pcomp_eq . 
 
-  assert ( absd : empty ) . rewrite eq0 in gt0 . 
+  apply fromempty.
+  rewrite eq0 in gt0 . 
   apply ( negnatgthnn _ gt0 ) . 
-
-  destruct absd .
 
 Defined.
 
@@ -549,7 +534,6 @@ Lemma isover_ind_XX { BB : hSet_ltower }
            ( Pcomp : forall ( X Y : BB ) , P X ( ft X ) -> P ( ft X ) Y -> P X Y )
            ( X : BB ) ( isov : isover X X ) : isover_ind P P0 Pft Pcomp X X isov = P0 X .
 Proof.
-  intros.
   apply isover_ind_int_XX . 
   apply natminusnn . 
 
@@ -567,7 +551,6 @@ Lemma isover_ind_isab { BB : hSet_ltower }
   isover_ind P P0 Pft Pcomp X Y isab =
   Pcomp _ _ ( Pft X ( isabove_gt0 isab ) ) ( isover_ind P P0 Pft Pcomp ( ft X ) Y ( isover_ft' isab ) ) .
 Proof.
-  intros .
   apply isover_ind_int_isab .
   rewrite ll_ft . 
   apply lB_2014_12_07_l1 . 
@@ -588,7 +571,7 @@ Lemma isover_ind_X_ftX { BB : hSet_ltower }
            ( X : BB ) ( gt0 : ll X > 0 ) :
   isover_ind P P0 Pft Pcomp X ( ft X ) ( isover_X_ftX X ) = Pft X gt0 .
 Proof.
-  intros. apply isover_ind_int_X_ftX .
+  apply isover_ind_int_X_ftX .
   intros . apply Pcomp_eq . 
 
   rewrite ll_ft .
@@ -613,7 +596,7 @@ Definition isover_strong_ind_int { BB : hSet_ltower }
                        forall ( isab : isabove X Y ) , P X Y isab )  :
   forall ( n : nat ) ( X Y : BB ) ( eq : Y = ftn n X ) ( isov : isover X Y ) , P X Y isov .
 Proof.
-  intros until n .  induction n as [ | n IHn ] .
+  induction n as [ | n IHn ] .
   intros . change _ with ( Y = X ) in eq .
   generalize isov . clear isov . 
   rewrite eq .
@@ -720,7 +703,7 @@ Definition isover_ind_one_sided_int { BB : ltower }
            ( Pft : forall ( X : BB ) (n : nat) ( eq : Γ = ftn (S n) X ) , P n (eq @ ! (ftn_ft _ _)) -> P (S n) eq)
   : forall ( X : BB )  (n : nat) ( eq: Γ = ftn n X ) , P n eq.
 Proof.
-  intros until n . revert X.  induction n as [ | n IHn ]; intros.
+  intros X n . revert X.  induction n as [ | n IHn ]; intros.
   + change _ with ( Γ = X ) in eq . 
     rewrite <- eq . 
     apply P0 .
@@ -738,7 +721,6 @@ Definition isover_ind_one_sided { BB : hSet_ltower }
            ( Pft : forall ( X : BB ) ( isab : isabove X Γ ) , P ( isover_ft' isab) -> P isab)
   : forall ( X : BB ) ( isov : isover X Γ ) , P isov.
 Proof.
-  intros BB Γ P P0 Pft.
   set (P' := fun {X:BB} {n: nat} (eq: Γ = ftn n X) => P _ (transportf _ (!eq) (isover_X_ftnX X n))).
   assert (P'ok : forall ( X : BB )  (n : nat) ( eq: Γ = ftn n X ) , P' X n eq).
   { apply isover_ind_one_sided_int.

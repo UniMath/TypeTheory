@@ -1,13 +1,14 @@
-(** ** Constructions related to ltowers opver an object  
+(** ** Constructions related to ltowers over an object  
 
 by Vladimir Voevodsky, started on Feb. 3, 2015.
 
 *)
 
-Unset Automatic Introduction.
 
 
-Require Export TypeTheory.Csystems.lTowers.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import TypeTheory.Csystems.prelim.
+Require Import TypeTheory.Csystems.lTowers.
 
 
 
@@ -20,7 +21,7 @@ Require Export TypeTheory.Csystems.lTowers.
 
 
 Definition ltower_over_carrier { T : ltower } ( A : T ) :=
-  total2 ( fun X : T => isover X A ) .
+  ∑ X : T, isover X A .
 
 Definition obj_over_constr { T : ltower } { A : T } { X : T } ( isov : isover X A ) :
   ltower_over_carrier A := tpair ( fun X : T => isover X A ) _ isov .
@@ -34,7 +35,6 @@ Definition ltower_over_ll { T : ltower } { A : T } ( X : ltower_over_carrier A )
 Definition ltower_over_ft { T : ltower } { A : T } ( X : ltower_over_carrier A ) :
   ltower_over_carrier A .
 Proof .
-  intros .
   destruct ( isover_choice ( isov_isov X ) ) as [ isov | eq ] .
   exact ( tpair _ ( ft ( pr1 X ) )  isov ) .
 
@@ -45,7 +45,6 @@ Defined.
 Lemma ltower_over_ll_ft_eq { T : ltower } { A : T } ( X : ltower_over_carrier A ) :
   ltower_over_ll ( ltower_over_ft X ) = ltower_over_ll X - 1 .
 Proof .
-  intros . 
   unfold ltower_over_ft . 
   destruct ( isover_choice ( isov_isov X ) ) as [ isov | eq ] .
   unfold ltower_over_ll .  
@@ -67,10 +66,9 @@ Defined.
 
 
 Lemma ispointed_ltower_over_int { T : ltower } ( A : T ) :
-  iscontr ( total2 ( fun X : ltower_over_carrier A =>
-                       ltower_over_ll X = 0 ) ) .
+  iscontr ( ∑ X : ltower_over_carrier A ,
+                       ltower_over_ll X = 0 ) .
 Proof.
-  intros .
   assert ( weq1 : weq ( total2 ( fun X : ltower_over_carrier A =>
                                    ltower_over_ll X = 0 ) )
                       ( total2 ( fun X : T => dirprod
@@ -127,7 +125,6 @@ Lemma ltower_over_ll0_eq { T : ltower } { A : T }
       ( X : ltower_over_carrier A ) ( eq0 : ltower_over_ll X = 0 ) : 
   ltower_over_ft X = X .
 Proof .
-  intros .
   assert ( eq0' : ltower_over_ll ( ltower_over_ft X ) = 0 ) . 
   rewrite ltower_over_ll_ft_eq . 
   rewrite eq0 . 
@@ -182,7 +179,7 @@ Definition ltower_over_to_pltower_over { T : ltower } ( A : T ) ( X : ltower_ove
 Lemma ltower_over_ftn { T : ltower } { A : T } ( n : nat )
       ( X : ltower_over A ) ( ge : ll X >= n ) : pr1 ( ftn n X ) = ftn n ( pr1 X ) .
 Proof .
-  intros T A n . 
+  revert X ge. 
   induction n .
   + intros . 
     apply idpath . 
@@ -214,7 +211,6 @@ Definition X_over_X { T : ltower } ( X : T ) : ltower_over X :=
 
 Lemma ll_X_over_X { T : ltower } ( X : T ) : ll ( X_over_X X ) = 0 .
 Proof.
-  intros .
   change _ with ( ll X - ll X = 0 ) .
   apply natminusnn . 
 
@@ -229,7 +225,6 @@ Definition X_over_ftX { T : ltower } ( X : T ) : ltower_over ( ft X ) :=
 Lemma ll_X_over_ftX { T : ltower } { X : T } ( gt0 : ll X > 0 ) :
   ll ( X_over_ftX X ) = 1 .
 Proof.
-  intros.
   change _ with ( ltower_over_ll (X_over_ftX X) = 1 ) . 
   unfold ltower_over_ll .
   rewrite ll_ft . 
@@ -248,7 +243,6 @@ Defined.
 Lemma ll_over_minus_ll_over { T : ltower } { A : T } ( X1 X2 : ltower_over A ) :
   ll X1 - ll X2 = ll ( pocto X1 ) - ll ( pocto X2 ) . 
 Proof .
-  intros . 
   destruct X1 as [ X1 isov1 ] . destruct X2 as [ X2 isov2 ] . 
   unfold ll . 
   simpl . 
@@ -265,7 +259,6 @@ Defined.
 Definition isovmonot_pocto { T : ltower } ( A : T ) { X Y : ltower_over A } ( isov : isover X Y ) :
 isover ( pocto X ) ( pocto Y ) .  
 Proof .
-  intros . 
   destruct X as [ X isovX ] .
   destruct Y as [ Y isovY ] .
   simpl . 
@@ -285,7 +278,6 @@ Defined.
 
 Lemma isllmonot_pocto { T : ltower } { A : T } : isllmonot ( @pocto T A ) . 
 Proof .
-  intros .
   unfold isllmonot .
   intros X Y .
   apply ( ! ( ll_over_minus_ll_over X Y ) ) .
@@ -298,7 +290,6 @@ Defined.
 Lemma ft_pocto { T : ltower } { A : T } { X : ltower_over A } ( gt0 : ll X > 0 ) :
   ft ( pocto X ) = pocto ( ft X ) .
 Proof.
-  intros . 
   change ( ft X ) with ( ltower_over_ft X ) . 
   unfold ltower_over_ft .
   destruct (isover_choice (isov_isov X)) as [ isov | eq ] . 
@@ -324,7 +315,6 @@ Defined.
 
 Definition to_ltower_over { T : pltower } ( X : T ) : ltower_over ( cntr T ) .
 Proof .
-  intros . 
   exact ( obj_over_constr ( isoverll0 ( ll_cntr T ) X ) ) .
 
 Defined.
@@ -333,7 +323,6 @@ Defined.
 Lemma ll_to_ltower_over { T : pltower } ( X : T ) :
   ll ( to_ltower_over X ) = ll X .
 Proof .
-  intros.
   unfold ll . 
   simpl .
   unfold ltower_over_ll . 
@@ -356,7 +345,6 @@ Defined.
 Lemma isbased_to_ltower_over ( T : pltower ) :
   isbased ( @to_ltower_over T ) .
 Proof .
-  intros . 
   unfold isbased. intros X eq0 .
   rewrite ll_to_ltower_over . 
   exact eq0 .

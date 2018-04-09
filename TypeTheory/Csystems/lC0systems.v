@@ -8,20 +8,25 @@ by V. Voevodsky as "Csubsystems".
 
  *)
 
-Require Export UniMath.Foundations.NaturalNumbers.
-Require Export UniMath.CategoryTheory.Categories.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import TypeTheory.Csystems.prelim.
+Require Import TypeTheory.Csystems.lTowers.
+
+Require Import TypeTheory.Csystems.ltowers_over.
+
+
+(* Require Import UniMath.CategoryTheory.Categories. *)
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
-Require Export TypeTheory.Csystems.hSet_ltowers.
+Require Import TypeTheory.Csystems.hSet_ltowers.
 
 
-(* Unset Automatic Introduction. *)
 
 (* Notation "a --> b" := (precategory_morphisms a b)(at level 50). *)
 
 (* Notation "f ;; g" := (compose f g)(at level 50). *)
 
 Definition mor_from { C : precategory_ob_mor } ( X : C ) :=
-  total2 ( fun A : C => X --> A ) .
+  ∑ A : C, X --> A .
 
 Definition mor_from_pr2 { C : precategory_ob_mor } ( X : C ) :
   forall f : mor_from X , precategory_morphisms X ( pr1 f ) := pr2 .  
@@ -31,7 +36,7 @@ Definition mor_from_constr { C : precategory_ob_mor } { X A : C } ( f : X --> A 
   mor_from X := tpair _ _ f . 
 
 Definition mor_to { C : precategory_ob_mor } ( X : C ) :=
-  total2 ( fun A : C => A --> X ) .
+  ∑ A : C, A --> X .
 
 Definition mor_to_pr2 { C : precategory_ob_mor } ( X : C ) :
   forall f : mor_to X , precategory_morphisms ( pr1 f ) X := pr2 .  
@@ -65,7 +70,7 @@ the canonical projections pX : X --> ft X . *)
 (** **** l-tower precategories *)
 
 
-Definition ltower_precat := total2 ( fun C : setcategory => ltower_str C ) . 
+Definition ltower_precat := ∑ C : setcategory, ltower_str C . 
 
 Definition ltower_precat_to_ltower ( CC : ltower_precat ) : hSet_ltower :=
   hSet_ltower_constr
@@ -77,7 +82,7 @@ Definition ltower_precat_pr1 : ltower_precat -> setcategory := pr1 .
 Coercion ltower_precat_pr1 : ltower_precat >-> setcategory .
 
 Definition ltower_precat_and_p :=
-  total2 ( fun CC : ltower_precat  => forall X : CC , X --> ft X ) .
+  ∑ CC : ltower_precat, forall X : CC , X --> ft X .
 
 Definition ltower_precat_and_p_pr1 : ltower_precat_and_p -> ltower_precat := pr1 . 
 Coercion ltower_precat_and_p_pr1 : ltower_precat_and_p >-> ltower_precat . 
@@ -91,7 +96,6 @@ Definition pX { CC : ltower_precat_and_p } ( X : CC ) : X --> ft X := pr2 CC X .
 
 Definition pnX { CC : ltower_precat_and_p } ( n : nat ) ( X : CC ) : X --> ftn n X . 
 Proof.
-  intros.
   induction n as [ | n IHn ]. 
   exact ( identity X ). 
 
@@ -104,7 +108,7 @@ Defined.
 
 
 Definition sec_pnX { CC : ltower_precat_and_p } ( n : nat ) ( X : CC ) :=
-  total2 ( fun s : ftn n X --> X => s ;; pnX n X = identity ( ftn n X ) ) . 
+  ∑ s : ftn n X --> X, s ;; pnX n X = identity ( ftn n X ) . 
 
 Definition sec_pnX_to_mor { CC : ltower_precat_and_p } ( n : nat ) ( X : CC ) :
   sec_pnX n X -> ftn n X --> X := pr1.
@@ -123,7 +127,7 @@ Definition ftf { CC : ltower_precat_and_p } { X Y : CC } ( f : X --> Y ) : X -->
 
 
 Definition Ob_tilde_over { CC : ltower_precat_and_p  } ( X : CC ) :=
-  total2 ( fun r : ft X --> X => r ;; ( pX X ) = identity ( ft X ) ) .
+  ∑ r : ft X --> X, r ;; ( pX X ) = identity ( ft X ) .
 
 Definition Ob_tilde_over_to_mor_to { CC : ltower_precat_and_p } ( X : CC ) ( r : Ob_tilde_over X ) :
   mor_to X := mor_to_constr ( pr1 r ) .
@@ -142,7 +146,7 @@ Definition Ob_tilde_over_eq { CC : ltower_precat_and_p  } { X : CC } ( r : Ob_ti
 
 
 Definition pltower_precat_and_p :=
-  total2 ( fun CC : ltower_precat_and_p => ispointed_type CC ) .
+  ∑ CC : ltower_precat_and_p, ispointed_type CC.
 
 Definition pltower_precat_and_p_pr1 : pltower_precat_and_p ->
                                              ltower_precat_and_p := pr1 .
@@ -238,13 +242,12 @@ Definition C0ax7_type { CC : lC0system_data }
 
 
 Definition lC0system :=
-  total2 ( fun CC : lC0system_data =>
-                     dirprod ( C0ax4_type CC )
-                     ( total2 ( fun axs : dirprod ( C0ax5a_type CC )
-                                                  ( total2 ( fun ax5b : C0ax5b_type CC =>
-                                                               C0ax5c_type ax5b ) ) => 
-                                  dirprod ( C0ax6_type CC )
-                                          ( C0ax7_type ( pr1 axs ) ( pr1 ( pr2 axs ) ) ) ) ) ) .
+  ∑ CC : lC0system_data,
+                     ( C0ax4_type CC ) ×
+                     ( ∑ axs : ( C0ax5a_type CC ) ×
+                               ( ∑ ax5b : C0ax5b_type CC, C0ax5c_type ax5b ), 
+                          ( C0ax6_type CC ) ×
+                          ( C0ax7_type ( pr1 axs ) ( pr1 ( pr2 axs ) ) ) ).
 
 Definition lC0system_pr1 : lC0system -> lC0system_data := pr1 .
 Coercion lC0system_pr1 : lC0system >-> lC0system_data .
@@ -298,7 +301,6 @@ Definition C0ax7a { CC : lC0system }
 Lemma ll_f_star { CC : lC0system } { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X ) :
   ll ( f_star gt0 f ) = 1 + ll Y .
 Proof .
-  intros . 
   assert ( gt0' : ll ( f_star gt0 f ) > 0 ) . apply C0ax5a .
   rewrite <- ( S_ll_ft gt0' ) . 
   rewrite C0ax5b . 
@@ -309,7 +311,7 @@ Defined.
 Lemma isover_f_star { CC : lC0system } { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X ) :
   isover ( f_star gt0 f ) Y .
 Proof.
-  intros. set ( eq := C0ax5b gt0 f ) . unfold isover . 
+  set ( eq := C0ax5b gt0 f ) . unfold isover . 
   assert ( eq1 : ll ( f_star gt0 f ) - ll Y = 1 ) .
   rewrite ll_f_star . 
   apply plusminusnmm . 
@@ -398,7 +400,7 @@ Defined. *)
 Lemma q_XX { CC : lC0system_data } { X : CC } ( f : mor_to X ) ( isov : isover X X ) :
   qn f isov = f .
 Proof .
-  intros .  unfold qn .
+  unfold qn .
   assert ( int := @isover_ind_XX CC ( fun X Y : CC => mor_to Y -> mor_to X )
                             ( fun X => idfun _ )
                             ( fun X gt0 => q_of_mor_to gt0 )
@@ -413,7 +415,6 @@ Opaque q_XX.
 Lemma q_isab { CC : lC0system_data } { X A : CC } ( f : mor_to A ) ( isab : isabove X A ) :
   qn f isab = q_of_mor_to ( isabove_gt0 isab ) ( qn f ( isover_ft' isab ) ) . 
 Proof.
-  intros.
   assert ( int := isover_ind_isab ( fun X Y : CC => mor_to Y -> mor_to X )
                             ( fun X => idfun _ )
                             ( fun X gt0 => q_of_mor_to gt0 )
@@ -428,7 +429,6 @@ Opaque q_isab .
 Lemma q_X_ftX { CC : lC0system_data } { X : CC } ( f : mor_to ( ft X ) ) ( gt0 : ll X > 0 ) :
   qn f ( isover_X_ftX X ) = q_of_mor_to gt0 f .
 Proof.
-  intros.
   unfold qn . 
   apply ( maponpaths ( fun g => g f ) ) .
   refine ( isover_ind_X_ftX _ _ _ _ _ _ _ ) . 
@@ -444,7 +444,7 @@ Opaque q_X_ftX .
 Lemma f_star_XX { CC : lC0system_data } { X : CC } ( f : mor_to X ) ( isov : isover X X ) :
   fn_star f isov =  dom f .
 Proof .
-  intros . apply ( maponpaths dom ) . apply q_XX . 
+  apply ( maponpaths dom ) . apply q_XX . 
   
 Defined.
 
@@ -455,7 +455,7 @@ Lemma f_star_isab { CC : lC0system_data } { X A : CC }
       ( f : mor_to A ) ( isab : isabove X A ) :
   fn_star f isab = f_star ( isabove_gt0 isab ) ( qn f ( isover_ft' isab ) ) . 
 Proof.
-  intros. apply ( maponpaths dom ) . apply q_isab. 
+  apply ( maponpaths dom ) . apply q_isab. 
   
 Defined.
 
@@ -465,7 +465,6 @@ Opaque f_star_isab.
 Lemma f_star_X_ftX { CC : lC0system_data } { X : CC } ( f : mor_to ( ft X ) ) ( gt0 : ll X > 0 ) :
   fn_star f ( isover_X_ftX X ) = f_star gt0 f .
 Proof.
-  intros . 
   apply ( maponpaths dom ) . 
   apply q_X_ftX .
 
@@ -544,7 +543,6 @@ Definition fn_star_to_fsm_star { CC : lC0system } { Y A : CC } ( f : Y --> A ) {
 Lemma ll_fn_star { CC : lC0system } { A X : CC } ( f : mor_to A ) ( isov : isover X A ) :
   ll ( fn_star f isov ) + ll A  = ll ( dom f ) + ll X . 
 Proof.
-  intros.
   set ( P := fun ( X0 Y0 : CC ) ( isov0 : isover X0 Y0 ) =>
                forall ( f0 : mor_to Y0 ) , ll ( fn_star f0 isov0 ) + ll Y0  = ll ( dom f0 ) + ll X0 ) .
   assert ( P0 : forall X0 , P X0 X0 ( isover_XX X0 ) ) . intro . unfold P . intro. 
@@ -587,7 +585,6 @@ Defined.
 Lemma isover_fn_star { CC : lC0system } { X A : CC } ( f : mor_to A ) ( isov : isover X A ) :
   isover ( fn_star f isov ) ( dom f ) .
 Proof.
-  intros.
   set ( P := fun ( X0 Y0 : CC ) ( isov0 : isover X0 Y0 ) =>
                forall ( f0 : mor_to Y0 ) , isover ( fn_star f0 isov0 ) ( dom f0 ) ) .
   assert ( P0 : forall X0 , P X0 X0 ( isover_XX X0 ) ) . intro . unfold P . intro. 

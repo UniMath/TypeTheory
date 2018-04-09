@@ -11,10 +11,19 @@ proporties of the identity morphisms but does require associativity.
 
  *)
 
-Require Export TypeTheory.Auxiliary.CategoryTheoryImports.
-Require Export TypeTheory.Csystems.lC0systems.
 
-Unset Automatic Introduction.
+
+Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import TypeTheory.Csystems.prelim.
+Require Import TypeTheory.Csystems.lTowers.
+
+Require Import TypeTheory.Csystems.ltowers_over.
+
+
+(* Require Import UniMath.CategoryTheory.Categories. *)
+Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+Require Import TypeTheory.Csystems.hSet_ltowers.
+Require Import TypeTheory.Csystems.lC0systems.
 
 
 
@@ -26,7 +35,7 @@ Unset Automatic Introduction.
 Definition sf_type ( CC : lC0system_data ) :=
   forall ( Y X : CC ) ( gt0 : ll X > 0 ) ( f : Y --> X ) , sec_pX ( f_star gt0 ( ftf f ) ) .
 
-Definition lCsystem_data := total2 ( fun CC : lC0system_data => sf_type CC ) .
+Definition lCsystem_data := ∑ CC : lC0system_data, sf_type CC.
 
 Definition lCsystem_data_constr { CC : lC0system_data } ( sf0 : sf_type CC ) : lCsystem_data :=
   tpair _ _ sf0 . 
@@ -57,7 +66,6 @@ Lemma sf_ax2_type_l1 { CC : lC0system } ( sf0 : sf_type CC )
       ( g : Y' --> ft U ) ( f : Y --> f_star gt0 g ) :
   f_star (C0ax5a gt0 g) (ftf f) = f_star gt0 (ftf (f ;; q_of_f gt0 g)) .
 Proof.
-  intros. 
   assert ( int1 : f_star (C0ax5a gt0 g) (ftf f) =
                   f_star gt0 ( ( ftf f ) ;; ( ( C0emor gt0 g ) ;; g ) ) ) .
   apply C0ax7a.
@@ -92,9 +100,8 @@ Definition sf_ax2_type { CC : lC0system } ( sf : sf_type CC ) :=
 
 
 Definition lCsystem :=
-  total2 ( fun CC : lC0system =>
-             total2 ( fun sf0 : sf_type CC =>
-                        dirprod ( sf_ax1_type sf0 ) ( sf_ax2_type sf0 ) ) ) .
+             ∑ (CC : lC0system) (sf0 : sf_type CC),
+                        ( sf_ax1_type sf0 ) × ( sf_ax2_type sf0 ).
 
 Definition lCsystem_pr1 : lCsystem -> lC0system := pr1 .
 Coercion lCsystem_pr1 : lCsystem >-> lC0system .
@@ -127,7 +134,6 @@ Definition f_star_of_s { CC : lCsystem } { Y X : CC } ( f : Y --> ft X )
            ( gt0 : ll X > 0 ) ( r : sec_pX X ) :
   sec_pX ( f_star gt0 f ) . 
 Proof .
-  intros . 
   assert ( int := sf gt0 ( f ;; r ) ) .  
   assert ( inteq : ftf ( f ;; r ) = f ) . 
   unfold ftf . 
@@ -150,7 +156,6 @@ Defined.
 Definition fsn_star_of_s { CC : lCsystem } { A X : CC } ( f : mor_to A ) ( isab : isabove X A )
            ( r : sec_pX X ) : sec_pX ( fn_star f isab ) .  
 Proof.
-  intros.
   rewrite f_star_isab .
   apply f_star_of_s . 
   exact r .
