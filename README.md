@@ -67,10 +67,10 @@ We give an overview of the packages and refer to each package's README for detai
     displayed categories
 * *Instances/*
   * for the time being, only the result that presheaves form a type category (providing an "instance" of the concept)
-* * Bsystems/*
+* *Bsystems/*
   * the implementation of Vladimir Voevodsky's notion of B system
-* * Csystems/*
+* *Csystems/*
   * the implementation of Vladimir Voevodsky's notion of C system
 * *OtherDefs/*
   * Various other categorical structures used in the study of type theory
-* * WARNING: many files in this subdirectory are in a very rough state; use at your own risk.
+* *WARNING: many files in this subdirectory are in a very rough state; use at your own risk.*
