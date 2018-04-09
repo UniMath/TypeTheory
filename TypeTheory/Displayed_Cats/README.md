@@ -7,7 +7,7 @@ Authors: Benedikt Ahrens, Peter LeFanu Lumsdaine
 Contents
 --------
 
-The files of this package provide:
+The files of this package provided previously:
 
 * *Auxiliary.v*
   * Some background material
@@ -33,3 +33,4 @@ The files of this package provide:
 * *SIP.v*
   * Proof of the Structure Identity Principle (HoTT book, chapter 9.8)
 
+** After the integration of the main part into UniMath, very little remains here.

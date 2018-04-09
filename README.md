@@ -44,9 +44,12 @@ Contents
 The contents of this library are split into several "packages" (subdirectories).
 We give an overview of the packages and refer to each package's README for details.
 
+* *Articles/*
+  * currently only two .v files with little content concerning ALV
 * *Auxiliary/*
   * General background definitions and results that might be upstreamed into UniMath/UniMath
   * Notations for the library
+  * currently only two .v files
 * *Categories/*
   * Background constructions and results on categories; might be upstreamed to UniMath/CategoryTheory
 * *ALV1/*
@@ -58,9 +61,16 @@ We give an overview of the packages and refer to each package's README for detai
   * Construction of a function from families structures on a category to families structures on its Rezk completion
 * *Displayed_Cats/*
   * Library on displayed categories: a toolbox for constructing and working with categories of multi-component structures
+  * after the integration into UniMath of most of the material, only very little remains
 * *ALV2/*
   * Construction of equivalences of categories between families structures and split type structures, using
     displayed categories
+* *Instances/*
+  * for the time being, only the result that presheaves form a type category (providing an "instance" of the concept)
+* * Bsystems/*
+  * the implementation of Vladimir Voevodsky's notion of B system
+* * Csystems/*
+  * the implementation of Vladimir Voevodsky's notion of C system
 * *OtherDefs/*
   * Various other categorical structures used in the study of type theory
-  * WARNING: many files in this subdirectory are in a very rough state; use at your own risk.
+* * WARNING: many files in this subdirectory are in a very rough state; use at your own risk.
