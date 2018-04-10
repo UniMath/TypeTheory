@@ -2,7 +2,10 @@
 
 by Vladimir Voevodsky, started on Feb. 1, 2015 *)
 
-Unset Automatic Introduction.
+
+Require Import UniMath.Foundations.All.
+
+Require Import TypeTheory.Csystems.hSet_ltowers.
 
 Require Export TypeTheory.Bsystems.S_St .
 
@@ -17,7 +20,6 @@ Identity Coercion S_dom_to_isabove : S_ext_dom >-> isover .
 Definition S_ext { BB : lBsystem_carrier } ( S : S_ops_type BB )
            { r : Tilde BB } { X : BB } ( inn : S_ext_dom r X ) : BB .
 Proof .
-  intros. 
   destruct ( ovab_choice inn ) as [ isab | eq ] . 
   + exact ( S _ _ isab ) . 
   + exact ( ft ( dd r ) ) .
@@ -28,7 +30,6 @@ Lemma isover_S_ext { BB : lBsystem_carrier }
       { r : Tilde BB } { X : BB } ( inn : S_ext_dom r X ) :
   isover ( S_ext S inn ) ( ft ( dd r ) ) .
 Proof .
-  intros .
   unfold S_ext . 
   destruct ( ovab_choice inn ) as [ isab | eq ] .
   + exact ( ax1b _ _ _ ) . 
@@ -40,7 +41,6 @@ Lemma ll_S_ext { BB : lBsystem_carrier }
       { S : S_ops_type BB } ( ax0 : S_ax0_type S ) ( ax1b : S_ax1b_type S )
       ( r : Tilde BB ) ( X : BB ) ( inn : S_ext_dom r X ) : ll ( S_ext S inn ) = ll X - 1.
 Proof.
-  intros .
   unfold S_ext . 
   simpl . 
   destruct ( ovab_choice inn ) as [ isab | eq ] . 
@@ -58,7 +58,7 @@ Lemma isover_S_ext_S_ext_2 { BB : lBsystem_carrier }
       { r : Tilde BB } { X2 X2' : BB } ( inn : S_ext_dom r X2 ) ( inn' : S_ext_dom r X2' )
       ( is : isover X2 X2' ) : isover ( S_ext S inn ) ( S_ext S inn' ) .
 Proof .
-  intros . unfold S_ext .
+  unfold S_ext .
   destruct ( ovab_choice inn ) as [ isab | eq ] .
   + destruct ( ovab_choice inn' ) as [ isab' | eq' ] .
     * apply ( isover_S_S_2 ax0 ax1a _ _ is ) . 
@@ -85,7 +85,6 @@ Definition S_fun { BB : lBsystem_carrier }
       { S : S_ops_type BB } ( ax1b : S_ax1b_type S )
       ( r : Tilde BB ) ( X2' : ltower_over ( dd r ) ) : ltower_over ( ft ( dd r ) ) .
 Proof .
-  intros .
   set ( X2 := pr1 X2' ) . set ( isov := pr2 X2' : isover X2 ( dd r ) ) .
   split with ( S_ext S isov )  .
   apply ( isover_S_ext S ax1b ) .
@@ -101,7 +100,6 @@ Lemma isovmonot_S_fun { BB : lBsystem_carrier }
       ( X3' X2' : ltower_over ( dd r ) ) ( isov : isover X3' X2' ) :
   isover ( S_fun ax1b r X3' ) ( S_fun ax1b r X2' ) .
 Proof .
-  intros .
   apply isinvovmonot_pocto .
   unfold S_fun . simpl .
   apply ( isover_S_ext_S_ext_2 ax0 ax1a ax1b ) .
@@ -119,7 +117,6 @@ Lemma ll_S_fun { BB : lBsystem_carrier }
       { S : S_ops_type BB } ( ax0 : S_ax0_type S ) ( ax1b : S_ax1b_type S )
       { r : Tilde BB } ( X2' : ltower_over ( dd r ) ) : ll ( S_fun ax1b r X2' ) = ll X2' .
 Proof.
-  intros .
   change ( ll ( pr1 ( S_fun ax1b r X2' ) ) - ll ( ft ( dd r ) ) = ll ( pr1 X2' ) - ll ( dd r ) ) .  
   unfold S_fun . unfold S_ext . 
   simpl . 
@@ -140,7 +137,7 @@ Lemma isllmonot_S_fun { BB : lBsystem_carrier }
       { S : S_ops_type BB } ( ax0 : S_ax0_type S ) ( ax1b : S_ax1b_type S )
       ( r : Tilde BB ) : isllmonot ( S_fun ax1b r ) .
 Proof.
-  intros. unfold isllmonot. intros X Y .
+  unfold isllmonot. intros X Y .
   repeat rewrite ll_S_fun .
   + apply idpath .
   + apply ax0.
@@ -152,7 +149,7 @@ Lemma isbased_S_fun { BB : lBsystem_carrier }
       { S : S_ops_type BB } ( ax0 : S_ax0_type S ) ( ax1b : S_ax1b_type S )
       ( r : Tilde BB ) : isbased ( S_fun ax1b r ) .
 Proof.
-  intros. unfold isbased. intros X eq0 .
+  unfold isbased. intros X eq0 .
   rewrite ll_S_fun . 
   + exact eq0.
   + exact ax0.

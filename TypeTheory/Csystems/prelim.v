@@ -3,7 +3,7 @@
 by Vladimir Voevodsky, file created on Jan. 6, 2015 *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Export UniMath.Combinatorics.StandardFiniteSets.
 
 
 (* To upsetream files *)
@@ -207,7 +207,7 @@ Definition natminusinter { n m k : nat } ( ge1 : n >= m ) ( ge2 : m >= k ):
   n - k = ( n - m ) + ( m - k ).
 Proof.
   assert ( int1 : n - m + (m - k) = n - ( m - ( m - k ) ) ).
-  { refine ( natassocmpeq _ _ _ _ _ ) .
+  { use natassocmpeq.
     - exact ge1 . 
     - exact ( natminuslehn _ _ ). 
   }

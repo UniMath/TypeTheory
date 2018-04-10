@@ -2,7 +2,10 @@
 
 By Vladimir Voevodsky, started on Jan. 24, 2015 *)
 
-Unset Automatic Introduction.
+
+Require Import UniMath.Foundations.All.
+
+Require Import TypeTheory.Csystems.hSet_ltowers.
 
 Require Export TypeTheory.Bsystems.prelB. 
 Require Export TypeTheory.Bsystems.TS_ST.
@@ -16,7 +19,7 @@ Require Export TypeTheory.Bsystems.dlt .
 (** *** The layer associated with operations T *)
 
 Definition T_layer ( BB : lBsystem_carrier ) :=
-  total2 ( fun T : T_layer_0 BB => dirprod ( T_ax1a_type T ) ( T_ax1b_type T ) ) .
+  ∑ T : T_layer_0 BB, ( T_ax1a_type T ) × ( T_ax1b_type T ).
 
 (** Warning: [T_layer_0] refers to a pre-lB-system, [T_layer] refers to a lB0-system. *)
 
@@ -30,7 +33,7 @@ Coercion T_layer_to_T_layer_0 : T_layer >-> T_layer_0 .
 
 
 Definition Tt_layer { BB : lBsystem_carrier } ( T : T_ops_type BB ) :=
-  total2 ( fun Tt : Tt_ops_type BB => Tt_ax1_type T Tt ) .
+  ∑ Tt : Tt_ops_type BB, Tt_ax1_type T Tt.
 
 Definition Tt_layer_to_Tt_ops_type ( BB : lBsystem_carrier ) ( T : T_ops_type BB )
   ( Tt : Tt_layer T ) : Tt_ops_type BB := pr1 Tt .
@@ -40,7 +43,7 @@ Coercion Tt_layer_to_Tt_ops_type : Tt_layer >-> Tt_ops_type .
 (** *** The structure formed by operations T and Tt *)
 
 Definition T_Tt_layer ( BB : lBsystem_carrier ) :=
-  total2 ( fun T : T_layer BB => Tt_layer T ) .
+  ∑ T : T_layer BB, Tt_layer T.
 
 Definition T_Tt_layer_to_T_layer { BB : lBsystem_carrier } ( T_Tt : T_Tt_layer BB ) :
   T_layer BB := pr1 T_Tt .
@@ -55,7 +58,7 @@ Coercion T_Tt_layer_to_Tt_layer : T_Tt_layer >-> Tt_layer .
 
 
 Definition S_layer ( BB : lBsystem_carrier ) :=
-  total2 ( fun S : S_layer_0 BB =>  dirprod ( S_ax1a_type S ) ( S_ax1b_type S ) ) .
+  ∑ S : S_layer_0 BB, ( S_ax1a_type S ) × ( S_ax1b_type S ).
 
 Definition S_layer_to_S_layer_0 ( BB : lBsystem_carrier ) :
   S_layer BB -> S_layer_0 BB := pr1 .
@@ -66,7 +69,7 @@ Coercion S_layer_to_S_layer_0 : S_layer >-> S_layer_0 .
 
 
 Definition St_layer { BB : lBsystem_carrier } ( S : S_ops_type BB ) :=
-  total2 ( fun St : St_ops_type BB => St_ax1_type S St ) .
+  ∑ St : St_ops_type BB, St_ax1_type S St.
 
 Definition St_layer_to_St_ops_type ( BB : lBsystem_carrier ) ( S : S_ops_type BB )
   ( St : St_layer S ) : St_ops_type BB := pr1 St.
@@ -76,7 +79,7 @@ Coercion St_layer_to_St_ops_type : St_layer >-> St_ops_type .
 (** *** The structure formed by operations S and St *)
 
 Definition S_St_layer ( BB : lBsystem_carrier ) :=
-  total2 ( fun S : S_layer BB => St_layer S ) .
+  ∑ S : S_layer BB, St_layer S.
 
 Definition S_St_layer_to_S_layer { BB : lBsystem_carrier } ( S_St : S_St_layer BB ) :
   S_layer BB := pr1 S_St .
@@ -90,22 +93,21 @@ Coercion S_St_layer_to_St_layer : S_St_layer >-> St_layer .
 (** ** Complete definition of a non-unital lB0-system *)
 
 Definition T_ax1_type ( BB : prelBsystem_non_unital ) :=
-  dirprod ( T_ax1a_type ( @T_op BB ) ) ( T_ax1b_type ( @T_op BB ) ) .
+  ( T_ax1a_type ( @T_op BB ) ) × ( T_ax1b_type ( @T_op BB ) ) .
 
 Definition Tt_ax1_type' ( BB : prelBsystem_non_unital ) :=
   Tt_ax1_type ( @T_op BB ) ( @Tt_op BB ) .
 
 Definition S_ax1_type ( BB : prelBsystem_non_unital ) :=
-  dirprod ( S_ax1a_type ( @S_op BB ) ) ( S_ax1b_type ( @S_op BB ) ) .
+  ( S_ax1a_type ( @S_op BB ) ) × ( S_ax1b_type ( @S_op BB ) ) .
 
 Definition St_ax1_type' ( BB : prelBsystem_non_unital ) :=
   St_ax1_type ( @S_op BB ) ( @St_op BB ) .
 
 Definition lB0system_non_unital :=
-  total2 ( fun BB : prelBsystem_non_unital =>
-             dirprod
-               ( dirprod ( T_ax1_type BB ) ( Tt_ax1_type' BB ) )
-               ( dirprod ( S_ax1_type BB ) ( St_ax1_type' BB ) ) ) .
+  ∑ BB : prelBsystem_non_unital,
+               ( ( T_ax1_type BB ) × ( Tt_ax1_type' BB ) ) ×
+               ( ( S_ax1_type BB ) × ( St_ax1_type' BB ) ).
 
 (** This definition corresponds to Definition 2.5 in arXiv:1410.5389v1 modulo
     the details on the treatment of the second cases of 2.5.2 and 2.5.4, discussed
@@ -178,7 +180,6 @@ Definition Tj_compt { BB : lB0system_non_unital } { X A Y : BB }
   Tj isab isov2 =
   T_ext X ( Tj ( isover_ft' isab ) isov2 ) ( isabove_gt0 isab ) ( isover_Tj ( isover_ft' isab ) isov2 ) . 
 Proof.
-  intros.
   unfold Tj .  
   rewrite Tj_fun_compt . 
   apply idpath . 
@@ -197,7 +198,6 @@ Definition isover_Tprod { BB : lB0system_non_unital } ( X Y : BB ) :
 
 Lemma ll_Tprod { BB : lB0system_non_unital } ( X Y : BB ) : ll ( Tprod X Y ) = ll X + ll Y .
 Proof.
-  intros.
   unfold Tprod .
   rewrite ll_pocto .
   rewrite natpluscomm . 
@@ -210,8 +210,7 @@ Defined.
 Definition Tprod_compt { BB : lB0system_non_unital } ( X Y : BB ) ( gt0 : ll X > 0 ) :
   Tprod X Y = T_ext X ( Tprod ( ft X ) Y ) gt0 ( isover_Tprod _ _ ) .
 Proof.
-  intros.
-  assert ( int :=
+  set ( int :=
              T_fun.Tprod_compt
                ( @T_ax0 BB ) ( @T_ax1a BB ) ( @T_ax1b BB ) X Y gt0 ).
   exact ( maponpaths pocto int ) . 
@@ -225,7 +224,6 @@ Defined.
 Lemma ll_S_ext { BB : lB0system_non_unital }
       ( r : Tilde BB ) ( X : BB ) ( inn : isover X ( dd r )  ) : ll ( S_ext r X inn ) = ll X - 1.
 Proof.
-  intros.
   apply S_fun.ll_S_ext .
   + apply ( @S_ax0 BB ) .
   + apply ( @S_ax1b BB ) . 

@@ -6,8 +6,7 @@ lBsystems_carriers.v
  *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.Combinatorics.StandardFiniteSets.
-Require Import TypeTheory.Csystems.prelim.
+Require Export TypeTheory.Csystems.prelim.
 
 
 (** To uu0a.v *)

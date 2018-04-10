@@ -2,8 +2,11 @@
 
 By Vladimir Voevodsky, started on Jan. 24, 2015 *)
 
-Unset Automatic Introduction.
 
+
+Require Import UniMath.Foundations.All.
+
+Require Import TypeTheory.Csystems.hSet_ltowers.
 Require Export TypeTheory.Bsystems.T_fun.
 Require Export TypeTheory.Bsystems.S_fun .
 
@@ -14,7 +17,7 @@ Require Export TypeTheory.Bsystems.S_fun .
 (** *** The structure formed by operations T *)
 
 Definition T_layer_0 ( BB : lBsystem_carrier ) :=
-  total2 ( fun T : T_ops_type BB =>  T_ax0_type T ) .
+  ∑ T : T_ops_type BB, T_ax0_type T.
 
 Definition T_layer_0_to_T_ops_type ( BB : lBsystem_carrier ) ( T : T_layer_0 BB ) :
   T_ops_type BB := pr1 T .
@@ -24,7 +27,7 @@ Coercion T_layer_0_to_T_ops_type : T_layer_0 >-> T_ops_type .
 (** *** The structure formed by operations Tt *)
 
 Definition Tt_layer_0 ( BB : lBsystem_carrier ) :=
-  total2 ( fun Tt : Tt_ops_type BB => Tt_ax0_type Tt ) .
+  ∑ Tt : Tt_ops_type BB, Tt_ax0_type Tt.
 
 Definition Tt_layer_0_to_Tt_ops_type ( BB : lBsystem_carrier ) :
   Tt_layer_0 BB -> Tt_ops_type BB := pr1 .
@@ -35,7 +38,7 @@ Coercion Tt_layer_0_to_Tt_ops_type : Tt_layer_0 >-> Tt_ops_type .
 
 
 Definition S_layer_0 ( BB : lBsystem_carrier ) :=
-  total2 ( fun S : S_ops_type BB => S_ax0_type S ) .
+  ∑ S : S_ops_type BB, S_ax0_type S.
 
 Definition S_layer_0_to_S_ops_type { BB : lBsystem_carrier } ( S : S_layer_0 BB ) :
   S_ops_type BB := pr1 S .
@@ -47,7 +50,7 @@ Coercion S_layer_0_to_S_ops_type : S_layer_0 >-> S_ops_type .
 
 
 Definition St_layer_0 ( BB : lBsystem_carrier ) :=
-  total2 ( fun St : St_ops_type BB => St_ax0_type St ) .
+  ∑ St : St_ops_type BB, St_ax0_type St.
 
 Definition St_layer_0_to_St_ops_type ( BB : lBsystem_carrier ) :
   St_layer_0 BB -> St_ops_type BB := pr1 .
@@ -58,10 +61,9 @@ Coercion St_layer_0_to_St_ops_type : St_layer_0 >-> St_ops_type .
 (** ** Complete definition of a non-unital pre-lB-system *)
 
 Definition prelBsystem_non_unital :=
-  total2 ( fun BB : lBsystem_carrier =>
-             dirprod
-               ( dirprod ( T_layer_0 BB ) ( Tt_layer_0 BB ) )
-               ( dirprod ( S_layer_0 BB ) ( St_layer_0 BB ) ) ) .
+  ∑ BB : lBsystem_carrier,
+               (( T_layer_0 BB ) × ( Tt_layer_0 BB ) ) ×
+               (( S_layer_0 BB ) × ( St_layer_0 BB ) ).
 
 (** This definition closely corresponds to Definition 2.1 in arXiv:1410.5389v1. What is different
     is the underlying notion of [lBsystem_carrier] that is less specific on [TildeB] and already

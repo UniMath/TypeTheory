@@ -2,8 +2,10 @@
 
 by Vladimir Voevodsky, started on Jan. 22, 2015 *)
 
-Unset Automatic Introduction.
 
+Require Import UniMath.Foundations.All.
+
+Require Import TypeTheory.Csystems.hSet_ltowers.
 Require Export TypeTheory.Bsystems.T_fun.
 Require Export TypeTheory.Bsystems.S_fun.
 
@@ -24,7 +26,6 @@ axiom ax0. *)
 Lemma Tilden_dd_inn { BB : prelBsystem_non_unital }
       { n' : nat } { X : BB } ( s : Tilde_dd ( ftn ( S n' ) X ) ) : S_dom s X .
 Proof.
-  intros.
   unfold S_dom .
   destruct s as [ s' eq ].
   assert ( gt0 : ll ( ftn ( S n' ) X ) > 0 ) by (rewrite <- eq; apply ll_dd).
@@ -126,13 +127,13 @@ operation f_star *)
 
 Definition Mor_and_fstar { BB : lB0system_non_unital }
            ( X1 : BB ) ( n : nat ) ( A : BB ) ( eq : ll A = n ) : 
-  total2 ( fun Mor_X1_A : UU =>
+  ∑ Mor_X1_A : UU,
              forall f : Mor_X1_A ,
-               ltower_fun ( ltower_over A ) ( ltower_over X1 ) ) .
+               ltower_fun ( ltower_over A ) ( ltower_over X1 ) .
 
 (** Notice that [f] is vacuously bound. *)
 Proof .
-  intros until n . induction n as [ | n IHn ] . 
+  revert A eq. induction n as [ | n IHn ] . 
   + intros . 
     split with unit .
     intro .

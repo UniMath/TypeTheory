@@ -2,8 +2,10 @@
 
 By Vladimir Voevodsky, split off lB0systems.v on March 3, 2015 *)
 
-Unset Automatic Introduction.
 
+Require Import UniMath.Foundations.All.
+
+Require Import TypeTheory.Csystems.hSet_ltowers.
 Require Export TypeTheory.Bsystems.lB0_non_unital.
 
 
@@ -11,7 +13,7 @@ Require Export TypeTheory.Bsystems.lB0_non_unital.
 (** *** The layer associated with operations dlt *)
 
 Definition dlt_layer { BB : lBsystem_carrier } ( T : T_ops_type BB ) :=
-  total2 ( fun dlt : dlt_layer_0 BB => dlt_ax1_type T dlt ) .
+  ∑ dlt : dlt_layer_0 BB, dlt_ax1_type T dlt.
 
 Definition dlt_layer_pr1 { BB : lBsystem_carrier }
            ( T : T_ops_type BB )
@@ -27,7 +29,7 @@ Definition dlt_ax1 { BB : lBsystem_carrier } { T : T_ops_type BB } ( dlt : dlt_l
 
 
 Definition lB0system :=
-  total2 ( fun BB : lB0system_non_unital => dlt_layer ( @T_op BB ) ) .
+  ∑ BB : lB0system_non_unital, dlt_layer ( @T_op BB ).
 
 (** This definition corresponds to the addition of Definition 2.6 in arXiv:1410.5389v1
     of the axiom [dlt_ax1_type], only the packaging order is different in irrelevant ways

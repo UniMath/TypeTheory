@@ -3,10 +3,6 @@
 by Vladimir Voevodsky, file created on Jan. 6, 2015 *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.Combinatorics.StandardFiniteSets.
-Require Import TypeTheory.Csystems.prelim.
-Require Import TypeTheory.Csystems.lTowers.
-Require Import TypeTheory.Csystems.ltowers_over.
 Require Import TypeTheory.Csystems.hSet_ltowers.
 
 
