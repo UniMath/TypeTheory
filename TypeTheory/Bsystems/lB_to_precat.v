@@ -49,8 +49,8 @@ Fixpoint Tilden_dd { BB : prelBsystem_non_unital } ( n : nat )  ( X : BB )  : UU
     | 0 => unit
     | S n' => match n' with
                 | 0 => Tilde_dd X
-                | S n'' => total2 ( fun s1 : Tilde_dd ( ftn ( S n'' ) X ) =>
-                                      Tilden_dd n' ( S_op s1 X ( Tilden_dd_inn s1 ) ) )
+                | S n'' => ∑ s1 : Tilde_dd ( ftn ( S n'' ) X ),
+                                      Tilden_dd n' ( S_op s1 X ( Tilden_dd_inn s1 ) )
               end
   end .
 
@@ -143,8 +143,8 @@ Proof .
         (rewrite ll_ft ; rewrite eq ; simpl ; rewrite natminuseqn ; apply idpath).
     set ( Mor_X1_ftA := pr1 ( IHn ( ft A ) eqft ) ) .
     set ( Mor_X1_A :=
-          total2 ( fun ftf : Mor_X1_ftA =>
-                     Tilde_dd ( pocto ( ( pr2 ( IHn ( ft A ) eqft ) ftf ) ( X_over_ftX A ) ) ) ) ) .
+          ∑ ftf : Mor_X1_ftA,
+                     Tilde_dd ( pocto ( ( pr2 ( IHn ( ft A ) eqft ) ftf ) ( X_over_ftX A ) ) ) ).
     split with Mor_X1_A . 
     intro f . 
     set ( ftf := pr1 f : Mor_X1_ftA ) .

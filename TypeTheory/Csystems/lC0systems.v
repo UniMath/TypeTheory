@@ -160,7 +160,7 @@ Definition q_data_type ( CC : ltower_precat_and_p ) :=
   forall ( X Y : CC ) ( gt0 : ll X > 0 ) ( f : Y --> ft X ) , mor_to X . 
 Identity Coercion from_q_data_type : q_data_type >-> Funclass .  
 
-Definition lC0system_data := total2 ( fun CC : pltower_precat_and_p => q_data_type CC ) .
+Definition lC0system_data := ∑ CC : pltower_precat_and_p, q_data_type CC.
 
 Definition lC0system_data_pr1 : lC0system_data -> pltower_precat_and_p  := pr1 .
 Coercion lC0system_data_pr1 : lC0system_data >-> pltower_precat_and_p .

@@ -67,34 +67,32 @@ Lemma ispointed_ltower_over_int { T : ltower } ( A : T ) :
   iscontr ( ∑ X : ltower_over_carrier A ,
                        ltower_over_ll X = 0 ) .
 Proof.
-  assert ( weq1 : weq ( total2 ( fun X : ltower_over_carrier A =>
-                                   ltower_over_ll X = 0 ) )
-                      ( total2 ( fun X : T => dirprod
-                                                ( isover X A ) ( ll X - ll A = 0 ) ) ) ) .
+  assert ( weq1 : ( ∑ X : ltower_over_carrier A,
+                                   ltower_over_ll X = 0 ) ≃
+                      ( ∑ X : T, ( isover X A ) × ( ll X - ll A = 0 ) ) ).
   apply weqtotal2asstor . 
 
-  assert ( weq2 : weq ( total2 ( fun X : T => dirprod
-                                                ( isover X A ) ( ll X - ll A = 0 ) ) )
-                      ( total2 ( fun X : T => A = X ) ) ) .
+  assert ( weq2 : ( ∑ X : T,  ( isover X A ) × ( ll X - ll A = 0 ) ) ≃
+                      ( ∑ X : T, A = X ) ).
   use weqfibtototal.
   intro X . 
-  assert ( weq3 : weq (dirprod (isover X A) (ll X - ll A = 0))
-                      (dirprod (ll X - ll A = 0) (isover X A)) ) .
+  assert ( weq3 : ((isover X A) × (ll X - ll A = 0)) ≃
+                      ((ll X - ll A = 0) × (isover X A)) ) .
   apply weqdirprodcomm . 
 
-  assert ( weq4 : weq (dirprod (ll X - ll A = 0) (isover X A))
-                      (dirprod (ll X - ll A = 0) ( A = X ) ) ) .
+  assert ( weq4 :  ((ll X - ll A = 0) × (isover X A)) ≃
+                      ((ll X - ll A = 0) × ( A = X ) ) ) .
   use weqfibtototal.
   intro eq . 
   unfold isover . 
   rewrite eq . 
   apply idweq.
 
-  assert ( weq5 : weq (dirprod (ll X - ll A = 0) (A = X))
-                      (dirprod (A = X)(ll X - ll A = 0))).
+  assert ( weq5 :  ((ll X - ll A = 0) × (A = X)) ≃
+                      ( (A = X) × (ll X - ll A = 0))).
   apply weqdirprodcomm . 
 
-  assert ( weq6 : weq (dirprod (A = X) (ll X - ll A = 0))
+  assert ( weq6 :  ((A = X) × (ll X - ll A = 0)) ≃
                       ( A = X ) ) .
   apply weqpr1 . 
   intro eq . 
