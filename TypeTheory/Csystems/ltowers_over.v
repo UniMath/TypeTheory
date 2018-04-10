@@ -76,7 +76,7 @@ Proof.
   assert ( weq2 : weq ( total2 ( fun X : T => dirprod
                                                 ( isover X A ) ( ll X - ll A = 0 ) ) )
                       ( total2 ( fun X : T => A = X ) ) ) .
-  refine ( weqfibtototal _ _ _ ) . 
+  use weqfibtototal.
   intro X . 
   assert ( weq3 : weq (dirprod (isover X A) (ll X - ll A = 0))
                       (dirprod (ll X - ll A = 0) (isover X A)) ) .
@@ -84,7 +84,7 @@ Proof.
 
   assert ( weq4 : weq (dirprod (ll X - ll A = 0) (isover X A))
                       (dirprod (ll X - ll A = 0) ( A = X ) ) ) .
-  refine ( weqfibtototal _ _ _ ) . 
+  use weqfibtototal.
   intro eq . 
   unfold isover . 
   rewrite eq . 
@@ -197,7 +197,7 @@ Proof .
          rewrite natminusnn in ge .
          destruct (nopathsfalsetotrue ge).
     -  rewrite int . 
-       refine ( IHn ( ft X ) _ ) . 
+       use ( IHn ( ft X ) ) . 
        apply ( ll_ft_gtn ge ) . 
 Defined.
 

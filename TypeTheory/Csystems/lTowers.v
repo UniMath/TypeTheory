@@ -212,7 +212,7 @@ Proof.
   unfold isover .
   destruct ( natgehchoice _ _ ( natgehn0 ( ll X ) ) )  as [ gt | eq ] . 
   rewrite ll_ft . 
-  assert ( eq : ll X - ( ll X - 1 ) = 1 ) . refine ( natminusmmk _ ) . 
+  assert ( eq : ll X - ( ll X - 1 ) = 1 ) . use natminusmmk. 
   exact ( natgthtogehsn _ _ gt ) . 
 
   rewrite eq .
@@ -263,14 +263,14 @@ Proof.
   intros .  exact is .
 
   intros . simpl .
-  refine ( isover_ft _ _ ) .
-  refine ( IHn _ _ _ _ ) . 
+  use isover_ft.
+  use IHn.
   exact is .
 
   exact ( istransnatgeh _ _ _ gte ( natgehsnn n ) ) .
 
   rewrite ll_ftn . 
-  refine ( natgthleftminus _ _ _ _ ) . 
+  use natgthleftminus.
   assert ( int := natgehgthtrans _ _ _ gte ( natgthsnn n ) ) . 
   rewrite natpluscomm . 
   exact ( natgthrightplus _ _ _ int ) .
@@ -322,7 +322,7 @@ Coercion isabove_to_isover : isabove >-> isover .
 
 Lemma isabove_X_ftX { BB : ltower } ( X : BB ) ( gt0 : ll X > 0 ) : isabove X ( ft X ) .
 Proof .
-  refine ( isabove_constr _ _ ) .
+  use isabove_constr.
   rewrite ll_ft . 
   exact ( natgthnnmius1 gt0 ) . 
 
@@ -336,7 +336,7 @@ Proof.
   induction n as [ | n IHn ] .
   destruct ( negnatgthnn _ gt0' ) .
 
-  refine ( isabove_constr _ _ ) .
+  use isabove_constr.
   rewrite ll_ftn .
   apply natminuslthn . 
   exact gt0 . 
@@ -355,7 +355,7 @@ Defined.
 Lemma isabove_X_ftA { BB : ltower } { X A : BB }
       ( is : isabove X A ) : isabove X ( ft A ) .
 Proof .
-  refine ( isabove_constr _ _ ) .
+  use isabove_constr.
   rewrite ll_ft . 
   exact ( natgthgehtrans _ _ _ ( isabove_gth is ) ( natminuslehn _ 1 ) ) . 
 
@@ -367,9 +367,9 @@ Defined.
 Lemma isabove_X_ftA' { BB : ltower } { X A : BB }
       ( is : isover X A ) ( gt0 : ll A > 0 ) : isabove X ( ft A ) .
 Proof .
-  refine ( isabove_constr _ _ ) .
+  use isabove_constr.
   rewrite ll_ft .
-  refine ( natgehgthtrans _ _ _ ( isover_geh is ) _ ) .
+  use ( natgehgthtrans _ _ _ ( isover_geh is ) ) .
   exact ( natgthnnmius1 gt0 ) . 
 
   exact ( isover_X_ftA is ) . 
@@ -381,7 +381,7 @@ Defined.
 Lemma isabove_trans { BB : ltower } { X A A' : BB } :
   isabove X A -> isabove A A' -> isabove X A' .
 Proof.
-  intros is is' . refine ( isabove_constr _ _ ) .
+  intros is is' . use isabove_constr.
   exact ( istransnatgth _ _ _ ( isabove_gth is ) ( isabove_gth is' ) ) .
 
   exact ( isover_trans is is' ) .
@@ -391,7 +391,7 @@ Defined.
 Lemma isabov_trans { BB : ltower } { X A A' : BB } :
   isabove X A -> isover A A' -> isabove X A' .
 Proof.
-  intros is is' . refine ( isabove_constr _ _ ) .
+  intros is is' . use isabove_constr.
   exact ( natgthgehtrans _ _ _ ( isabove_gth is ) ( isover_geh is' ) ) .
 
   exact ( isover_trans is is' ) .
@@ -401,7 +401,7 @@ Defined.
 Lemma isovab_trans { BB : ltower } { X A A' : BB } :
   isover X A -> isabove A A' -> isabove X A' .
 Proof.
-  intros is is' . refine ( isabove_constr _ _ ) .
+  intros is is' . use isabove_constr.
   exact ( natgehgthtrans _ _ _ ( isover_geh is ) ( isabove_gth is' ) ) .
 
   exact ( isover_trans is is' ) .
@@ -477,7 +477,7 @@ Proof .
   destruct ( isabove_choice isab' ) as [ isab'' | iseq ] .
   exact ( ii1 isab'' ) .
 
-  refine ( ii2 _ ) . 
+  use ii2.
   unfold isover .
   rewrite iseq . 
   rewrite natminusnn . 

@@ -203,10 +203,10 @@ Proof.
   assert ( eq' : ll X2 - 1 = ll X1 - 1 ) . repeat rewrite <- ll_ft .  rewrite iseq .
   apply idpath .
 
-  assert ( eq1 : ( ll X1 - 1 ) + 1 = ll X1 ) . refine ( minusplusnmm _ _ _ ) .
+  assert ( eq1 : ( ll X1 - 1 ) + 1 = ll X1 ) . use minusplusnmm.
   exact ( natgthtogehsn _ _ (T_dom_gt0 inn ) ) .
 
-  assert ( eq2 : ( ll X2 - 1 ) + 1 = ll X2 ) . refine ( minusplusnmm _ _ _ ) .
+  assert ( eq2 : ( ll X2 - 1 ) + 1 = ll X2 ) . use minusplusnmm.
   exact ( istransnatgeh _ _ _ ( T_dom_geh inn ) ( natgthtogehsn _ _ (T_dom_gt0 inn ) ) ) .
 
   assert ( eq'' := maponpaths ( fun n => n + 1 ) eq' ) . 
@@ -343,7 +343,7 @@ Lemma T_dom_12_23_to_T12_T13 { BB : lBsystem_carrier } { T : T_ops_type BB }
 Proof . 
   assert ( is21 := T_dom_isabove inn12 ) .
   assert ( is32 := T_dom_isabove inn23 ) .
-  refine ( T_dom_constr _ _ ) .
+  use T_dom_constr.
   + apply (ll_T_gt0 ax0).
   + destruct ( isabove_choice is21 ) as [ isab | eq ] .
     * rewrite ( ax1a _ _ _ isab ) . 

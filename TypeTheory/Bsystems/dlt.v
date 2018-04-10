@@ -62,7 +62,7 @@ Lemma Tt_dom_12_to_1_dlt2 { BB : lBsystem_carrier }
       { X1 X2 : BB } ( inn12 : T_dom X1 X2 ) : Tt_dom  X1 ( dlt X2 ( T_dom_gt0_2 inn12 ) ) .
 Proof .
   unfold Tt_dom . 
-  refine (T_dom_constr _ _ ) .
+  use T_dom_constr.
   + exact ( T_dom_gt0 inn12 ) .
   + rewrite dltax1 . 
     exact ( isabove_trans ( tax1b _ _ _ ) ( T_dom_isabove inn12 ) ) .  
@@ -224,7 +224,7 @@ Proof .
   unfold St_dom. unfold S_dom.
   rewrite dltax1 .
   rewrite ttax1 .
-  refine ( isabove_T_T_2 tax0 tax1a _ _ isab ) .
+  use ( isabove_T_T_2 tax0 tax1a _ _ isab ) .
 Defined.
 
   

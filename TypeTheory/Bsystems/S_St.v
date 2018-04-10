@@ -166,7 +166,7 @@ Proof.
   unfold isover in isov . 
   rewrite ll_ft in isov .  rewrite ax0 in isov . rewrite <- ll_ft  in isov .
   rewrite iseq in isov . 
-  assert ( int : (ll (dd r) - (ll (dd r) - 1)) = 1 ) . refine ( natminusmmk _ ) .
+  assert ( int : (ll (dd r) - (ll (dd r) - 1)) = 1 ) . use natminusmmk.
   exact ( natgthtogehsn _ _ ( ll_dd _ ) ) .
 
   rewrite int in isov . 
@@ -333,7 +333,7 @@ Lemma S_dom_rs_sY_to_r_SsY { BB : lBsystem_carrier } { S : S_ops_type BB }
   S_dom r ( S s Y inn ) .
 Proof .
   unfold S_dom . 
-  refine ( isabov_trans ( ax1b _ _ _ ) _ ) . 
+  use ( isabov_trans ( ax1b _ _ _ ) ) . 
   exact ( isover_ft' innrs ) . 
 
 Defined.

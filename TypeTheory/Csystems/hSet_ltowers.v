@@ -50,7 +50,7 @@ Coercion hSet_pltowers_pr1 : hSet_pltower >-> hSet_ltower .
 Lemma isinvovmonot_pocto { T : hSet_ltower } { A : T } { X Y : ltower_over A }
       ( isov : isover ( pocto X ) ( pocto Y ) ) : isover X Y .  
 Proof .
-  refine ( invmaponpathsincl pr1 _ _ _ _ ) . 
+  use ( invmaponpathsincl pr1 ) . 
   apply isinclpr1 . 
   intro x . 
   apply isaprop_isover .
@@ -345,7 +345,7 @@ Proof .
   use isllmonot_funcomp. use isllmonot_funcomp.
   apply isllmonot_lft . 
 
-  refine ( @isllmonot_ovmonot_over ( hSet_ltower_over _ ) ( hSet_ltower_over _ ) _ isf X' ) . 
+  use ( @isllmonot_ovmonot_over ( hSet_ltower_over _ ) ( hSet_ltower_over _ ) _ isf X' ) . 
 
   apply isllmonot_to_over_pocto . 
 
@@ -610,7 +610,7 @@ Proof.
 
   assert ( int2 : forall isov2 : isover (ft X) Y, P (ft X) Y isov2).
   intros.
-  refine ( IHn ( ft X ) Y _ _ ) . 
+  use ( IHn ( ft X ) Y ) . 
   rewrite ftn_ft . 
   apply eq .
 

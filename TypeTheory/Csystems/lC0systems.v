@@ -426,7 +426,7 @@ Lemma q_X_ftX { CC : lC0system_data } { X : CC } ( f : mor_to ( ft X ) ) ( gt0 :
 Proof.
   unfold qn . 
   apply ( maponpaths ( fun g => g f ) ) .
-  refine ( isover_ind_X_ftX _ _ _ _ _ _ _ ) . 
+  use isover_ind_X_ftX.
   intros X0 gt1 . 
   apply idpath . 
 
@@ -597,7 +597,7 @@ Proof.
   unfold P . 
   intro f0 . 
   rewrite f_star_isab .
-  simple refine ( isover_trans _ _ ) .  
+  use isover_trans.
   apply ( dom (qn f0 (isover_ft' isab))). 
   apply isover_f_star .
   apply G0 . 
