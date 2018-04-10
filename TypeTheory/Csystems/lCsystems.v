@@ -12,14 +12,11 @@ proporties of the identity morphisms but does require associativity.
  *)
 
 
-
+Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import TypeTheory.Csystems.prelim.
 Require Import TypeTheory.Csystems.lTowers.
-
 Require Import TypeTheory.Csystems.ltowers_over.
-
-
 (* Require Import UniMath.CategoryTheory.Categories. *)
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Csystems.hSet_ltowers.
