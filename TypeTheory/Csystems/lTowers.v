@@ -116,7 +116,15 @@ Proof.
       exact (negpathssx0 _ H).
 Defined.
 
-(** not yet shown that the two transformations create an isomorphism *)
+(*
+Lemma weq_pretower_ltower: ltower ≃ pretower.
+Proof.
+  apply (weq_iso ltower_to_pretower pretower_to_ltower).
+  - intro lt.
+    induction lt as [T [[ll ft] [H1 H2]]].
+  How to proceed?
+*)  
+
 
 
 (** Some useful lemmas about ltower *)
