@@ -86,7 +86,7 @@ Defined.
 
 Lemma natgthtominus1geh { m n : nat }: m > n -> m - 1 >= n.
 Proof.
-  induction m as [ | m IHm ]; intros gt.
+  induction m as [ | m IHm ]; intro gt.
   - destruct (nopathsfalsetotrue gt).
   - change ( m - 0 >= n ).
     rewrite ( natminuseqn m ).
@@ -98,9 +98,9 @@ Defined.
 Lemma natgthminus1togeh { n m : nat }: m > n - 1 -> m >= n.
 Proof.
   induction n as [ | n IHn ].
-  - intros gt.
+  - intro gt.
     exact ( natgehn0 _ ).
-  - intros gt.
+  - intro gt.
     change ( S n - 1 ) with ( n - 0 ) in gt.
     rewrite ( natminuseqn n ) in gt.
     apply natgthtogehsn.
@@ -285,7 +285,7 @@ Defined.
 
 Definition natgthleftplus ( n m k : nat ): n > m - k -> n + k > m.
 Proof .
-  intros gt.
+  intro gt.
   assert ( gt' : n + k > m - k + k ) by exact ( natgthandplusr _ _ k gt ). 
   exact ( natgthgehtrans _ _ _ gt' ( minusplusnmmineq _ _ ) ). 
 Defined.
@@ -333,7 +333,7 @@ Defined.
 
 Definition natgehleftplus ( n m k : nat ): n >= m - k -> n + k  >= m.
 Proof.
-  intros ge.
+  intro ge.
   assert ( ge' : n + k >= m - k + k ) by exact ( natgehandplusr _ _ k ge ). 
   exact ( istransnatgeh _ _ _ ge' ( minusplusnmmineq _ _ ) ). 
 Defined .
@@ -341,7 +341,7 @@ Defined .
 
 Definition natgehleftminusminus ( n m k : nat ) ( ge : n >= m ): n - m >= k -> n - k >= m.
 Proof .
-  intros ge'.
+  intro ge'.
   assert ( ge'' : n >= k + m ) by exact ( natgehrightplus _ _ _ ge ge' ).
   rewrite ( natpluscomm _ _ ) in ge''.
   exact ( natgehleftminus _ _ _ ge'' ). 

@@ -81,11 +81,9 @@ Proof.
   exists (ft t).
   rewrite ll_ft.
   rewrite H.
-  replace (S n) with (n + 1).
-  - apply plusminusnmm.
-  - rewrite natpluscomm.
-    simpl.
-    reflexivity. (* why does apply idpath not work? *)
+  change (S n) with (1 + n).
+  rewrite natpluscomm.
+  apply plusminusnmm.
 Defined.
 
 Definition pretower_to_ltower: pretower -> ltower.
