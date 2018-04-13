@@ -2,8 +2,11 @@
 
 By Vladimir Voevodsky, split off the file prelBsystems.v on March 3, 2015 *)
 
-Unset Automatic Introduction.
 
+
+Require Import UniMath.Foundations.All.
+
+Require Import TypeTheory.Csystems.hSet_ltowers.
 Require Export TypeTheory.Bsystems.prelB_non_unital.
 Require Export TypeTheory.Bsystems.dlt.
 
@@ -14,7 +17,7 @@ Require Export TypeTheory.Bsystems.dlt.
 
 
 Definition dlt_layer_0 ( BB : lBsystem_carrier ) :=
-  total2 ( fun dlt : dlt_ops_type BB => dlt_ax0_type dlt ) .
+  ∑ dlt : dlt_ops_type BB, dlt_ax0_type dlt.
 
 Definition dlt_layer_0_to_dlt_ops_type ( BB : lBsystem_carrier ) :
   dlt_layer_0 BB -> dlt_ops_type BB := pr1 .
@@ -25,7 +28,7 @@ Coercion dlt_layer_0_to_dlt_ops_type : dlt_layer_0 >-> dlt_ops_type .
 
 
 Definition prelBsystem :=
-  total2 ( fun BB : prelBsystem_non_unital => dlt_layer_0 BB ) .
+  ∑ BB : prelBsystem_non_unital, dlt_layer_0 BB.
 
 (** This definition adds exactly what Definition 2.2 adds in arXiv:1410.5389v1
     to a non-unital pre-B-system. *)

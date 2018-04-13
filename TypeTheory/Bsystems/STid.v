@@ -2,8 +2,11 @@
 
 By Vladimir Voevodsky, started on Jan. 10, 2015 *)
 
-Unset Automatic Introduction.
 
+
+Require Import UniMath.Foundations.All.
+
+Require Import TypeTheory.Csystems.hSet_ltowers.
 Require Export TypeTheory.Bsystems.T_Tt .
 Require Export TypeTheory.Bsystems.S_St .
 
@@ -14,7 +17,6 @@ Lemma  S_dom_STid { BB : lBsystem_carrier }
            { r : Tilde BB } { X : BB }
            ( inn : T_dom ( dd r ) X ) : S_dom r ( T ( dd r ) X inn ) . 
 Proof .
-  intros . 
   unfold S_dom . 
   exact ( Tax1b _ _ _ ) . 
 Defined.
@@ -25,7 +27,6 @@ Lemma St_dom_StTtid { BB : lBsystem_carrier }
       { r s : Tilde BB } 
       ( inn : Tt_dom ( dd r ) s ) : St_dom r ( Tt ( dd r ) s inn ) . 
 Proof .
-  intros . 
   unfold St_dom .
   rewrite Ttax1 . 
   exact (  S_dom_STid Tax1b inn ) . 

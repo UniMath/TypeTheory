@@ -2,21 +2,24 @@
 
 by Vladimir Voevodsky, started on Jan. 22, 2015 *)
 
-Unset Automatic Introduction.
 
+
+Require Import UniMath.Foundations.All.
+
+Require Import TypeTheory.Csystems.hSet_ltowers.
 Require Export TypeTheory.Bsystems.T_Tt .
 
 
 (** ** The definition of an extended operation T and its elementary properties. *)
 
 Definition T_ext_dom { BB : lBsystem_carrier } ( X1 X2 : BB ) :=
-  dirprod ( ll X1 > 0 ) ( isover X2 ( ft X1 ) ) .
+  ( ll X1 > 0 ) × ( isover X2 ( ft X1 ) ) .
 
 (** The only difference with [T_dom] is the possibility that X2 is ft X1. *)
 
 Definition T_ext_dom_constr { BB : lBsystem_carrier } { X1 X2 : BB }
            ( gt0 : ll X1 > 0 ) ( isov : isover X2 ( ft X1 ) ) : T_ext_dom X1 X2 :=
-  dirprodpair gt0 isov . 
+  gt0 ,, isov . 
 
 Definition T_ext_dom_gt0 { BB : lBsystem_carrier } { X1 X2 : BB } ( inn : T_ext_dom X1 X2 ) :
   ll X1 > 0:= pr1 inn .
@@ -35,9 +38,9 @@ Definition T_dom_to_T_ext_dom_ft { BB : lBsystem_carrier } { X1 X2 : BB } ( inn 
 Definition T_ext { BB : lBsystem_carrier } ( T : T_ops_type BB )
            { X1 X2 : BB } ( inn : T_ext_dom X1 X2 ) : BB .
 Proof .
-  intros. set ( gt0 := pr1 inn ) . set ( isov := pr2 inn ) . 
+  set ( gt0 := pr1 inn ) . set ( isov := pr2 inn ) . 
   destruct ( ovab_choice isov ) as [ isab | eq ] . 
-  + exact ( T _ _ ( dirprodpair gt0 isab ) ) . 
+  + exact ( T _ _ ( gt0 ,, isab ) ) . 
   + exact X1 .
 Defined.
 
@@ -48,7 +51,6 @@ Lemma isover_T_ext { BB : lBsystem_carrier }
       { X1 X2 : BB } ( inn : T_ext_dom X1 X2 ) :
   isover ( T_ext T inn ) X1 .
 Proof .
-  intros .
   unfold T_ext . 
   destruct ( ovab_choice (pr2 inn) ) as [ isab | eq ] .
   + exact ( ax1b _ _ _ ) . 
@@ -63,18 +65,17 @@ Lemma isover_T_ext_T_ext_2 { BB : lBsystem_carrier }
       { X1 X2 X2' : BB } ( inn : T_ext_dom X1 X2 ) ( inn' : T_ext_dom X1 X2' )
       ( is : isover X2 X2' ) : isover ( T_ext T inn ) ( T_ext T inn' ) .
 Proof .
-  intros . unfold T_ext .
+  unfold T_ext .
   destruct ( ovab_choice (pr2 inn) ) as [ isab | eq ] .
   + destruct ( ovab_choice (pr2 inn') ) as [ isab' | eq' ] .
     * apply ( isover_T_T_2 ax0 ax1a _ _ is ) . 
     * exact ( ax1b _ _ _ ) . 
   + destruct ( ovab_choice (pr2 inn') ) as [ isab' | eq' ] .
-    * assert ( absd : empty ) .
+    * apply fromempty. 
       rewrite eq in is . 
       assert ( ge := isover_geh is ) .  
       assert ( gt := isabove_gth isab' ) . 
       exact ( natgthnegleh gt ge ) . 
-      destruct absd . 
     * exact ( isover_XX _ ) . 
 Defined.
 
@@ -91,9 +92,8 @@ Definition T_fun_int { BB : lBsystem_carrier }
       { T : T_ops_type BB } ( ax1b : T_ax1b_type T )
       { X1 : BB } ( gt0 : ll X1 > 0 ) ( X2' : ltower_over ( ft X1 ) ) : ltower_over X1 .
 Proof .
-  intros .
   set ( X2 := pr1 X2' ) . set ( isov := pr2 X2' : isover X2 ( ft X1 ) ) .
-  split with ( T_ext T ( dirprodpair gt0 isov ) )  .
+  split with ( T_ext T ( gt0 ,, isov ) )  .
 
   apply ( isover_T_ext T ax1b ) .
 
@@ -107,7 +107,6 @@ Lemma isovmonot_T_fun { BB : lBsystem_carrier }
       ( X3' X2' : ltower_over ( ft X1 ) ) ( isov : isover X3' X2' ) :
   isover ( T_fun_int ax1b gt0 X3' ) ( T_fun_int ax1b gt0 X2' ) .
 Proof .
-  intros .
   apply isinvovmonot_pocto .
   unfold T_fun_int. simpl .
   apply ( isover_T_ext_T_ext_2 ax0 ax1a ax1b ) .
@@ -123,7 +122,6 @@ Lemma ll_T_fun { BB : lBsystem_carrier }
       { X1 : BB } ( gt0 : ll X1 > 0 ) ( X2' : ltower_over ( ft X1 ) ) :
   ll ( T_fun_int ax1b gt0 X2' ) = ll X2' .
 Proof.
-  intros. 
   change ( ll ( T_ext T ( dirprodpair gt0 ( pr2 X2' ) ) ) - ll X1 = ll X2' ) .
   change ( ll X2' ) with ( ll ( pr1 X2' ) - ll ( ft X1 ) ) . 
   unfold T_ext . 
@@ -154,7 +152,7 @@ Lemma isllmonot_T_fun { BB : lBsystem_carrier }
       { T : T_ops_type BB } ( ax0 : T_ax0_type T ) ( ax1b : T_ax1b_type T )
       { X1 : BB } ( gt0 : ll X1 > 0 ) : isllmonot ( T_fun_int ax1b gt0 ) .
 Proof.
-  intros. unfold isllmonot . 
+  unfold isllmonot . 
   intros X Y .
   do 2 rewrite ( ll_T_fun ax0 ) . 
   apply idpath . 
@@ -167,7 +165,7 @@ Lemma isbased_T_fun { BB : lBsystem_carrier }
       { T : T_ops_type BB } ( ax0 : T_ax0_type T ) ( ax1b : T_ax1b_type T )
       { X1 : BB } ( gt0 : ll X1 > 0 ) : isbased ( T_fun_int ax1b gt0 ) .
 Proof.
-  intros. red.  intros X eq0 . 
+  red.  intros X eq0 . 
   rewrite ll_T_fun . 
   + exact eq0.
   + exact ax0.
@@ -215,7 +213,6 @@ Lemma Tj_fun_compt { BB : lBsystem_carrier }
   ltower_funcomp ( Tj_fun ax0 ax1a ax1b ( isover_ft' isab ) )
                  ( T_fun ax0 ax1a ax1b ( isabove_gt0 isab ) ) . 
 Proof.
-  intros.
   unfold Tj_fun .
   rewrite (@isover_ind_isab BB _ _ _ _ _ _ ). 
   apply idpath .
@@ -509,7 +506,6 @@ Lemma Tprod_compt { BB : lBsystem_carrier }
       ( X Y : BB ) ( gt0 : ll X > 0 ) :
   Tprod_fun ax0 ax1a ax1b X Y = T_fun ax0 ax1a ax1b gt0 ( Tprod_fun ax0 ax1a ax1b ( ft X ) Y ) .
 Proof.
-  intros.
   simpl .
   unfold funcomp . 
   simpl .

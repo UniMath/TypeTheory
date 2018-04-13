@@ -2,8 +2,10 @@
 
 By Vladimir Voevodsky, started on Jan. 18, 2015 *)
 
-Unset Automatic Introduction.
 
+Require Import UniMath.Foundations.All.
+
+Require Import TypeTheory.Csystems.hSet_ltowers.
 Require Export TypeTheory.Bsystems.lB_non_unital.
 Require Export TypeTheory.Bsystems.lB0.
 
@@ -38,13 +40,10 @@ Definition dltSid_type { BB : lB_nu } ( dlt : dlt_layer ( @T_op BB ) ) :=
 (** *** Unital lB-system *)
 
 Definition lB :=
-  total2 ( fun BB : lB_nu =>
-             total2 ( fun dlt : dlt_layer ( @T_op BB ) =>
-             dirprod
-               ( dirprod
-                   ( dirprod ( dltT_type dlt ) ( dltS_type dlt ) )
-                   ( dirprod ( SdltT_type dlt ) ( StdltTt_type dlt ) ) )
-               ( dltSid_type dlt ) ) ) .
+  ∑ (BB : lB_nu) (dlt : dlt_layer ( @T_op BB )),
+               ( ( ( dltT_type dlt ) × ( dltS_type dlt ) ) ×
+                 ( ( SdltT_type dlt ) × ( StdltTt_type dlt ) ) )
+               × ( dltSid_type dlt ).
 
 (** This definition corresponds to the addition of Definition 3.2 in arXiv:1410.5389v1
     of the axioms, only the packaging order is different in irrelevant ways

@@ -2,7 +2,10 @@
 
 By Vladimir Voevodsky, started on Jan. 10, 2015 *)
 
-Unset Automatic Introduction.
+
+Require Import UniMath.Foundations.All.
+
+Require Import TypeTheory.Csystems.hSet_ltowers.
 
 Require Export TypeTheory.Bsystems.T_Tt .
 Require Export TypeTheory.Bsystems.S_St .
@@ -15,7 +18,6 @@ Lemma S_T_dom_comp { BB : lBsystem_carrier }
        { r : Tilde BB } { X1 X2 : BB }
        ( innr1 : S_dom r X1 ) ( inn12 : T_dom X1 X2 ) : S_dom r X2 .
 Proof .   
-  intros . 
   unfold S_dom in * . 
   exact ( isabov_trans ( T_dom_isabove inn12 ) ( isover_ft' innr1 ) ) . 
 Defined.
@@ -24,7 +26,6 @@ Definition  S_Tt_dom_comp { BB : lBsystem_carrier }
            { r s : Tilde BB } { X1 : BB }
            ( innr1 : S_dom r X1 ) ( inn1s : Tt_dom X1 s ) : St_dom r s .
 Proof .
-  intros .
   exact ( S_T_dom_comp innr1 inn1s ) .
 Defined.
 
@@ -32,8 +33,7 @@ Definition  Tt_S_dom_comp { BB : lBsystem_carrier }
            { r : Tilde BB } { X1 X2 : BB }
            ( inn1r : Tt_dom X1 r ) ( innr2 : S_dom r X2 ) : T_dom X1 X2 .
 Proof .
-  intros . 
-  refine ( T_dom_constr _ _ ) . 
+  use T_dom_constr. 
   + exact ( T_dom_gt0 inn1r ) . 
   + exact ( isabove_trans innr2 ( T_dom_isabove inn1r ) ) .
 Defined.
@@ -42,7 +42,6 @@ Definition Tt_St_dom_comp { BB : lBsystem_carrier }
            { r s : Tilde BB } { X1 : BB }
            ( inn1r : Tt_dom X1 r ) ( innrs : St_dom r s ) : Tt_dom X1 s . 
 Proof .
-  intros .
   exact ( Tt_S_dom_comp inn1r innrs ) .
 Defined.
 
@@ -63,8 +62,7 @@ Lemma T_dom_r1_12_to_Sr1_Sr2 { BB : lBsystem_carrier }
       ( innr1 : S_dom r X1 ) ( inn12 : T_dom X1 X2 ) :
   T_dom ( S r X1 innr1 ) ( S r X2 ( S_T_dom_comp innr1 inn12 ) ) .
 Proof.
-  intros .
-  refine ( T_dom_constr _ _ ) . 
+  use T_dom_constr.
   + rewrite Sax0 . 
     exact ( minusgth0 _ _ ( S_dom_gt1 innr1 ) ) .
   + destruct ( isabove_choice innr1 ) as [ isab | iseq ] .
@@ -83,7 +81,6 @@ Lemma Tt_dom_r1_1s_to_Sr1_Strs { BB : lBsystem_carrier }
       ( innr1 : S_dom r X1 ) ( inn1s : Tt_dom X1 s ) :
   Tt_dom ( S r X1 innr1 ) ( St r s ( S_Tt_dom_comp innr1 inn1s ) ) . 
 Proof.
-  intros .
   unfold Tt_dom . 
   rewrite Stax1 . 
   exact ( T_dom_r1_12_to_Sr1_Sr2 Sax0 Sax1a Sax1b _ _ ) . 
@@ -98,7 +95,6 @@ Lemma  S_dom_r1_12_to_r_T12 { BB : lBsystem_carrier }
        ( innr1 : S_dom r X1 ) ( inn : T_dom X1 X2 ) :
   S_dom r ( T X1 X2 inn ) .
 Proof .
-  intros . 
   unfold S_dom .
   exact ( isabove_trans ( Tax1b _ _ inn ) innr1 ) . 
 Defined.
@@ -111,7 +107,6 @@ Lemma St_dom_r1_1s_to_r_Tt1s { BB : lBsystem_carrier }
       ( innr1 : S_dom r X1 ) ( inn1s : Tt_dom X1 s ) :
   St_dom r ( Tt X1 s inn1s ) .
 Proof .
-  intros .
   unfold St_dom . 
   rewrite Ttax1 . 
   exact ( S_dom_r1_12_to_r_T12 Tax1b innr1 inn1s ) . 
@@ -168,7 +163,6 @@ Lemma S_dom_1r_r2_to_Tt1r_T12 { BB : lBsystem_carrier }
       ( inn1r : Tt_dom X1 r ) ( innr2 : S_dom r X2 ) :
   S_dom ( Tt X1 r inn1r ) ( T X1 X2 ( Tt_S_dom_comp inn1r innr2 ) ) .
 Proof .
-  intros .
   unfold S_dom . 
   rewrite Ttax1 . 
   exact ( isabove_T_T_2 Tax0 Tax1a _ _ innr2 ) . 
@@ -181,7 +175,6 @@ Lemma St_dom_1r_rs_to_Tt1r_Tt1s { BB : lBsystem_carrier }
       ( inn1r : Tt_dom X1 r ) ( innrs : St_dom r s ) :
   St_dom ( Tt X1 r inn1r ) ( Tt X1 s ( Tt_St_dom_comp inn1r innrs ) ) .
 Proof.
-  intros . 
   unfold St_dom . 
   rewrite Ttax1 . 
   exact ( S_dom_1r_r2_to_Tt1r_T12 Tax0 Tax1a Ttax1 _ _ ) .
@@ -194,8 +187,7 @@ Lemma  T_dom_1r_r2_to_1_Sr2 { BB : lBsystem_carrier }
        { r : Tilde BB } { X1 X2 : BB }
        ( inn1r : Tt_dom X1 r ) ( innr2 : S_dom r X2 ) : T_dom X1 ( S r X2 innr2 ) .
 Proof.
-  intros .
-  refine ( T_dom_constr _ _ ) .
+  use T_dom_constr.
   + exact ( T_dom_gt0 inn1r ) . 
   + exact ( isabov_trans ( Sax1b _ _ _ ) ( isover_ft' ( T_dom_isabove inn1r ) ) ) .  
 Defined.
@@ -206,7 +198,6 @@ Lemma  Tt_dom_1r_rs_to_1_Strs { BB : lBsystem_carrier }
        { r s : Tilde BB } { X1 : BB }
        ( inn1r : Tt_dom X1 r ) ( innrs : St_dom r s ) : Tt_dom X1 ( St r s innrs )  .
 Proof .
-  intros . 
   unfold Tt_dom .
   rewrite Stax1 . 
   exact ( T_dom_1r_r2_to_1_Sr2 Sax1b inn1r _ ) . 

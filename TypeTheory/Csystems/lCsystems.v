@@ -9,12 +9,13 @@ The definition of an lC-system given below does not require that the types of ob
 of the underlying precategory form a set. It also does not require the
 proporties of the identity morphisms but does require associativity. 
 
- *)
+*)
 
-Require Export TypeTheory.Auxiliary.CategoryTheoryImports.
+
+Require Import UniMath.Foundations.All.
+(* Require Import UniMath.CategoryTheory.Categories. *)
+Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Export TypeTheory.Csystems.lC0systems.
-
-Unset Automatic Introduction.
 
 
 
@@ -24,140 +25,121 @@ Unset Automatic Introduction.
 (** **** l-C-system data *) 
 
 Definition sf_type ( CC : lC0system_data ) :=
-  forall ( Y X : CC ) ( gt0 : ll X > 0 ) ( f : Y --> X ) , sec_pX ( f_star gt0 ( ftf f ) ) .
+  forall ( Y X : CC ) ( gt0 : ll X > 0 ) ( f : Y --> X ), sec_pX ( f_star gt0 ( ftf f ) ).
 
-Definition lCsystem_data := total2 ( fun CC : lC0system_data => sf_type CC ) .
+Definition lCsystem_data := ∑ CC : lC0system_data, sf_type CC.
 
-Definition lCsystem_data_constr { CC : lC0system_data } ( sf0 : sf_type CC ) : lCsystem_data :=
-  tpair _ _ sf0 . 
+Definition lCsystem_data_constr { CC : lC0system_data }
+  ( sf0 : sf_type CC ) : lCsystem_data := tpair _ _ sf0 . 
 
-Definition lCsystem_data_pr1 : lCsystem_data -> lC0system_data := pr1 .
-Coercion lCsystem_data_pr1 : lCsystem_data >-> lC0system_data .
+Definition lCsystem_data_pr1 : lCsystem_data -> lC0system_data := pr1.
+Coercion lCsystem_data_pr1 : lCsystem_data >-> lC0system_data.
 
-Definition sf_from_data { CC : lCsystem_data } { Y X : CC } ( gt0 : ll X > 0 ) ( f : Y --> X ) :
-  sec_pX ( f_star gt0 ( ftf f ) ) :=
-  pr2 CC Y X gt0 f . 
-
+Definition sf_from_data { CC : lCsystem_data } { Y X : CC } ( gt0 : ll X > 0 ) ( f : Y --> X ):
+  sec_pX ( f_star gt0 ( ftf f ) ) := pr2 CC Y X gt0 f . 
 
 
-
-
-
-(** **** Properties on l-C-system data 
-
-that later become axioms of l-C-systems. *)
+(** **** Properties on l-C-system data that later become axioms of l-C-systems. *)
 
 
 Definition sf_ax1_type { CC : lC0system } ( sf0 : sf_type CC ) :=
-  forall ( Y X : CC ) ( gt0 : ll X > 0 ) ( f : Y --> X ) ,
-    ( C0emor gt0 ( ftf f ) ) ;; f = ( sf0 _ _ gt0 f ) ;; ( q_of_f gt0 ( ftf f ) ) .
+  forall ( Y X : CC ) ( gt0 : ll X > 0 ) ( f : Y --> X ),
+    ( C0emor gt0 ( ftf f ) ) ;; f = ( sf0 _ _ gt0 f ) ;; ( q_of_f gt0 ( ftf f ) ).
 
 Lemma sf_ax2_type_l1 { CC : lC0system } ( sf0 : sf_type CC )
       { Y Y' U : CC } ( gt0 : ll U > 0 )
-      ( g : Y' --> ft U ) ( f : Y --> f_star gt0 g ) :
-  f_star (C0ax5a gt0 g) (ftf f) = f_star gt0 (ftf (f ;; q_of_f gt0 g)) .
+      ( g : Y' --> ft U ) ( f : Y --> f_star gt0 g ):
+  f_star (C0ax5a gt0 g) (ftf f) = f_star gt0 (ftf (f ;; q_of_f gt0 g)).
 Proof.
-  intros. 
   assert ( int1 : f_star (C0ax5a gt0 g) (ftf f) =
-                  f_star gt0 ( ( ftf f ) ;; ( ( C0emor gt0 g ) ;; g ) ) ) .
-  apply C0ax7a.
+                  f_star gt0 ( ( ftf f ) ;; ( ( C0emor gt0 g ) ;; g ) ) )
+  by apply C0ax7a.
 
   assert ( int2 : f_star gt0 ( ( ftf f ) ;; ( ( C0emor gt0 g ) ;; g ) ) =
-                  f_star gt0 ( f ;; ( ( pX _ ) ;; ( ( C0emor gt0 g ) ;; g ) ) ) ) . 
-  unfold ftf . rewrite <- assoc . 
-  apply idpath . 
-
+                  f_star gt0 ( f ;; ( ( pX _ ) ;; ( ( C0emor gt0 g ) ;; g ) ) ) ). 
+  { unfold ftf.
+    rewrite <- assoc. 
+    apply idpath.
+  }
   assert ( int3 : f_star gt0 ( f ;; ( ( pX _ ) ;; ( ( C0emor gt0 g ) ;; g ) ) ) =
-                  f_star gt0 ( f ;; ( ( q_of_f gt0 g ) ;; ( pX U ) ) ) ) .
-  unfold ftf . rewrite C0ax5c .
-  apply idpath . 
-
+                  f_star gt0 ( f ;; ( ( q_of_f gt0 g ) ;; ( pX U ) ) ) ).
+  { unfold ftf.
+    rewrite C0ax5c.
+    apply idpath. 
+  }
   assert ( int4 : f_star gt0 ( f ;; ( ( q_of_f gt0 g ) ;; ( pX U ) ) ) =
-                  f_star gt0 (ftf (f ;; q_of_f gt0 g)) ) .
-  unfold ftf . rewrite assoc .
-  apply idpath . 
-
-  exact ( ( int1 @ int2 ) @ ( int3 @ int4 ) ) . 
-
+                  f_star gt0 (ftf (f ;; q_of_f gt0 g)) ).
+  { unfold ftf.
+    rewrite assoc.
+    apply idpath. 
+  }
+  exact ( ( int1 @ int2 ) @ ( int3 @ int4 ) ). 
 Defined.
+
 
 Definition sf_ax2_type { CC : lC0system } ( sf : sf_type CC ) :=
   forall ( Y Y' U : CC ) ( gt0 : ll U > 0 )
-         ( g : Y' --> ft U ) ( f : Y --> f_star gt0 g ) ,
+    ( g : Y' --> ft U ) ( f : Y --> f_star gt0 g ),
      transportf sec_pX  (sf_ax2_type_l1 sf gt0 g f ) ( sf Y _ ( C0ax5a gt0 g ) f ) =
-     sf Y _ gt0 ( f ;; q_of_f gt0 g ) .  
+     sf Y _ gt0 ( f ;; q_of_f gt0 g ).  
 
 
 (** **** The definition of the type of l-C-systems *)
 
-
 Definition lCsystem :=
-  total2 ( fun CC : lC0system =>
-             total2 ( fun sf0 : sf_type CC =>
-                        dirprod ( sf_ax1_type sf0 ) ( sf_ax2_type sf0 ) ) ) .
+             ∑ (CC : lC0system) (sf0 : sf_type CC),
+                        ( sf_ax1_type sf0 ) × ( sf_ax2_type sf0 ).
 
-Definition lCsystem_pr1 : lCsystem -> lC0system := pr1 .
-Coercion lCsystem_pr1 : lCsystem >-> lC0system .
+Definition lCsystem_pr1: lCsystem -> lC0system := pr1.
+Coercion lCsystem_pr1: lCsystem >-> lC0system.
 
-Definition lCsystem_to_lCsystem_data ( CC : lCsystem ) : lCsystem_data :=
-  @lCsystem_data_constr CC ( pr1 ( pr2 CC ) ) .
-Coercion lCsystem_to_lCsystem_data : lCsystem >-> lCsystem_data .
+Definition lCsystem_to_lCsystem_data ( CC : lCsystem ): lCsystem_data :=
+  @lCsystem_data_constr CC ( pr1 ( pr2 CC ) ).
+Coercion lCsystem_to_lCsystem_data : lCsystem >-> lCsystem_data.
 
-Definition sf { CC : lCsystem } { Y X : CC } ( gt0 : ll X > 0 ) ( f : Y --> X ) :
-  sec_pX ( f_star gt0 ( ftf f ) ) := ( pr1 ( pr2 CC ) ) Y X gt0 f . 
+Definition sf { CC : lCsystem } { Y X : CC } ( gt0 : ll X > 0 ) ( f : Y --> X ):
+  sec_pX ( f_star gt0 ( ftf f ) ) := ( pr1 ( pr2 CC ) ) Y X gt0 f. 
 
-Definition sf_ax1 { CC : lCsystem } { Y X : CC } ( gt0 : ll X > 0 ) ( f : Y --> X ) :
+Definition sf_ax1 { CC : lCsystem } { Y X : CC } ( gt0 : ll X > 0 ) ( f : Y --> X ):
   ( C0emor gt0 ( ftf f ) ) ;; f  = ( sf gt0 f ) ;; ( q_of_f gt0 ( ftf f ) ) :=
-  pr1 ( pr2 ( pr2 CC ) ) Y X gt0 f .
+  pr1 ( pr2 ( pr2 CC ) ) Y X gt0 f.
 
 Definition sf_ax2 { CC : lCsystem } { Y Y' U : CC } ( gt0 : ll U > 0 )
-           ( g : Y' --> ft U ) ( f : Y --> f_star gt0 g ) :
+           ( g : Y' --> ft U ) ( f : Y --> f_star gt0 g ):
   transportf sec_pX  (sf_ax2_type_l1 ( @sf CC ) gt0 g f ) ( sf ( C0ax5a gt0 g ) f ) =
   sf gt0 ( f ;; q_of_f gt0 g ) :=
-  pr2 ( pr2 ( pr2 CC ) ) Y Y' U gt0 g f .
+  pr2 ( pr2 ( pr2 CC ) ) Y Y' U gt0 g f.
 
-
-
-
-  
 
 (** **** Operation f_star_of_s *)
 
 Definition f_star_of_s { CC : lCsystem } { Y X : CC } ( f : Y --> ft X )
-           ( gt0 : ll X > 0 ) ( r : sec_pX X ) :
-  sec_pX ( f_star gt0 f ) . 
-Proof .
-  intros . 
-  assert ( int := sf gt0 ( f ;; r ) ) .  
-  assert ( inteq : ftf ( f ;; r ) = f ) . 
-  unfold ftf . 
-  rewrite <- assoc.
-  set ( eq := sec_pX_eq r : (r;; pX X)= _) . 
-  change ( f ;; (r ;; pX X ) = f ) .  
-  rewrite eq .
-  apply id_right . 
-
-  rewrite inteq in int . 
-  apply int . 
-
+  ( gt0 : ll X > 0 ) ( r : sec_pX X ): sec_pX ( f_star gt0 f ). 
+Proof.
+  set ( int := sf gt0 ( f ;; r ) ).  
+  assert ( inteq : ftf ( f ;; r ) = f ). 
+  { unfold ftf. 
+    rewrite <- assoc.
+    set ( eq := sec_pX_eq r : (r;; pX X)= _). 
+    change ( f ;; (r ;; pX X ) = f ).  
+    rewrite eq.
+    apply id_right. 
+  }
+  rewrite inteq in int. 
+  apply int. 
 Defined.
-
   
 
 (** **** Operation fsn_star_of_s *)
 
 
-Definition fsn_star_of_s { CC : lCsystem } { A X : CC } ( f : mor_to A ) ( isab : isabove X A )
-           ( r : sec_pX X ) : sec_pX ( fn_star f isab ) .  
+Definition fsn_star_of_s { CC : lCsystem } { A X : CC } ( f : mor_to A )
+  ( isab : isabove X A ) ( r : sec_pX X ) : sec_pX ( fn_star f isab ).  
 Proof.
-  intros.
-  rewrite f_star_isab .
-  apply f_star_of_s . 
-  exact r .
-
+  rewrite f_star_isab.
+  apply f_star_of_s. 
+  exact r.
 Defined.
-
-
  
    
 (*
@@ -206,16 +188,6 @@ Proof.
   apply idpath .
 
 Defined.
-
-
-
-
-  
-  
-
-
-
-
 
 
 

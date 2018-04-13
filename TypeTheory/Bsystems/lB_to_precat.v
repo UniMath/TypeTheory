@@ -2,8 +2,10 @@
 
 by Vladimir Voevodsky, started on Jan. 22, 2015 *)
 
-Unset Automatic Introduction.
 
+Require Import UniMath.Foundations.All.
+
+Require Import TypeTheory.Csystems.hSet_ltowers.
 Require Export TypeTheory.Bsystems.T_fun.
 Require Export TypeTheory.Bsystems.S_fun.
 
@@ -24,7 +26,6 @@ axiom ax0. *)
 Lemma Tilden_dd_inn { BB : prelBsystem_non_unital }
       { n' : nat } { X : BB } ( s : Tilde_dd ( ftn ( S n' ) X ) ) : S_dom s X .
 Proof.
-  intros.
   unfold S_dom .
   destruct s as [ s' eq ].
   assert ( gt0 : ll ( ftn ( S n' ) X ) > 0 ) by (rewrite <- eq; apply ll_dd).
@@ -48,8 +49,8 @@ Fixpoint Tilden_dd { BB : prelBsystem_non_unital } ( n : nat )  ( X : BB )  : UU
     | 0 => unit
     | S n' => match n' with
                 | 0 => Tilde_dd X
-                | S n'' => total2 ( fun s1 : Tilde_dd ( ftn ( S n'' ) X ) =>
-                                      Tilden_dd n' ( S_op s1 X ( Tilden_dd_inn s1 ) ) )
+                | S n'' => ∑ s1 : Tilde_dd ( ftn ( S n'' ) X ),
+                                      Tilden_dd n' ( S_op s1 X ( Tilden_dd_inn s1 ) )
               end
   end .
 
@@ -126,13 +127,13 @@ operation f_star *)
 
 Definition Mor_and_fstar { BB : lB0system_non_unital }
            ( X1 : BB ) ( n : nat ) ( A : BB ) ( eq : ll A = n ) : 
-  total2 ( fun Mor_X1_A : UU =>
+  ∑ Mor_X1_A : UU,
              forall f : Mor_X1_A ,
-               ltower_fun ( ltower_over A ) ( ltower_over X1 ) ) .
+               ltower_fun ( ltower_over A ) ( ltower_over X1 ) .
 
 (** Notice that [f] is vacuously bound. *)
 Proof .
-  intros until n . induction n as [ | n IHn ] . 
+  revert A eq. induction n as [ | n IHn ] . 
   + intros . 
     split with unit .
     intro .
@@ -142,8 +143,8 @@ Proof .
         (rewrite ll_ft ; rewrite eq ; simpl ; rewrite natminuseqn ; apply idpath).
     set ( Mor_X1_ftA := pr1 ( IHn ( ft A ) eqft ) ) .
     set ( Mor_X1_A :=
-          total2 ( fun ftf : Mor_X1_ftA =>
-                     Tilde_dd ( pocto ( ( pr2 ( IHn ( ft A ) eqft ) ftf ) ( X_over_ftX A ) ) ) ) ) .
+          ∑ ftf : Mor_X1_ftA,
+                     Tilde_dd ( pocto ( ( pr2 ( IHn ( ft A ) eqft ) ftf ) ( X_over_ftX A ) ) ) ).
     split with Mor_X1_A . 
     intro f . 
     set ( ftf := pr1 f : Mor_X1_ftA ) .

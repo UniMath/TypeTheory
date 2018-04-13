@@ -2,9 +2,11 @@
 
 by Vladimir Voevodsky, file created on Jan. 6, 2015 *)
 
-Unset Automatic Introduction.
 
-Require Export UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+(* Require Export UniMath.Foundations.Sets. *)
+
+Require Import TypeTheory.Csystems.hSet_ltowers.
 Require Export TypeTheory.Bsystems.lB_carriers.
 
 
@@ -37,7 +39,7 @@ Notation S_dom_gth := isabove_gth .
 Definition S_dom_gt1 { BB : lBsystem_carrier } { r : Tilde BB } { Y : BB } ( inn : S_dom r Y ) :
   ll Y > 1 .
 Proof .
-  intros . exact ( natgthgehtrans _ _ _ ( isabove_gth inn ) ( natgthtogehsn _ _ ( ll_dd _ ) ) ) . 
+  exact ( natgthgehtrans _ _ _ ( isabove_gth inn ) ( natgthtogehsn _ _ ( ll_dd _ ) ) ) . 
 
 Defined.
 
@@ -45,14 +47,14 @@ Defined.
 Definition S_dom_gt0 { BB : lBsystem_carrier } { r : Tilde BB } { Y : BB } ( inn : S_dom r Y ) :
   ll Y > 0 .
 Proof .
-  intros .  exact ( istransnatgth _ _ _ ( isabove_gth inn ) ( ll_dd _ ) )  . 
+  exact ( istransnatgth _ _ _ ( isabove_gth inn ) ( ll_dd _ ) )  . 
 
 Defined.
 
 Definition S_dom_ge1 { BB : lBsystem_carrier } { r : Tilde BB } { Y : BB } ( inn : S_dom r Y ) :
   ll Y >= 1 .
 Proof .
-  intros .  exact ( natgthtogehsn _ _ ( S_dom_gt0 inn ) ) . 
+  exact ( natgthtogehsn _ _ ( S_dom_gt0 inn ) ) . 
 
 Defined.
 
@@ -60,14 +62,14 @@ Defined.
 Lemma isaprop_S_dom { BB : lBsystem_carrier } ( r : Tilde BB ) ( Y : BB ) :
   isaprop ( S_dom r Y ) . 
 Proof.
-  intros . apply isaprop_isabove . 
+  apply isaprop_isabove . 
 Defined.
 
 
 Lemma noparts_S_dom { BB : lBsystem_carrier } { r : Tilde BB } { Y : BB }
       ( inn1 inn2 : S_dom r Y ) : inn1 = inn2 .
 Proof .
-  intros . apply ( proofirrelevance _ ( isaprop_S_dom r Y ) ) .
+  apply ( proofirrelevance _ ( isaprop_S_dom r Y ) ) .
 Defined .  
 
 
@@ -83,7 +85,7 @@ Lemma S_equals_2 { BB : lBsystem_carrier } { r : Tilde BB } { Y Y' : BB } ( S : 
       ( eq : Y = Y' ) ( inn : S_dom r Y ) ( inn' : S_dom r Y' )  :
   S r Y inn = S r Y' inn' .
 Proof.
-  intros BB r Y Y' S eq .
+  revert inn inn'.
   rewrite eq . 
   intros . rewrite ( noparts_S_dom inn inn' ) . 
   apply idpath . 
@@ -105,7 +107,6 @@ Lemma ll_S_gt0 { BB : lBsystem_carrier }
       { S : S_ops_type BB } ( ax0 :  S_ax0_type S )
       { r : Tilde BB } { X : BB } ( inn : S_dom r X ) : ll ( S r X inn ) > 0 .
 Proof.
-  intros .
   rewrite ax0 .
   exact ( minusgth0 _ _ ( S_dom_gt1 inn ) ) . 
 
@@ -141,7 +142,7 @@ Lemma ftn_S { BB : lBsystem_carrier } { S : S_ops_type BB } ( ax1a : S_ax1a_type
       ( inn : S_dom r Y ) :
   ftn n (S r Y inn ) = S r ( ftn n Y ) isab .
 Proof .
-  intros BB S ax1a n . induction n as [ | n IHn ] .
+  revert r Y isab inn. induction n as [ | n IHn ] .
   + intros .
     rewrite ( noparts_S_dom inn isab ) . 
     apply idpath . 
@@ -149,7 +150,7 @@ Proof .
   change ( ftn (Preamble.S n) (S r Y inn) ) with ( ft ( ftn n (S r Y inn) ) ) .
   assert ( isab' : isabove ( ftn n Y ) ( dd r ) ) by exact ( isabove_ft_inv isab ) . 
   rewrite ( IHn r Y isab' inn ) . 
-  refine ( ax1a _ _ _ _ ) . 
+  use ax1a. 
 Defined.
 
 (** Now get the second case in Definition 2.5.4 in arXiv:1410.5389v1 from [S_ax1b_type] 
@@ -161,12 +162,11 @@ Lemma ft_S { BB : lBsystem_carrier } { S : S_ops_type BB } { r : Tilde BB } { Y 
       ( ax0 : S_ax0_type S ) ( ax1b : S_ax1b_type S ) ( iseq : ft Y = dd r )
       ( inn : S_dom r Y ) : ft ( S r Y inn ) = ft ( dd r ) .
 Proof.
-  intros .
   assert ( isov := ax1b r Y inn : isover ( S r Y inn ) ( ft ( dd r ) ) ) .
   unfold isover in isov . 
   rewrite ll_ft in isov .  rewrite ax0 in isov . rewrite <- ll_ft  in isov .
   rewrite iseq in isov . 
-  assert ( int : (ll (dd r) - (ll (dd r) - 1)) = 1 ) . refine ( natminusmmk _ ) .
+  assert ( int : (ll (dd r) - (ll (dd r) - 1)) = 1 ) . use natminusmmk.
   exact ( natgthtogehsn _ _ ( ll_dd _ ) ) .
 
   rewrite int in isov . 
@@ -186,7 +186,6 @@ Lemma isover_S_S_2 { BB : lBsystem_carrier }
       { r : Tilde BB } { Y Y' : BB } ( inn : S_dom r Y ) ( inn' : S_dom r Y' )
       ( is : isover Y Y' ) : isover ( S r Y inn ) ( S r Y' inn' ) .
 Proof .
-  intros . 
   unfold isover in * .
   do 2 rewrite ax0 .
   simpl .
@@ -206,10 +205,9 @@ Lemma isabove_S_S_2 { BB : lBsystem_carrier }
       { r : Tilde BB } { Y Y' : BB } ( inn : S_dom r Y ) ( inn' : S_dom r Y' )
       ( is : isabove Y Y' ) : isabove ( S r Y inn ) ( S r Y' inn' ) .
 Proof .
-  intros .
-  refine ( isabove_constr _ _ ) .
+  use isabove_constr.
   do 2 rewrite ax0 .
-  refine ( natgthandminusinvr _ _ ) .
+  use natgthandminusinvr.
   exact ( isabove_gth is ) .
 
   exact ( S_dom_ge1 inn' ) . 
@@ -240,7 +238,6 @@ Notation St_dom_gth := S_dom_gth .
 Lemma St_S_dom_comp { BB : lBsystem_carrier } { r s : Tilde BB } { Y : BB }
       ( innrs : St_dom r s ) ( inn : S_dom s Y ) : S_dom r Y .
 Proof .
-  intros .
   exact ( isabove_trans inn innrs ) .
   
 Defined.
@@ -248,7 +245,6 @@ Defined.
 Lemma St_St_dom_comp { BB : lBsystem_carrier } { r s t : Tilde BB }
       ( innrs : St_dom r s ) ( innst : St_dom s t ) : St_dom r t .
 Proof .
-  intros .
   unfold St_dom in * . 
   unfold S_dom in * . 
   exact ( isabove_trans innst innrs ) . 
@@ -296,7 +292,6 @@ Lemma St_ax1_to_St_ax0 { BB : lBsystem_carrier }
       { S : S_ops_type BB } ( ax0 : S_ax0_type S )
       { St : St_ops_type BB } ( ax1 : St_ax1_type S St ) : St_ax0_type St .
 Proof .
-  intros .
   unfold St_ax0_type . 
   intros . 
   rewrite ax1 . 
@@ -314,7 +309,6 @@ Lemma ll_dd_St { BB : lBsystem_carrier } { S : S_ops_type BB } { St : St_ops_typ
       { r s : Tilde BB } ( inn : St_dom r s ) :
   ll ( dd ( St r s inn ) ) = ll ( dd s ) - 1 . 
 Proof .
-  intros .
   rewrite ax1 . 
   exact ( ax0 _ _ inn ) . 
 
@@ -327,7 +321,6 @@ Lemma S_dom_rs_sY_to_Strs_SrY { BB : lBsystem_carrier } { S : S_ops_type BB }
            { r s : Tilde BB } { Y : BB } ( innrs : St_dom r s ) ( inn : S_dom s Y ) :
   S_dom ( St r s innrs ) ( S r Y ( St_S_dom_comp innrs inn ) ) .
 Proof .
-  intros .
   unfold S_dom . 
   rewrite ax1t . 
   exact ( isabove_S_S_2 ax0 ax1a _ _ inn ) . 
@@ -339,9 +332,8 @@ Lemma S_dom_rs_sY_to_r_SsY { BB : lBsystem_carrier } { S : S_ops_type BB }
       ( innrs : St_dom r s ) ( inn : S_dom s Y ) :
   S_dom r ( S s Y inn ) .
 Proof .
-  intros . 
   unfold S_dom . 
-  refine ( isabov_trans ( ax1b _ _ _ ) _ ) . 
+  use ( isabov_trans ( ax1b _ _ _ ) ) . 
   exact ( isover_ft' innrs ) . 
 
 Defined.
@@ -352,12 +344,11 @@ Lemma  St_dom_rs_st_to_Strs_Strt { BB : lBsystem_carrier } { S : S_ops_type BB }
            { r s t : Tilde BB } ( innrs : St_dom r s ) ( innst : St_dom s t ) :
   St_dom ( St r s innrs ) ( St r t ( St_St_dom_comp innrs innst ) ) .
 Proof .
-  intros .
   unfold St_dom .
   rewrite ax1t . 
   exact ( S_dom_rs_sY_to_Strs_SrY ax0 ax1a ax1t innrs innst ) . 
 
-Defined. 
+Defined.
 
 Lemma St_dom_rs_st_to_r_Stst { BB : lBsystem_carrier }
       { S : S_ops_type BB } ( ax1b : S_ax1b_type S )
@@ -365,7 +356,6 @@ Lemma St_dom_rs_st_to_r_Stst { BB : lBsystem_carrier }
       { r s t : Tilde BB } ( innrs : St_dom r s ) ( innst : St_dom s t ) :
   St_dom r ( St s t innst ) .
 Proof .
-  intros . 
   unfold St_dom . 
   rewrite ax1t . 
   exact ( S_dom_rs_sY_to_r_SsY ax1b innrs innst ) . 

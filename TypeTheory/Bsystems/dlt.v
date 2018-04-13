@@ -4,8 +4,10 @@ Properties deltaT, deltaS, deltaSid and SdeltaT and StdeltaTt.
 
 By Vladimir Voevodsky, started Jan. 14, 2015 *)
 
-Unset Automatic Introduction.
 
+Require Import UniMath.Foundations.All.
+
+Require Import TypeTheory.Csystems.hSet_ltowers.
 Require Export TypeTheory.Bsystems.T_Tt.
 Require Export TypeTheory.Bsystems.S_St.
 
@@ -47,7 +49,6 @@ Lemma ll_dd_dlt { BB : lBsystem_carrier }
            { dlt : dlt_ops_type BB } ( ax1 : dlt_ax1_type T dlt )
            { X : BB } ( gt0 : ll X > 0 ) : ll ( dd ( dlt X gt0 ) ) = 1 + ll X .
 Proof .
-  intros .
   rewrite ax1 .
   rewrite ax0 . 
   exact ( idpath _ ) .
@@ -60,9 +61,8 @@ Lemma Tt_dom_12_to_1_dlt2 { BB : lBsystem_carrier }
       { dlt : dlt_ops_type BB } ( dltax1 : dlt_ax1_type T dlt )  
       { X1 X2 : BB } ( inn12 : T_dom X1 X2 ) : Tt_dom  X1 ( dlt X2 ( T_dom_gt0_2 inn12 ) ) .
 Proof .
-  intros . 
   unfold Tt_dom . 
-  refine (T_dom_constr _ _ ) .
+  use T_dom_constr.
   + exact ( T_dom_gt0 inn12 ) .
   + rewrite dltax1 . 
     exact ( isabove_trans ( tax1b _ _ _ ) ( T_dom_isabove inn12 ) ) .  
@@ -95,7 +95,6 @@ Lemma St_dom_r1_to_r_dlt1 { BB : lBsystem_carrier }
       { r : Tilde BB } { X : BB } ( innr1 : S_dom r X ) :
   St_dom  r ( dlt X ( S_dom_gt0 innr1 ) ) .
 Proof .
-  intros . 
   unfold St_dom .
   unfold S_dom .
   rewrite dltax1 . 
@@ -130,7 +129,6 @@ Lemma St_dom_r_dltddr { BB : lBsystem_carrier }
       { dlt : dlt_ops_type BB } ( dltax1 : dlt_ax1_type T dlt )
       ( r : Tilde BB ) : St_dom r ( dlt ( dd r ) ( ll_dd r ) ) . 
 Proof.
-  intros .
   unfold St_dom. 
   unfold S_dom .
   rewrite dltax1 .
@@ -166,8 +164,7 @@ Identity Coercion dltSid_to_Fun: dltSid_type >-> Funclass .
 Lemma T_dom_SdltT_l1 { BB : lBsystem_carrier }
       { X1 X2 : BB } ( gt0 : ll X1 > 0 ) ( isov : isover X2 X1 ) : T_dom X1 X2 .
 Proof.
-  intros .
-  refine ( T_dom_constr gt0 _ ) . 
+  use ( T_dom_constr gt0 ) . 
   exact ( isabove_X_ftA' isov gt0 ) . 
 Defined.
   
@@ -177,10 +174,9 @@ Lemma S_dom_gt0_isab_to_dlt1_T12 { BB : lBsystem_carrier }
       { X1 X2 : BB } ( gt0 : ll X1 > 0 ) ( isab : isabove X2 X1 ) :
   S_dom ( dlt X1 gt0 ) ( T X1 X2 ( T_dom_SdltT_l1 gt0 isab ) ) .
 Proof.
-  intros .
   unfold S_dom . 
   rewrite dltax1 . 
-  refine ( isabove_T_T_2 tax0 tax1a _ _ isab ) .
+  use ( isabove_T_T_2 tax0 tax1a _ _ isab ) .
 Defined.
 
   
@@ -211,8 +207,7 @@ Lemma Tt_dom_StdltTt_l1 { BB : lBsystem_carrier }
       { X : BB } { r : Tilde BB } ( gt0 : ll X > 0 ) ( isab : isabove ( dd r ) X ) :
   Tt_dom X r .
 Proof.
-  intros .
-  refine ( T_dom_constr _ _ ) . 
+  use T_dom_constr.
   + exact gt0 . 
   + exact ( isabove_X_ftA isab ) . 
 Defined.
@@ -226,11 +221,10 @@ Lemma St_dom_gt0_isab_to_dlt1_Tt1r { BB : lBsystem_carrier }
            { X : BB } { r : Tilde BB } ( gt0 : ll X > 0 ) ( isab : isabove ( dd r ) X ) :
   St_dom ( dlt X gt0 ) ( Tt X r ( Tt_dom_StdltTt_l1 gt0 isab ) ) .
 Proof .
-  intros .
   unfold St_dom. unfold S_dom.
   rewrite dltax1 .
   rewrite ttax1 .
-  refine ( isabove_T_T_2 tax0 tax1a _ _ isab ) .
+  use ( isabove_T_T_2 tax0 tax1a _ _ isab ) .
 Defined.
 
   
