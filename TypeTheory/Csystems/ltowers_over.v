@@ -122,7 +122,7 @@ functor that takes a presheaf represented by p : X -> B over B to the presheaf r
 
 Definition pocto { T : ltower } { A : T } ( X : ltower_over A ): T := pr1 X. 
 
-Definition ll_pocto { T : ltower } { A : T } ( X : ltower_over A ):
+Lemma ll_pocto { T : ltower } { A : T } ( X : ltower_over A ):
   ll ( pocto X ) = ll X + ll A.
 Proof.
   change ( ll X ) with ( ltower_over_ll X ). 
@@ -132,6 +132,9 @@ Proof.
   - apply ( isover_geh ( pr2 X ) ). 
 Defined.
 
+(** how can the following be done without variables? *)
+Variables (T: ltower)(A:T).
+Check isov_isov: forall ( X : ltower_over_carrier A ), isover ( pocto X ) A.
 
   
 Definition ispointed_ltower_over { T : ltower } ( A : T ): ispointed_type ( ltower_over A ) :=
