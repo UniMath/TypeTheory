@@ -10,7 +10,8 @@ by V. Voevodsky as "Csubsystems".
 Require Import UniMath.Foundations.All.
 
 (* Require Import UniMath.CategoryTheory.Categories. *)
-Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+Require Import TypeTheory.Auxiliary.CategoryTheoryImports.           
+Require Import UniMath.CategoryTheory.limits.terminal.
 Require Export TypeTheory.Csystems.hSet_ltowers.
 
 
@@ -19,33 +20,37 @@ Require Export TypeTheory.Csystems.hSet_ltowers.
 
 (* Notation "f ;; g" := (compose f g)(at level 50). *)
 
+
 Definition mor_from { C : precategory_ob_mor } ( X : C ) := ∑ A : C, X --> A.
+(* compare with UniMath.CategoryTheory.coslicecat.coslicecat_ob *)
 
 Definition mor_from_pr2 { C : precategory_ob_mor } ( X : C ):
   forall f : mor_from X, precategory_morphisms X ( pr1 f ) := pr2.  
-Coercion mor_from_pr2 : mor_from >-> precategory_morphisms. 
+Coercion mor_from_pr2 : mor_from >-> precategory_morphisms.
+(* compare with UniMath.CategoryTheory.coslicecat.coslicecat_ob_morphism *)
 
 Definition mor_from_constr { C : precategory_ob_mor } { X A : C } ( f : X --> A ):
   mor_from X := tpair _ _ f. 
 
+
 Definition mor_to { C : precategory_ob_mor } ( X : C ) := ∑ A : C, A --> X.
+(* compare with UniMath.CategoryTheory.slicecat.slicecat_ob *)
 
 Definition mor_to_pr2 { C : precategory_ob_mor } ( X : C ):
   forall f : mor_to X , precategory_morphisms ( pr1 f ) X := pr2.  
-Coercion mor_to_pr2 : mor_to >-> precategory_morphisms. 
+Coercion mor_to_pr2 : mor_to >-> precategory_morphisms.
+(* compare with UniMath.CategoryTheory.slicecat.slicecat_ob_morphism *)
 
 Definition mor_to_constr { C : precategory_ob_mor } { X A : C } ( f : A --> X ):
   mor_to X := tpair ( fun A : C => A --> X ) _ f.
 
  
-
-
-
-(** To precategories *)
-
+(** reminder from UniMath.CategoryTheory.Categories *)
+(*
 Definition isaset_ob ( C : setcategory ): isaset C := pr1 ( pr2 C ).
 
 Definition isaset_mor ( C : setcategory ): has_homsets C := pr2 ( pr2 C ). 
+*)
 
 
 (** *** The C0-systems
@@ -118,6 +123,12 @@ Definition ftf { CC : ltower_precat_and_p } { X Y : CC } ( f : X --> Y ): X --> 
 Definition Ob_tilde_over { CC : ltower_precat_and_p  } ( X : CC ) :=
   ∑ r : ft X --> X, r ;; ( pX X ) = identity ( ft X ).
 
+Local Lemma Ob_tilde_over_is_sec_pX { CC : ltower_precat_and_p  } ( X : CC ):
+  Ob_tilde_over X = sec_pX X.
+Proof.
+  apply idpath.
+Qed.
+
 Definition Ob_tilde_over_to_mor_to { CC : ltower_precat_and_p } ( X : CC ) ( r : Ob_tilde_over X ):
   mor_to X := mor_to_constr ( pr1 r ).
 Coercion Ob_tilde_over_to_mor_to: Ob_tilde_over >-> mor_to. 
@@ -170,7 +181,7 @@ Definition q_of_f { CC : lC0system_data }
 
 Definition f_star { CC : lC0system_data }  
            { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X ): CC := 
-  pr1 ( q_of_f gt0 f ).
+  dom ( q_of_f gt0 f ).
 
 (** Formulation of q_of_f as a function from mor_to to mor_to *)
 
@@ -188,10 +199,12 @@ that later become axioms of an lC0-system. The numbering of the conditions below
 the Csubsystems paper.
 
 The conditions 1-3 are consequences of the definition of a pointed l-tower (pltower) *)
-           
 
+Definition C0ax4_type ( CC : pltower_precat_and_p ) :=  isTerminal _ (cntr CC).         
+(*
 Definition C0ax4_type ( CC : pltower_precat_and_p ) :=
-  forall X : CC, iscontr ( X --> cntr CC ). 
+  forall X : CC, iscontr ( X --> cntr CC ).
+*)
 
 Definition C0ax5a_type ( CC : lC0system_data ) :=
   forall ( X Y : CC ) ( gt0 : ll X > 0 ) ( f : Y --> ft X ), ll ( f_star gt0 f ) > 0.
