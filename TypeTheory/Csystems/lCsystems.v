@@ -7,7 +7,7 @@ by V. Voevodsky as "Csubsystems".
 
 The definition of an lC-system given below does not require that the types of objects or morphisms
 of the underlying precategory form a set. It also does not require the
-proporties of the identity morphisms but does require associativity. 
+properties of the identity morphisms but does require associativity. 
 
 *)
 
@@ -80,8 +80,8 @@ Defined.
 Definition sf_ax2_type { CC : lC0system } ( sf : sf_type CC ) :=
   forall ( Y Y' U : CC ) ( gt0 : ll U > 0 )
     ( g : Y' --> ft U ) ( f : Y --> f_star gt0 g ),
-     transportf sec_pX  (sf_ax2_type_l1 sf gt0 g f ) ( sf Y _ ( C0ax5a gt0 g ) f ) =
-     sf Y _ gt0 ( f ;; q_of_f gt0 g ).  
+     transportf sec_pX  (sf_ax2_type_l1 sf gt0 g f ) ( sf Y (f_star gt0 g) ( C0ax5a gt0 g ) f ) =
+     sf Y U gt0 ( f ;; q_of_f gt0 g ).  
 
 
 (** **** The definition of the type of l-C-systems *)
@@ -114,19 +114,19 @@ Definition sf_ax2 { CC : lCsystem } { Y Y' U : CC } ( gt0 : ll U > 0 )
 (** **** Operation f_star_of_s *)
 
 Definition f_star_of_s { CC : lCsystem } { Y X : CC } ( f : Y --> ft X )
-  ( gt0 : ll X > 0 ) ( r : sec_pX X ): sec_pX ( f_star gt0 f ). 
+  ( gt0 : ll X > 0 ) ( s : sec_pX X ): sec_pX ( f_star gt0 f ). 
 Proof.
-  set ( int := sf gt0 ( f ;; r ) ).  
-  assert ( inteq : ftf ( f ;; r ) = f ). 
+  set ( int := sf gt0 ( f ;; s ) ).  
+  assert ( inteq : ftf ( f ;; s ) = f ). 
   { unfold ftf. 
     rewrite <- assoc.
-    set ( eq := sec_pX_eq r : (r;; pX X)= _). 
-    change ( f ;; (r ;; pX X ) = f ).  
+    set ( eq := sec_pX_eq s : (s;; pX X)= _). 
+    change ( f ;; (s ;; pX X ) = f ).  
     rewrite eq.
     apply id_right. 
   }
   rewrite inteq in int. 
-  apply int. 
+  exact int. 
 Defined.
   
 
@@ -140,7 +140,7 @@ Proof.
   apply f_star_of_s. 
   exact r.
 Defined.
- 
+
    
 (*
 
