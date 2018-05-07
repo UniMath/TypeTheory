@@ -122,10 +122,9 @@ functor that takes a presheaf represented by p : X -> B over B to the presheaf r
 
 Definition pocto { T : ltower } { A : T } ( X : ltower_over A ): T := pr1 X. 
 
-Definition ll_pocto { T : ltower } { A : T } ( X : ltower_over A ):
+Lemma ll_pocto { T : ltower } { A : T } ( X : ltower_over A ):
   ll ( pocto X ) = ll X + ll A.
 Proof.
-  intros.
   change ( ll X ) with ( ltower_over_ll X ). 
   unfold ltower_over_ll.
   rewrite minusplusnmm. 
@@ -133,6 +132,9 @@ Proof.
   - apply ( isover_geh ( pr2 X ) ). 
 Defined.
 
+(** how can the following be done without variables? *)
+Variables (T: ltower)(A:T).
+Check isov_isov: forall ( X : ltower_over_carrier A ), isover ( pocto X ) A.
 
   
 Definition ispointed_ltower_over { T : ltower } ( A : T ): ispointed_type ( ltower_over A ) :=
@@ -144,7 +146,7 @@ Definition ltower_over_to_pltower_over { T : ltower } ( A : T ) ( X : ltower_ove
   pltower_over A := X.
 
 Lemma ltower_over_ftn { T : ltower } { A : T } ( n : nat )
-      ( X : ltower_over A ) ( ge : ll X >= n ): pr1 ( ftn n X ) = ftn n ( pr1 X ).
+      ( X : ltower_over A ) ( ge : ll X >= n ): pocto ( ftn n X ) = ftn n ( pocto X ).
 Proof.
   revert X ge. 
   induction n.
@@ -152,13 +154,14 @@ Proof.
     apply idpath. 
   + intros. 
     do 2 rewrite <- ftn_ft. 
-    assert ( int : ft ( pr1 X ) = pr1 ( ft X ) ). 
+    assert ( int : ft ( pocto X ) = pocto ( ft X ) ).
     { change ( ft X ) with ( ltower_over_ft X ). 
       unfold ltower_over_ft. 
       destruct ( isover_choice (isov_isov X) ) as [ isov | eq ]. 
       *  simpl. 
          apply idpath. 
-      *  change ( ll X ) with ( ll ( pr1 X ) - ll A ) in ge.
+      *  change ( ll X ) with ( ll ( pocto X ) - ll A ) in ge.
+         change (A = pocto X) in eq.
          rewrite <- eq in ge. 
          rewrite natminusnn in ge.
          destruct (nopathsfalsetotrue ge).
@@ -199,9 +202,13 @@ Defined.
 
 (** The projection pocto from the over-tower to the tower is over-monotone *)
 
-Lemma ll_over_minus_ll_over { T : ltower } { A : T } ( X1 X2 : ltower_over A ):
-  ll X1 - ll X2 = ll ( pocto X1 ) - ll ( pocto X2 ). 
+Lemma isllmonot_pocto { T : ltower } { A : T }: isllmonot (pocto(A:=A)).
+(* Lemma ll_over_minus_ll_over { T : ltower } { A : T } ( X1 X2 : ltower_over A ):
+  ll X1 - ll X2 = ll ( pocto X1 ) - ll ( pocto X2 ). *)
 Proof.
+  red.
+  intros X1 X2.
+  apply pathsinv0. (* in order to stay close to Vladimir's proof *)
   destruct X1 as [ X1 isov1 ].
   destruct X2 as [ X2 isov2 ]. 
   unfold ll. 
@@ -215,31 +222,33 @@ Proof.
   apply idpath. 
 Defined.
 
-
-Definition isovmonot_pocto { T : ltower } ( A : T ) { X Y : ltower_over A } ( isov : isover X Y ):
-isover ( pocto X ) ( pocto Y ).  
+Definition isovmonot_pocto { T : ltower } ( A : T ): isovmonot (pocto(A:=A)).
+(* Definition isovmonot_pocto { T : ltower } ( A : T ) { X Y : ltower_over A } ( isov : isover X Y ):
+isover ( pocto X ) ( pocto Y ). *)
 Proof.
+  red.
+  intros X Y isov.
   destruct X as [ X isovX ].
   destruct Y as [ Y isovY ].
   simpl. 
-  set ( int := maponpaths pr1 isov ). 
+  set ( int := maponpaths pocto isov ).
   simpl in int.
   rewrite ltower_over_ftn in int. 
-  - simpl in int. 
-    rewrite ll_over_minus_ll_over in int. 
+  - simpl in int.
+    rewrite <-isllmonot_pocto in int.
     simpl in int. 
     exact int. 
   - use natminuslehn.
 Defined.
 
-
+(*
 Lemma isllmonot_pocto { T : ltower } { A : T }: isllmonot ( @pocto T A ). 
 Proof.
   unfold isllmonot.
   intros X Y.
   apply ( ! ( ll_over_minus_ll_over X Y ) ).
 Defined.
-
+*)
 
 (** **** The projection pocto and ft *)
 
@@ -282,7 +291,7 @@ Proof.
 Defined.
 
   
-Lemma isllmonot_to_ltower_over ( T : pltower ):
+Corollary isllmonot_to_ltower_over ( T : pltower ):
   isllmonot ( @to_ltower_over T ).
 Proof.
   unfold isllmonot.
@@ -292,7 +301,7 @@ Proof.
 Defined.
 
 
-Lemma isbased_to_ltower_over ( T : pltower ):
+Corollary isbased_to_ltower_over ( T : pltower ):
   isbased ( @to_ltower_over T ).
 Proof.
   unfold isbased.

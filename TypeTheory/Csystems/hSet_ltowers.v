@@ -46,11 +46,11 @@ Coercion hSet_pltowers_pr1: hSet_pltower >-> hSet_ltower.
 Lemma isinvovmonot_pocto { T : hSet_ltower } { A : T } { X Y : ltower_over A }
       ( isov : isover ( pocto X ) ( pocto Y ) ): isover X Y.  
 Proof.
-  use ( invmaponpathsincl pr1 ). 
+  use ( invmaponpathsincl pocto ).
   - apply isinclpr1. 
     intro x. 
     apply isaprop_isover.
-  - rewrite ll_over_minus_ll_over. 
+  - rewrite <- isllmonot_pocto.
     rewrite ltower_over_ftn. 
     + exact isov. 
     + change ( ll X ) with ( ll ( pr1 X ) - ll A ). 
@@ -66,7 +66,7 @@ Proof.
   - exact ( pr2 T ). 
   - intro x.
     apply isasetaprop. 
-    apply isaprop_isover. 
+    apply isaprop_isover.
 Defined.
 
 
@@ -82,10 +82,13 @@ Definition hSet_pltower_over { T : hSet_ltower } ( X : T ): hSet_pltower :=
 
 (** **** Completing construction of the function to_ltower_over *)
 
-  
-Lemma isovmonot_to_ltower_over { T : hSet_pltower }
-      { X Y : T } ( isov : isover X Y ) : isover ( to_ltower_over X ) ( to_ltower_over Y ).
+
+Lemma isovmonot_to_ltower_over { T : hSet_pltower } : isovmonot (to_ltower_over(T:=T)).
+(* Lemma isovmonot_to_ltower_over { T : hSet_pltower }
+      { X Y : T } ( isov : isover X Y ) : isover ( to_ltower_over X ) ( to_ltower_over Y ). *)
 Proof.
+  red.
+  intros X Y isov.
   use ( @isinvovmonot_pocto T ( cntr T ) (to_ltower_over X) (to_ltower_over Y) isov ). 
 Defined.
 
@@ -104,7 +107,7 @@ Definition lft { T : hSet_ltower }
            { X : T } { X' : ltower_over X } ( X'' : ltower_over ( pocto X' ) ): ltower_over X'.
 Proof.
   use obj_over_constr.
-  - split with ( pocto X'' ). 
+  - split with ( pocto X'' ).
     apply ( isover_trans ( isov_isov X'' ) ( isov_isov X' ) ).
   - apply isinvovmonot_pocto. 
     simpl.
@@ -124,7 +127,24 @@ Proof.
   apply idpath.
 Defined.
 
-  
+Corollary isllmonot_lft { T : hSet_ltower }
+      { X : T } ( X' : ltower_over X ): isllmonot ( @lft _ _ X' ).
+Proof.
+  unfold isllmonot.
+  intros.
+  do 2 rewrite ll_lft. 
+  apply idpath. 
+Defined.
+
+Corollary isbased_lft { T : hSet_ltower }
+      { X : T } ( X' : ltower_over X ): isbased ( @lft _ _ X' ).
+Proof.
+  unfold isbased.
+  intros X0 eq0.
+  rewrite ll_lft.
+  exact eq0.
+Defined. 
+
 
 Lemma isovmonot_lft { T : hSet_ltower }
       { X : T } ( X' : ltower_over X ): isovmonot ( @lft _ _ X' ).
@@ -135,27 +155,7 @@ Proof .
   simpl. 
   apply isinvovmonot_pocto. 
   simpl. 
-  apply ( isovmonot_pocto _ isov ). 
-Defined.
-
-
-Lemma isllmonot_lft { T : hSet_ltower }
-      { X : T } ( X' : ltower_over X ): isllmonot ( @lft _ _ X' ).
-Proof.
-  unfold isllmonot.
-  intros.
-  do 2 rewrite ll_lft. 
-  apply idpath. 
-Defined.
-
-
-Lemma isbased_lft { T : hSet_ltower }
-      { X : T } ( X' : ltower_over X ): isbased ( @lft _ _ X' ).
-Proof.
-  unfold isbased.
-  intros X0 eq0.
-  rewrite ll_lft.
-  exact eq0.
+  apply ( isovmonot_pocto (pocto X') _ _ isov ).
 Defined.
 
 
@@ -187,7 +187,7 @@ Proof.
    apply isinvovmonot_pocto. 
    simpl.
    apply ( pr2 f ). 
-   apply ( isovmonot_pocto _ isov ). 
+   apply ( isovmonot_pocto _ _ _ isov ).
 Defined.
 
 
@@ -243,7 +243,7 @@ Proof.
   apply isinvovmonot_pocto. 
   simpl.
   apply isovmonot_pocto.
-  apply isovmonot_pocto. 
+  apply isovmonot_pocto.
   exact isov. 
 Defined.
 
@@ -264,8 +264,9 @@ Proof .
   apply idpath.
 Defined.
 
+(** the usual two corollaries follow - they should better be proven once and for all *)
 
-Lemma isllmonot_to_over_pocto { T : hSet_ltower } { X : T } ( X' : ltower_over X ):
+Corollary isllmonot_to_over_pocto { T : hSet_ltower } { X : T } ( X' : ltower_over X ):
   isllmonot ( to_over_pocto X' ).
 Proof.
   unfold isllmonot.
@@ -275,7 +276,7 @@ Proof.
 Defined.
 
 
-Lemma isbased_to_over_pocto { T : hSet_ltower } { X : T } ( X' : ltower_over X ):
+Corollary isbased_to_over_pocto { T : hSet_ltower } { X : T } ( X' : ltower_over X ):
   isbased ( to_over_pocto X' ).
 Proof.
   unfold isbased.
