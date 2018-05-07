@@ -281,18 +281,18 @@ Definition C0ax6 { CC : lC0system } { X : CC } ( gt0 : ll X > 0 ):
   pr1 ( pr2 ( pr2 ( pr2 CC ))) X gt0.
 
 Definition C0ax6a { CC : lC0system } { X : CC } ( gt0 : ll X > 0 ):
-  f_star gt0 ( identity ( ft X ) ) = X := maponpaths pr1 ( C0ax6 gt0 ). 
+  f_star gt0 ( identity ( ft X ) ) = X := maponpaths pr1 ( C0ax6 gt0 ).
 
 Definition C0ax7 { CC : lC0system } { X Y Z : CC }
   ( gt0 : ll X > 0 ) ( f : Y --> ft X ) ( g : Z --> ft ( f_star gt0 f ) ):
   mor_to_constr ( ( q_of_f ( C0ax5a gt0 f ) g ) ;; ( q_of_f gt0 f ) ) =
   q_of_f gt0 ( g ;; ( ( C0emor gt0 f ) ;; f ) ) :=
-  pr2 ( pr2 ( pr2 ( pr2 CC ))) X Y Z gt0 f g. 
+  pr2 ( pr2 ( pr2 ( pr2 CC ))) X Y Z gt0 f g.
 
 Definition C0ax7a { CC : lC0system } { X Y Z : CC }
   ( gt0 : ll X > 0 ) ( f : Y --> ft X ) ( g : Z --> ft ( f_star gt0 f ) ):
   f_star ( C0ax5a gt0 f ) g = f_star gt0 ( g ;; ( ( C0emor gt0 f ) ;; f ) ) :=
-  maponpaths pr1 ( C0ax7 gt0 f g ). 
+  maponpaths pr1 ( C0ax7 gt0 f g ).
 
 (** **** Some simple properties of lC0systems *)
 
@@ -300,9 +300,9 @@ Lemma ll_f_star { CC : lC0system } { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> f
   ll ( f_star gt0 f ) = 1 + ll Y.
 Proof.
   assert ( gt0': ll ( f_star gt0 f ) > 0 ) by apply C0ax5a.
-  rewrite <- ( S_ll_ft gt0' ). 
-  rewrite C0ax5b. 
-  apply idpath. 
+  rewrite <- ( S_ll_ft gt0' ).
+  rewrite C0ax5b.
+  apply idpath.
 Defined.
 
 
