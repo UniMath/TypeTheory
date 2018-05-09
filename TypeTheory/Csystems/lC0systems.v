@@ -15,6 +15,22 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Export TypeTheory.Csystems.hSet_ltowers.
 
 
+Section Upstream.
+
+Lemma idtomorinvcancelleft {CC: precategory}{A B C: CC} (eq: B = A)(f: A --> C)(g: B --> C):  g = idtomor _ _ eq ;; f -> idtomor _ _ (! eq);; g = f.
+Proof.
+  induction eq.
+  intro Hyp.
+  simpl.
+  rewrite id_left.
+  rewrite id_left in Hyp.
+  exact Hyp.
+Defined.
+
+End Upstream.
+
+
+
 
 (* Notation "a --> b" := (precategory_morphisms a b)(at level 50). *)
 

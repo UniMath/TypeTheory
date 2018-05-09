@@ -46,10 +46,46 @@ Definition sf_ax1_type { CC : lC0system } ( sf0 : sf_type CC ) :=
   forall ( Y X : CC ) ( gt0 : ll X > 0 ) ( f : Y --> X ),
     ( C0emor gt0 ( ftf f ) ) ;; f = ( sf0 _ _ gt0 f ) ;; ( q_of_f gt0 ( ftf f ) ).
 
+
+Definition sf_ax2_type_l1_type { CC : lC0system } ( sf0 : sf_type CC )
+      { Y Y' U : CC } ( gt0 : ll U > 0 )
+      ( g : Y' --> ft U ) ( f : Y --> f_star gt0 g ) :=
+      f_star (C0ax5a gt0 g) (ftf f) = f_star gt0 (ftf (f ;; q_of_f gt0 g)).
+
+(** needed for later analysis, not for the definition *)
+Lemma sf_ax2_type_l1_type_depends_only_on_ftf_f { CC : lC0system } ( sf0 : sf_type CC )
+      { Y Y' U : CC } ( gt0 : ll U > 0 )
+      ( g : Y' --> ft U ) ( f f' : Y --> f_star gt0 g ):
+      ftf f = ftf f' -> sf_ax2_type_l1_type sf0 gt0 g f = sf_ax2_type_l1_type sf0 gt0 g f'.
+Proof.
+  intro Hyp.
+  unfold  sf_ax2_type_l1_type.
+  rewrite Hyp.
+  apply maponpaths.
+  apply maponpaths.
+  unfold ftf.
+  do 2 rewrite <- assoc.
+  simpl.
+  etrans.
+    eapply cancel_precomposition.
+    apply pathsinv0.
+    apply (C0ax5c gt0 g).
+  apply pathsinv0.
+  etrans.
+    eapply cancel_precomposition.
+    apply pathsinv0.
+    apply (C0ax5c gt0 g).
+  do 4 rewrite assoc.
+  unfold ftf in Hyp.
+  rewrite Hyp.
+  apply idpath.
+Defined.
+
+
 Lemma sf_ax2_type_l1 { CC : lC0system } ( sf0 : sf_type CC )
       { Y Y' U : CC } ( gt0 : ll U > 0 )
       ( g : Y' --> ft U ) ( f : Y --> f_star gt0 g ):
-  f_star (C0ax5a gt0 g) (ftf f) = f_star gt0 (ftf (f ;; q_of_f gt0 g)).
+  sf_ax2_type_l1_type sf0 gt0 g f.
 Proof.
   assert ( int1 : f_star (C0ax5a gt0 g) (ftf f) =
                   f_star gt0 ( ( ftf f ) ;; ( ( C0emor gt0 g ) ;; g ) ) )
@@ -302,11 +338,27 @@ Section Pullbacks.
 
 Variable CC : lCsystem.
 
-Lemma injectionprop2_4 {X Y Z: CC} (gt0: ll X >0) (f: Y --> ft X) (g: Z --> f_star gt0 f):
+(** show that [g] is determined by [g;;q_of_f gt0 f] and [ftf g] - unfortunately, [g] alone enters as argument of [sf_ax2_type_l1] *)
+Lemma injectionprop2_4 {X Y Z: CC} (gt0: ll X > 0) (f: Y --> ft X) (g: Z --> f_star gt0 f):
   g = C0emor_inv (C0ax5a gt0 f) (ftf g);;
-      (transportf _ (!(sf_ax2_type_l1 (@sf CC) gt0 f g)) (sf gt0 (g;;q_of_f gt0 f)));;
+      (transportb _ (sf_ax2_type_l1 (@sf CC) gt0 f g)) (sf gt0 (g;;q_of_f gt0 f));;
       (q_of_f (C0ax5a gt0 f) (ftf g)).
-  Proof.
+Proof.
+  rewrite <- sf_ax2.
+  rewrite transport_b_f.
+  rewrite pathsinv0r.
+  rewrite idpath_transportf.
+  rewrite <- assoc.
+  simpl.
+  apply pathsinv0.
+  apply idtomorinvcancelleft.
+  apply pathsinv0.
+  etrans.
+  - eapply (sf_ax1 (C0ax5a gt0 f) g).
+  - apply idpath.
+Defined.
+
+(*
     Check (sec_pnX_to_mor 1 _ (sf gt0 (g;;q_of_f gt0 f))).
     Check (mor_to_pr2 _ (q_of_f (C0ax5a gt0 f) (ftf g))).
     Check (!(sf_ax2_type_l1 (@sf CC) gt0 f g)).
@@ -315,8 +367,18 @@ Lemma injectionprop2_4 {X Y Z: CC} (gt0: ll X >0) (f: Y --> ft X) (g: Z --> f_st
     Check ((transportf _ (!(sf_ax2_type_l1 (@sf CC) gt0 f g)) (sf gt0 (g;;q_of_f gt0 f)));;(q_of_f (C0ax5a gt0 f) (ftf g))).
     Check (C0ax5b (C0ax5a gt0 f) (ftf g)).
     Check (C0emor_inv (C0ax5a gt0 f) (ftf g)).
-Admitted.
+ *)
 
 
+Lemma injectionprop2_4_cor {X Y Z: CC} (gt0: ll X > 0) (f: Y --> ft X) (g g': Z --> f_star gt0 f): g;;q_of_f gt0 f = g';;q_of_f gt0 f -> ftf g = ftf g' -> g = g'.
+Proof.
+  intros Hyp1 Hyp2.
+  rewrite injectionprop2_4.
+  rewrite (injectionprop2_4 _ _ g).
+(* this should be okay since g enters the equation only in the form of ftf g or g · q_of_f gt0 f, with the exception of the argument to sf_ax2_type_l1, but this is an equation of objects whose type only depends on ftf g, as shown in sf_ax2_type_l1_type_depends_only_on_ftf_f
+*)
+  Admitted.
+
+End Pullbacks.
 
 (* End of the file lCsystems.v *)
