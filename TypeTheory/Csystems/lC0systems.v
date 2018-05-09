@@ -216,7 +216,14 @@ Definition C0ax5b_type ( CC : lC0system_data ) :=
 
 Definition C0ax5b_mor { CC : lC0system_data } ( ax5b : C0ax5b_type CC )
            { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X ):
-  ft ( f_star gt0 f ) --> Y := idtomor _ _ ( ax5b X Y gt0 f ). 
+  ft ( f_star gt0 f ) --> Y := idtomor _ _ ( ax5b X Y gt0 f ).
+
+(** the following definition is only used for work with the definitions *)
+Definition C0ax5b_mor_inv { CC : lC0system_data } ( ax5b : C0ax5b_type CC )
+           { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X ):
+  Y --> ft ( f_star gt0 f ) := idtomor _ _ ( !(ax5b X Y gt0 f) ).
+
+
   
 
 (** The description of properties continues *)
@@ -267,6 +274,9 @@ Notation ft_f_star := C0ax5b.
 
 Definition C0emor { CC : lC0system } { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X ):
   ft ( f_star gt0 f ) --> Y := C0ax5b_mor ( @C0ax5b CC ) gt0 f. 
+
+Definition C0emor_inv { CC : lC0system } { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X ):
+  Y --> ft ( f_star gt0 f ) := C0ax5b_mor_inv ( @C0ax5b CC ) gt0 f.
 
 
 Definition C0ax5c { CC : lC0system }

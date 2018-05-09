@@ -292,4 +292,31 @@ Defined.
 *)
 
 
+(** *** the square expressed in [C0ax5c_type] is even a pullback in every C-system *)
+
+(**
+  This corresponds to the direction from 2 to 1 of Prop. 2.4 of "Csubsystems".
+*)
+
+Section Pullbacks.
+
+Variable CC : lCsystem.
+
+Lemma injectionprop2_4 {X Y Z: CC} (gt0: ll X >0) (f: Y --> ft X) (g: Z --> f_star gt0 f):
+  g = C0emor_inv (C0ax5a gt0 f) (ftf g);;
+      (transportf _ (!(sf_ax2_type_l1 (@sf CC) gt0 f g)) (sf gt0 (g;;q_of_f gt0 f)));;
+      (q_of_f (C0ax5a gt0 f) (ftf g)).
+  Proof.
+    Check (sec_pnX_to_mor 1 _ (sf gt0 (g;;q_of_f gt0 f))).
+    Check (mor_to_pr2 _ (q_of_f (C0ax5a gt0 f) (ftf g))).
+    Check (!(sf_ax2_type_l1 (@sf CC) gt0 f g)).
+    Check (C0ax7a gt0 f (ftf g)).
+    Check (transportf _ (!(sf_ax2_type_l1 (@sf CC) gt0 f g)) (sf gt0 (g;;q_of_f gt0 f))).
+    Check ((transportf _ (!(sf_ax2_type_l1 (@sf CC) gt0 f g)) (sf gt0 (g;;q_of_f gt0 f)));;(q_of_f (C0ax5a gt0 f) (ftf g))).
+    Check (C0ax5b (C0ax5a gt0 f) (ftf g)).
+    Check (C0emor_inv (C0ax5a gt0 f) (ftf g)).
+Admitted.
+
+
+
 (* End of the file lCsystems.v *)
