@@ -214,16 +214,16 @@ Definition C0ax5b_type ( CC : lC0system_data ) :=
 
 (** A construction needed to formulate further properties of the C0-system data. *)
 
-Definition C0ax5b_mor { CC : lC0system_data } ( ax5b : C0ax5b_type CC )
-           { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X ):
-  ft ( f_star gt0 f ) --> Y := idtomor _ _ ( ax5b X Y gt0 f ). 
+Definition C0ax5b_iso { CC : lC0system_data } ( ax5b : C0ax5b_type CC )
+  { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X ):
+  iso (ft ( f_star gt0 f )) Y := idtoiso ( ax5b X Y gt0 f ).
   
 
 (** The description of properties continues *)
 
 Definition C0ax5c_type { CC : lC0system_data } ( ax5b : C0ax5b_type CC ) := 
   forall ( X Y : CC ) ( gt0 : ll X > 0 ) ( f : Y --> ft X ), 
-    pX ( f_star gt0 f ) ;; ( ( C0ax5b_mor ax5b gt0 f ) ;; f ) = ( q_of_f gt0 f ) ;; ( pX X ). 
+    pX ( f_star gt0 f ) ;; ( ( C0ax5b_iso ax5b gt0 f ) ;; f ) = ( q_of_f gt0 f ) ;; ( pX X ).
 
 Definition C0ax6_type ( CC : lC0system_data ) :=
   forall ( X : CC ) ( gt0 : ll X > 0 ),
@@ -233,7 +233,7 @@ Definition C0ax7_type { CC : lC0system_data }
   ( ax5a : C0ax5a_type CC ) ( ax5b : C0ax5b_type CC ) :=
   forall ( X Y Z : CC ) ( gt0 : ll X > 0 ) ( f : Y --> ft X ) ( g : Z --> ft ( f_star gt0 f ) ),
     mor_to_constr ( ( q_of_f ( ax5a _ _ gt0 f ) g ) ;; ( q_of_f gt0 f ) ) =
-    q_of_f gt0 ( g ;; ( ( C0ax5b_mor ax5b gt0 f ) ;; f ) ). 
+    q_of_f gt0 ( g ;; ( ( C0ax5b_iso ax5b gt0 f ) ;; f ) ).
 
 
 
@@ -265,13 +265,13 @@ Definition C0ax5b { CC : lC0system } { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y -->
 
 Notation ft_f_star := C0ax5b. 
 
-Definition C0emor { CC : lC0system } { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X ):
-  ft ( f_star gt0 f ) --> Y := C0ax5b_mor ( @C0ax5b CC ) gt0 f. 
+Definition C0eiso { CC : lC0system } { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X ):
+  iso (ft ( f_star gt0 f )) Y := C0ax5b_iso ( @C0ax5b CC ) gt0 f.
 
 
 Definition C0ax5c { CC : lC0system }
            { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X ): 
-  pX ( f_star gt0 f ) ;; ( ( C0emor gt0 f ) ;; f ) =
+  pX ( f_star gt0 f ) ;; ( ( C0eiso gt0 f ) ;; f ) =
   ( q_of_f gt0 f ) ;; ( pX X ) :=
   pr2 ( pr2 ( pr1 ( pr2 ( pr2 CC )))) X Y gt0 f. 
 
@@ -286,12 +286,12 @@ Definition C0ax6a { CC : lC0system } { X : CC } ( gt0 : ll X > 0 ):
 Definition C0ax7 { CC : lC0system } { X Y Z : CC }
   ( gt0 : ll X > 0 ) ( f : Y --> ft X ) ( g : Z --> ft ( f_star gt0 f ) ):
   mor_to_constr ( ( q_of_f ( C0ax5a gt0 f ) g ) ;; ( q_of_f gt0 f ) ) =
-  q_of_f gt0 ( g ;; ( ( C0emor gt0 f ) ;; f ) ) :=
+  q_of_f gt0 ( g ;; ( ( C0eiso gt0 f ) ;; f ) ) :=
   pr2 ( pr2 ( pr2 ( pr2 CC ))) X Y Z gt0 f g.
 
 Definition C0ax7a { CC : lC0system } { X Y Z : CC }
   ( gt0 : ll X > 0 ) ( f : Y --> ft X ) ( g : Z --> ft ( f_star gt0 f ) ):
-  f_star ( C0ax5a gt0 f ) g = f_star gt0 ( g ;; ( ( C0emor gt0 f ) ;; f ) ) :=
+  f_star ( C0ax5a gt0 f ) g = f_star gt0 ( g ;; ( ( C0eiso gt0 f ) ;; f ) ) :=
   maponpaths pr1 ( C0ax7 gt0 f g ).
 
 (** **** Some simple properties of lC0systems *)
