@@ -44,7 +44,7 @@ Definition sf_from_data { CC : lCsystem_data } { Y X : CC } ( gt0 : ll X > 0 ) (
 
 Definition sf_ax1_type { CC : lC0system } ( sf0 : sf_type CC ) :=
   forall ( Y X : CC ) ( gt0 : ll X > 0 ) ( f : Y --> X ),
-    ( C0emor gt0 ( ftf f ) ) ;; f = ( sf0 _ _ gt0 f ) ;; ( q_of_f gt0 ( ftf f ) ).
+    ( C0eiso gt0 ( ftf f ) ) ;; f = ( sf0 _ _ gt0 f ) ;; ( q_of_f gt0 ( ftf f ) ).
 
 
 Definition sf_ax2_type_l1_type { CC : lC0system } ( sf0 : sf_type CC )
@@ -67,14 +67,16 @@ Proof.
   do 2 rewrite <- assoc.
   simpl.
   etrans.
-    eapply cancel_precomposition.
+  { eapply cancel_precomposition.
     apply pathsinv0.
     apply (C0ax5c gt0 g).
+  }
   apply pathsinv0.
   etrans.
-    eapply cancel_precomposition.
+  { eapply cancel_precomposition.
     apply pathsinv0.
     apply (C0ax5c gt0 g).
+  }
   do 4 rewrite assoc.
   unfold ftf in Hyp.
   rewrite Hyp.
@@ -88,16 +90,16 @@ Lemma sf_ax2_type_l1 { CC : lC0system } ( sf0 : sf_type CC )
   sf_ax2_type_l1_type sf0 gt0 g f.
 Proof.
   assert ( int1 : f_star (C0ax5a gt0 g) (ftf f) =
-                  f_star gt0 ( ( ftf f ) ;; ( ( C0emor gt0 g ) ;; g ) ) )
+                  f_star gt0 ( ( ftf f ) ;; ( ( C0eiso gt0 g ) ;; g ) ) )
   by apply C0ax7a.
 
-  assert ( int2 : f_star gt0 ( ( ftf f ) ;; ( ( C0emor gt0 g ) ;; g ) ) =
-                  f_star gt0 ( f ;; ( ( pX _ ) ;; ( ( C0emor gt0 g ) ;; g ) ) ) ). 
+  assert ( int2 : f_star gt0 ( ( ftf f ) ;; ( ( C0eiso gt0 g ) ;; g ) ) =
+                  f_star gt0 ( f ;; ( ( pX _ ) ;; ( ( C0eiso gt0 g ) ;; g ) ) ) ).
   { unfold ftf.
     rewrite <- assoc. 
     apply idpath.
   }
-  assert ( int3 : f_star gt0 ( f ;; ( ( pX _ ) ;; ( ( C0emor gt0 g ) ;; g ) ) ) =
+  assert ( int3 : f_star gt0 ( f ;; ( ( pX _ ) ;; ( ( C0eiso gt0 g ) ;; g ) ) ) =
                   f_star gt0 ( f ;; ( ( q_of_f gt0 g ) ;; ( pX U ) ) ) ).
   { unfold ftf.
     rewrite C0ax5c.
@@ -137,7 +139,7 @@ Definition sf { CC : lCsystem } { Y X : CC } ( gt0 : ll X > 0 ) ( f : Y --> X ):
   sec_pX ( f_star gt0 ( ftf f ) ) := ( pr1 ( pr2 CC ) ) Y X gt0 f. 
 
 Definition sf_ax1 { CC : lCsystem } { Y X : CC } ( gt0 : ll X > 0 ) ( f : Y --> X ):
-  ( C0emor gt0 ( ftf f ) ) ;; f  = ( sf gt0 f ) ;; ( q_of_f gt0 ( ftf f ) ) :=
+  ( C0eiso gt0 ( ftf f ) ) ;; f  = ( sf gt0 f ) ;; ( q_of_f gt0 ( ftf f ) ) :=
   pr1 ( pr2 ( pr2 CC ) ) Y X gt0 f.
 
 Definition sf_ax2 { CC : lCsystem } { Y Y' U : CC } ( gt0 : ll U > 0 )
@@ -340,7 +342,7 @@ Variable CC : lCsystem.
 
 (** show that [g] is determined by [g;;q_of_f gt0 f] and [ftf g] - unfortunately, [g] alone enters as argument of [sf_ax2_type_l1] *)
 Lemma injectionprop2_4 {X Y Z: CC} (gt0: ll X > 0) (f: Y --> ft X) (g: Z --> f_star gt0 f):
-  g = C0emor_inv (C0ax5a gt0 f) (ftf g);;
+  g = C0eiso_inv (C0ax5a gt0 f) (ftf g);;
       (transportb _ (sf_ax2_type_l1 (@sf CC) gt0 f g)) (sf gt0 (g;;q_of_f gt0 f));;
       (q_of_f (C0ax5a gt0 f) (ftf g)).
 Proof.
@@ -351,7 +353,7 @@ Proof.
   rewrite <- assoc.
   simpl.
   apply pathsinv0.
-  apply idtomorinvcancelleft.
+  apply idtoisoinvcancelleft.
   apply pathsinv0.
   etrans.
   - eapply (sf_ax1 (C0ax5a gt0 f) g).
