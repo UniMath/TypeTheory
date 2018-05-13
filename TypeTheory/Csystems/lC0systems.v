@@ -27,6 +27,21 @@ Proof.
   exact Hyp.
 Defined.
 
+(** in the following, [s] and [t] stand for source and target of the "arrow transformer" [art] *) 
+Lemma eq_function_on_morphisms {CC: precategory}{A B: CC}
+      ( s t: CC ⟦ A , B ⟧ -> ob CC )
+      ( art: forall g: CC ⟦ A , B ⟧, CC ⟦ s g , t g ⟧)
+      ( g g': A --> B )(e : g = g'):
+  art g ;; idtoiso (maponpaths t e) = idtoiso (maponpaths s e) ;; art g'.
+Proof.
+  induction e.
+  simpl.
+  rewrite id_left.
+  rewrite id_right.
+  apply idpath.
+Defined.
+
+
 End Upstream.
 
 
