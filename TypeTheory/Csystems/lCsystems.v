@@ -403,11 +403,37 @@ Proof.
       However, I do not know how to instruct Coq to work on the level of
       mor_to - the goal hides the coercion to the underlying morphism! *)
   }
-  etrans.
-  { apply cancel_postcomposition.
-    apply maponpaths.
-(* and now? *)
+  rewrite maponpaths_for_constant_function.
+  rewrite id_right.
+  rewrite <- assoc.
+  apply iso_inv_on_right.
 
+  do 2 rewrite assoc.
+  apply cancel_postcomposition.
+  rewrite idtoiso_postcompose.
+  rewrite idtoiso_precomposeb.
+  etrans.
+  { apply pathsinv0.
+    apply (functtransportf (λ h : CC ⟦ Z, ft (f_star gt0 f) ⟧, pr1 (q_of_f (C0ax5a gt0 f) h)) (λ b : CC, CC ⟦ ft (f_star (C0ax5a gt0 f) (ftf g)), b ⟧) Hyp2).
+  }
+  apply pathsinv0.
+  etrans.
+  { apply pathsinv0.
+    apply (functtransportb (λ h : CC ⟦ Z, ft (f_star gt0 f) ⟧, ft (f_star (C0ax5a gt0 f) h)) (λ a : CC, CC ⟦ a, f_star (C0ax5a gt0 f) (ftf g') ⟧) Hyp2).
+  }
+(*
+  unfold transportb.
+ *)
+  apply pathsinv0.
+  etrans.
+  { apply maponpaths.
+    apply maponpaths.
+    apply maponpaths.
+    set (art := fun h: CC ⟦ Z, X ⟧ => pr1 (sf gt0 h)).
+    (* does not work since the sections type has to be handled, not just
+        the underlying type of morphisms:
+    apply (eq_function_on_morphisms_cor _ _ art _ _ Hyp1).
+    *)
 
   Admitted.
 

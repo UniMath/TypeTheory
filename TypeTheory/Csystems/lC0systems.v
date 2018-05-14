@@ -24,6 +24,13 @@ Proof.
   apply idpath.
 Qed.
 
+Lemma idtoiso_precomposeb (C : precategory) (a a' b : ob C)
+  (p : a' = a) (f : a --> b) :
+      (idtoiso p) · f = transportb (λ a, a --> b) p f.
+Proof.
+  destruct p.
+  apply id_left.
+Qed.
 
 (** no need for the following in view of Lemma [iso_inv_on_right]
 Lemma idtoisoinvcancelleft {CC: precategory}{A B C: CC} (eq: B = A)(f: A --> C)(g: B --> C):  g = idtoiso eq ;; f -> iso_inv_from_iso (idtoiso eq);; g = f.
