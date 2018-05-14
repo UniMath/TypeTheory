@@ -17,6 +17,15 @@ Require Export TypeTheory.Csystems.hSet_ltowers.
 
 Section Upstream.
 
+Lemma maponpaths_for_constant_function {T1 T2 : UU} (x : T2) {t1 t2 : T1}
+      (e: t1 = t2): maponpaths (fun _: T1 => x) e = idpath x.
+Proof.
+  induction e.
+  apply idpath.
+Qed.
+
+
+(** no need for the following in view of Lemma [iso_inv_on_right]
 Lemma idtoisoinvcancelleft {CC: precategory}{A B C: CC} (eq: B = A)(f: A --> C)(g: B --> C):  g = idtoiso eq ;; f -> iso_inv_from_iso (idtoiso eq);; g = f.
 Proof.
   induction eq.
@@ -26,6 +35,7 @@ Proof.
   rewrite id_left in Hyp.
   exact Hyp.
 Defined.
+*)
 
 (** in the following, [s] and [t] stand for source and target of the "arrow transformer" [art] *) 
 Lemma eq_function_on_morphisms {CC: precategory}{A B: CC}
@@ -39,6 +49,43 @@ Proof.
   rewrite id_left.
   rewrite id_right.
   apply idpath.
+Defined.
+
+(** with an isolated morphism *)
+Corollary eq_function_on_morphisms_cor {CC: precategory}{A B: CC}
+      ( s t: CC ⟦ A , B ⟧ -> ob CC )
+      ( art: forall g: CC ⟦ A , B ⟧, CC ⟦ s g , t g ⟧)
+      ( g g': A --> B )(e : g = g'):
+  art g = idtoiso (maponpaths s e) ;; art g';; iso_inv_from_iso (idtoiso (maponpaths t e)).
+Proof.
+  apply iso_inv_on_left.
+  apply pathsinv0.
+  apply eq_function_on_morphisms.
+Defined.
+
+(** [eq_function_on_morphisms] expressed with isomorphisms as results *)
+Corollary eq_function_to_iso_on_morphisms {CC: precategory}{A B: CC}
+      ( s t: CC ⟦ A , B ⟧ -> ob CC )
+      ( artiso: forall g: CC ⟦ A , B ⟧, iso (s g) (t g) )
+      ( g g': A --> B )(e : g = g'):
+  artiso g ;; idtoiso (maponpaths t e) = idtoiso (maponpaths s e) ;; artiso g'.
+Proof.
+  set (art := fun g: CC ⟦ A , B ⟧ => ((artiso g): CC ⟦ s g , t g ⟧)).
+  apply (eq_function_on_morphisms _ _ art).
+Defined.
+
+(** with an isolated isomorphism *)
+Corollary eq_function_to_iso_on_morphisms_cor {CC: precategory}{A B: CC}
+      ( s t: CC ⟦ A , B ⟧ -> ob CC )
+      ( artiso: forall g: CC ⟦ A , B ⟧, iso (s g) (t g) )
+      ( g g': A --> B )(e : g = g'):
+  artiso g = iso_comp (iso_comp (idtoiso (maponpaths s e)) (artiso g')) (iso_inv_from_iso (idtoiso (maponpaths t e))).
+Proof.
+  apply eq_iso.
+  simpl.
+  apply iso_inv_on_left.
+  apply pathsinv0.
+  apply eq_function_to_iso_on_morphisms.
 Defined.
 
 
@@ -75,7 +122,39 @@ Coercion mor_to_pr2 : mor_to >-> precategory_morphisms.
 Definition mor_to_constr { C : precategory_ob_mor } { X A : C } ( f : A --> X ):
   mor_to X := tpair ( fun A : C => A --> X ) _ f.
 
- 
+
+(** another specialization of [eq_function_on_morphisms] *)
+Lemma eq_function_to_mor_to_on_morphisms {CC: precategory}{A B: CC}
+      ( t: CC ⟦ A , B ⟧ -> ob CC )
+      ( artmorto: forall g: CC ⟦ A , B ⟧, mor_to (t g) )
+      ( g g': A --> B )(e : g = g'):
+  artmorto g ;; idtoiso (maponpaths t e) =
+  idtoiso (maponpaths (fun h => pr1 (artmorto h)) e) ;; artmorto g'.
+Proof.
+  set (s := fun h => pr1 (artmorto h)).
+  set (art := fun g: CC ⟦ A , B ⟧ => ((artmorto g): CC ⟦ s g , t g ⟧)).
+  apply (eq_function_on_morphisms _ _ art).
+Defined.
+
+(** with an isolated [mor_to] element *)
+Corollary eq_function_to_mor_to_on_morphisms_cor {CC: precategory}{A B: CC}
+      ( t: CC ⟦ A , B ⟧ -> ob CC )
+      ( artmorto: forall g: CC ⟦ A , B ⟧, mor_to (t g) )
+      ( g g': A --> B )(e : g = g'):
+  artmorto g =
+  mor_to_constr (idtoiso (maponpaths (fun h => pr1 (artmorto h)) e) ;; artmorto g';; iso_inv_from_iso (idtoiso (maponpaths t e))).
+Proof.
+  use total2_paths_f.
+  apply idpath.
+  rewrite idpath_transportf.
+  simpl.
+  apply iso_inv_on_left.
+  apply pathsinv0.
+  apply eq_function_to_mor_to_on_morphisms.
+Defined.
+(* There seems to be the risk that the last observation cannot be used in practice. *)
+
+
 (** reminder from UniMath.CategoryTheory.Categories *)
 (*
 Definition isaset_ob ( C : setcategory ): isaset C := pr1 ( pr2 C ).

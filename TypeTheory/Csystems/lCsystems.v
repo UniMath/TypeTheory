@@ -353,7 +353,7 @@ Proof.
   rewrite <- assoc.
   simpl.
   apply pathsinv0.
-  apply idtoisoinvcancelleft.
+  apply iso_inv_on_right.
   apply pathsinv0.
   etrans.
   - eapply (sf_ax1 (C0ax5a gt0 f) g).
@@ -378,7 +378,37 @@ Proof.
   rewrite injectionprop2_4.
   rewrite (injectionprop2_4 _ _ g).
 (* this should be okay since g enters the equation only in the form of ftf g or g · q_of_f gt0 f, with the exception of the argument to sf_ax2_type_l1, but this is an equation of objects whose type only depends on ftf g, as shown in sf_ax2_type_l1_type_depends_only_on_ftf_f
-*)
+ *)
+  do 2 rewrite <- assoc.
+  etrans.
+  { apply cancel_postcomposition.
+    apply maponpaths. (* needed to use the specialized lemma *)
+    set (artiso := fun h: CC ⟦ Z, ft(f_star gt0 f) ⟧ => C0eiso_inv (C0ax5a gt0 f) h).
+    apply (eq_function_to_iso_on_morphisms_cor _ _ artiso _ _ Hyp2).
+  }
+  simpl.
+  rewrite maponpaths_for_constant_function.
+  do 2 rewrite <- assoc.
+  rewrite id_left.
+  apply maponpaths.
+  rewrite assoc.
+  etrans.
+  { apply cancel_precomposition.
+    set (art := fun h: CC ⟦ Z, ft (f_star gt0 f) ⟧ => pr2(q_of_f (C0ax5a gt0 f) h)).
+    exact (eq_function_on_morphisms_cor _ _ art _ _ Hyp2).
+
+    (* I would have preferred to use the specialized lemma as follows:
+    set (artmorto := fun h: CC ⟦ Z, ft (f_star gt0 f) ⟧ => q_of_f (C0ax5a gt0 f) h).
+    exact (eq_function_to_mor_to_on_morphisms_cor _ artmorto _ _ Hyp2).
+      However, I do not know how to instruct Coq to work on the level of
+      mor_to - the goal hides the coercion to the underlying morphism! *)
+  }
+  etrans.
+  { apply cancel_postcomposition.
+    apply maponpaths.
+(* and now? *)
+
+
   Admitted.
 
 End Pullbacks.
