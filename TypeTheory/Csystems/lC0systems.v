@@ -296,7 +296,7 @@ Defined.
 Corollary eq_function_to_sec_pnX_on_morphisms_cor {CC: ltower_precat_and_p}{n: nat}{A B: CC}
       ( t: CC ⟦ A , B ⟧ -> CC )
       ( artsecpnX: forall g: CC ⟦ A , B ⟧, sec_pnX n (t g) )
-      ( g g': A --> B )(e : g = g'):
+      { g g': A --> B }(e : g = g'):
   artsecpnX g = eq_function_to_sec_pnX_on_morphisms_cor_rhs t artsecpnX e.
 Proof.
   apply eq_sec_pnX.

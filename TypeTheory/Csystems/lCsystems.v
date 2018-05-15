@@ -435,10 +435,11 @@ Proof.
     apply (eq_function_on_morphisms_cor _ _ art Hyp1).
     *)
     set (artsecpnX := fun h: CC ⟦ Z, X ⟧ => sf gt0 h).
-    (* why does the following not work?
     apply (eq_function_to_sec_pnX_on_morphisms_cor _ artsecpnX Hyp1).
-    *)
-  Admitted.
+  }
+
+
+Admitted.
 
 End Pullbacks.
 
