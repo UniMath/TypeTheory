@@ -47,8 +47,8 @@ Defined.
 (** in the following, [s] and [t] stand for source and target of the "arrow transformer" [art] *) 
 Lemma eq_function_on_morphisms {CC: precategory}{A B: CC}
       ( s t: CC ⟦ A , B ⟧ -> ob CC )
-      ( art: forall g: CC ⟦ A , B ⟧, CC ⟦ s g , t g ⟧)
-      ( g g': A --> B )(e : g = g'):
+      ( art: forall h: CC ⟦ A , B ⟧, CC ⟦ s h , t h ⟧)
+      { g g': A --> B }(e : g = g'):
   art g ;; idtoiso (maponpaths t e) = idtoiso (maponpaths s e) ;; art g'.
 Proof.
   induction e.
@@ -56,36 +56,36 @@ Proof.
   rewrite id_left.
   rewrite id_right.
   apply idpath.
-Defined.
+Qed.
 
 (** with an isolated morphism *)
 Corollary eq_function_on_morphisms_cor {CC: precategory}{A B: CC}
       ( s t: CC ⟦ A , B ⟧ -> ob CC )
-      ( art: forall g: CC ⟦ A , B ⟧, CC ⟦ s g , t g ⟧)
-      ( g g': A --> B )(e : g = g'):
+      ( art: forall h: CC ⟦ A , B ⟧, CC ⟦ s h , t h ⟧)
+      { g g': A --> B }(e : g = g'):
   art g = idtoiso (maponpaths s e) ;; art g';; iso_inv_from_iso (idtoiso (maponpaths t e)).
 Proof.
   apply iso_inv_on_left.
   apply pathsinv0.
   apply eq_function_on_morphisms.
-Defined.
+Qed.
 
 (** [eq_function_on_morphisms] expressed with isomorphisms as results *)
 Corollary eq_function_to_iso_on_morphisms {CC: precategory}{A B: CC}
       ( s t: CC ⟦ A , B ⟧ -> ob CC )
-      ( artiso: forall g: CC ⟦ A , B ⟧, iso (s g) (t g) )
-      ( g g': A --> B )(e : g = g'):
+      ( artiso: forall h: CC ⟦ A , B ⟧, iso (s h) (t h) )
+      { g g': A --> B }(e : g = g'):
   artiso g ;; idtoiso (maponpaths t e) = idtoiso (maponpaths s e) ;; artiso g'.
 Proof.
-  set (art := fun g: CC ⟦ A , B ⟧ => ((artiso g): CC ⟦ s g , t g ⟧)).
+  set (art := fun h: CC ⟦ A , B ⟧ => ((artiso h): CC ⟦ s h , t h ⟧)).
   apply (eq_function_on_morphisms _ _ art).
-Defined.
+Qed.
 
 (** with an isolated isomorphism *)
 Corollary eq_function_to_iso_on_morphisms_cor {CC: precategory}{A B: CC}
       ( s t: CC ⟦ A , B ⟧ -> ob CC )
-      ( artiso: forall g: CC ⟦ A , B ⟧, iso (s g) (t g) )
-      ( g g': A --> B )(e : g = g'):
+      ( artiso: forall h: CC ⟦ A , B ⟧, iso (s h) (t h) )
+      { g g': A --> B }(e : g = g'):
   artiso g = iso_comp (iso_comp (idtoiso (maponpaths s e)) (artiso g')) (iso_inv_from_iso (idtoiso (maponpaths t e))).
 Proof.
   apply eq_iso.
@@ -93,7 +93,7 @@ Proof.
   apply iso_inv_on_left.
   apply pathsinv0.
   apply eq_function_to_iso_on_morphisms.
-Defined.
+Qed.
 
 
 End Upstream.
@@ -133,21 +133,21 @@ Definition mor_to_constr { C : precategory_ob_mor } { X A : C } ( f : A --> X ):
 (** another specialization of [eq_function_on_morphisms] *)
 Lemma eq_function_to_mor_to_on_morphisms {CC: precategory}{A B: CC}
       ( t: CC ⟦ A , B ⟧ -> ob CC )
-      ( artmorto: forall g: CC ⟦ A , B ⟧, mor_to (t g) )
-      ( g g': A --> B )(e : g = g'):
+      ( artmorto: forall h: CC ⟦ A , B ⟧, mor_to (t h) )
+      { g g': A --> B }(e : g = g'):
   artmorto g ;; idtoiso (maponpaths t e) =
   idtoiso (maponpaths (fun h => pr1 (artmorto h)) e) ;; artmorto g'.
 Proof.
   set (s := fun h => pr1 (artmorto h)).
-  set (art := fun g: CC ⟦ A , B ⟧ => ((artmorto g): CC ⟦ s g , t g ⟧)).
+  set (art := fun h: CC ⟦ A , B ⟧ => ((artmorto h): CC ⟦ s h , t h ⟧)).
   apply (eq_function_on_morphisms _ _ art).
-Defined.
+Qed.
 
 (** with an isolated [mor_to] element *)
 Corollary eq_function_to_mor_to_on_morphisms_cor {CC: precategory}{A B: CC}
       ( t: CC ⟦ A , B ⟧ -> ob CC )
-      ( artmorto: forall g: CC ⟦ A , B ⟧, mor_to (t g) )
-      ( g g': A --> B )(e : g = g'):
+      ( artmorto: forall h: CC ⟦ A , B ⟧, mor_to (t h) )
+      { g g': A --> B }(e : g = g'):
   artmorto g =
   mor_to_constr (idtoiso (maponpaths (fun h => pr1 (artmorto h)) e) ;; artmorto g';; iso_inv_from_iso (idtoiso (maponpaths t e))).
 Proof.
@@ -158,7 +158,7 @@ Proof.
   apply iso_inv_on_left.
   apply pathsinv0.
   apply eq_function_to_mor_to_on_morphisms.
-Defined.
+Qed.
 (* There seems to be the risk that the last observation cannot be used in practice. *)
 
 
@@ -226,11 +226,91 @@ Definition sec_pnX_to_mor { CC : ltower_precat_and_p } ( n : nat ) ( X : CC ):
 Coercion sec_pnX_to_mor : sec_pnX >-> precategory_morphisms.
 
 Definition sec_pnX_eq { CC : ltower_precat_and_p } { n : nat } { X : CC } ( s : sec_pnX n X ):
-  s ;; pnX n X = identity ( ftn n X ) := pr2 s. 
+  s ;; pnX n X = identity ( ftn n X ) := pr2 s.
   
 Notation sec_pX := (sec_pnX 1).
 
 Notation sec_pX_eq := (@sec_pnX_eq _ 1 _ ).
+
+Lemma eq_sec_pnX { CC : ltower_precat_and_p } (hsC : has_homsets CC)  { n : nat } { X : CC } ( s1 s2 : sec_pnX n X ): pr1 s1 = pr1 s2 -> s1 = s2.
+Proof.
+  intro H.
+  apply (total2_paths_f H).
+  apply hsC.
+Qed.
+
+(** yet another specialization of [eq_function_on_morphisms] *)
+Lemma eq_function_to_sec_pnX_on_morphisms {CC: ltower_precat_and_p}{n: nat}{A B: CC}
+      ( t: CC ⟦ A , B ⟧ -> CC )
+      ( artsecpnX: forall h: CC ⟦ A , B ⟧, sec_pnX n (t h) )
+      { g g': A --> B }(e : g = g'):
+  artsecpnX g ;; idtoiso (maponpaths t e) =
+  idtoiso (maponpaths (fun h => ftn n (t h)) e) ;; artsecpnX g'.
+Proof.
+  set (s := fun h => ftn n (t h)).
+  set (art := fun h: CC ⟦ A , B ⟧ => ((artsecpnX h): CC ⟦ s h , t h ⟧)).
+  apply (eq_function_on_morphisms _ _ art).
+Qed.
+
+Lemma eq_function_to_sec_pnX_on_morphisms_cor_aux {CC: ltower_precat_and_p}{n: nat}{A B: CC}
+      ( t: CC ⟦ A , B ⟧ -> CC )
+      { g g': A --> B }(e : g = g'):
+  inv_from_iso (idtoiso (maponpaths t e));; pnX n (t g) =
+  pnX n (t g');; inv_from_iso (idtoiso (maponpaths (fun h => ftn n (t h)) e)).
+Proof.
+  apply iso_inv_on_right.
+  rewrite assoc.
+  set (art := fun h: CC ⟦ A , B ⟧ => pnX n (t h)).
+  apply (eq_function_on_morphisms_cor _ _ art e).
+Qed.
+
+Definition eq_function_to_sec_pnX_on_morphisms_cor_rhs {CC: ltower_precat_and_p}{n: nat}{A B: CC}
+      ( t: CC ⟦ A , B ⟧ -> CC )
+      ( artsecpnX: forall g: CC ⟦ A , B ⟧, sec_pnX n (t g) )
+      { g g': A --> B }(e : g = g'): sec_pnX n (t g).
+Proof.
+  use tpair.
+  - exact (idtoiso (maponpaths (fun h => ftn n (t h)) e) ;; artsecpnX g' ;; iso_inv_from_iso (idtoiso (maponpaths t e))).
+  - simpl.
+    rewrite <- assoc.
+    etrans.
+    {  apply cancel_precomposition.
+       apply eq_function_to_sec_pnX_on_morphisms_cor_aux.
+    }
+    rewrite <- assoc.
+    etrans.
+    { apply cancel_precomposition.
+      rewrite assoc.
+      etrans.
+      { apply cancel_postcomposition.
+        apply sec_pnX_eq.
+      }
+      apply id_left.
+    }
+    apply pathsinv0.
+    apply iso_inv_on_left.
+    rewrite id_left.
+    apply idpath.
+Defined.
+
+Corollary eq_function_to_sec_pnX_on_morphisms_cor {CC: ltower_precat_and_p}{n: nat}{A B: CC}
+      ( t: CC ⟦ A , B ⟧ -> CC )
+      ( artsecpnX: forall g: CC ⟦ A , B ⟧, sec_pnX n (t g) )
+      ( g g': A --> B )(e : g = g'):
+  artsecpnX g = eq_function_to_sec_pnX_on_morphisms_cor_rhs t artsecpnX e.
+Proof.
+  apply eq_sec_pnX.
+  { apply isaset_mor. }
+  simpl.
+  apply pathsinv0.
+  etrans.
+  { apply pathsinv0.
+    apply iso_inv_on_left.
+    apply pathsinv0.
+    apply eq_function_to_sec_pnX_on_morphisms.
+  }
+  apply idpath.
+Qed.
 
 
 Definition ftf { CC : ltower_precat_and_p } { X Y : CC } ( f : X --> Y ): X --> ft Y :=

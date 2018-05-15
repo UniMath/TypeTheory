@@ -358,7 +358,7 @@ Proof.
   etrans.
   - eapply (sf_ax1 (C0ax5a gt0 f) g).
   - apply idpath.
-Defined.
+Qed.
 
 (*
     Check (sec_pnX_to_mor 1 _ (sf gt0 (g;;q_of_f gt0 f))).
@@ -384,7 +384,7 @@ Proof.
   { apply cancel_postcomposition.
     apply maponpaths. (* needed to use the specialized lemma *)
     set (artiso := fun h: CC ⟦ Z, ft(f_star gt0 f) ⟧ => C0eiso_inv (C0ax5a gt0 f) h).
-    apply (eq_function_to_iso_on_morphisms_cor _ _ artiso _ _ Hyp2).
+    apply (eq_function_to_iso_on_morphisms_cor _ _ artiso Hyp2).
   }
   simpl.
   rewrite maponpaths_for_constant_function.
@@ -395,7 +395,7 @@ Proof.
   etrans.
   { apply cancel_precomposition.
     set (art := fun h: CC ⟦ Z, ft (f_star gt0 f) ⟧ => pr2(q_of_f (C0ax5a gt0 f) h)).
-    exact (eq_function_on_morphisms_cor _ _ art _ _ Hyp2).
+    exact (eq_function_on_morphisms_cor _ _ art Hyp2).
 
     (* I would have preferred to use the specialized lemma as follows:
     set (artmorto := fun h: CC ⟦ Z, ft (f_star gt0 f) ⟧ => q_of_f (C0ax5a gt0 f) h).
@@ -429,12 +429,15 @@ Proof.
   { apply maponpaths.
     apply maponpaths.
     apply maponpaths.
-    set (art := fun h: CC ⟦ Z, X ⟧ => pr1 (sf gt0 h)).
     (* does not work since the sections type has to be handled, not just
         the underlying type of morphisms:
-    apply (eq_function_on_morphisms_cor _ _ art _ _ Hyp1).
+    set (art := fun h: CC ⟦ Z, X ⟧ => pr1 (sf gt0 h)).
+    apply (eq_function_on_morphisms_cor _ _ art Hyp1).
     *)
-
+    set (artsecpnX := fun h: CC ⟦ Z, X ⟧ => sf gt0 h).
+    (* why does the following not work?
+    apply (eq_function_to_sec_pnX_on_morphisms_cor _ artsecpnX Hyp1).
+    *)
   Admitted.
 
 End Pullbacks.
