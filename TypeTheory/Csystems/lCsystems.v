@@ -17,8 +17,6 @@ Require Import UniMath.Foundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Export TypeTheory.Csystems.lC0systems.
 
-
-
 (** *** The l-C-systems *)
 
 
@@ -437,7 +435,21 @@ Proof.
     set (artsecpnX := fun h: CC ⟦ Z, X ⟧ => sf gt0 h).
     apply (eq_function_to_sec_pnX_on_morphisms_cor _ artsecpnX Hyp1).
   }
-
+  etrans.
+  { apply maponpaths.
+    UniMath.MoreFoundations.Tactics.show_id_type.
+    (* shows that the term is coerced to its underlying morphism *)
+    apply pathsinv0.
+    set (pr := fun X: CC => sec_pnX_to_mor 1 X).
+    apply (transportb_map pr).
+  }
+  simpl.
+  unfold funcomp.
+  unfold idfun.
+(* why does the following not work?
+  apply pathsinv0.
+  apply UniMath.MoreFoundations.PartA.transportf_transpose.
+ *)
 
 Admitted.
 

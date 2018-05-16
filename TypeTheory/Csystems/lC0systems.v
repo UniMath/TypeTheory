@@ -95,6 +95,12 @@ Proof.
   apply eq_function_to_iso_on_morphisms.
 Qed.
 
+Definition transportb_map {X : UU} {P Q : X -> UU} (f : ∏ x, P x -> Q x)
+           {x : X} {y : X} (e : x = y) (p : P y) :
+  transportb Q e (f y p) = f x (transportb P e p).
+Proof.
+  intros. induction e. apply idpath.
+Defined.
 
 End Upstream.
 
