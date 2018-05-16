@@ -381,8 +381,8 @@ Proof.
   etrans.
   { apply cancel_postcomposition.
     apply maponpaths. (* needed to use the specialized lemma *)
-    set (artiso := fun h: CC ⟦ Z, ft(f_star gt0 f) ⟧ => C0eiso_inv (C0ax5a gt0 f) h).
-    apply (eq_function_to_iso_on_morphisms_cor _ _ artiso Hyp2).
+    set (piso := fun h: CC ⟦ Z, ft(f_star gt0 f) ⟧ => C0eiso_inv (C0ax5a gt0 f) h).
+    apply (eq_par_iso_cor _ _ piso Hyp2).
   }
   simpl.
   rewrite maponpaths_for_constant_function.
@@ -392,12 +392,12 @@ Proof.
   rewrite assoc.
   etrans.
   { apply cancel_precomposition.
-    set (art := fun h: CC ⟦ Z, ft (f_star gt0 f) ⟧ => pr2(q_of_f (C0ax5a gt0 f) h)).
-    exact (eq_function_on_morphisms_cor _ _ art Hyp2).
+    set (par := fun h: CC ⟦ Z, ft (f_star gt0 f) ⟧ => pr2(q_of_f (C0ax5a gt0 f) h)).
+    exact (eq_par_arrow_cor _ _ par Hyp2).
 
     (* I would have preferred to use the specialized lemma as follows:
-    set (artmorto := fun h: CC ⟦ Z, ft (f_star gt0 f) ⟧ => q_of_f (C0ax5a gt0 f) h).
-    exact (eq_function_to_mor_to_on_morphisms_cor _ artmorto _ _ Hyp2).
+    set (pmorto := fun h: CC ⟦ Z, ft (f_star gt0 f) ⟧ => q_of_f (C0ax5a gt0 f) h).
+    exact (eq_p_to_mor_cor _ pmorto Hyp2).
       However, I do not know how to instruct Coq to work on the level of
       mor_to - the goal hides the coercion to the underlying morphism! *)
   }
@@ -429,11 +429,11 @@ Proof.
     apply maponpaths.
     (* does not work since the sections type has to be handled, not just
         the underlying type of morphisms:
-    set (art := fun h: CC ⟦ Z, X ⟧ => pr1 (sf gt0 h)).
-    apply (eq_function_on_morphisms_cor _ _ art Hyp1).
+    set (par := fun h: CC ⟦ Z, X ⟧ => pr1 (sf gt0 h)).
+    apply (eq_par_arrow_cor _ _ par Hyp1).
     *)
-    set (artsecpnX := fun h: CC ⟦ Z, X ⟧ => sf gt0 h).
-    apply (eq_function_to_sec_pnX_on_morphisms_cor _ artsecpnX Hyp1).
+    set (psecpnX := fun h: CC ⟦ Z, X ⟧ => sf gt0 h).
+    apply (eq_p_sec_pnX_cor _ psecpnX Hyp1).
   }
   etrans.
   { apply maponpaths.
@@ -446,6 +446,13 @@ Proof.
   simpl.
   unfold funcomp.
   unfold idfun.
+
+  etrans.
+  (*
+  { apply pathsinv0.
+    apply transportb_map.
+   *)
+
 (* why does the following not work?
   apply pathsinv0.
   apply UniMath.MoreFoundations.PartA.transportf_transpose.
