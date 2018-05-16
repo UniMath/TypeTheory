@@ -471,6 +471,16 @@ Proof.
   rewrite auxeq.
   clear auxeq.
 
+  UniMath.MoreFoundations.Tactics.show_id_type.
+  rewrite transport_source_target_simple.
+  etrans.
+  { rewrite <- assoc.
+    apply cancel_precomposition.
+    apply cancel_postcomposition.
+    (* will probably need help wth the arguments:
+    apply transport_source_target_simple.
+    *)
+
   (*
   { apply pathsinv0.
     apply transportb_map.

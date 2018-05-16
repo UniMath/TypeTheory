@@ -71,6 +71,33 @@ Proof.
   apply eq_par_arrow.
 Qed.
 
+Corollary eq_par_arrow_cor2 {CC: precategory}{T: UU}
+      ( s t: T -> ob CC )
+      ( par: forall h: T, CC ⟦ s h , t h ⟧)
+      { g g': T}(e : g = g'):
+  par g' = iso_inv_from_iso (idtoiso (maponpaths s e)) ;; par g;; idtoiso (maponpaths t e).
+Proof.
+  apply pathsinv0.
+  rewrite <- assoc.
+  apply iso_inv_on_right.
+  apply eq_par_arrow.
+Qed.
+
+(** can also be related to [transportf]: *)
+Lemma transport_source_target_simple {CC: precategory}{T: UU}
+      ( s t: T -> ob CC )
+      { g g': T}(e : g = g')( m: CC ⟦ s g , t g ⟧):
+  transportf (fun h: T => CC ⟦ s h , t h ⟧) e m =
+  iso_inv_from_iso (idtoiso (maponpaths s e)) ;; m ;; idtoiso (maponpaths t e).
+Proof.
+  induction e.
+  simpl.
+  rewrite id_left.
+  rewrite id_right.
+  apply idpath.
+Qed.
+
+
 (** [eq_par_arrow] expressed with isomorphisms as results *)
 Corollary eq_par_iso {CC: precategory}{T: UU}
       ( s t: T -> ob CC )
