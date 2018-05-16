@@ -103,6 +103,18 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
+Lemma eq_parameterized_equation {S T: UU}(is: isaset S)
+      (l r: T -> S)(pequ: forall h: T, l h = r h)(chk: T -> T -> UU)
+      (l_ok: forall {g g'}, chk g g' -> l g = l g')
+      (r_ok: forall {g g'}, chk g g' -> r g = r g')
+      { g g': T }(H: chk g g'):
+  pequ g = l_ok H @ pequ g' @ (! r_ok H).
+Proof.
+  apply is.
+Qed.
+
+
+
 End Upstream.
 
 

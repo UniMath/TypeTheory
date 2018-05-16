@@ -44,26 +44,39 @@ Definition sf_ax1_type { CC : lC0system } ( sf0 : sf_type CC ) :=
   forall ( Y X : CC ) ( gt0 : ll X > 0 ) ( f : Y --> X ),
     ( C0eiso gt0 ( ftf f ) ) ;; f = ( sf0 _ _ gt0 f ) ;; ( q_of_f gt0 ( ftf f ) ).
 
-
-Definition sf_ax2_type_l1_type { CC : lC0system } ( sf0 : sf_type CC )
+Definition sf_ax2_type_l1_lhs { CC : lC0system } ( sf0 : sf_type CC )
       { Y Y' U : CC } ( gt0 : ll U > 0 )
-      ( g : Y' --> ft U ) ( f : Y --> f_star gt0 g ) :=
-      f_star (C0ax5a gt0 g) (ftf f) = f_star gt0 (ftf (f ;; q_of_f gt0 g)).
+      ( g : Y' --> ft U ) ( f : Y --> f_star gt0 g ): CC :=
+      f_star (C0ax5a gt0 g) (ftf f).
+
+
+Definition sf_ax2_type_l1_rhs { CC : lC0system } ( sf0 : sf_type CC )
+      { Y Y' U : CC } ( gt0 : ll U > 0 )
+      ( g : Y' --> ft U ) ( f : Y --> f_star gt0 g ): CC :=
+      f_star gt0 (ftf (f ;; q_of_f gt0 g)).
 
 (** needed for later analysis, not for the definition *)
-Lemma sf_ax2_type_l1_type_depends_only_on_ftf_f { CC : lC0system } ( sf0 : sf_type CC )
+Lemma sf_ax2_type_l1_lhs_depends_only_on_ftf_f { CC : lC0system } ( sf0 : sf_type CC )
       { Y Y' U : CC } ( gt0 : ll U > 0 )
       ( g : Y' --> ft U ) ( f f' : Y --> f_star gt0 g ):
-      ftf f = ftf f' -> sf_ax2_type_l1_type sf0 gt0 g f = sf_ax2_type_l1_type sf0 gt0 g f'.
+      ftf f = ftf f' -> sf_ax2_type_l1_lhs sf0 gt0 g f = sf_ax2_type_l1_lhs sf0 gt0 g f'.
 Proof.
   intro Hyp.
-  unfold  sf_ax2_type_l1_type.
+  unfold sf_ax2_type_l1_lhs.
   rewrite Hyp.
-  apply maponpaths.
+  apply idpath.
+Qed.
+
+Lemma sf_ax2_type_l1_rhs_depends_only_on_ftf_f { CC : lC0system } ( sf0 : sf_type CC )
+      { Y Y' U : CC } ( gt0 : ll U > 0 )
+      ( g : Y' --> ft U ) ( f f' : Y --> f_star gt0 g ):
+      ftf f = ftf f' -> sf_ax2_type_l1_rhs sf0 gt0 g f = sf_ax2_type_l1_rhs sf0 gt0 g f'.
+Proof.
+  intro Hyp.
+  unfold sf_ax2_type_l1_rhs.
   apply maponpaths.
   unfold ftf.
   do 2 rewrite <- assoc.
-  simpl.
   etrans.
   { eapply cancel_precomposition.
     apply pathsinv0.
@@ -85,7 +98,7 @@ Defined.
 Lemma sf_ax2_type_l1 { CC : lC0system } ( sf0 : sf_type CC )
       { Y Y' U : CC } ( gt0 : ll U > 0 )
       ( g : Y' --> ft U ) ( f : Y --> f_star gt0 g ):
-  sf_ax2_type_l1_type sf0 gt0 g f.
+  sf_ax2_type_l1_lhs sf0 gt0 g f = sf_ax2_type_l1_rhs sf0 gt0 g f.
 Proof.
   assert ( int1 : f_star (C0ax5a gt0 g) (ftf f) =
                   f_star gt0 ( ( ftf f ) ;; ( ( C0eiso gt0 g ) ;; g ) ) )
@@ -447,7 +460,17 @@ Proof.
   unfold funcomp.
   unfold idfun.
 
-  etrans.
+  set (l := fun h: CC ⟦ Z, f_star gt0 f ⟧ => sf_ax2_type_l1_lhs (@sf CC) gt0 f h).
+  set (r := fun h: CC ⟦ Z, f_star gt0 f ⟧ => sf_ax2_type_l1_rhs (@sf CC) gt0 f h).
+  set (auxeq :=
+         eq_parameterized_equation (isaset_ob CC) l r
+                                   (sf_ax2_type_l1 (@sf CC) gt0 f)
+                                   (fun g g' => ftf g = ftf g')
+                                   (sf_ax2_type_l1_lhs_depends_only_on_ftf_f (@sf CC) gt0 f)
+                                   (sf_ax2_type_l1_rhs_depends_only_on_ftf_f (@sf CC) gt0 f) Hyp2).
+  rewrite auxeq.
+  clear auxeq.
+
   (*
   { apply pathsinv0.
     apply transportb_map.
