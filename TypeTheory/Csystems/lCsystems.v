@@ -402,7 +402,7 @@ Proof.
   rewrite assoc.
   etrans.
   { apply cancel_precomposition.
-    set (par := fun h: CC ⟦ Z, ft (f_star gt0 f) ⟧ => pr2(q_of_f (C0ax5a gt0 f) h)).
+    set (par := fun h: CC ⟦ Z, ft (f_star gt0 f) ⟧ => mor_to_pr2 _ (q_of_f (C0ax5a gt0 f) h)).
     exact (eq_par_arrow_cor _ _ par Hyp2).
 
     (* I would have preferred to use the specialized lemma as follows:
@@ -526,10 +526,45 @@ Proof.
     assert (e: f_star gt0 (ftf g2) = f_star (C0ax5a gt0 f) g1)
     by exact (! maponpaths (f_star gt0) pbeq @ ! C0ax7a gt0 f g1).
     apply (eq_par_arrow_cor_objirr (isaset_ob CC) _ _ (pnX 1) e).
-  -
+  - apply (pre_comp_with_iso_is_inj _ _ _ _ (C0eiso gt0 (ftf g2))).
+    { apply iso_is_iso. }
+    apply pathsinv0.
+    etrans.
+    { apply sf_ax1. }
+    repeat rewrite <- assoc.
+    apply iso_inv_to_left.
+    apply cancel_precomposition.
+    apply cancel_precomposition.
+    apply pathsinv0.
+    apply iso_inv_on_right.
+    change (g1 · (C0eiso gt0 f · f) = ftf g2) in pbeq.
+    apply pathsinv0.
+    etrans.
+    { apply pathsinv0.
+      set (par := fun h: CC ⟦ Z, ft X ⟧ => mor_to_pr2 _ (q_of_f gt0 h)).
+      apply (eq_par_arrow _ _ par pbeq).
+    }
+    simpl.
+    etrans.
+    { apply cancel_postcomposition.
+      apply pathsinv0.
+      UniMath.MoreFoundations.Tactics.show_id_type.
+      apply (fiber_paths (C0ax7 gt0 f g1)).
+    }
+    simpl.
+    rewrite transportf_source_target_simple.
+    do 2 rewrite maponpaths_for_constant_function.
+    rewrite idtosio_idpath.
+    do 2 rewrite id_right.
+    apply iso_inv_on_right.
+    rewrite <- idtoiso_inv0.
+    rewrite assoc.
+    rewrite <- idtoiso_concat0.
+    apply cancelidtoiso_left_cor.
+    { apply (isaset_ob CC). }
+    apply idpath.
+Qed.
 
-  (* still some work to do *)
-Admitted.
 
 Lemma q_of_f_is_pullback  {X Y: CC} (gt0: ll X > 0)(f: Y --> ft X):
   isPullback (C0eiso gt0 f ;; f) (pnX 1 X)
