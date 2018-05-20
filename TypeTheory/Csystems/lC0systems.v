@@ -119,6 +119,7 @@ Proof.
   apply eq_par_arrow.
 Qed.
 
+
 (** can also be related to [transportf]: *)
 Lemma transportf_source_target_simple {CC: precategory}{T: UU}
       ( s t: T -> ob CC )
@@ -241,6 +242,26 @@ Proof.
   rewrite <- (id_right m1).
   rewrite <- idtosio_idpath0.
   apply cancelidtoiso_right; assumption.
+Qed.
+
+Corollary eq_par_arrow_cor_objirr {CC: precategory}(is: isaset (ob CC)){T: UU}
+      ( s t: T -> ob CC )
+      ( par: forall h: T, CC ⟦ s h , t h ⟧)
+      { g g': T}(e : g = g')(p: s g = s g')(q: t g' = t g):
+  par g = idtoiso p ;; par g';; idtoiso q.
+Proof.
+  rewrite (eq_par_arrow_cor _ _ _ e).
+  do 2 rewrite <- assoc.
+  apply cancelidtoiso_left.
+  { apply is. }
+  etrans.
+  { apply cancel_precomposition.
+    apply pathsinv0.
+    apply idtoiso_inv0.
+  }
+  apply cancelidtoiso_right.
+  { apply is. }
+  apply idpath.
 Qed.
 
 

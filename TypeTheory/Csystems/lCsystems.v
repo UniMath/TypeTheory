@@ -470,8 +470,8 @@ Definition pullback_to_q_of_f {X Y Z: CC} (gt0: ll X > 0)(f: Y --> ft X)
   (pbeq: g1 · (C0eiso gt0 f · f) = g2 · pnX 1 X): Z --> f_star gt0 f :=
   C0eiso_inv gt0 (ftf(g2)) ·
   (sf gt0 g2) ·
-  idtoiso (maponpaths (f_star gt0) (! pbeq)) ·
-  idtoiso (!(C0ax7a gt0 f g1)) ·
+  iso_inv_from_iso (idtoiso (maponpaths (f_star gt0) pbeq)) ·
+  iso_inv_from_iso (idtoiso (C0ax7a gt0 f g1)) ·
   (q_of_f (C0ax5a gt0 f) g1).
 
 
@@ -482,6 +482,52 @@ Lemma pullback_to_q_of_f_ok {X Y Z: CC} (gt0: ll X > 0)(f: Y --> ft X)
   pullback_to_q_of_f gt0 f g1 g2 pbeq · q_of_f gt0 f = g2.
 Proof.
   use tpair; unfold pullback_to_q_of_f; simpl.
+  - do 4 rewrite <- assoc.
+    etrans.
+    { do 4 apply cancel_precomposition.
+      apply pathsinv0.
+      apply C0ax5c.
+    }
+    apply iso_inv_on_right.
+    do 4 rewrite assoc.
+    apply cancel_postcomposition.
+
+    apply pathsinv0.
+    etrans.
+    { apply pathsinv0.
+      apply id_left. }
+    apply iso_inv_to_right.
+    etrans.
+    { apply pathsinv0.
+      apply (sec_pnX_eq (sf gt0 g2)). }
+    do 4 rewrite <- assoc.
+    apply cancel_precomposition.
+    apply pathsinv0.
+    do 3 rewrite assoc.
+    etrans.
+    { do 3 apply cancel_postcomposition.
+      UniMath.MoreFoundations.Tactics.show_id_type.
+      do 2 rewrite <- idtoiso_inv0.
+      apply pathsinv0.
+      apply idtoiso_concat0.
+    }
+    do 2 rewrite <- assoc.
+    etrans.
+    { do 2 apply cancel_precomposition.
+      unfold C0ax5b_iso.
+      rewrite <- idtoiso_inv0.
+      unfold C0eiso.
+      unfold C0ax5b_iso.
+      apply pathsinv0.
+      apply idtoiso_concat0.
+    }
+    apply pathsinv0.
+    rewrite assoc.
+    assert (e: f_star gt0 (ftf g2) = f_star (C0ax5a gt0 f) g1)
+    by exact (! maponpaths (f_star gt0) pbeq @ ! C0ax7a gt0 f g1).
+    apply (eq_par_arrow_cor_objirr (isaset_ob CC) _ _ (pnX 1) e).
+  -
+
   (* still some work to do *)
 Admitted.
 
