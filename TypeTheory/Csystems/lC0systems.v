@@ -5,6 +5,8 @@ by Vladimir Voevodsky, started Dec. 4, 2014, continued Jan. 22, 2015, Feb. 11, 2
 We refer below to the paper "Subsystems and regular quotients of C-systems"
 by V. Voevodsky as "Csubsystems".
 
+The material for the preparation of Lemma q_of_f_is_pullback in lCsystems.v
+has been added by Ralph Matthes in May 2018.
 *)
 
 Require Import UniMath.Foundations.All.
@@ -24,12 +26,43 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma idtoiso_precomposeb (C : precategory) (a a' b : ob C)
+Lemma idtoiso_inv0 (C : precategory) (a a' : ob C)
+  (p : a = a') : morphism_from_iso _ _ _ (idtoiso (!p)) = inv_from_iso (idtoiso p).
+Proof.
+  destruct p.
+  simpl.
+  apply idpath.
+Defined.
+
+Lemma idtosio_idpath {C : precategory} (a : ob C):
+  idtoiso (idpath a) = identity_iso a.
+Proof.
+  apply idpath.
+Qed.
+
+Lemma idtosio_idpath0 {C : precategory} (a : ob C):
+  morphism_from_iso _ _ _ (idtoiso (idpath a)) = identity a.
+Proof.
+  apply idpath.
+Qed.
+
+Lemma idtoiso_precomposeb {C : precategory} (a a' b : ob C)
   (p : a' = a) (f : a --> b) :
       (idtoiso p) · f = transportb (λ a, a --> b) p f.
 Proof.
   destruct p.
   apply id_left.
+Qed.
+
+Lemma idtoiso_concat0 (C : precategory) (a a' a'' : ob C)
+  (p : a = a') (q : a' = a'') :
+  morphism_from_iso _ _ _ (idtoiso (p @ q)) =
+  morphism_from_iso _ _ _ (idtoiso p) ;; (morphism_from_iso _ _ _(idtoiso q)).
+Proof.
+  destruct p.
+  destruct q.
+  simpl.
+  apply pathsinv0, id_left.
 Qed.
 
 (** no need for the following in view of Lemma [iso_inv_on_right]
@@ -50,7 +83,8 @@ Lemma eq_par_arrow {CC: precategory}{T: UU}
       ( s t: T -> ob CC )
       ( par: forall h: T, CC ⟦ s h , t h ⟧)
       { g g': T }(e : g = g'):
-  par g ;; idtoiso (maponpaths t e) = idtoiso (maponpaths s e) ;; par g'.
+  par g ;; idtoiso (maponpaths t e) =
+  idtoiso (maponpaths s e) ;; par g'.
 Proof.
   induction e.
   simpl.
@@ -64,7 +98,8 @@ Corollary eq_par_arrow_cor {CC: precategory}{T: UU}
       ( s t: T -> ob CC )
       ( par: forall h: T, CC ⟦ s h , t h ⟧)
       { g g': T}(e : g = g'):
-  par g = idtoiso (maponpaths s e) ;; par g';; iso_inv_from_iso (idtoiso (maponpaths t e)).
+  par g = idtoiso (maponpaths s e) ;; par g';;
+                  iso_inv_from_iso (idtoiso (maponpaths t e)).
 Proof.
   apply iso_inv_on_left.
   apply pathsinv0.
@@ -75,7 +110,8 @@ Corollary eq_par_arrow_cor2 {CC: precategory}{T: UU}
       ( s t: T -> ob CC )
       ( par: forall h: T, CC ⟦ s h , t h ⟧)
       { g g': T}(e : g = g'):
-  par g' = iso_inv_from_iso (idtoiso (maponpaths s e)) ;; par g;; idtoiso (maponpaths t e).
+  par g' = iso_inv_from_iso (idtoiso (maponpaths s e)) ;;
+                            par g;; idtoiso (maponpaths t e).
 Proof.
   apply pathsinv0.
   rewrite <- assoc.
@@ -84,11 +120,24 @@ Proof.
 Qed.
 
 (** can also be related to [transportf]: *)
-Lemma transport_source_target_simple {CC: precategory}{T: UU}
+Lemma transportf_source_target_simple {CC: precategory}{T: UU}
       ( s t: T -> ob CC )
       { g g': T}(e : g = g')( m: CC ⟦ s g , t g ⟧):
   transportf (fun h: T => CC ⟦ s h , t h ⟧) e m =
   iso_inv_from_iso (idtoiso (maponpaths s e)) ;; m ;; idtoiso (maponpaths t e).
+Proof.
+  induction e.
+  simpl.
+  rewrite id_left.
+  rewrite id_right.
+  apply idpath.
+Qed.
+
+Lemma transportb_source_target_simple {CC: precategory}{T: UU}
+      ( s t: T -> ob CC )
+      { g g': T}(e : g' = g)( m: CC ⟦ s g , t g ⟧):
+  transportb (fun h: T => CC ⟦ s h , t h ⟧) e m =
+  idtoiso (maponpaths s e) ;; m ;; iso_inv_from_iso (idtoiso (maponpaths t e)).
 Proof.
   induction e.
   simpl.
@@ -114,7 +163,8 @@ Corollary eq_par_iso_cor {CC: precategory}{T: UU}
       ( s t: T -> ob CC )
       ( piso: forall h: T, iso (s h) (t h) )
       { g g': T }(e : g = g'):
-  piso g = iso_comp (iso_comp (idtoiso (maponpaths s e)) (piso g')) (iso_inv_from_iso (idtoiso (maponpaths t e))).
+  piso g = iso_comp (iso_comp (idtoiso (maponpaths s e)) (piso g'))
+                      (iso_inv_from_iso (idtoiso (maponpaths t e))).
 Proof.
   apply eq_iso.
   simpl.
@@ -130,6 +180,7 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
+(* not needed later! *)
 Lemma eq_parameterized_equation {S T: UU}(is: isaset S)
       (l r: T -> S)(pequ: forall h: T, l h = r h)(chk: T -> T -> UU)
       (l_ok: forall {g g'}, chk g g' -> l g = l g')
@@ -140,6 +191,57 @@ Proof.
   apply is.
 Qed.
 
+
+Lemma cancelidtoiso_left {CC: precategory}(is: isaset (ob CC)) {a b c: CC}
+      (p1 p2: a = b)(m1 m2: b --> c):
+  m1 = m2 -> idtoiso p1 ;; m1  = idtoiso p2 ;; m2.
+Proof.
+  intro Hyp.
+  assert (H1: morphism_from_iso _ _ _ (idtoiso p1) =
+              morphism_from_iso _ _ _ (idtoiso p2)).
+  apply maponpaths.
+  apply maponpaths.
+  apply is.
+  rewrite H1.
+  rewrite Hyp.
+  apply idpath.
+Qed.
+
+Lemma cancelidtoiso_left_cor {CC: precategory}(is: isaset (ob CC)) {a b: CC}
+      (p: a = a)(m1 m2: a --> b):
+  m1 = m2 -> m1  = idtoiso p ;; m2.
+Proof.
+  intro Hyp.
+  rewrite <- (id_left m1).
+  rewrite <- idtosio_idpath0.
+  apply cancelidtoiso_left; assumption.
+Qed.
+
+
+Lemma cancelidtoiso_right {CC: precategory}(is: isaset (ob CC)) {a b c: CC}
+      (m1 m2: a --> b)(q1 q2: b = c):
+  m1 = m2 -> m1 ;; idtoiso q1  =  m2 ;; idtoiso q2.
+Proof.
+  intro Hyp.
+  assert (H1: morphism_from_iso _ _ _ (idtoiso q1) =
+              morphism_from_iso _ _ _ (idtoiso q2)).
+  apply maponpaths.
+  apply maponpaths.
+  apply is.
+  rewrite H1.
+  rewrite Hyp.
+  apply idpath.
+Qed.
+
+Lemma cancelidtoiso_right_cor {CC: precategory}(is: isaset (ob CC)) {a b: CC}
+      (m1 m2: a --> b)(q: b = b):
+  m1 = m2 -> m1 =  m2 ;; idtoiso q.
+Proof.
+  intro Hyp.
+  rewrite <- (id_right m1).
+  rewrite <- idtosio_idpath0.
+  apply cancelidtoiso_right; assumption.
+Qed.
 
 
 End Upstream.
@@ -195,7 +297,8 @@ Corollary eq_p_to_mor_cor {CC: precategory}{T: UU}
       ( pmorto: forall h: T, mor_to (t h) )
       { g g': T }(e : g = g'):
   pmorto g =
-  mor_to_constr (idtoiso (maponpaths (fun h => pr1 (pmorto h)) e) ;; pmorto g';; iso_inv_from_iso (idtoiso (maponpaths t e))).
+  mor_to_constr (idtoiso (maponpaths (fun h => pr1 (pmorto h)) e) ;;
+           pmorto g';; iso_inv_from_iso (idtoiso (maponpaths t e))).
 Proof.
   use total2_paths_f.
   apply idpath.
@@ -271,14 +374,17 @@ Definition sec_pnX_to_mor { CC : ltower_precat_and_p } ( n : nat ) ( X : CC ):
   sec_pnX n X -> ftn n X --> X := pr1.
 Coercion sec_pnX_to_mor : sec_pnX >-> precategory_morphisms.
 
-Definition sec_pnX_eq { CC : ltower_precat_and_p } { n : nat } { X : CC } ( s : sec_pnX n X ):
+Definition sec_pnX_eq { CC : ltower_precat_and_p } { n : nat }
+  { X : CC } ( s : sec_pnX n X ):
   s ;; pnX n X = identity ( ftn n X ) := pr2 s.
   
 Notation sec_pX := (sec_pnX 1).
 
 Notation sec_pX_eq := (@sec_pnX_eq _ 1 _ ).
 
-Lemma eq_sec_pnX { CC : ltower_precat_and_p } (hsC : has_homsets CC)  { n : nat } { X : CC } ( s1 s2 : sec_pnX n X ): pr1 s1 = pr1 s2 -> s1 = s2.
+Lemma eq_sec_pnX { CC : ltower_precat_and_p } (hsC : has_homsets CC)
+  { n : nat } { X : CC } ( s1 s2 : sec_pnX n X ):
+  pr1 s1 = pr1 s2 -> s1 = s2.
 Proof.
   intro H.
   apply (total2_paths_f H).
@@ -316,7 +422,8 @@ Definition eq_p_sec_pnX_cor_rhs {CC: ltower_precat_and_p}{n: nat}{T: UU}
       { g g': T}(e : g = g'): sec_pnX n (t g).
 Proof.
   use tpair.
-  - exact (idtoiso (maponpaths (fun h => ftn n (t h)) e) ;; psecpnX g' ;; iso_inv_from_iso (idtoiso (maponpaths t e))).
+  - exact (idtoiso (maponpaths (fun h => ftn n (t h)) e) ;; psecpnX g'
+                     ;; iso_inv_from_iso (idtoiso (maponpaths t e))).
   - simpl.
     rewrite <- assoc.
     etrans.
@@ -357,6 +464,8 @@ Proof.
   }
   apply idpath.
 Qed.
+
+(** end of the lemmas that are not used for the definition but the later analysis *)
 
 
 Definition ftf { CC : ltower_precat_and_p } { X Y : CC } ( f : X --> Y ): X --> ft Y :=

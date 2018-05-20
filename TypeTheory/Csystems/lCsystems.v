@@ -9,6 +9,9 @@ The definition of an lC-system given below does not require that the types of ob
 of the underlying precategory form a set. It also does not require the
 properties of the identity morphisms but does require associativity. 
 
+
+The section Pullbacks (Lemma q_of_f_is_pullback) has been added by Ralph Matthes
+in May 2018.
 *)
 
 
@@ -16,6 +19,9 @@ Require Import UniMath.Foundations.All.
 (* Require Import UniMath.CategoryTheory.Categories. *)
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Export TypeTheory.Csystems.lC0systems.
+
+Require Import UniMath.CategoryTheory.limits.pullbacks.
+
 
 (** *** The l-C-systems *)
 
@@ -55,7 +61,7 @@ Definition sf_ax2_type_l1_rhs { CC : lC0system } ( sf0 : sf_type CC )
       ( g : Y' --> ft U ) ( f : Y --> f_star gt0 g ): CC :=
       f_star gt0 (ftf (f ;; q_of_f gt0 g)).
 
-(** needed for later analysis, not for the definition *)
+(* not needed later! *)
 Lemma sf_ax2_type_l1_lhs_depends_only_on_ftf_f { CC : lC0system } ( sf0 : sf_type CC )
       { Y Y' U : CC } ( gt0 : ll U > 0 )
       ( g : Y' --> ft U ) ( f f' : Y --> f_star gt0 g ):
@@ -67,6 +73,7 @@ Proof.
   apply idpath.
 Qed.
 
+(* not needed later! *)
 Lemma sf_ax2_type_l1_rhs_depends_only_on_ftf_f { CC : lC0system } ( sf0 : sf_type CC )
       { Y Y' U : CC } ( gt0 : ll U > 0 )
       ( g : Y' --> ft U ) ( f f' : Y --> f_star gt0 g ):
@@ -93,6 +100,7 @@ Proof.
   rewrite Hyp.
   apply idpath.
 Defined.
+
 
 
 Lemma sf_ax2_type_l1 { CC : lC0system } ( sf0 : sf_type CC )
@@ -371,25 +379,14 @@ Proof.
   - apply idpath.
 Qed.
 
-(*
-    Check (sec_pnX_to_mor 1 _ (sf gt0 (g;;q_of_f gt0 f))).
-    Check (mor_to_pr2 _ (q_of_f (C0ax5a gt0 f) (ftf g))).
-    Check (!(sf_ax2_type_l1 (@sf CC) gt0 f g)).
-    Check (C0ax7a gt0 f (ftf g)).
-    Check (transportf _ (!(sf_ax2_type_l1 (@sf CC) gt0 f g)) (sf gt0 (g;;q_of_f gt0 f))).
-    Check ((transportf _ (!(sf_ax2_type_l1 (@sf CC) gt0 f g)) (sf gt0 (g;;q_of_f gt0 f)));;(q_of_f (C0ax5a gt0 f) (ftf g))).
-    Check (C0ax5b (C0ax5a gt0 f) (ftf g)).
-    Check (C0emor_inv (C0ax5a gt0 f) (ftf g)).
- *)
-
-
-Lemma injectionprop2_4_cor {X Y Z: CC} (gt0: ll X > 0) (f: Y --> ft X) (g g': Z --> f_star gt0 f): g;;q_of_f gt0 f = g';;q_of_f gt0 f -> ftf g = ftf g' -> g = g'.
+(** the following ought to be a simple corollary, but needs more work in the formalization than on paper since the types depend on the objects in the equations *)
+Lemma injectionprop2_4_cor {X Y Z: CC} (gt0: ll X > 0)
+      (f: Y --> ft X) (g g': Z --> f_star gt0 f):
+  g;;q_of_f gt0 f = g';;q_of_f gt0 f -> ftf g = ftf g' -> g = g'.
 Proof.
   intros Hyp1 Hyp2.
   rewrite injectionprop2_4.
   rewrite (injectionprop2_4 _ _ g).
-(* this should be okay since g enters the equation only in the form of ftf g or g · q_of_f gt0 f, with the exception of the argument to sf_ax2_type_l1, but this is an equation of objects whose type only depends on ftf g, as shown in sf_ax2_type_l1_type_depends_only_on_ftf_f
- *)
   do 2 rewrite <- assoc.
   etrans.
   { apply cancel_postcomposition.
@@ -401,7 +398,7 @@ Proof.
   rewrite maponpaths_for_constant_function.
   do 2 rewrite <- assoc.
   rewrite id_left.
-  apply maponpaths.
+  apply cancel_precomposition.
   rewrite assoc.
   etrans.
   { apply cancel_precomposition.
@@ -421,77 +418,104 @@ Proof.
 
   do 2 rewrite assoc.
   apply cancel_postcomposition.
-  rewrite idtoiso_postcompose.
-  rewrite idtoiso_precomposeb.
+
   etrans.
-  { apply pathsinv0.
-    apply (functtransportf (λ h : CC ⟦ Z, ft (f_star gt0 f) ⟧, pr1 (q_of_f (C0ax5a gt0 f) h)) (λ b : CC, CC ⟦ ft (f_star (C0ax5a gt0 f) (ftf g)), b ⟧) Hyp2).
-  }
-  apply pathsinv0.
-  etrans.
-  { apply pathsinv0.
-    apply (functtransportb (λ h : CC ⟦ Z, ft (f_star gt0 f) ⟧, ft (f_star (C0ax5a gt0 f) h)) (λ a : CC, CC ⟦ a, f_star (C0ax5a gt0 f) (ftf g') ⟧) Hyp2).
-  }
-(*
-  unfold transportb.
- *)
-  apply pathsinv0.
-  etrans.
-  { apply maponpaths.
+  { apply cancel_postcomposition.
+    UniMath.MoreFoundations.Tactics.show_id_type.
+    (* shows that the term is coerced to its underlying morphism *)
     apply maponpaths.
     apply maponpaths.
-    (* does not work since the sections type has to be handled, not just
-        the underlying type of morphisms:
-    set (par := fun h: CC ⟦ Z, X ⟧ => pr1 (sf gt0 h)).
-    apply (eq_par_arrow_cor _ _ par Hyp1).
-    *)
     set (psecpnX := fun h: CC ⟦ Z, X ⟧ => sf gt0 h).
     apply (eq_p_sec_pnX_cor _ psecpnX Hyp1).
   }
+
   etrans.
-  { apply maponpaths.
-    UniMath.MoreFoundations.Tactics.show_id_type.
-    (* shows that the term is coerced to its underlying morphism *)
+  { apply cancel_postcomposition.
     apply pathsinv0.
     set (pr := fun X: CC => sec_pnX_to_mor 1 X).
     apply (transportb_map pr).
   }
-  simpl.
-  unfold funcomp.
-  unfold idfun.
+  rewrite transportb_source_target_simple.
+  unfold eq_p_sec_pnX_cor_rhs; simpl.
 
-  set (l := fun h: CC ⟦ Z, f_star gt0 f ⟧ => sf_ax2_type_l1_lhs (@sf CC) gt0 f h).
-  set (r := fun h: CC ⟦ Z, f_star gt0 f ⟧ => sf_ax2_type_l1_rhs (@sf CC) gt0 f h).
-  set (auxeq :=
-         eq_parameterized_equation (isaset_ob CC) l r
-                                   (sf_ax2_type_l1 (@sf CC) gt0 f)
-                                   (fun g g' => ftf g = ftf g')
-                                   (sf_ax2_type_l1_lhs_depends_only_on_ftf_f (@sf CC) gt0 f)
-                                   (sf_ax2_type_l1_rhs_depends_only_on_ftf_f (@sf CC) gt0 f) Hyp2).
-  rewrite auxeq.
-  clear auxeq.
-
-  UniMath.MoreFoundations.Tactics.show_id_type.
-  rewrite transport_source_target_simple.
-  etrans.
-  { rewrite <- assoc.
-    apply cancel_precomposition.
-    apply cancel_postcomposition.
-    (* will probably need help wth the arguments:
-    apply transport_source_target_simple.
-    *)
-
-  (*
-  { apply pathsinv0.
-    apply transportb_map.
-   *)
-
-(* why does the following not work?
   apply pathsinv0.
-  apply UniMath.MoreFoundations.PartA.transportf_transpose.
- *)
+  etrans.
+  { apply cancel_precomposition.
+    apply pathsinv0.
+    set (pr := fun X: CC => sec_pnX_to_mor 1 X).
+    apply (transportb_map pr).
+  }
+  rewrite transportb_source_target_simple.
 
+  apply pathsinv0.
+  do 4 rewrite assoc.
+  apply iso_inv_on_left.
+  do 2 rewrite <- idtoiso_inv0.
+
+  rewrite <- idtoiso_concat0.
+
+  do 3 rewrite <- assoc.
+  do 4 rewrite <- idtoiso_concat0.
+
+  apply cancelidtoiso_right_cor.
+  { apply (isaset_ob CC). }
+  apply cancelidtoiso_left.
+  { apply (isaset_ob CC). }
+  apply idpath.
+Qed.
+
+(** now, the pullback property is still cumbersome *)
+Definition pullback_to_q_of_f {X Y Z: CC} (gt0: ll X > 0)(f: Y --> ft X)
+  (g1: Z --> ft (f_star gt0 f))(g2: Z --> X)
+  (pbeq: g1 · (C0eiso gt0 f · f) = g2 · pnX 1 X): Z --> f_star gt0 f :=
+  C0eiso_inv gt0 (ftf(g2)) ·
+  (sf gt0 g2) ·
+  idtoiso (maponpaths (f_star gt0) (! pbeq)) ·
+  idtoiso (!(C0ax7a gt0 f g1)) ·
+  (q_of_f (C0ax5a gt0 f) g1).
+
+
+Lemma pullback_to_q_of_f_ok {X Y Z: CC} (gt0: ll X > 0)(f: Y --> ft X)
+  (g1: Z --> ft (f_star gt0 f))(g2: Z --> X)
+  (pbeq: g1 · (C0eiso gt0 f · f) = g2 · pnX 1 X):
+  pullback_to_q_of_f gt0 f g1 g2 pbeq · pnX 1 (f_star gt0 f) = g1 ×
+  pullback_to_q_of_f gt0 f g1 g2 pbeq · q_of_f gt0 f = g2.
+Proof.
+  use tpair; unfold pullback_to_q_of_f; simpl.
+  (* still some work to do *)
 Admitted.
+
+Lemma q_of_f_is_pullback  {X Y: CC} (gt0: ll X > 0)(f: Y --> ft X):
+  isPullback (C0eiso gt0 f ;; f) (pnX 1 X)
+             (pnX 1 (f_star gt0 f)) (q_of_f gt0 f)
+             (C0ax5c gt0 f).
+Proof.
+  red.
+  intros Z g1 g2 pbeq.
+  use tpair.
+  - exists (pullback_to_q_of_f gt0 f g1 g2 pbeq).
+    apply pullback_to_q_of_f_ok.
+  - simpl.
+    induction t as [pb' pb'ok].
+    apply subtypeInjectivity.
+    + intro.
+      apply isapropdirprod; apply (isaset_mor CC).
+    + simpl.
+      set (pbok := pullback_to_q_of_f_ok gt0 f g1 g2 pbeq).
+      induction pbok as [pbok1 pbok2].
+      induction pb'ok as [pb'ok1 pb'ok2].
+      apply injectionprop2_4_cor.
+      * rewrite pb'ok2.
+        rewrite pbok2.
+        apply idpath.
+      * unfold ftf.
+        etrans.
+        apply pb'ok1.
+        apply pathsinv0.
+        etrans.
+        apply pbok1.
+        apply idpath.
+Defined.
 
 End Pullbacks.
 
