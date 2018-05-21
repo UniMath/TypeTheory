@@ -357,10 +357,8 @@ Defined.
 
 Section Pullbacks.
 
-Variable CC : lCsystem.
-
 (** show that [g] is determined by [g;;q_of_f gt0 f] and [ftf g] - unfortunately, [g] alone enters as argument of [sf_ax2_type_l1] *)
-Lemma injectionprop2_4 {X Y Z: CC} (gt0: ll X > 0) (f: Y --> ft X) (g: Z --> f_star gt0 f):
+Lemma injectionprop2_4 {CC: lCsystem}{X Y Z: CC} (gt0: ll X > 0) (f: Y --> ft X) (g: Z --> f_star gt0 f):
   g = C0eiso_inv (C0ax5a gt0 f) (ftf g);;
       (transportb _ (sf_ax2_type_l1 (@sf CC) gt0 f g)) (sf gt0 (g;;q_of_f gt0 f));;
       (q_of_f (C0ax5a gt0 f) (ftf g)).
@@ -380,7 +378,7 @@ Proof.
 Qed.
 
 (** the following ought to be a simple corollary, but needs more work in the formalization than on paper since the types depend on the objects in the equations *)
-Lemma injectionprop2_4_cor {X Y Z: CC} (gt0: ll X > 0)
+Lemma injectionprop2_4_cor {CC: lCsystem}{X Y Z: CC} (gt0: ll X > 0)
       (f: Y --> ft X) (g g': Z --> f_star gt0 f):
   g;;q_of_f gt0 f = g';;q_of_f gt0 f -> ftf g = ftf g' -> g = g'.
 Proof.
@@ -465,7 +463,7 @@ Proof.
 Qed.
 
 (** now, the pullback property is still cumbersome *)
-Definition pullback_to_q_of_f {X Y Z: CC} (gt0: ll X > 0)(f: Y --> ft X)
+Definition pullback_to_q_of_f {CC: lCsystem}{X Y Z: CC} (gt0: ll X > 0)(f: Y --> ft X)
   (g1: Z --> ft (f_star gt0 f))(g2: Z --> X)
   (pbeq: g1 · (C0eiso gt0 f · f) = g2 · pnX 1 X): Z --> f_star gt0 f :=
   C0eiso_inv gt0 (ftf(g2)) ·
@@ -475,7 +473,7 @@ Definition pullback_to_q_of_f {X Y Z: CC} (gt0: ll X > 0)(f: Y --> ft X)
   (q_of_f (C0ax5a gt0 f) g1).
 
 
-Lemma pullback_to_q_of_f_ok {X Y Z: CC} (gt0: ll X > 0)(f: Y --> ft X)
+Lemma pullback_to_q_of_f_ok {CC: lCsystem}{X Y Z: CC} (gt0: ll X > 0)(f: Y --> ft X)
   (g1: Z --> ft (f_star gt0 f))(g2: Z --> X)
   (pbeq: g1 · (C0eiso gt0 f · f) = g2 · pnX 1 X):
   pullback_to_q_of_f gt0 f g1 g2 pbeq · pnX 1 (f_star gt0 f) = g1 ×
@@ -565,13 +563,15 @@ Proof.
     apply idpath.
 Qed.
 
-
-Lemma q_of_f_is_pullback  {X Y: CC} (gt0: ll X > 0)(f: Y --> ft X):
+Definition q_of_f_is_pullback_type {CC: lC0system}{X Y: CC} (gt0: ll X > 0)(f: Y --> ft X): UU :=
   isPullback (C0eiso gt0 f ;; f) (pnX 1 X)
              (pnX 1 (f_star gt0 f)) (q_of_f gt0 f)
              (C0ax5c gt0 f).
+
+Lemma q_of_f_is_pullback {CC: lCsystem}{X Y: CC} (gt0: ll X > 0)(f: Y --> ft X):
+  q_of_f_is_pullback_type gt0 f.
 Proof.
-  red.
+  do 2 red.
   intros Z g1 g2 pbeq.
   use tpair.
   - exists (pullback_to_q_of_f gt0 f g1 g2 pbeq).
@@ -597,6 +597,50 @@ Proof.
         apply pbok1.
         apply idpath.
 Defined.
+
+(** preparation for the other direction of Proposition 2.4 *)
+Lemma s_pb_in_lC0system {CC: lC0system}{X Y: CC}(gt0: ll X > 0)(f: Y --> X)(q_of_f_is_pb: q_of_f_is_pullback_type gt0 (ftf f)):
+∃! s : pr1 CC ⟦ ft (f_star gt0 (ftf f)), f_star gt0 (ftf f) ⟧,
+       s · pnX 1 (f_star gt0 (ftf f)) = identity (ft (f_star gt0 (ftf f))) ×
+       s · q_of_f gt0 (ftf f) = C0eiso gt0 (ftf f) · f.
+Proof.
+  assert (pbeq: identity (ft (f_star gt0 (ftf f))) · (C0eiso gt0 (ftf f) · ftf f) = C0eiso gt0 (ftf f) · f · pnX 1 X).
+  { rewrite id_left. apply assoc. }
+  exact (q_of_f_is_pb _ (identity _) (C0eiso gt0 (ftf f);;f) pbeq).
+Defined.
+
+(** construct the s operation *)
+Lemma s_sec_in_lC0system {CC: lC0system}{X Y: CC}(gt0: ll X > 0)(f: Y --> X)(q_of_f_is_pb: q_of_f_is_pullback_type gt0 (ftf f)): sec_pX (f_star gt0 (ftf f)).
+Proof.
+  use tpair; simpl.
+  + unfold funcomp; unfold idfun.
+    exact (pr1 (iscontrpr1 (s_pb_in_lC0system gt0 f q_of_f_is_pb))).
+  + exact (pr1 (pr2 (iscontrpr1 (s_pb_in_lC0system gt0 f q_of_f_is_pb)))).
+Defined.
+
+(** the other direction of Proposition 2.4 *)
+Lemma lCsystem_from_lC0system_where_q_of_f_is_pullback {CC: lC0system}(q_of_f_is_pb : forall (X Y: CC)(gt0: ll X > 0)(f: Y --> X), q_of_f_is_pullback_type gt0 (ftf f)): lCsystem.
+Proof.
+  exists CC.
+  use tpair; simpl.
+  - red.
+    intros Y X gt0 f.
+    exact (s_sec_in_lC0system gt0 f (q_of_f_is_pb X Y gt0 f)).
+  - apply dirprodpair.
+    + red.
+      intros Y X gt0 f.
+      simpl.
+      apply pathsinv0.
+      exact (pr2 (pr2 (iscontrpr1 (s_pb_in_lC0system gt0 f (q_of_f_is_pb X Y gt0 f))))).
+    + red.
+      intros Y Y' U gt0 g f.
+      (* the strategy will be as follows (not regarding the transport business):
+         -  (s_sec_in_lC0system (C0ax5a gt0 g) f (q_of_f_is_pb (f_star gt0 g) Y (C0ax5a gt0 g) f)) fulfills the two equations of s_pb_in_lC0system gt0 (f · q_of_f gt0 g)
+         - by contraction and construction, it is then s_sec_in_lC0system gt0 (f · q_of_f gt0 g)
+    (q_of_f_is_pb U Y gt0 (f · q_of_f gt0 g))
+       *)
+Admitted.
+
 
 End Pullbacks.
 
