@@ -405,7 +405,7 @@ Notation sec_pX_eq := (@sec_pnX_eq _ 1 _ ).
 
 Lemma eq_sec_pnX { CC : ltower_precat_and_p } (hsC : has_homsets CC)
   { n : nat } { X : CC } ( s1 s2 : sec_pnX n X ):
-  pr1 s1 = pr1 s2 -> s1 = s2.
+  sec_pnX_to_mor _ _ s1 = sec_pnX_to_mor _ _ s2 -> s1 = s2.
 Proof.
   intro H.
   apply (total2_paths_f H).

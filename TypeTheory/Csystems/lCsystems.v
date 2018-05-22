@@ -634,11 +634,24 @@ Proof.
       exact (pr2 (pr2 (iscontrpr1 (s_pb_in_lC0system gt0 f (q_of_f_is_pb X Y gt0 f))))).
     + red.
       intros Y Y' U gt0 g f.
-      (* the strategy will be as follows (not regarding the transport business):
-         -  (s_sec_in_lC0system (C0ax5a gt0 g) f (q_of_f_is_pb (f_star gt0 g) Y (C0ax5a gt0 g) f)) fulfills the two equations of s_pb_in_lC0system gt0 (f · q_of_f gt0 g)
-         - by contraction and construction, it is then s_sec_in_lC0system gt0 (f · q_of_f gt0 g)
-    (q_of_f_is_pb U Y gt0 (f · q_of_f gt0 g))
-       *)
+      (* the strategy is as follows (not regarding the need for transport):
+         -  (s_sec_in_lC0system (C0ax5a gt0 g) f (q_of_f_is_pb (f_star gt0 g) Y (C0ax5a gt0 g) f)) fulfills the two equations of s_pb_in_lC0system gt0 (f · q_of_f gt0 g) out of which the first is the property of being a section
+         - by contraction and construction, it is then s_sec_in_lC0system gt0 (f · q_of_f gt0 g) (q_of_f_is_pb U Y gt0 (f · q_of_f gt0 g))
+      *)
+      apply eq_sec_pnX.
+      { apply (isaset_mor CC). }
+      (* UniMath.MoreFoundations.Tactics.show_id_type. *)
+      set (s_f := s_sec_in_lC0system (C0ax5a gt0 g) f
+                  (q_of_f_is_pb (f_star gt0 g) Y (C0ax5a gt0 g) f)).
+      (* set (s_fq := s_sec_in_lC0system gt0 (f · q_of_f gt0 g)
+                   (q_of_f_is_pb U Y gt0 (f · q_of_f gt0 g))). *)
+      apply (path_to_ctr _ _ (s_pb_in_lC0system gt0 (f · q_of_f gt0 g) (q_of_f_is_pb _ _ gt0 (f · q_of_f gt0 g)))).
+      apply dirprodpair.
+      * apply (sec_pnX_eq (n:=1)).
+      * assert (s_f_ok := pr2 (pr2 (iscontrpr1 (s_pb_in_lC0system (C0ax5a gt0 g) f (q_of_f_is_pb _ _ (C0ax5a gt0 g) f))))).
+        simpl in s_f_ok.
+        change (s_f · q_of_f (C0ax5a gt0 g) (ftf f) = C0eiso (C0ax5a gt0 g) (ftf f) · f) in s_f_ok.
+(* on paper, this would now require just two more lines *)
 Admitted.
 
 
