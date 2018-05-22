@@ -1,5 +1,6 @@
-(** ** lCsystems,
+(** ** lCsystems *)
 
+(**
 by Vladimir Voevodsky, split off the file lCsystems.v on March 5, 2015.
 
 We refer below to the paper "Subsystems and regular quotients of C-systems"
@@ -10,8 +11,9 @@ of the underlying precategory form a set. It also does not require the
 properties of the identity morphisms but does require associativity. 
 
 
-The section Pullbacks (Lemma q_of_f_is_pullback) has been added by Ralph Matthes
-in May 2018.
+The section Pullbacks (in particular Lemma q_of_f_is_pullback and
+Lemma lCsystem_from_lC0system_where_q_of_f_is_pullback) has been
+added by Ralph Matthes in May 2018.
 *)
 
 
@@ -355,14 +357,14 @@ Defined.
 
 *)
 
-
+Section Pullbacks.
 (** *** the square expressed in [C0ax5c_type] is even a pullback in every C-system *)
 
 (**
   This corresponds to the direction from 2 to 1 of Prop. 2.4 of "Csubsystems".
-*)
 
-Section Pullbacks.
+  The other direction is dealt with further below.
+*)
 
 (** show that [g] is determined by [g · q_of_f gt0 f] and [ftf g] - unfortunately, [g] alone enters as argument of [sf_ax2_type_l1] *)
 Lemma injectionprop2_4 {CC: lCsystem}{X Y Z: CC}
@@ -611,7 +613,15 @@ Proof.
         apply idpath.
 Defined.
 
-(** preparation for the other direction of Proposition 2.4 *)
+(** *** if the square expressed in [C0ax5c_type] is even a pullback, then one gets a C-system *)
+
+(**
+  This corresponds to the direction from 1 to 2 of Prop. 2.4 of "Csubsystems"
+  whose proof is not carried out there.
+*)
+
+
+(** some preparation *)
 Lemma s_pb_in_lC0system {CC: lC0system}{X Y: CC}
   (gt0: ll X > 0)(f: Y --> X)(q_of_f_is_pb: q_of_f_is_pullback_type gt0 (ftf f)):
   ∃! s : pr1 CC ⟦ ft(f_star gt0 (ftf f)), f_star gt0 (ftf f) ⟧,
@@ -743,7 +753,7 @@ Proof.
         apply cancelidtoiso_left.
         { apply (isaset_ob CC). }
         apply idpath.
-Qed.
+Defined.
 
 End Pullbacks.
 
