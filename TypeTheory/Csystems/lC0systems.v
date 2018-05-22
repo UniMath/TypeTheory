@@ -26,8 +26,8 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma idtoiso_inv0 (C : precategory) (a a' : ob C)
-  (p : a = a') : morphism_from_iso _ _ _ (idtoiso (!p)) = inv_from_iso (idtoiso p).
+Lemma idtoiso_inv0 (C : precategory) (a a' : ob C) (p : a = a'):
+  morphism_from_iso _ _ _ (idtoiso (!p)) = inv_from_iso (idtoiso p).
 Proof.
   destruct p.
   simpl.
@@ -57,7 +57,7 @@ Qed.
 Lemma idtoiso_concat0 (C : precategory) (a a' a'' : ob C)
   (p : a = a') (q : a' = a'') :
   morphism_from_iso _ _ _ (idtoiso (p @ q)) =
-  morphism_from_iso _ _ _ (idtoiso p) ;; (morphism_from_iso _ _ _(idtoiso q)).
+  morphism_from_iso _ _ _ (idtoiso p) · (morphism_from_iso _ _ _(idtoiso q)).
 Proof.
   destruct p.
   destruct q.
@@ -66,7 +66,9 @@ Proof.
 Qed.
 
 (** no need for the following in view of Lemma [iso_inv_on_right]
-Lemma idtoisoinvcancelleft {CC: precategory}{A B C: CC} (eq: B = A)(f: A --> C)(g: B --> C):  g = idtoiso eq ;; f -> iso_inv_from_iso (idtoiso eq);; g = f.
+Lemma idtoisoinvcancelleft {CC: precategory}{A B C: CC}
+   (eq: B = A)(f: A --> C)(g: B --> C):
+   g = idtoiso eq · f -> iso_inv_from_iso (idtoiso eq) · g = f.
 Proof.
   induction eq.
   intro Hyp.
@@ -83,8 +85,8 @@ Lemma eq_par_arrow {CC: precategory}{T: UU}
       ( s t: T -> ob CC )
       ( par: forall h: T, CC ⟦ s h , t h ⟧)
       { g g': T }(e : g = g'):
-  par g ;; idtoiso (maponpaths t e) =
-  idtoiso (maponpaths s e) ;; par g'.
+  par g · idtoiso (maponpaths t e) =
+  idtoiso (maponpaths s e) · par g'.
 Proof.
   induction e.
   simpl.
@@ -98,7 +100,7 @@ Corollary eq_par_arrow_cor {CC: precategory}{T: UU}
       ( s t: T -> ob CC )
       ( par: forall h: T, CC ⟦ s h , t h ⟧)
       { g g': T}(e : g = g'):
-  par g = idtoiso (maponpaths s e) ;; par g';;
+  par g = idtoiso (maponpaths s e) · par g' ·
                   iso_inv_from_iso (idtoiso (maponpaths t e)).
 Proof.
   apply iso_inv_on_left.
@@ -110,8 +112,8 @@ Corollary eq_par_arrow_cor2 {CC: precategory}{T: UU}
       ( s t: T -> ob CC )
       ( par: forall h: T, CC ⟦ s h , t h ⟧)
       { g g': T}(e : g = g'):
-  par g' = iso_inv_from_iso (idtoiso (maponpaths s e)) ;;
-                            par g;; idtoiso (maponpaths t e).
+  par g' = iso_inv_from_iso (idtoiso (maponpaths s e)) ·
+                            par g · idtoiso (maponpaths t e).
 Proof.
   apply pathsinv0.
   rewrite <- assoc.
@@ -125,7 +127,7 @@ Lemma transportf_source_target_simple {CC: precategory}{T: UU}
       ( s t: T -> ob CC )
       { g g': T}(e : g = g')( m: CC ⟦ s g , t g ⟧):
   transportf (fun h: T => CC ⟦ s h , t h ⟧) e m =
-  iso_inv_from_iso (idtoiso (maponpaths s e)) ;; m ;; idtoiso (maponpaths t e).
+  iso_inv_from_iso (idtoiso (maponpaths s e)) · m · idtoiso (maponpaths t e).
 Proof.
   induction e.
   simpl.
@@ -138,7 +140,7 @@ Lemma transportb_source_target_simple {CC: precategory}{T: UU}
       ( s t: T -> ob CC )
       { g g': T}(e : g' = g)( m: CC ⟦ s g , t g ⟧):
   transportb (fun h: T => CC ⟦ s h , t h ⟧) e m =
-  idtoiso (maponpaths s e) ;; m ;; iso_inv_from_iso (idtoiso (maponpaths t e)).
+  idtoiso (maponpaths s e) · m · iso_inv_from_iso (idtoiso (maponpaths t e)).
 Proof.
   induction e.
   simpl.
@@ -153,7 +155,7 @@ Corollary eq_par_iso {CC: precategory}{T: UU}
       ( s t: T -> ob CC )
       ( piso: forall h: T, iso (s h) (t h) )
       { g g': T }(e : g = g'):
-  piso g ;; idtoiso (maponpaths t e) = idtoiso (maponpaths s e) ;; piso g'.
+  piso g · idtoiso (maponpaths t e) = idtoiso (maponpaths s e) · piso g'.
 Proof.
   set (par := fun h: T => ((piso h): CC ⟦ s h , t h ⟧)).
   apply (eq_par_arrow _ _ par).
@@ -195,7 +197,7 @@ Qed.
 
 Lemma cancelidtoiso_left {CC: precategory}(is: isaset (ob CC)) {a b c: CC}
       (p1 p2: a = b)(m1 m2: b --> c):
-  m1 = m2 -> idtoiso p1 ;; m1  = idtoiso p2 ;; m2.
+  m1 = m2 -> idtoiso p1 · m1  = idtoiso p2 · m2.
 Proof.
   intro Hyp.
   assert (H1: morphism_from_iso _ _ _ (idtoiso p1) =
@@ -210,7 +212,7 @@ Qed.
 
 Lemma cancelidtoiso_left_cor {CC: precategory}(is: isaset (ob CC)) {a b: CC}
       (p: a = a)(m1 m2: a --> b):
-  m1 = m2 -> m1  = idtoiso p ;; m2.
+  m1 = m2 -> m1  = idtoiso p · m2.
 Proof.
   intro Hyp.
   rewrite <- (id_left m1).
@@ -221,7 +223,7 @@ Qed.
 
 Lemma cancelidtoiso_right {CC: precategory}(is: isaset (ob CC)) {a b c: CC}
       (m1 m2: a --> b)(q1 q2: b = c):
-  m1 = m2 -> m1 ;; idtoiso q1  =  m2 ;; idtoiso q2.
+  m1 = m2 -> m1 · idtoiso q1  =  m2 · idtoiso q2.
 Proof.
   intro Hyp.
   assert (H1: morphism_from_iso _ _ _ (idtoiso q1) =
@@ -236,7 +238,7 @@ Qed.
 
 Lemma cancelidtoiso_right_cor {CC: precategory}(is: isaset (ob CC)) {a b: CC}
       (m1 m2: a --> b)(q: b = b):
-  m1 = m2 -> m1 =  m2 ;; idtoiso q.
+  m1 = m2 -> m1 =  m2 · idtoiso q.
 Proof.
   intro Hyp.
   rewrite <- (id_right m1).
@@ -248,7 +250,7 @@ Corollary eq_par_arrow_cor_objirr {CC: precategory}(is: isaset (ob CC)){T: UU}
       ( s t: T -> ob CC )
       ( par: forall h: T, CC ⟦ s h , t h ⟧)
       { g g': T}(e : g = g')(p: s g = s g')(q: t g' = t g):
-  par g = idtoiso p ;; par g';; idtoiso q.
+  par g = idtoiso p · par g' · idtoiso q.
 Proof.
   rewrite (eq_par_arrow_cor _ _ _ e).
   do 2 rewrite <- assoc.
@@ -304,8 +306,8 @@ Lemma eq_p_to_mor {CC: precategory}{T: UU}
       ( t: T -> ob CC )
       ( pmorto: forall h: T, mor_to (t h) )
       { g g': T }(e : g = g'):
-  pmorto g ;; idtoiso (maponpaths t e) =
-  idtoiso (maponpaths (fun h => pr1 (pmorto h)) e) ;; pmorto g'.
+  pmorto g · idtoiso (maponpaths t e) =
+  idtoiso (maponpaths (fun h => pr1 (pmorto h)) e) · pmorto g'.
 Proof.
   set (s := fun h => pr1 (pmorto h)).
   set (par := fun h: T => ((pmorto h): CC ⟦ s h , t h ⟧)).
@@ -318,8 +320,8 @@ Corollary eq_p_to_mor_cor {CC: precategory}{T: UU}
       ( pmorto: forall h: T, mor_to (t h) )
       { g g': T }(e : g = g'):
   pmorto g =
-  mor_to_constr (idtoiso (maponpaths (fun h => pr1 (pmorto h)) e) ;;
-           pmorto g';; iso_inv_from_iso (idtoiso (maponpaths t e))).
+  mor_to_constr (idtoiso (maponpaths (fun h => pr1 (pmorto h)) e) ·
+           pmorto g' · iso_inv_from_iso (idtoiso (maponpaths t e))).
 Proof.
   use total2_paths_f.
   apply idpath.
@@ -384,12 +386,12 @@ Proof.
   - exact ( identity X ). 
   - destruct n as [ | n ].
     + exact ( pX X ). 
-    + exact ( IHn ;; pX ( ftn ( S n ) X ) ).
+    + exact ( IHn · pX ( ftn ( S n ) X ) ).
 Defined.
 
 
 Definition sec_pnX { CC : ltower_precat_and_p } ( n : nat ) ( X : CC ) :=
-  ∑ s : ftn n X --> X, s ;; pnX n X = identity ( ftn n X ). 
+  ∑ s : ftn n X --> X, s · pnX n X = identity ( ftn n X ).
 
 Definition sec_pnX_to_mor { CC : ltower_precat_and_p } ( n : nat ) ( X : CC ):
   sec_pnX n X -> ftn n X --> X := pr1.
@@ -397,7 +399,7 @@ Coercion sec_pnX_to_mor : sec_pnX >-> precategory_morphisms.
 
 Definition sec_pnX_eq { CC : ltower_precat_and_p } { n : nat }
   { X : CC } ( s : sec_pnX n X ):
-  s ;; pnX n X = identity ( ftn n X ) := pr2 s.
+  s · pnX n X = identity ( ftn n X ) := pr2 s.
   
 Notation sec_pX := (sec_pnX 1).
 
@@ -417,8 +419,8 @@ Lemma eq_p_sec_pnX {CC: ltower_precat_and_p}{n: nat}{T: UU}
       ( t: T -> CC )
       ( psecpnX: forall h: T, sec_pnX n (t h) )
       { g g': T }(e : g = g'):
-  psecpnX g ;; idtoiso (maponpaths t e) =
-  idtoiso (maponpaths (fun h => ftn n (t h)) e) ;; psecpnX g'.
+  psecpnX g · idtoiso (maponpaths t e) =
+  idtoiso (maponpaths (fun h => ftn n (t h)) e) · psecpnX g'.
 Proof.
   set (s := fun h => ftn n (t h)).
   set (par := fun h: T => ((psecpnX h): CC ⟦ s h , t h ⟧)).
@@ -428,8 +430,8 @@ Qed.
 Lemma eq_p_sec_pnX_cor_aux {CC: ltower_precat_and_p}{n: nat}{T: UU}
       ( t: T -> CC )
       { g g': T }(e : g = g'):
-  inv_from_iso (idtoiso (maponpaths t e));; pnX n (t g) =
-  pnX n (t g');; inv_from_iso (idtoiso (maponpaths (fun h => ftn n (t h)) e)).
+  inv_from_iso (idtoiso (maponpaths t e)) · pnX n (t g) =
+  pnX n (t g') · inv_from_iso (idtoiso (maponpaths (fun h => ftn n (t h)) e)).
 Proof.
   apply iso_inv_on_right.
   rewrite assoc.
@@ -443,8 +445,8 @@ Definition eq_p_sec_pnX_cor_rhs {CC: ltower_precat_and_p}{n: nat}{T: UU}
       { g g': T}(e : g = g'): sec_pnX n (t g).
 Proof.
   use tpair.
-  - exact (idtoiso (maponpaths (fun h => ftn n (t h)) e) ;; psecpnX g'
-                     ;; iso_inv_from_iso (idtoiso (maponpaths t e))).
+  - exact (idtoiso (maponpaths (fun h => ftn n (t h)) e) · psecpnX g'
+                     · iso_inv_from_iso (idtoiso (maponpaths t e))).
   - simpl.
     rewrite <- assoc.
     etrans.
@@ -489,12 +491,12 @@ Qed.
 (** end of the lemmas that are not used for the definition but the later analysis *)
 
 
-Definition ftf { CC : ltower_precat_and_p } { X Y : CC } ( f : X --> Y ): X --> ft Y :=
-  f ;; pX Y. 
+Definition ftf { CC : ltower_precat_and_p } { X Y : CC } ( f : X --> Y ):
+  X --> ft Y := f · pX Y.
 
 
 Definition Ob_tilde_over { CC : ltower_precat_and_p  } ( X : CC ) :=
-  ∑ r : ft X --> X, r ;; ( pX X ) = identity ( ft X ).
+  ∑ r : ft X --> X, r · ( pX X ) = identity ( ft X ).
 
 Local Lemma Ob_tilde_over_is_sec_pX { CC : ltower_precat_and_p  } ( X : CC ):
   Ob_tilde_over X = sec_pX X.
@@ -502,16 +504,19 @@ Proof.
   apply idpath.
 Qed.
 
-Definition Ob_tilde_over_to_mor_to { CC : ltower_precat_and_p } ( X : CC ) ( r : Ob_tilde_over X ):
+Definition Ob_tilde_over_to_mor_to { CC : ltower_precat_and_p }
+  ( X : CC ) ( r : Ob_tilde_over X ):
   mor_to X := mor_to_constr ( pr1 r ).
 Coercion Ob_tilde_over_to_mor_to: Ob_tilde_over >-> mor_to. 
 
-Definition Ob_tilde_over_to_mor_from { CC : ltower_precat_and_p  } ( X : CC ) ( r : Ob_tilde_over X ):
+Definition Ob_tilde_over_to_mor_from { CC : ltower_precat_and_p  }
+  ( X : CC ) ( r : Ob_tilde_over X ):
   mor_from ( ft X ) := mor_from_constr ( pr1 r ).
 Coercion Ob_tilde_over_to_mor_from: Ob_tilde_over >-> mor_from.
 
-Definition Ob_tilde_over_eq { CC : ltower_precat_and_p  } { X : CC } ( r : Ob_tilde_over X ):
-  r ;; ( pX X ) = identity ( ft X ) := pr2 r. 
+Definition Ob_tilde_over_eq { CC : ltower_precat_and_p  } { X : CC }
+  ( r : Ob_tilde_over X ):
+  r · ( pX X ) = identity ( ft X ) := pr2 r.
 
 
 
@@ -543,18 +548,19 @@ Definition lC0system_data := ∑ CC : pltower_precat_and_p, q_data_type CC.
 Definition lC0system_data_pr1: lC0system_data -> pltower_precat_and_p := pr1.
 Coercion lC0system_data_pr1: lC0system_data >-> pltower_precat_and_p.
 
-Definition codom { CC : lC0system_data } { X : CC } ( f : mor_from X ): CC := pr1 f.
+Definition codom { CC : lC0system_data } { X : CC }
+  ( f : mor_from X ): CC := pr1 f.
 
-Definition dom { CC : lC0system_data } { X : CC } ( f : mor_to X ): CC := pr1 f.
+Definition dom { CC : lC0system_data } { X : CC }
+  ( f : mor_to X ): CC := pr1 f.
 
 
 Definition q_of_f { CC : lC0system_data }  
-           { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X ) : mor_to X :=
+  { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X ) : mor_to X :=
   pr2 CC _ _ gt0 f . 
 
-Definition f_star { CC : lC0system_data }  
-           { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X ): CC := 
-  dom ( q_of_f gt0 f ).
+Definition f_star { CC : lC0system_data } { X Y : CC }
+  ( gt0 : ll X > 0 ) ( f : Y --> ft X ): CC := dom ( q_of_f gt0 f ).
 
 (** Formulation of q_of_f as a function from mor_to to mor_to *)
 
@@ -573,7 +579,7 @@ the Csubsystems paper.
 
 The conditions 1-3 are consequences of the definition of a pointed l-tower (pltower) *)
 
-Definition C0ax4_type ( CC : pltower_precat_and_p ) :=  isTerminal _ (cntr CC).         
+Definition C0ax4_type ( CC : pltower_precat_and_p ) :=  isTerminal _ (cntr CC).
 (*
 Definition C0ax4_type ( CC : pltower_precat_and_p ) :=
   forall X : CC, iscontr ( X --> cntr CC ).
@@ -594,24 +600,25 @@ Definition C0ax5b_iso { CC : lC0system_data } ( ax5b : C0ax5b_type CC )
 (** the following definition is only used for work with the definitions *)
 Definition C0ax5b_iso_inv { CC : lC0system_data } ( ax5b : C0ax5b_type CC )
            { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X ):
-  iso Y (ft ( f_star gt0 f )) := iso_inv_from_iso (C0ax5b_iso ax5b gt0 f).
+  iso Y (ft(f_star gt0 f)) := iso_inv_from_iso (C0ax5b_iso ax5b gt0 f).
 
 
 (** The description of properties continues *)
 
 Definition C0ax5c_type { CC : lC0system_data } ( ax5b : C0ax5b_type CC ) := 
   forall ( X Y : CC ) ( gt0 : ll X > 0 ) ( f : Y --> ft X ), 
-    pX ( f_star gt0 f ) ;; ( ( C0ax5b_iso ax5b gt0 f ) ;; f ) = ( q_of_f gt0 f ) ;; ( pX X ).
+    pX ( f_star gt0 f ) · ( ( C0ax5b_iso ax5b gt0 f ) · f ) =
+    ( q_of_f gt0 f ) · ( pX X ).
 
 Definition C0ax6_type ( CC : lC0system_data ) :=
   forall ( X : CC ) ( gt0 : ll X > 0 ),
-    q_of_f gt0 ( identity ( ft X ) ) = mor_to_constr ( identity X ). 
+    q_of_f gt0 ( identity ( ft X ) ) = mor_to_constr (identity X).
 
 Definition C0ax7_type { CC : lC0system_data } 
   ( ax5a : C0ax5a_type CC ) ( ax5b : C0ax5b_type CC ) :=
-  forall ( X Y Z : CC ) ( gt0 : ll X > 0 ) ( f : Y --> ft X ) ( g : Z --> ft ( f_star gt0 f ) ),
-    mor_to_constr ( ( q_of_f ( ax5a _ _ gt0 f ) g ) ;; ( q_of_f gt0 f ) ) =
-    q_of_f gt0 ( g ;; ( ( C0ax5b_iso ax5b gt0 f ) ;; f ) ).
+  forall ( X Y Z : CC ) ( gt0 : ll X > 0 ) ( f : Y --> ft X ) ( g : Z --> ft(f_star gt0 f) ),
+    mor_to_constr ( ( q_of_f ( ax5a _ _ gt0 f ) g ) · ( q_of_f gt0 f ) ) =
+    q_of_f gt0 ( g · ( ( C0ax5b_iso ax5b gt0 f ) · f ) ).
 
 
 
@@ -644,35 +651,36 @@ Definition C0ax5b { CC : lC0system } { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y -->
 Notation ft_f_star := C0ax5b. 
 
 Definition C0eiso { CC : lC0system } { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X ):
-  iso (ft ( f_star gt0 f )) Y := C0ax5b_iso ( @C0ax5b CC ) gt0 f.
+  iso (ft(f_star gt0 f)) Y := C0ax5b_iso ( @C0ax5b CC ) gt0 f.
 
-Definition C0eiso_inv { CC : lC0system } { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X ):
-  iso Y (ft ( f_star gt0 f )) := C0ax5b_iso_inv ( @C0ax5b CC ) gt0 f.
+Definition C0eiso_inv { CC : lC0system } { X Y : CC }
+  ( gt0 : ll X > 0 ) ( f : Y --> ft X ): iso Y (ft(f_star gt0 f)) :=
+  C0ax5b_iso_inv ( @C0ax5b CC ) gt0 f.
 
 
 Definition C0ax5c { CC : lC0system }
            { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X ): 
-  pX ( f_star gt0 f ) ;; ( ( C0eiso gt0 f ) ;; f ) =
-  ( q_of_f gt0 f ) ;; ( pX X ) :=
+  pX ( f_star gt0 f ) · ( ( C0eiso gt0 f ) · f ) =
+  ( q_of_f gt0 f ) · ( pX X ) :=
   pr2 ( pr2 ( pr1 ( pr2 ( pr2 CC )))) X Y gt0 f. 
 
 
 Definition C0ax6 { CC : lC0system } { X : CC } ( gt0 : ll X > 0 ):
-  q_of_f gt0 ( identity ( ft X ) ) = mor_to_constr ( identity X ) :=
+  q_of_f gt0 (identity(ft X)) = mor_to_constr (identity X) :=
   pr1 ( pr2 ( pr2 ( pr2 CC ))) X gt0.
 
 Definition C0ax6a { CC : lC0system } { X : CC } ( gt0 : ll X > 0 ):
-  f_star gt0 ( identity ( ft X ) ) = X := maponpaths pr1 ( C0ax6 gt0 ).
+  f_star gt0 (identity (ft X)) = X := maponpaths pr1 ( C0ax6 gt0 ).
 
 Definition C0ax7 { CC : lC0system } { X Y Z : CC }
   ( gt0 : ll X > 0 ) ( f : Y --> ft X ) ( g : Z --> ft ( f_star gt0 f ) ):
-  mor_to_constr ( ( q_of_f ( C0ax5a gt0 f ) g ) ;; ( q_of_f gt0 f ) ) =
-  q_of_f gt0 ( g ;; ( ( C0eiso gt0 f ) ;; f ) ) :=
+  mor_to_constr ( ( q_of_f ( C0ax5a gt0 f ) g ) · ( q_of_f gt0 f ) ) =
+  q_of_f gt0 ( g · ( ( C0eiso gt0 f ) · f ) ) :=
   pr2 ( pr2 ( pr2 ( pr2 CC ))) X Y Z gt0 f g.
 
 Definition C0ax7a { CC : lC0system } { X Y Z : CC }
   ( gt0 : ll X > 0 ) ( f : Y --> ft X ) ( g : Z --> ft ( f_star gt0 f ) ):
-  f_star ( C0ax5a gt0 f ) g = f_star gt0 ( g ;; ( ( C0eiso gt0 f ) ;; f ) ) :=
+  f_star ( C0ax5a gt0 f ) g = f_star gt0 ( g · ( ( C0eiso gt0 f ) · f ) ) :=
   maponpaths pr1 ( C0ax7 gt0 f g ).
 
 (** **** Some simple properties of lC0systems *)
@@ -707,8 +715,8 @@ Defined.
 
 (** **** Operations qn and fn_star *)
 
-Definition qn { CC : lC0system_data } { A X : CC } ( f : mor_to A ) ( isov : isover X A ):
-  mor_to X :=
+Definition qn { CC : lC0system_data } { A X : CC }
+  ( f : mor_to A ) ( isov : isover X A ): mor_to X :=
   isover_ind ( fun X Y : CC => mor_to Y -> mor_to X )
              ( fun X => idfun _ )
              ( fun X gt0 => q_of_mor_to gt0 )
@@ -900,7 +908,7 @@ Lemma ll_fn_star { CC : lC0system } { A X : CC } ( f : mor_to A ) ( isov : isove
   ll ( fn_star f isov ) + ll A  = ll ( dom f ) + ll X. 
 Proof.
   set ( P := fun ( X0 Y0 : CC ) ( isov0 : isover X0 Y0 ) =>
-               forall ( f0 : mor_to Y0 ), ll ( fn_star f0 isov0 ) + ll Y0  = ll ( dom f0 ) + ll X0 ).
+    forall ( f0 : mor_to Y0 ), ll ( fn_star f0 isov0 ) + ll Y0  = ll ( dom f0 ) + ll X0 ).
   assert ( P0 : forall X0 , P X0 X0 ( isover_XX X0 ) ).
   { intro.
     unfold P.
