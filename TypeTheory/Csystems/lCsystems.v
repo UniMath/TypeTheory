@@ -601,9 +601,8 @@ Proof.
       induction pbok as [pbok1 pbok2].
       induction pb'ok as [pb'ok1 pb'ok2].
       apply injectionprop2_4_cor.
-      * rewrite pb'ok2.
-        rewrite pbok2.
-        apply idpath.
+      * etrans. { apply pb'ok2. }
+        apply (! pbok2).
       * unfold ftf.
         etrans.
         apply pb'ok1.
