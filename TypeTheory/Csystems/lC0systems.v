@@ -456,7 +456,7 @@ Proof.
                    · iso_inv_from_iso (idtoiso (maponpaths t e))).
   - cbn.
     etrans. {apply (!assoc _ _ _ ). }
-    etrans. 
+    etrans.
     { apply cancel_precomposition.
        apply eq_p_sec_pnX_cor_aux.
     }
@@ -608,7 +608,7 @@ Definition C0ax5b_type ( CC : lC0system_data )
 
 Definition C0ax5b_iso { CC : lC0system_data } ( ax5b : C0ax5b_type CC )
            { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X )
-  :iso (ft ( f_star gt0 f )) Y := idtoiso ( ax5b X Y gt0 f ).
+  : iso (ft ( f_star gt0 f )) Y := idtoiso ( ax5b X Y gt0 f ).
 
 (** the following definition is only used for work with the definitions *)
 Definition C0ax5b_iso_inv { CC : lC0system_data } ( ax5b : C0ax5b_type CC )
