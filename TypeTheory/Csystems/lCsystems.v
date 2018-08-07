@@ -23,6 +23,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Export TypeTheory.Csystems.lC0systems.
 
 Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.MoreFoundations.PartA.
 
 
 (** *** The l-C-systems *)
@@ -566,7 +567,7 @@ Proof.
     simpl.
     rewrite transportf_source_target_simple.
     do 2 rewrite maponpaths_for_constant_function.
-    rewrite idtosio_idpath.
+    rewrite idtoiso_idpath.
     do 2 rewrite id_right.
     apply iso_inv_on_right.
     rewrite <- idtoiso_inv0.
@@ -708,7 +709,7 @@ Proof.
           apply (eq_par_arrow_cor _ _ par ftfeq).
         }
         rewrite maponpaths_for_constant_function.
-        rewrite idtosio_idpath.
+        rewrite idtoiso_idpath.
         rewrite id_right.
         etrans.
         { do 2 apply cancel_precomposition.
