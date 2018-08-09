@@ -19,13 +19,6 @@ Require Export TypeTheory.Csystems.hSet_ltowers.
 
 Section Upstream.
 
-Lemma maponpaths_for_constant_function {T1 T2 : UU} (x : T2) {t1 t2 : T1}
-      (e: t1 = t2): maponpaths (fun _: T1 => x) e = idpath x.
-Proof.
-  induction e.
-  apply idpath.
-Qed.
-
 Lemma idtoiso_inv0 (C : precategory) (a a' : ob C) (p : a = a'):
   morphism_from_iso _ _ _ (idtoiso (!p)) = inv_from_iso (idtoiso p).
 Proof.
@@ -34,13 +27,13 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma idtosio_idpath {C : precategory} (a : ob C):
+Lemma idtoiso_idpath {C : precategory} (a : ob C):
   idtoiso (idpath a) = identity_iso a.
 Proof.
   apply idpath.
 Qed.
 
-Lemma idtosio_idpath0 {C : precategory} (a : ob C):
+Lemma idtoiso_idpath0 {C : precategory} (a : ob C):
   morphism_from_iso _ _ _ (idtoiso (idpath a)) = identity a.
 Proof.
   apply idpath.
@@ -216,7 +209,7 @@ Lemma cancelidtoiso_left_cor {CC: precategory}(is: isaset (ob CC)) {a b: CC}
 Proof.
   intro Hyp.
   rewrite <- (id_left m1).
-  rewrite <- idtosio_idpath0.
+  rewrite <- idtoiso_idpath0.
   apply cancelidtoiso_left; assumption.
 Qed.
 
@@ -242,7 +235,7 @@ Lemma cancelidtoiso_right_cor {CC: precategory}(is: isaset (ob CC)) {a b: CC}
 Proof.
   intro Hyp.
   rewrite <- (id_right m1).
-  rewrite <- idtosio_idpath0.
+  rewrite <- idtoiso_idpath0.
   apply cancelidtoiso_right; assumption.
 Qed.
 
