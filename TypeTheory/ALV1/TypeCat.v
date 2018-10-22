@@ -10,8 +10,10 @@ Contents:
 *)
 
 Require Import UniMath.Foundations.Sets.
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.All.
+
+(* TODO: work out what module within [CategoryTheory] clears the implicits of [iso], and raise issue upstream! *)
+Arguments iso {_} _ _.
 
 Open Scope cat.
 Open Scope cat_deprecated.
@@ -49,8 +51,8 @@ for documentation purposes only, wrapped in a module to keep it out of the globa
 
 
 Reserved Notation "C ⟨ Γ ⟩" (at level 60).
-Reserved Notation "Γ ◂ A" (at level 45).
-Reserved Notation "A {{ f }}" (at level 40).
+Reserved Notation "Γ ◂ A" (at level 40).
+Reserved Notation "A {{ f }}" (at level 30).
 Reserved Notation "'π' A" (at level 5).
 
 Record type_precat_record : Type := {
@@ -114,17 +116,18 @@ Coercion ty_typecat : typecat_structure1 >-> Funclass.
 Definition ext_typecat {CC : precategory} {C : typecat_structure1 CC} 
   (Γ : CC) (A : C Γ) : CC
    := pr1 (pr2  C) Γ A.
-Notation "Γ ◂ A" := (ext_typecat Γ A) (at level 45, left associativity).
-  (* \tb in Agda input method *)
+Notation "Γ ◂ A" := (ext_typecat Γ A) (at level 40, left associativity).
+  (* \tb in Agda input method,
+     \smallblacktriangleleft in Company Coq *)
 (* NOTE: not sure what levels we want here,
   but the level of this should be above the level of reindexing "A[f]",
-  which should in turn be above the level of composition "g;;f",
-  to allow expressions like "c◂a[g;;f]". *)
+  and bellow the level of hom-sets "X --> Y",
+  to allow expressions like "Γ'◂a[f] --> Γ ◂ A". *)
 
 Definition reind_typecat {CC : precategory} {C : typecat_structure1 CC}
   {Γ : CC} (A : C Γ) {Γ'} (f : Γ' --> Γ) : C Γ'
   := pr2 (pr2 C) Γ A Γ' f.
-Notation "A {{ f }}" := (reind_typecat A f) (at level 40).
+Notation "A {{ f }}" := (reind_typecat A f) (at level 30).
 
 (** * Pullback of dependent projections *)
 
@@ -266,9 +269,8 @@ End Type_Precats.
 
 
 (* Globalising notations defined within section above: *)
-Notation "Γ ◂ A" := (ext_typecat Γ A) (at level 45, left associativity).
-(* Temporarily suppressed due to levels clash with [cwf]. TODO: fix clash! *)
-Notation "A {{ f }}" := (reind_typecat A f) (at level 40).
+Notation "Γ ◂ A" := (ext_typecat Γ A) (at level 40).
+Notation "A {{ f }}" := (reind_typecat A f) (at level 30).
 
 (** * Lemmas about type-(pre)categories *)
 

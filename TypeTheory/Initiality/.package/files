@@ -1,4 +1,5 @@
 SplitTypeCat_Maps.v
+SplitTypeCat_Structure.v
 Syntax.v
 SyntaxLemmas.v
 Typing.v
