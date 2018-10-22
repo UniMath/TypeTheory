@@ -1,19 +1,7 @@
+(** This file defines _maps_ of split type-categories. *)
 
 Require Import UniMath.MoreFoundations.All.
-
-Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.Adjunctions.
-Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.equivalences.
-Require Import UniMath.CategoryTheory.RightKanExtension.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.eqdiag.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.Presheaf.
-Require Import UniMath.CategoryTheory.ElementsOp.
+Require Import UniMath.CategoryTheory.All.
 
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
@@ -25,8 +13,8 @@ Local Open Scope cat.
 (Roughly the same as what Hofmann calls CwA’s.) *)
 
 (** Notations for working in split type cats *)
-Local Notation "A ⦃ s ⦄" := (reind_typecat A s) (at level 40, format "A  ⦃ s ⦄").
-Local Notation "Γ ⋆ A" := (ext_typecat Γ A) (at level 30, only parsing).
+Notation "A ⦃ s ⦄" := (reind_typecat A s) (at level 40, format "A  ⦃ s ⦄").
+Notation "Γ ⋆ A" := (ext_typecat Γ A) (at level 30, only parsing).
 
 Section Auxiliary.
 (** General interface functions for working in split type-cats;
@@ -88,31 +76,6 @@ End Comp_Ext_Compare.
   Defined.
 
 End Auxiliary.
-
-(* Define basic structures on a CwF: for now only a base type and a
-dependent family on the base type *)
-Section basic_structs.
-
-Context (C : split_typecat).
-
-Definition basetype_struct : UU :=
-  ∑ U : ∏ Γ, C Γ, ∏ Δ Γ (σ : Δ --> Γ), U Δ = U Γ ⦃σ⦄.
-
-Definition basetype_struct_pr1 : basetype_struct → ∏ Γ, C Γ := pr1.
-
-Coercion basetype_struct_pr1 : basetype_struct >-> Funclass.
-
-Definition deptype_struct (U : basetype_struct) : UU.
-Proof.
-use (∑ (D : ∏ Γ, C (Γ ⋆ U Γ)), _).
-use (∏ Δ Γ (σ : C ⟦ Δ, Γ ⟧), _).
-apply (D Γ ⦃comp_ext_compare (pr2 U _ _ σ) · q_typecat (U Γ) σ⦄ = D Δ).
-    (* Version of the equation using transport *)
-    (* transportf (λ x : C Δ, C (Δ ⋆ x)) (pr2 U Δ Γ σ) *)
-    (*            (D Γ ⦃q_typecat (U Γ) σ⦄) = D Δ. *)
-Defined. 
-
-End basic_structs.
 
 Section morphisms.
 
