@@ -1,4 +1,4 @@
-CwFStruct.v
+SplitTypeCat_Maps.v
 Syntax.v
 SyntaxLemmas.v
 Typing.v
