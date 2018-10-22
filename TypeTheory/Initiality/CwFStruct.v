@@ -65,23 +65,29 @@ Defined.
 
 End basic_structs.
 
-
 Definition ty {CT : precategory} (C : split_typecat_structure CT) : PreShv CT.
 Proof.
 use mk_functor.
 - use mk_functor_data.
-  intros x.
-  exists (ty_typecat C x).
-  now apply isaset_types_typecat, is_split_from_split_typecat.
-intros a b f x.
-simpl in *.
-exact (@reind_typecat CT C a x b f).
-- admit.
-Admitted.
+  + intros x.
+    exists (ty_typecat C x).
+    abstract (now apply isaset_types_typecat, is_split_from_split_typecat).
+  + intros a b f x.
+    exact (@reind_typecat CT C a x b f).
+- use tpair.
+  + intros x.
+    apply funextfun; intros y; simpl.
+    now apply reind_id_type_typecat, is_split_from_split_typecat.
+  + intros x y z f g; cbn.
+    apply funextfun; intros a.
+    now apply reind_comp_type_typecat, is_split_from_split_typecat.
+Defined.
 
 Section morphisms.
 
-Context {CT DT : category} (C : split_typecat_structure CT) (D : split_typecat_structure DT).
+Context {CT DT : category}
+        (C : split_typecat_structure CT)
+        (D : split_typecat_structure DT).
 
 (* This consists of a pair of 
 
@@ -92,19 +98,47 @@ strictness everywhere except isomorphism
 
 ϕ : F(Γ.A) ≃ F(Γ).F_Ty(A)
 
-satisfying naturality square. 
+satisfying naturality pentagon...
 
 *)
 
-
 Definition typecat_mor : UU.
 Proof.
-About nat_trans.
 use (∑ (F : functor CT DT), _).
-use (∑ (FTy : nat_trans (pr1 (ty C)) (pr1 (functor_compose _ _ (functor_opp F) (ty D)))), _).
-now apply has_homsets_opp, homset_property.
 
-admit.
+use (∑ (FTy : PreShv CT ⟦ty C, functor_opp F ∙ ty D⟧), _).
 
+use (∑ (extiso : ∑ (i : ∏ (Γ : CT) (A : C Γ), iso (F (Γ ⋆ A)) (F Γ ⋆ pr1 FTy _ A)),
+                 ∏ (Γ Γ' : CT) (A : C Γ) (f : Γ' --> Γ),
+                  # F (q_typecat A f) · i _ _ =
+                  i _ _ ·
+                  comp_ext_compare (eqtohomot (nat_trans_ax FTy _ _ f) A) ·
+                  q_typecat (pr1 FTy _ A) (# F f)), _).
+
+(* TODO: express what it means to preserve the rest of the structure *)
+
+  (* C : precategory ; *)
+
+  (* ty : C -> Type   
+       where "C ⟨ Γ ⟩" := (ty Γ); *)
+
+  (* ext : ∏ Γ, C⟨Γ⟩ -> C
+       where "Γ ◂ A" := (ext Γ A); *)
+
+  (* dpr : ∏ Γ (A : C⟨Γ⟩), Γ ◂ A --> Γ
+       where "'π' A" := (dpr _ A); *)
+
+  (* reind : ∏ Γ (A : C⟨Γ⟩) Γ' (f : Γ' --> Γ), C⟨Γ'⟩
+       where "A {{ f }}" := (reind _ A _ f)  ; *)
+
+  (* q : ∏ {Γ} (A : ty Γ) {Γ'} (f : Γ' --> Γ), *)
+  (*         (Γ' ◂ (A {{f }}) --> Γ ◂ A) ; *)
+
+  (* dpr_q : ∏ Γ (A : C⟨Γ⟩) Γ' (f : Γ' --> Γ),  *)
+  (*         (q A f) ;; (π A) = (π (A{{f}})) ;; f ; *)
+
+  (* reind_pb : ∏ Γ (A : ty Γ) Γ' (f : Γ' --> Γ), *)
+  (*     isPullback _ _ _ _ (!dpr_q _ A _ f) *)
+Admitted.
 
 End morphisms.
