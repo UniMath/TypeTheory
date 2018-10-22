@@ -17,29 +17,83 @@ Require Import UniMath.CategoryTheory.ElementsOp.
 
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
-
-(* We stick to this definition of CwF *)
 Require Import TypeTheory.ALV1.TypeCat.
-
-(* Lots of useful lemmas *)
-(* Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs. *)
-(* Require Import TypeTheory.ALV1.TypeCat_Reassoc. *)
-
-
-(* This one was annoying to use *)
-(* Require Import TypeTheory.OtherDefs.CwF_Pitts. *)
 
 Local Open Scope cat.
 
-(* Define nicer notations *)
+(** We base our models on _split type-categories_, i.e. [split_typecat] as defined in [TypeTheory.ALV1.TypeCat] following Pitts and van den Berg–Garner.
+(Roughly the same as what Hofmann calls CwA’s.) *)
+
+(** Notations for working in split type cats *)
 Local Notation "A ⦃ s ⦄" := (reind_typecat A s) (at level 40, format "A  ⦃ s ⦄").
-Local Notation "Γ ⋆ A" := (ext_typecat Γ A) (at level 30).
+Local Notation "Γ ⋆ A" := (ext_typecat Γ A) (at level 30, only parsing).
+
+Section Auxiliary.
+(** General interface functions for working in split type-cats;
+could well be upstreamed to [TypeTheory.ALV1.TypeCat]. *)
+
+Section Comp_Ext_Compare.
+  (* History note: nased on same-named functions in [TypeTheory.ALV1.CwF_SplitTypeCat_Defs], given there for a reassociated version of split type-categories. *)
+
+  Definition comp_ext_compare {C : typecat}
+      {Γ : C} {A A' : C Γ} (e : A = A')
+    : iso (Γ ◂ A) (Γ ◂ A')
+  := idtoiso (maponpaths (ext_typecat Γ) e).
+
+  Lemma comp_ext_compare_id {C : typecat}
+      {Γ : C} (A : C Γ)
+    : (comp_ext_compare (idpath A) : _ --> _) = identity (Γ ◂ A).
+  Proof.
+    apply idpath.
+  Qed.
+
+  Lemma comp_ext_compare_id_general {C : split_typecat}
+      {Γ : C} {A : C Γ} (e : A = A)
+    : (comp_ext_compare e : _ --> _) = identity (Γ ◂ A).
+  Proof.
+    apply @pathscomp0 with (comp_ext_compare (idpath _)).
+    - apply maponpaths, maponpaths, (isaset_types_typecat C).
+    - apply idpath.
+  Qed.
+
+  Lemma comp_ext_compare_comp {C : split_typecat}
+    {Γ : C} {A A' A'' : C Γ} (e : A = A') (e' : A' = A'')
+  : (comp_ext_compare (e @ e') : _ --> _)
+    = comp_ext_compare e ;; comp_ext_compare e'.
+  Proof.
+    apply pathsinv0.
+    etrans. { apply idtoiso_concat_pr. }
+    unfold comp_ext_compare. apply maponpaths, maponpaths.
+    apply pathsinv0, maponpathscomp0. 
+  Qed.
+
+End Comp_Ext_Compare.
+
+  Definition ty (C : split_typecat) : PreShv C.
+  Proof.
+    use mk_functor.
+    - use mk_functor_data.
+      + intros x.
+        exists (ty_typecat C x).
+        abstract (apply isaset_types_typecat, C).
+      + simpl; intros Γ Γ' f A.
+        exact (reind_typecat A f).
+    - use tpair.
+      + intros Γ.
+        abstract (apply funextfun; intros y; simpl;
+                  apply reind_id_type_typecat, C).
+      + cbn; intros Γ Γ' Γ'' f g.
+        abstract (apply funextfun; intros A;
+                  apply reind_comp_type_typecat, C).
+  Defined.
+
+End Auxiliary.
 
 (* Define basic structures on a CwF: for now only a base type and a
 dependent family on the base type *)
 Section basic_structs.
 
-Context {CT : precategory} (C : typecat_structure CT).
+Context (C : split_typecat).
 
 Definition basetype_struct : UU :=
   ∑ U : ∏ Γ, C Γ, ∏ Δ Γ (σ : Δ --> Γ), U Δ = U Γ ⦃σ⦄.
@@ -48,15 +102,10 @@ Definition basetype_struct_pr1 : basetype_struct → ∏ Γ, C Γ := pr1.
 
 Coercion basetype_struct_pr1 : basetype_struct >-> Funclass.
 
-(* Trick inspired by TypeTheory.ALV1.CwF_SplitTypeCat_Defs *)
-Definition comp_ext_compare {C : precategory} {X : typecat_structure C}
-  {Γ : C} {A A' : X Γ} (e : A = A') :
-   Γ ◂ A --> Γ ◂ A' := idtoiso (maponpaths (ext_typecat Γ) e).
-
 Definition deptype_struct (U : basetype_struct) : UU.
 Proof.
 use (∑ (D : ∏ Γ, C (Γ ⋆ U Γ)), _).
-use (∏ Δ Γ (σ : CT ⟦ Δ, Γ ⟧), _).
+use (∏ Δ Γ (σ : C ⟦ Δ, Γ ⟧), _).
 apply (D Γ ⦃comp_ext_compare (pr2 U _ _ σ) · q_typecat (U Γ) σ⦄ = D Δ).
     (* Version of the equation using transport *)
     (* transportf (λ x : C Δ, C (Δ ⋆ x)) (pr2 U Δ Γ σ) *)
@@ -65,29 +114,9 @@ Defined.
 
 End basic_structs.
 
-Definition ty {CT : precategory} (C : split_typecat_structure CT) : PreShv CT.
-Proof.
-use mk_functor.
-- use mk_functor_data.
-  + intros x.
-    exists (ty_typecat C x).
-    abstract (now apply isaset_types_typecat, is_split_from_split_typecat).
-  + intros a b f x.
-    exact (@reind_typecat CT C a x b f).
-- use tpair.
-  + intros x.
-    apply funextfun; intros y; simpl.
-    now apply reind_id_type_typecat, is_split_from_split_typecat.
-  + intros x y z f g; cbn.
-    apply funextfun; intros a.
-    now apply reind_comp_type_typecat, is_split_from_split_typecat.
-Defined.
-
 Section morphisms.
 
-Context {CT DT : category}
-        (C : split_typecat_structure CT)
-        (D : split_typecat_structure DT).
+Context (C D : split_typecat).
 
 (* This consists of a pair of 
 
@@ -104,12 +133,12 @@ satisfying naturality pentagon...
 
 Definition typecat_mor : UU.
 Proof.
-use (∑ (F : functor CT DT), _).
+use (∑ (F : functor C D), _).
 
-use (∑ (FTy : PreShv CT ⟦ty C, functor_opp F ∙ ty D⟧), _).
+use (∑ (FTy : PreShv C ⟦ty C, functor_opp F ∙ ty D⟧), _).
 
-use (∑ (extiso : ∑ (i : ∏ (Γ : CT) (A : C Γ), iso (F (Γ ⋆ A)) (F Γ ⋆ pr1 FTy _ A)),
-                 ∏ (Γ Γ' : CT) (A : C Γ) (f : Γ' --> Γ),
+use (∑ (extiso : ∑ (i : ∏ (Γ : C) (A : C Γ), iso (F (Γ ⋆ A)) (F Γ ⋆ pr1 FTy _ A)),
+                 ∏ (Γ Γ' : C) (A : C Γ) (f : Γ' --> Γ),
                   # F (q_typecat A f) · i _ _ =
                   i _ _ ·
                   comp_ext_compare (eqtohomot (nat_trans_ax FTy _ _ f) A) ·

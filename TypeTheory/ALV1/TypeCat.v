@@ -223,14 +223,6 @@ Definition q_q_typecat {CC : precategory} {C : split_typecat_structure CC}
                ;; q_typecat A f
   := pr2 (pr2 (pr2 (pr2 C))).
 
-(*
-Definition split_type_precat := ∑ C, (is_split_typecat C).
-*)
-(*
-Definition type_precat_of_split (C : split_type_precat) := pr1 C.
-*)
-(* TODO: define access functions for other components of [is_split_…]. *)
-
 Section access_functions.
 
 Context {CC : precategory} {C : typecat_structure CC} (T : is_split_typecat C).
@@ -257,8 +249,20 @@ Definition reind_comp_term_typecat :
  := pr2 (pr2 (pr2 T)).
 
 End access_functions.
- 
+
+Definition typecat := ∑ (C : category), (typecat_structure C).
+
+Coercion category_of_typecat (C : typecat) := pr1 C.
+Coercion structure_of_typecat (C : typecat) := pr2 C.
+
+Definition split_typecat := ∑ (C : typecat), (is_split_typecat C).
+
+Coercion typecat_of_split_typecat (C : split_typecat) := pr1 C.
+Coercion split_typecat_is_split (C : split_typecat) := pr2 C.
+
 End Type_Precats.
+
+
 
 
 (* Globalising notations defined within section above: *)
