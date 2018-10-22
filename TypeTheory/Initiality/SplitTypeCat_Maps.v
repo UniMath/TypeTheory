@@ -57,6 +57,8 @@ Section Comp_Ext_Compare.
 
 End Comp_Ext_Compare.
 
+Section Types_and_Terms.
+
   Definition ty (C : split_typecat) : PreShv C.
   Proof.
     use mk_functor.
@@ -74,6 +76,41 @@ End Comp_Ext_Compare.
         abstract (apply funextfun; intros A;
                   apply reind_comp_type_typecat, C).
   Defined.
+
+  (* TODO: upstream to [Auxiliary]? *)
+  Definition section {C : precategory} {X Y : C} (f : X --> Y)
+    := ∑ (s : Y --> X), s ;; f = identity _.
+
+  (* TODO: upstream with [section]. *)
+  Coercion section_pr1 {C : precategory} {X Y : C} (f : X --> Y)
+    : section f -> (Y --> X)
+  := pr1.
+
+  Definition tm {C : typecat} {Γ} (A : C Γ) : UU
+    := section (dpr_typecat A).
+  Identity Coercion section_of_term : tm >-> section.
+
+  Definition reind_tm {C : typecat} {Γ Γ'} (f : Γ' --> Γ) {A : C Γ}
+    : tm A -> tm (A⦃f⦄).
+  (* uses the pullback structure *)
+  Admitted.
+
+  (** A concrete construction of “transport” of terms, by composing with [comp_ext_compare]. *)
+  Definition tm_transportf {C : typecat} {Γ} {A A' : C Γ} (e : A = A')
+    : tm A ≃ tm A'.
+  Admitted.
+  
+  Definition tm_transportb {C : typecat} {Γ} {A A' : C Γ} (e : A = A')
+    : tm A' ≃ tm A
+  := invweq (tm_transportf e).
+
+  (* TODO: maybe make an equality of equivalences? *)
+  Definition transportf_tm {C : typecat}
+      {Γ} {A A' : C Γ} (e : A = A') (s : tm A)
+    : transportf tm e s = tm_transportf e s.
+  Admitted.
+
+End Types_and_Terms.
 
 End Auxiliary.
 
