@@ -56,11 +56,11 @@ Section Judgements.
 
   Inductive judgement
   :=
-    | cxt_judgement {n} (Γ : context_of_length n)
-    | ty_judgement {n} (Γ : context_of_length n) (A : ty_expr n)
-    | tyeq_judgement {n} (Γ : context_of_length n) (A A' : ty_expr n)
-    | tm_judgement {n} (Γ : context_of_length n) (A : ty_expr n) (a : tm_expr n)
-    | tmeq_judgement {n} (Γ : context_of_length n) (A : ty_expr n) (a a' : tm_expr n).
+    | cxt_judgement (Γ : context)
+    | ty_judgement (Γ : context) (A : ty_expr Γ)
+    | tyeq_judgement (Γ : context) (A A' : ty_expr Γ)
+    | tm_judgement (Γ : context) (A : ty_expr Γ) (a : tm_expr Γ)
+    | tmeq_judgement (Γ : context) (A : ty_expr Γ) (a a' : tm_expr Γ).
 
 End Judgements.
 
@@ -81,140 +81,142 @@ Section Derivations.
     | derive_cxt_empty
       : derivation [! |- [::] !]
     | derive_cxt_extend (Γ : context) (A : ty_expr Γ)
-      : derivation [! |- Γ !]
-      -> derivation [! Γ |- A !]
+      :    derivation [! |- Γ !]
+        -> derivation [! Γ |- A !]
       -> derivation [! |- Γ ; A !]
     (** variable rule *)
     | derive_var (Γ : context) (i : Γ)
-      : derivation [! |- Γ !]
-      -> derivation [! Γ |- Γ i !] 
+      :    derivation [! |- Γ !]
+        -> derivation [! Γ |- Γ i !] 
       -> derivation [! Γ |- (var_expr i) ::: Γ i !]
     (** structural rules for equality: equiv rels, plus type-conversion *)
     | derive_tyeq_refl (Γ : context) (A : _)
-      : derivation [! Γ |- A !]
+      :    derivation [! Γ |- A !]
       -> derivation [! Γ |- A === A !]
     | derive_tyeq_sym (Γ : context) (A A' : _)
-      : derivation [! Γ |- A === A' !]
+      :    derivation [! Γ |- A === A' !]
       -> derivation [! Γ |- A' === A !]
     | derive_tyeq_trans (Γ : context) (A0 A1 A2 : _)
-      : derivation [! Γ |- A0 === A1 !]
-      -> derivation [! Γ |- A1 === A2 !]
+      :    derivation [! Γ |- A0 === A1 !]
+        -> derivation [! Γ |- A1 === A2 !]
       -> derivation [! Γ |- A0 === A2 !]
     | derive_tmeq_refl (Γ : context) (A : _) (a : _)
-      : derivation [! Γ |- a ::: A !]
+      :    derivation [! Γ |- a ::: A !]
       -> derivation [! Γ |- a === a ::: A !]
     | derive_tmeq_sym (Γ : context) (A : _) (a a' : _)
-      : derivation [! Γ |- a === a' ::: A !]
+      :    derivation [! Γ |- a === a' ::: A !]
       -> derivation [! Γ |- a' === a ::: A !]
     | derive_tmeq_trans (Γ : context) (A : _) (a0 a1 a2 : _)
-      : derivation [! Γ |- a0 === a1 ::: A !]
-      -> derivation [! Γ |- a1 === a2 ::: A !]
+      :    derivation [! Γ |- a0 === a1 ::: A !]
+        -> derivation [! Γ |- a1 === a2 ::: A !]
       -> derivation [! Γ |- a0 === a2 ::: A !]
     | derive_tm_conv (Γ : context) (A A' : _) (a : _)
-      : derivation [! Γ |- A === A' !]
-      -> derivation [! Γ |- a ::: A !]
+      :    derivation [! Γ |- A === A' !]
+        -> derivation [! Γ |- a ::: A !]
       -> derivation [! Γ |- a ::: A' !]
     | derive_tmeq_conv (Γ : context) (A A' : _) (a a' : _)
-      : derivation [! Γ |- A === A' !]
-      -> derivation [! Γ |- a === a' ::: A !]
+      :    derivation [! Γ |- A === A' !]
+        -> derivation [! Γ |- a === a' ::: A !]
       -> derivation [! Γ |- a === a' ::: A' !]
     (** substitution rules *)
     | derive_subst_ty
         (Γ Γ' : context) (f : raw_context_map Γ' Γ) (A : _)
-      : derivation [! |- Γ !]
-    -> (forall i:Γ, derivation [! Γ' |- f i ::: subst_ty f (Γ i) !])
-      -> derivation [! Γ |- A !]
+      :    derivation [! |- Γ !]
+        -> (forall i:Γ, derivation [! Γ' |- f i ::: subst_ty f (Γ i) !])
+        -> derivation [! Γ |- A !]
       -> derivation [! Γ' |- subst_ty f A !]
     | derive_subst_tyeq
         (Γ Γ' : context) (f : raw_context_map Γ' Γ) (A A' : _)
-      : derivation [! |- Γ !]
-      -> (forall i:Γ, derivation [! Γ' |- f i ::: subst_ty f (Γ i) !])
-      -> derivation [! Γ |- A === A' !]
+      :    derivation [! |- Γ !]
+        -> (forall i:Γ, derivation [! Γ' |- f i ::: subst_ty f (Γ i) !])
+        -> derivation [! Γ |- A === A' !]
       -> derivation [! Γ' |- subst_ty f A === subst_ty f A' !]
     | derive_subst_tm
         (Γ Γ' : context) (f : raw_context_map Γ' Γ) (A : _) (a : _)
-      : derivation [! |- Γ !]
-      -> (forall i:Γ, derivation [! Γ' |- f i ::: subst_ty f (Γ i) !])
-      -> derivation [! Γ |- a ::: A !]
+      :    derivation [! |- Γ !]
+        -> (forall i:Γ, derivation [! Γ' |- f i ::: subst_ty f (Γ i) !])
+        -> derivation [! Γ |- a ::: A !]
       -> derivation [! Γ' |- subst_tm f a ::: (subst_ty f A) !]
     | derive_subst_tmeq
         (Γ Γ' : context) (f : raw_context_map Γ' Γ) (A : _) (a a' : _)
-      : derivation [! |- Γ !]
-      -> (forall i:Γ, derivation [! Γ' |- f i ::: subst_ty f (Γ i) !])
-      -> derivation [! Γ |- a === a' ::: A !]
+      :    derivation [! |- Γ !]
+        -> (forall i:Γ, derivation [! Γ' |- f i ::: subst_ty f (Γ i) !])
+        -> derivation [! Γ |- a === a' ::: A !]
       -> derivation [! Γ' |- subst_tm f a === subst_tm f a' ::: subst_ty f A !]
     (** substitution-equality rules *)
     | derive_substeq_ty
         (Γ Γ' : context) (f f' : raw_context_map Γ' Γ) (A : _)
-      : derivation [! |- Γ !]
-      -> (forall i:Γ, derivation [! Γ' |- f i === f' i ::: subst_ty f (Γ i) !])
-      -> derivation [! Γ |- A !]
+      :    derivation [! |- Γ !]
+        -> (forall i:Γ, derivation [! Γ' |- f i === f' i ::: subst_ty f (Γ i) !])
+        -> derivation [! Γ |- A !]
       -> derivation [! Γ' |- subst_ty f A === subst_ty f' A !] 
     | derive_substeq_tm
         (Γ Γ' : context) (f f' : raw_context_map Γ' Γ) (A : _) (a : _)
-      : derivation [! |- Γ !]
-      -> (forall i:Γ, derivation [! Γ' |- f i === f' i ::: subst_ty f (Γ i) !])
-      -> derivation [! Γ |- a ::: A !]
+      :    derivation [! |- Γ !]
+        -> (forall i:Γ, derivation [! Γ' |- f i === f' i ::: subst_ty f (Γ i) !])
+        -> derivation [! Γ |- a ::: A !]
       -> derivation [! Γ' |- subst_tm f a === subst_tm f' a ::: subst_ty f A !] 
     (** logical rules  *)
     | derive_U (Γ : context) 
-      : derivation [! |- Γ !]
-        -> derivation [! Γ |- U_expr !]
+      :    derivation [! |- Γ !]
+      -> derivation [! Γ |- U_expr !]
     | derive_El (Γ : context) (a : _)
-      : derivation [! |- Γ !]
+      :    derivation [! |- Γ !]
         -> derivation [! Γ |- a ::: U_expr !]
-        -> derivation [! Γ |- El_expr a !]
+      -> derivation [! Γ |- El_expr a !]
     | derive_Pi (Γ : context) (A : _) (B : _)
-      : derivation [! |- Γ !]
+      :    derivation [! |- Γ !]
         -> derivation [! Γ |- A !]
         -> derivation [! Γ ; A |- B !]
-        -> derivation [! Γ |- Pi_expr A B !]
+      -> derivation [! Γ |- Pi_expr A B !]
     | derive_lam (Γ : context) A B b
-      : derivation [! |- Γ !]
+      :    derivation [! |- Γ !]
         -> derivation [! Γ |- A !]
         -> derivation [! Γ ; A |- B !]
         -> derivation [! Γ ; A |- b ::: B !]
-        -> derivation [! Γ |- lam_expr A B b ::: Pi_expr A B !]
+      -> derivation [! Γ |- lam_expr A B b ::: Pi_expr A B !]
     | derive_app (Γ : context) A B f a
-      : derivation [! |- Γ !]
+      :    derivation [! |- Γ !]
         -> derivation [! Γ |- A !]
         -> derivation [! Γ ; A |- B !]
         -> derivation [! Γ |- f ::: Pi_expr A B !]
         -> derivation [! Γ |- a ::: A !]
-        -> derivation [! Γ |- app_expr A B f a ::: subst_ty_top a B !]
+      -> derivation [! Γ |- app_expr A B f a ::: subst_ty_top a B !]
     | derive_beta (Γ : context) A B b a
-      : derivation [! |- Γ !]
+      :    derivation [! |- Γ !]
         -> derivation [! Γ |- A !]
         -> derivation [! Γ ; A |- B !]
         -> derivation [! Γ ; A |- b ::: B !]
         -> derivation [! Γ |- a ::: A !]
-        -> derivation
+      -> derivation
              [! Γ |- app_expr A B (lam_expr A B b) a === subst_tm_top a b 
                                                      ::: subst_ty_top a B !]
     (** congruence rules for constructors *)
     (* no congruence rule needed for U *)
     | derive_El_cong (Γ : context) (a a' : _)
-      : derivation [! |- Γ !]
+      :    derivation [! |- Γ !]
         -> derivation [! Γ |- a === a' ::: U_expr !]
-        -> derivation [! Γ |- El_expr a === El_expr a' !]
+      -> derivation [! Γ |- El_expr a === El_expr a' !]
     | derive_Pi_cong (Γ : context) (A A' : _) (B B' : _)
-      : derivation [! |- Γ !]
+      :    derivation [! |- Γ !]
         -> derivation [! Γ |- A === A' !]
         -> derivation [! Γ ; A |- B === B' !]
-        -> derivation [! Γ |- Pi_expr A B === Pi_expr A' B' !]
+      -> derivation [! Γ |- Pi_expr A B === Pi_expr A' B' !]
     | derive_lam_cong (Γ : context) A A' B B' b b'
-      : derivation [! |- Γ !]
+      :    derivation [! |- Γ !]
         -> derivation [! Γ |- A === A' !]
         -> derivation [! Γ ; A |- B === B' !]
         -> derivation [! Γ ; A |- b === b' ::: B !]
-        -> derivation [! Γ |- lam_expr A B b === lam_expr A' B' b' ::: Pi_expr A B !]
+      -> derivation [! Γ |- lam_expr A B b === lam_expr A' B' b'
+                                                 ::: Pi_expr A B !]
     | derive_app_cong (Γ : context) A A' B B' f f' a a'
-      : derivation [! |- Γ !]
+      :    derivation [! |- Γ !]
         -> derivation [! Γ |- A === A' !]
         -> derivation [! Γ ; A |- B === B' !]
         -> derivation [! Γ |- f === f' ::: Pi_expr A B !]
         -> derivation [! Γ |- a === a' ::: A !]
-        -> derivation [! Γ |- app_expr A B f a === app_expr A' B' f' a'
+      -> derivation [! Γ |- app_expr A B f a === app_expr A' B' f' a'
                                                    ::: subst_ty_top a B !]
   .
+
 End Derivations.
