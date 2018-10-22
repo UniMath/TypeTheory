@@ -6,6 +6,7 @@
   Goal: as elementary as possible a proof of initiality, for a specific fairly straightforward type theory, but written with an eye to extensibility.
 *)
 
+
 Require Import UniMath.All.
 
 Section deBruijn.
@@ -17,7 +18,7 @@ Section deBruijn.
 
   (** UniMath defines [stn] using [<], which is based on [natgtb],
   which takes 0 as its base case.  So we take 0 to be the “most recent” variable,
-  i.e. de Bruij _indices_ not de Bruijn _levels_. *)
+  i.e. de Bruijn _indices_ not de Bruijn _levels_. *)
   Definition dB_top {n} : dB_vars (S n)
     := (0,, idpath _).
 
@@ -207,6 +208,16 @@ Section Contexts.
 
 End Contexts.
 
+Delimit Scope context_scope with context.
+Bind Scope context_scope with context.
+Bind Scope context_scope with context_of_length.
+Notation "[: :]" := (empty_context) (format "[: :]") : context_scope.
+Notation "Γ ; A"
+  := (context_extend Γ A) (at level 50, left associativity) : context_scope. 
+(* TODO: not sure what level to use here; try it and see… *)
+Notation "[: A ; .. ; Z :] "
+  := (context_extend .. (context_extend (empty_context) A) .. Z) : context_scope.
+
 Section Judgements.
 
   Inductive judgement
@@ -219,48 +230,99 @@ Section Judgements.
 
 End Judgements.
 
+Delimit Scope judgement_scope with judgement.
+Bind Scope judgement_scope with judgement.
+Notation "[! |- Γ !]" := (cxt_judgement Γ) : judgement_scope.
+Notation "[! Γ |- A === B !]" := (tyeq_judgement Γ A B) : judgement_scope.
+Notation "[! Γ |- A !]" := (ty_judgement Γ A) : judgement_scope.
+Notation "[! Γ |- a ::: A !]" := (tm_judgement Γ A a) : judgement_scope.
+Notation "[! Γ |- a === a' ::: A !]" := (tmeq_judgement Γ A a a') : judgement_scope.
+(* NOTE: these [===], [:::] are horrible!  But I can’t make it work with just e.g. [=], since parsing fails as [=] is already a binary notation (even if the scope of that notation is closed).  Is it possible to use better scoping to allow just [=] here, and so on? *) 
+
 Section Derivations.
 
   Inductive derivation : judgement -> UU
   :=
     (** context formation rules *)
     | derive_cxt_empty
-      : derivation (cxt_judgement empty_context)
+      : derivation [! |- [::] !]
     | derive_cxt_extend (Γ : context) (A : ty_expr Γ)
-      : derivation (cxt_judgement Γ)
-      -> derivation (ty_judgement Γ A)
-      -> derivation (cxt_judgement (context_extend Γ A))
+      : derivation [! |- Γ !]
+      -> derivation [! Γ |- A !]
+      -> derivation [! |- Γ ; A !]
     (** variable rule *)
     | derive_var (Γ : context) (i : Γ)
-      : derivation (cxt_judgement Γ)
-      -> derivation (ty_judgement Γ (Γ i))
-      -> derivation (tm_judgement Γ (Γ i) (var_expr i))
+      : derivation [! |- Γ !]
+      -> derivation [! Γ |- Γ i !] 
+      -> derivation [! Γ |- (var_expr i) ::: Γ i !]
+    (** structural rules for equality: equiv rels, plus type-conversion *)
+    | derive_tyeq_refl (Γ : context) (A : _)
+      : derivation [! Γ |- A !]
+      -> derivation [! Γ |- A === A !]
+    | derive_tyeq_sym (Γ : context) (A A' : _)
+      : derivation [! Γ |- A === A' !]
+      -> derivation [! Γ |- A' === A !]
+    | derive_tyeq_trans (Γ : context) (A0 A1 A2 : _)
+      : derivation [! Γ |- A0 === A1 !]
+      -> derivation [! Γ |- A1 === A2 !]
+      -> derivation [! Γ |- A0 === A2 !]
+    | derive_tmeq_refl (Γ : context) (A : _) (a : _)
+      : derivation [! Γ |- a ::: A !]
+      -> derivation [! Γ |- a === a ::: A !]
+    | derive_tmeq_sym (Γ : context) (A : _) (a a' : _)
+      : derivation [! Γ |- a === a' ::: A !]
+      -> derivation [! Γ |- a' === a ::: A !]
+    | derive_tmeq_trans (Γ : context) (A : _) (a0 a1 a2 : _)
+      : derivation [! Γ |- a0 === a1 ::: A !]
+      -> derivation [! Γ |- a1 === a2 ::: A !]
+      -> derivation [! Γ |- a0 === a2 ::: A !]
+    | derive_tm_conv (Γ : context) (A A' : _) (a : _)
+      : derivation [! Γ |- A === A' !]
+      -> derivation [! Γ |- a ::: A !]
+      -> derivation [! Γ |- a ::: A' !]
     (** substitution rules *)
     | derive_subst_ty
-        (Γ Γ' : context) (f : raw_context_map Γ' Γ)
-        (A : _)
-      : (forall i:Γ, derivation (tm_judgement Γ' (subst_ty f (Γ i)) (f i)))
-        -> derivation (ty_judgement Γ A)
-        -> derivation (ty_judgement Γ' (subst_ty f A))
+        (Γ Γ' : context) (f : raw_context_map Γ' Γ) (A : _)
+      : derivation [! |- Γ !]
+    -> (forall i:Γ, derivation [! Γ' |- f i ::: subst_ty f (Γ i) !])
+      -> derivation [! Γ |- A !]
+      -> derivation [! Γ' |- subst_ty f A !]
     | derive_subst_tyeq
-        (Γ Γ' : context) (f : raw_context_map Γ' Γ)
-        (A A' : _)
-      : (forall i:Γ, derivation (tm_judgement Γ' (subst_ty f (Γ i)) (f i)))
-        -> derivation (tyeq_judgement Γ A A')
-        -> derivation (tyeq_judgement Γ' (subst_ty f A) (subst_ty f A'))
+        (Γ Γ' : context) (f : raw_context_map Γ' Γ) (A A' : _)
+      : derivation [! |- Γ !]
+      -> (forall i:Γ, derivation [! Γ' |- f i ::: subst_ty f (Γ i) !])
+      -> derivation [! Γ |- A === A' !]
+      -> derivation [! Γ' |- subst_ty f A === subst_ty f A' !]
     | derive_subst_tm
-        (Γ Γ' : context) (f : raw_context_map Γ' Γ)
-        (A : _) (a : _)
-      : (forall i:Γ, derivation (tm_judgement Γ' (subst_ty f (Γ i)) (f i)))
-        -> derivation (tm_judgement Γ A a)
-        -> derivation (tm_judgement Γ' (subst_ty f A) (subst_tm f a))
+        (Γ Γ' : context) (f : raw_context_map Γ' Γ) (A : _) (a : _)
+      : derivation [! |- Γ !]
+      -> (forall i:Γ, derivation [! Γ' |- f i ::: subst_ty f (Γ i) !])
+      -> derivation [! Γ |- a ::: A !]
+      -> derivation [! Γ' |- subst_tm f a ::: (subst_ty f A) !]
     | derive_subst_tmeq
-        (Γ Γ' : context) (f : raw_context_map Γ' Γ)
-        (A : _) (a a' : _)
-      : (forall i:Γ, derivation (tm_judgement Γ' (subst_ty f (Γ i)) (f i)))
-        -> derivation (tmeq_judgement Γ A a a')
-        -> derivation (tmeq_judgement Γ' (subst_ty f A) (subst_tm f a) (subst_tm f a'))
-  . 
+        (Γ Γ' : context) (f : raw_context_map Γ' Γ) (A : _) (a a' : _)
+      : derivation [! |- Γ !]
+      -> (forall i:Γ, derivation [! Γ' |- f i ::: subst_ty f (Γ i) !])
+      -> derivation [! Γ |- a === a' ::: A !]
+      -> derivation [! Γ' |- subst_tm f a === subst_tm f a' ::: subst_ty f A !]
+    (** substitution-equality rules *)
+    | derive_substeq_ty
+        (Γ Γ' : context) (f f' : raw_context_map Γ' Γ) (A : _)
+      : derivation [! |- Γ !]
+      -> (forall i:Γ, derivation [! Γ' |- f i === f' i ::: subst_ty f (Γ i) !])
+      -> derivation [! Γ |- A !]
+      -> derivation [! Γ' |- subst_ty f A === subst_ty f' A !] 
+    | derive_substeq_tm
+        (Γ Γ' : context) (f f' : raw_context_map Γ' Γ) (A : _) (a : _)
+      : derivation [! |- Γ !]
+      -> (forall i:Γ, derivation [! Γ' |- f i === f' i ::: subst_ty f (Γ i) !])
+      -> derivation [! Γ |- a ::: A !]
+      -> derivation [! Γ' |- subst_tm f a === subst_tm f' a ::: subst_ty f A !] 
+    (** typing rules for constructors  *)
+    (* TODO *)
+    (** congruence rules for constructors *)
+    (* TODO *)
+  .
 
 
 End Derivations.
