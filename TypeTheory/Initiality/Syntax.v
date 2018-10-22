@@ -8,6 +8,7 @@
 
 
 Require Import UniMath.All.
+Require Import TypeTheory.Auxiliary.Auxiliary.
 
 Section deBruijn.
 
@@ -75,6 +76,11 @@ Section deBruijn.
     - intros i. apply dB_next, f, i.
   Defined.
 
+  Definition fmap_idfun_dB_S {n} : fmap_dB_S (idfun (dB_vars n)) = idfun _.
+  Proof.
+    apply funextsec. refine (dB_Sn_rect _ _ _); auto.
+  Defined.
+
 End deBruijn.
 
 Section Expressions.
@@ -127,9 +133,25 @@ Section Renaming.
         * exact (rename_tm _ _ f a).
   Defined.
 
+  Fixpoint
+    rename_ty_idfun {n} (e : ty_expr n) : rename_ty (idfun _) e = e
+  with 
+    rename_tm_idfun {n} (e : tm_expr n) : rename_tm (idfun _) e = e.
+  Proof.
+    - (* rename_ty_idfun *)
+      destruct e as [ m | m a | m A B ];
+        cbn;
+        eauto using maponpaths, maponpaths_12, pathscomp0, fmap_idfun_dB_S.
+    - (* rename_tm_idfun *)
+      destruct e as [ m i | m A B b | m A B g a ]; cbn; 
+        [ idtac | apply maponpaths_123 | apply maponpaths_1234 ];
+        eauto using pathscomp0, maponpaths_2, fmap_idfun_dB_S.
+  Defined.
+
 End Renaming.
 
-Section Substitution.
+Section Raw_Context_Maps.
+(* AKA “substitutions”. *)
 
   Definition raw_context_map n m := stn m -> tm_expr n.
 
@@ -140,6 +162,16 @@ Section Substitution.
     - apply var_expr, dB_top.
     - intros i. exact (rename_tm dB_next (f i)).
   Defined.
+
+  Definition weaken_var_expr {n}
+      : weaken_raw_context_map (@var_expr n) = var_expr.
+  Proof.
+    apply funextsec. refine (dB_Sn_rect _ _ _); auto.
+  Defined.
+
+End Raw_Context_Maps.
+
+Section Substitution.
 
   Fixpoint
     subst_ty {m n} (f : stn m -> tm_expr n) (e : ty_expr m) : ty_expr n
@@ -171,6 +203,33 @@ Section Substitution.
         * exact (subst_tm _ _ f g).
         * exact (subst_tm _ _ f a).
   Defined.
+
+  Fixpoint
+    subst_ty_idfun {n} (e : ty_expr n) : subst_ty var_expr e = e
+  with 
+    subst_tm_idfun {n} (e : tm_expr n) : subst_tm var_expr e = e.
+  Proof.
+    - (* rename_ty_idfun *)
+      destruct e as [ m | m a | m A B ];
+        cbn;
+        [ idtac | apply maponpaths | apply maponpaths_12 ];
+        eauto using maponpaths, maponpaths_12, pathscomp0, weaken_var_expr.
+    - (* rename_tm_idfun *)
+      destruct e as [ m i | m A B b | m A B g a ];
+        cbn;
+        [ idtac | apply maponpaths_123 | apply maponpaths_1234 ];
+        eauto using maponpaths, maponpaths_12, pathscomp0, weaken_var_expr.
+  Defined.
+
+  (** Some auxiliary functions for common special cases *)
+
+  (** Substituting just the “top” variable, as in the typing rule for [app],
+   or the conclusion of beta-reduction. *)
+  Definition subst_ty_top {n} (a : tm_expr n) (e : ty_expr (S n)) : ty_expr n
+    := subst_ty (dB_Sn_rect _ a var_expr) e.
+
+  Definition subst_tm_top {n} (a : tm_expr n) (e : tm_expr (S n)) : tm_expr n
+    := subst_tm (dB_Sn_rect _ a var_expr) e.
 
 End Substitution.
 
@@ -280,6 +339,10 @@ Section Derivations.
       : derivation [! Γ |- A === A' !]
       -> derivation [! Γ |- a ::: A !]
       -> derivation [! Γ |- a ::: A' !]
+    | derive_tmeq_conv (Γ : context) (A A' : _) (a a' : _)
+      : derivation [! Γ |- A === A' !]
+      -> derivation [! Γ |- a === a' ::: A !]
+      -> derivation [! Γ |- a === a' ::: A' !]
     (** substitution rules *)
     | derive_subst_ty
         (Γ Γ' : context) (f : raw_context_map Γ' Γ) (A : _)
@@ -318,11 +381,66 @@ Section Derivations.
       -> (forall i:Γ, derivation [! Γ' |- f i === f' i ::: subst_ty f (Γ i) !])
       -> derivation [! Γ |- a ::: A !]
       -> derivation [! Γ' |- subst_tm f a === subst_tm f' a ::: subst_ty f A !] 
-    (** typing rules for constructors  *)
-    (* TODO *)
+    (** logical rules  *)
+    | derive_U (Γ : context) 
+      : derivation [! |- Γ !]
+        -> derivation [! Γ |- U_expr !]
+    | derive_El (Γ : context) (a : _)
+      : derivation [! |- Γ !]
+        -> derivation [! Γ |- a ::: U_expr !]
+        -> derivation [! Γ |- El_expr a !]
+    | derive_Pi (Γ : context) (A : _) (B : _)
+      : derivation [! |- Γ !]
+        -> derivation [! Γ |- A !]
+        -> derivation [! Γ ; A |- B !]
+        -> derivation [! Γ |- Pi_expr A B !]
+    | derive_lam (Γ : context) A B b
+      : derivation [! |- Γ !]
+        -> derivation [! Γ |- A !]
+        -> derivation [! Γ ; A |- B !]
+        -> derivation [! Γ ; A |- b ::: B !]
+        -> derivation [! Γ |- lam_expr A B b ::: Pi_expr A B !]
+    | derive_app (Γ : context) A B f a
+      : derivation [! |- Γ !]
+        -> derivation [! Γ |- A !]
+        -> derivation [! Γ ; A |- B !]
+        -> derivation [! Γ |- f ::: Pi_expr A B !]
+        -> derivation [! Γ |- a ::: A !]
+        -> derivation [! Γ |- app_expr A B f a ::: subst_ty_top a B !]
+    | derive_beta (Γ : context) A B b a
+      : derivation [! |- Γ !]
+        -> derivation [! Γ |- A !]
+        -> derivation [! Γ ; A |- B !]
+        -> derivation [! Γ ; A |- b ::: B !]
+        -> derivation [! Γ |- a ::: A !]
+        -> derivation
+             [! Γ |- app_expr A B (lam_expr A B b) a === subst_tm_top a b 
+                                                     ::: subst_ty_top a B !]
     (** congruence rules for constructors *)
-    (* TODO *)
+    (* no congruence rule needed for U *)
+    | derive_El_cong (Γ : context) (a a' : _)
+      : derivation [! |- Γ !]
+        -> derivation [! Γ |- a === a' ::: U_expr !]
+        -> derivation [! Γ |- El_expr a === El_expr a' !]
+    | derive_Pi_cong (Γ : context) (A A' : _) (B B' : _)
+      : derivation [! |- Γ !]
+        -> derivation [! Γ |- A === A' !]
+        -> derivation [! Γ ; A |- B === B' !]
+        -> derivation [! Γ |- Pi_expr A B === Pi_expr A' B' !]
+    | derive_lam_cong (Γ : context) A A' B B' b b'
+      : derivation [! |- Γ !]
+        -> derivation [! Γ |- A === A' !]
+        -> derivation [! Γ ; A |- B === B' !]
+        -> derivation [! Γ ; A |- b === b' ::: B !]
+        -> derivation [! Γ |- lam_expr A B b === lam_expr A' B' b' ::: Pi_expr A B !]
+    | derive_app_cong (Γ : context) A A' B B' f f' a a'
+      : derivation [! |- Γ !]
+        -> derivation [! Γ |- A === A' !]
+        -> derivation [! Γ ; A |- B === B' !]
+        -> derivation [! Γ |- f === f' ::: Pi_expr A B !]
+        -> derivation [! Γ |- a === a' ::: A !]
+        -> derivation [! Γ |- app_expr A B f a === app_expr A' B' f' a'
+                                                   ::: subst_ty_top a B !]
   .
-
 
 End Derivations.
