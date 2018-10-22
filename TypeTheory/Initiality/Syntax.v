@@ -4,6 +4,10 @@
   Part of the [Initiality] package for the [UniMath.TypeTheory] library
 
   Goal: as elementary as possible a proof of initiality, for a specific fairly straightforward type theory, but written with an eye to extensibility.
+
+  This file constructs raw syntax, gives the main constructions on it (variable-renaming, substitution), and defines judgements and derivations.
+
+  It takes pretty much as streamlined as possible a path to the definition of derivations, and so various auxiliary constructions, e.g. basic lemmas about substitution, are deferred to [Initiality.SyntaxLemmas]. 
 *)
 
 
@@ -11,7 +15,11 @@ Require Import UniMath.All.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
 Section deBruijn.
+  (** We first set up the machinery for handling variables, represented by de Bruijn indices. *)
 
+  (** [dB_vars n]: the set of variables in scope over a context of length [n]. 
+
+  As far as possible, this should be interfaced with just through [dB_top], [dB_next], and [dB_rect] below. *)
   Definition dB_vars : nat -> UU
     := stn.
 
@@ -19,7 +27,7 @@ Section deBruijn.
 
   (** UniMath defines [stn] using [<], which is based on [natgtb],
   which takes 0 as its base case.  So we take 0 to be the “most recent” variable,
-  i.e. de Bruijn _indices_ not de Bruijn _levels_. *)
+  i.e. de Bruijn _indices_ not the (slightly more intuitive) de Bruijn _levels_. *)
   Definition dB_top {n} : dB_vars (S n)
     := (0,, idpath _).
 
@@ -57,7 +65,7 @@ Section deBruijn.
     : dB_Sn_rect P p_top p_next dB_top = p_top.
   Proof.
     intros. apply idpath.
-  Abort.
+  Abort. (* Proof a test only, not for saving. *)
 
   Definition dB_Sn_rect_comp2 {n}
       (P : dB_vars (S n) -> Type)
@@ -66,19 +74,15 @@ Section deBruijn.
     : forall i, dB_Sn_rect P p_top p_next (dB_next i) = p_next i.
   Proof.
     intros. apply idpath.
-  Abort.
+  Abort. (* Proof a test only, not for saving. *) 
 
-  (** Further constructions *)
-  Definition fmap_dB_S {m n} (f : stn m -> stn n) : stn (S m) -> stn (S n).
+  (** Further auxiliary constructions *)
+  Definition fmap_dB_S {m n} (f : dB_vars m -> dB_vars n)
+    : dB_vars (S m) -> dB_vars (S n).
   Proof.
     apply dB_Sn_rect.
     - apply dB_top.
     - intros i. apply dB_next, f, i.
-  Defined.
-
-  Definition fmap_idfun_dB_S {n} : fmap_dB_S (idfun (dB_vars n)) = idfun _.
-  Proof.
-    apply funextsec. refine (dB_Sn_rect _ _ _); auto.
   Defined.
 
 End deBruijn.
@@ -101,11 +105,12 @@ Section Expressions.
 End Expressions.
 
 Section Renaming.
+(** Renaming variables in raw expressions.  This can be seen as a special case of substitution, or as the functoriality of expressions in the variables of the context.  Functoriality lemmas are given in [Initiality.SyntaxLemmas]. *)
 
   Fixpoint
-    rename_ty {m n} (f : stn m -> stn n) (e : ty_expr m) : ty_expr n
+    rename_ty {m n : nat} (f : m -> n) (e : ty_expr m) : ty_expr n
   with
-    rename_tm {m n} (f : stn m -> stn n) (e : tm_expr m) : tm_expr n.
+    rename_tm {m n : nat} (f : m -> n) (e : tm_expr m) : tm_expr n.
   Proof.
     - (* rename_ty *)
       destruct e as [ m | m a | m A B ].
@@ -133,27 +138,12 @@ Section Renaming.
         * exact (rename_tm _ _ f a).
   Defined.
 
-  Fixpoint
-    rename_ty_idfun {n} (e : ty_expr n) : rename_ty (idfun _) e = e
-  with 
-    rename_tm_idfun {n} (e : tm_expr n) : rename_tm (idfun _) e = e.
-  Proof.
-    - (* rename_ty_idfun *)
-      destruct e as [ m | m a | m A B ];
-        cbn;
-        eauto using maponpaths, maponpaths_12, pathscomp0, fmap_idfun_dB_S.
-    - (* rename_tm_idfun *)
-      destruct e as [ m i | m A B b | m A B g a ]; cbn; 
-        [ idtac | apply maponpaths_123 | apply maponpaths_1234 ];
-        eauto using pathscomp0, maponpaths_2, fmap_idfun_dB_S.
-  Defined.
-
 End Renaming.
 
 Section Raw_Context_Maps.
-(* AKA “substitutions”. *)
+(** AKA “substitutions”. *)
 
-  Definition raw_context_map n m := stn m -> tm_expr n.
+  Definition raw_context_map n m := dB_vars m -> tm_expr n.
 
   Definition weaken_raw_context_map {n m}
       : raw_context_map n m -> raw_context_map (S n) (S m).
@@ -202,23 +192,6 @@ Section Substitution.
         * exact (subst_ty _ _ (weaken_raw_context_map f) B).
         * exact (subst_tm _ _ f g).
         * exact (subst_tm _ _ f a).
-  Defined.
-
-  Fixpoint
-    subst_ty_idfun {n} (e : ty_expr n) : subst_ty var_expr e = e
-  with 
-    subst_tm_idfun {n} (e : tm_expr n) : subst_tm var_expr e = e.
-  Proof.
-    - (* rename_ty_idfun *)
-      destruct e as [ m | m a | m A B ];
-        cbn;
-        [ idtac | apply maponpaths | apply maponpaths_12 ];
-        eauto using maponpaths, maponpaths_12, pathscomp0, weaken_var_expr.
-    - (* rename_tm_idfun *)
-      destruct e as [ m i | m A B b | m A B g a ];
-        cbn;
-        [ idtac | apply maponpaths_123 | apply maponpaths_1234 ];
-        eauto using maponpaths, maponpaths_12, pathscomp0, weaken_var_expr.
   Defined.
 
   (** Some auxiliary functions for common special cases *)
