@@ -52,7 +52,17 @@ Section Renaming.
       (e : tm_expr m)
     : rename_tm (g ∘ f) e = rename_tm g (rename_tm f e).
   Proof.
-  Admitted.
+    - (* rename_ty_idfun *)
+      destruct e as [ m | m a | m A B ];
+        cbn;
+        [ idtac | apply maponpaths | apply maponpaths_12 ];
+        eauto using pathscomp0, maponpaths_2, fmap_compose_dB_S.
+    - (* rename_tm_idfun *)
+      destruct e as [ m i | m A B b | m A B t a ];
+        cbn;
+        [ idtac | apply maponpaths_123 | apply maponpaths_1234 ];
+        eauto using pathscomp0, maponpaths_2, fmap_compose_dB_S.
+  Defined.
 
 End Renaming.
 
@@ -72,7 +82,7 @@ Section Raw_Context_Category_Operations.
 
 End Raw_Context_Category_Operations.
 
-(** Lemmas phrased explicitly about interaction of substitution with other constructions *)
+(** Interaction of substitution with renaming/weakening *)
 Section Substitution.
 
   Fixpoint
@@ -94,13 +104,41 @@ Section Substitution.
         eauto using maponpaths, maponpaths_12, pathscomp0, weaken_var_expr.
   Defined.
 
-(* the following lemma is a naturality for weakening w.r.t. renaming:
-  hom(n,m) ———— g ; _ ————> hom(p,n)
-     |                         |
-     V                         V
- hom(Sn,Sm) —— S g ; _ ——> hom(Sp,Sm)
-*)
-  Lemma rename_weaken
+(** This lemma [weaken_precomp_renaming] can be seen as a special case of [weaken_comp] (i.e. [weaken_raw_context_map] preserving composition), when one of the maps in the composite is just a renaming of variables. *)
+  Lemma weaken_precomp_renaming
+      {m n p : nat} (f : m -> n) (g : raw_context_map p n)
+    : weaken_raw_context_map g ∘ fmap_dB_S f =
+      weaken_raw_context_map (g ∘ f).
+  Proof.
+    apply funextsec.
+    refine (dB_Sn_rect _ _ _); intros; apply idpath.
+  Defined.
+
+  Fixpoint
+    subst_rename_ty {m n p : nat} (f : m -> n) (g : raw_context_map p n)
+      (e : ty_expr m)
+    : subst_ty g (rename_ty f e)
+      = subst_ty (g ∘ f) e
+  with
+    subst_rename_tm {m n p : nat} (f : m -> n) (g : raw_context_map p n)
+      (e : tm_expr m)
+    : subst_tm g (rename_tm f e)
+      = subst_tm (g ∘ f) e.
+  Proof.
+    - (* type case *)
+      destruct e as [ m | m a | m A B ];
+        cbn;
+        [ idtac | apply maponpaths | apply maponpaths_12 ];
+        eauto using pathscomp0, maponpaths_2, weaken_precomp_renaming. 
+    - (* term case *)
+      destruct e as [ m i | m A B b | m A B t a ];
+        cbn;
+        [ idtac | apply maponpaths_123 | apply maponpaths_1234 ];
+        eauto using pathscomp0, maponpaths_2, weaken_precomp_renaming. 
+  Defined.
+
+(** This lemma [weaken_postcomp_renaming] can be seen as a special case of [weaken_comp] (i.e. [weaken_raw_context_map] preserving composition), when one of the maps in the composite is just a renaming of variables. *)
+  Lemma weaken_postcomp_renaming
       {m n p : nat} (f : raw_context_map n m) (g : n -> p)
     : rename_tm (fmap_dB_S g) ∘ weaken_raw_context_map f =
     weaken_raw_context_map (rename_tm g ∘ f).
@@ -111,7 +149,7 @@ Section Substitution.
     refine (_ @ rename_comp_tm _ _ _).
     refine (!rename_comp_tm _ _ _).
   Defined.
-
+  
   Fixpoint
     rename_subst_ty {m n p : nat} (f : raw_context_map n m) (g : n -> p)
       (e : ty_expr m)
@@ -127,26 +165,27 @@ Section Substitution.
       destruct e as [ m | m a | m A B ];
         cbn;
         [ idtac | apply maponpaths | apply maponpaths_12 ];
-        eauto using pathscomp0, maponpaths_2, rename_weaken. 
+        eauto using pathscomp0, maponpaths_2, weaken_postcomp_renaming. 
     - (* term case *)
       destruct e as [ m i | m A B b | m A B t a ];
         cbn;
         [ idtac | apply maponpaths_123 | apply maponpaths_1234 ];
-        eauto using pathscomp0, maponpaths_2, rename_weaken.
+        eauto using pathscomp0, maponpaths_2, weaken_postcomp_renaming.
   Defined.
 
-  Fixpoint
-    subst_rename_ty {m n p : nat} (f : m -> n) (g : raw_context_map p n)
-      (e : ty_expr m)
-    : subst_ty g (rename_ty f e)
-      = subst_ty (g ∘ f) e
-  with
-    subst_rename_tm {m n p : nat} (f : m -> n) (g : raw_context_map p n)
-      (e : tm_expr m)
-    : subst_tm g (rename_tm f e)
-      = subst_tm (g ∘ f) e.
+  (** A functoriality property for [weaken_raw_context_map]. *)
+  Lemma weaken_comp
+      {m n p : nat} (g : raw_context_map p n) (f : raw_context_map n m)
+    : comp_raw_context
+        (weaken_raw_context_map g) (weaken_raw_context_map f) =
+      weaken_raw_context_map (comp_raw_context g f).
   Proof.
-  Admitted.
+    apply funextsec.
+    refine (dB_Sn_rect _ _ _). { apply idpath. }
+    intros i.
+    cbn. eapply pathscomp0. { apply subst_rename_tm. }
+    apply pathsinv0. apply rename_subst_tm.
+  Defined.
 
   Fixpoint
     subst_comp_ty {m n p} (f : raw_context_map n m) (g : raw_context_map p n)
@@ -159,11 +198,19 @@ Section Substitution.
     : subst_tm g (subst_tm f e)
       = subst_tm (comp_raw_context g f) e.
   Proof.
-  Admitted.
+    - (* type case *)
+      destruct e as [ m | m a | m A B ];
+        cbn;
+        [ idtac | apply maponpaths | apply maponpaths_12 ];
+        eauto using pathscomp0, maponpaths_2, weaken_comp. 
+    - (* term case *)
+      destruct e as [ m i | m A B b | m A B t a ];
+        cbn;
+        [ idtac | apply maponpaths_123 | apply maponpaths_1234 ];
+        eauto using pathscomp0, maponpaths_2, weaken_comp. 
+  Defined.
 
 End Substitution.
-
-
 
 (** The lemmas which will become the axioms of the category of raw contexts.
 
