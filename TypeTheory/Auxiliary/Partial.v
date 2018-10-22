@@ -14,9 +14,7 @@ Section Partial.
   
   Definition evaluate {X} {x : partial X} : is_defined x -> X := pr2 x.
 
-  (** Would like to call this “return” for monadic programming,
-  but Coq has [return] as reserved syntax. *)
-  Definition partial_of_total {X} : X -> partial X
+  Definition return_partial {X} : X -> partial X
   := fun x => make_partial (fun _ : htrue => x).
   
   Definition multiply_partial {X} (x : partial (partial X)) : partial X
@@ -33,3 +31,8 @@ Section Partial.
   := multiply_partial (fmap_partial f x).
 
 End Partial.
+
+Ltac get_partial t x := apply (bind_partial t); intros x.
+(** [get_partial t x]: like Haskell’s [x <- t]. *)
+Ltac destruct_partial x := apply (bind_partial x); clear x; intros x.
+(** [destruct_partial]: special case of [get_partial] for variables. *)
