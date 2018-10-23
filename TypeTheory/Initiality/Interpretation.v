@@ -84,7 +84,7 @@ End Environments.
 Section Partial_Interpretation.
 (** In this section, we construct the partial interpretation function. *)
 
-  Context {C : split_typecat}. (* TODO: add assumption of structure! *)
+  Context {C : split_typecat} (U : universe_struct C) (Π : pi_struct C).
 
   Fixpoint
     partial_interpretation_ty
@@ -125,12 +125,12 @@ End Partial_Interpretation.
 
 Section Totality.
 
-  Context (C : split_typecat).
+  Context {C : split_typecat} (U : universe_struct C) (Π : pi_struct C).
 
   Definition environment_respects_type
       {X : C} (Γ : context) (E : environment X Γ)
     := forall i : Γ,
-      ∑ (d : is_defined (partial_interpretation_ty E (Γ i))),
+      ∑ (d : is_defined (partial_interpretation_ty U Π E (Γ i))),
         (type_of (E i) = evaluate d).
 
   Definition typed_environment (X : C) (Γ : context)
@@ -151,19 +151,19 @@ Section Totality.
      | [! |- Γ !] => htrue
      | [! Γ |- A !]
        => ∀ (X:C) (E : typed_environment X Γ),
-         is_defined (partial_interpretation_ty E A)         
+         is_defined (partial_interpretation_ty U Π E A)         
      | [! Γ |- A === A' !]
        => ∀ (X:C) (E : typed_environment X Γ)
-            (d_A : is_defined (partial_interpretation_ty E A))   
-            (d_A' : is_defined (partial_interpretation_ty E A)),
+            (d_A : is_defined (partial_interpretation_ty U Π E A))   
+            (d_A' : is_defined (partial_interpretation_ty U Π E A)),
          type_paths_hProp (evaluate d_A) (evaluate d_A') 
      | [! Γ |- a ::: A !]
        => ∀ (X:C) (E : typed_environment X Γ)
-            (d_A : is_defined (partial_interpretation_ty E A)), 
+            (d_A : is_defined (partial_interpretation_ty U Π E A)), 
          is_defined (partial_interpretation_tm E (evaluate d_A) a)
      | [! Γ |- a === a' ::: A !]
        => ∀ (X:C) (E : typed_environment X Γ)
-          (d_A : is_defined (partial_interpretation_ty E A))
+          (d_A : is_defined (partial_interpretation_ty U Π E A))
           (d_a : is_defined (partial_interpretation_tm E (evaluate d_A) a)) 
           (d_a' : is_defined (partial_interpretation_tm E (evaluate d_A) a)), 
          mor_paths_hProp (evaluate d_a) (evaluate d_a')

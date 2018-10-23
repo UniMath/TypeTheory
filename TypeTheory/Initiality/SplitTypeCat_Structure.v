@@ -38,6 +38,17 @@ Section Bare_Universe_Structure.
   Coercion deptype_struct_pr1 : deptype_struct >-> Funclass.
 
   Definition deptype_struct_natural {U} (El : deptype_struct U) := pr2 El.
+
+  Definition universe_struct
+  := ∑ (U : basetype_struct), deptype_struct U.
+
+  Coercion universe (U : universe_struct) : basetype_struct := pr1 U.
+
+  Definition elements {U : universe_struct} : deptype_struct U := pr2 U.
+
+  Definition elements_natural {U : universe_struct}
+    := deptype_struct_natural (@elements U).
+
 End Bare_Universe_Structure.
 
 Section Pi_Structure.
@@ -111,5 +122,19 @@ Section Pi_Structure.
     : UU
   := forall (Γ : C) (A : C Γ) (B : C (Γ ◂ A)) (b : tm B) (a : tm A),
       app Γ A B (lam _ _ _ b) a = reind_tm a b.
+
+  Definition pi_struct : UU
+  := ∑ (Π : pi_form_struct)
+       (lam_app : (pi_intro_struct Π) × (pi_app_struct Π)),
+     (pi_comp_struct (pr1 lam_app) (pr2 lam_app)).
+
+  Coercion pi_form (Π : pi_struct) : pi_form_struct := pr1 Π.
+
+  Definition pi_intro (Π : pi_struct) : pi_intro_struct Π := pr1 (pr1 (pr2 Π)).
+
+  Definition pi_app (Π : pi_struct) : pi_app_struct Π := pr2 (pr1 (pr2 Π)).
+
+  Definition pi_comp (Π : pi_struct) : pi_comp_struct (pi_intro Π) (pi_app Π)
+    := pr2 (pr2 Π).
 
 End Pi_Structure.
