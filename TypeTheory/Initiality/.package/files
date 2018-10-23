@@ -3,3 +3,4 @@ SplitTypeCat_Structure.v
 Syntax.v
 SyntaxLemmas.v
 Typing.v
+Interpretation.v
