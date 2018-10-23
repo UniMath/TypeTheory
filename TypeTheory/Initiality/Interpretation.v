@@ -181,12 +181,12 @@ Section Totality.
      | [! Γ |- a ::: A !]
        => ∀ (X:C) (E : typed_environment X Γ)
             (d_A : is_defined (partial_interpretation_ty U Π E A)), 
-         is_defined (partial_interpretation_tm E (evaluate d_A) a)
+         is_defined (partial_interpretation_tm U Π E (evaluate d_A) a)
      | [! Γ |- a === a' ::: A !]
        => ∀ (X:C) (E : typed_environment X Γ)
           (d_A : is_defined (partial_interpretation_ty U Π E A))
-          (d_a : is_defined (partial_interpretation_tm E (evaluate d_A) a)) 
-          (d_a' : is_defined (partial_interpretation_tm E (evaluate d_A) a)), 
+          (d_a : is_defined (partial_interpretation_tm U Π E (evaluate d_A) a)) 
+          (d_a' : is_defined (partial_interpretation_tm U Π E (evaluate d_A) a)), 
          mor_paths_hProp (evaluate d_a) (evaluate d_a')
   end.
   (* Note: we DON’T expect to need any inductive information for context judgements!
