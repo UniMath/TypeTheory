@@ -28,10 +28,11 @@ Section Bare_Universe_Structure.
 
   Definition deptype_struct (U : basetype_struct) : UU.
   Proof.
-    use (∑ (D : ∏ Γ, C (Γ ◂ U Γ)), _).
-    use (∏ Δ Γ (σ : C ⟦ Δ, Γ ⟧), _).
-    exact (D Γ ⦃q_typecat (U Γ) σ⦄
-           = D Δ ⦃ comp_ext_compare (basetype_natural σ) ⦄).
+    use (∑ (D : ∏ Γ (a : tm (U Γ)), C Γ), _).
+    use (∏ Δ Γ (σ : C ⟦ Δ, Γ ⟧) (a : tm (U Γ)), _).
+    refine ((D Γ a) ⦃σ⦄ = D Δ _).
+    refine (tm_transportf _ (reind_tm σ a)).
+    apply basetype_natural.
   Defined.
 
   Definition deptype_struct_pr1 {U} (El : deptype_struct U) := pr1 El.
