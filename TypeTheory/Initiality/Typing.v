@@ -66,11 +66,12 @@ End Judgements.
 
 Delimit Scope judgement_scope with judgement.
 Bind Scope judgement_scope with judgement.
-Notation "[! |- Γ !]" := (cxt_judgement Γ) : judgement_scope.
-Notation "[! Γ |- A === B !]" := (tyeq_judgement Γ A B) : judgement_scope.
-Notation "[! Γ |- A !]" := (ty_judgement Γ A) : judgement_scope.
-Notation "[! Γ |- a ::: A !]" := (tm_judgement Γ A a) : judgement_scope.
-Notation "[! Γ |- a === a' ::: A !]" := (tmeq_judgement Γ A a a') : judgement_scope.
+
+Notation "[! |- Γ !]" := (cxt_judgement Γ) (format "[!  |-  Γ  !]") : judgement_scope.
+Notation "[! Γ |- A === B !]" := (tyeq_judgement Γ A B) (format "[!  Γ  |-  A  ===  B  !]")  : judgement_scope.
+Notation "[! Γ |- A !]" := (ty_judgement Γ A) (format "[!  Γ  |-  A  !]")  : judgement_scope.
+Notation "[! Γ |- a ::: A !]" := (tm_judgement Γ A a) (format "[!  Γ  |-  a  :::  A  !]")  : judgement_scope.
+Notation "[! Γ |- a === a' ::: A !]" := (tmeq_judgement Γ A a a') (format "[!  Γ  |-  a  ===  a'  :::  A  !]")  : judgement_scope.
 (* NOTE: these [===], [:::] are horrible!  But I can’t make it work with just e.g. [=], since parsing fails as [=] is already a binary notation (even if the scope of that notation is closed).  Is it possible to use better scoping to allow just [=] here, and so on? *) 
 
 Section Derivations.
