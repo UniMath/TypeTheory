@@ -7,6 +7,9 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.TypeCat.
 
+(* This should be upstreamed *)
+Arguments nat_trans_ax {C C'} {F F'} a {x x'} f.
+
 Local Open Scope cat.
 
 (** We base our models on _split type-categories_, i.e. [split_typecat] as defined in [TypeTheory.ALV1.TypeCat] following Pitts and van den Berg–Garner.
@@ -52,7 +55,7 @@ Section Comp_Ext_Compare.
     apply pathsinv0.
     etrans. { apply idtoiso_concat_pr. }
     unfold comp_ext_compare. apply maponpaths, maponpaths.
-    apply pathsinv0, maponpathscomp0. 
+    apply pathsinv0, maponpathscomp0.
   Qed.
 
 End Comp_Ext_Compare.
@@ -99,7 +102,7 @@ Section Types_and_Terms.
   Definition tm_transportf {C : typecat} {Γ} {A A' : C Γ} (e : A = A')
     : tm A ≃ tm A'.
   Admitted.
-  
+
   Definition tm_transportb {C : typecat} {Γ} {A A' : C Γ} (e : A = A')
     : tm A' ≃ tm A
   := invweq (tm_transportf e).
@@ -118,56 +121,76 @@ Section morphisms.
 
 Context (C D : split_typecat).
 
-(* This consists of a pair of 
+(* The definition of a morphism between split typecategories
+constsists of (modulo ^op):
 
-- a functor F : CT -> DT
-- a natural transformation F_Ty : Ty C -> Ty D
+- a functor F : C -> D
+- a natural transformation FTy : Ty C -> Ty D
+- a familry of isomorphisms ϕ : F(Γ.A) ≃ F(Γ).F_Ty(A)
 
-strictness everywhere except isomorphism
+satisfying triangle:
 
-ϕ : F(Γ.A) ≃ F(Γ).F_Ty(A)
+           ϕ
+F (Γ · A) --> F Γ · FTy A
+      \         /
+       \       /
+    F p \     / p
+         \   /
+          \ /
+           V
+          F Γ
 
-satisfying naturality pentagon...
+and a pentagon stating that the following morphisms are equal:
+
+                  F q                        ϕ
+F (Γ' ⋆ A⦃f⦄) ----------> F (Γ ⋆ A) ---------------> F Γ ⋆ FTy A
+
+
+F (Γ' ⋆ A⦃f⦄) ------> F Γ' ⋆ (F A)⦃f⦄ -----> F Γ' ⋆ F A⦃f⦄ ------> F Γ ⋆ FTy A
+                 ϕ                       =                     q
 
 *)
+Definition typecat_mor : UU
+  := ∑ (F : functor C D)
+       (FTy : PreShv C ⟦ty C, functor_opp F ∙ ty D⟧)
+       (ϕ : ∏ (Γ : C) (A : C Γ), iso (F (Γ ⋆ A)) (F Γ ⋆ pr1 FTy _ A)),
+         (∏ Γ (A : C Γ), # F (dpr_typecat A) = ϕ _ A · dpr_typecat (pr1 FTy _ A))
+       × (∏ Γ Γ' (A : C Γ) (σ : Γ' --> Γ),
+            # F (q_typecat A σ) · ϕ Γ A =
+            ϕ Γ' _ · comp_ext_compare (eqtohomot (nat_trans_ax FTy σ) A) ·
+              q_typecat (pr1 FTy _ A) (# F σ)).
 
-Definition typecat_mor : UU.
+Definition mk_typecat_mor
+  (F : functor C D)
+  (FTy : PreShv C ⟦ty C, functor_opp F ∙ ty D⟧)
+  (ϕ : ∏ (Γ : C) (A : C Γ), iso (F (Γ ⋆ A)) (F Γ ⋆ pr1 FTy _ A))
+  (H1 : ∏ Γ (A : C Γ), # F (dpr_typecat A) = ϕ _ A · dpr_typecat (pr1 FTy _ A))
+  (H2 : ∏ Γ Γ' (A : C Γ) (σ : Γ' --> Γ),
+        # F (q_typecat A σ) · ϕ Γ A =
+        ϕ Γ' _ · comp_ext_compare (eqtohomot (nat_trans_ax FTy σ) A) ·
+          q_typecat (pr1 FTy _ A) (# F σ)) : typecat_mor.
 Proof.
-use (∑ (F : functor C D), _).
+exists F, FTy, ϕ; split; [ apply H1 | apply H2 ].
+Defined.
 
-use (∑ (FTy : PreShv C ⟦ty C, functor_opp F ∙ ty D⟧), _).
+Definition typecat_mor_functor {f : typecat_mor} : functor C D := pr1 f.
+Coercion typecat_mor_functor : typecat_mor >-> functor.
 
-use (∑ (extiso : ∑ (i : ∏ (Γ : C) (A : C Γ), iso (F (Γ ⋆ A)) (F Γ ⋆ pr1 FTy _ A)),
-                 ∏ (Γ Γ' : C) (A : C Γ) (f : Γ' --> Γ),
-                  # F (q_typecat A f) · i _ _ =
-                  i _ _ ·
-                  comp_ext_compare (eqtohomot (nat_trans_ax FTy _ _ f) A) ·
-                  q_typecat (pr1 FTy _ A) (# F f)), _).
+Definition typecat_mor_Ty (f : typecat_mor) :
+  PreShv C ⟦ty C, functor_opp f ∙ ty D⟧ := pr12 f.
 
-(* TODO: express what it means to preserve the rest of the structure *)
+Definition typecat_mor_nat_trans (f : typecat_mor) :
+  nat_trans (pr1 (ty C)) (functor_opp f ∙ ty D) := typecat_mor_Ty f.
 
-  (* C : precategory ; *)
+Definition typecat_mor_iso (f : typecat_mor) {Γ} (A : C Γ) :
+  iso (f (Γ ⋆ A)) (f Γ ⋆ typecat_mor_nat_trans f Γ A) := pr122 f Γ A.
 
-  (* ty : C -> Type   
-       where "C ⟨ Γ ⟩" := (ty Γ); *)
+Definition typecar_mor_triangle (f : typecat_mor) {Γ} (A : C Γ) :
+  # f (dpr_typecat A) = typecat_mor_iso f A · dpr_typecat (typecat_mor_nat_trans f _ A) := pr1 (pr222 f) Γ A.
 
-  (* ext : ∏ Γ, C⟨Γ⟩ -> C
-       where "Γ ◂ A" := (ext Γ A); *)
-
-  (* dpr : ∏ Γ (A : C⟨Γ⟩), Γ ◂ A --> Γ
-       where "'π' A" := (dpr _ A); *)
-
-  (* reind : ∏ Γ (A : C⟨Γ⟩) Γ' (f : Γ' --> Γ), C⟨Γ'⟩
-       where "A {{ f }}" := (reind _ A _ f)  ; *)
-
-  (* q : ∏ {Γ} (A : ty Γ) {Γ'} (f : Γ' --> Γ), *)
-  (*         (Γ' ◂ (A {{f }}) --> Γ ◂ A) ; *)
-
-  (* dpr_q : ∏ Γ (A : C⟨Γ⟩) Γ' (f : Γ' --> Γ),  *)
-  (*         (q A f) ;; (π A) = (π (A{{f}})) ;; f ; *)
-
-  (* reind_pb : ∏ Γ (A : ty Γ) Γ' (f : Γ' --> Γ), *)
-  (*     isPullback _ _ _ _ (!dpr_q _ A _ f) *)
-Admitted.
+Definition typecat_mor_pentagon (f : typecat_mor) {Γ Γ'} (A : C Γ) (σ : Γ' --> Γ) :
+  # f (q_typecat A σ) · typecat_mor_iso f A =
+  typecat_mor_iso f _ · comp_ext_compare (eqtohomot (nat_trans_ax (typecat_mor_nat_trans f) σ) A) ·
+    q_typecat (typecat_mor_nat_trans f Γ A) (# f σ) := pr2 (pr222 f) Γ Γ' A σ.
 
 End morphisms.
