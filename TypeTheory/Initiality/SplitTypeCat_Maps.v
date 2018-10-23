@@ -101,7 +101,15 @@ Section Types_and_Terms.
   (** A concrete construction of “transport” of terms, by composing with [comp_ext_compare]. *)
   Definition tm_transportf {C : typecat} {Γ} {A A' : C Γ} (e : A = A')
     : tm A ≃ tm A'.
-  Admitted.
+  Proof.
+    use weqbandf.
+    + use tpair.
+      - intros t.
+        exact (t · comp_ext_compare e).
+      - abstract (now induction e; use (isweq_iso _ (idfun _));
+                  intros x; unfold idfun; simpl; apply id_right).
+    + abstract (now intros x; induction e; simpl; rewrite <-assoc, id_left; apply idweq).
+  Defined.
 
   Definition tm_transportb {C : typecat} {Γ} {A A' : C Γ} (e : A = A')
     : tm A' ≃ tm A
@@ -111,7 +119,12 @@ Section Types_and_Terms.
   Definition transportf_tm {C : typecat}
       {Γ} {A A' : C Γ} (e : A = A') (s : tm A)
     : transportf tm e s = tm_transportf e s.
-  Admitted.
+  Proof.
+    induction e.
+    apply subtypeEquality.
+    + now intros x; apply homset_property.
+    + now cbn; rewrite id_right.
+  Defined.
 
 End Types_and_Terms.
 
