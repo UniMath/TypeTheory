@@ -99,17 +99,17 @@ Section Partial_Interpretation.
       destruct e as [ m | m a | m A B ].
       + (* universe *)
         apply return_partial, U.
-      + (* El *)
+      + (* [El_expr a] *)
         get_partial (partial_interpretation_tm _ _ E (U _) a) interp_a.
         apply return_partial. exact (@elements _ U _ interp_a).
-      + (* Pi *)
+      + (* [Pi_expr A B] *)
         get_partial (partial_interpretation_ty _ _ E A) interp_A.
         set (E_A := extend_environment E interp_A).
         get_partial (partial_interpretation_ty _ _ E_A B) interp_B.
         apply return_partial. exact (Π _ interp_A interp_B).
     - (* term expressions *)
       destruct e as [ m i | m A B b | m A B f a ].
-      + (* variable *)
+      + (* [var_expr i] *)
         assume_partial (type_paths_hProp (type_of (E i)) T) e_Ei_T.
         apply return_partial.
         exact (tm_transportf e_Ei_T (E i)).
@@ -122,7 +122,7 @@ Section Partial_Interpretation.
         apply return_partial.
         refine (tm_transportb e_T_ΠAB _).
         exact (pi_intro _ _ _ _ _ interp_b).
-      + (* app *)
+      + (* [app_expr A B f a] *)
         get_partial (partial_interpretation_ty _ _ E A) interp_A.
         set (E_A := extend_environment E interp_A).
         get_partial (partial_interpretation_ty _ _ E_A B) interp_B.
@@ -140,6 +140,9 @@ Section Partial_Interpretation.
        {Γ:C} {n:nat} (E : environment Γ n) (e : tm_expr n)
      : partial (term_with_type Γ). ]
   I think either should work fine; I’m not sure which will work more cleanly. *)
+
+  Global Arguments partial_interpretation_tm : simpl nomatch.
+  Global Arguments partial_interpretation_ty : simpl nomatch.
 
 End Partial_Interpretation.
 
@@ -161,9 +164,9 @@ Section Totality.
     (E : typed_environment X Γ) : environment X Γ
   := pr1 E.
 
-  Definition typed_environment_respects_type {X} {Γ}
+  Definition typed_environment_respects_types {X} {Γ}
     (E : typed_environment X Γ) (i : Γ)
-  := pr2 E.
+  := pr2 E i.
 
   Local Open Scope judgement_scope.
 
@@ -197,12 +200,76 @@ Section Totality.
   Proof.
     destruct J; eauto using propproperty. 
   Defined.
+  
+  Local Lemma interpret_context_rules
+    : cases_for_context_rules (fun J _ => is_interpretable J).
+  Proof.
+    split; intros; cbn; constructor.
+  Defined.
+
+  Local Lemma interpret_var_rule
+    : case_for_var_rule (fun J _ => is_interpretable J).
+  Proof.
+    intros ? ? ? H_Γ ? H_Γi.
+    intros X E Γi_interpretable.
+    refine (_,,tt); cbn.
+    eapply pathscomp0. { apply typed_environment_respects_types. }
+    apply maponpaths, propproperty.
+  Defined.
+
+  Local Lemma interpret_equiv_rel_rules
+    : cases_for_equiv_rel_rules (fun J _ => is_interpretable J).
+  Admitted.
+
+  Local Lemma interpret_conv_rules
+    : cases_for_conv_rules (fun J _ => is_interpretable J).
+  Admitted.
+
+  Local Lemma interpret_subst_rules
+    : cases_for_subst_rules (fun J _ => is_interpretable J).
+  Admitted.
+
+  Local Lemma interpret_substeq_rules
+    : cases_for_substeq_rules (fun J _ => is_interpretable J).
+  Admitted.
+
+  Local Lemma interpret_universe_rules
+    : cases_for_universe_rules (fun J _ => is_interpretable J).
+  Proof.
+    split.
+    - (* universe formation *)
+      intros; intros X E; auto.
+    - (* elements formation *)
+      intros; intros X E.
+      refine (_,,tt).
+      refine (p_a _ _ tt).
+    - (* elements congruence *)
+      intros; intros X E d_A d_A'.
+      apply maponpaths, propproperty.
+  Defined.
+
+  Local Lemma interpret_pi_rules
+    : cases_for_pi_rules (fun J _ => is_interpretable J).
+  Admitted.
+
+  Local Lemma interpret_pi_cong_rules
+    : cases_for_pi_cong_rules (fun J _ => is_interpretable J).
+  Admitted.
 
   Fixpoint interpretable_from_derivation {J : judgement}
     : derivation J -> is_interpretable J.
   Proof.
-    (* TODO: totality of the interpretation.  This is the big one! *)
-  Admitted.
+    revert J. apply derivation_rect_grouped.
+    - apply interpret_context_rules.
+    - apply interpret_var_rule.
+    - apply interpret_equiv_rel_rules.
+    - apply interpret_conv_rules.
+    - apply interpret_subst_rules.
+    - apply interpret_substeq_rules.
+    - apply interpret_universe_rules.
+    - apply interpret_pi_rules.
+    - apply interpret_pi_cong_rules.
+  Defined.
 
   Lemma derivable_judgement_is_interpretable {J : judgement}
     : ∥ derivation J ∥ -> is_interpretable J.

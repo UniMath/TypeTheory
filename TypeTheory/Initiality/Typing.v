@@ -238,7 +238,7 @@ Section Derivation_Helpers.
              (d_Γ_A : derivation [! Γ |- A !]) (p_Γ_A : P d_Γ_A),
      P (derive_cxt_extend Γ A d_Γ d_Γ_A)).
 
-  Definition case_for_var_rules
+  Definition case_for_var_rule
   := forall (Γ : context) (i : Γ)
             (d_Γ : derivation [! |- Γ !]) (p_Γ : P d_Γ)
             (d_Γi : derivation [! Γ |- Γ i !]) (p_Γi : P d_Γi),
@@ -423,7 +423,7 @@ Section Derivation_Helpers.
 
   Definition derivation_rect_grouped
       (H_context_rules : cases_for_context_rules)     (* 2 cases *)
-      (H_var_rule : case_for_var_rules)               (* 1 case *)
+      (H_var_rule : case_for_var_rule)               (* 1 case *)
       (H_equiv_rel_rules : cases_for_equiv_rel_rules) (* 6 cases *)
       (H_conv_rules : cases_for_conv_rules)           (* 2 cases *)
       (H_subst_rules : cases_for_subst_rules)         (* 4 cases *)
