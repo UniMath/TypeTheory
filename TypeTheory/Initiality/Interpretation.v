@@ -98,22 +98,42 @@ Section Partial_Interpretation.
     - (* type expressions *)
       destruct e as [ m | m a | m A B ].
       + (* universe *)
-        admit.
+        apply return_partial, U.
       + (* El *)
-        admit.
+        get_partial (partial_interpretation_tm _ _ E (U _) a) interp_a.
+        apply return_partial. exact (@elements _ U _ interp_a).
       + (* Pi *)
-        admit.
+        get_partial (partial_interpretation_ty _ _ E A) interp_A.
+        set (E_A := extend_environment E interp_A).
+        get_partial (partial_interpretation_ty _ _ E_A B) interp_B.
+        apply return_partial. exact (Π _ interp_A interp_B).
     - (* term expressions *)
-      destruct e as [ m i | m A B b | m A B g a ].
+      destruct e as [ m i | m A B b | m A B f a ].
       + (* variable *)
         assume_partial (type_paths_hProp (type_of (E i)) T) e_Ei_T.
         apply return_partial.
         exact (tm_transportf e_Ei_T (E i)).
       + (* lambda *)
-        admit.
+        get_partial (partial_interpretation_ty _ _ E A) interp_A.
+        set (E_A := extend_environment E interp_A).
+        get_partial (partial_interpretation_ty _ _ E_A B) interp_B.
+        get_partial (partial_interpretation_tm _ _ E_A interp_B b) interp_b.
+        assume_partial (type_paths_hProp T (Π _ interp_A interp_B)) e_T_ΠAB.
+        apply return_partial.
+        refine (tm_transportb e_T_ΠAB _).
+        exact (pi_intro _ _ _ _ _ interp_b).
       + (* app *)
-        admit.
-  Admitted.
+        get_partial (partial_interpretation_ty _ _ E A) interp_A.
+        set (E_A := extend_environment E interp_A).
+        get_partial (partial_interpretation_ty _ _ E_A B) interp_B.
+        set (Π_A_B := Π _ interp_A interp_B).
+        get_partial (partial_interpretation_tm _ _ E interp_A a) interp_a.
+        get_partial (partial_interpretation_tm _ _ E Π_A_B f) interp_f. 
+        assume_partial (type_paths_hProp T (interp_B ⦃interp_a⦄)) e_T_Ba.
+        apply return_partial.
+        refine (tm_transportb e_T_Ba _).
+        refine (pi_app _ _ _ _ _ interp_f interp_a).
+  Defined.
 
   (** Note: alternatively, we could give the interpretation of terms as 
    [ partial_interpretation_tm
@@ -129,9 +149,10 @@ Section Totality.
 
   Definition environment_respects_type
       {X : C} (Γ : context) (E : environment X Γ)
-    := forall i : Γ,
-      ∑ (d : is_defined (partial_interpretation_ty U Π E (Γ i))),
-        (type_of (E i) = evaluate d).
+    : UU
+  := forall i : Γ,
+    ∑ (d : is_defined (partial_interpretation_ty U Π E (Γ i))),
+      (type_of (E i) = evaluate d).
 
   Definition typed_environment (X : C) (Γ : context)
     := ∑ (E : environment X Γ), environment_respects_type Γ E.
