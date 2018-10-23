@@ -5,6 +5,7 @@ Require Import UniMath.CategoryTheory.All.
 
 (* TODO: raise issue upstream: notation "_ ∘ _" is used for function-order composition of functions, but for diagrammatic-order composition of morphisms in categories! *)
 
+Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.Partial.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.Initiality.SplitTypeCat_Maps.
@@ -30,7 +31,119 @@ Section Auxiliary.
   Definition leq_partial {X} (x x' : partial X) : UU
     := ∑ (f : is_defined x -> is_defined x'),
        forall x_def, evaluate (f x_def) = evaluate x_def.
+
+  Definition use_leq_partial {X} {x x' : partial X} (l : leq_partial x x')
+    := pr1 l : is_defined x -> is_defined x'.
+  Coercion use_leq_partial : leq_partial >-> Funclass.
+
+  Definition leq_partial_commutes {X} {x x' : partial X} (l : leq_partial x x')
+    := pr2 l : forall x_def, _ = _.
+
+  (* TODO: upstream to [Partial] *)
+  Definition mk_leq_partial' {X} (x x' : partial X)
+    (H : forall (x_def : is_defined x),
+       ∑ (x'_def : is_defined x'), evaluate x'_def = evaluate x_def)
+    : leq_partial x x'.
+  Proof.
+    exists (fun x_def => pr1 (H x_def)).
+    exact (fun x_def => pr2 (H x_def)).
+  Defined.
+
+  Definition leq_partial_refl {X} (x : partial X)
+    : leq_partial x x.
+  Proof.
+    exists (fun i => i); intros; apply idpath.
+  Defined.
+
+  Definition leq_partial_of_path {X} (x x' : partial X)
+    : x = x' -> leq_partial x x'.
+  Proof.
+    intros []; apply leq_partial_refl.
+  Defined.
+
+  Definition leq_partial_trans {X}
+       {x0 x1 x2 : partial X} (l01 : leq_partial x0 x1) (l12 : leq_partial x1 x2)
+    : leq_partial x0 x2.
+  Proof.
+    exists (fun x0_def => l12 (l01 x0_def)).
+    intros x_def. eauto using pathscomp0, leq_partial_commutes.
+  Defined.
+
+  (* TODO: upstream to [Partial] *)
+  Definition fmap_leq_partial
+      {X Y} (f : X -> Y) {x x'} (l : leq_partial x x')
+    : leq_partial (fmap_partial f x) (fmap_partial f x').
+  Proof.
+    exists l.
+    intros x_def; cbn. apply maponpaths, leq_partial_commutes.
+  Defined.
+
+  Definition multiply_leq_partial
+      {X} {x x' : partial (partial X)} (l : leq_partial x x')
+    : leq_partial (multiply_partial x) (multiply_partial x').
+  Proof.
+    apply mk_leq_partial'. intros [H H'].
+    use tpair.
+    - exists (l H).
+      refine (transportb is_defined _ H'). 
+      apply leq_partial_commutes.
+    - cbn.
+      generalize (leq_partial_commutes l H : evaluate (l H) = _) as e.
+      generalize (evaluate (l H)) as lx.
+      intros lx e; destruct e. apply idpath.
+  Defined.
+
+  Definition multiply_leq_partial_2
+      {X} {x x' : partial (partial X)}
+      (l0 : is_defined x -> is_defined x')
+      (l1 : forall x_def, leq_partial (evaluate x_def) (evaluate (l0 x_def)))
+    : leq_partial (multiply_partial x) (multiply_partial x').
+  Proof.
+    apply mk_leq_partial'. intros [x_def x_def'].
+    use tpair.
+    - exists (l0 x_def).
+      apply l1, x_def'.
+    - cbn; apply leq_partial_commutes.
+  Defined.
  
+  (* TODO: upstream to [Partial] *)
+  Definition bind_leq_partial_1
+      {X Y} {x x'} (l : leq_partial x x') (f : X -> partial Y)
+    : leq_partial (bind_partial x f) (bind_partial x' f).
+  Proof.
+    eauto using multiply_leq_partial, fmap_leq_partial.
+  Defined.
+
+  (* TODO: upstream to [Partial] *)
+  Definition bind_leq_partial_2
+      {X Y} x {f g : X -> partial Y} (l : forall x, leq_partial (f x) (g x))
+    : leq_partial (bind_partial x f) (bind_partial x g).
+  Proof.
+    simple refine (multiply_leq_partial_2 _ _). { exact (fun i => i). }
+    intros x_def; apply l.
+  Defined.
+
+  (* TODO: upstream to [Partial] *)
+  Definition bind_leq_partial
+      {X Y} {x x'} (lx : leq_partial x x')
+      {f g : X -> partial Y} (lf : forall x, leq_partial (f x) (g x))
+    : leq_partial (bind_partial x f) (bind_partial x' g).
+  Proof.
+    eauto using leq_partial_trans, bind_leq_partial_1, bind_leq_partial_2.
+  Defined.
+
+  (* TODO: upstream to [Partial] *)
+  Definition assume_leq_partial
+      {X} {P : hProp}
+      {x x' : P -> partial X} (l : forall i, leq_partial (x i) (x' i))
+    : leq_partial (assume_partial _ x) (assume_partial _ x').
+  Proof.
+    apply mk_leq_partial'.
+    intros [i xi_def].
+    exists (i,, l i xi_def).
+    cbn. apply leq_partial_commutes.
+  Defined.
+
   (* TODO: work out better way to treat this and the following *)
   Definition mor_paths_hProp {C : category} {X Y : C} (f g : X --> Y)
     : hProp
@@ -117,7 +230,7 @@ Section Partial_Interpretation.
   Proof.
     - (* type expressions *)
       destruct e as [ m | m a | m A B ].
-      + (* universe *)
+      + (* [U_expr] *)
         apply return_partial, U.
       + (* [El_expr a] *)
         get_partial (partial_interpretation_tm _ _ E (U _) a) interp_a.
@@ -133,7 +246,7 @@ Section Partial_Interpretation.
         assume_partial (type_paths_hProp (type_of (E i)) T) e_Ei_T.
         apply return_partial.
         exact (tm_transportf e_Ei_T (E i)).
-      + (* lambda *)
+      + (* [lam_expr A B b] *)
         get_partial (partial_interpretation_ty _ _ E A) interp_A.
         set (E_A := extend_environment E interp_A).
         get_partial (partial_interpretation_ty _ _ E_A B) interp_B.
@@ -201,7 +314,67 @@ Section Partial_Interpretation.
         (partial_interpretation_tm (E ∘ f)%functions T e)
         (partial_interpretation_tm E T (rename_tm f e)).
   Proof.
-  Admitted.
+    - (* type expressions *)
+      destruct e as [ m | m a | m A B ].
+      + (* [U_expr] *)
+        apply leq_partial_refl.
+      + (* [El_expr a] *)
+        cbn. apply bind_leq_partial_1.
+        apply rename_partial_interpretation_tm.
+      + (* [Pi_expr A B] *)
+        cbn. eapply bind_leq_partial.
+        { apply rename_partial_interpretation_ty. }
+        intros A_interp. apply bind_leq_partial_1.
+        eapply leq_partial_trans.
+        2: { apply rename_partial_interpretation_ty. }
+        apply leq_partial_of_path, maponpaths_2, funextfun.
+        refine (dB_Sn_rect _ _ _); intros; apply idpath.
+    - (* term expressions *)
+      destruct e as [ m i | m A B b | m A B t a ].
+      + (* [var_expr i] *)
+        apply leq_partial_refl.
+      + (* [lam_expr A B b] *)
+        simpl. eapply bind_leq_partial.
+        { apply rename_partial_interpretation_ty. }
+        intros A_interp.
+        assert (e : (extend_environment (E ∘ f) A_interp
+                     = extend_environment E A_interp ∘ fmap_dB_S f)%functions).
+        { apply funextfun. refine (dB_Sn_rect _ _ _); intros; apply idpath. }
+        eapply bind_leq_partial.
+        { eapply leq_partial_trans.
+          2: { apply rename_partial_interpretation_ty. }
+          apply leq_partial_of_path, maponpaths_2, e.
+        }
+        intros B_interp.
+        eapply bind_leq_partial.
+        { eapply leq_partial_trans.
+          2: { apply rename_partial_interpretation_tm. }
+          apply leq_partial_of_path.
+          refine (maponpaths (fun F => _ F _ _) e).
+        }
+        intros b_interp.
+        apply leq_partial_refl.
+      + (* [app_expr A B f a] *)
+        simpl. eapply bind_leq_partial.
+        { apply rename_partial_interpretation_ty. }
+        intros A_interp.
+        assert (e : (extend_environment (E ∘ f) A_interp
+                     = extend_environment E A_interp ∘ fmap_dB_S f)%functions).
+        { apply funextfun. refine (dB_Sn_rect _ _ _); intros; apply idpath. }
+        eapply bind_leq_partial.
+        { eapply leq_partial_trans.
+          2: { apply rename_partial_interpretation_ty. }
+          apply leq_partial_of_path, maponpaths_2, e.
+        }
+        intros B_interp.
+        eapply bind_leq_partial.
+        { apply rename_partial_interpretation_tm. }
+        intros a_interp.
+        eapply bind_leq_partial.
+        { apply rename_partial_interpretation_tm. }
+        intros t_interp.
+        apply leq_partial_refl.
+  Defined.
 
   (* TODO: consider naming, placement, life choices, etc *)
   Definition subst_environment 
@@ -218,29 +391,40 @@ Section Partial_Interpretation.
 
   Fixpoint
     subst_partial_interpretation_ty
-      {X} {m n:nat} (f : raw_context_map m n) (A : n -> C X)
+      {X} {m n:nat} (f : raw_context_map m n) (T : n -> C X)
       (E : environment X m) (e : ty_expr n)
     : leq_partial
-        (bind_partial (subst_environment f A E)
+        (bind_partial (subst_environment f T E)
           (fun Ef => partial_interpretation_ty Ef e))
         (partial_interpretation_ty E (subst_ty f e))
   with
     subst_partial_interpretation_tm
-      {X} {m n:nat} (f : raw_context_map m n) (A : n -> C X)
-      (E : environment X m) (T : C X) (e : tm_expr n)
+      {X} {m n:nat} (f : raw_context_map m n) (T : n -> C X)
+      (E : environment X m) (S : C X) (e : tm_expr n)
     : leq_partial
-        (bind_partial (subst_environment f A E)
-          (fun Ef => partial_interpretation_tm Ef T e))
-        (partial_interpretation_tm E T (subst_tm f e)).
+        (bind_partial (subst_environment f T E)
+          (fun Ef => partial_interpretation_tm Ef S e))
+        (partial_interpretation_tm E S (subst_tm f e)).
   Proof.
+    - (* type expressions *)
+      destruct e as [ k | k a | k A B ]; admit.
+    - (* term expressions *)
+      destruct e as [ k i | k A B b | k A B t a ]; admit.
   Admitted.
 
 End Partial_Interpretation.
 
+  Lemma temp_test {C : split_typecat} (U : universe_struct C) (Π : pi_struct C)
+    {X} {n} (E : environment X n) {a}
+    (El_a := partial_interpretation_ty U Π E (El_expr a))
+    : El_a = El_a. 
+  Time cbn.
+  Abort.
+
 Section Totality.
 
   Context {C : split_typecat} (U : universe_struct C) (Π : pi_struct C).
-
+ 
   Definition environment_respects_type
       {X : C} (Γ : context) (E : environment X Γ)
     : UU
@@ -360,7 +544,7 @@ Section Totality.
   Proof.
     split.
     - intros; intros X E.
-      simple refine (pr1 (subst_partial_interpretation_ty _ _ _ _ _ _) _).
+      simple refine (pr1 (subst_partial_interpretation_ty _ _ _ _ _ _) _);
       admit. (* Not currently enough information for this!
         Possible fixes:
         - use the “Sigma” definition of interpretability of term judgements, instead of “Pi” 
@@ -387,7 +571,8 @@ Section Totality.
       refine (p_a _ _ tt).
     - (* elements congruence *)
       intros; intros X E d_a d_a'.
-      cbn; apply maponpaths.
+      simpl; apply maponpaths.
+      Arguments evaluate _ _ _ : clear implicits. idtac.
       use p_aa'; auto.
   Defined.
 
