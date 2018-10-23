@@ -84,7 +84,7 @@ End Environments.
 Section Partial_Interpretation.
 (** In this section, we construct the partial interpretation function. *)
 
-  Context {C : split_typecat}.
+  Context {C : split_typecat}. (* TODO: add assumption of structure! *)
 
   Fixpoint
     partial_interpretation_ty
@@ -92,14 +92,30 @@ Section Partial_Interpretation.
     : partial (C Γ)
   with
     partial_interpretation_tm
-      {Γ:C} {n:nat} (E : environment Γ n) (A : C Γ) (e : tm_expr n)
-    : partial (tm A).
+      {Γ:C} {n:nat} (E : environment Γ n) (T : C Γ) (e : tm_expr n)
+    : partial (tm T). (* See note below re type. *)
   Proof.
-    (* TODO: definition of the partial interpretation. *)
+    - (* type expressions *)
+      destruct e as [ m | m a | m A B ].
+      + (* universe *)
+        admit.
+      + (* El *)
+        admit.
+      + (* Pi *)
+        admit.
+    - (* term expressions *)
+      destruct e as [ m i | m A B b | m A B g a ].
+      + (* variable *)
+        assume_partial (type_paths_hProp (type_of (E i)) T) e_Ei_T.
+        apply return_partial.
+        exact (tm_transportf e_Ei_T (E i)).
+      + (* lambda *)
+        admit.
+      + (* app *)
+        admit.
   Admitted.
-  
 
-  (* Note: alternatively, we could give the interpretation of terms as 
+  (** Note: alternatively, we could give the interpretation of terms as 
    [ partial_interpretation_tm
        {Γ:C} {n:nat} (E : environment Γ n) (e : tm_expr n)
      : partial (term_with_type Γ). ]

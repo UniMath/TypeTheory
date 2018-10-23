@@ -30,9 +30,16 @@ Section Partial.
     : partial Y
   := multiply_partial (fmap_partial f x).
 
+  Definition assume_partial {X} (P : hProp) (x : P -> partial X) : partial X.
+  Proof.
+    exists (total2_hProp (fun (H_P : P) => is_defined (x H_P))).
+    intros H. exact (evaluate (pr2 H)).
+  Defined.
+
 End Partial.
 
 Ltac get_partial t x := apply (bind_partial t); intros x.
 (** [get_partial t x]: like Haskell’s [x <- t]. *)
 Ltac destruct_partial x := apply (bind_partial x); clear x; intros x.
 (** [destruct_partial]: special case of [get_partial] for variables. *)
+Ltac assume_partial p x := apply (assume_partial p); intros x.
