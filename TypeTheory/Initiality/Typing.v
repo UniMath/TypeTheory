@@ -98,7 +98,10 @@ Section Derivations.
       :    derivation [! Γ |- A === A' !]
       -> derivation [! Γ |- A' === A !]
     | derive_tyeq_trans (Γ : context) (A0 A1 A2 : _)
-      :    derivation [! Γ |- A0 === A1 !]
+      :    derivation [! Γ |- A0 !]
+        -> derivation [! Γ |- A1 !]
+        -> derivation [! Γ |- A2 !]
+        -> derivation [! Γ |- A0 === A1 !]
         -> derivation [! Γ |- A1 === A2 !]
       -> derivation [! Γ |- A0 === A2 !]
     | derive_tmeq_refl (Γ : context) (A : _) (a : _)
@@ -108,15 +111,22 @@ Section Derivations.
       :    derivation [! Γ |- a === a' ::: A !]
       -> derivation [! Γ |- a' === a ::: A !]
     | derive_tmeq_trans (Γ : context) (A : _) (a0 a1 a2 : _)
-      :    derivation [! Γ |- a0 === a1 ::: A !]
+      :    derivation [! Γ |- a0 ::: A !]
+        -> derivation [! Γ |- a1 ::: A !]
+        -> derivation [! Γ |- a2 ::: A !]
+        -> derivation [! Γ |- a0 === a1 ::: A !]
         -> derivation [! Γ |- a1 === a2 ::: A !]
       -> derivation [! Γ |- a0 === a2 ::: A !]
     | derive_tm_conv (Γ : context) (A A' : _) (a : _)
-      :    derivation [! Γ |- A === A' !]
+      :    derivation [! Γ |- A !]
+        -> derivation [! Γ |- A' !]
+        -> derivation [! Γ |- A === A' !]
         -> derivation [! Γ |- a ::: A !]
       -> derivation [! Γ |- a ::: A' !]
     | derive_tmeq_conv (Γ : context) (A A' : _) (a a' : _)
-      :    derivation [! Γ |- A === A' !]
+      :    derivation [! Γ |- A !]
+        -> derivation [! Γ |- A' !]
+        -> derivation [! Γ |- A === A' !]
         -> derivation [! Γ |- a === a' ::: A !]
       -> derivation [! Γ |- a === a' ::: A' !]
     (** substitution rules *)
@@ -256,9 +266,12 @@ Section Derivation_Helpers.
       P (derive_tyeq_sym Γ A A' d)
   ; case_tyeq_trans
     : forall (Γ : context) (A0 A1 A2 : ty_expr Γ)
+             (d0 : derivation [! Γ |- A0 !]) (p0 : P d0)
+             (d1 : derivation [! Γ |- A1 !]) (p1 : P d1)
+             (d2 : derivation [! Γ |- A2 !]) (p2 : P d2)
              (d01 : derivation [! Γ |- A0 === A1 !]) (p01 : P d01)
              (d12 : derivation [! Γ |- A1 === A2 !]) (p12 : P d12),
-      P (derive_tyeq_trans Γ A0 A1 A2 d01 d12)
+      P (derive_tyeq_trans Γ A0 A1 A2 d0 d1 d2 d01 d12)
   ; case_tmeq_refl
     : forall (Γ : context) (A : ty_expr Γ) (a : tm_expr Γ)
              (d : derivation [! Γ |- a ::: A !]) (p : P d),
@@ -269,23 +282,30 @@ Section Derivation_Helpers.
       P (derive_tmeq_sym Γ A a a' d)
   ; case_tmeq_trans
     : forall (Γ : context) (A : ty_expr Γ) (a0 a1 a2 : tm_expr Γ)
+             (d0 : derivation [! Γ |- a0 ::: A !]) (p0 : P d0)
+             (d1 : derivation [! Γ |- a1 ::: A !]) (p1 : P d1)
+             (d2 : derivation [! Γ |- a2 ::: A !]) (p2 : P d2)
              (d01 : derivation [! Γ |- a0 === a1 ::: A !]) (p01 : P d01)
              (d12 : derivation [! Γ |- a1 === a2 ::: A !]) (p12 : P d12),
-      P (derive_tmeq_trans Γ A a0 a1 a2 d01 d12)
+      P (derive_tmeq_trans Γ A a0 a1 a2 d0 d1 d2 d01 d12)
   }.
 
   Record cases_for_conv_rules
   := {
     case_tm_conv
     : forall (Γ : context) (A A' : ty_expr Γ) (a : tm_expr Γ)
+             (d_A : derivation [! Γ |- A !]) (p_A : P d_A)
+             (d_A' : derivation [! Γ |- A' !]) (p_A' : P d_A')
              (d_AA' : derivation [! Γ |- A === A' !]) (p_AA' : P d_AA')
              (d_a : derivation [! Γ |- a ::: A !]) (p_a : P d_a),
-        P (derive_tm_conv Γ A A' a d_AA' d_a)
+        P (derive_tm_conv Γ A A' a d_A d_A' d_AA' d_a)
   ; case_tmeq_conv
     : forall (Γ : context) (A A' : ty_expr Γ) (a a' : tm_expr Γ)
+             (d_A : derivation [! Γ |- A !]) (p_A : P d_A)
+             (d_A' : derivation [! Γ |- A' !]) (p_A' : P d_A')
              (d_AA' : derivation [! Γ |- A === A' !]) (p_AA' : P d_AA')
              (d_aa' : derivation [! Γ |- a === a' ::: A !]) (p_aa' : P d_aa'),
-      P (derive_tmeq_conv Γ A A' a a' d_AA' d_aa')
+      P (derive_tmeq_conv Γ A A' a a' d_A d_A' d_AA' d_aa')
   }.
 
   Record cases_for_subst_rules

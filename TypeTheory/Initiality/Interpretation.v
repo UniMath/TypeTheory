@@ -31,10 +31,20 @@ Section Auxiliary.
     : hProp
   := hProppair (f = g) (homset_property C _ _ _ _).
 
-  (* TODO: work out better way to treat this *)
+  (* TODO: work out better way to treat these *)
   Definition type_paths_hProp {C : split_typecat} {Γ : C} (A B : C Γ)
     : hProp
   := hProppair (A = B) (isaset_types_typecat C _ _ _).
+
+  (* TODO: upstream *)
+  Lemma isaset_tm {C : split_typecat} {Γ : C} {A : C Γ}
+    : isaset (tm A).
+  Admitted.
+
+  (* TODO: work out better way to treat these *)
+  Definition tm_paths_hProp {C : split_typecat} {Γ : C} {A : C Γ} (s t : tm A)
+    : hProp
+  := hProppair (s = t) (isaset_tm _ _).
 
 End Auxiliary.
 
@@ -170,6 +180,14 @@ Section Totality.
 
   Local Open Scope judgement_scope.
 
+  (** We show a fairly _weak_ sense of interpretatbility for judgements:
+  given an interpretation of their boundary, we get one of their conclusion.
+
+  This works smoothly in many ways, but requires quite “paranoid” formulations
+  of the derivation rules.  A stronger definition of “interpretatability” could
+  allow the proof to work with less paranoid formulations of the rules. 
+
+  Note we also don’t ask anything for interpretability of the context judgement. *)
   Definition is_interpretable (J : judgement) : hProp
   := match J with
      | [! |- Γ !] => htrue
@@ -179,7 +197,7 @@ Section Totality.
      | [! Γ |- A === A' !]
        => ∀ (X:C) (E : typed_environment X Γ)
             (d_A : is_defined (partial_interpretation_ty U Π E A))   
-            (d_A' : is_defined (partial_interpretation_ty U Π E A)),
+            (d_A' : is_defined (partial_interpretation_ty U Π E A')),
          type_paths_hProp (evaluate d_A) (evaluate d_A') 
      | [! Γ |- a ::: A !]
        => ∀ (X:C) (E : typed_environment X Γ)
@@ -189,8 +207,8 @@ Section Totality.
        => ∀ (X:C) (E : typed_environment X Γ)
           (d_A : is_defined (partial_interpretation_ty U Π E A))
           (d_a : is_defined (partial_interpretation_tm U Π E (evaluate d_A) a)) 
-          (d_a' : is_defined (partial_interpretation_tm U Π E (evaluate d_A) a)), 
-         mor_paths_hProp (evaluate d_a) (evaluate d_a')
+          (d_a' : is_defined (partial_interpretation_tm U Π E (evaluate d_A) a')), 
+         tm_paths_hProp (evaluate d_a) (evaluate d_a')
   end.
   (* Note: we DON’T expect to need any inductive information for context judgements!
 
@@ -219,11 +237,42 @@ Section Totality.
 
   Local Lemma interpret_equiv_rel_rules
     : cases_for_equiv_rel_rules (fun J _ => is_interpretable J).
-  Admitted.
+  Proof.
+    split.
+    - intros; intros ? ? ? ?.
+      apply maponpaths, propproperty.
+    - intros ? ? ? ? p_AA' ? ? ? ?.
+      apply pathsinv0; use p_AA'. 
+    - intros ? ? ? ? ? ? ? p1 ? ? ? p01 ? p12 ? ? ? ?.
+      eapply pathscomp0; [ use p01 | use p12 ]. use p1.
+    - intros; intros ? ? ? ? ?.
+      apply maponpaths, propproperty.
+    - intros ? ? ? ? ? p_aa' ? ? ? ? ?.
+      apply pathsinv0; use p_aa'. 
+    - intros ? ? ? ? ? ? ? ? p1 ? ? ? p01 ? p12 ? ? ? ? ?.
+      eapply pathscomp0; [ use p01 | use p12 ]. use p1.
+  Defined.
 
   Local Lemma interpret_conv_rules
     : cases_for_conv_rules (fun J _ => is_interpretable J).
-  Admitted.
+  Proof.
+    split.
+    - (* tm_conv *)
+      intros; intros X E A1_interpretable.
+      simple refine (transportf
+        (fun T => is_defined (partial_interpretation_tm _ _ _ T a))
+        _
+        (p_a _ _ (p_A _ E))).
+      refine (p_AA' _ _ _ _).
+    - (* tmeq_conv *)
+      intros; intros X E A'_intble.
+      simple refine (transportf
+        (fun T => forall (p : is_defined (partial_interpretation_tm _ _ _ T a))
+                         (p' : is_defined (partial_interpretation_tm _ _ _ T a')),
+             evaluate p = evaluate p')
+        _ (p_aa' _ _ (p_A _ E))).
+      simple refine (p_AA' _ _ _ _).
+  Defined.
 
   Local Lemma interpret_subst_rules
     : cases_for_subst_rules (fun J _ => is_interpretable J).
@@ -244,8 +293,9 @@ Section Totality.
       refine (_,,tt).
       refine (p_a _ _ tt).
     - (* elements congruence *)
-      intros; intros X E d_A d_A'.
-      apply maponpaths, propproperty.
+      intros; intros X E d_a d_a'.
+      cbn; apply maponpaths.
+      use p_aa'; auto.
   Defined.
 
   Local Lemma interpret_pi_rules
