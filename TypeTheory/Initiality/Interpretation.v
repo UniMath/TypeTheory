@@ -217,14 +217,12 @@ End Environments.
 Section Partial_Interpretation.
 (** In this section, we construct the partial interpretation function. *)
 
-  Context {C : split_typecat} (U : universe_struct C) (Π : pi_struct C).
-
   Fixpoint
-    partial_interpretation_ty
+    partial_interpretation_ty {C} (U : universe_struct C) (Π : pi_struct C)
       {Γ:C} {n:nat} (E : environment Γ n) (e : ty_expr n)
     : partial (C Γ)
   with
-    partial_interpretation_tm
+    partial_interpretation_tm {C} (U : universe_struct C) (Π : pi_struct C)
       {Γ:C} {n:nat} (E : environment Γ n) (T : C Γ) (e : tm_expr n)
     : partial (tm T). (* See note below re type. *)
   Proof.
@@ -233,12 +231,12 @@ Section Partial_Interpretation.
       + (* [U_expr] *)
         apply return_partial, U.
       + (* [El_expr a] *)
-        get_partial (partial_interpretation_tm _ _ E (U _) a) interp_a.
+        get_partial (partial_interpretation_tm _ U Π _ _ E (U _) a) interp_a.
         apply return_partial. exact (@elements _ U _ interp_a).
       + (* [Pi_expr A B] *)
-        get_partial (partial_interpretation_ty _ _ E A) interp_A.
+        get_partial (partial_interpretation_ty _ U Π _ _ E A) interp_A.
         set (E_A := extend_environment E interp_A).
-        get_partial (partial_interpretation_ty _ _ E_A B) interp_B.
+        get_partial (partial_interpretation_ty _ U Π _ _ E_A B) interp_B.
         apply return_partial. exact (Π _ interp_A interp_B).
     - (* term expressions *)
       destruct e as [ m i | m A B b | m A B f a ].
@@ -247,21 +245,21 @@ Section Partial_Interpretation.
         apply return_partial.
         exact (tm_transportf e_Ei_T (E i)).
       + (* [lam_expr A B b] *)
-        get_partial (partial_interpretation_ty _ _ E A) interp_A.
+        get_partial (partial_interpretation_ty _ U Π _ _ E A) interp_A.
         set (E_A := extend_environment E interp_A).
-        get_partial (partial_interpretation_ty _ _ E_A B) interp_B.
-        get_partial (partial_interpretation_tm _ _ E_A interp_B b) interp_b.
+        get_partial (partial_interpretation_ty _ U Π _ _ E_A B) interp_B.
+        get_partial (partial_interpretation_tm _ U Π _ _ E_A interp_B b) interp_b.
         assume_partial (type_paths_hProp T (Π _ interp_A interp_B)) e_T_ΠAB.
         apply return_partial.
         refine (tm_transportb e_T_ΠAB _).
         exact (pi_intro _ _ _ _ _ interp_b).
       + (* [app_expr A B f a] *)
-        get_partial (partial_interpretation_ty _ _ E A) interp_A.
+        get_partial (partial_interpretation_ty _ U Π _ _ E A) interp_A.
         set (E_A := extend_environment E interp_A).
-        get_partial (partial_interpretation_ty _ _ E_A B) interp_B.
+        get_partial (partial_interpretation_ty _ U Π _ _ E_A B) interp_B.
         set (Π_A_B := Π _ interp_A interp_B).
-        get_partial (partial_interpretation_tm _ _ E interp_A a) interp_a.
-        get_partial (partial_interpretation_tm _ _ E Π_A_B f) interp_f. 
+        get_partial (partial_interpretation_tm _ U Π _ _ E interp_A a) interp_a.
+        get_partial (partial_interpretation_tm _ U Π _ _ E Π_A_B f) interp_f. 
         assume_partial (type_paths_hProp T (interp_B ⦃interp_a⦄)) e_T_Ba.
         apply return_partial.
         refine (tm_transportb e_T_Ba _).
@@ -274,11 +272,10 @@ Section Partial_Interpretation.
      : partial (term_with_type Γ). ]
   I think either should work fine; I’m not sure which will work more cleanly. *)
 
-  Global Arguments partial_interpretation_tm : simpl nomatch.
-  Global Arguments partial_interpretation_ty : simpl nomatch.
-
   (** Several (lax) naturality properties for the partial interpretation:
   with respect to context maps, renaming, and substitution. *)
+
+  Context {C} (U : universe_struct C) (Π : pi_struct C).
 
   Fixpoint
     reindex_partial_interpretation_ty
@@ -286,16 +283,16 @@ Section Partial_Interpretation.
       {n:nat} (E : environment Γ n) (e : ty_expr n)
     : leq_partial
         (fmap_partial (fun A => reind_typecat A f)
-           (partial_interpretation_ty E e))
-        (partial_interpretation_ty (reind_environment f E) e)
+           (partial_interpretation_ty U Π E e))
+        (partial_interpretation_ty U Π (reind_environment f E) e)
   with
     reindex_partial_interpretation_tm
       {Γ Γ':C} (f : Γ' --> Γ)
       {n:nat} (E : environment Γ n) (T : C Γ) (e : tm_expr n)
     : leq_partial
         (fmap_partial (fun t => reind_tm f t)
-           (partial_interpretation_tm E T e))
-        (partial_interpretation_tm (reind_environment f E) (T⦃f⦄) e).
+           (partial_interpretation_tm U Π E T e))
+        (partial_interpretation_tm U Π (reind_environment f E) (T⦃f⦄) e).
   Proof.
   Admitted.
 
@@ -304,15 +301,15 @@ Section Partial_Interpretation.
       {Γ} {m n:nat} (f : m -> n)
       (E : environment Γ n) (e : ty_expr m)
     : leq_partial
-        (partial_interpretation_ty (E ∘ f)%functions e)
-        (partial_interpretation_ty E (rename_ty f e))
+        (partial_interpretation_ty U Π (E ∘ f)%functions e)
+        (partial_interpretation_ty U Π E (rename_ty f e))
   with
     rename_partial_interpretation_tm
       {Γ} {m n:nat} (f : m -> n)
       (E : environment Γ n) (T : C Γ) (e : tm_expr m)
     : leq_partial
-        (partial_interpretation_tm (E ∘ f)%functions T e)
-        (partial_interpretation_tm E T (rename_tm f e)).
+        (partial_interpretation_tm U Π (E ∘ f)%functions T e)
+        (partial_interpretation_tm U Π E T (rename_tm f e)).
   Proof.
     - (* type expressions *)
       destruct e as [ m | m a | m A B ].
@@ -383,7 +380,7 @@ Section Partial_Interpretation.
     : partial (environment X n). 
   Proof.
     assume_partial
-      (∀ (i:n), is_defined (partial_interpretation_tm E (A i) (f i)))
+      (∀ (i:n), is_defined (partial_interpretation_tm U Π E (A i) (f i)))
       H.
     apply return_partial.
     intros i. exists (A i). exact (evaluate (H i)).
@@ -395,16 +392,16 @@ Section Partial_Interpretation.
       (E : environment X m) (e : ty_expr n)
     : leq_partial
         (bind_partial (subst_environment f T E)
-          (fun Ef => partial_interpretation_ty Ef e))
-        (partial_interpretation_ty E (subst_ty f e))
+          (fun Ef => partial_interpretation_ty U Π Ef e))
+        (partial_interpretation_ty U Π E (subst_ty f e))
   with
     subst_partial_interpretation_tm
       {X} {m n:nat} (f : raw_context_map m n) (T : n -> C X)
       (E : environment X m) (S : C X) (e : tm_expr n)
     : leq_partial
         (bind_partial (subst_environment f T E)
-          (fun Ef => partial_interpretation_tm Ef S e))
-        (partial_interpretation_tm E S (subst_tm f e)).
+          (fun Ef => partial_interpretation_tm U Π Ef S e))
+        (partial_interpretation_tm U Π E S (subst_tm f e)).
   Proof.
     - (* type expressions *)
       destruct e as [ k | k a | k A B ]; admit.
@@ -413,13 +410,6 @@ Section Partial_Interpretation.
   Admitted.
 
 End Partial_Interpretation.
-
-  Lemma temp_test {C : split_typecat} (U : universe_struct C) (Π : pi_struct C)
-    {X} {n} (E : environment X n) {a}
-    (El_a := partial_interpretation_ty U Π E (El_expr a))
-    : El_a = El_a. 
-  Time cbn.
-  Abort.
 
 Section Totality.
 
@@ -567,12 +557,11 @@ Section Totality.
       intros; intros X E; auto.
     - (* elements formation *)
       intros; intros X E.
-      refine (_,,tt).
+      cbn. refine (_,,tt).
       refine (p_a _ _ tt).
     - (* elements congruence *)
       intros; intros X E d_a d_a'.
-      simpl; apply maponpaths.
-      Arguments evaluate _ _ _ : clear implicits. idtac.
+      cbn; apply maponpaths.
       use p_aa'; auto.
   Defined.
 

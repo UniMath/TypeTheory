@@ -109,7 +109,7 @@ Section Types_and_Terms.
       - abstract (now induction e; use (isweq_iso _ (idfun _));
                   intros x; unfold idfun; simpl; apply id_right).
     + abstract (now intros x; induction e; simpl; rewrite <-assoc, id_left; apply idweq).
-  Qed.
+  Defined.
 
   Definition tm_transportb {C : typecat} {Γ} {A A' : C Γ} (e : A = A')
     : tm A' ≃ tm A
@@ -120,13 +120,11 @@ Section Types_and_Terms.
       {Γ} {A A' : C Γ} (e : A = A') (s : tm A)
     : transportf tm e s = tm_transportf e s.
   Proof.
-  (*
     induction e.
     apply subtypeEquality.
     + now intros x; apply homset_property.
     + now cbn; rewrite id_right.
-  *)
-  Admitted.
+  Defined.
 
 End Types_and_Terms.
 
