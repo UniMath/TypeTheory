@@ -14,11 +14,11 @@ Require Import TypeTheory.Initiality.Typing.
 
 Section Auxiliary.
 
-  (* TODO: upstream! *)
+  (* TODO: upstream to [Partial] *)
   Definition partial_map X Y := X -> partial Y.
   Notation "X ⇢ Y" := (partial_map X Y) (at level 99) : type_scope.
 
-  (* TODO: upstream! *)
+  (* TODO: upstream to [Partial] *)
   Definition compose_partial {X Y Z} (f : X ⇢ Y) (g : Y ⇢ Z) : X ⇢ Z
     := fun x => bind_partial (f x) g.
   Notation "f ∘ g" := (compose_partial f g) : partial_map_scope.
@@ -26,6 +26,11 @@ Section Auxiliary.
   [ (_ ∘ _)%Cat ] for morphisms in categories, _not_ consistent with
   UniMath’s notation [ (_ ∘ _)%functions ] for functions. *)
 
+  (* TODO: upstream to [Partial] *)
+  Definition leq_partial {X} (x x' : partial X) : UU
+    := ∑ (f : is_defined x -> is_defined x'),
+       forall x_def, evaluate (f x_def) = evaluate x_def.
+ 
   (* TODO: work out better way to treat this and the following *)
   Definition mor_paths_hProp {C : category} {X Y : C} (f g : X --> Y)
     : hProp
@@ -88,6 +93,11 @@ Section Environments.
     - intro i.
       exact (reind_term_with_type (dpr_typecat A) (E i)).
   Defined.
+
+  Definition reind_environment
+      {Γ Γ'} (f : Γ' --> Γ) {n} (E : environment Γ n)
+    : environment Γ' n
+  := fun i => (reind_term_with_type f (E i)).
 
 End Environments.
 
@@ -153,6 +163,77 @@ Section Partial_Interpretation.
 
   Global Arguments partial_interpretation_tm : simpl nomatch.
   Global Arguments partial_interpretation_ty : simpl nomatch.
+
+  (** Several (lax) naturality properties for the partial interpretation:
+  with respect to context maps, renaming, and substitution. *)
+
+  Fixpoint
+    reindex_partial_interpretation_ty
+      {Γ Γ':C} (f : Γ' --> Γ)
+      {n:nat} (E : environment Γ n) (e : ty_expr n)
+    : leq_partial
+        (fmap_partial (fun A => reind_typecat A f)
+           (partial_interpretation_ty E e))
+        (partial_interpretation_ty (reind_environment f E) e)
+  with
+    reindex_partial_interpretation_tm
+      {Γ Γ':C} (f : Γ' --> Γ)
+      {n:nat} (E : environment Γ n) (T : C Γ) (e : tm_expr n)
+    : leq_partial
+        (fmap_partial (fun t => reind_tm f t)
+           (partial_interpretation_tm E T e))
+        (partial_interpretation_tm (reind_environment f E) (T⦃f⦄) e).
+  Proof.
+  Admitted.
+
+  Fixpoint
+    rename_partial_interpretation_ty
+      {Γ} {m n:nat} (f : m -> n)
+      (E : environment Γ n) (e : ty_expr m)
+    : leq_partial
+        (partial_interpretation_ty (E ∘ f)%functions e)
+        (partial_interpretation_ty E (rename_ty f e))
+  with
+    rename_partial_interpretation_tm
+      {Γ} {m n:nat} (f : m -> n)
+      (E : environment Γ n) (T : C Γ) (e : tm_expr m)
+    : leq_partial
+        (partial_interpretation_tm (E ∘ f)%functions T e)
+        (partial_interpretation_tm E T (rename_tm f e)).
+  Proof.
+  Admitted.
+
+  (* TODO: consider naming, placement, life choices, etc *)
+  Definition subst_environment 
+      {X} {m n:nat} (f : raw_context_map m n) (A : n -> C X)
+      (E : environment X m)
+    : partial (environment X n). 
+  Proof.
+    assume_partial
+      (∀ (i:n), is_defined (partial_interpretation_tm E (A i) (f i)))
+      H.
+    apply return_partial.
+    intros i. exists (A i). exact (evaluate (H i)).
+  Defined.
+
+  Fixpoint
+    subst_partial_interpretation_ty
+      {X} {m n:nat} (f : raw_context_map m n) (A : n -> C X)
+      (E : environment X m) (e : ty_expr n)
+    : leq_partial
+        (bind_partial (subst_environment f A E)
+          (fun Ef => partial_interpretation_ty Ef e))
+        (partial_interpretation_ty E (subst_ty f e))
+  with
+    subst_partial_interpretation_tm
+      {X} {m n:nat} (f : raw_context_map m n) (A : n -> C X)
+      (E : environment X m) (T : C X) (e : tm_expr n)
+    : leq_partial
+        (bind_partial (subst_environment f A E)
+          (fun Ef => partial_interpretation_tm Ef T e))
+        (partial_interpretation_tm E T (subst_tm f e)).
+  Proof.
+  Admitted.
 
 End Partial_Interpretation.
 
@@ -276,6 +357,18 @@ Section Totality.
 
   Local Lemma interpret_subst_rules
     : cases_for_subst_rules (fun J _ => is_interpretable J).
+  Proof.
+    split.
+    - intros; intros X E.
+      simple refine (pr1 (subst_partial_interpretation_ty _ _ _ _ _ _) _).
+      admit. (* Not currently enough information for this!
+        Possible fixes:
+        - use the “Sigma” definition of interpretability of term judgements, instead of “Pi” 
+        - maybe also the “Sigma” definition of partial interpretation of terms
+        - add hypotheses in the subst rules for the presups of d_f. *)
+    - admit. 
+    - admit.
+    - admit.
   Admitted.
 
   Local Lemma interpret_substeq_rules
