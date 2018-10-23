@@ -4,3 +4,4 @@ Syntax.v
 SyntaxLemmas.v
 Typing.v
 Interpretation.v
+SyntacticCategory.v
