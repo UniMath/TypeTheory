@@ -145,10 +145,12 @@ Section Partial_Interpretation.
      : partial (term_with_type Γ). ]
   I think either should work fine; I’m not sure which will work more cleanly. *)
 
-  (** Several (lax) naturality properties for the partial interpretation:
-  with respect to context maps, renaming, and substitution. *)
-
   Context {C} (U : universe_struct C) (Π : pi_struct C).
+  (** Note: the section variables are assumed only _after_ the definition of the partial interpretation, since otherwise after they are generalized, it explodes under [simpl]/[cbn]. *)
+
+  (** We start with several (lax) naturality properties for the partial
+  interpretation: naturality with respect to context maps and renaming of
+  variables. *)
 
   Fixpoint
     reindex_partial_interpretation_ty
@@ -170,14 +172,14 @@ Section Partial_Interpretation.
   Admitted.
 
   Fixpoint
-    rename_partial_interpretation_ty
+    partial_interpretation_rename_ty
       {Γ} {m n:nat} (f : m -> n)
       (E : environment Γ n) (e : ty_expr m)
     : leq_partial
         (partial_interpretation_ty U Π (E ∘ f)%functions e)
         (partial_interpretation_ty U Π E (rename_ty f e))
   with
-    rename_partial_interpretation_tm
+    partial_interpretation_rename_tm
       {Γ} {m n:nat} (f : m -> n)
       (E : environment Γ n) (T : C Γ) (e : tm_expr m)
     : leq_partial
@@ -190,13 +192,13 @@ Section Partial_Interpretation.
         apply leq_partial_refl.
       + (* [El_expr a] *)
         cbn. apply bind_leq_partial_1.
-        apply rename_partial_interpretation_tm.
+        apply partial_interpretation_rename_tm.
       + (* [Pi_expr A B] *)
         cbn. eapply bind_leq_partial.
-        { apply rename_partial_interpretation_ty. }
+        { apply partial_interpretation_rename_ty. }
         intros A_interp. apply bind_leq_partial_1.
         eapply leq_partial_trans.
-        2: { apply rename_partial_interpretation_ty. }
+        2: { apply partial_interpretation_rename_ty. }
         apply leq_partial_of_path, maponpaths_2, funextfun.
         refine (dB_Sn_rect _ _ _); intros; apply idpath.
     - (* term expressions *)
@@ -205,20 +207,20 @@ Section Partial_Interpretation.
         apply leq_partial_refl.
       + (* [lam_expr A B b] *)
         simpl. eapply bind_leq_partial.
-        { apply rename_partial_interpretation_ty. }
+        { apply partial_interpretation_rename_ty. }
         intros A_interp.
         assert (e : (extend_environment (E ∘ f) A_interp
                      = extend_environment E A_interp ∘ fmap_dB_S f)%functions).
         { apply funextfun. refine (dB_Sn_rect _ _ _); intros; apply idpath. }
         eapply bind_leq_partial.
         { eapply leq_partial_trans.
-          2: { apply rename_partial_interpretation_ty. }
+          2: { apply partial_interpretation_rename_ty. }
           apply leq_partial_of_path, maponpaths_2, e.
         }
         intros B_interp.
         eapply bind_leq_partial.
         { eapply leq_partial_trans.
-          2: { apply rename_partial_interpretation_tm. }
+          2: { apply partial_interpretation_rename_tm. }
           apply leq_partial_of_path.
           refine (maponpaths (fun F => _ F _ _) e).
         }
@@ -226,25 +228,33 @@ Section Partial_Interpretation.
         apply leq_partial_refl.
       + (* [app_expr A B f a] *)
         simpl. eapply bind_leq_partial.
-        { apply rename_partial_interpretation_ty. }
+        { apply partial_interpretation_rename_ty. }
         intros A_interp.
         assert (e : (extend_environment (E ∘ f) A_interp
                      = extend_environment E A_interp ∘ fmap_dB_S f)%functions).
         { apply funextfun. refine (dB_Sn_rect _ _ _); intros; apply idpath. }
         eapply bind_leq_partial.
         { eapply leq_partial_trans.
-          2: { apply rename_partial_interpretation_ty. }
+          2: { apply partial_interpretation_rename_ty. }
           apply leq_partial_of_path, maponpaths_2, e.
         }
         intros B_interp.
         eapply bind_leq_partial.
-        { apply rename_partial_interpretation_tm. }
+        { apply partial_interpretation_rename_tm. }
         intros a_interp.
         eapply bind_leq_partial.
-        { apply rename_partial_interpretation_tm. }
+        { apply partial_interpretation_rename_tm. }
         intros t_interp.
         apply leq_partial_refl.
   Defined.
+
+End Partial_Interpretation.
+
+Section Partial_Interpretation_Substitution.
+(** The interaction of the partial interpretation with substitution requires
+a little more work to state. *)
+
+  Context {C} (U : universe_struct C) (Π : pi_struct C).
 
   (* TODO: consider naming, placement, life choices, etc *)
   Definition subst_environment 
@@ -259,30 +269,61 @@ Section Partial_Interpretation.
     intros i. exists (A i). exact (evaluate (H i)).
   Defined.
 
+  (* TODO: upstream *)
+  Lemma bind_partial_as_sup {X Y} {x : partial X} (f : X -> partial Y)
+      (y : partial Y)
+      (H : forall (x_def : is_defined x), leq_partial (f (evaluate x_def)) y)
+    : leq_partial (bind_partial x f) y.
+  Proof.
+    exists (fun fx_def => H (pr1 fx_def) (pr2 fx_def)).
+    intros x_def. apply (leq_partial_commutes (H _)).
+  Defined.
+ 
+  (* TODO: upstream *)
+  Lemma leq_bind_partial {X Y} {x : partial X} (f : X -> partial Y)
+      (x_def : is_defined x)
+    : leq_partial (f (evaluate x_def)) (bind_partial x f).
+  Proof.
+    exists (fun fx_def => (x_def,,fx_def)).
+    intros; apply idpath.
+  Defined.
+
   Fixpoint
-    subst_partial_interpretation_ty
+    partial_interpretation_subst_ty
       {X} {m n:nat} (f : raw_context_map m n) (T : n -> C X)
-      (E : environment X m) (e : ty_expr n)
+      (E : environment X m) (fE_def : is_defined (subst_environment f T E))
+      (e : ty_expr n)
     : leq_partial
-        (bind_partial (subst_environment f T E)
-          (fun Ef => partial_interpretation_ty U Π Ef e))
+        (partial_interpretation_ty U Π (evaluate fE_def) e)
         (partial_interpretation_ty U Π E (subst_ty f e))
   with
-    subst_partial_interpretation_tm
+    partial_interpretation_subst_tm
       {X} {m n:nat} (f : raw_context_map m n) (T : n -> C X)
-      (E : environment X m) (S : C X) (e : tm_expr n)
+      (E : environment X m) (fE_def : is_defined (subst_environment f T E))
+      (S : C X) (e : tm_expr n)
     : leq_partial
-        (bind_partial (subst_environment f T E)
-          (fun Ef => partial_interpretation_tm U Π Ef S e))
+        (partial_interpretation_tm U Π (evaluate fE_def) S e)
         (partial_interpretation_tm U Π E S (subst_tm f e)).
   Proof.
     - (* type expressions *)
-      destruct e as [ k | k a | k A B ]; admit.
+      destruct e as [ n | n a | n A B ]; cbn.
+      + (* [U_expr] *)
+        apply leq_partial_refl.
+      + (* [El_expr a] *)
+        apply bind_leq_partial_1.
+        apply partial_interpretation_subst_tm.
+      + (* [Pi_expr A B] *)
+        cbn. eapply bind_leq_partial.
+        { apply partial_interpretation_subst_ty. }
+        intros A_interp. apply bind_leq_partial_1.
+        admit. (* need lemma on extending environment,
+        should be provable from [reindex_partial_interpretation]
+        together with [partial_interpretation_rename]. *)
     - (* term expressions *)
-      destruct e as [ k i | k A B b | k A B t a ]; admit.
+      destruct e as [ n i | n A B b | n A B t a ]; admit.
   Admitted.
 
-End Partial_Interpretation.
+End Partial_Interpretation_Substitution.
 
 Section Totality.
 
@@ -407,7 +448,6 @@ Section Totality.
   Proof.
     split.
     - intros; intros X E.
-      simple refine (pr1 (subst_partial_interpretation_ty _ _ _ _ _ _) _);
       admit. (* Not currently enough information for this!
         Possible fixes:
         - use the “Sigma” definition of interpretability of term judgements, instead of “Pi” 
