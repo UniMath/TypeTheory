@@ -167,6 +167,64 @@ Section Partial_Interpretation.
     apply maponpaths_2. admit. (* TODO: lemma  [tm_transportf_idpath]. *)
   Admitted.
 
+  Lemma tm_transportf_partial_interpretation_tm_leq
+      {Γ:C} {n:nat} (E : environment Γ n) {T T' : C Γ} (e_T_T' : T = T')
+      (e : tm_expr n)
+    : leq_partial
+        (fmap_partial (tm_transportf e_T_T')
+          (partial_interpretation_tm U Π E T e))
+        (partial_interpretation_tm U Π E T' e).
+  Proof.
+    apply leq_partial_of_path,
+    tm_transportf_partial_interpretation_tm.
+  Defined.
+
+  (* TODO: upstream, consider naming. *)
+  Lemma apply_leq_partial_pair {X} {x x' : partial X} (l : leq_partial x x')
+      (x_def : is_defined x)
+    : ∑ (x'_def : is_defined x'), evaluate x'_def = evaluate x_def.
+  Proof.
+    exists (l x_def). apply leq_partial_commutes.
+  Defined.
+
+  (* TODO: upstream, consider naming. *)
+  Lemma show_assume_leq_partial {X} {p : hProp} {x : p -> partial X}
+      {y : partial X} (l : forall Hp :p, leq_partial (x Hp) y)
+    : leq_partial (assume_partial p x) y.
+  Proof.
+    use tpair.
+    - intros [Hp x_def]. exact (l Hp x_def).
+    - cbn. intros. apply leq_partial_commutes.
+  Defined.
+    
+  (* TODO: upstream, consider naming. *)
+  Lemma show_return_leq_partial {X:UU} {x:X}
+      {y : partial X} (y_def : is_defined y) (e_x_y : evaluate y_def = x)
+    : leq_partial (return_partial x) y.
+  Proof.
+    exists (fun _ => y_def).
+    intros ?; apply e_x_y.
+  Defined.
+
+  (* TODO: upstream. Naming alternative: [show_bind_leq_partial] *)
+  Lemma bind_partial_as_sup {X Y} {x : partial X} (f : X -> partial Y)
+      (y : partial Y)
+      (H : forall (x_def : is_defined x), leq_partial (f (evaluate x_def)) y)
+    : leq_partial (bind_partial x f) y.
+  Proof.
+    exists (fun fx_def => H (pr1 fx_def) (pr2 fx_def)).
+    intros x_def. apply (leq_partial_commutes (H _)).
+  Defined.
+ 
+  (* TODO: upstream *)
+  Lemma leq_bind_partial {X Y} {x : partial X} (f : X -> partial Y)
+      (x_def : is_defined x)
+    : leq_partial (f (evaluate x_def)) (bind_partial x f).
+  Proof.
+    exists (fun fx_def => (x_def,,fx_def)).
+    intros; apply idpath.
+  Defined.
+
   Fixpoint
     reindex_partial_interpretation_ty
       {Γ Γ':C} (f : Γ' --> Γ)
@@ -193,29 +251,28 @@ Section Partial_Interpretation.
         apply maponpaths, universe_natural.
       + (* [El_expr a] *)
         cbn. (* factor the proof via the form where the IH applies *)
-        apply @leq_partial_trans with
-          ((fmap_partial (elements _ _)
-           (fmap_partial (tm_transportf (basetype_natural _ _))
-           (fmap_partial (reind_tm f) (partial_interpretation_tm U Π E (U Γ) a))))).
-        * eapply leq_partial_trans.
-          { apply leq_partial_of_path, fmap_bind_partial. }
-          eapply leq_partial_trans.
-          { apply bind_leq_partial_2; intros t.
-            apply leq_partial_of_path, fmap_return_partial. }
-          eapply leq_partial_trans. { apply bind_with_return_partial. }          
-                                    eapply leq_partial_trans.
-          { apply leq_partial_of_path, maponpaths_2.
-            apply funextfun; intros t. apply elements_natural. }
-          apply leq_partial_of_path, pathsinv0.
-          eapply pathscomp0. 2: { apply fmap_compose_partial_applied. }
-          unfold funcomp. apply maponpaths, fmap_compose_partial_applied.
-        * eapply leq_partial_trans.
-          { apply fmap_leq_partial, fmap_leq_partial,
-            reindex_partial_interpretation_tm. }
-          eapply leq_partial_trans.
-          2: { refine (pr2 (bind_with_return_partial _ _)). }
-          apply fmap_leq_partial, leq_partial_of_path.
-          apply tm_transportf_partial_interpretation_tm.
+        eapply leq_partial_trans.
+        { apply leq_partial_of_path, fmap_bind_partial. }
+        apply bind_partial_as_sup. intros a_def.
+        set (a_def' := apply_leq_partial_pair
+                         (reindex_partial_interpretation_tm _ _ f _ E _ _) a_def).
+        clearbody a_def'. destruct a_def' as [a_def' e_a]; cbn in e_a.
+        set (a_interp := evaluate a_def) in e_a |- *. clearbody a_interp; clear a_def.
+        eapply leq_partial_trans.        
+        { apply leq_partial_of_path, fmap_return_partial. }
+        set (a_def'' := apply_leq_partial_pair
+            (tm_transportf_partial_interpretation_tm_leq _
+              (universe_natural _ U _ _ _) _)
+            a_def').
+        Local Arguments tm_transportf : simpl never. (* TODO: upstream? *)
+        clearbody a_def''. destruct a_def'' as [a_def'' e_a']; cbn in e_a'.
+        set (a_interp' := evaluate a_def') in * |- *. clearbody a_interp'; clear a_def'.
+        destruct (!e_a).
+        use show_return_leq_partial.
+        { cbn. refine (_,,tt). apply a_def''. }
+        cbn.
+        eapply pathscomp0. { apply maponpaths, e_a'. }
+        apply pathsinv0, elements_natural.
       + (* [Pi_expr A B] *)
         admit.
     - (* term expressions *)
@@ -324,25 +381,6 @@ a little more work to state. *)
       H.
     apply return_partial.
     intros i. exists (A i). exact (evaluate (H i)).
-  Defined.
-
-  (* TODO: upstream *)
-  Lemma bind_partial_as_sup {X Y} {x : partial X} (f : X -> partial Y)
-      (y : partial Y)
-      (H : forall (x_def : is_defined x), leq_partial (f (evaluate x_def)) y)
-    : leq_partial (bind_partial x f) y.
-  Proof.
-    exists (fun fx_def => H (pr1 fx_def) (pr2 fx_def)).
-    intros x_def. apply (leq_partial_commutes (H _)).
-  Defined.
- 
-  (* TODO: upstream *)
-  Lemma leq_bind_partial {X Y} {x : partial X} (f : X -> partial Y)
-      (x_def : is_defined x)
-    : leq_partial (f (evaluate x_def)) (bind_partial x f).
-  Proof.
-    exists (fun fx_def => (x_def,,fx_def)).
-    intros; apply idpath.
   Defined.
 
   Fixpoint
