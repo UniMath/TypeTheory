@@ -154,61 +154,6 @@ Section Partial_Interpretation.
   interpretation: naturality with respect to context maps and renaming of
   variables. *)
 
-  (* TODO: upstream *)
-  Lemma fmap_return_partial {X Y} (f : X -> Y) (x : X)
-    : fmap_partial f (return_partial x) = return_partial (f x).
-  Proof.
-    apply idpath.
-  Defined.
-
-  (* TODO: upstream *)
-  Lemma fmap_bind_partial
-      {X Y Z} (x : partial X) (f : X -> partial Y) (g : Y -> Z)
-    : fmap_partial g (bind_partial x f)
-    = bind_partial x (fmap_partial g ∘ f).
-  Proof.
-    apply idpath.
-  Defined.
-
-  (* TODO: upstream *)
-  (** Note: under prop univalence, is equality; but we avoid relying on this. *)
-  Lemma bind_return_partial {X Y : UU} (x : X) (f : X -> partial Y)
-    : leq_partial (bind_partial (return_partial x) f) (f x)
-    × leq_partial (f x) (bind_partial (return_partial x) f).
-  Proof.
-    split.
-    - exists (fun x_def => pr2 x_def).
-      intros; apply idpath.
-    - exists (fun x_def => (tt,,x_def)).
-      intros; apply idpath.
-  Defined.
-
-  (* TODO: upstream *)
-  (** Note: under prop univalence, is equality; but we avoid relying on this. *)
-  Lemma bind_with_return_partial {X Y : UU} (x : partial X) (f : X -> Y)
-    : leq_partial (bind_partial x (return_partial ∘ f)) (fmap_partial f x)
-    × leq_partial (fmap_partial f x) (bind_partial x (return_partial ∘ f)).
-  Proof.
-    split.
-    - exists (fun x_def => pr1 x_def).
-      intros; apply idpath.
-    - exists (fun x_def => (x_def,,tt)).
-      intros; apply idpath.
-  Defined.
-
-  Lemma fmap_compose_partial {X Y Z : UU} (f : X -> Y) (g : Y -> Z)
-      : fmap_partial g ∘ fmap_partial f
-      = fmap_partial (g ∘ f).
-  Proof.
-    apply idpath.
-  Defined.
-
-  Lemma fmap_idmap_partial (X : UU)
-      : fmap_partial (idfun X) = idfun _.
-  Proof.
-    apply idpath.
-  Defined.
-
   Lemma tm_transportf_partial_interpretation_tm 
       {Γ:C} {n:nat} (E : environment Γ n) {T T' : C Γ} (e_T_T' : T = T')
       (e : tm_expr n)
@@ -219,7 +164,7 @@ Section Partial_Interpretation.
     destruct e_T_T'.
     eapply pathscomp0.
     2: { refine (toforallpaths _ _ _ (fmap_idmap_partial _) _). }
-    apply maponpaths_2. admit. (* lemma about [tm_transportf]. *)
+    apply maponpaths_2. admit. (* TODO: lemma  [tm_transportf_idpath]. *)
   Admitted.
 
   Fixpoint
@@ -247,32 +192,30 @@ Section Partial_Interpretation.
         eapply pathscomp0. { apply fmap_return_partial. }
         apply maponpaths, universe_natural.
       + (* [El_expr a] *)
-        cbn.
-        eapply leq_partial_trans.
-        { apply leq_partial_of_path, fmap_bind_partial. }
-        eapply leq_partial_trans.
-        { apply bind_leq_partial_2; intros t.
-          apply leq_partial_of_path, fmap_return_partial.
-        }
-        eapply leq_partial_trans. { apply bind_with_return_partial. }          
-        eapply leq_partial_trans.
-        { apply leq_partial_of_path, maponpaths_2.
-          apply funextfun; intros t. apply elements_natural.
-        }
-        eapply leq_partial_trans.
-        { apply leq_partial_of_path.
-          refine (!toforallpaths _ _ _ _ (partial_interpretation_tm _ _ _ _ _)).
-          eapply pathscomp0. 2: { apply fmap_compose_partial. }
-          apply maponpaths_2, fmap_compose_partial.
-        }
-        unfold funcomp.
-        eapply leq_partial_trans.
-        2: { refine (pr2 (bind_with_return_partial _ _)). }
-        apply fmap_leq_partial.
-        eapply leq_partial_trans.
-        { apply fmap_leq_partial, reindex_partial_interpretation_tm. }
-        apply leq_partial_of_path.
-        apply tm_transportf_partial_interpretation_tm.
+        cbn. (* factor the proof via the form where the IH applies *)
+        apply @leq_partial_trans with
+          ((fmap_partial (elements _ _)
+           (fmap_partial (tm_transportf (basetype_natural _ _))
+           (fmap_partial (reind_tm f) (partial_interpretation_tm U Π E (U Γ) a))))).
+        * eapply leq_partial_trans.
+          { apply leq_partial_of_path, fmap_bind_partial. }
+          eapply leq_partial_trans.
+          { apply bind_leq_partial_2; intros t.
+            apply leq_partial_of_path, fmap_return_partial. }
+          eapply leq_partial_trans. { apply bind_with_return_partial. }          
+                                    eapply leq_partial_trans.
+          { apply leq_partial_of_path, maponpaths_2.
+            apply funextfun; intros t. apply elements_natural. }
+          apply leq_partial_of_path, pathsinv0.
+          eapply pathscomp0. 2: { apply fmap_compose_partial_applied. }
+          unfold funcomp. apply maponpaths, fmap_compose_partial_applied.
+        * eapply leq_partial_trans.
+          { apply fmap_leq_partial, fmap_leq_partial,
+            reindex_partial_interpretation_tm. }
+          eapply leq_partial_trans.
+          2: { refine (pr2 (bind_with_return_partial _ _)). }
+          apply fmap_leq_partial, leq_partial_of_path.
+          apply tm_transportf_partial_interpretation_tm.
       + (* [Pi_expr A B] *)
         admit.
     - (* term expressions *)

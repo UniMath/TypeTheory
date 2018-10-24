@@ -112,7 +112,31 @@ Section Monad.
     exists l.
     intros x_def; cbn. apply maponpaths, leq_partial_commutes.
   Defined.
-         
+
+  Lemma fmap_compose_partial {X Y Z : UU} (f : X -> Y) (g : Y -> Z)
+      : fmap_partial g ∘ fmap_partial f = fmap_partial (g ∘ f).
+  Proof.
+    apply idpath.
+  Defined.
+
+  Lemma fmap_compose_partial_applied {X Y Z : UU} (f : X -> Y) (g : Y -> Z)
+      : fmap_partial g ∘ fmap_partial f ~ fmap_partial (g ∘ f).
+  Proof.
+    apply toforallpaths, fmap_compose_partial.
+  Defined.
+
+  Lemma fmap_idmap_partial (X : UU)
+      : fmap_partial (idfun X) = idfun _.
+  Proof.
+    apply idpath.
+  Defined.
+
+  Lemma fmap_idmap_partial_applied {X : UU} x
+      : fmap_partial (idfun X) x = x.
+  Proof.
+    exact (toforallpaths _ _ _ (fmap_idmap_partial X) x).
+  Defined.
+
   Definition bind_partial {X Y} (x : partial X) (f : X -> partial Y)
     : partial Y
   := multiply_partial (fmap_partial f x).
@@ -139,6 +163,45 @@ Section Monad.
   Proof.
     eauto using leq_partial_trans, bind_leq_partial_1, bind_leq_partial_2.
   Defined.
+
+  Lemma fmap_return_partial {X Y} (f : X -> Y) (x : X)
+    : fmap_partial f (return_partial x) = return_partial (f x).
+  Proof.
+    apply idpath.
+  Defined.
+
+  Lemma fmap_bind_partial
+      {X Y Z} (x : partial X) (f : X -> partial Y) (g : Y -> Z)
+    : fmap_partial g (bind_partial x f)
+    = bind_partial x (fmap_partial g ∘ f).
+  Proof.
+    apply idpath.
+  Defined.
+
+  (** Note: under prop univalence, is equality; but we avoid relying on this. *)
+  Lemma bind_return_partial {X Y : UU} (x : X) (f : X -> partial Y)
+    : leq_partial (bind_partial (return_partial x) f) (f x)
+    × leq_partial (f x) (bind_partial (return_partial x) f).
+  Proof.
+    split.
+    - exists (fun x_def => pr2 x_def).
+      intros; apply idpath.
+    - exists (fun x_def => (tt,,x_def)).
+      intros; apply idpath.
+  Defined.
+
+  (** Note: under prop univalence, is equality; but we avoid relying on this. *)
+  Lemma bind_with_return_partial {X Y : UU} (x : partial X) (f : X -> Y)
+    : leq_partial (bind_partial x (return_partial ∘ f)) (fmap_partial f x)
+    × leq_partial (fmap_partial f x) (bind_partial x (return_partial ∘ f)).
+  Proof.
+    split.
+    - exists (fun x_def => pr1 x_def).
+      intros; apply idpath.
+    - exists (fun x_def => (x_def,,tt)).
+      intros; apply idpath.
+  Defined.
+
 
   Definition assume_partial {X} (P : hProp) (x : P -> partial X) : partial X.
   Proof.
