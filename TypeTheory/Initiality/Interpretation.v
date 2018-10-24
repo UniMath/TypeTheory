@@ -13,6 +13,8 @@ Require Import TypeTheory.Initiality.SplitTypeCat_Structure.
 Require Import TypeTheory.Initiality.Syntax.
 Require Import TypeTheory.Initiality.Typing.
 
+Local Open Scope functions.
+
 Section Auxiliary.
 
   (* TODO: work out better way to treat this and the following *)
@@ -152,6 +154,74 @@ Section Partial_Interpretation.
   interpretation: naturality with respect to context maps and renaming of
   variables. *)
 
+  (* TODO: upstream *)
+  Lemma fmap_return_partial {X Y} (f : X -> Y) (x : X)
+    : fmap_partial f (return_partial x) = return_partial (f x).
+  Proof.
+    apply idpath.
+  Defined.
+
+  (* TODO: upstream *)
+  Lemma fmap_bind_partial
+      {X Y Z} (x : partial X) (f : X -> partial Y) (g : Y -> Z)
+    : fmap_partial g (bind_partial x f)
+    = bind_partial x (fmap_partial g ∘ f).
+  Proof.
+    apply idpath.
+  Defined.
+
+  (* TODO: upstream *)
+  (** Note: under prop univalence, is equality; but we avoid relying on this. *)
+  Lemma bind_return_partial {X Y : UU} (x : X) (f : X -> partial Y)
+    : leq_partial (bind_partial (return_partial x) f) (f x)
+    × leq_partial (f x) (bind_partial (return_partial x) f).
+  Proof.
+    split.
+    - exists (fun x_def => pr2 x_def).
+      intros; apply idpath.
+    - exists (fun x_def => (tt,,x_def)).
+      intros; apply idpath.
+  Defined.
+
+  (* TODO: upstream *)
+  (** Note: under prop univalence, is equality; but we avoid relying on this. *)
+  Lemma bind_with_return_partial {X Y : UU} (x : partial X) (f : X -> Y)
+    : leq_partial (bind_partial x (return_partial ∘ f)) (fmap_partial f x)
+    × leq_partial (fmap_partial f x) (bind_partial x (return_partial ∘ f)).
+  Proof.
+    split.
+    - exists (fun x_def => pr1 x_def).
+      intros; apply idpath.
+    - exists (fun x_def => (x_def,,tt)).
+      intros; apply idpath.
+  Defined.
+
+  Lemma fmap_compose_partial {X Y Z : UU} (f : X -> Y) (g : Y -> Z)
+      : fmap_partial g ∘ fmap_partial f
+      = fmap_partial (g ∘ f).
+  Proof.
+    apply idpath.
+  Defined.
+
+  Lemma fmap_idmap_partial (X : UU)
+      : fmap_partial (idfun X) = idfun _.
+  Proof.
+    apply idpath.
+  Defined.
+
+  Lemma tm_transportf_partial_interpretation_tm 
+      {Γ:C} {n:nat} (E : environment Γ n) {T T' : C Γ} (e_T_T' : T = T')
+      (e : tm_expr n)
+    : fmap_partial (tm_transportf e_T_T')
+        (partial_interpretation_tm U Π E T e)
+      = partial_interpretation_tm U Π E T' e.
+  Proof.
+    destruct e_T_T'.
+    eapply pathscomp0.
+    2: { refine (toforallpaths _ _ _ (fmap_idmap_partial _) _). }
+    apply maponpaths_2. admit. (* lemma about [tm_transportf]. *)
+  Admitted.
+
   Fixpoint
     reindex_partial_interpretation_ty
       {Γ Γ':C} (f : Γ' --> Γ)
@@ -169,6 +239,50 @@ Section Partial_Interpretation.
            (partial_interpretation_tm U Π E T e))
         (partial_interpretation_tm U Π (reind_environment f E) (T⦃f⦄) e).
   Proof.
+    - (* type expressions *)
+      destruct e as [ m | m a | m A B ].
+      + (* [U_expr] *)
+        cbn.
+        apply leq_partial_of_path.
+        eapply pathscomp0. { apply fmap_return_partial. }
+        apply maponpaths, universe_natural.
+      + (* [El_expr a] *)
+        cbn.
+        eapply leq_partial_trans.
+        { apply leq_partial_of_path, fmap_bind_partial. }
+        eapply leq_partial_trans.
+        { apply bind_leq_partial_2; intros t.
+          apply leq_partial_of_path, fmap_return_partial.
+        }
+        eapply leq_partial_trans. { apply bind_with_return_partial. }          
+        eapply leq_partial_trans.
+        { apply leq_partial_of_path, maponpaths_2.
+          apply funextfun; intros t. apply elements_natural.
+        }
+        eapply leq_partial_trans.
+        { apply leq_partial_of_path.
+          refine (!toforallpaths _ _ _ _ (partial_interpretation_tm _ _ _ _ _)).
+          eapply pathscomp0. 2: { apply fmap_compose_partial. }
+          apply maponpaths_2, fmap_compose_partial.
+        }
+        unfold funcomp.
+        eapply leq_partial_trans.
+        2: { refine (pr2 (bind_with_return_partial _ _)). }
+        apply fmap_leq_partial.
+        eapply leq_partial_trans.
+        { apply fmap_leq_partial, reindex_partial_interpretation_tm. }
+        apply leq_partial_of_path.
+        apply tm_transportf_partial_interpretation_tm.
+      + (* [Pi_expr A B] *)
+        admit.
+    - (* term expressions *)
+      destruct e as [ m i | m A B b | m A B t a ].
+      + (* [var_expr i] *)
+        admit.
+      + (* [lam_expr A B b] *)
+        admit.
+      + (* [app_expr A B t a] *)
+        admit.
   Admitted.
 
   Fixpoint
@@ -176,14 +290,14 @@ Section Partial_Interpretation.
       {Γ} {m n:nat} (f : m -> n)
       (E : environment Γ n) (e : ty_expr m)
     : leq_partial
-        (partial_interpretation_ty U Π (E ∘ f)%functions e)
+        (partial_interpretation_ty U Π (E ∘ f) e)
         (partial_interpretation_ty U Π E (rename_ty f e))
   with
     partial_interpretation_rename_tm
       {Γ} {m n:nat} (f : m -> n)
       (E : environment Γ n) (T : C Γ) (e : tm_expr m)
     : leq_partial
-        (partial_interpretation_tm U Π (E ∘ f)%functions T e)
+        (partial_interpretation_tm U Π (E ∘ f) T e)
         (partial_interpretation_tm U Π E T (rename_tm f e)).
   Proof.
     - (* type expressions *)
@@ -210,7 +324,7 @@ Section Partial_Interpretation.
         { apply partial_interpretation_rename_ty. }
         intros A_interp.
         assert (e : (extend_environment (E ∘ f) A_interp
-                     = extend_environment E A_interp ∘ fmap_dB_S f)%functions).
+                     = extend_environment E A_interp ∘ fmap_dB_S f)).
         { apply funextfun. refine (dB_Sn_rect _ _ _); intros; apply idpath. }
         eapply bind_leq_partial.
         { eapply leq_partial_trans.
@@ -231,7 +345,7 @@ Section Partial_Interpretation.
         { apply partial_interpretation_rename_ty. }
         intros A_interp.
         assert (e : (extend_environment (E ∘ f) A_interp
-                     = extend_environment E A_interp ∘ fmap_dB_S f)%functions).
+                     = extend_environment E A_interp ∘ fmap_dB_S f)).
         { apply funextfun. refine (dB_Sn_rect _ _ _); intros; apply idpath. }
         eapply bind_leq_partial.
         { eapply leq_partial_trans.

@@ -45,6 +45,8 @@ Section Bare_Universe_Structure.
 
   Coercion universe (U : universe_struct) : basetype_struct := pr1 U.
 
+  Definition universe_natural (U : universe_struct) := @basetype_natural U.
+
   Definition elements {U : universe_struct} : deptype_struct U := pr2 U.
 
   Definition elements_natural {U : universe_struct}
