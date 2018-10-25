@@ -14,6 +14,7 @@ Require Import TypeTheory.Initiality.Syntax.
 Require Import TypeTheory.Initiality.Typing.
 
 Local Open Scope functions.
+Local Arguments funcomp {_ _ _} _ / . (* perhaps upstream? *)
 
 Section Auxiliary.
 
@@ -86,6 +87,15 @@ Section Environments.
       {Γ Γ'} (f : Γ' --> Γ) {n} (E : environment Γ n)
     : environment Γ' n
   := fun i => (reind_term_with_type f (E i)).
+
+  Definition reind_extend_environment
+      {Γ Γ':C} (f : Γ' --> Γ)
+      {n} (E : environment Γ n) (A : C Γ)
+    : reind_environment (q_typecat A f) (extend_environment E A)
+      = extend_environment (reind_environment f E) (reind_typecat A f).
+  Proof.
+    apply funextfun; refine (dB_Sn_rect _ _ _); admit.
+  Admitted.
 
 End Environments.
 
@@ -225,22 +235,32 @@ Section Partial_Interpretation.
     intros; apply idpath.
   Defined.
 
+  (* TODO: upstream, uniformize naming *)
+  Lemma bind_fmap_partial_1
+      {X Y Z} {x : partial X} (f : X -> Y) (g : Y -> partial Z)
+    : bind_partial (fmap_partial f x) g = bind_partial x (g ∘ f).
+  Proof.
+    apply idpath.
+  Defined.
+
   Fixpoint
-    reindex_partial_interpretation_ty
+    reindex_partial_interpretation_ty_aux
       {Γ Γ':C} (f : Γ' --> Γ)
       {n:nat} (E : environment Γ n) (e : ty_expr n)
+      {E'} (e_E : E' = reind_environment f E)
     : leq_partial
         (fmap_partial (fun A => reind_typecat A f)
            (partial_interpretation_ty U Π E e))
-        (partial_interpretation_ty U Π (reind_environment f E) e)
+        (partial_interpretation_ty U Π E' e)
   with
-    reindex_partial_interpretation_tm
+    reindex_partial_interpretation_tm_aux
       {Γ Γ':C} (f : Γ' --> Γ)
       {n:nat} (E : environment Γ n) (T : C Γ) (e : tm_expr n)
+      {E'} (e_E : E' = reind_environment f E)
     : leq_partial
         (fmap_partial (fun t => reind_tm f t)
            (partial_interpretation_tm U Π E T e))
-        (partial_interpretation_tm U Π (reind_environment f E) (T⦃f⦄) e).
+        (partial_interpretation_tm U Π E' (T⦃f⦄) e).
   Proof.
     - (* type expressions *)
       destruct e as [ m | m a | m A B ].
@@ -251,20 +271,45 @@ Section Partial_Interpretation.
         apply maponpaths, universe_natural.
       + (* [El_expr a] *)
         assert (IH_a := fun T =>
-          reindex_partial_interpretation_tm Γ Γ' f m E T a).
-        cbn. apply mk_leq_partial'. intros [a_def ?].
+          reindex_partial_interpretation_tm_aux Γ Γ' f m E T a E' e_E).
+        apply mk_leq_partial'.
+        intros [a_def ?]; cbn.
         use tpair.
-        * cbn. refine (_,,tt).
+        * refine (_,,tt).
           refine (tm_transportf_partial_interpretation_tm_leq
                     _ (universe_natural _ _ _ _ _) _ _).
           apply IH_a, a_def.
-        * cbn.
-          eapply pathscomp0. 2: { apply pathsinv0, elements_natural. }
+        * eapply pathscomp0. 2: { apply pathsinv0, elements_natural. }
           apply maponpaths.
           eapply pathscomp0. { apply leq_partial_commutes. }
           cbn. apply maponpaths, (leq_partial_commutes (IH_a _)).
        + (* [Pi_expr A B] *)
-        admit.
+         assert (IH_A := 
+           reindex_partial_interpretation_ty_aux Γ Γ' f m E A E' e_E).
+         assert (IH_B := fun Γ Γ' f E E' e_E =>
+           reindex_partial_interpretation_ty_aux Γ Γ' f (S m) E B E' e_E).
+         cbn. eapply leq_partial_trans.
+         { apply leq_partial_of_path, fmap_bind_partial. }
+         eapply leq_partial_trans.
+         2: { eapply bind_leq_partial_1, IH_A. }
+         eapply leq_partial_trans.
+         2: { apply leq_partial_of_path, pathsinv0, bind_fmap_partial_1. }
+         apply bind_leq_partial_2; intros A_interp; cbn.
+         eapply leq_partial_trans.
+         { apply leq_partial_of_path, fmap_bind_partial. }
+         eapply leq_partial_trans.
+         2: { eapply bind_leq_partial_1.
+              refine (IH_B _ _ (q_typecat A_interp f)
+                        (extend_environment E A_interp) _ _).
+              eapply pathscomp0.
+              2: { apply pathsinv0, reind_extend_environment. }
+              apply (maponpaths (fun E => extend_environment E _)), e_E. }
+         eapply leq_partial_trans.
+         2: { apply leq_partial_of_path, pathsinv0, bind_fmap_partial_1. }
+         apply bind_leq_partial_2; intros B_interp; cbn.
+         apply leq_partial_of_path.
+         eapply pathscomp0. { apply fmap_return_partial. }
+         apply maponpaths, pi_form_struct_natural.
     - (* term expressions *)
       destruct e as [ m i | m A B b | m A B t a ].
       + (* [var_expr i] *)
@@ -274,6 +319,26 @@ Section Partial_Interpretation.
       + (* [app_expr A B t a] *)
         admit.
   Admitted.
+
+  Definition
+    reindex_partial_interpretation_ty
+      {Γ Γ':C} (f : Γ' --> Γ)
+      {n:nat} (E : environment Γ n) (e : ty_expr n)
+    : leq_partial
+        (fmap_partial (fun A => reind_typecat A f)
+           (partial_interpretation_ty U Π E e))
+        (partial_interpretation_ty U Π (reind_environment f E) e)
+   := reindex_partial_interpretation_ty_aux f E e (idpath _).
+
+  Definition
+    reindex_partial_interpretation_tm
+      {Γ Γ':C} (f : Γ' --> Γ)
+      {n:nat} (E : environment Γ n) (T : C Γ) (e : tm_expr n)
+    : leq_partial
+        (fmap_partial (fun t => reind_tm f t)
+           (partial_interpretation_tm U Π E T e))
+        (partial_interpretation_tm U Π (reind_environment f E) (T⦃f⦄) e).
+   := reindex_partial_interpretation_ty_aux f E e T (idpath _).
 
   Fixpoint
     partial_interpretation_rename_ty
