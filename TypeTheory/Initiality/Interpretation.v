@@ -15,6 +15,7 @@ Require Import TypeTheory.Initiality.Typing.
 
 Local Open Scope functions.
 Local Arguments funcomp {_ _ _} _ / . (* perhaps upstream? *)
+Local Arguments idfun _ _ / . (* perhaps upstream? *)
 
 Section Auxiliary.
 
@@ -35,17 +36,52 @@ Section Auxiliary.
   Context {C : split_typecat}.
 
   (* TODO: perhaps upstream the following group? *)
-  Definition term_with_type (Γ:C) := ∑ (A : C Γ), tm A.
+  Definition type_with_term (Γ:C) := ∑ (A : C Γ), tm A.
 
-  Definition type_of {Γ} (Aa : term_with_type Γ) := pr1 Aa.
+  Definition type_of {Γ} (Aa : type_with_term Γ) := pr1 Aa.
 
-  Coercion term_of {Γ} (Aa : term_with_type Γ) : tm (type_of Aa)
+  Coercion term_of {Γ} (Aa : type_with_term Γ) : tm (type_of Aa)
     := pr2 Aa.
 
-  Definition reind_term_with_type {Γ Γ'} (f : Γ' --> Γ)
-    : term_with_type Γ -> term_with_type Γ'
+  Definition paths_type_with_term {Γ} {Aa Bb : type_with_term Γ}
+      (e_ty : type_of Aa = type_of Bb)
+      (e_tm : term_of Aa ;; comp_ext_compare e_ty = term_of Bb)
+    : Aa = Bb.
+  Proof.
+    destruct Aa as [A a], Bb as [B b]; cbn in *. 
+    destruct e_ty; cbn in *.
+    apply maponpaths, paths_tm.
+    refine (_ @ e_tm). apply pathsinv0, id_right.
+  Defined.
+
+  Definition reind_type_with_term {Γ Γ'} (f : Γ' --> Γ)
+    : type_with_term Γ -> type_with_term Γ'
   := fun a => ((type_of a)⦃f⦄,, reind_tm f a).
-  
+
+  Definition reind_compose_type_with_term
+      {Γ Γ' Γ''} (f : Γ' --> Γ) (f' : Γ'' --> Γ')
+      (Aa : type_with_term Γ)
+    : reind_type_with_term (f' ;; f) Aa
+      = reind_type_with_term f' (reind_type_with_term f Aa).
+  Proof.
+  Admitted.
+
+  Definition var_with_type {Γ} (A : C Γ)
+    : type_with_term (Γ ◂ A)
+  := (A⦃dpr_typecat A⦄,, var_typecat _ A).
+
+  Lemma reind_type_with_term_q_var {Γ Γ'} (f : Γ' --> Γ) (A : C Γ)
+    : reind_type_with_term (q_typecat A f) (var_with_type A)
+    = var_with_type (A ⦃f⦄).
+  Proof.
+      use paths_type_with_term.
+      + cbn. 
+        eapply pathscomp0. { apply pathsinv0, (reind_comp_typecat C). }
+        eapply pathscomp0. 2: { apply (reind_comp_typecat C). }
+        apply maponpaths, dpr_q_typecat.
+      + cbn. admit. (* lemma about [var_typecat] *)
+  Admitted.
+
 End Auxiliary.
 
 Section Environments.
@@ -58,23 +94,22 @@ Section Environments.
   Motivating example: if [Γ] is the interpretation of some actual context, then each type of the context should be interpreted as some type over Γ, and each the corresponding variable can be extracted to a term of that type. *)
 
   Definition environment (Γ:C) (n:nat)
-    := dB_vars n -> term_with_type Γ.
+    := dB_vars n -> type_with_term Γ.
   
   Definition extend_environment
       {Γ:C} {n:nat} (E : environment Γ n) (A : C Γ)
     : environment (Γ ◂ A) (S n).
   Proof.
     refine (dB_Sn_rect _ _ _).
-    - exists (A ⦃dpr_typecat A⦄).
-      apply var_typecat.
+    - apply var_with_type.
     - intro i.
-      exact (reind_term_with_type (dpr_typecat A) (E i)).
+      exact (reind_type_with_term (dpr_typecat A) (E i)).
   Defined.
 
   Definition reind_environment
       {Γ Γ'} (f : Γ' --> Γ) {n} (E : environment Γ n)
     : environment Γ' n
-  := fun i => (reind_term_with_type f (E i)).
+  := fun i => (reind_type_with_term f (E i)).
 
   Definition reind_extend_environment
       {Γ Γ':C} (f : Γ' --> Γ)
@@ -82,8 +117,15 @@ Section Environments.
     : reind_environment (q_typecat A f) (extend_environment E A)
       = extend_environment (reind_environment f E) (reind_typecat A f).
   Proof.
-    apply funextfun; refine (dB_Sn_rect _ _ _); admit.
-  Admitted.
+    apply funextfun; refine (dB_Sn_rect _ _ _).
+    - unfold reind_environment. cbn.
+    (* TODO: why is this [cbn] so slow? (Currently c. 2sec) *)
+      apply reind_type_with_term_q_var.
+    - intros i; unfold reind_environment; cbn.
+      eapply pathscomp0. { apply pathsinv0, reind_compose_type_with_term. }
+      eapply pathscomp0. 2: { apply reind_compose_type_with_term. }
+      apply maponpaths_2, dpr_q_typecat.
+  Qed.
 
 End Environments.
 
@@ -142,7 +184,7 @@ Section Partial_Interpretation.
   (** Note: alternatively, we could give the interpretation of terms as 
    [ partial_interpretation_tm
        {Γ:C} {n:nat} (E : environment Γ n) (e : tm_expr n)
-     : partial (term_with_type Γ). ]
+     : partial (type_with_term Γ). ]
   I think either should work fine; I’m not sure which will work more cleanly. *)
 
   Context {C} (U : universe_struct C) (Π : pi_struct C).

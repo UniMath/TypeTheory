@@ -21,10 +21,14 @@ Notation "Γ ⋆ A" := (ext_typecat Γ A) (at level 30, only parsing).
 
 Section Auxiliary.
 (** General interface functions for working in split type-cats;
-could well be upstreamed to [TypeTheory.ALV1.TypeCat]. *)
+much could well be upstreamed to [TypeTheory.ALV1.TypeCat]. 
+
+Note: much of this duplicates constructions given already in the [ALV1] package,
+since everything there is given not for [split_typecat] itself but for the
+reassociated definition [split_typecat'], and the equivalence doesn’t compute
+straightforwardly enough to allow them to be used here. *)
 
 Section Comp_Ext_Compare.
-  (* History note: nased on same-named functions in [TypeTheory.ALV1.CwF_SplitTypeCat_Defs], given there for a reassociated version of split type-categories. *)
 
   Definition comp_ext_compare {C : typecat}
       {Γ : C} {A A' : C Γ} (e : A = A')
