@@ -243,6 +243,26 @@ Section Partial_Interpretation.
     apply idpath.
   Defined.
 
+  (* TODO: upstream *)
+  Lemma fmap_assume_partial {X Y} (f : X -> Y) {p:hProp} {x : p -> partial X}
+    : fmap_partial f (assume_partial p x)
+      = assume_partial p (fmap_partial f ∘ x).
+  Proof.
+    apply idpath.
+  Defined.
+
+
+  (* TODO: upstream, uniformize naming *)
+  Lemma assume_partial_leq {X} {p q : hProp} (f : p -> q)
+    {x : p -> partial X} {y : q -> partial X}
+    (l : forall i:p, leq_partial (x i) (y (f i)))
+    : leq_partial (assume_partial p x) (assume_partial q y).
+  Proof.
+    apply mk_leq_partial'. intros [i x_def].
+    exists (f i,, l i x_def); cbn.
+    apply leq_partial_commutes.
+  Defined.
+
   Fixpoint
     reindex_partial_interpretation_ty_aux
       {Γ Γ':C} (f : Γ' --> Γ)
@@ -313,7 +333,15 @@ Section Partial_Interpretation.
     - (* term expressions *)
       destruct e as [ m i | m A B b | m A B t a ].
       + (* [var_expr i] *)
-        admit.
+        destruct (!e_E); clear e_E. cbn.
+        eapply leq_partial_trans.
+        { apply leq_partial_of_path, fmap_assume_partial. }
+        use assume_partial_leq. { exact (maponpaths (fun A => A ⦃ f ⦄)). }
+        cbn. intros e_T; destruct e_T.
+         apply leq_partial_of_path.
+         eapply pathscomp0. { apply fmap_return_partial. }
+         apply maponpaths. cbn.
+         admit. (* TODO: lemma [tm_transportf_idpath]. *)
       + (* [lam_expr A B b] *)
         admit.
       + (* [app_expr A B t a] *)
@@ -337,8 +365,8 @@ Section Partial_Interpretation.
     : leq_partial
         (fmap_partial (fun t => reind_tm f t)
            (partial_interpretation_tm U Π E T e))
-        (partial_interpretation_tm U Π (reind_environment f E) (T⦃f⦄) e).
-   := reindex_partial_interpretation_ty_aux f E e T (idpath _).
+        (partial_interpretation_tm U Π (reind_environment f E) (T⦃f⦄) e)
+   := reindex_partial_interpretation_tm_aux f E T e (idpath _).
 
   Fixpoint
     partial_interpretation_rename_ty
