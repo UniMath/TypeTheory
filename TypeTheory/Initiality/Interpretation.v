@@ -613,7 +613,33 @@ Section Totality.
     : UU
   := forall i : Γ,
     ∑ (d : is_defined (partial_interpretation_ty U Π E (Γ i))),
-      (type_of (E i) = evaluate d).
+      (evaluate d = type_of (E i)).
+
+  Definition extend_environment_respects_type
+      {X : C} {Γ : context} {E : environment X Γ}
+      (R : environment_respects_type Γ E)
+      {A : ty_expr Γ} (A_def : is_defined (partial_interpretation_ty U Π E A))
+    : environment_respects_type
+        (context_extend Γ A)
+        (extend_environment E (evaluate A_def)).
+  Proof.
+    use dB_Sn_rect.
+    (* TODO: figure out this damn slowdown! *)
+    - cbn. use tpair.
+      + apply partial_interpretation_rename_ty.
+        refine (reindex_partial_interpretation_ty _ _ (dpr_typecat _) E _ A_def).
+      + cbn. eapply pathscomp0. { apply leq_partial_commutes. }
+        use leq_partial_commutes.
+    - cbn; intros i. use tpair.
+      + apply partial_interpretation_rename_ty.
+        refine (reindex_partial_interpretation_ty _ _ (dpr_typecat _) E _ _).
+        apply R.
+      + cbn. 
+        eapply pathscomp0. { apply leq_partial_commutes. }
+        eapply pathscomp0. { apply leq_partial_commutes. }
+        cbn. apply (maponpaths (fun T => T ⦃_⦄)). 
+        exact (pr2 (R i)).
+  Qed.
 
   Definition typed_environment (X : C) (Γ : context)
     := ∑ (E : environment X Γ), environment_respects_type Γ E.
@@ -625,6 +651,16 @@ Section Totality.
   Definition typed_environment_respects_types {X} {Γ}
     (E : typed_environment X Γ) (i : Γ)
   := pr2 E i.
+
+  Definition extend_typed_environment
+      {X : C} {Γ : context} (E : typed_environment X Γ)
+      {A : ty_expr Γ} (A_def : is_defined (partial_interpretation_ty U Π E A))
+    : typed_environment (X ◂ evaluate A_def) (context_extend Γ A).
+  Proof.
+    eapply tpair.
+    exact (extend_environment_respects_type
+             (typed_environment_respects_types E) A_def).
+  Defined.
 
   Local Open Scope judgement_scope.
 
@@ -679,7 +715,7 @@ Section Totality.
     intros ? ? ? H_Γ ? H_Γi.
     intros X E Γi_interpretable.
     refine (_,,tt); cbn.
-    eapply pathscomp0. { apply typed_environment_respects_types. }
+    eapply pathscomp0. { apply pathsinv0, typed_environment_respects_types. }
     apply maponpaths, propproperty.
   Defined.
 
@@ -756,9 +792,109 @@ Section Totality.
       cbn; apply maponpaths.
       use p_aa'; auto.
   Defined.
+ 
+  (* TODO: upstream, if this proves useful! *)
+  (** To display arguments of a specific [evaluate], use
+   [change @evaluate with @evaluate_in]. *)
+  Definition evaluate_in {X} x x_def := @evaluate X x x_def.
+
+  (* TODO: upstream *)
+  (** A trivial but useful lemma *)
+  Definition evaluate_unique {X} (x : partial X) (x_def x_def' : is_defined x)
+    : evaluate x_def = evaluate x_def'.
+  Proof.
+    apply maponpaths, propproperty.
+  Qed.
+
+  (** A trivial but useful lemma *)
+  Definition evaluate_unique_gen {X} {x y : partial X} (e : x = y)
+      (x_def : is_defined x) (y_def: is_defined y)
+    : evaluate x_def = evaluate y_def.
+  Proof.
+    destruct e; apply evaluate_unique.
+  Qed.
+
+  (** A trivial but useful lemma *)
+  Definition leq_partial_values_agree {X} {x y : partial X} (l : leq_partial x y) 
+    (x_def : is_defined x) (y_def : is_defined y)
+    : evaluate x_def = evaluate y_def.
+  Proof.
+    refine ( ! leq_partial_commutes l _ @ evaluate_unique _ _ _).
+  Qed.
 
   Local Lemma interpret_pi_rules
     : cases_for_pi_rules (fun J _ => is_interpretable J).
+  Proof.
+    split.
+    - (* formation *)
+      intros; intros X E; cbn.
+      simple refine (_,,(_,,tt)).
+      + use p_A.
+      + refine (p_B _ (extend_typed_environment _ _)).
+    - (* introduction *)
+      intros; intros X E Pi_def. cbn.
+      use tpair. { use p_A. }
+      use tpair. { refine (p_B _ (extend_typed_environment _ _)). }
+      use tpair. { refine (p_b _ (extend_typed_environment _ _) _). }
+      refine (_,,tt).
+      refine (evaluate_unique
+        (partial_interpretation_ty _ _ _ (Pi_expr _ _)) (_,,(_,,tt)) _).
+    - (* application *)
+      intros; intros X E Ba_def. cbn.
+      (* The following slightly strange idiom gets Coq to fill in arguments,
+      while also saving the result for re-use. *)
+      refine (let A_def := p_A _ _ in (A_def ,, _)). clearbody A_def.
+      refine (let B_def := p_B _ (extend_typed_environment _ _) in (B_def ,, _)).
+      clearbody B_def.
+      refine (let a_def := p_a _ _ _ in (a_def ,, _)). clearbody a_def.
+      refine (let f_def := p_f _ _ (_,,(_,,tt)) in (f_def ,, _)). clearbody f_def.
+      refine (_,,tt).
+      (* This is a bit tricky.  Roughly, we want to combine our semantic
+       reindexing lemma and our syntactic substitution lemma to show that these
+       are two possible interpretations of the same thing. *)
+      eapply pathscomp0.
+      { apply pathsinv0. 
+        simple refine (leq_partial_commutes
+             (reindex_partial_interpretation_ty _ _ _ _ _)
+             _). }
+      eapply pathscomp0.
+      2: { simple refine (leq_partial_values_agree
+                            (partial_interpretation_subst_ty _ _ _ _ _ _ _)
+                            _ _).
+        - refine (dB_Sn_rect _ _ _).
+          + exact (evaluate A_def).
+          + intros i; exact (type_of ((E : environment _ _) i)).
+        - refine (_,,tt). refine (dB_Sn_rect _ _ _).
+          + exact a_def. (* NOTE: again, [cbn] here very slow. *)
+          + intros i; cbn. repeat constructor.
+        - refine (p_B _ (_,,_)).
+          cbn. refine (dB_Sn_rect _ _ _).
+          + admit. (* TODO: this is painful…
+             factor out the whole construction on environments,
+             (a) [extend_environment_with_term]
+                 (which [extend_environment] factors through),
+             (b) showing that the specific context morphism used here
+                 is always interpretable with respect to that environment,
+                 and the result is equal to it! *) 
+          + admit.
+      }
+      change @evaluate with @evaluate_in at 1.
+      eapply pathscomp0. 2: { change @evaluate with @evaluate_in at 1. apply idpath. }
+      apply evaluate_unique_gen.
+      apply maponpaths_2, funextfun.
+      refine (dB_Sn_rect _ _ _).
+      + cbn. use paths_type_with_term.
+        * cbn. eapply pathscomp0. { apply pathsinv0, (reind_comp_typecat C). }
+          eapply pathscomp0. 2: { apply (reind_id_type_typecat C). }
+          apply maponpaths, section_property.
+        * cbn. admit. (* lemma about reindexing of var giving universality *)
+      + intros i; use paths_type_with_term.
+        * cbn. eapply pathscomp0. { apply pathsinv0, (reind_comp_typecat C). }
+          eapply pathscomp0. 2: { apply (reind_id_type_typecat C). }
+          apply maponpaths, section_property.
+        * cbn. admit. (* lemma [reind_compose_tm] *)
+    - (* computation *)
+      admit.
   Admitted.
 
   Local Lemma interpret_pi_cong_rules

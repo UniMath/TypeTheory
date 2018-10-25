@@ -84,14 +84,18 @@ Section Types_and_Terms.
                   apply reind_comp_type_typecat, C).
   Defined.
 
-  (* TODO: upstream to [Auxiliary]? *)
+  (* TODO: upstream this and subsequent to [Auxiliary]? *)
   Definition section {C : precategory} {X Y : C} (f : X --> Y)
     := ∑ (s : Y --> X), s ;; f = identity _.
 
-  (* TODO: upstream with [section]. *)
   Coercion section_pr1 {C : precategory} {X Y : C} (f : X --> Y)
     : section f -> (Y --> X)
   := pr1.
+
+  Definition section_property {C : precategory}
+      {X Y : C} {f : X --> Y} (s : section f)
+    : s ;; f = id _
+  := pr2 s.
 
   Definition paths_section {C : category} {X Y : C} {f : X --> Y}
       {s s' : section f}
