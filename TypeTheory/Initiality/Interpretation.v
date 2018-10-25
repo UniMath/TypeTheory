@@ -18,45 +18,16 @@ Local Arguments funcomp {_ _ _} _ / . (* perhaps upstream? *)
 
 Section Auxiliary.
 
-  (* TODO: upstream *)
-  Lemma tm_transportf_idpath {C0 : typecat} {Γ} {A : C0 Γ} (t : tm A)
-    : tm_transportf (idpath A) t = t. 
-  Proof.
-    (* TODO: lemma: equality of terms is just equality of their maps *)
-  Admitted.
-
-  (* TODO: upstream *)
-  Lemma tm_transportf_irrelevant {C0 : split_typecat} {Γ} {A A' : C0 Γ} (e e' : A = A')
-      (t : tm A)
-    : tm_transportf e t = tm_transportf e' t. 
-  Proof.
-    apply (maponpaths (fun e => tm_transportf e t)).
-    apply (isaset_types_typecat C0).
-  Defined.
-
-  (* TODO: upstream *)
-  Lemma tm_transportf_idpath_gen {C0 : typecat} {Γ} {A : C0 Γ} (e : A = A) (t : tm A)
-    : tm_transportf (idpath A) t = t. 
-  Proof.
-    eauto using tm_transportf_irrelevant, tm_transportf_idpath.
-  Defined.
-
-  (* TODO: work out better way to treat this and the following *)
+  (** Functions giving path types in various hsets directly as hprops. *)
+  (* TODO: work out better way to treat them? *)
   Definition mor_paths_hProp {C : category} {X Y : C} (f g : X --> Y)
     : hProp
   := hProppair (f = g) (homset_property C _ _ _ _).
 
-  (* TODO: work out better way to treat these *)
   Definition type_paths_hProp {C : split_typecat} {Γ : C} (A B : C Γ)
     : hProp
   := hProppair (A = B) (isaset_types_typecat C _ _ _).
 
-  (* TODO: upstream *)
-  Lemma isaset_tm {C : split_typecat} {Γ : C} {A : C Γ}
-    : isaset (tm A).
-  Admitted.
-
-  (* TODO: work out better way to treat these *)
   Definition tm_paths_hProp {C : split_typecat} {Γ : C} {A : C Γ} (s t : tm A)
     : hProp
   := hProppair (s = t) (isaset_tm _ _).
@@ -75,12 +46,6 @@ Section Auxiliary.
     : term_with_type Γ -> term_with_type Γ'
   := fun a => ((type_of a)⦃f⦄,, reind_tm f a).
   
-  (*TODO: look for this upstream! *)
-  (** the “universal term of type A” *)
-  Definition var_typecat (Γ:C) (A:C Γ)
-  : tm (A ⦃dpr_typecat A⦄).
-  Admitted.
-
 End Auxiliary.
 
 Section Environments.

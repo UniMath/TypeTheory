@@ -93,6 +93,11 @@ Section Types_and_Terms.
     := section (dpr_typecat A).
   Identity Coercion section_of_term : tm >-> section.
 
+  Lemma isaset_tm {C : split_typecat} {Γ : C} {A : C Γ}
+    : isaset (tm A).
+  Admitted.
+
+
   Definition reind_tm {C : typecat} {Γ Γ'} (f : Γ' --> Γ) {A : C Γ}
     : tm A -> tm (A⦃f⦄).
   (* uses the pullback structure *)
@@ -134,6 +139,31 @@ Section Types_and_Terms.
     + now intros x; apply homset_property.
     + now unfold tm_transportf; cbn; rewrite id_right.
   Defined.
+
+  Lemma tm_transportf_idpath {C : typecat} {Γ} {A : C Γ} (t : tm A)
+    : tm_transportf (idpath A) t = t. 
+  Proof.
+    (* TODO: lemma: equality of terms is just equality of their maps *)
+  Admitted.
+
+  Lemma tm_transportf_irrelevant {C : split_typecat} {Γ} {A A' : C Γ} (e e' : A = A')
+      (t : tm A)
+    : tm_transportf e t = tm_transportf e' t. 
+  Proof.
+    apply (maponpaths (fun e => tm_transportf e t)).
+    apply (isaset_types_typecat C).
+  Defined.
+
+  Lemma tm_transportf_idpath_gen {C : typecat} {Γ} {A : C Γ} (e : A = A) (t : tm A)
+    : tm_transportf (idpath A) t = t. 
+  Proof.
+    eauto using tm_transportf_irrelevant, tm_transportf_idpath.
+  Defined.
+
+  (** the “universal term of type A” *)
+  Definition var_typecat {C : typecat} (Γ:C) (A:C Γ)
+  : tm (A ⦃dpr_typecat A⦄).
+  Admitted.
 
 End Types_and_Terms.
 
