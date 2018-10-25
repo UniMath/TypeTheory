@@ -98,6 +98,13 @@ Section Types_and_Terms.
   (* uses the pullback structure *)
   Admitted.
 
+  Definition reind_tm_q {C : typecat} {Γ Γ'} (f : Γ' --> Γ)
+      {A : C Γ} (a : tm A)
+    : reind_tm f a ;; q_typecat A f = f ;; a.
+  Proof.
+    (* by def of [reind_tm] *)
+  Admitted.
+
   (** A concrete construction of “transport” of terms, by composing with [comp_ext_compare]. *)
   Definition tm_transportf {C : typecat} {Γ} {A A' : C Γ} (e : A = A')
     : tm A ≃ tm A'.

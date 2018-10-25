@@ -287,8 +287,15 @@ Section Partial_Interpretation.
   Defined.
 
   (** Naturality of the partial interpretation,
-  with respect to indexing along maps of the model. *)
-  (* TODO: clean up document the proof a bit, once finished and structure stable. *)
+  with respect to indexing along maps of the model.
+
+  NOTE: the proof is written carefully to make the structure of cases
+  as modular and uniform as possible.  Roughly, there is a section for each
+  [bind_partial] and [assume_partial] in the definition of the partial
+  interpretation; [fmap_partial] is always pushed on through these to the end.
+  At the end of each case, one should find essentially the naturality equation
+  for the constuctor under consideration, modulo some occurrences of
+  [tm_transportf] which must be wrangled away. *)
   Fixpoint
     reindex_partial_interpretation_ty
       {Γ Γ':C} (f : Γ' --> Γ)
@@ -309,24 +316,29 @@ Section Partial_Interpretation.
     - (* type expressions *)
       destruct e as [ m | m a | m A B ].
       + (* [U_expr] *)
-        cbn.
-        apply leq_partial_of_path.
+        cbn. apply leq_partial_of_path.
         eapply pathscomp0. { apply fmap_return_partial. }
         apply maponpaths, universe_natural.
       + (* [El_expr a] *)
         assert (IH_a := fun T =>
           reindex_partial_interpretation_tm Γ Γ' f m E T a).
-        apply mk_leq_partial'.
-        intros [a_def ?]; cbn.
-        use tpair.
-        * refine (_,,tt).
-          refine (tm_transportf_partial_interpretation_tm_leq
-                    _ (universe_natural _ _ _ _ _) _ _).
-          apply IH_a, a_def.
-        * eapply pathscomp0. 2: { apply pathsinv0, elements_natural. }
-          apply maponpaths.
-          eapply pathscomp0. { apply leq_partial_commutes. }
-          cbn. apply maponpaths, (leq_partial_commutes (IH_a _)).
+        (* part for [a] argument *)
+        cbn. eapply leq_partial_trans.
+        { apply leq_partial_of_path, fmap_bind_partial. }
+        eapply leq_partial_trans.
+        2: { eapply bind_leq_partial_1. 
+          eapply leq_partial_trans.
+          2: { refine (tm_transportf_partial_interpretation_tm_leq _ _ _).
+               apply universe_natural. }
+             apply fmap_leq_partial, IH_a. }
+        eapply leq_partial_trans.
+        2: { apply leq_partial_of_path, pathsinv0.
+             eapply pathscomp0; apply bind_fmap_partial_1. }
+        apply bind_leq_partial_2; intros a_interp; cbn.
+        (* final naturality part *)
+        apply leq_partial_of_path.
+        eapply pathscomp0. { apply fmap_return_partial. }
+        apply maponpaths, elements_natural.
       + (* [Pi_expr A B] *)
         assert (IH_A := 
                   reindex_partial_interpretation_ty Γ Γ' f m E A).
@@ -426,8 +438,74 @@ Section Partial_Interpretation.
         eapply pathscomp0. { apply pi_intro_struct_natural. }
         apply tm_transportf_irrelevant.
       + (* [app_expr A B t a] *)
-        admit.
-  Admitted.
+        assert (IH_A := 
+          reindex_partial_interpretation_ty Γ Γ' f m E A).
+        assert (IH_B := fun Γ Γ' f E =>
+          reindex_partial_interpretation_ty Γ Γ' f (S m) E B).
+        assert (IH_t := fun T =>
+          reindex_partial_interpretation_tm Γ Γ' f m E T t).
+        assert (IH_a := fun T =>
+          reindex_partial_interpretation_tm Γ Γ' f m E T a).
+        (* part for [A] argument *)
+        cbn. eapply leq_partial_trans.
+        { apply leq_partial_of_path, fmap_bind_partial. }
+        eapply leq_partial_trans.
+        2: { eapply bind_leq_partial_1, IH_A. }
+        eapply leq_partial_trans.
+        2: { apply leq_partial_of_path, pathsinv0, bind_fmap_partial_1. }
+        apply bind_leq_partial_2; intros A_interp; cbn.
+        (* part for [B] argument *)
+        eapply leq_partial_trans.
+        { apply leq_partial_of_path, fmap_bind_partial. }
+        eapply leq_partial_trans.
+        2: { eapply bind_leq_partial_1.
+             eapply leq_partial_trans.
+             2: { apply leq_partial_of_path.
+                  apply maponpaths_2, reind_extend_environment. }
+             apply (IH_B _ _ (q_typecat A_interp f)). }
+        eapply leq_partial_trans.
+        2: { apply leq_partial_of_path, pathsinv0, bind_fmap_partial_1. }
+        apply bind_leq_partial_2; intros B_interp; cbn.
+        (* part for [a] argument *)
+        eapply leq_partial_trans.
+        { apply leq_partial_of_path, fmap_bind_partial. }
+        eapply leq_partial_trans.
+        2: { eapply bind_leq_partial_1, IH_a. }
+        eapply leq_partial_trans.
+        2: { apply leq_partial_of_path, pathsinv0, bind_fmap_partial_1. }
+        apply bind_leq_partial_2; intros a_interp; cbn.
+        (* part for [t] argument *)
+        eapply leq_partial_trans.
+        { apply leq_partial_of_path, fmap_bind_partial. }
+        eapply leq_partial_trans.
+        2: { eapply bind_leq_partial_1.
+          eapply leq_partial_trans.
+          2: { refine (tm_transportf_partial_interpretation_tm_leq _ _ _). 
+               apply pi_form_struct_natural. }
+          apply fmap_leq_partial, IH_t. }
+        eapply leq_partial_trans.
+        2: { apply leq_partial_of_path, pathsinv0.
+             eapply pathscomp0; apply bind_fmap_partial_1. }
+        apply bind_leq_partial_2; intros t_interp; cbn.
+        (* assumption on [T] *)
+        eapply leq_partial_trans.
+        { eapply leq_partial_of_path, fmap_assume_partial. }
+        use assume_partial_leq.
+        { cbn; intros e_T.
+          eapply pathscomp0. 2: { eapply (maponpaths (fun A => A ⦃f⦄)), e_T. }
+          eapply pathscomp0. { apply pathsinv0, (reind_comp_typecat C). }
+          eapply pathscomp0. 2: { apply (reind_comp_typecat C). }
+          (* TODO: unify duplicate access functions [reind_comp_typecat],
+             [reind_comp_type_typecat]. *)
+          apply maponpaths, reind_tm_q. }
+        cbn. intros e_T; destruct e_T.
+        (* final naturality part *)
+        apply leq_partial_of_path. cbn.
+        eapply pathscomp0. { apply fmap_return_partial. }
+        apply maponpaths. rewrite tm_transportf_idpath.
+        eapply pathscomp0. { apply pi_app_struct_natural. }
+        apply tm_transportf_irrelevant.
+  Qed.
 
   Fixpoint
     partial_interpretation_rename_ty
