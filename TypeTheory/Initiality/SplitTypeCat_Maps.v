@@ -115,7 +115,7 @@ Section Types_and_Terms.
 
   Definition tm_transportb {C : typecat} {Γ} {A A' : C Γ} (e : A = A')
     : tm A' ≃ tm A
-  := invweq (tm_transportf e).
+  := tm_transportf (!e).
 
   (* TODO: maybe make an equality of equivalences? *)
   Definition transportf_tm {C : typecat}
