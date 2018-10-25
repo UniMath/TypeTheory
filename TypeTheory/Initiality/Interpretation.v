@@ -516,7 +516,7 @@ Section Partial_Interpretation.
         { apply partial_interpretation_rename_tm. }
         intros t_interp.
         apply leq_partial_refl.
-  Defined.
+  Qed.
 
 End Partial_Interpretation.
 
@@ -526,10 +526,12 @@ a little more work to state. *)
 
   Context {C} (U : universe_struct C) (Π : pi_struct C).
 
-  (* TODO: consider naming, placement, life choices, etc *)
-  Definition subst_environment 
-      {X} {m n:nat} (f : raw_context_map m n) (A : n -> C X)
-      (E : environment X m)
+  (* Note: perhaps this should really just be the terms, with a function
+     afterward assembling them into a partial environment.  But the partial
+     environment seems all that’s needed for now. *)
+  Definition partial_interpretation_raw_context_map
+      {X} {m n:nat} (E : environment X m) (A : n -> C X)
+      (f : raw_context_map m n)
     : partial (environment X n). 
   Proof.
     assume_partial
@@ -539,21 +541,36 @@ a little more work to state. *)
     intros i. exists (A i). exact (evaluate (H i)).
   Defined.
 
+  Lemma partial_interpretation_weaken_raw_context_map
+      {X} {m n:nat} (E : environment X m) (A : n -> C X) (B : C X)
+      (f : raw_context_map m n)
+    : leq_partial
+        (fmap_partial (fun E => extend_environment E B)
+          (partial_interpretation_raw_context_map E A f))
+        (partial_interpretation_raw_context_map
+          (extend_environment E B)
+          (dB_Sn_rect _ (B ⦃dpr_typecat B⦄) (fun i => A i ⦃dpr_typecat B⦄))
+          (weaken_raw_context_map f)).
+  Proof.
+  Admitted.
+
   Fixpoint
     partial_interpretation_subst_ty
-      {X} {m n:nat} (f : raw_context_map m n) (T : n -> C X)
-      (E : environment X m) (fE_def : is_defined (subst_environment f T E))
+      {X} {m n:nat} (E : environment X m)
+      (f : raw_context_map m n) (T : n -> C X)
+      (f_def : is_defined (partial_interpretation_raw_context_map E T f))
       (e : ty_expr n)
     : leq_partial
-        (partial_interpretation_ty U Π (evaluate fE_def) e)
+        (partial_interpretation_ty U Π (evaluate f_def) e)
         (partial_interpretation_ty U Π E (subst_ty f e))
   with
     partial_interpretation_subst_tm
-      {X} {m n:nat} (f : raw_context_map m n) (T : n -> C X)
-      (E : environment X m) (fE_def : is_defined (subst_environment f T E))
+      {X} {m n:nat} (E : environment X m)
+      (f : raw_context_map m n) (T : n -> C X)
+      (f_def : is_defined (partial_interpretation_raw_context_map E T f))
       (S : C X) (e : tm_expr n)
     : leq_partial
-        (partial_interpretation_tm U Π (evaluate fE_def) S e)
+        (partial_interpretation_tm U Π (evaluate f_def) S e)
         (partial_interpretation_tm U Π E S (subst_tm f e)).
   Proof.
     - (* type expressions *)
@@ -567,11 +584,22 @@ a little more work to state. *)
         cbn. eapply bind_leq_partial.
         { apply partial_interpretation_subst_ty. }
         intros A_interp. apply bind_leq_partial_1.
-        admit. (* need lemma on extending environment,
-        should be provable from [reindex_partial_interpretation]
-        together with [partial_interpretation_rename]. *)
+        eapply leq_partial_trans.
+        2: { refine (partial_interpretation_subst_ty _ _ _ _ _ _ _ B).
+          apply (partial_interpretation_weaken_raw_context_map E T A_interp). 
+          apply f_def. }
+        apply leq_partial_of_path, maponpaths_2.
+        refine (!leq_partial_commutes
+                  (partial_interpretation_weaken_raw_context_map _ _ _ _) _).
     - (* term expressions *)
-      destruct e as [ n i | n A B b | n A B t a ]; admit.
+      destruct e as [ n i | n A B b | n A B t a ].
+      + (* [var_expr i] *)
+        cbn. apply show_assume_leq_partial; intros e_S. destruct e_S.
+        use show_return_leq_partial.
+        * exact (pr1 f_def i).
+        * cbn. apply pathsinv0, tm_transportf_idpath.
+      + admit. (* [lam_expr A B b] *)
+      + admit. (* [app_expr A B f a] *)
   Admitted.
 
 End Partial_Interpretation_Substitution.
