@@ -250,30 +250,20 @@ Section Partial_Interpretation.
         eapply pathscomp0. { apply fmap_return_partial. }
         apply maponpaths, universe_natural.
       + (* [El_expr a] *)
-        cbn. (* factor the proof via the form where the IH applies *)
-        eapply leq_partial_trans.
-        { apply leq_partial_of_path, fmap_bind_partial. }
-        apply bind_partial_as_sup. intros a_def.
-        set (a_def' := apply_leq_partial_pair
-                         (reindex_partial_interpretation_tm _ _ f _ E _ _) a_def).
-        clearbody a_def'. destruct a_def' as [a_def' e_a]; cbn in e_a.
-        set (a_interp := evaluate a_def) in e_a |- *. clearbody a_interp; clear a_def.
-        eapply leq_partial_trans.        
-        { apply leq_partial_of_path, fmap_return_partial. }
-        set (a_def'' := apply_leq_partial_pair
-            (tm_transportf_partial_interpretation_tm_leq _
-              (universe_natural _ U _ _ _) _)
-            a_def').
-        Local Arguments tm_transportf : simpl never. (* TODO: upstream? *)
-        clearbody a_def''. destruct a_def'' as [a_def'' e_a']; cbn in e_a'.
-        set (a_interp' := evaluate a_def') in * |- *. clearbody a_interp'; clear a_def'.
-        destruct (!e_a).
-        use show_return_leq_partial.
-        { cbn. refine (_,,tt). apply a_def''. }
-        cbn.
-        eapply pathscomp0. { apply maponpaths, e_a'. }
-        apply pathsinv0, elements_natural.
-      + (* [Pi_expr A B] *)
+        assert (IH_a := fun T =>
+          reindex_partial_interpretation_tm Γ Γ' f m E T a).
+        cbn. apply mk_leq_partial'. intros [a_def ?].
+        use tpair.
+        * cbn. refine (_,,tt).
+          refine (tm_transportf_partial_interpretation_tm_leq
+                    _ (universe_natural _ _ _ _ _) _ _).
+          apply IH_a, a_def.
+        * cbn.
+          eapply pathscomp0. 2: { apply pathsinv0, elements_natural. }
+          apply maponpaths.
+          eapply pathscomp0. { apply leq_partial_commutes. }
+          cbn. apply maponpaths, (leq_partial_commutes (IH_a _)).
+       + (* [Pi_expr A B] *)
         admit.
     - (* term expressions *)
       destruct e as [ m i | m A B b | m A B t a ].
