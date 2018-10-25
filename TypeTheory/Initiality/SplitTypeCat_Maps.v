@@ -89,14 +89,37 @@ Section Types_and_Terms.
     : section f -> (Y --> X)
   := pr1.
 
+  Definition paths_section {C : category} {X Y : C} {f : X --> Y}
+      {s s' : section f}
+    : ((s : Y --> X) = s') -> s = s'.
+  Proof.
+    apply subtypeEquality.
+    intro; apply homset_property.
+  Qed.
+
+  Definition isaset_section {C : category} {X Y : C} {f : X --> Y}
+    : isaset (section f).
+  Proof.
+    apply isaset_total2.
+    - apply homset_property.
+    - intros; apply isasetaprop, homset_property.
+  Qed.
+
   Definition tm {C : typecat} {Γ} (A : C Γ) : UU
     := section (dpr_typecat A).
   Identity Coercion section_of_term : tm >-> section.
 
+  Lemma paths_tm {C : typecat} {Γ} {A : C Γ} (a a' : tm A)
+    : ((a : _ --> _) = a') -> a = a'.
+  Proof.
+    apply paths_section.
+  Qed.
+
   Lemma isaset_tm {C : split_typecat} {Γ : C} {A : C Γ}
     : isaset (tm A).
-  Admitted.
-
+  Proof.
+    apply isaset_section.
+  Qed.
 
   Definition reind_tm {C : typecat} {Γ Γ'} (f : Γ' --> Γ) {A : C Γ}
     : tm A -> tm (A⦃f⦄).
@@ -143,8 +166,9 @@ Section Types_and_Terms.
   Lemma tm_transportf_idpath {C : typecat} {Γ} {A : C Γ} (t : tm A)
     : tm_transportf (idpath A) t = t. 
   Proof.
-    (* TODO: lemma: equality of terms is just equality of their maps *)
-  Admitted.
+    apply paths_tm. unfold tm_transportf; cbn.
+    apply id_right.
+  Defined.
 
   Lemma tm_transportf_irrelevant {C : split_typecat} {Γ} {A A' : C Γ} (e e' : A = A')
       (t : tm A)
