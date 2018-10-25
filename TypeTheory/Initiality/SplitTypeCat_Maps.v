@@ -111,6 +111,8 @@ Section Types_and_Terms.
     + abstract (now intros x; induction e; simpl; rewrite <-assoc, id_left; apply idweq).
   Defined.
 
+  Global Arguments tm_transportf : simpl never.
+
   Definition tm_transportb {C : typecat} {Γ} {A A' : C Γ} (e : A = A')
     : tm A' ≃ tm A
   := invweq (tm_transportf e).
@@ -123,7 +125,7 @@ Section Types_and_Terms.
     induction e.
     apply subtypeEquality.
     + now intros x; apply homset_property.
-    + now cbn; rewrite id_right.
+    + now unfold tm_transportf; cbn; rewrite id_right.
   Defined.
 
 End Types_and_Terms.
