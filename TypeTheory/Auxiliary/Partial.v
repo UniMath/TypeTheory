@@ -1,5 +1,7 @@
 (** A library for working with partial functions; in particular, providing monadic style programming with them. *)
 
+(* TODO: try to work out better organisation + naming conventions for the many functoriality/monotonicity lemmas in this file. *)
+
 Require Import UniMath.All.
 
 Section Partial.
@@ -40,6 +42,14 @@ Section Ordering.
     exact (fun x_def => pr2 (H x_def)).
   Defined.
 
+  (* TODO: consider naming. *)
+  Lemma apply_leq_partial_pair {X} {x x' : partial X} (l : leq_partial x x')
+      (x_def : is_defined x)
+    : ∑ (x'_def : is_defined x'), evaluate x'_def = evaluate x_def.
+  Proof.
+    exists (l x_def). apply leq_partial_commutes.
+  Defined.
+
   Definition leq_partial_refl {X} (x : partial X)
     : leq_partial x x.
   Proof.
@@ -62,45 +72,8 @@ Section Ordering.
 
 End Ordering.
 
-Section Monad.
-(** The monadic structure of partiality, and related utility functions *)
-
-  Definition return_partial {X} : X -> partial X
-  := fun x => make_partial (fun _ : htrue => x).
-
-  Definition multiply_partial {X} (x : partial (partial X)) : partial X
-  := make_partial
-    (fun ij : total2_hProp
-                (fun x_def : is_defined x => is_defined (evaluate x_def))
-     => evaluate (pr2 ij)).
-
-  Definition multiply_leq_partial
-      {X} {x x' : partial (partial X)} (l : leq_partial x x')
-    : leq_partial (multiply_partial x) (multiply_partial x').
-  Proof.
-    apply mk_leq_partial'. intros [H H'].
-    use tpair.
-    - exists (l H).
-      refine (transportb is_defined _ H'). 
-      apply leq_partial_commutes.
-    - cbn.
-      generalize (leq_partial_commutes l H : evaluate (l H) = _) as e.
-      generalize (evaluate (l H)) as lx.
-      intros lx e; destruct e. apply idpath.
-  Defined.
-
-  Definition multiply_leq_partial_2
-      {X} {x x' : partial (partial X)}
-      (l0 : is_defined x -> is_defined x')
-      (l1 : forall x_def, leq_partial (evaluate x_def) (evaluate (l0 x_def)))
-    : leq_partial (multiply_partial x) (multiply_partial x').
-  Proof.
-    apply mk_leq_partial'. intros [x_def x_def'].
-    use tpair.
-    - exists (l0 x_def).
-      apply l1, x_def'.
-    - cbn; apply leq_partial_commutes.
-  Defined.
+Section Functor.
+(** Functoriality of the [partial] construction *)
 
   Definition fmap_partial {X Y} (f : X -> Y) : partial X -> partial Y
   := fun x => make_partial (fun i : is_defined x => f (evaluate i)).
@@ -137,6 +110,63 @@ Section Monad.
     exact (toforallpaths _ _ _ (fmap_idmap_partial X) x).
   Defined.
 
+End Functor.
+
+Section Monad.
+(** The monadic structure of partiality, and related utility functions *)
+
+  Definition return_partial {X} : X -> partial X
+  := fun x => make_partial (fun _ : htrue => x).
+
+  (* TODO: consider naming *)
+  Lemma show_return_leq_partial {X:UU} {x:X}
+      {y : partial X} (y_def : is_defined y) (e_x_y : evaluate y_def = x)
+    : leq_partial (return_partial x) y.
+  Proof.
+    exists (fun _ => y_def).
+    intros ?; apply e_x_y.
+  Defined.
+
+  Lemma fmap_return_partial {X Y} (f : X -> Y) (x : X)
+    : fmap_partial f (return_partial x) = return_partial (f x).
+  Proof.
+    apply idpath.
+  Defined.
+
+  Definition multiply_partial {X} (x : partial (partial X)) : partial X
+  := make_partial
+    (fun ij : total2_hProp
+                (fun x_def : is_defined x => is_defined (evaluate x_def))
+     => evaluate (pr2 ij)).
+
+  Definition multiply_leq_partial
+      {X} {x x' : partial (partial X)} (l : leq_partial x x')
+    : leq_partial (multiply_partial x) (multiply_partial x').
+  Proof.
+    apply mk_leq_partial'. intros [H H'].
+    use tpair.
+    - exists (l H).
+      refine (transportb is_defined _ H'). 
+      apply leq_partial_commutes.
+    - cbn.
+      generalize (leq_partial_commutes l H : evaluate (l H) = _) as e.
+      generalize (evaluate (l H)) as lx.
+      intros lx e; destruct e. apply idpath.
+  Defined.
+
+  Definition multiply_leq_partial_2
+      {X} {x x' : partial (partial X)}
+      (l0 : is_defined x -> is_defined x')
+      (l1 : forall x_def, leq_partial (evaluate x_def) (evaluate (l0 x_def)))
+    : leq_partial (multiply_partial x) (multiply_partial x').
+  Proof.
+    apply mk_leq_partial'. intros [x_def x_def'].
+    use tpair.
+    - exists (l0 x_def).
+      apply l1, x_def'.
+    - cbn; apply leq_partial_commutes.
+  Defined.
+
   Definition bind_partial {X Y} (x : partial X) (f : X -> partial Y)
     : partial Y
   := multiply_partial (fmap_partial f x).
@@ -164,10 +194,23 @@ Section Monad.
     eauto using leq_partial_trans, bind_leq_partial_1, bind_leq_partial_2.
   Defined.
 
-  Lemma fmap_return_partial {X Y} (f : X -> Y) (x : X)
-    : fmap_partial f (return_partial x) = return_partial (f x).
+  (* TODO: upstream. Naming alternative: [show_bind_leq_partial] *)
+  Lemma bind_partial_as_sup {X Y} {x : partial X} (f : X -> partial Y)
+      (y : partial Y)
+      (H : forall (x_def : is_defined x), leq_partial (f (evaluate x_def)) y)
+    : leq_partial (bind_partial x f) y.
   Proof.
-    apply idpath.
+    exists (fun fx_def => H (pr1 fx_def) (pr2 fx_def)).
+    intros x_def. apply (leq_partial_commutes (H _)).
+  Defined.
+ 
+  (* TODO: upstream *)
+  Lemma leq_bind_partial {X Y} {x : partial X} (f : X -> partial Y)
+      (x_def : is_defined x)
+    : leq_partial (f (evaluate x_def)) (bind_partial x f).
+  Proof.
+    exists (fun fx_def => (x_def,,fx_def)).
+    intros; apply idpath.
   Defined.
 
   Lemma fmap_bind_partial
@@ -202,6 +245,12 @@ Section Monad.
       intros; apply idpath.
   Defined.
 
+  Lemma bind_fmap_partial_1
+      {X Y Z} {x : partial X} (f : X -> Y) (g : Y -> partial Z)
+    : bind_partial (fmap_partial f x) g = bind_partial x (g ∘ f).
+  Proof.
+    apply idpath.
+  Defined.
 
   Definition assume_partial {X} (P : hProp) (x : P -> partial X) : partial X.
   Proof.
@@ -209,15 +258,36 @@ Section Monad.
     intros H. exact (evaluate (pr2 H)).
   Defined.
 
+  Lemma assume_partial_leq {X} {p q : hProp} (f : p -> q)
+    {x : p -> partial X} {y : q -> partial X}
+    (l : forall i:p, leq_partial (x i) (y (f i)))
+    : leq_partial (assume_partial p x) (assume_partial q y).
+  Proof.
+    apply mk_leq_partial'. intros [i x_def].
+    exists (f i,, l i x_def); cbn.
+    apply leq_partial_commutes.
+  Defined.
+
   Definition assume_leq_partial
       {X} {P : hProp}
       {x x' : P -> partial X} (l : forall i, leq_partial (x i) (x' i))
-    : leq_partial (assume_partial _ x) (assume_partial _ x').
+    : leq_partial (assume_partial _ x) (assume_partial _ x')
+  := assume_partial_leq (fun i => i) l.
+
+  Lemma show_assume_leq_partial {X} {p : hProp} {x : p -> partial X}
+      {y : partial X} (l : forall Hp :p, leq_partial (x Hp) y)
+    : leq_partial (assume_partial p x) y.
   Proof.
-    apply mk_leq_partial'.
-    intros [i xi_def].
-    exists (i,, l i xi_def).
-    cbn. apply leq_partial_commutes.
+    use tpair.
+    - intros [Hp x_def]. exact (l Hp x_def).
+    - cbn. intros. apply leq_partial_commutes.
+  Defined.
+
+  Lemma fmap_assume_partial {X Y} (f : X -> Y) {p:hProp} {x : p -> partial X}
+    : fmap_partial f (assume_partial p x)
+      = assume_partial p (fmap_partial f ∘ x).
+  Proof.
+    apply idpath.
   Defined.
 
 End Monad.
