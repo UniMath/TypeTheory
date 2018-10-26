@@ -17,30 +17,38 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Section deBruijn.
   (** We first set up the machinery for handling variables, represented by de Bruijn indices. *)
 
+  Definition dB_empty : UU := empty.
+
+  Inductive dB_plusone (X : UU) : UU := dB_top_internal | dB_next_internal (x:X).
+
+  Global Arguments dB_top_internal {_}.
+  Global Arguments dB_next_internal {_} _.
+
   (** [dB_vars n]: the set of variables in scope over a context of length [n]. 
 
   As far as possible, this should be interfaced with just through [dB_top], [dB_next], and [dB_rect] below. *)
-  Definition dB_vars : nat -> UU
-    := stn.
+  Fixpoint dB_vars (n : nat) : UU
+    := match n with
+       | O => dB_empty
+       | S n => dB_plusone (dB_vars n)
+       end.
+
+  Global Arguments dB_vars !_ .
 
   Coercion dB_vars : nat >-> UU.
 
-  (** UniMath defines [stn] using [<], which is based on [natgtb],
-  which takes 0 as its base case.  So we take 0 to be the “most recent” variable,
-  i.e. de Bruijn _indices_ not the (slightly more intuitive) de Bruijn _levels_. *)
   Definition dB_top {n} : dB_vars (S n)
-    := (0,, idpath _).
+    := dB_top_internal.
 
   Definition dB_next {n} : dB_vars n -> dB_vars (S n)
-    := fun k_p => (S (pr1 k_p) ,, pr2 k_p).
+    := dB_next_internal.
 
-  (** We should always interface with [dB_vars] just through [dB_top], [dB_next], and the following two recursors. *)
+(** We should always interface with [dB_vars] just through [dB_top], [dB_next], and the following two recursors. *)
   Definition dB_0_rect
       (P : dB_vars 0 -> Type)
     : forall i, P i.
   Proof.
-    intros [k lt_k_0]. cbn in lt_k_0.
-    destruct (nopathsfalsetotrue lt_k_0).
+    intros [].
   Defined.
 
   Definition dB_Sn_rect {n}
@@ -49,13 +57,10 @@ Section deBruijn.
       (p_next : forall i, P (dB_next i))
     : forall i, P i.
   Proof.
-    intros [k lt_k_n].
-    destruct k as [ | k']; simpl in lt_k_n.
-    - refine (transportf _ _ p_top).
-      unfold dB_top; eapply maponpaths.
-      apply isasetbool.
-    - exact (p_next (k',, lt_k_n)).
+    exact (dB_plusone_rect _ P p_top p_next).
   Defined.
+
+  Arguments dB_Sn_rect : simpl nomatch.
 
   (** We check that [dB_Sn_rect] computes appropriately, concluding with [Abort] since we don’t need to save the results. *) 
   Definition dB_Sn_rect_comp1 {n}
@@ -164,9 +169,9 @@ End Raw_Context_Maps.
 Section Substitution.
 
   Fixpoint
-    subst_ty {m n} (f : stn m -> tm_expr n) (e : ty_expr m) : ty_expr n
+    subst_ty {m n} (f : dB_vars m -> tm_expr n) (e : ty_expr m) : ty_expr n
   with
-    subst_tm {m n} (f : stn m -> tm_expr n) (e : tm_expr m) : tm_expr n.
+    subst_tm {m n} (f : dB_vars m -> tm_expr n) (e : tm_expr m) : tm_expr n.
   Proof.
     - (* subst_ty *)
       destruct e as [ m | m a | m A B ].

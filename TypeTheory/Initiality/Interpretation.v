@@ -119,7 +119,6 @@ Section Environments.
   Proof.
     apply funextfun; refine (dB_Sn_rect _ _ _).
     - unfold reind_environment. cbn.
-    (* TODO: why is this [cbn] so slow? (Currently c. 2sec) *)
       apply reind_type_with_term_q_var.
     - intros i; unfold reind_environment; cbn.
       eapply pathscomp0. { apply pathsinv0, reind_compose_type_with_term. }
@@ -439,7 +438,7 @@ Section Partial_Interpretation.
         apply maponpaths. rewrite tm_transportf_idpath.
         eapply pathscomp0. { apply pi_app_struct_natural. }
         apply tm_transportf_irrelevant.
-  Qed.
+  Time Qed.
 
   Fixpoint
     partial_interpretation_rename_ty
@@ -624,7 +623,6 @@ Section Totality.
         (extend_environment E (evaluate A_def)).
   Proof.
     use dB_Sn_rect.
-    (* TODO: figure out this damn slowdown! *)
     - cbn. use tpair.
       + apply partial_interpretation_rename_ty.
         refine (reindex_partial_interpretation_ty _ _ (dpr_typecat _) E _ A_def).
@@ -836,7 +834,7 @@ Section Totality.
           + exact (evaluate A_def).
           + intros i; exact (type_of ((E : environment _ _) i)).
         - refine (_,,tt). refine (dB_Sn_rect _ _ _).
-          + exact a_def. (* NOTE: again, [cbn] here very slow. *)
+          + cbn. exact a_def.
           + intros i; cbn. repeat constructor.
         - refine (p_B _ (_,,_)).
           cbn. refine (dB_Sn_rect _ _ _).
