@@ -5,7 +5,7 @@
 Require Import UniMath.All.
 
 Section Partial.
-(** Definition of partial elements, and access functions. *)
+(** Definition of partial elements, access functions, and some utility lemmas. *)
 
   Definition partial (X : UU) : UU
   := { a : hProp & a -> X }.
@@ -16,6 +16,25 @@ Section Partial.
   Definition is_defined {X} : partial X -> hProp := pr1.
   
   Definition evaluate {X} {x : partial X} : is_defined x -> X := pr2 x.
+
+(** To display arguments of a specific [evaluate], use
+  [change @evaluate with @evaluate_in at 17]
+  (or whatever number is needed to pick out the specific occurrence). *)
+Definition evaluate_in {X} x x_def := @evaluate X x x_def.
+
+Definition evaluate_unique {X} (x : partial X) (x_def x_def' : is_defined x)
+  : evaluate x_def = evaluate x_def'.
+Proof.
+  apply maponpaths, propproperty.
+Qed.
+
+Definition evaluate_unique_gen {X} {x y : partial X} (e : x = y)
+    (x_def : is_defined x) (y_def: is_defined y)
+  : evaluate x_def = evaluate y_def.
+Proof.
+  destruct e; apply evaluate_unique.
+Qed.
+
 
 End Partial.
 
@@ -49,6 +68,13 @@ Section Ordering.
   Proof.
     exists (l x_def). apply leq_partial_commutes.
   Defined.
+
+  Definition leq_partial_values_agree {X} {x y : partial X} (l : leq_partial x y) 
+    (x_def : is_defined x) (y_def : is_defined y)
+    : evaluate x_def = evaluate y_def.
+  Proof.
+    refine ( ! leq_partial_commutes l _ @ evaluate_unique _ _ _).
+  Qed.
 
   Definition leq_partial_refl {X} (x : partial X)
     : leq_partial x x.
@@ -315,3 +341,7 @@ End Partial_Maps.
 Notation "X ⇢ Y" := (partial_map X Y) (at level 99) : type_scope.
 Notation "f ∘ g" := (compose_partial f g) : partial_map_scope.
 Bind Scope partial_map with partial_map.
+
+
+ 
+

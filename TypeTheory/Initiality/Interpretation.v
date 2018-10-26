@@ -746,7 +746,7 @@ Section Totality.
       simple refine (transportf
         (fun T => is_defined (partial_interpretation_tm _ _ _ T a))
         _
-        (p_a _ _ (p_A _ E))).
+         (p_a _ _ (p_A _ E))).
       refine (p_AA' _ _ _ _).
     - (* tmeq_conv *)
       intros; intros X E A'_intble.
@@ -792,35 +792,6 @@ Section Totality.
       cbn; apply maponpaths.
       use p_aa'; auto.
   Defined.
- 
-  (* TODO: upstream, if this proves useful! *)
-  (** To display arguments of a specific [evaluate], use
-   [change @evaluate with @evaluate_in]. *)
-  Definition evaluate_in {X} x x_def := @evaluate X x x_def.
-
-  (* TODO: upstream *)
-  (** A trivial but useful lemma *)
-  Definition evaluate_unique {X} (x : partial X) (x_def x_def' : is_defined x)
-    : evaluate x_def = evaluate x_def'.
-  Proof.
-    apply maponpaths, propproperty.
-  Qed.
-
-  (** A trivial but useful lemma *)
-  Definition evaluate_unique_gen {X} {x y : partial X} (e : x = y)
-      (x_def : is_defined x) (y_def: is_defined y)
-    : evaluate x_def = evaluate y_def.
-  Proof.
-    destruct e; apply evaluate_unique.
-  Qed.
-
-  (** A trivial but useful lemma *)
-  Definition leq_partial_values_agree {X} {x y : partial X} (l : leq_partial x y) 
-    (x_def : is_defined x) (y_def : is_defined y)
-    : evaluate x_def = evaluate y_def.
-  Proof.
-    refine ( ! leq_partial_commutes l _ @ evaluate_unique _ _ _).
-  Qed.
 
   Local Lemma interpret_pi_rules
     : cases_for_pi_rules (fun J _ => is_interpretable J).
