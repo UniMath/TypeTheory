@@ -438,7 +438,7 @@ Section Partial_Interpretation.
         apply maponpaths. rewrite tm_transportf_idpath.
         eapply pathscomp0. { apply pi_app_struct_natural. }
         apply tm_transportf_irrelevant.
-  Time Qed.
+  Qed.
 
   Fixpoint
     partial_interpretation_rename_ty
