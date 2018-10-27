@@ -611,26 +611,6 @@ a little more work to state. *)
 
   Context {C} {U : universe_struct C} {Π : pi_struct C}.
 
-  (* TODO: upstream *)
-  Definition forall_partial {X : UU} {Y : X -> UU}
-      (f : forall x:X, partial (Y x))
-    : partial (forall x, Y x).
-  Proof.
-    exists (∀ x, is_defined (f x)).
-    intros f_def i. exact (evaluate (f_def i)).
-  Defined.
-
-  (* TODO: upstream *)
-  Definition forall_leq_partial {X : UU} {Y : X -> UU}
-      {f g : forall x:X, partial (Y x)} (l : forall x, leq_partial (f x) (g x))
-    : leq_partial (forall_partial f) (forall_partial g).
-  Proof.
-    apply mk_leq_partial'. intros fs_def.
-    use tpair.
-    - intros x; exact (l x (fs_def x)).
-    - apply funextsec; intros x. apply leq_partial_commutes.
-  Defined.
-
   (* Note: perhaps this should really just be the terms, with a function
      afterward assembling them into a partial environment.  But the partial
      environment seems all that’s needed for now. *)

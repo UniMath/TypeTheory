@@ -324,6 +324,28 @@ Ltac destruct_partial x := apply (bind_partial x); clear x; intros x.
 (** [destruct_partial]: special case of [get_partial] for variables. *)
 Ltac assume_partial p x := apply (assume_partial p); intros x.
 
+Section Various.
+
+  Definition forall_partial {X : UU} {Y : X -> UU}
+      (f : forall x:X, partial (Y x))
+    : partial (forall x, Y x).
+  Proof.
+    exists (∀ x, is_defined (f x)).
+    intros f_def i. exact (evaluate (f_def i)).
+  Defined.
+
+  Definition forall_leq_partial {X : UU} {Y : X -> UU}
+      {f g : forall x:X, partial (Y x)} (l : forall x, leq_partial (f x) (g x))
+    : leq_partial (forall_partial f) (forall_partial g).
+  Proof.
+    apply mk_leq_partial'. intros fs_def.
+    use tpair.
+    - intros x; exact (l x (fs_def x)).
+    - apply funextsec; intros x. apply leq_partial_commutes.
+  Defined.
+
+End Various.
+
 Section Partial_Maps.
 
   Definition partial_map X Y := X -> partial Y.
