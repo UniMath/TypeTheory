@@ -150,18 +150,22 @@ Section Raw_Context_Maps.
 
   Definition raw_context_map n m := dB_vars m -> tm_expr n.
 
+  Definition idmap_raw_context n : raw_context_map n n.
+  Proof.
+    exact var_expr.
+  Defined.
+
+  Definition add_to_raw_context_map
+      {m n} (f : raw_context_map n m) (a : tm_expr n)
+    : raw_context_map n (S m)
+  := dB_Sn_rect _ a f.
+
   Definition weaken_raw_context_map {n m}
       : raw_context_map n m -> raw_context_map (S n) (S m).
   Proof.
-    intros f. refine (dB_Sn_rect _ _ _).
-    - apply var_expr, dB_top.
+    intros f. refine (add_to_raw_context_map _ _).
     - intros i. exact (rename_tm dB_next (f i)).
-  Defined.
-
-  Definition weaken_var_expr {n}
-      : weaken_raw_context_map (@var_expr n) = var_expr.
-  Proof.
-    apply funextsec. refine (dB_Sn_rect _ _ _); auto.
+    - apply var_expr, dB_top.
   Defined.
 
 End Raw_Context_Maps.
@@ -203,10 +207,14 @@ Section Substitution.
 
   (** Substituting just the “top” variable, as in the typing rule for [app],
    or the conclusion of beta-reduction. *)
-  Definition subst_ty_top {n} (a : tm_expr n) (e : ty_expr (S n)) : ty_expr n
-    := subst_ty (dB_Sn_rect _ a var_expr) e.
+  Definition tm_as_raw_context_map {n} (a : tm_expr n)
+    : raw_context_map n (S n)
+  := add_to_raw_context_map (idmap_raw_context _) a.
 
-  Definition subst_tm_top {n} (a : tm_expr n) (e : tm_expr (S n)) : tm_expr n
-    := subst_tm (dB_Sn_rect _ a var_expr) e.
+  Definition subst_top_ty {n} (a : tm_expr n) (e : ty_expr (S n)) : ty_expr n
+    := subst_ty (tm_as_raw_context_map a) e.
+
+  Definition subst_top_tm {n} (a : tm_expr n) (e : tm_expr (S n)) : tm_expr n
+    := subst_tm (tm_as_raw_context_map a) e.
 
 End Substitution.

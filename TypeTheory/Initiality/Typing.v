@@ -192,7 +192,7 @@ Section Derivations.
         -> derivation [! Γ ;; A |- B !]
         -> derivation [! Γ |- f ::: Pi_expr A B !]
         -> derivation [! Γ |- a ::: A !]
-      -> derivation [! Γ |- app_expr A B f a ::: subst_ty_top a B !]
+      -> derivation [! Γ |- app_expr A B f a ::: subst_top_ty a B !]
     | derive_beta (Γ : context) A B b a
       :    derivation [! |- Γ !]
         -> derivation [! Γ |- A !]
@@ -200,8 +200,8 @@ Section Derivations.
         -> derivation [! Γ ;; A |- b ::: B !]
         -> derivation [! Γ |- a ::: A !]
       -> derivation
-             [! Γ |- app_expr A B (lam_expr A B b) a === subst_tm_top a b 
-                                                     ::: subst_ty_top a B !]
+             [! Γ |- app_expr A B (lam_expr A B b) a === subst_top_tm a b 
+                                                     ::: subst_top_ty a B !]
     (** congruence rules for constructors *)
     (* no congruence rule needed for U *)
     | derive_El_cong (Γ : context) (a a' : _)
@@ -227,7 +227,7 @@ Section Derivations.
         -> derivation [! Γ |- f === f' ::: Pi_expr A B !]
         -> derivation [! Γ |- a === a' ::: A !]
       -> derivation [! Γ |- app_expr A B f a === app_expr A' B' f' a'
-                                                   ::: subst_ty_top a B !]
+                                                   ::: subst_top_ty a B !]
   .
 
 End Derivations.

@@ -69,16 +69,19 @@ End Renaming.
 (** Identity and composition of raw context maps. *)
 Section Raw_Context_Category_Operations.
 
-  Local Definition idmap_raw_context n : raw_context_map n n.
-  Proof.
-    exact var_expr.
-  Defined.
+  (* [idmap_raw_context] already defined in [Initiality.Syntax]. *)
 
-  Local Definition comp_raw_context {m n p}
+  Definition comp_raw_context {m n p}
       (f : raw_context_map m n)
       (g : raw_context_map n p)
     : raw_context_map m p
   := fun i => subst_tm f (g i).
+
+  Definition weaken_idmap {n}
+      : weaken_raw_context_map (idmap_raw_context n) = idmap_raw_context _.
+  Proof.
+    apply funextsec. refine (dB_Sn_rect _ _ _); auto.
+  Defined.
 
 End Raw_Context_Category_Operations.
 
@@ -96,12 +99,12 @@ Section Substitution.
       destruct e as [ m | m a | m A B ];
         cbn;
         [ idtac | apply maponpaths | apply maponpaths_12 ];
-        eauto using maponpaths, maponpaths_12, pathscomp0, weaken_var_expr.
+        eauto using maponpaths, maponpaths_12, pathscomp0, weaken_idmap.
     - (* rename_tm_idfun *)
       destruct e as [ m i | m A B b | m A B g a ];
         cbn;
         [ idtac | apply maponpaths_123 | apply maponpaths_1234 ];
-        eauto using maponpaths, maponpaths_12, pathscomp0, weaken_var_expr.
+        eauto using maponpaths, maponpaths_12, pathscomp0, weaken_idmap.
   Defined.
 
 (** This lemma [weaken_precomp_renaming] can be seen as a special case of [weaken_comp] (i.e. [weaken_raw_context_map] preserving composition), when one of the maps in the composite is just a renaming of variables. *)

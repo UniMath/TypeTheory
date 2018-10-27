@@ -58,6 +58,12 @@ Section Auxiliary.
     : type_with_term Γ -> type_with_term Γ'
   := fun a => ((type_of a)⦃f⦄,, reind_tm f a).
 
+  Definition reind_idmap_type_with_term
+      {Γ} (Aa : type_with_term Γ)
+    : reind_type_with_term (id _) Aa = Aa.
+  Proof.
+  Admitted.
+
   Definition reind_compose_type_with_term
       {Γ Γ' Γ''} (f : Γ' --> Γ) (f' : Γ'' --> Γ')
       (Aa : type_with_term Γ)
@@ -96,20 +102,51 @@ Section Environments.
   Definition environment (Γ:C) (n:nat)
     := dB_vars n -> type_with_term Γ.
   
-  Definition extend_environment
-      {Γ:C} {n:nat} (E : environment Γ n) (A : C Γ)
-    : environment (Γ ◂ A) (S n).
+  Definition add_to_environment
+      {Γ:C} {n} (E : environment Γ n) (Aa : type_with_term Γ)
+    : environment Γ (S n).
   Proof.
     refine (dB_Sn_rect _ _ _).
-    - apply var_with_type.
-    - intro i.
-      exact (reind_type_with_term (dpr_typecat A) (E i)).
+    - exact Aa.
+    - exact E.
   Defined.
 
   Definition reind_environment
-      {Γ Γ'} (f : Γ' --> Γ) {n} (E : environment Γ n)
+       {Γ Γ'} {n} (f : Γ' --> Γ) (E : environment Γ n)
     : environment Γ' n
   := fun i => (reind_type_with_term f (E i)).
+
+  Definition reind_idmap_environment
+      {Γ} {n} (E : environment Γ n)
+    : reind_environment (id _) E = E.
+  Proof.
+    apply funextfun; intros i; apply reind_idmap_type_with_term.
+  Defined.
+
+  Definition reind_compose_environment
+      {Γ Γ' Γ''} (f : Γ' --> Γ) (f' : Γ'' --> Γ') {n} (E : environment Γ n)
+    : reind_environment (f';;f) E = reind_environment f' (reind_environment f E).
+  Proof.
+    apply funextfun; intros i; apply reind_compose_type_with_term.
+  Defined.
+
+  Definition reind_add_to_environment
+      {Γ Γ':C} (f : Γ' --> Γ)
+      {n} (E : environment Γ n) (Aa : type_with_term Γ)
+    : reind_environment f (add_to_environment E Aa)
+      = add_to_environment (reind_environment f E)
+                           (reind_type_with_term f Aa).
+  Proof.
+    apply funextfun; refine (dB_Sn_rect _ _ _).
+    - apply idpath.
+    - intros i; apply idpath.
+  Qed.
+
+  Definition extend_environment
+      {Γ:C} {n:nat} (E : environment Γ n) (A : C Γ)
+    : environment (Γ ◂ A) (S n)
+  := add_to_environment (reind_environment (dpr_typecat A) E)
+                        (var_with_type A).
 
   Definition reind_extend_environment
       {Γ Γ':C} (f : Γ' --> Γ)
@@ -117,13 +154,12 @@ Section Environments.
     : reind_environment (q_typecat A f) (extend_environment E A)
       = extend_environment (reind_environment f E) (reind_typecat A f).
   Proof.
-    apply funextfun; refine (dB_Sn_rect _ _ _).
-    - unfold reind_environment. cbn.
-      apply reind_type_with_term_q_var.
-    - intros i; unfold reind_environment; cbn.
-      eapply pathscomp0. { apply pathsinv0, reind_compose_type_with_term. }
-      eapply pathscomp0. 2: { apply reind_compose_type_with_term. }
+    eapply pathscomp0. { apply reind_add_to_environment. }
+    apply (maponpaths_12 add_to_environment).
+    - eapply pathscomp0. { apply pathsinv0, reind_compose_environment. }
+      eapply pathscomp0. 2: { apply reind_compose_environment. }
       apply maponpaths_2, dpr_q_typecat.
+    - apply reind_type_with_term_q_var.
   Qed.
 
 End Environments.
@@ -608,6 +644,55 @@ a little more work to state. *)
     intros t; exact (A i,,t).
   Defined.
 
+  Definition partial_interpretation_idmap_raw_context
+      {X} {n:nat} (E : environment X n)
+    : leq_partial
+        (return_partial E)
+        (partial_interpretation_raw_context_map E
+          (type_of ∘ E) (idmap_raw_context n)).
+  Proof.
+    apply mk_leq_partial'; cbn; intros _.
+    use tpair.
+    - intros i; repeat constructor.
+    - apply funextfun; intros i.
+      apply (maponpaths (tpair _)).
+      apply tm_transportf_idpath.
+  Defined.
+
+  Definition partial_interpretation_add_to_raw_context_map
+      {X} {m n:nat} (E : environment X m) (As : n -> C X) (B : C X)
+      (f : raw_context_map m n) (b : tm_expr m)
+    : leq_partial
+        (bind_partial (partial_interpretation_raw_context_map E As f)
+          (fun F => fmap_partial (fun b_interp => add_to_environment F (B,,b_interp))
+                                 (partial_interpretation_tm U Π E B b)))
+        (partial_interpretation_raw_context_map E
+          (dB_Sn_rect _ B As)
+          (add_to_raw_context_map f b)).
+  Proof.
+    apply mk_leq_partial'; cbn; intros [f_def b_def].
+    use tpair.
+    - refine (dB_Sn_rect _ _ _); assumption.
+    - apply funextfun. refine (dB_Sn_rect _ _ _); auto.
+  Defined.
+
+  Definition partial_interpretation_tm_as_raw_context_map
+      {X} {n:nat} {E : environment X n} {A : C X}
+      {a : tm_expr n}
+    : leq_partial
+        (fmap_partial (fun a_interp => add_to_environment E (A,,a_interp))
+                                 (partial_interpretation_tm U Π E A a))
+        (partial_interpretation_raw_context_map E
+          (dB_Sn_rect _ A (type_of ∘ E))
+          (tm_as_raw_context_map a)).
+  Proof.
+    eapply leq_partial_trans.
+    2: { apply partial_interpretation_add_to_raw_context_map. }
+    eapply leq_partial_trans.
+    2: { eapply bind_leq_partial_1, partial_interpretation_idmap_raw_context. }
+    refine (pr2 (bind_return_partial _ _)).
+  Defined.
+
   Lemma partial_interpretation_weaken_raw_context_map
       {X} {m n:nat} (E : environment X m) (A : n -> C X) (B : C X)
       (f : raw_context_map m n)
@@ -901,50 +986,27 @@ Section Totality.
       refine (let a_def := p_a _ _ _ in (a_def ,, _)). clearbody a_def.
       refine (let f_def := p_f _ _ (_,,(_,,tt)) in (f_def ,, _)). clearbody f_def.
       refine (_,,tt).
-      (* This is a bit tricky.  Roughly, we want to combine our semantic
+      (* The endgame is a bit tricky.  Roughly, we want to combine our semantic
        reindexing lemma and our syntactic substitution lemma to show that these
        are two possible interpretations of the same thing. *)
+      Local Arguments evaluate {_} _ _. apply idfun.
       eapply pathscomp0.
-      { apply pathsinv0. 
-        simple refine (leq_partial_commutes
-             (reindex_partial_interpretation_ty _ _ _)
-             _). }
-      eapply pathscomp0.
-      2: { simple refine (leq_partial_values_agree
-                            (partial_interpretation_subst_ty _ _ _ _ _)
-                            _ _).
-        - refine (dB_Sn_rect _ _ _).
-          + exact (evaluate A_def).
-          + intros i; exact (type_of ((E : environment _ _) i)).
-        - refine (dB_Sn_rect _ _ _).
-          + cbn. exact a_def.
-          + intros i; cbn. repeat constructor.
-        - refine (p_B _ (_,,_)).
-          cbn. refine (dB_Sn_rect _ _ _).
-          + admit. (* TODO: this is painful…
-             factor out the whole construction on environments,
-             (a) [extend_environment_with_term]
-                 (which [extend_environment] factors through),
-             (b) showing that the specific context morphism used here
-                 is always interpretable with respect to that environment,
-                 and the result is equal to it! *) 
-          + admit.
-      }
-      change @evaluate with @evaluate_in at 1.
-      eapply pathscomp0. 2: { change @evaluate with @evaluate_in at 1. apply idpath. }
-      apply evaluate_unique_gen.
-      apply maponpaths_2, funextfun.
-      refine (dB_Sn_rect _ _ _).
-      + cbn. use paths_type_with_term.
-        * cbn. eapply pathscomp0. { apply pathsinv0, (reind_comp_typecat C). }
-          eapply pathscomp0. 2: { apply (reind_id_type_typecat C). }
-          apply maponpaths, section_property.
-        * cbn. admit. (* lemma about reindexing of var giving universality *)
-      + intros i; use paths_type_with_term.
-        * cbn. eapply pathscomp0. { apply pathsinv0, (reind_comp_typecat C). }
-          eapply pathscomp0. 2: { apply (reind_id_type_typecat C). }
-          apply maponpaths, section_property.
-        * cbn. admit. (* lemma [reind_compose_tm] *)
+      { simple refine (! leq_partial_commutes
+                             (reindex_partial_interpretation_ty _ _ _) _). }
+      refine (leq_partial_values_agree _ _ _).
+      eapply leq_partial_trans.
+      2: { refine (partial_interpretation_subst_ty _ _ _ _ _).
+           eapply partial_interpretation_tm_as_raw_context_map. 
+           apply a_def. }
+      eapply leq_partial_of_path, maponpaths_2.
+      eapply pathscomp0. 2: { apply pathsinv0, leq_partial_commutes. }
+      cbn. eapply pathscomp0. { apply reind_add_to_environment. }
+      apply maponpaths_12.
+      + eapply pathscomp0. { apply pathsinv0, reind_compose_environment. }
+        eapply pathscomp0. 2: { apply reind_idmap_environment. }
+        apply maponpaths_2, section_property.
+      + admit. (* lemma about [var_with_type] and sections:
+        [reind_type_with_term s (var_with_type A) = (A,,s)]. *)
     - (* computation *)
       admit.
   Admitted.
