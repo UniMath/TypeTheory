@@ -4,11 +4,11 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.All.
 
-Require Import TypeTheory.Auxiliary.Partial.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.Initiality.SplitTypeCat_Maps.
 Require Import TypeTheory.Initiality.SplitTypeCat_Structure.
 Require Import TypeTheory.Initiality.Syntax.
+Require Import TypeTheory.Initiality.SyntaxLemmas.
 Require Import TypeTheory.Initiality.Typing.
 
 Local Open Scope judgement.
