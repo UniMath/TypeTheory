@@ -186,7 +186,7 @@ Section Partial_Interpretation.
      : partial (type_with_term Γ). ]
   I think either should work fine; I’m not sure which will work more cleanly. *)
 
-  Context {C} (U : universe_struct C) (Π : pi_struct C).
+  Context {C} {U : universe_struct C} {Π : pi_struct C}.
   (** Note: the section variables are assumed only _after_ the definition of the partial interpretation, since otherwise after they are generalized, it explodes under [simpl]/[cbn]. *)
 
   (** We start with several (lax) naturality properties for the partial
@@ -444,86 +444,156 @@ Section Partial_Interpretation.
     partial_interpretation_rename_ty
       {Γ} {m n:nat} (f : m -> n)
       (E : environment Γ n) (e : ty_expr m)
-    : leq_partial
-        (partial_interpretation_ty U Π (E ∘ f) e)
-        (partial_interpretation_ty U Π E (rename_ty f e))
+    : partial_interpretation_ty U Π (E ∘ f) e
+    = partial_interpretation_ty U Π E (rename_ty f e)
   with
     partial_interpretation_rename_tm
       {Γ} {m n:nat} (f : m -> n)
       (E : environment Γ n) (T : C Γ) (e : tm_expr m)
-    : leq_partial
-        (partial_interpretation_tm U Π (E ∘ f) T e)
-        (partial_interpretation_tm U Π E T (rename_tm f e)).
+    : partial_interpretation_tm U Π (E ∘ f) T e
+    = partial_interpretation_tm U Π E T (rename_tm f e).
   Proof.
     - (* type expressions *)
       destruct e as [ m | m a | m A B ].
       + (* [U_expr] *)
-        apply leq_partial_refl.
+        apply idpath.
       + (* [El_expr a] *)
-        cbn. apply bind_leq_partial_1.
-        apply partial_interpretation_rename_tm.
+        cbn. apply maponpaths_2, partial_interpretation_rename_tm.
       + (* [Pi_expr A B] *)
-        cbn. eapply bind_leq_partial.
+        cbn. apply maponpaths_12.
         { apply partial_interpretation_rename_ty. }
-        intros A_interp. apply bind_leq_partial_1.
-        eapply leq_partial_trans.
-        2: { apply partial_interpretation_rename_ty. }
-        apply leq_partial_of_path, maponpaths_2, funextfun.
-        refine (dB_Sn_rect _ _ _); intros; apply idpath.
+        apply funextfun; intros i. apply maponpaths_2. 
+        eapply pathscomp0. 2: { apply partial_interpretation_rename_ty. }
+        apply maponpaths_2, funextfun.
+        refine (dB_Sn_rect _ _ _); auto.
     - (* term expressions *)
       destruct e as [ m i | m A B b | m A B t a ].
       + (* [var_expr i] *)
-        apply leq_partial_refl.
+        apply idpath.
       + (* [lam_expr A B b] *)
-        simpl. eapply bind_leq_partial.
+        cbn. apply maponpaths_12.
         { apply partial_interpretation_rename_ty. }
-        intros A_interp.
-        assert (e : (extend_environment (E ∘ f) A_interp
-                     = extend_environment E A_interp ∘ fmap_dB_S f)).
-        { apply funextfun. refine (dB_Sn_rect _ _ _); intros; apply idpath. }
-        eapply bind_leq_partial.
-        { eapply leq_partial_trans.
-          2: { apply partial_interpretation_rename_ty. }
-          apply leq_partial_of_path, maponpaths_2, e.
-        }
-        intros B_interp.
-        eapply bind_leq_partial.
-        { eapply leq_partial_trans.
-          2: { apply partial_interpretation_rename_tm. }
-          apply leq_partial_of_path.
-          refine (maponpaths (fun F => _ F _ _) e).
-        }
-        intros b_interp.
-        apply leq_partial_refl.
-      + (* [app_expr A B f a] *)
-        simpl. eapply bind_leq_partial.
+        apply funextfun; intros A_interp.
+        assert (e_EA : (extend_environment (E ∘ f) A_interp
+                      = extend_environment E A_interp ∘ fmap_dB_S f)).
+        { apply funextfun. refine (dB_Sn_rect _ _ _); auto. }
+        apply maponpaths_12.
+        { eapply pathscomp0. 2: { apply partial_interpretation_rename_ty. }
+          apply maponpaths_2, e_EA. }
+        apply funextfun; intros B_interp. apply maponpaths_2.
+        eapply pathscomp0. 2: { apply partial_interpretation_rename_tm. }
+        apply (maponpaths (fun F => _ F _ _) e_EA).
+      + (* [app_expr A B t a] *)
+        cbn. apply maponpaths_12.
         { apply partial_interpretation_rename_ty. }
-        intros A_interp.
-        assert (e : (extend_environment (E ∘ f) A_interp
-                     = extend_environment E A_interp ∘ fmap_dB_S f)).
-        { apply funextfun. refine (dB_Sn_rect _ _ _); intros; apply idpath. }
-        eapply bind_leq_partial.
-        { eapply leq_partial_trans.
-          2: { apply partial_interpretation_rename_ty. }
-          apply leq_partial_of_path, maponpaths_2, e.
-        }
-        intros B_interp.
-        eapply bind_leq_partial.
+        apply funextfun; intros A_interp.
+        assert (e_EA : (extend_environment (E ∘ f) A_interp
+                      = extend_environment E A_interp ∘ fmap_dB_S f)).
+        { apply funextfun. refine (dB_Sn_rect _ _ _); auto. }
+        apply maponpaths_12.
+        { eapply pathscomp0. 2: { apply partial_interpretation_rename_ty. }
+          apply maponpaths_2, e_EA. }
+        apply funextfun; intros B_interp. apply maponpaths_12.
         { apply partial_interpretation_rename_tm. }
-        intros a_interp.
-        eapply bind_leq_partial.
+        apply funextfun; intros t_interp. apply maponpaths_2.
         { apply partial_interpretation_rename_tm. }
-        intros t_interp.
-        apply leq_partial_refl.
   Qed.
 
 End Partial_Interpretation.
+
+Section Environment_Maps.
+(** A framework for putting together the lemmas about interaction of the
+partial interpretation with (syntactic) renaming and (semantic) reindexing). *)
+
+  Context {C} {U : universe_struct C} {Π : pi_struct C}.
+
+(** A _map of environments_ consists of a map between their underlying objects,
+and a _backwards_ map of their sets of variables, respecting the types/terms
+of the environments.
+  
+To understand the slightly surprising variance, consider the key example:
+there is a map from [extend_environment E A] to [E], tracking
+[dpr_typecat A] on the semantic side and [dB_next] on variables, and showing
+that anything interpretable over [E] is interpretable over
+[extend_environment E A]. 
+
+For now, we keep the definition parametrised, not packaged. *)
+  Definition environment_map_over
+      {X Y : C} (f : X --> Y)
+      {m n : nat} (g : n -> m)
+      (EX : environment X m) (EY : environment Y n)
+    : UU
+  := reind_environment f EY = EX ∘ g.
+
+  Definition partial_interpretation_environment_map_ty
+      {X:C} {m:nat} {EX : environment X m}
+      {Y:C} {n:nat} {EY : environment Y n} 
+      {f_ob : X --> Y} {f_vars : n -> m} (f : environment_map_over f_ob f_vars EX EY)
+      (e : ty_expr n)
+    : leq_partial
+        (fmap_partial (λ A : C Y, A ⦃f_ob⦄) (partial_interpretation_ty U Π EY e))
+        (partial_interpretation_ty U Π EX (rename_ty f_vars e)).
+  Proof.
+    eapply leq_partial_trans.
+    { apply reindex_partial_interpretation_ty. }
+    apply leq_partial_of_path.
+    eapply pathscomp0. 2: { apply partial_interpretation_rename_ty. }
+    apply maponpaths_2, f.
+  Qed.
+
+  Definition partial_interpretation_environment_map_tm
+      {X:C} {m:nat} {EX : environment X m}
+      {Y:C} {n:nat} {EY : environment Y n} 
+      (f_ob : X --> Y) (f_vars : n -> m) (f : environment_map_over f_ob f_vars EX EY)
+      (T : C Y)
+      (e : tm_expr n)
+    : leq_partial
+        (fmap_partial (λ t : tm T, reind_tm f_ob t)
+                      (partial_interpretation_tm U Π EY T e))
+        (partial_interpretation_tm U Π EX (T ⦃ f_ob ⦄) (rename_tm f_vars e)).
+  Proof.
+    eapply leq_partial_trans.
+    { apply reindex_partial_interpretation_tm. }
+    apply leq_partial_of_path.
+    eapply pathscomp0. 2: { apply partial_interpretation_rename_tm. }
+    exact (maponpaths (fun E => partial_interpretation_tm _ _ E _ _) f). 
+  Qed.
+
+  Definition dpr_environment
+      {X : C} {n} (E : environment X n) (A : C X)
+    : environment_map_over (dpr_typecat A) (dB_next)
+                           (extend_environment E A) E.
+  Proof.
+    apply idpath.
+  Defined.
+
+End Environment_Maps.
 
 Section Partial_Interpretation_Substitution.
 (** The interaction of the partial interpretation with substitution requires
 a little more work to state. *)
 
-  Context {C} (U : universe_struct C) (Π : pi_struct C).
+  Context {C} {U : universe_struct C} {Π : pi_struct C}.
+
+  (* TODO: upstream *)
+  Definition forall_partial {X : UU} {Y : X -> UU}
+      (f : forall x:X, partial (Y x))
+    : partial (forall x, Y x).
+  Proof.
+    exists (∀ x, is_defined (f x)).
+    intros f_def i. exact (evaluate (f_def i)).
+  Defined.
+
+  (* TODO: upstream *)
+  Definition forall_leq_partial {X : UU} {Y : X -> UU}
+      {f g : forall x:X, partial (Y x)} (l : forall x, leq_partial (f x) (g x))
+    : leq_partial (forall_partial f) (forall_partial g).
+  Proof.
+    apply mk_leq_partial'. intros fs_def.
+    use tpair.
+    - intros x; exact (l x (fs_def x)).
+    - apply funextsec; intros x. apply leq_partial_commutes.
+  Defined.
 
   (* Note: perhaps this should really just be the terms, with a function
      afterward assembling them into a partial environment.  But the partial
@@ -533,11 +603,9 @@ a little more work to state. *)
       (f : raw_context_map m n)
     : partial (environment X n). 
   Proof.
-    assume_partial
-      (∀ (i:n), is_defined (partial_interpretation_tm U Π E (A i) (f i)))
-      H.
-    apply return_partial.
-    intros i. exists (A i). exact (evaluate (H i)).
+    refine (forall_partial _); intros i.
+    refine (fmap_partial _ (partial_interpretation_tm U Π E (A i) (f i))).
+    intros t; exact (A i,,t).
   Defined.
 
   Lemma partial_interpretation_weaken_raw_context_map
@@ -551,7 +619,19 @@ a little more work to state. *)
           (dB_Sn_rect _ (B ⦃dpr_typecat B⦄) (fun i => A i ⦃dpr_typecat B⦄))
           (weaken_raw_context_map f)).
   Proof.
-  Admitted.
+    apply mk_leq_partial'. cbn.
+    intros fs_def.
+    use tpair.
+    - refine (dB_Sn_rect _ _ _).
+      + cbn. repeat constructor.
+      + cbn. intros i.
+        refine (partial_interpretation_environment_map_tm _ _ _ _ _ (fs_def i)).
+        apply dpr_environment.
+    - apply funextfun. refine (dB_Sn_rect _ _ _).
+      + cbn. apply (maponpaths (tpair _)), tm_transportf_idpath.
+      + intros i; cbn. apply (maponpaths (tpair _)).
+        refine (leq_partial_commutes _ _).
+  Qed.
 
   Fixpoint
     partial_interpretation_subst_ty
@@ -595,7 +675,7 @@ a little more work to state. *)
       + (* [var_expr i] *)
         cbn. apply show_assume_leq_partial; intros e_S. destruct e_S.
         use show_return_leq_partial.
-        * exact (pr1 f_def i).
+        * exact (f_def i).
         * cbn. apply pathsinv0, tm_transportf_idpath.
       + admit. (* [lam_expr A B b] *)
       + admit. (* [app_expr A B f a] *)
@@ -613,6 +693,7 @@ Section Totality.
   := forall i : Γ,
     ∑ (d : is_defined (partial_interpretation_ty U Π E (Γ i))),
       (evaluate d = type_of (E i)).
+  (* TODO: perhaps refactor with [forall_leq_partial]? *)
 
   Definition extend_environment_respects_type
       {X : C} {Γ : context} {E : environment X Γ}
@@ -624,13 +705,15 @@ Section Totality.
   Proof.
     use dB_Sn_rect.
     - cbn. use tpair.
-      + apply partial_interpretation_rename_ty.
-        refine (reindex_partial_interpretation_ty _ _ (dpr_typecat _) E _ A_def).
+      + refine (leq_partial_of_path _ _ _ _).
+        { apply partial_interpretation_rename_ty. }
+        refine (reindex_partial_interpretation_ty (dpr_typecat _) E _ A_def).
       + cbn. eapply pathscomp0. { apply leq_partial_commutes. }
         use leq_partial_commutes.
     - cbn; intros i. use tpair.
-      + apply partial_interpretation_rename_ty.
-        refine (reindex_partial_interpretation_ty _ _ (dpr_typecat _) E _ _).
+      + refine (leq_partial_of_path _ _ _ _).
+        { apply partial_interpretation_rename_ty. }
+        refine (reindex_partial_interpretation_ty (dpr_typecat _) E _ _).
         apply R.
       + cbn. 
         eapply pathscomp0. { apply leq_partial_commutes. }
@@ -824,16 +907,16 @@ Section Totality.
       eapply pathscomp0.
       { apply pathsinv0. 
         simple refine (leq_partial_commutes
-             (reindex_partial_interpretation_ty _ _ _ _ _)
+             (reindex_partial_interpretation_ty _ _ _)
              _). }
       eapply pathscomp0.
       2: { simple refine (leq_partial_values_agree
-                            (partial_interpretation_subst_ty _ _ _ _ _ _ _)
+                            (partial_interpretation_subst_ty _ _ _ _ _)
                             _ _).
         - refine (dB_Sn_rect _ _ _).
           + exact (evaluate A_def).
           + intros i; exact (type_of ((E : environment _ _) i)).
-        - refine (_,,tt). refine (dB_Sn_rect _ _ _).
+        - refine (dB_Sn_rect _ _ _).
           + cbn. exact a_def.
           + intros i; cbn. repeat constructor.
         - refine (p_B _ (_,,_)).
