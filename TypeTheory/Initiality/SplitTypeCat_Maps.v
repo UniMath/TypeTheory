@@ -186,10 +186,11 @@ Section Types_and_Terms.
     apply (isaset_types_typecat C).
   Defined.
 
-  Lemma tm_transportf_idpath_gen {C : split_typecat} {Γ} {A : C Γ} (e : A = A) (t : tm A)
-    : tm_transportf (idpath _) t = t. 
+  Lemma tm_transportf_idpath_gen {C : split_typecat}
+      {Γ} {A : C Γ} (e : A = A) (t : tm A)
+    : tm_transportf e t = t. 
   Proof.
-    eauto using tm_transportf_irrelevant, tm_transportf_idpath.
+    eauto using pathscomp0, tm_transportf_irrelevant, tm_transportf_idpath.
   Defined.
 
 

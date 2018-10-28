@@ -879,12 +879,18 @@ a little more work to state. *)
       {m n:nat} (ts : raw_context_map n m)
       {E : environment X m} {F : environment Y n}
       (ts_track : raw_context_map_tracks_environments f ts F E)
-      (S : C X) (e : tm_expr m)
+      {S : C X} {S' : C Y} (e_S : S⦃f⦄ = S')
+      (e : tm_expr m)
     : leq_partial
-        (fmap_partial (fun a => reind_tm f a) (partial_interpretation_tm U Π E S e))
-        (partial_interpretation_tm U Π F (S⦃f⦄) (subst_tm ts e)).
+        (fmap_partial (tm_transportf e_S ∘ reind_tm f)
+                      (partial_interpretation_tm U Π E S e))
+        (partial_interpretation_tm U Π F S' (subst_tm ts e)).
   Proof.
     eapply leq_partial_trans.
+    { apply leq_partial_of_path, pathsinv0, fmap_compose_partial_applied. }
+    eapply leq_partial_trans.
+    2: { refine (tm_transportf_partial_interpretation_tm_leq _ e_S _). }
+    apply fmap_leq_partial. eapply leq_partial_trans.
     { apply reindex_partial_interpretation_tm. }
     eapply leq_partial_trans.
     2: { refine (partial_interpretation_subst_tm _ _ _ _ _ _). 
@@ -1092,7 +1098,11 @@ Section Totality.
   Local Lemma interpret_pi_rules
     : cases_for_pi_rules (fun J _ => is_interpretable J).
   Proof.
-    split.
+    simple refine
+     (let interpret_pi := _ in
+      let interpret_lam := _ in
+      let interpret_app := _ in
+      Build_cases_for_pi_rules _ interpret_pi interpret_lam interpret_app _).
     - (* formation *)
       intros; intros X E; cbn.
       simple refine (_,,(_,,tt)).
@@ -1107,7 +1117,7 @@ Section Totality.
       refine (evaluate_unique
         (partial_interpretation_ty _ _ _ (Pi_expr _ _)) (_,,(_,,tt)) _).
     - (* application *)
-      intros; intros X E Ba_def. cbn.
+      intros ? ? ? ? ? ? ? ? p_A ? p_B ? p_f ? p_a; intros X E Ba_def. cbn.
       exists (p_A _ _). 
       exists (p_B _ (extend_typed_environment _ _)). 
       exists (p_a _ _ _). 
@@ -1117,7 +1127,37 @@ Section Totality.
         (reind_partial_interpretation_subst_ty _ _ _ _) _ _).
       apply tm_as_raw_context_map_tracks_environments.
     - (* computation *)
-      admit.
+      intros ? ? ? ? ? ? ? ? p_A ? p_B ? p_b ? p_a;
+        intros X E Ba_def app_def ba_def.
+      set (A_def := p_A _ E).
+      set (B_def := p_B _ (extend_typed_environment E (A_def))).
+      set (b_def := p_b _ _ B_def).
+      set (a_def := p_a _ E A_def).
+      set (a_tracks := tm_as_raw_context_map_tracks_environments a_def).
+      Local Arguments evaluate {_} _ _. apply idfun.
+      (* Outline of the argument:
+         1. LHS must be as constructed in preceding cases;
+         2. RHS must be a reindexing, by reindexing lemma;
+         3. semantic pi-comp shows these agree. *)
+      (* Step 1: determine the LHS as an app *)
+      eapply pathscomp0.
+      { use evaluate_unique.
+        refine (interpret_app Γ A B _ a d_Γ p_Γ d_A p_A d_B p_B _ _ d_a p_a X E Ba_def).
+        { admit. } (* TODO: re-type interpret_app above so doesn’t depend
+                            unnecessarily on derivations *)
+        apply interpret_lam; assumption. }
+      eapply pathscomp0.
+      (* Step 2: determine the RHS as a reindexing of an app *)
+      2: { refine (leq_partial_values_agree
+              (reind_partial_interpretation_subst_tm _ _ a_tracks _ _) b_def _).
+           refine (leq_partial_values_agree
+                       (reind_partial_interpretation_subst_ty _ _ _ _) _ _).
+           apply tm_as_raw_context_map_tracks_environments. }
+      (* Step 3: apply the semantic pi-comp, modulo a little wrangling transports *)
+      cbn. eapply maponpaths, pathscomp0.
+      { eapply (maponpaths (fun t => pi_app C Π _ _ _ t _)).
+        apply tm_transportf_idpath_gen. }
+      apply pi_comp.
   Admitted.
 
   Local Lemma interpret_pi_cong_rules
