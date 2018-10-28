@@ -1124,7 +1124,7 @@ Section Totality.
       use tpair. { refine (p_B _ (extend_typed_environment _ _)). }
       use tpair. { refine (p_b _ (extend_typed_environment _ _) _). }
       refine (_,,tt).
-      refine (evaluate_unique
+      refine (compat_partial_refl
         (partial_interpretation_ty _ _ _ (Pi_expr _ _)) (_,,(_,,tt)) _).
     Defined.
     
@@ -1142,7 +1142,7 @@ Section Totality.
       exists (p_a _ _ _). 
       exists (p_f _ _ (_,,(_,,tt))). 
       refine (_,,tt).
-      refine (leq_partial_values_agree
+      refine (compat_of_leq_partial
         (reind_partial_interpretation_subst_ty _ _ _ _) _ _).
       apply tm_as_raw_context_map_tracks_environments.
     Defined.
@@ -1169,14 +1169,14 @@ Section Totality.
          3. semantic pi-comp shows these agree. *)
       (* Step 1: determine the LHS as an app *)
       eapply pathscomp0.
-      { use evaluate_unique.
+      { use compat_partial_refl.
         refine (interpret_app _ a p_A p_B _ p_a X E Ba_def).
         apply interpret_lam; assumption. }
       eapply pathscomp0.
       (* Step 2: determine the RHS as a reindexing of an app *)
-      2: { refine (leq_partial_values_agree
+      2: { refine (compat_of_leq_partial
               (reind_partial_interpretation_subst_tm _ _ a_tracks _ _) b_def _).
-           refine (leq_partial_values_agree
+           refine (compat_of_leq_partial
                        (reind_partial_interpretation_subst_ty _ _ _ _) _ _).
            apply tm_as_raw_context_map_tracks_environments. }
       (* Step 3: apply the semantic pi-comp, modulo a little wrangling transports *)
@@ -1196,48 +1196,6 @@ Section Totality.
     - auto using interpret_lam.
     - auto using interpret_app.
     - auto using interpret_pi_comp.
-  Defined.
-
-  (* TODO: upstream this and following lemmas *)
-  Definition compat_partial {X} (x y : partial X)
-  := forall (x_def : is_defined x) (y_def : is_defined y),
-      evaluate x_def = evaluate y_def.
-
-  (* TODO: replace [leq_partial_values_agree] with this *)
-  Definition compat_of_leq_partial {X} (x y : partial X)
-    : leq_partial x y -> compat_partial x y
-  := leq_partial_values_agree.
-
-  Definition compat_partial_refl {X} (x : partial X)
-    : compat_partial x x
-  := evaluate_unique x.
-
-  Definition compat_partial_sym {X} (x y : partial X)
-    : compat_partial x y -> compat_partial y x
-  := fun H y_def x_def => (! H x_def y_def).
-
-  Definition compat_bind_partial {X Y}
-      {x x' : partial X} (c_x : compat_partial x x')
-      {y y' : X -> partial Y} (c_y : forall x, compat_partial (y x) (y' x))
-    : compat_partial (bind_partial x y) (bind_partial x' y').
-  Proof.
-    intros [x_def y_def] [x'_def y'_def].
-    cbn in *. destruct (c_x x_def x'_def).
-    apply c_y.
-  Defined.
-
-  (** Slight generalisation of [compat_bind_partial]. *)
-  (* TODO: consider naming! *) 
-  Definition compat_bind_partial' {X Y}
-      {x x' : partial X} (c_x : compat_partial x x')
-      {y y' : X -> partial Y}
-      (c_y : forall x_def : is_defined x,
-          compat_partial (y (evaluate x_def)) (y' (evaluate x_def)))
-    : compat_partial (bind_partial x y) (bind_partial x' y').
-  Proof.
-    intros [x_def y_def] [x'_def y'_def].
-    cbn in *. destruct (c_x x_def x'_def).
-    apply c_y.
   Defined.
 
   Local Lemma interpret_pi_cong_rules

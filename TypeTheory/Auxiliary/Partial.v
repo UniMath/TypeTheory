@@ -22,20 +22,6 @@ Section Partial.
   (or whatever number is needed to pick out the specific occurrence). *)
 Definition evaluate_in {X} x x_def := @evaluate X x x_def.
 
-Definition evaluate_unique {X} (x : partial X) (x_def x_def' : is_defined x)
-  : evaluate x_def = evaluate x_def'.
-Proof.
-  apply maponpaths, propproperty.
-Qed.
-
-Definition evaluate_unique_gen {X} {x y : partial X} (e : x = y)
-    (x_def : is_defined x) (y_def: is_defined y)
-  : evaluate x_def = evaluate y_def.
-Proof.
-  destruct e; apply evaluate_unique.
-Qed.
-
-
 End Partial.
 
 Section Ordering.
@@ -69,13 +55,6 @@ Section Ordering.
     exists (l x_def). apply leq_partial_commutes.
   Defined.
 
-  Definition leq_partial_values_agree {X} {x y : partial X} (l : leq_partial x y) 
-    (x_def : is_defined x) (y_def : is_defined y)
-    : evaluate x_def = evaluate y_def.
-  Proof.
-    refine ( ! leq_partial_commutes l _ @ evaluate_unique _ _ _).
-  Qed.
-
   Definition leq_partial_refl {X} (x : partial X)
     : leq_partial x x.
   Proof.
@@ -97,6 +76,40 @@ Section Ordering.
   Defined.
 
 End Ordering.
+
+Section Compatibility.
+(** Compatibility is a second important relation on partial elements:
+
+Two partial elements are _compatible_ if, provided they are both defined, their values agree.
+
+This extends the order relation, and is reflexive and symmetric, but not in general transitive. *)
+
+  Definition compat_partial {X} (x y : partial X)
+  := forall (x_def : is_defined x) (y_def : is_defined y),
+      evaluate x_def = evaluate y_def.
+
+  Definition compat_partial_refl {X} (x : partial X)
+    : compat_partial x x.
+  Proof.
+    intros ? ?. apply maponpaths, propproperty.
+  Qed.
+
+  Definition compat_partial_of_path {X} {x y : partial X} (e : x = y)
+    : compat_partial x y.
+  Proof.
+    intros ? ?. destruct e; apply compat_partial_refl.
+  Qed.
+
+  Definition compat_of_leq_partial {X} {x y : partial X}
+    : leq_partial x y -> compat_partial x y
+  := fun l x_def y_def =>
+    ( ! leq_partial_commutes l _ @ compat_partial_refl _ _ _).
+
+  Definition compat_partial_sym {X} (x y : partial X)
+    : compat_partial x y -> compat_partial y x
+  := fun H y_def x_def => (! H x_def y_def).
+
+End Compatibility.
 
 Section Functor.
 (** Functoriality of the [partial] construction *)
@@ -237,6 +250,29 @@ Section Monad.
   Proof.
     exists (fun fx_def => (x_def,,fx_def)).
     intros; apply idpath.
+  Defined.
+
+  Definition compat_bind_partial {X Y}
+      {x x' : partial X} (c_x : compat_partial x x')
+      {y y' : X -> partial Y} (c_y : forall x, compat_partial (y x) (y' x))
+    : compat_partial (bind_partial x y) (bind_partial x' y').
+  Proof.
+    intros [x_def y_def] [x'_def y'_def].
+    cbn in *. destruct (c_x x_def x'_def).
+    apply c_y.
+  Defined.
+
+  (** Slight generalisation of [compat_bind_partial]. *)
+  Definition compat_bind_partial' {X Y}
+      {x x' : partial X} (c_x : compat_partial x x')
+      {y y' : X -> partial Y}
+      (c_y : forall x_def : is_defined x,
+          compat_partial (y (evaluate x_def)) (y' (evaluate x_def)))
+    : compat_partial (bind_partial x y) (bind_partial x' y').
+  Proof.
+    intros [x_def y_def] [x'_def y'_def].
+    cbn in *. destruct (c_x x_def x'_def).
+    apply c_y.
   Defined.
 
   Lemma fmap_bind_partial
