@@ -74,19 +74,30 @@ Section Auxiliary.
 
   Definition var_with_type {Γ} (A : C Γ)
     : type_with_term (Γ ◂ A)
-  := (A⦃dpr_typecat A⦄,, var_typecat _ A).
+  := (A⦃dpr_typecat A⦄,, var_typecat A).
 
   Lemma reind_type_with_term_q_var {Γ Γ'} (f : Γ' --> Γ) (A : C Γ)
     : reind_type_with_term (q_typecat A f) (var_with_type A)
     = var_with_type (A ⦃f⦄).
   Proof.
       use paths_type_with_term.
-      + cbn. 
-        eapply pathscomp0. { apply pathsinv0, (reind_comp_typecat C). }
+      + eapply pathscomp0. { apply pathsinv0, (reind_comp_typecat C). }
         eapply pathscomp0. 2: { apply (reind_comp_typecat C). }
         apply maponpaths, dpr_q_typecat.
       + cbn. admit. (* lemma about [var_typecat] *)
   Admitted.
+
+  Lemma reind_term_var_with_type {Γ} {A : C Γ} (a : tm A)
+    : reind_type_with_term a (var_with_type A) = (A,,a).
+  Proof.
+    use paths_type_with_term.
+    + eapply pathscomp0. { apply pathsinv0, (reind_comp_typecat C). }
+      eapply pathscomp0. 2: { apply (reind_id_type_typecat C). }
+      apply maponpaths, section_property.
+    + cbn. refine (@maponpaths _ _ (section_pr1 _) (tm_transportf _ _) _ _).
+      refine (_ @ reind_tm_var_typecat' a).
+      apply tm_transportf_irrelevant.
+  Qed.
 
 End Auxiliary.
 
@@ -657,8 +668,8 @@ a little more work to state. *)
   Defined.
 
   Definition partial_interpretation_tm_as_raw_context_map
-      {X} {n:nat} {E : environment X n} {A : C X}
-      {a : tm_expr n}
+      {X} {n:nat} (E : environment X n) (A : C X)
+      (a : tm_expr n)
     : leq_partial
         (fmap_partial (fun a_interp => add_to_environment E (A,,a_interp))
                                  (partial_interpretation_tm U Π E A a))
@@ -745,6 +756,145 @@ a little more work to state. *)
       + admit. (* [lam_expr A B b] *)
       + admit. (* [app_expr A B f a] *)
   Admitted.
+
+  (* TODO: consider naming! *)
+  Definition raw_context_map_tracks_environments
+      {X Y} (f : Y --> X)
+      {m n:nat} (ts : raw_context_map n m)
+      (F : environment Y n) (E : environment X m)
+    : UU 
+  := forall (i:m), 
+       ∑ (ti_def : is_defined
+           (partial_interpretation_tm U Π F (type_of (E i) ⦃f⦄) (ts i))),
+         evaluate ti_def = reind_tm f (term_of (E i)).
+
+  Definition partial_interpretation_raw_context_map_tracks_environments
+      {X Y} (f : Y --> X)
+      {m n:nat} (ts : raw_context_map n m)
+      {F : environment Y n} {E : environment X m}
+    : (raw_context_map_tracks_environments f ts F E)
+    <->
+      leq_partial
+        (return_partial (reind_environment f E))
+        (partial_interpretation_raw_context_map F
+                    (type_of ∘ reind_environment f E) ts).
+  Proof.
+    split.
+    - intros ts_track.
+      apply mk_leq_partial'; cbn; intros _.
+      use tpair.
+      + intros i; apply ts_track.
+      + cbn. apply funextfun; intros i.
+        apply (maponpaths (tpair _)).
+        apply ts_track.
+    - intros l.
+      destruct (apply_leq_partial_pair l tt) as [ts_def H]; clear l.
+      cbn in ts_def, H.
+      intros i. exists (ts_def i).
+      eapply pathscomp0. 2: { exact (fiber_paths (toforallpaths _ _ _ H i)). }
+      simple refine (_ @ _).
+      { exact (transportf _ (idpath _) (evaluate (ts_def i))). }
+      + apply idpath.
+      + apply maponpaths_2. apply (isaset_types_typecat C).
+  (* This is a little tricky, because [partial_interpretation_raw_context_map]
+  contains an equality of environments, i.e. equalities of types-and-terms,
+  where the type part is redundant, and really the term part is the desired
+  content.  In particular, [isaset_types_typecat] is required: in a non-split
+  type-cat, the definition with an equality of environments would be wrong. *)
+  Qed.
+
+  (* TODO: consider naming! *)
+  Definition add_to_raw_context_map_tracks_environments
+      {X Y} {f : Y --> X}
+      {m n:nat} {ts : raw_context_map n m} {a : tm_expr n} 
+      {F : environment Y n} {E : environment X m} {A : C X}
+      (ts_track : raw_context_map_tracks_environments f ts F E)
+      (a_def : is_defined (partial_interpretation_tm U Π F (A ⦃f⦄) a))
+      (a_interp : tm A) (e_a : evaluate a_def = reind_tm f a_interp)
+    : raw_context_map_tracks_environments
+        f (add_to_raw_context_map ts a)
+        F (add_to_environment E ((A,, a_interp) : type_with_term X)).
+  Proof.
+    refine (dB_Sn_rect _ _ _); intros; cbn.
+    - use tpair; assumption.
+    - apply ts_track.
+  Defined.
+
+  (* TODO: consider naming! *)
+  Definition tm_as_raw_context_map_tracks_environments
+      {X} {n:nat} {E : environment X n} {A : C X}
+      {a} (a_def : is_defined (partial_interpretation_tm U Π E A a))
+    : raw_context_map_tracks_environments
+        (evaluate a_def) (tm_as_raw_context_map a)
+        E (extend_environment E A).
+  Proof.
+    use add_to_raw_context_map_tracks_environments.   
+    - intros i. 
+(* can this be simplified with [tm_transportf_partial_interpretation_tm_leq]? *)
+      use tpair; cbn.
+      + refine (_,,tt). cbn; apply pathsinv0.
+        eapply pathscomp0. { apply pathsinv0, (reind_comp_typecat C). }
+        eapply pathscomp0. 2: { apply (reind_id_type_typecat C). }
+        apply maponpaths, section_property.
+      + cbn. eapply pathscomp0. 2: { apply reind_compose_tm'. }
+        eapply pathscomp0.
+        2: { apply maponpaths. refine (! maponpaths_2_reind_tm _ _).
+          apply section_property. }
+        eapply pathscomp0. 2: { apply tm_transportf_compose. }
+        eapply pathscomp0. 2: { apply maponpaths, pathsinv0, reind_id_tm. }
+        eapply pathscomp0. 2: { apply tm_transportf_compose. }
+        apply tm_transportf_irrelevant.
+    - refine (tm_transportf_partial_interpretation_tm_leq _ _ _ a_def). 
+      eapply pathscomp0. 2: { apply (reind_comp_typecat C). }
+      eapply pathsinv0, pathscomp0. 2: { apply (reind_id_type_typecat C). } 
+      apply maponpaths, section_property.
+    - eapply pathscomp0. apply leq_partial_commutes.
+      cbn. eapply pathscomp0. 2: { apply pathsinv0, reind_tm_var_typecat. }
+      apply tm_transportf_irrelevant.
+  Defined.
+
+  Definition reind_partial_interpretation_subst_ty
+      {X Y} (f : Y --> X)
+      {m n:nat} (ts : raw_context_map n m)
+      {E : environment X m} {F : environment Y n}
+      (ts_track : raw_context_map_tracks_environments f ts F E)
+      (e : ty_expr m)
+    : leq_partial
+        (fmap_partial (fun A => A ⦃f⦄) (partial_interpretation_ty U Π E e))
+        (partial_interpretation_ty U Π F (subst_ty ts e)).
+  Proof.
+    eapply leq_partial_trans.
+    { apply reindex_partial_interpretation_ty. }
+    eapply leq_partial_trans.
+    2: { refine (partial_interpretation_subst_ty _ _ _ _ _). 
+         eapply partial_interpretation_raw_context_map_tracks_environments.
+         { apply ts_track. } 
+         apply tt. }
+    apply leq_partial_of_path, maponpaths_2.
+    apply pathsinv0. refine (leq_partial_commutes _ _).
+  Qed.
+
+  Definition  reind_partial_interpretation_subst_tm
+      {X Y} (f : Y --> X)
+      {m n:nat} (ts : raw_context_map n m)
+      {E : environment X m} {F : environment Y n}
+      (ts_track : raw_context_map_tracks_environments f ts F E)
+      (S : C X) (e : tm_expr m)
+    : leq_partial
+        (fmap_partial (fun a => reind_tm f a) (partial_interpretation_tm U Π E S e))
+        (partial_interpretation_tm U Π F (S⦃f⦄) (subst_tm ts e)).
+  Proof.
+    eapply leq_partial_trans.
+    { apply reindex_partial_interpretation_tm. }
+    eapply leq_partial_trans.
+    2: { refine (partial_interpretation_subst_tm _ _ _ _ _ _). 
+         eapply partial_interpretation_raw_context_map_tracks_environments.
+         { apply ts_track. } 
+         apply tt. }
+    apply leq_partial_of_path.
+    eapply (maponpaths (fun E => partial_interpretation_tm _ _ E _ _)).
+    apply pathsinv0. refine (leq_partial_commutes _ _).
+  Qed.
 
 End Partial_Interpretation_Substitution.
 
@@ -958,35 +1108,14 @@ Section Totality.
         (partial_interpretation_ty _ _ _ (Pi_expr _ _)) (_,,(_,,tt)) _).
     - (* application *)
       intros; intros X E Ba_def. cbn.
-      (* The following slightly strange idiom gets Coq to fill in arguments,
-      while also saving the result for re-use. *)
-      refine (let A_def := p_A _ _ in (A_def ,, _)). clearbody A_def.
-      refine (let B_def := p_B _ (extend_typed_environment _ _) in (B_def ,, _)).
-      clearbody B_def.
-      refine (let a_def := p_a _ _ _ in (a_def ,, _)). clearbody a_def.
-      refine (let f_def := p_f _ _ (_,,(_,,tt)) in (f_def ,, _)). clearbody f_def.
+      exists (p_A _ _). 
+      exists (p_B _ (extend_typed_environment _ _)). 
+      exists (p_a _ _ _). 
+      exists (p_f _ _ (_,,(_,,tt))). 
       refine (_,,tt).
-      (* The endgame is a bit tricky.  Roughly, we want to combine our semantic
-       reindexing lemma and our syntactic substitution lemma to show that these
-       are two possible interpretations of the same thing. *)
-      Local Arguments evaluate {_} _ _. apply idfun.
-      eapply pathscomp0.
-      { simple refine (! leq_partial_commutes
-                             (reindex_partial_interpretation_ty _ _ _) _). }
-      refine (leq_partial_values_agree _ _ _).
-      eapply leq_partial_trans.
-      2: { refine (partial_interpretation_subst_ty _ _ _ _ _).
-           eapply partial_interpretation_tm_as_raw_context_map. 
-           apply a_def. }
-      eapply leq_partial_of_path, maponpaths_2.
-      eapply pathscomp0. 2: { apply pathsinv0, leq_partial_commutes. }
-      cbn. eapply pathscomp0. { apply reind_add_to_environment. }
-      apply maponpaths_12.
-      + eapply pathscomp0. { apply pathsinv0, reind_compose_environment. }
-        eapply pathscomp0. 2: { apply reind_idmap_environment. }
-        apply maponpaths_2, section_property.
-      + admit. (* lemma about [var_with_type] and sections:
-        [reind_type_with_term s (var_with_type A) = (A,,s)]. *)
+      refine (leq_partial_values_agree
+        (reind_partial_interpretation_subst_ty _ _ _ _) _ _).
+      apply tm_as_raw_context_map_tracks_environments.
     - (* computation *)
       admit.
   Admitted.
