@@ -1095,6 +1095,43 @@ Section Totality.
       use p_aa'; auto.
   Defined.
 
+  (** A specialised form of [Build_cases_for_pi_rules], simplified according
+   to the variables that [is_interpretable] doesn’t depend on. *)
+  Local Lemma interpret_pi_rules_aux { P : judgement -> Type }
+    (interpret_pi
+      : forall (Γ : context) (A : ty_expr Γ) (B : ty_expr (Γ;; A)%context),
+               P [! Γ |- A !] ->  P [! Γ;; A |- B !]
+               -> P [! Γ |- Pi_expr A B !])
+    (interpret_lam
+     : forall (Γ : context) (A : ty_expr Γ) (B : ty_expr (Γ;; A)%context)
+              (b : tm_expr (Γ;; A)%context),
+              P [! Γ |- A !]
+              -> P [! Γ;; A |- B !] 
+              -> P [! Γ;; A |- b ::: B !]
+              -> P [! Γ |- lam_expr A B b ::: Pi_expr A B !])
+    (interpret_app
+     : forall (Γ : context) (A : ty_expr Γ) (B : ty_expr (Γ;; A)%context)
+              (f a : tm_expr Γ),
+        P [! Γ |- A !]
+        -> P [! Γ;; A |- B !]
+        -> P [! Γ |- f ::: Pi_expr A B !]
+        -> P [! Γ |- a ::: A !]
+        -> P [! Γ |- app_expr A B f a ::: subst_top_ty a B !])
+    (interpret_beta 
+     : forall (Γ : context) (A : ty_expr Γ) (B : ty_expr (Γ;; A)%context)
+              (b : tm_expr (Γ;; A)%context) (a : tm_expr Γ),
+        P [! Γ |- A !]
+        -> P [! Γ;; A |- B !]
+        -> P [! Γ;; A |- b ::: B !]
+        -> P [! Γ |- a ::: A !]
+        -> P [! Γ |- app_expr A B (lam_expr A B b) a === 
+                                subst_top_tm a b ::: subst_top_ty a B !])
+    : cases_for_pi_rules (fun J _ => P J).
+  Proof.
+    split; auto.
+  Defined.
+
+    
   Local Lemma interpret_pi_rules
     : cases_for_pi_rules (fun J _ => is_interpretable J).
   Proof.
@@ -1102,14 +1139,14 @@ Section Totality.
      (let interpret_pi := _ in
       let interpret_lam := _ in
       let interpret_app := _ in
-      Build_cases_for_pi_rules _ interpret_pi interpret_lam interpret_app _).
+      interpret_pi_rules_aux interpret_pi interpret_lam interpret_app _).
     - (* formation *)
-      intros; intros X E; cbn.
+      intros Γ A B p_A p_B; intros X E; cbn.
       simple refine (_,,(_,,tt)).
       + use p_A.
       + refine (p_B _ (extend_typed_environment _ _)).
     - (* introduction *)
-      intros; intros X E Pi_def. cbn.
+      intros Γ A B b p_A p_B p_b; intros X E Pi_def. cbn.
       use tpair. { use p_A. }
       use tpair. { refine (p_B _ (extend_typed_environment _ _)). }
       use tpair. { refine (p_b _ (extend_typed_environment _ _) _). }
@@ -1117,7 +1154,7 @@ Section Totality.
       refine (evaluate_unique
         (partial_interpretation_ty _ _ _ (Pi_expr _ _)) (_,,(_,,tt)) _).
     - (* application *)
-      intros ? ? ? ? ? ? ? ? p_A ? p_B ? p_f ? p_a; intros X E Ba_def. cbn.
+      intros Γ A B f a p_A p_B p_f p_a; intros X E Ba_def. cbn.
       exists (p_A _ _). 
       exists (p_B _ (extend_typed_environment _ _)). 
       exists (p_a _ _ _). 
@@ -1127,8 +1164,7 @@ Section Totality.
         (reind_partial_interpretation_subst_ty _ _ _ _) _ _).
       apply tm_as_raw_context_map_tracks_environments.
     - (* computation *)
-      intros ? ? ? ? ? ? ? ? p_A ? p_B ? p_b ? p_a;
-        intros X E Ba_def app_def ba_def.
+      intros Γ A B b a p_A p_B p_b p_a; intros X E Ba_def app_def ba_def.
       set (A_def := p_A _ E).
       set (B_def := p_B _ (extend_typed_environment E (A_def))).
       set (b_def := p_b _ _ B_def).
@@ -1142,9 +1178,7 @@ Section Totality.
       (* Step 1: determine the LHS as an app *)
       eapply pathscomp0.
       { use evaluate_unique.
-        refine (interpret_app Γ A B _ a d_Γ p_Γ d_A p_A d_B p_B _ _ d_a p_a X E Ba_def).
-        { admit. } (* TODO: re-type interpret_app above so doesn’t depend
-                            unnecessarily on derivations *)
+        refine (interpret_app Γ A B _ a p_A p_B _ p_a X E Ba_def).
         apply interpret_lam; assumption. }
       eapply pathscomp0.
       (* Step 2: determine the RHS as a reindexing of an app *)
@@ -1158,7 +1192,7 @@ Section Totality.
       { eapply (maponpaths (fun t => pi_app C Π _ _ _ t _)).
         apply tm_transportf_idpath_gen. }
       apply pi_comp.
-  Admitted.
+  Qed.
 
   Local Lemma interpret_pi_cong_rules
     : cases_for_pi_cong_rules (fun J _ => is_interpretable J).
