@@ -1184,7 +1184,7 @@ Section Totality.
       { eapply (maponpaths (fun t => pi_app C Π _ _ _ t _)).
         apply tm_transportf_idpath_gen. }
       apply pi_comp.
-    Defined.
+    Qed.
 
   End Pi_Rules.
 
@@ -1198,9 +1198,83 @@ Section Totality.
     - auto using interpret_pi_comp.
   Defined.
 
+  (* TODO: upstream this and following lemmas *)
+  Definition compat_partial {X} (x y : partial X)
+  := forall (x_def : is_defined x) (y_def : is_defined y),
+      evaluate x_def = evaluate y_def.
+
+  (* TODO: replace [leq_partial_values_agree] with this *)
+  Definition compat_of_leq_partial {X} (x y : partial X)
+    : leq_partial x y -> compat_partial x y
+  := leq_partial_values_agree.
+
+  Definition compat_partial_refl {X} (x : partial X)
+    : compat_partial x x
+  := evaluate_unique x.
+
+  Definition compat_partial_sym {X} (x y : partial X)
+    : compat_partial x y -> compat_partial y x
+  := fun H y_def x_def => (! H x_def y_def).
+
+  Definition compat_bind_partial {X Y}
+      {x x' : partial X} (c_x : compat_partial x x')
+      {y y' : X -> partial Y} (c_y : forall x, compat_partial (y x) (y' x))
+    : compat_partial (bind_partial x y) (bind_partial x' y').
+  Proof.
+    intros [x_def y_def] [x'_def y'_def].
+    cbn in *. destruct (c_x x_def x'_def).
+    apply c_y.
+  Defined.
+
+  (** Slight generalisation of [compat_bind_partial]. *)
+  (* TODO: consider naming! *) 
+  Definition compat_bind_partial' {X Y}
+      {x x' : partial X} (c_x : compat_partial x x')
+      {y y' : X -> partial Y}
+      (c_y : forall x_def : is_defined x,
+          compat_partial (y (evaluate x_def)) (y' (evaluate x_def)))
+    : compat_partial (bind_partial x y) (bind_partial x' y').
+  Proof.
+    intros [x_def y_def] [x'_def y'_def].
+    cbn in *. destruct (c_x x_def x'_def).
+    apply c_y.
+  Defined.
+
   Local Lemma interpret_pi_cong_rules
     : cases_for_pi_cong_rules (fun J _ => is_interpretable J).
-  Admitted.
+  Proof.
+    split.
+    - intros Γ A A' B B' _ _ _ p_A_A' _ p_B_B' X E.
+      apply compat_bind_partial'; fold (@partial_interpretation_ty).
+      { use p_A_A'. }
+      intros A_def. apply compat_bind_partial.
+      { use (p_B_B' _ (extend_typed_environment E (A_def))). }
+      intros; apply compat_partial_refl.
+    - intros Γ A A' B B' b b' _ _ _ p_A_A' _ p_B_B' _ p_b_b' X E A_def_0.
+      apply compat_bind_partial';
+        fold @partial_interpretation_ty @partial_interpretation_tm.
+      { use p_A_A'. }
+      intros A_def. apply compat_bind_partial'.
+      { use (p_B_B' _ (extend_typed_environment E A_def)). }
+      intros B_def. apply compat_bind_partial.
+      { use (p_b_b' _ (extend_typed_environment E A_def)). }
+      intros; apply compat_partial_refl.
+    - intros Γ A A' B B' f f' a a' 
+             _ _ _ p_A_A' _ p_B_B' _ p_f_f' _ p_a_a' X E Ba_def_0.
+      apply compat_bind_partial';
+        fold @partial_interpretation_ty @partial_interpretation_tm.
+      { use p_A_A'. }
+      intros A_def. apply compat_bind_partial'.
+      { use (p_B_B' _ (extend_typed_environment E A_def)). }
+      intros B_def. apply compat_bind_partial'.
+      { use p_a_a'. }
+      intros a_def. apply compat_bind_partial'.
+      { transparent assert (Pi_def
+        : (is_defined (partial_interpretation_ty U Π E (Pi_expr A B)))).
+        { exists A_def. exists B_def. constructor. }
+        use (p_f_f' _ _ Pi_def). }
+      intros; apply compat_partial_refl.
+  Qed.
 
   Fixpoint interpretable_from_derivation {J : judgement}
     : derivation J -> is_interpretable J.
