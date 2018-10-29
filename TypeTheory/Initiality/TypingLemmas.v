@@ -75,7 +75,7 @@ Section Renaming_Judgements.
   Definition rename_derivation
       {J : judgement} (d_J : derivation J)
       {Δ} (f : typed_renaming (context_of_judgement J) Δ)
-      (d_Δ : derivation [! |- Δ !])
+      (d_Δ : [! |- Δ !])
     : derivation (rename_judgement J f).
   Proof.
     revert J d_J Δ f d_Δ.
@@ -154,7 +154,7 @@ Section Context_Maps.
 
   Definition derivation_context_map
       (Δ Γ : context) (f : raw_context_map Δ Γ) : UU
-  := forall i:Γ, derivation [! Δ |- f i ::: subst_ty f (Γ i) !].
+  := forall i:Γ, [! Δ |- f i ::: subst_ty f (Γ i) !].
 
   Identity Coercion id_derivation_context_map
     : derivation_context_map >-> Funclass.
@@ -165,9 +165,9 @@ Section Context_Maps.
   Definition weaken_derivation_context_map_prelim
       {Δ Γ : context} (f : raw_context_map Δ Γ) (A : ty_expr Γ)
     : derivation_context_map Δ Γ f
-      -> derivation [! Γ |- A !]
-      -> derivation [! |- Δ !]
-      -> derivation [! Δ |- subst_ty f A !]
+      -> [! Γ |- A !]
+      -> [! |- Δ !]
+      -> [! Δ |- subst_ty f A !]
       -> derivation_context_map
            (Δ ;; subst_ty f A) (Γ ;; A) (weaken_raw_context_map f).
   Proof.
@@ -208,9 +208,9 @@ Section Context_Maps.
   stronger version of this later, following admissibility of substitution. *)
   Definition weaken_context_map_prelim
     {Δ Γ : context} (f : context_map Δ Γ) (A : ty_expr Γ)
-    (d_A : derivation [! Γ |- A !])
-    (d_Δ : derivation [! |- Δ !])
-    (d_fA : derivation [! Δ |- subst_ty f A !])
+    (d_A : [! Γ |- A !])
+    (d_Δ : [! |- Δ !])
+    (d_fA : [! Δ |- subst_ty f A !])
     : context_map (Δ ;; subst_ty f A) (Γ ;; A)
   := (_,, weaken_derivation_context_map_prelim
             f A (derivation_from_context_map f) d_A d_Δ d_fA).
@@ -235,7 +235,7 @@ Section Substitute_Judgements.
   Definition subst_derivation
       {J : judgement} (d_J : derivation J)
       {Δ : context} (f : context_map Δ (context_of_judgement J))
-      (d_Δ : derivation [! |- Δ !])
+      (d_Δ : [! |- Δ !])
     : derivation (subst_judgement J f).
   Proof.
     revert J d_J Δ f d_Δ.

@@ -17,13 +17,13 @@ Local Open Scope judgement.
 Section Typed_Syntax.
 
   Definition ty_with_derivation (Γ : context) : UU
-    := ∑ (A : ty_expr Γ), derivation [! Γ |- A !].
+    := ∑ (A : ty_expr Γ), [! Γ |- A !].
 
   Coercion ty_expr_of_ty_with_derivation {Γ} (A : ty_with_derivation Γ) :
     ty_expr Γ := pr1 A.
 
   Definition tm_with_derivation (Γ : context) (A : ty_expr Γ) : UU
-    := ∑ (a : tm_expr Γ), derivation [! Γ |- a ::: A !].
+    := ∑ (a : tm_expr Γ), [! Γ |- a ::: A !].
 
   Coercion tm_expr_of_tm_with_derivation {Γ} {A : ty_with_derivation Γ}
     (a : tm_with_derivation Γ A) : tm_expr Γ := pr1 a.
@@ -32,7 +32,7 @@ Section Typed_Syntax.
 
   Note this does *not* directly include the data of any ordering/stratification, unlike the conventional judgement [! |- Γ !]. *)
   Definition derivation_flat_context (Γ : context)
-    := forall i:Γ, derivation [! Γ |- Γ i !].
+    := forall i:Γ, [! Γ |- Γ i !].
 
   Definition flat_context
     := ∑ (Γ : context), derivation_flat_context Γ.
@@ -41,7 +41,7 @@ Section Typed_Syntax.
     := pr1 Γ.
 
   Definition derivation_from_flat_context {Γ : flat_context} (i : Γ)
-    : derivation [! Γ |- Γ i !]
+    : [! Γ |- Γ i !]
   := pr2 Γ i.
 
   (** Typed context maps, [context_map], are already defined upstream in [TypingLemmas]. *)
@@ -135,7 +135,7 @@ Section Stratified_Contexts.
   Coercion make_stratified_context : stratified_context_of_length >-> stratified_context.
 
   (* any well-typed context is indeed derivably a context. *)
-  Lemma stratified_context_derivable (Γ : stratified_context) : derivation [! |- Γ !].
+  Lemma stratified_context_derivable (Γ : stratified_context) : [! |- Γ !].
   Proof.
     destruct Γ as [n Γ].
     induction n as [|n IHn].
