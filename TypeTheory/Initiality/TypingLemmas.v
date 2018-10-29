@@ -233,7 +233,7 @@ Section Substitute_Judgements.
   Defined.
 
   Definition subst_derivation
-      {J : judgement} (d_J : derivation J)
+      (J : judgement) (d_J : derivation J)
       {Δ : context} (f : context_map Δ (context_of_judgement J))
       (d_Δ : [! |- Δ !])
     : derivation (subst_judgement J f).
@@ -308,3 +308,73 @@ Section Substitute_Judgements.
   Defined.
 
 End Substitute_Judgements.
+
+Section Substeq_Judgements.
+
+  Definition substeq_judgement
+      (J : judgement) {Δ : context} 
+      (f g : raw_context_map Δ (context_of_judgement J))
+    : UU.
+  Proof.
+    revert f g; destruct J as [ Γ | Γ A | Γ | Γ A a | Γ ]; intros f g.
+    - exact unit.
+    - exact [! Δ |- subst_ty f A === subst_ty g A !].
+    - exact unit.
+    - exact [! Δ |- subst_tm f a === subst_tm g a ::: subst_ty f A !].
+    - exact unit.
+  Defined.
+
+(*
+  Lemma
+    {Γ Δ} (f : raw_context_map Δ Γ) (A : ty_expr Γ)
+    : forall i : Γ, subst_ty (weaken_raw_context_map f A) (Γ ;; A i)
+                             = subs *)
+
+  Definition substeq_derivation
+      {J : judgement} (d_J : derivation J)
+      {Δ : context} (f g : raw_context_map Δ (context_of_judgement J))
+      (d_f : derivation_context_map Δ (context_of_judgement J) f)
+      (d_g : derivation_context_map Δ (context_of_judgement J) g)
+      (d_fg : forall i, [! Δ |- f i === g i ::: subst_ty f (context_of_judgement J i) !])
+      (d_Δ : [! |- Δ !])
+    : substeq_judgement J f g.
+  Proof.
+    revert J d_J Δ f g d_f d_g d_fg d_Δ.
+    use derivation_rect_grouped.
+    - split; cbn; intros; exact tt. (* context rules *)
+    - intro; cbn; auto. (* var rule *)
+    - split; cbn; intros; exact tt. (* equiv_rel rules *)
+    - split; cbn. (* conv rules *)
+      + intros ? ? ? a ? _ ? _ ? _ _ p_a ? f ? ? ? ? ?. 
+        apply derive_tmeq_conv with (subst_ty f A).
+        * refine (subst_derivation [! _ |- _ !] _ (_,,_) _); auto.
+        * refine (subst_derivation [! _ |- _ !] _ (_,,_) _); auto.
+        * refine (subst_derivation [! _ |- _ === _ !] _ (_,,_) _); auto.
+        * auto.
+      + intros; exact tt.
+    - split; cbn; intros. (* universe rules *)
+      + apply derive_tyeq_refl, derive_U; assumption.
+      + apply derive_El_cong; auto.
+      + exact tt.
+    - split; cbn. (* pi rules *)
+      + intros. apply derive_Pi_cong; auto.
+        { refine (subst_derivation [! _ |- _ !] _ (_,,_) _); auto. }
+        use p_B.
+        * use weaken_derivation_context_map_prelim; auto.
+          refine (subst_derivation [! _ |- _ !] _ (_,,_) _); auto.
+        * intros i. (* TODO: abstract as lemma [derive_context_map_conv] *)
+          apply derive_tm_conv
+            with (subst_ty (weaken_raw_context_map f) ((Γ;;A)%context i)).
+          -- admit.
+          -- admit.
+          -- admit.
+          -- admit.
+        * admit.
+        * admit.
+      + admit.
+      + admit.
+      + intros; exact tt.
+    - split; intros; exact tt. (* pi cong rules *)
+  Admitted.
+
+End Substeq_Judgements.
