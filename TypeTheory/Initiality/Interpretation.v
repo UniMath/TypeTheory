@@ -740,7 +740,7 @@ a little more work to state. *)
         { apply partial_interpretation_subst_ty. }
         intros A_interp. apply bind_leq_partial_1.
         eapply leq_partial_trans.
-        2: { refine (partial_interpretation_subst_ty _ _ _ _ _ _ _ B).
+        2: { refine (partial_interpretation_subst_ty _ _ _ _ _ _ _ _).
           apply (partial_interpretation_weaken_raw_context_map E T A_interp). 
           apply f_def. }
         apply leq_partial_of_path, maponpaths_2.
@@ -753,9 +753,42 @@ a little more work to state. *)
         use show_return_leq_partial.
         * exact (f_def i).
         * cbn. apply pathsinv0, tm_transportf_idpath.
-      + admit. (* [lam_expr A B b] *)
-      + admit. (* [app_expr A B f a] *)
-  Admitted.
+      + (* [lam_expr A B b] *)
+        cbn. eapply bind_leq_partial.
+        { apply partial_interpretation_subst_ty. }
+        intros A_interp. apply bind_leq_partial.
+        { eapply leq_partial_trans.
+          2: { refine (partial_interpretation_subst_ty _ _ _ _ _ _ _ _).
+            apply (partial_interpretation_weaken_raw_context_map E T A_interp). 
+            apply f_def. }
+          apply leq_partial_of_path, maponpaths_2.
+          refine (!leq_partial_commutes
+                  (partial_interpretation_weaken_raw_context_map _ _ _ _) _). }
+        intros B_interp. apply bind_leq_partial_1.
+        eapply leq_partial_trans.
+        2: { refine (partial_interpretation_subst_tm _ _ _ _ _ _ _ _ _).
+          apply (partial_interpretation_weaken_raw_context_map E T A_interp). 
+          apply f_def. }
+        apply leq_partial_of_path. 
+        eapply (maponpaths (fun E => partial_interpretation_tm _ _ E _ _)).
+        refine (!leq_partial_commutes
+                 (partial_interpretation_weaken_raw_context_map _ _ _ _) _).
+      + (* [app_expr A B f a] *)
+        cbn. eapply bind_leq_partial.
+        { apply partial_interpretation_subst_ty. }
+        intros A_interp. apply bind_leq_partial.
+        { eapply leq_partial_trans.
+          2: { refine (partial_interpretation_subst_ty _ _ _ _ _ _ _ _).
+            apply (partial_interpretation_weaken_raw_context_map E T A_interp). 
+            apply f_def. }
+          apply leq_partial_of_path, maponpaths_2.
+          refine (!leq_partial_commutes
+                  (partial_interpretation_weaken_raw_context_map _ _ _ _) _). }
+        intros B_interp. apply bind_leq_partial.
+        { apply partial_interpretation_subst_tm. }
+        intros a_interp. apply bind_leq_partial_1.
+        apply partial_interpretation_subst_tm.
+  Qed.
 
   (* TODO: consider naming! *)
   Definition raw_context_map_tracks_environments
