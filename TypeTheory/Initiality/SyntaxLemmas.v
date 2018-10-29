@@ -244,3 +244,36 @@ Section Raw_Context_Category_Axioms.
   Defined.
 
 End Raw_Context_Category_Axioms.
+
+Section Miscellaneous.
+
+  Lemma rename_tm_as_raw_context_map {m n : nat} (f : m -> n) (a : tm_expr m)
+    : rename_tm f ∘ tm_as_raw_context_map a
+    = tm_as_raw_context_map (rename_tm f a) ∘ fmap_dB_S f.
+  Proof.
+    use funextfun; use dB_Sn_rect; intros; apply idpath.
+  Defined. 
+
+  Lemma rename_subst_top_ty {m n : nat} (f : m -> n)
+      (A : ty_expr (S m)) (a : tm_expr m)
+    : rename_ty f (subst_top_ty a A)
+      = subst_top_ty (rename_tm f a) (rename_ty (fmap_dB_S f) A). 
+  Proof.
+    unfold subst_top_ty.
+    eapply pathscomp0. { apply rename_subst_ty. }
+    eapply pathscomp0. 2: { apply pathsinv0, subst_rename_ty. }
+    apply maponpaths_2, rename_tm_as_raw_context_map.
+  Defined.
+
+  Lemma rename_subst_top_tm {m n : nat} (f : m -> n)
+      (A : tm_expr (S m)) (a : tm_expr m)
+    : rename_tm f (subst_top_tm a A)
+      = subst_top_tm (rename_tm f a) (rename_tm (fmap_dB_S f) A). 
+  Proof.
+    unfold subst_top_tm.
+    eapply pathscomp0. { apply rename_subst_tm. }
+    eapply pathscomp0. 2: { apply pathsinv0, subst_rename_tm. }
+    apply maponpaths_2, rename_tm_as_raw_context_map.
+  Defined.
+
+End Miscellaneous.
