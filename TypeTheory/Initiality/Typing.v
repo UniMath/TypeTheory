@@ -210,11 +210,13 @@ Section Derivations.
       -> derivation [! Γ |- El_expr a === El_expr a' !]
     | derive_Pi_cong (Γ : context) (A A' : _) (B B' : _)
       :    derivation [! |- Γ !]
+        -> derivation [! Γ |- A !] 
         -> derivation [! Γ |- A === A' !]
         -> derivation [! Γ ;; A |- B === B' !]
       -> derivation [! Γ |- Pi_expr A B === Pi_expr A' B' !]
     | derive_lam_cong (Γ : context) A A' B B' b b'
       :    derivation [! |- Γ !]
+        -> derivation [! Γ |- A !] 
         -> derivation [! Γ |- A === A' !]
         -> derivation [! Γ ;; A |- B === B' !]
         -> derivation [! Γ ;; A |- b === b' ::: B !]
@@ -222,6 +224,7 @@ Section Derivations.
                                                  ::: Pi_expr A B !]
     | derive_app_cong (Γ : context) A A' B B' f f' a a'
       :    derivation [! |- Γ !]
+        -> derivation [! Γ |- A !] 
         -> derivation [! Γ |- A === A' !]
         -> derivation [! Γ ;; A |- B === B' !]
         -> derivation [! Γ |- f === f' ::: Pi_expr A B !]
@@ -418,27 +421,30 @@ Section Derivation_Helpers.
   := {
     case_for_Pi_cong
     : forall (Γ : context) (A A' : ty_expr Γ) (B B' : ty_expr (Γ ;; A))
-             (d_Γ : derivation [! |- Γ !]) (p_Γ : P d_Γ)
-             (d_A : derivation [! Γ |- A === A' !]) (p_A : P d_A)
-             (d_B : derivation [! Γ ;; A |- B === B' !]) (p_B : P d_B),
-      P (derive_Pi_cong Γ A A' B B' d_Γ d_A d_B)
+        (d_Γ : derivation [! |- Γ !]) (p_Γ : P d_Γ)
+        (d_A : derivation [! Γ |- A !]) (p_A : P d_A)
+        (d_AA : derivation [! Γ |- A === A' !]) (p_AA : P d_AA)
+        (d_BB : derivation [! Γ ;; A |- B === B' !]) (p_BB : P d_BB),
+      P (derive_Pi_cong Γ A A' B B' d_Γ d_A d_AA d_BB)
   ; case_for_lam_cong
     : forall (Γ : context) (A A' : ty_expr Γ) (B B' : ty_expr (Γ ;; A))
-             (b b' : tm_expr (Γ ;; A)) 
-             (d_Γ : derivation [! |- Γ !]) (p_Γ : P d_Γ)
-             (d_A : derivation [! Γ |- A === A' !]) (p_A : P d_A)
-             (d_B : derivation [! Γ ;; A |- B === B' !]) (p_B : P d_B)
-             (d_b : derivation [! Γ ;; A |- b === b' ::: B !]) (p_b : P d_b),
-      P (derive_lam_cong Γ A A' B B' b b' d_Γ d_A d_B d_b)
+        (b b' : tm_expr (Γ ;; A)) 
+        (d_Γ : derivation [! |- Γ !]) (p_Γ : P d_Γ)
+        (d_A : derivation [! Γ |- A !]) (p_A : P d_A)
+        (d_AA : derivation [! Γ |- A === A' !]) (p_AA : P d_AA)
+        (d_BB : derivation [! Γ ;; A |- B === B' !]) (p_BB : P d_BB)
+        (d_bb : derivation [! Γ ;; A |- b === b' ::: B !]) (p_bb : P d_bb),
+      P (derive_lam_cong Γ A A' B B' b b' d_Γ d_A d_AA d_BB d_bb)
   ; case_for_app_cong
     : forall (Γ : context) (A A' : ty_expr Γ) (B B' : ty_expr (Γ ;; A))
-             (f f' a a' : tm_expr Γ)
-             (d_Γ : derivation [! |- Γ !]) (p_Γ : P d_Γ)
-             (d_A : derivation [! Γ |- A === A' !]) (p_A : P d_A)
-             (d_B : derivation [! Γ ;; A |- B === B' !]) (p_B : P d_B)
-             (d_f : derivation [! Γ |- f === f' ::: Pi_expr A B !]) (p_f : P d_f)
-             (d_a : derivation [! Γ |- a === a' ::: A !]) (p_a : P d_a),
-      P (derive_app_cong Γ A A' B B' f f' a a' d_Γ d_A d_B d_f d_a)
+        (f f' a a' : tm_expr Γ)
+        (d_Γ : derivation [! |- Γ !]) (p_Γ : P d_Γ)
+        (d_A : derivation [! Γ |- A !]) (p_A : P d_A)
+        (d_AA : derivation [! Γ |- A === A' !]) (p_AA : P d_AA)
+        (d_BB : derivation [! Γ ;; A |- B === B' !]) (p_BB : P d_BB)
+        (d_ff : derivation [! Γ |- f === f' ::: Pi_expr A B !]) (p_ff : P d_ff)
+        (d_aa : derivation [! Γ |- a === a' ::: A !]) (p_aa : P d_aa),
+      P (derive_app_cong Γ A A' B B' f f' a a' d_Γ d_A d_AA d_BB d_ff d_aa)
     }.
 
   Definition derivation_rect_grouped

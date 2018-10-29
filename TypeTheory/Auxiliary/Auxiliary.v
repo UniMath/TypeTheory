@@ -83,6 +83,11 @@ Definition maponpaths_123 {Z Y X A : UU} (f : Z -> Y -> X -> A)
   : f z y x = f z' y' x'
 := maponpaths_12 _ e_y e_x @ maponpaths_3 f e_z _ _.
 
+Definition maponpaths_13 {Z Y X A : UU} (f : Z -> Y -> X -> A)
+    {z z'} (e_z : z = z') (y:Y) {x x'} (e_x : x = x')
+  : f z y x = f z' y x'
+:= maponpaths_123 _ e_z (idpath y) e_x.
+
 Definition maponpaths_4 {W Z Y X A : UU} (f : W -> Z -> Y -> X -> A)
     {w w'} (e_w : w = w') z y x
   : f w z y x = f w' z y x

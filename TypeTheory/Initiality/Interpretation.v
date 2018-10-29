@@ -1202,13 +1202,13 @@ Section Totality.
     : cases_for_pi_cong_rules (fun J _ => is_interpretable J).
   Proof.
     split.
-    - intros Γ A A' B B' _ _ _ p_A_A' _ p_B_B' X E.
+    - intros Γ A A' B B' _ _ _ _ _ p_A_A' _ p_B_B' X E.
       apply compat_bind_partial'; fold (@partial_interpretation_ty).
       { use p_A_A'. }
       intros A_def. apply compat_bind_partial.
       { use (p_B_B' _ (extend_typed_environment E (A_def))). }
       intros; apply compat_partial_refl.
-    - intros Γ A A' B B' b b' _ _ _ p_A_A' _ p_B_B' _ p_b_b' X E A_def_0.
+    - intros Γ A A' B B' b b' _ _ _ _ _ p_A_A' _ p_B_B' _ p_b_b' X E A_def_0.
       apply compat_bind_partial';
         fold @partial_interpretation_ty @partial_interpretation_tm.
       { use p_A_A'. }
@@ -1218,7 +1218,7 @@ Section Totality.
       { use (p_b_b' _ (extend_typed_environment E A_def)). }
       intros; apply compat_partial_refl.
     - intros Γ A A' B B' f f' a a' 
-             _ _ _ p_A_A' _ p_B_B' _ p_f_f' _ p_a_a' X E Ba_def_0.
+             _ _ _ _ _ p_A_A' _ p_B_B' _ p_f_f' _ p_a_a' X E Ba_def_0.
       apply compat_bind_partial';
         fold @partial_interpretation_ty @partial_interpretation_tm.
       { use p_A_A'. }
