@@ -5,5 +5,5 @@ Syntax.v
 SyntaxLemmas.v
 Typing.v
 Interpretation.v
-SubstitutionAdmissible.v
+TypingLemmas.v
 SyntacticCategory.v

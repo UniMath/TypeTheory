@@ -10,7 +10,7 @@ Require Import TypeTheory.Initiality.SplitTypeCat_Structure.
 Require Import TypeTheory.Initiality.Syntax.
 Require Import TypeTheory.Initiality.SyntaxLemmas.
 Require Import TypeTheory.Initiality.Typing.
-Require Import TypeTheory.Initiality.SubstitutionAdmissible.
+Require Import TypeTheory.Initiality.TypingLemmas.
 
 Local Open Scope judgement.
 
@@ -44,7 +44,7 @@ Section Typed_Syntax.
     : derivation [! Γ |- Γ i !]
   := pr2 Γ i.
 
-  (** Typed context maps, [context_map], are already defined upstream in [SubstitutionAdmissible]. *)
+  (** Typed context maps, [context_map], are already defined upstream in [TypingLemmas]. *)
 
 End Typed_Syntax.
 
