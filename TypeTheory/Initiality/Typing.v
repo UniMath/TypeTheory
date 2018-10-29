@@ -129,44 +129,6 @@ Section Derivations.
         -> derivation [! Γ |- A === A' !]
         -> derivation [! Γ |- a === a' ::: A !]
       -> derivation [! Γ |- a === a' ::: A' !]
-    (** substitution rules *)
-    | derive_subst_ty
-        (Γ Γ' : context) (f : raw_context_map Γ' Γ) (A : _)
-      :    derivation [! |- Γ' !]
-        -> (forall i:Γ, derivation [! Γ' |- f i ::: subst_ty f (Γ i) !])
-        -> derivation [! Γ |- A !]
-      -> derivation [! Γ' |- subst_ty f A !]
-    | derive_subst_tyeq
-        (Γ Γ' : context) (f : raw_context_map Γ' Γ) (A A' : _)
-      :    derivation [! |- Γ' !]
-        -> (forall i:Γ, derivation [! Γ' |- f i ::: subst_ty f (Γ i) !])
-        -> derivation [! Γ |- A === A' !]
-      -> derivation [! Γ' |- subst_ty f A === subst_ty f A' !]
-    | derive_subst_tm
-        (Γ Γ' : context) (f : raw_context_map Γ' Γ) (A : _) (a : _)
-      :    derivation [! |- Γ' !]
-        -> (forall i:Γ, derivation [! Γ' |- f i ::: subst_ty f (Γ i) !])
-        -> derivation [! Γ |- a ::: A !]
-      -> derivation [! Γ' |- subst_tm f a ::: (subst_ty f A) !]
-    | derive_subst_tmeq
-        (Γ Γ' : context) (f : raw_context_map Γ' Γ) (A : _) (a a' : _)
-      :    derivation [! |- Γ' !]
-        -> (forall i:Γ, derivation [! Γ' |- f i ::: subst_ty f (Γ i) !])
-        -> derivation [! Γ |- a === a' ::: A !]
-      -> derivation [! Γ' |- subst_tm f a === subst_tm f a' ::: subst_ty f A !]
-    (** substitution-equality rules *)
-    | derive_substeq_ty
-        (Γ Γ' : context) (f f' : raw_context_map Γ' Γ) (A : _)
-      :    derivation [! |- Γ' !]
-        -> (forall i:Γ, derivation [! Γ' |- f i === f' i ::: subst_ty f (Γ i) !])
-        -> derivation [! Γ |- A !]
-      -> derivation [! Γ' |- subst_ty f A === subst_ty f' A !] 
-    | derive_substeq_tm
-        (Γ Γ' : context) (f f' : raw_context_map Γ' Γ) (A : _) (a : _)
-      :    derivation [! |- Γ' !]
-        -> (forall i:Γ, derivation [! Γ' |- f i === f' i ::: subst_ty f (Γ i) !])
-        -> derivation [! Γ |- a ::: A !]
-      -> derivation [! Γ' |- subst_tm f a === subst_tm f' a ::: subst_ty f A !] 
     (** logical rules  *)
     | derive_U (Γ : context) 
       :    derivation [! |- Γ !]
@@ -311,59 +273,6 @@ Section Derivation_Helpers.
       P (derive_tmeq_conv Γ A A' a a' d_A d_A' d_AA' d_aa')
   }.
 
-  Record cases_for_subst_rules
-  := {
-    case_subst_ty
-    : forall (Γ Γ' : context) (f : raw_context_map Γ' Γ) (A : ty_expr Γ)
-             (d_Γ' : derivation [! |- Γ' !]) (p_Γ' : P d_Γ')
-             (d_f : ∏ i : Γ, derivation [! Γ' |- f i ::: subst_ty f (Γ i) !])
-             (p_f : ∏ i : Γ, P (d_f i))
-             (d : derivation [! Γ |- A !]) (p : P d),
-      P (derive_subst_ty Γ Γ' f A d_Γ' d_f d)
-  ; case_subst_tyeq
-    : forall (Γ Γ' : context) (f : raw_context_map Γ' Γ) (A A' : ty_expr Γ)
-             (d_Γ' : derivation [! |- Γ' !]) (p_Γ' : P d_Γ')
-             (d_f : ∏ i : Γ, derivation [! Γ' |- f i ::: subst_ty f (Γ i) !])
-             (p_f : ∏ i : Γ, P (d_f i))
-             (d : derivation [! Γ |- A === A' !]) (p : P d),
-      P (derive_subst_tyeq Γ Γ' f A A' d_Γ' d_f d)
-  ; case_subst_tm
-    : forall (Γ Γ' : context) (f : raw_context_map Γ' Γ)
-             (A : ty_expr Γ) (a : tm_expr Γ)
-             (d_Γ' : derivation [! |- Γ' !]) (p_Γ' : P d_Γ')
-             (d_f : ∏ i : Γ, derivation [! Γ' |- f i ::: subst_ty f (Γ i) !])
-             (p_f : ∏ i : Γ, P (d_f i))
-             (d : derivation [! Γ |- a ::: A !]) (p : P d),
-      P (derive_subst_tm Γ Γ' f A a d_Γ' d_f d)
-  ; case_subst_tmeq
-    : forall (Γ Γ' : context) (f : raw_context_map Γ' Γ)
-             (A : ty_expr Γ) (a a' : tm_expr Γ)
-             (d_Γ' : derivation [! |- Γ' !]) (p_Γ' : P d_Γ')
-             (d_f : ∏ i : Γ, derivation [! Γ' |- f i ::: subst_ty f (Γ i) !])
-             (p_f : ∏ i : Γ, P (d_f i))
-             (d : derivation [! Γ |- a === a' ::: A !]) (p : P d),
-      P (derive_subst_tmeq Γ Γ' f A a a' d_Γ' d_f d)
-    }.
-
-  Record cases_for_substeq_rules
-  := {
-    case_substeq_ty
-    : forall (Γ Γ' : context) (f f' : raw_context_map Γ' Γ) (A : ty_expr Γ)
-      (d_Γ' : derivation [! |- Γ' !]) (p_Γ' : P d_Γ')
-      (d_fs : ∏ i : Γ, derivation [! Γ' |- f i === f' i ::: subst_ty f (Γ i) !])
-      (p_fs : ∏ i : Γ, P (d_fs i))
-      (d : derivation [! Γ |- A !]) (p : P d),
-    P (derive_substeq_ty Γ Γ' f f' A  d_Γ' d_fs d)
-  ; case_substeq_tm
-    : forall (Γ Γ' : context) (f f' : raw_context_map Γ' Γ)
-      (A : ty_expr Γ) (a : tm_expr Γ)
-      (d_Γ' : derivation [! |- Γ' !]) (p_Γ' : P d_Γ')
-      (d_fs : ∏ i : Γ, derivation [! Γ' |- f i === f' i ::: subst_ty f (Γ i) !])
-      (p_fs : ∏ i : Γ, P (d_fs i))
-      (d : derivation [! Γ |- a ::: A !]) (p : P d),
-    P (derive_substeq_tm Γ Γ' f f' A a d_Γ' d_fs d)
-  }.
-
   Record cases_for_universe_rules
   := {
     case_for_U
@@ -452,15 +361,13 @@ Section Derivation_Helpers.
       (H_var_rule : case_for_var_rule)               (* 1 case *)
       (H_equiv_rel_rules : cases_for_equiv_rel_rules) (* 6 cases *)
       (H_conv_rules : cases_for_conv_rules)           (* 2 cases *)
-      (H_subst_rules : cases_for_subst_rules)         (* 4 cases *)
-      (H_substeq_rules : cases_for_substeq_rules)     (* 2 cases *)
       (H_universe_rules : cases_for_universe_rules)   (* 3 cases *)
       (H_pi_rules : cases_for_pi_rules)               (* 4 cases *)
       (H_pi_cong_rules : cases_for_pi_cong_rules)     (* 3 cases *)
     : forall J (d : derivation J), P d.
   Proof.
-    destruct H_context_rules, H_equiv_rel_rules, H_conv_rules, H_subst_rules,
-    H_substeq_rules, H_universe_rules, H_pi_rules, H_pi_cong_rules.
+    destruct H_context_rules, H_equiv_rel_rules, H_conv_rules, 
+    H_universe_rules, H_pi_rules, H_pi_cong_rules.
     apply derivation_rect; eauto using pr1, pr2.
   Defined.
 

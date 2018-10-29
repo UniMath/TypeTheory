@@ -1060,25 +1060,6 @@ Section Totality.
       simple refine (p_AA' _ _ _ _).
   Defined.
 
-  Local Lemma interpret_subst_rules
-    : cases_for_subst_rules (fun J _ => is_interpretable J).
-  Proof.
-    split.
-    - intros; intros X E.
-      admit. (* Not currently enough information for this!
-        Possible fixes:
-        - use the “Sigma” definition of interpretability of term judgements, instead of “Pi” 
-        - maybe also the “Sigma” definition of partial interpretation of terms
-        - add hypotheses in the subst rules for the presups of d_f. *)
-    - admit. 
-    - admit.
-    - admit.
-  Admitted.
-
-  Local Lemma interpret_substeq_rules
-    : cases_for_substeq_rules (fun J _ => is_interpretable J).
-  Admitted.
-
   Local Lemma interpret_universe_rules
     : cases_for_universe_rules (fun J _ => is_interpretable J).
   Proof.
@@ -1242,8 +1223,6 @@ Section Totality.
     - apply interpret_var_rule.
     - apply interpret_equiv_rel_rules.
     - apply interpret_conv_rules.
-    - apply interpret_subst_rules.
-    - apply interpret_substeq_rules.
     - apply interpret_universe_rules.
     - apply interpret_pi_rules.
     - apply interpret_pi_cong_rules.

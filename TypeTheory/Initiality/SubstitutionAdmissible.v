@@ -127,8 +127,6 @@ Section Renaming_Judgements.
         apply derive_tm_conv with (rename_ty f A); eauto.
       + intros ? A ? ? ? ? ? ? ? ? ? ? ? ? f ?.
         apply derive_tmeq_conv with (rename_ty f A); eauto.
-    - admit. (* subst rules *)
-    - admit. (* subst_eq rules *)
     - split. (* universe rules *)
       + intros; apply derive_U; auto.
       + intros; apply derive_El; eauto.
@@ -157,7 +155,7 @@ Section Renaming_Judgements.
             auto using derive_cxt_extend.
         * refine (p_b _ (extend_typed_renaming f A) _);
             auto using derive_cxt_extend.
-    - split.
+    - split. (* congruences for pi-constructors *)
       + cbn. intros ? A ? ? ? ? ? ? ? ? ? ? p_BB ? f ?.
         apply derive_Pi_cong; auto.
         refine (p_BB _ (extend_typed_renaming _ _) _).
@@ -174,6 +172,6 @@ Section Renaming_Judgements.
         apply derive_app_cong; auto.
         refine (p_BB _ (extend_typed_renaming _ _) _).
         apply derive_cxt_extend; eauto.
-  Admitted.
+  Defined.
 
 End Renaming_Judgements.
