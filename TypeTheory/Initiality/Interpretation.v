@@ -8,6 +8,7 @@ Require Import UniMath.CategoryTheory.All.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.Partial.
 Require Import TypeTheory.ALV1.TypeCat.
+Require Import TypeTheory.Initiality.SplitTypeCat_General.
 Require Import TypeTheory.Initiality.SplitTypeCat_Maps.
 Require Import TypeTheory.Initiality.SplitTypeCat_Structure.
 Require Import TypeTheory.Initiality.Syntax.
@@ -32,72 +33,6 @@ Section Auxiliary.
   Definition tm_paths_hProp {C : split_typecat} {Γ : C} {A : C Γ} (s t : tm A)
     : hProp
   := hProppair (s = t) (isaset_tm _ _).
-
-  Context {C : split_typecat}.
-
-  (* TODO: perhaps upstream the following group? *)
-  Definition type_with_term (Γ:C) := ∑ (A : C Γ), tm A.
-
-  Definition type_of {Γ} (Aa : type_with_term Γ) := pr1 Aa.
-
-  Coercion term_of {Γ} (Aa : type_with_term Γ) : tm (type_of Aa)
-    := pr2 Aa.
-
-  Definition paths_type_with_term {Γ} {Aa Bb : type_with_term Γ}
-      (e_ty : type_of Aa = type_of Bb)
-      (e_tm : term_of Aa ;; comp_ext_compare e_ty = term_of Bb)
-    : Aa = Bb.
-  Proof.
-    destruct Aa as [A a], Bb as [B b]; cbn in *. 
-    destruct e_ty; cbn in *.
-    apply maponpaths, paths_tm.
-    refine (_ @ e_tm). apply pathsinv0, id_right.
-  Defined.
-
-  Definition reind_type_with_term {Γ Γ'} (f : Γ' --> Γ)
-    : type_with_term Γ -> type_with_term Γ'
-  := fun a => ((type_of a)⦃f⦄,, reind_tm f a).
-
-  Definition reind_idmap_type_with_term
-      {Γ} (Aa : type_with_term Γ)
-    : reind_type_with_term (id _) Aa = Aa.
-  Proof.
-  Admitted.
-
-  Definition reind_compose_type_with_term
-      {Γ Γ' Γ''} (f : Γ' --> Γ) (f' : Γ'' --> Γ')
-      (Aa : type_with_term Γ)
-    : reind_type_with_term (f' ;; f) Aa
-      = reind_type_with_term f' (reind_type_with_term f Aa).
-  Proof.
-  Admitted.
-
-  Definition var_with_type {Γ} (A : C Γ)
-    : type_with_term (Γ ◂ A)
-  := (A⦃dpr_typecat A⦄,, var_typecat A).
-
-  Lemma reind_type_with_term_q_var {Γ Γ'} (f : Γ' --> Γ) (A : C Γ)
-    : reind_type_with_term (q_typecat A f) (var_with_type A)
-    = var_with_type (A ⦃f⦄).
-  Proof.
-      use paths_type_with_term.
-      + eapply pathscomp0. { apply pathsinv0, (reind_comp_typecat C). }
-        eapply pathscomp0. 2: { apply (reind_comp_typecat C). }
-        apply maponpaths, dpr_q_typecat.
-      + cbn. admit. (* lemma about [var_typecat] *)
-  Admitted.
-
-  Lemma reind_term_var_with_type {Γ} {A : C Γ} (a : tm A)
-    : reind_type_with_term a (var_with_type A) = (A,,a).
-  Proof.
-    use paths_type_with_term.
-    + eapply pathscomp0. { apply pathsinv0, (reind_comp_typecat C). }
-      eapply pathscomp0. 2: { apply (reind_id_type_typecat C). }
-      apply maponpaths, section_property.
-    + cbn. refine (@maponpaths _ _ (section_pr1 _) (tm_transportf _ _) _ _).
-      refine (_ @ reind_tm_var_typecat' a).
-      apply tm_transportf_irrelevant.
-  Qed.
 
 End Auxiliary.
 
