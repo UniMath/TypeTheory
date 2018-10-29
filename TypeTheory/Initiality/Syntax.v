@@ -150,6 +150,8 @@ Section Raw_Context_Maps.
 
   Definition raw_context_map n m := dB_vars m -> tm_expr n.
 
+  Identity Coercion id_raw_context_map : raw_context_map >-> Funclass.
+
   Definition idmap_raw_context n : raw_context_map n n.
   Proof.
     exact var_expr.
@@ -173,9 +175,9 @@ End Raw_Context_Maps.
 Section Substitution.
 
   Fixpoint
-    subst_ty {m n} (f : dB_vars m -> tm_expr n) (e : ty_expr m) : ty_expr n
+    subst_ty {m n} (f : raw_context_map n m) (e : ty_expr m) : ty_expr n
   with
-    subst_tm {m n} (f : dB_vars m -> tm_expr n) (e : tm_expr m) : tm_expr n.
+    subst_tm {m n} (f : raw_context_map n m) (e : tm_expr m) : tm_expr n.
   Proof.
     - (* subst_ty *)
       destruct e as [ m | m a | m A B ].

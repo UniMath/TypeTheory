@@ -10,6 +10,8 @@ Require Import TypeTheory.Initiality.Syntax.
 Require Import TypeTheory.Initiality.SyntaxLemmas.
 Require Import TypeTheory.Initiality.Typing.
 
+Local Open Scope judgement_scope.
+
 Section Typed_Renaming.
 
   Definition typed_renaming (Γ Δ : context) : UU
@@ -24,7 +26,7 @@ Section Typed_Renaming.
     : Δ (f i) = rename_ty f (Γ i)
   := pr2 f i.
 
-  Definition extend_typed_renaming
+  Definition weaken_typed_renaming
     {Γ Δ} (f : typed_renaming Γ Δ) (A : ty_expr Γ)
     : typed_renaming (Γ ;; A) (Δ ;; rename_ty f A). 
   Proof.
@@ -38,11 +40,15 @@ Section Typed_Renaming.
       refine (!rename_comp_ty _ _ _).
   Defined.
 
+  Definition dB_next_typed_renaming (Γ:context) (A : ty_expr Γ)
+    : typed_renaming Γ (Γ;;A).
+  Proof.
+    exists dB_next. intros; apply idpath.
+  Defined.
+  
 End Typed_Renaming.
 
 Section Renaming_Judgements.
-
-  Local Open Scope judgement_scope.
 
   Definition context_of_judgement (J : judgement) : context
   := match J with
@@ -54,8 +60,8 @@ Section Renaming_Judgements.
   end.
 
   Definition rename_judgement
-      (J : judgement) {Δ} 
-    : typed_renaming (context_of_judgement J) Δ
+      (J : judgement) {Δ : context} 
+    : (context_of_judgement J -> Δ)
     -> judgement.
   Proof.
     destruct J as [ Γ | Γ A | Γ A A' | Γ A a | Γ A a a' ]; intros f.
@@ -100,17 +106,17 @@ Section Renaming_Judgements.
       + intros; apply derive_El_cong; eauto.
     - split. (* Pi rules *)
       + cbn. intros; apply derive_Pi; auto.
-        refine (p_B _ (extend_typed_renaming _ _) _).
+        refine (p_B _ (weaken_typed_renaming _ _) _).
         apply derive_cxt_extend; auto.
       + cbn. intros; apply derive_lam; auto;
-        set (fA := extend_typed_renaming f A).
+        set (fA := weaken_typed_renaming f A).
         * refine (p_B _ fA _); auto using derive_cxt_extend.
         * refine (p_b _ fA _); auto using derive_cxt_extend.        
       + cbn. intros ? A ? ? ? ? ? ? ? ? p_B ? ? ? ? ? f ?.
         refine (transportb _ _ _). 
         { eapply maponpaths_2, rename_subst_top_ty. }
         apply derive_app; eauto.
-        refine (p_B _ (extend_typed_renaming f A) _);
+        refine (p_B _ (weaken_typed_renaming f A) _);
           auto using derive_cxt_extend.
       + cbn. intros ? A ? ? ? ? ? ? ? ? p_B ? p_b ? ? ? f ?.
         refine (transportb _ _ _). 
@@ -118,27 +124,187 @@ Section Renaming_Judgements.
           - apply rename_subst_top_ty.
           - apply rename_subst_top_tm. }
         apply derive_beta; eauto.
-        * refine (p_B _ (extend_typed_renaming f A) _);
+        * refine (p_B _ (weaken_typed_renaming f A) _);
             auto using derive_cxt_extend.
-        * refine (p_b _ (extend_typed_renaming f A) _);
+        * refine (p_b _ (weaken_typed_renaming f A) _);
             auto using derive_cxt_extend.
     - split. (* congruences for pi-constructors *)
       + cbn. intros ? A ? ? ? ? ? ? ? ? ? ? p_BB ? f ?.
         apply derive_Pi_cong; auto.
-        refine (p_BB _ (extend_typed_renaming _ _) _).
+        refine (p_BB _ (weaken_typed_renaming _ _) _).
         apply derive_cxt_extend; eauto.
       + cbn. intros ? A ? ? ? ? ? ? ? ? ? ? ? ? p_BB ? p_bb ? f ?.
         apply derive_lam_cong; auto.
-        * refine (p_BB _ (extend_typed_renaming _ _) _).
+        * refine (p_BB _ (weaken_typed_renaming _ _) _).
           apply derive_cxt_extend; eauto.
-        * refine (p_bb _ (extend_typed_renaming _ _) _).
+        * refine (p_bb _ (weaken_typed_renaming _ _) _).
           apply derive_cxt_extend; eauto.
       + cbn. intros ? A ? ? ? ? ? ? ? ? ? ? ? ? ? ? p_BB ? ? ? ? ? f ?.
         refine (transportb _ _ _). 
         { eapply maponpaths_3, rename_subst_top_ty. }
         apply derive_app_cong; auto.
-        refine (p_BB _ (extend_typed_renaming _ _) _).
+        refine (p_BB _ (weaken_typed_renaming _ _) _).
         apply derive_cxt_extend; eauto.
   Defined.
 
 End Renaming_Judgements.
+
+(* TODO: upstream? *)
+Section Context_Maps.
+
+  Definition derivation_context_map
+      (Δ Γ : context) (f : raw_context_map Δ Γ) : UU
+  := forall i:Γ, derivation [! Δ |- f i ::: subst_ty f (Γ i) !].
+
+  Identity Coercion id_derivation_context_map
+    : derivation_context_map >-> Funclass.
+
+  (** The eventual [weaken_derivation_context_map] doesn’t need the
+   hypothesis [ [! Δ |- subst_ty f A !] ]. However, that requires admissibility
+   of substitution, which in turn uses this preliminary version. *)
+  Definition weaken_derivation_context_map_prelim
+      {Δ Γ : context} (f : raw_context_map Δ Γ) (A : ty_expr Γ)
+    : derivation_context_map Δ Γ f
+      -> derivation [! Γ |- A !]
+      -> derivation [! |- Δ !]
+      -> derivation [! Δ |- subst_ty f A !]
+      -> derivation_context_map
+           (Δ ;; subst_ty f A) (Γ ;; A) (weaken_raw_context_map f).
+  Proof.
+    intros d_f d_A d_Δ d_fA.
+    use dB_Sn_rect; cbn.
+    - eapply transportb.
+      { apply maponpaths_2.
+        eapply pathscomp0. { use subst_rename_ty. } 
+        apply pathsinv0. use rename_subst_ty. }
+      refine (derive_var (_;;_) dB_top _ _).
+      { apply derive_cxt_extend; auto. }
+      refine (@rename_derivation [! _ |- _ !]
+                                   _ _ (dB_next_typed_renaming _ _) _).
+      + assumption.
+      + apply derive_cxt_extend; auto.
+    - intros i. eapply transportb.
+      { apply maponpaths_2.
+        eapply pathscomp0. { use subst_rename_ty. } 
+        apply pathsinv0. use rename_subst_ty. }
+      refine (@rename_derivation [! _ |- _ ::: _ !]
+                                   _ _ (dB_next_typed_renaming _ _) _).
+      + apply d_f.
+      + apply derive_cxt_extend; auto.
+  Defined.  
+
+  Definition context_map (Δ Γ : context) : UU
+    := ∑ (f : raw_context_map Δ Γ), derivation_context_map Δ Γ f.
+
+  Definition context_map_pr1 {Γ Δ} (f : context_map Γ Δ) := pr1 f
+    : raw_context_map _ _.
+  Coercion context_map_pr1 : context_map >-> raw_context_map.
+
+  Definition derivation_from_context_map {Γ Δ} (f : context_map Γ Δ) (i : Δ)
+    : derivation _
+  := pr2 f i.
+
+  (** Like [weaken_derivation_context_map_prelim], we will be able to give a
+  stronger version of this later, following admissibility of substitution. *)
+  Definition weaken_context_map_prelim
+    {Δ Γ : context} (f : context_map Δ Γ) (A : ty_expr Γ)
+    (d_A : derivation [! Γ |- A !])
+    (d_Δ : derivation [! |- Δ !])
+    (d_fA : derivation [! Δ |- subst_ty f A !])
+    : context_map (Δ ;; subst_ty f A) (Γ ;; A)
+  := (_,, weaken_derivation_context_map_prelim
+            f A (derivation_from_context_map f) d_A d_Δ d_fA).
+
+End Context_Maps.
+
+Section Substitute_Judgements.
+
+  Definition subst_judgement
+      (J : judgement) {Δ : context} 
+    : raw_context_map Δ (context_of_judgement J)
+    -> judgement.
+  Proof.
+    destruct J as [ Γ | Γ A | Γ A A' | Γ A a | Γ A a a' ]; intros f.
+    - exact [! |- Δ !].
+    - exact [! Δ |- subst_ty f A !].
+    - exact [! Δ |- subst_ty f A === subst_ty f A' !].
+    - exact [! Δ |- subst_tm f a ::: subst_ty f A !].
+    - exact [! Δ |- subst_tm f a === subst_tm f a' ::: subst_ty f A !].
+  Defined.
+
+  Definition subst_derivation
+      {J : judgement} (d_J : derivation J)
+      {Δ : context} (f : context_map Δ (context_of_judgement J))
+      (d_Δ : derivation [! |- Δ !])
+    : derivation (subst_judgement J f).
+  Proof.
+    revert J d_J Δ f d_Δ.
+    use derivation_rect_grouped.
+    - split; auto. (* context rules *)
+    - (* var rule *)
+      intros Γ; cbn; intros i _ _ d_Γi IH_Γi Δ f d_Δ.
+      specialize (IH_Γi Δ f d_Δ). 
+      set (e := derivation_from_context_map f i). apply e.
+    - split. (* equiv_rel_rules *)
+      + intros. apply derive_tyeq_refl; eauto. 
+      + intros. apply derive_tyeq_sym; eauto.
+      + intros ? ? A1 ? ? ? ? ? ? ? ? ? ? ? ? f ?.
+        apply derive_tyeq_trans with (subst_ty f A1); eauto.
+      + intros. apply derive_tmeq_refl; eauto.
+      + intros. apply derive_tmeq_sym; eauto.
+      + intros ? ? ? a1 ? ? ? ? ? ? ? ? ? ? ? ? f ?.
+        apply derive_tmeq_trans with (subst_tm f a1); eauto.
+    - split. (* conv rules *)
+      + intros ? A ? ? ? ? ? ? ? ? ? ? ? f ?.
+        apply derive_tm_conv with (subst_ty f A); eauto.
+      + intros ? A ? ? ? ? ? ? ? ? ? ? ? ? f ?.
+        apply derive_tmeq_conv with (subst_ty f A); eauto.
+    - split. (* universe rules *)
+      + intros; apply derive_U; auto.
+      + intros; apply derive_El; eauto.
+      + intros; apply derive_El_cong; eauto.
+    - split. (* Pi rules *)
+      + cbn. intros; apply derive_Pi; auto.
+        refine (p_B _ (weaken_context_map_prelim _ _ _ _ _) _);
+          auto using derive_cxt_extend.
+      + cbn. intros; apply derive_lam; auto.
+        * refine (p_B _ (weaken_context_map_prelim _ _ _ _ _) _);
+            auto using derive_cxt_extend.
+        * refine (p_b _ (weaken_context_map_prelim _ _ _ _ _) _);
+            auto using derive_cxt_extend.        
+      + cbn. intros ? A ? ? ? ? ? ? ? ? p_B ? ? ? ? ? f ?.
+        refine (transportb _ _ _). 
+        { eapply maponpaths_2, subst_subst_top_ty. }
+        apply derive_app; eauto.
+        refine (p_B _ (weaken_context_map_prelim _ _ _ _ _) _);
+          auto using derive_cxt_extend.
+      + cbn. intros ? A ? ? ? ? ? ? ? ? p_B ? p_b ? ? ? f ?.
+        refine (transportb _ _ _). 
+        { eapply maponpaths_13. 
+          - apply subst_subst_top_ty.
+          - apply subst_subst_top_tm. }
+        apply derive_beta; eauto.
+        * refine (p_B _ (weaken_context_map_prelim _ _ _ _ _) _);
+            auto using derive_cxt_extend.
+        * refine (p_b _ (weaken_context_map_prelim _ _ _ _ _) _);
+            auto using derive_cxt_extend.        
+    - split. (* congruences for pi-constructors *)
+      + cbn. intros ? A ? ? ? ? ? ? ? ? ? ? p_BB ? f ?.
+        apply derive_Pi_cong; auto.
+        refine (p_BB _ (weaken_context_map_prelim _ _ _ _ _) _);
+          auto using derive_cxt_extend.
+      + cbn. intros ? A ? ? ? ? ? ? ? ? ? ? ? ? p_BB ? p_bb ? f ?.
+        apply derive_lam_cong; auto.
+        * refine (p_BB _ (weaken_context_map_prelim _ _ _ _ _) _);
+            auto using derive_cxt_extend.
+        * refine (p_bb _ (weaken_context_map_prelim _ _ _ _ _) _);
+            auto using derive_cxt_extend.        
+      + cbn. intros ? A ? ? ? ? ? ? ? ? ? ? ? ? ? ? p_BB ? ? ? ? ? f ?.
+        refine (transportb _ _ _). 
+        { eapply maponpaths_3, subst_subst_top_ty. }
+        apply derive_app_cong; auto.
+        refine (p_BB _ (weaken_context_map_prelim _ _ _ _ _) _);
+          auto using derive_cxt_extend.
+  Defined.
+
+End Substitute_Judgements.

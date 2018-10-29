@@ -191,12 +191,12 @@ Section Substitution.
   Defined.
 
   Fixpoint
-    subst_comp_ty {m n p} (f : raw_context_map n m) (g : raw_context_map p n)
+    subst_subst_ty {m n p} (f : raw_context_map n m) (g : raw_context_map p n)
       (e : ty_expr m)
     : subst_ty g (subst_ty f e)
       = subst_ty (comp_raw_context g f) e
   with
-    subst_comp_tm {m n p} (f : raw_context_map n m) (g : raw_context_map p n)
+    subst_subst_tm {m n p} (f : raw_context_map n m) (g : raw_context_map p n)
       (e : tm_expr m)
     : subst_tm g (subst_tm f e)
       = subst_tm (comp_raw_context g f) e.
@@ -240,7 +240,7 @@ Section Raw_Context_Category_Axioms.
     = comp_raw_context f (comp_raw_context g h).
   Proof.
     apply funextsec; intro i.
-    apply pathsinv0, subst_comp_tm.
+    apply pathsinv0, subst_subst_tm.
   Defined.
 
 End Raw_Context_Category_Axioms.
@@ -253,6 +253,19 @@ Section Miscellaneous.
   Proof.
     use funextfun; use dB_Sn_rect; intros; apply idpath.
   Defined. 
+
+  Lemma comp_tm_as_raw_context_map
+      {m n : nat} (f : raw_context_map m n) (a : tm_expr n)
+    : comp_raw_context f (tm_as_raw_context_map a)
+    = comp_raw_context (tm_as_raw_context_map (subst_tm f a))
+                       (weaken_raw_context_map f).
+  Proof.
+    use funextfun; use dB_Sn_rect; cbn.
+    - apply idpath.
+    - intros i. apply pathsinv0.
+      eapply pathscomp0. { apply subst_rename_tm. }
+      use subst_idmap_tm.
+  Defined.
 
   Lemma rename_subst_top_ty {m n : nat} (f : m -> n)
       (A : ty_expr (S m)) (a : tm_expr m)
@@ -274,6 +287,28 @@ Section Miscellaneous.
     eapply pathscomp0. { apply rename_subst_tm. }
     eapply pathscomp0. 2: { apply pathsinv0, subst_rename_tm. }
     apply maponpaths_2, rename_tm_as_raw_context_map.
+  Defined.
+
+  Lemma subst_subst_top_ty {n m : nat} (f :raw_context_map n m)
+      (A : ty_expr (S m)) (a : tm_expr m)
+    : subst_ty f (subst_top_ty a A)
+      = subst_top_ty (subst_tm f a) (subst_ty (weaken_raw_context_map f) A). 
+  Proof.
+    unfold subst_top_ty.
+    eapply pathscomp0. { apply subst_subst_ty. }
+    eapply pathscomp0. 2: { apply pathsinv0, subst_subst_ty. }
+    apply maponpaths_2, comp_tm_as_raw_context_map.
+  Defined.
+
+  Lemma subst_subst_top_tm {n m : nat} (f :raw_context_map n m)
+      (A : tm_expr (S m)) (a : tm_expr m)
+    : subst_tm f (subst_top_tm a A)
+      = subst_top_tm (subst_tm f a) (subst_tm (weaken_raw_context_map f) A). 
+  Proof.
+    unfold subst_top_tm.
+    eapply pathscomp0. { apply subst_subst_tm. }
+    eapply pathscomp0. 2: { apply pathsinv0, subst_subst_tm. }
+    apply maponpaths_2, comp_tm_as_raw_context_map.
   Defined.
 
 End Miscellaneous.
