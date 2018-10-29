@@ -69,7 +69,7 @@ End Renaming.
 (** Identity and composition of raw context maps. *)
 Section Raw_Context_Category_Operations.
 
-  (* [idmap_raw_context] already defined in [Initiality.Syntax]. *)
+  (** [idmap_raw_context] already defined in [Initiality.Syntax]. *)
 
   Definition comp_raw_context {m n p}
       (f : raw_context_map m n)

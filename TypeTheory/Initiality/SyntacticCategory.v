@@ -10,10 +10,11 @@ Require Import TypeTheory.Initiality.SplitTypeCat_Structure.
 Require Import TypeTheory.Initiality.Syntax.
 Require Import TypeTheory.Initiality.SyntaxLemmas.
 Require Import TypeTheory.Initiality.Typing.
+Require Import TypeTheory.Initiality.SubstitutionAdmissible.
 
 Local Open Scope judgement.
 
-Section Types_and_Terms.
+Section Typed_Syntax.
 
   Definition ty_with_derivation (Γ : context) : UU
     := ∑ (A : ty_expr Γ), derivation [! Γ |- A !].
@@ -27,66 +28,123 @@ Section Types_and_Terms.
   Coercion tm_expr_of_tm_with_derivation {Γ} {A : ty_with_derivation Γ}
     (a : tm_with_derivation Γ A) : tm_expr Γ := pr1 a.
 
-End Types_and_Terms.
+  (** A context is well-typed if all its types are well-typed over it 
 
-Section Typed_Contexts.
-(** Here we define (well-typed) contexts, in the usual sense. *)
+  Note this does *not* directly include the data of any ordering/stratification, unlike the conventional judgement [! |- Γ !]. *)
+  Definition derivation_flat_context (Γ : context)
+    := forall i:Γ, derivation [! Γ |- Γ i !].
+
+  Definition flat_context
+    := ∑ (Γ : context), derivation_flat_context Γ.
+
+  Coercion context_of_flat_context (Γ : flat_context) : context
+    := pr1 Γ.
+
+  Definition derivation_from_flat_context {Γ : flat_context} (i : Γ)
+    : derivation [! Γ |- Γ i !]
+  := pr2 Γ i.
+
+  (** Typed context maps, [context_map], are already defined upstream in [SubstitutionAdmissible]. *)
+
+End Typed_Syntax.
+
+(** Identity and composition of _typed_ context maps. *)
+Section Typed_Context_Category_Operations.
+
+  Definition derivation_idmap_context (Γ : flat_context)
+    : derivation_context_map Γ Γ (idmap_raw_context Γ).
+  Proof.
+    intros i.
+    refine (transportb _ _ _).
+    { apply maponpaths_2, subst_idmap_ty. }
+    use derive_var; eauto using derivation_from_flat_context.
+    admit. (* TODO: either abolish context judgements, or add them in def of flat contexts *)
+  Admitted.
+
+  Definition idmap_context {Γ : flat_context}
+    : context_map Γ Γ
+  := (idmap_raw_context Γ,, derivation_idmap_context Γ).
+
+  Definition derivation_comp_raw_context {Γ Δ Θ : flat_context }
+      {f : raw_context_map Γ Δ} {g : raw_context_map Δ Θ}
+      (d_f : derivation_context_map Γ Δ f)
+      (d_g : derivation_context_map Δ Θ g) 
+    : derivation_context_map Γ Θ (comp_raw_context f g).
+  Proof.
+    intros i. cbn. unfold comp_raw_context at 2.
+    refine (transportb _ _ _).
+    { apply maponpaths_2, pathsinv0, subst_subst_ty. }
+    refine (@subst_derivation [! _ |- _ ::: _ !] _ _ (_,,_) _).
+    - apply d_g.
+    - apply d_f.
+    - admit. (* TODO: either abolish context judgements, or add them in def of flat contexts *)
+  Admitted.
+  
+  Definition comp_raw_context {Γ Δ Θ : flat_context }
+      {f : context_map Γ Δ} {g : context_map Δ Θ}
+    : context_map Γ Θ
+  := (comp_raw_context f g,, 
+     derivation_comp_raw_context (derivation_from_context_map f)
+                                    (derivation_from_context_map g)).
+
+End Typed_Context_Category_Operations.
+
+
+
+Section Stratified_Contexts.
+(** Here we define (well-typed) contexts, in the usual sense of being ordered + stratified. *)
 
 (* TODO: perhaps rename [context] upstream to e.g. [raw_context] or
 [flat_context], so these can just be [context]? *)
 
-(* TODO: we could reasonably disentangle the “well-typed” aspect, in
-the sense of all the types being derivable types, and the “stratified”
-aspect. This shouldn’t be essential, but might make things clearer. *)
-
-  Fixpoint typed_context_aux (n : nat)
+  Fixpoint stratified_context_aux (n : nat)
     : ∑ (X : Type), X -> context_of_length n.
   Proof.
     destruct n as [ | n].
     - exists unit. (* unique empty context *)
       intros _; exact empty_context.
-    - set (cxt_n := pr1 (typed_context_aux n)).
-      set (realise := pr2 (typed_context_aux n) : cxt_n -> _).
+    - set (cxt_n := pr1 (stratified_context_aux n)).
+      set (realise := pr2 (stratified_context_aux n) : cxt_n -> _).
       exists (∑ (Γ : cxt_n), ty_with_derivation (realise Γ)).
       intros Γ_A.
       exact (context_extend (realise (pr1 Γ_A)) (pr2 Γ_A)).
   Defined.
 
-  Definition typed_context_of_length (n : nat)
-  := pr1 (typed_context_aux n).
+  Definition stratified_context_of_length (n : nat)
+  := pr1 (stratified_context_aux n).
 
-  Definition realise_typed_context {n}
-    : typed_context_of_length n -> context_of_length n
-  := pr2 (typed_context_aux n).
+  Definition realise_stratified_context {n}
+    : stratified_context_of_length n -> context_of_length n
+  := pr2 (stratified_context_aux n).
 
-  Coercion realise_typed_context
-    : typed_context_of_length >-> context_of_length.
+  Coercion realise_stratified_context
+    : stratified_context_of_length >-> context_of_length.
 
-  Definition typed_context : UU
-  := ∑ (n : nat), typed_context_of_length n.
+  Definition stratified_context : UU
+  := ∑ (n : nat), stratified_context_of_length n.
 
-  Definition typed_context_length : typed_context -> nat := pr1.
-  Coercion typed_context_length : typed_context >-> nat.
+  Definition stratified_context_length : stratified_context -> nat := pr1.
+  Coercion stratified_context_length : stratified_context >-> nat.
 
-  Definition typed_context_types : forall Γ : typed_context, _ := pr2.
-  Coercion typed_context_types : typed_context >-> typed_context_of_length.
+  Definition stratified_context_types : forall Γ : stratified_context, _ := pr2.
+  Coercion stratified_context_types : stratified_context >-> stratified_context_of_length.
 
-  Definition make_typed_context {n}
-    : typed_context_of_length n -> typed_context
+  Definition make_stratified_context {n}
+    : stratified_context_of_length n -> stratified_context
   := fun Γ => (n,,Γ).
-  Coercion make_typed_context : typed_context_of_length >-> typed_context.
+  Coercion make_stratified_context : stratified_context_of_length >-> stratified_context.
 
   (* any well-typed context is indeed derivably a context. *)
-  Lemma typed_context_derivable (Γ : typed_context) : derivation [! |- Γ !].
+  Lemma stratified_context_derivable (Γ : stratified_context) : derivation [! |- Γ !].
   Proof.
     destruct Γ as [n Γ].
     induction n as [|n IHn].
     - now apply derive_cxt_empty.
     - destruct Γ as [Γ A].
-      now apply (derive_cxt_extend (realise_typed_context Γ) A (IHn _)), A.
+      now apply (derive_cxt_extend (realise_stratified_context Γ) A (IHn _)), A.
   Defined.
 
-End Typed_Contexts.
+End Stratified_Contexts.
 
 Section Context_Maps.
   (* Maybe all this section can be inlined into section [Category] below, depending how long it turns out. *)
