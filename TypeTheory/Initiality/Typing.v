@@ -35,9 +35,10 @@ Section Contexts.
   Definition context_extend (Γ : context) (A : ty_expr Γ) : context.
   Proof.
     exists (S (context_length Γ)).
+    refine (rename_ty dB_next ∘ _).
     refine (dB_Sn_rect _ _ _).
-    - exact (rename_ty dB_next A).
-    - intros i. exact (rename_ty dB_next (Γ i)).
+    - exact A.
+    - intros i. exact (Γ i).
   Defined.
 
 End Contexts.
