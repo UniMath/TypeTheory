@@ -327,29 +327,30 @@ Section Substitute_Judgements.
 (* Note: if the context judgement is removed in definition of derivations,
 then the hypothesis [d_Δ] should be unnecessary here (but compare 
 [substeq_derivation] below). *)
-      (f : context_map Δ (context_of_judgement J))
+      {f : raw_context_map Δ (context_of_judgement J)}
+      (d_f : [! |- f ::: Δ ---> context_of_judgement J !])
     : derivation (subst_judgement J f).
   Proof.
-    revert J d_J Δ f d_Δ.
+    revert J d_J Δ d_Δ f d_f.
     use derivation_rect_grouped.
     - split; auto. (* context rules *)
     - (* var rule *)
-      intros Γ; cbn; intros i _ _ d_Γi IH_Γi Δ f d_Δ.
-      specialize (IH_Γi Δ f d_Δ). 
-      set (e := derivation_from_context_map f i). apply e.
+      intros Γ; cbn; intros i _ _ d_Γi IH_Γi Δ d_Δ f d_f.
+      specialize (IH_Γi Δ d_Δ f d_f). 
+      apply d_f.
     - split. (* equiv_rel_rules *)
       + intros. apply derive_tyeq_refl; eauto. 
       + intros. apply derive_tyeq_sym; eauto.
-      + intros ? ? A1 ? ? ? ? ? ? ? ? ? ? ? ? f ?.
+      + intros ? ? A1 ? ? ? ? ? ? ? ? ? ? ? ? ? f ?.
         apply derive_tyeq_trans with (subst_ty f A1); eauto.
       + intros. apply derive_tmeq_refl; eauto.
       + intros. apply derive_tmeq_sym; eauto.
-      + intros ? ? ? a1 ? ? ? ? ? ? ? ? ? ? ? ? f ?.
+      + intros ? ? ? a1 ? ? ? ? ? ? ? ? ? ? ? ? ? f ?.
         apply derive_tmeq_trans with (subst_tm f a1); eauto.
     - split. (* conv rules *)
-      + intros ? A ? ? ? ? ? ? ? ? ? ? ? f ?.
-        apply derive_tm_conv with (subst_ty f A); eauto.
       + intros ? A ? ? ? ? ? ? ? ? ? ? ? ? f ?.
+        apply derive_tm_conv with (subst_ty f A); eauto.
+      + intros ? A ? ? ? ? ? ? ? ? ? ? ? ? ? f ?.
         apply derive_tmeq_conv with (subst_ty f A); eauto.
     - split. (* universe rules *)
       + intros; apply derive_U; auto.
@@ -357,46 +358,46 @@ then the hypothesis [d_Δ] should be unnecessary here (but compare
       + intros; apply derive_El_cong; eauto.
     - split. (* Pi rules *)
       + cbn. intros; apply derive_Pi; auto.
-        refine (p_B _ (weaken_context_map_prelim _ _ _ _) _);
-          auto using derive_cxt_extend.
+        refine (p_B _ _ _ _);
+          auto using weaken_derivation_map_prelim, derive_cxt_extend.
       + cbn. intros; apply derive_lam; auto.
-        * refine (p_B _ (weaken_context_map_prelim _ _ _ _) _);
-            auto using derive_cxt_extend.
-        * refine (p_b _ (weaken_context_map_prelim _ _ _ _) _);
-            auto using derive_cxt_extend.        
-      + cbn. intros ? A ? ? ? ? ? ? ? ? p_B ? ? ? ? ? f ?.
+        * refine (p_B _ _ _ _);
+          auto using weaken_derivation_map_prelim, derive_cxt_extend.
+        * refine (p_b _ _ _ _);
+          auto using weaken_derivation_map_prelim, derive_cxt_extend.
+      + cbn. intros ? A ? ? ? ? ? ? ? ? p_B ? ? ? ? ? ? f ?.
         refine (transportb _ _ _). 
         { eapply maponpaths_2, subst_subst_top_ty. }
         apply derive_app; eauto.
-        refine (p_B _ (weaken_context_map_prelim _ _ _ _) _);
-          auto using derive_cxt_extend.
-      + cbn. intros ? A ? ? ? ? ? ? ? ? p_B ? p_b ? ? ? f ?.
+        refine (p_B _ _ _ _);
+          auto using weaken_derivation_map_prelim, derive_cxt_extend.
+      + cbn. intros ? A ? ? ? ? ? ? ? ? p_B ? p_b ? ? ? ? f ?.
         refine (transportb _ _ _). 
         { eapply maponpaths_13. 
           - apply subst_subst_top_ty.
           - apply subst_subst_top_tm. }
         apply derive_beta; eauto.
-        * refine (p_B _ (weaken_context_map_prelim _ _ _ _) _);
-            auto using derive_cxt_extend.
-        * refine (p_b _ (weaken_context_map_prelim _ _ _ _) _);
-            auto using derive_cxt_extend.        
+        * refine (p_B _ _ _ _);
+          auto using weaken_derivation_map_prelim, derive_cxt_extend.
+        * refine (p_b _ _ _ _);
+          auto using weaken_derivation_map_prelim, derive_cxt_extend.
     - split. (* congruences for pi-constructors *)
-      + cbn. intros ? A ? ? ? ? ? ? ? ? ? ? p_BB ? f ?.
+      + cbn. intros ? A ? ? ? ? ? ? ? ? ? ? p_BB ? ? f ?.
         apply derive_Pi_cong; auto.
-        refine (p_BB _ (weaken_context_map_prelim _ _ _ _) _);
-          auto using derive_cxt_extend.
-      + cbn. intros ? A ? ? ? ? ? ? ? ? ? ? ? ? p_BB ? p_bb ? f ?.
+        refine (p_BB _ _ _ _);
+          auto using weaken_derivation_map_prelim, derive_cxt_extend.
+      + cbn. intros ? A ? ? ? ? ? ? ? ? ? ? ? ? p_BB ? p_bb ? ? f ?.
         apply derive_lam_cong; auto.
-        * refine (p_BB _ (weaken_context_map_prelim _ _ _ _) _);
-            auto using derive_cxt_extend.
-        * refine (p_bb _ (weaken_context_map_prelim _ _ _ _) _);
-            auto using derive_cxt_extend.        
-      + cbn. intros ? A ? ? ? ? ? ? ? ? ? ? ? ? ? ? p_BB ? ? ? ? ? f ?.
+        * refine (p_BB _ _ _ _);
+          auto using weaken_derivation_map_prelim, derive_cxt_extend.
+        * refine (p_bb _ _ _ _);
+          auto using weaken_derivation_map_prelim, derive_cxt_extend.
+      + cbn. intros ? A ? ? ? ? ? ? ? ? ? ? ? ? ? ? p_BB ? ? ? ? ? ? f ?.
         refine (transportb _ _ _). 
         { eapply maponpaths_3, subst_subst_top_ty. }
         apply derive_app_cong; auto.
-        refine (p_BB _ (weaken_context_map_prelim _ _ _ _) _);
-          auto using derive_cxt_extend.
+        refine (p_BB _ _ _ _);
+          auto using weaken_derivation_map_prelim, derive_cxt_extend.
   Defined.
 
 End Substitute_Judgements.
@@ -436,9 +437,9 @@ as a flat context judgement [ [! |f- Δ !] ]. *)
     - split; cbn. (* conv rules *)
       + intros ? ? ? a ? _ ? _ ? _ _ p_a ? f ? ? ? ? ?. 
         apply derive_tmeq_conv with (subst_ty f A).
-        * refine (subst_derivation [! _ |- _ !] _ _ (_,,_)); auto.
-        * refine (subst_derivation [! _ |- _ !] _ _ (_,,_)); auto.
-        * refine (subst_derivation [! _ |- _ === _ !] _ _ (_,,_)); auto.
+        * refine (subst_derivation [! _ |- _ !] _ _ _); auto.
+        * refine (subst_derivation [! _ |- _ !] _ _ _); auto.
+        * refine (subst_derivation [! _ |- _ === _ !] _ _ _); auto.
         * auto.
       + intros; exact tt.
     - split; cbn; intros. (* universe rules *)
@@ -447,10 +448,10 @@ as a flat context judgement [ [! |f- Δ !] ]. *)
       + exact tt.
     - split; cbn. (* pi rules *)
       + intros. apply derive_Pi_cong; auto.
-        { refine (subst_derivation [! _ |- _ !] _ _ (_,,_)); auto. }
+        { refine (subst_derivation [! _ |- _ !] _ _ _); auto. }
         use p_B.
         * use weaken_derivation_map_prelim; auto.
-          refine (subst_derivation [! _ |- _ !] _ _ (_,,_)); auto.
+          refine (subst_derivation [! _ |- _ !] _ _ _); auto.
         * intros i. (* TODO: abstract as lemma [derive_context_map_conv] *)
           apply derive_tm_conv
             with (subst_ty (weaken_raw_context_map f) ((Γ;;A)%context i)).
