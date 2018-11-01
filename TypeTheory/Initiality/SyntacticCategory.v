@@ -28,24 +28,6 @@ Section Typed_Syntax.
   Coercion tm_expr_of_tm_with_derivation {Γ} {A : ty_with_derivation Γ}
     (a : tm_with_derivation Γ A) : tm_expr Γ := pr1 a.
 
-  (** A context is well-typed if all its types are well-typed over it 
-
-  Note this does *not* directly include the data of any ordering/stratification, unlike the conventional judgement [! |- Γ !]. *)
-  Definition derivation_flat_context (Γ : context)
-    := forall i:Γ, [! Γ |- Γ i !].
-
-  Definition flat_context
-    := ∑ (Γ : context), derivation_flat_context Γ.
-
-  Coercion context_of_flat_context (Γ : flat_context) : context
-    := pr1 Γ.
-
-  Definition derivation_from_flat_context {Γ : flat_context} (i : Γ)
-    : [! Γ |- Γ i !]
-  := pr2 Γ i.
-
-  (** Typed context maps, [context_map], are already defined upstream in [TypingLemmas]. *)
-
 End Typed_Syntax.
 
 (** Identity and composition of _typed_ context maps. *)

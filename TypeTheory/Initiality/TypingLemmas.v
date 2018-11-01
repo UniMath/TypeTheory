@@ -12,8 +12,87 @@ Require Import TypeTheory.Initiality.Typing.
 
 Local Open Scope judgement_scope.
 
+Section Auxiliary_Judgements.
+
+  (** The context judgement [! |- Γ !] is almost entirely used just for one
+  consequence: that all types are well-typed over it. 
+
+  We quite happily could (and perhaps should) omit the context judgement
+  entirely in the definition of derivations, and then define this as an
+  auxiliary judgement afterwards, as we do for context morphisms. 
+
+  The only place where the extra “stratification” information carried by
+  [! |- Γ !] is needed is in the construction of the _contextual_ syntactic
+  category below; but that too can be instead done by defining stratification
+  as an auxiliary notion just when it’s really needed. *)
+  Definition derivation_flat_context (Γ : context)
+    := forall i:Γ, [! Γ |- Γ i !].
+
+  Notation "[! |f- Γ !]" := (derivation_flat_context Γ)
+                              (format "[!  |f-  Γ  !]") : judgement_scope.
+
+  (* TODO: perhaps rename existing [context] to [raw_context], for consistency, and use [context] for either this or the later stratified notion. *) 
+  Definition flat_context
+    := ∑ (Γ : context), [! |f- Γ !].
+
+  Coercion context_of_flat_context (Γ : flat_context) : context
+    := pr1 Γ.
+
+  Definition derivation_from_flat_context {Γ : flat_context} (i : Γ)
+    : [! Γ |- Γ i !]
+  := pr2 Γ i.
+
+  (** We want to prove that the context judgment implies this: *)
+  Definition flat_from_context_judgement {Γ : context} 
+    : [! |- Γ !] -> [! |f- Γ !].
+  Abort.
+  (** However, we first need to show admissibility of weakening;
+   or, more generally, admissibility of “typed renaming”.
+
+   Specifically, we prove that admissibility as [rename_derivation]
+   below, and then prove [flat_from_context_judgement]. *)
+
+  Definition derivation_context_map
+      (Δ Γ : context) (f : raw_context_map Δ Γ) : UU
+  := forall i:Γ, [! Δ |- f i ::: subst_ty f (Γ i) !].
+
+  Identity Coercion id_derivation_context_map
+    : derivation_context_map >-> Funclass.
+
+  Notation "[! |f- f ::: Δ ---> Γ !]" := (derivation_context_map Δ Γ f)
+                    (format "[! |f- f ::: Δ ---> Γ !]") : judgement_scope.
+
+
+  (** As with [ [! |f- Γ !] ], the actual key lemmas about
+  [ [! |- f ::: Δ -> Γ !] ] can’t be given until after admissibility of
+  weakening, [rename_derivation]. *)
+
+  Definition context_map (Δ Γ : context) : UU
+    := ∑ (f : raw_context_map Δ Γ), [! |f- f ::: Δ ---> Γ !].
+
+  Definition context_map_pr1 {Γ Δ} (f : context_map Γ Δ) := pr1 f
+    : raw_context_map _ _.
+  Coercion context_map_pr1 : context_map >-> raw_context_map.
+
+  Definition derivation_from_context_map {Γ Δ} (f : context_map Γ Δ) (i : Δ)
+    : derivation _
+  := pr2 f i.
+
+End Auxiliary_Judgements.
+
+(** Re-declaring notations from section *)
+Notation "[! |f- Γ !]" := (derivation_flat_context Γ)
+                              (format "[!  |f-  Γ  !]") : judgement_scope.
+Notation "[! |f- f ::: Δ ---> Γ !]" := (derivation_context_map Δ Γ f)
+                    (format "[! |f- f ::: Δ ---> Γ !]") : judgement_scope.
+
+(** Admissibility of weakening will be obtained as an instance of the general
+fact that one can rename variables throughout a derivation, providing the renaming
+respects the types (for now, up to literal syntactic equality). *)
 Section Typed_Renaming.
 
+  (** A _typed renaming_ between contexts: a renaming function for their
+  variables, respecting types up to syntactic equality. *)
   Definition typed_renaming (Γ Δ : context) : UU
     := ∑ (f : Γ -> Δ),
        forall i:Γ, Δ (f i) = rename_ty f (Γ i).
@@ -72,6 +151,8 @@ Section Renaming_Judgements.
     - exact [! Δ |- rename_tm f a === rename_tm f a' ::: rename_ty f A !].
   Defined.
 
+  (** The general admissibility of weakening/typed renaming:
+  one can rename variables throughout a derivation. *)
   Definition rename_derivation
       {J : judgement} (d_J : derivation J)
       {Δ} (f : typed_renaming (context_of_judgement J) Δ)
@@ -149,26 +230,43 @@ Section Renaming_Judgements.
 
 End Renaming_Judgements.
 
-(* TODO: upstream? *)
+(** With [rename_derivation], we can prove the basic lemmas about flat contexts
+and context maps. *)
+
+Section Flat_Contexts.
+
+  Definition flat_from_context_judgement {Γ : context} 
+    : [! |- Γ !] -> [! |f- Γ !].
+  Proof.
+    transparent assert (generalised_goal : (forall J, derivation J -> UU)).
+    { intros [ Δ | | | | ] d; [ exact [! |f- Δ !] | | | | ]; exact unit. }
+    assert (generalised_proof : forall J d, generalised_goal J d).
+    2: { apply generalised_proof. } 
+    clear Γ.
+    apply derivation_rect; try (intros; exact tt).
+    (* only 2 cases to consider *) 
+    - intros [].
+    - cbn; intros Γ A d_Γ IH_Γ d_A _ i; cbn.
+      refine (@rename_derivation [! _ |- _ !] _ _
+                                 (dB_next_typed_renaming _ _) _);
+        cbn.
+      2: { use derive_cxt_extend; assumption. }
+      revert i; use dB_Sn_rect; cbn; auto.
+  Qed.
+
+End Flat_Contexts.
+
 Section Context_Maps.
 
-  Definition derivation_context_map
-      (Δ Γ : context) (f : raw_context_map Δ Γ) : UU
-  := forall i:Γ, [! Δ |- f i ::: subst_ty f (Γ i) !].
-
-  Identity Coercion id_derivation_context_map
-    : derivation_context_map >-> Funclass.
-
-  (** The eventual [weaken_derivation_context_map] doesn’t need the
+  (** The eventual [weaken_derivation_context_map] shouldn’t need the
    hypothesis [ [! Δ |- subst_ty f A !] ]. However, that requires admissibility
    of substitution, which in turn uses this preliminary version. *)
   Definition weaken_derivation_context_map_prelim
       {Δ Γ : context} (f : raw_context_map Δ Γ) (A : ty_expr Γ)
-    : derivation_context_map Δ Γ f
+    : [! |f- f ::: Δ ---> Γ !]
       -> [! |- Δ !]
       -> [! Δ |- subst_ty f A !]
-      -> derivation_context_map
-           (Δ ;; subst_ty f A) (Γ ;; A) (weaken_raw_context_map f).
+      -> [! |f- weaken_raw_context_map f ::: Δ ;; subst_ty f A ---> Γ ;; A !].
   Proof.
     intros d_f d_Δ d_fA i.
     eapply transportb.
@@ -184,18 +282,7 @@ Section Context_Maps.
     - refine (@rename_derivation [! _ |- _ ::: _ !]
                                    _ _ (dB_next_typed_renaming _ _) _);
         eauto using derive_cxt_extend.
-  Defined.  
-
-  Definition context_map (Δ Γ : context) : UU
-    := ∑ (f : raw_context_map Δ Γ), derivation_context_map Δ Γ f.
-
-  Definition context_map_pr1 {Γ Δ} (f : context_map Γ Δ) := pr1 f
-    : raw_context_map _ _.
-  Coercion context_map_pr1 : context_map >-> raw_context_map.
-
-  Definition derivation_from_context_map {Γ Δ} (f : context_map Γ Δ) (i : Δ)
-    : derivation _
-  := pr2 f i.
+  Defined.
 
   (** Like [weaken_derivation_context_map_prelim], we will be able to give a
   stronger version of this later, following admissibility of substitution. *)
@@ -316,17 +403,11 @@ Section Substeq_Judgements.
     - exact unit.
   Defined.
 
-(*
-  Lemma
-    {Γ Δ} (f : raw_context_map Δ Γ) (A : ty_expr Γ)
-    : forall i : Γ, subst_ty (weaken_raw_context_map f A) (Γ ;; A i)
-                             = subs *)
-
   Definition substeq_derivation
       {J : judgement} (d_J : derivation J)
       {Δ : context} (f g : raw_context_map Δ (context_of_judgement J))
-      (d_f : derivation_context_map Δ (context_of_judgement J) f)
-      (d_g : derivation_context_map Δ (context_of_judgement J) g)
+      (d_f : [! |f- f ::: Δ ---> context_of_judgement J !])
+      (d_g : [! |f- g ::: Δ ---> context_of_judgement J !])
       (d_fg : forall i, [! Δ |- f i === g i ::: subst_ty f (context_of_judgement J i) !])
       (d_Δ : [! |- Δ !])
     : substeq_judgement J f g.
@@ -357,8 +438,7 @@ Section Substeq_Judgements.
         * intros i. (* TODO: abstract as lemma [derive_context_map_conv] *)
           apply derive_tm_conv
             with (subst_ty (weaken_raw_context_map f) ((Γ;;A)%context i)).
-          -- (* PROBLEM: I don’t think we have enough assumptions to do this.
-   Will need to fundamentally clean up the treatment of context judgements. *)
+          -- (* Use [flat_from_context_judgement]. *)
             admit.
           -- admit.
           -- admit.
