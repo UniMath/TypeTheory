@@ -56,10 +56,10 @@ Section Typed_Context_Category_Operations.
     intros i. cbn. unfold comp_raw_context at 2.
     refine (transportb _ _ _).
     { apply maponpaths_2, pathsinv0, subst_subst_ty. }
-    refine (@subst_derivation [! _ |- _ ::: _ !] _ _ (_,,_) _).
+    refine (@subst_derivation [! _ |- _ ::: _ !] _ _ _ (_,,_)).
     - apply d_g.
-    - apply d_f.
     - admit. (* TODO: either abolish context judgements, or add them in def of flat contexts *)
+    - apply d_f.
   Admitted.
   
   Definition comp_raw_context {Γ Δ Θ : flat_context }

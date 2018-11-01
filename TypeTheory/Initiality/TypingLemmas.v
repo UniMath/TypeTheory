@@ -313,8 +313,11 @@ Section Substitute_Judgements.
 
   Definition subst_derivation
       (J : judgement) (d_J : derivation J)
-      {Δ : context} (f : context_map Δ (context_of_judgement J))
-      (d_Δ : [! |- Δ !])
+      {Δ : context} (d_Δ : [! |- Δ !])
+(* Note: if the context judgement is removed in definition of derivations,
+then the hypothesis [d_Δ] should be unnecessary here (but compare 
+[substeq_derivation] below). *)
+      (f : context_map Δ (context_of_judgement J))
     : derivation (subst_judgement J f).
   Proof.
     revert J d_J Δ f d_Δ.
@@ -391,7 +394,7 @@ End Substitute_Judgements.
 Section Substeq_Judgements.
 
   Definition substeq_judgement
-      (J : judgement) {Δ : context} 
+      (J : judgement) {Δ : context}
       (f g : raw_context_map Δ (context_of_judgement J))
     : UU.
   Proof.
@@ -405,11 +408,14 @@ Section Substeq_Judgements.
 
   Definition substeq_derivation
       {J : judgement} (d_J : derivation J)
-      {Δ : context} (f g : raw_context_map Δ (context_of_judgement J))
+      {Δ : context} (d_Δ : [! |- Δ !])
+      {f g : raw_context_map Δ (context_of_judgement J)}
       (d_f : [! |f- f ::: Δ ---> context_of_judgement J !])
       (d_g : [! |f- g ::: Δ ---> context_of_judgement J !])
       (d_fg : forall i, [! Δ |- f i === g i ::: subst_ty f (context_of_judgement J i) !])
-      (d_Δ : [! |- Δ !])
+(* Note: if context judgement is removed from derivations, then this hypothesis
+[d_Δ] will probably still be needed (due to use of term-conv rule below), but
+as a flat context judgement [ [! |f- Δ !] ]. *)       
     : substeq_judgement J f g.
   Proof.
     revert J d_J Δ f g d_f d_g d_fg d_Δ.
@@ -420,9 +426,9 @@ Section Substeq_Judgements.
     - split; cbn. (* conv rules *)
       + intros ? ? ? a ? _ ? _ ? _ _ p_a ? f ? ? ? ? ?. 
         apply derive_tmeq_conv with (subst_ty f A).
-        * refine (subst_derivation [! _ |- _ !] _ (_,,_) _); auto.
-        * refine (subst_derivation [! _ |- _ !] _ (_,,_) _); auto.
-        * refine (subst_derivation [! _ |- _ === _ !] _ (_,,_) _); auto.
+        * refine (subst_derivation [! _ |- _ !] _ _ (_,,_)); auto.
+        * refine (subst_derivation [! _ |- _ !] _ _ (_,,_)); auto.
+        * refine (subst_derivation [! _ |- _ === _ !] _ _ (_,,_)); auto.
         * auto.
       + intros; exact tt.
     - split; cbn; intros. (* universe rules *)
@@ -431,10 +437,10 @@ Section Substeq_Judgements.
       + exact tt.
     - split; cbn. (* pi rules *)
       + intros. apply derive_Pi_cong; auto.
-        { refine (subst_derivation [! _ |- _ !] _ (_,,_) _); auto. }
+        { refine (subst_derivation [! _ |- _ !] _ _ (_,,_)); auto. }
         use p_B.
         * use weaken_derivation_context_map_prelim; auto.
-          refine (subst_derivation [! _ |- _ !] _ (_,,_) _); auto.
+          refine (subst_derivation [! _ |- _ !] _ _ (_,,_)); auto.
         * intros i. (* TODO: abstract as lemma [derive_context_map_conv] *)
           apply derive_tm_conv
             with (subst_ty (weaken_raw_context_map f) ((Γ;;A)%context i)).
