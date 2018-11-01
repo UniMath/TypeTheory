@@ -11,6 +11,7 @@ Require Import TypeTheory.Initiality.SyntaxLemmas.
 Require Import TypeTheory.Initiality.Typing.
 
 Local Open Scope judgement_scope.
+Local Open Scope context_scope.
 
 Section Auxiliary_Judgements.
 
@@ -38,7 +39,7 @@ Section Auxiliary_Judgements.
   Coercion context_of_flat_context (Γ : flat_context) : context
     := pr1 Γ.
 
-  Definition derivation_from_flat_context {Γ : flat_context} (i : Γ)
+  Definition derivation_from_flat_context (Γ : flat_context) (i : Γ)
     : [! Γ |- Γ i !]
   := pr2 Γ i.
 
@@ -91,9 +92,9 @@ End Auxiliary_Judgements.
 Notation "[! |f- Γ !]" := (derivation_flat_context Γ)
                                 (format "[!  |f-  Γ  !]") : judgement_scope.
 Notation "[! |- f ::: Δ ---> Γ !]" := (derivation_map Δ Γ f)
-                       (format "[! |- f ::: Δ ---> Γ !]") : judgement_scope.
+                (format "[!  |-  f  :::  Δ  --->  Γ  !]") : judgement_scope.
 Notation "[! |- f === g ::: Δ ---> Γ !]" := (derivation_mapeq Δ Γ f g)
-                 (format "[! |- f === g ::: Δ ---> Γ !]") : judgement_scope.
+        (format "[!  |-  f  ===  g  :::  Δ  --->  Γ  !]") : judgement_scope.
 
 
 (** Admissibility of weakening will be obtained as an instance of the general
@@ -163,8 +164,11 @@ Section Renaming_Judgements.
 
   (** The general admissibility of weakening/typed renaming:
   one can rename variables throughout a derivation. *)
+(* Note: if the context judgement is removed in definition of derivations,
+then the hypothesis [d_Δ] should be unnecessary here (but compare 
+[substeq_derivation] below). *)
   Definition rename_derivation
-      {J : judgement} (d_J : derivation J)
+      (J : judgement) (d_J : derivation J)
       {Δ} (f : typed_renaming (context_of_judgement J) Δ)
       (d_Δ : [! |- Δ !])
     : derivation (rename_judgement J f).
@@ -257,8 +261,8 @@ Section Flat_Contexts.
     (* only 2 cases to consider *) 
     - intros [].
     - cbn; intros Γ A d_Γ IH_Γ d_A _ i; cbn.
-      refine (@rename_derivation [! _ |- _ !] _ _
-                                 (dB_next_typed_renaming _ _) _);
+      refine (rename_derivation [! _ |- _ !] _
+                                       (dB_next_typed_renaming _ _) _);
         cbn.
       2: { use derive_cxt_extend; assumption. }
       revert i; use dB_Sn_rect; cbn; auto.
@@ -271,14 +275,14 @@ Section Context_Maps.
   (** The eventual [weaken_derivation_map] shouldn’t need the
    hypothesis [ [! Δ |- subst_ty f A !] ]. However, that requires admissibility
    of substitution, which in turn uses this preliminary version. *)
-  Definition weaken_derivation_map_prelim
+  Local Definition weaken_derivation_map_prelim
       {Δ Γ : context} (f : raw_context_map Δ Γ) (A : ty_expr Γ)
-    : [! |- f ::: Δ ---> Γ !]
-      -> [! |- Δ !]
+    : [! |- Δ !]
+      -> [! |- f ::: Δ ---> Γ !]
       -> [! Δ |- subst_ty f A !]
       -> [! |- weaken_raw_context_map f ::: Δ ;; subst_ty f A ---> Γ ;; A !].
   Proof.
-    intros d_f d_Δ d_fA i.
+    intros d_Δ d_f d_fA i.
     eapply transportb.
     { apply maponpaths_2.
       eapply pathscomp0. { use subst_rename_ty. } 
@@ -286,23 +290,13 @@ Section Context_Maps.
     destruct i as [ | i]; cbn.
     - refine (derive_var (_;;_) dB_top _ _).
       { apply derive_cxt_extend; auto. }
-      refine (@rename_derivation [! _ |- _ !]
-                                   _ _ (dB_next_typed_renaming _ _) _);
+      refine (rename_derivation [! _ |- _ !] _
+                                       (dB_next_typed_renaming _ _) _);
         auto using derive_cxt_extend.
-    - refine (@rename_derivation [! _ |- _ ::: _ !]
-                                   _ _ (dB_next_typed_renaming _ _) _);
+    - refine (rename_derivation [! _ |- _ ::: _ !] _
+                                       (dB_next_typed_renaming _ _) _);
         eauto using derive_cxt_extend.
   Defined.
-
-  (** Like [weaken_derivation_map_prelim], we will be able to give a
-  stronger version of this later, following admissibility of substitution. *)
-  Definition weaken_context_map_prelim
-    {Δ Γ : context} (f : context_map Δ Γ) (A : ty_expr Γ)
-    (d_Δ : [! |- Δ !])
-    (d_fA : [! Δ |- subst_ty f A !])
-    : context_map (Δ ;; subst_ty f A) (Γ ;; A)
-  := (_,, weaken_derivation_map_prelim
-            f A (derivation_from_context_map f) d_Δ d_fA).
 
 End Context_Maps.
 
@@ -402,6 +396,55 @@ then the hypothesis [d_Δ] should be unnecessary here (but compare
 
 End Substitute_Judgements.
 
+Section Compose_Derivations.
+
+  Local Definition weaken_derivation_map
+      {Δ Γ : context} (f : raw_context_map Δ Γ) (A : ty_expr Γ)
+    : [! |- Δ !]
+      -> [! |- f ::: Δ ---> Γ !]
+      -> [! Γ |- A !]
+      -> [! |- weaken_raw_context_map f ::: Δ ;; subst_ty f A ---> Γ ;; A !].
+  Proof.
+    intros; apply weaken_derivation_map_prelim; auto.
+    refine (subst_derivation [! _ |- _ !] _ _ _); auto.
+  Defined.
+
+  (* TODO: probably doesn’t belong here *)
+  Local Definition weaken_context_map
+    {Δ Γ : context} (f : context_map Δ Γ) (A : ty_expr Γ)
+    (d_Δ : [! |- Δ !])
+    (d_A : [! Γ |- A !])
+    : context_map (Δ ;; subst_ty f A) (Γ ;; A)
+  := (_,, weaken_derivation_map
+            f A  d_Δ (derivation_from_context_map f) d_A).
+
+  (* NOTE: if context judgements were abolished from derivations, a “flat”
+  hypothesis [ [! |f- Γ !] ] would suffice here. *)
+  Definition derivation_idmap_context {Γ : context} (d_Γ : [! |- Γ !]) 
+    : [! |- idmap_raw_context Γ ::: Γ ---> Γ !] .
+  Proof.
+    intros i.
+    refine (transportb _ _ _).
+    { apply maponpaths_2, subst_idmap_ty. }
+    use derive_var; try apply flat_from_context_judgement; auto.
+  Defined.
+
+  Definition derivation_comp_raw_context
+      {Γ Δ Θ : context }
+      (d_Γ : [! |- Γ !])
+      {f : raw_context_map Γ Δ} {g : raw_context_map Δ Θ}
+      (d_f : [! |- f ::: Γ ---> Δ !])
+      (d_g : [! |- g ::: Δ ---> Θ !]) 
+    : [! |- comp_raw_context f g ::: Γ ---> Θ !].
+  Proof.
+    intros i. cbn. unfold comp_raw_context at 2.
+    refine (transportb _ _ _).
+    { apply maponpaths_2, pathsinv0, subst_subst_ty. }
+    refine (subst_derivation [! _ |- _ ::: _ !] _ _ _); auto.
+  Defined.
+  
+End Compose_Derivations.
+
 Section Substeq_Judgements.
 
   Definition substeq_judgement
@@ -415,6 +458,16 @@ Section Substeq_Judgements.
     - exact unit.
     - exact [! Δ |- subst_tm f a === subst_tm g a ::: subst_ty f A !].
     - exact unit.
+  Defined.
+
+  (* TODO: upstream *)
+  Lemma subst_weaken_rename_ty
+      {m n} (f : raw_context_map m n) (A : ty_expr n)
+    : subst_ty (weaken_raw_context_map f) (rename_ty dB_next A)
+      = rename_ty dB_next (subst_ty f A).
+  Proof.
+    eapply pathscomp0. { apply subst_rename_ty. }
+    apply pathsinv0, rename_subst_ty.
   Defined.
 
   Definition substeq_derivation
@@ -447,23 +500,52 @@ as a flat context judgement [ [! |f- Δ !] ]. *)
       + apply derive_El_cong; auto.
       + exact tt.
     - split; cbn. (* pi rules *)
-      + intros. apply derive_Pi_cong; auto.
-        { refine (subst_derivation [! _ |- _ !] _ _ _); auto. }
-        use p_B.
-        * use weaken_derivation_map_prelim; auto.
-          refine (subst_derivation [! _ |- _ !] _ _ _); auto.
-        * intros i. (* TODO: abstract as lemma [derive_context_map_conv] *)
-          apply derive_tm_conv
-            with (subst_ty (weaken_raw_context_map f) ((Γ;;A)%context i)).
-          -- (* Use [flat_from_context_judgement]. *)
-            admit.
-          -- admit.
-          -- admit.
-          -- admit.
-        * admit.
-        * admit.
-      + admit.
-      + admit.
+      + (* pi-formation *)
+        intros. 
+        (* First pose a couple of hypotheses we’ll use repeatedly. *)
+        assert [! Δ |- subst_ty f A !].
+        { apply (subst_derivation [! _ |- _ !]); auto. }
+        pose derive_cxt_extend.
+        apply derive_Pi_cong; auto.
+        use p_B; auto.
+        * use weaken_derivation_map; auto.
+        * (* TODO: factor out as lemma? *)
+          eapply transportb. { apply pathsinv0, id_left_raw_context. }
+          use (@derivation_comp_raw_context _ (Δ;; subst_ty g A));
+            auto using weaken_derivation_map.
+          intros i. eapply transportb. { apply maponpaths_2, subst_idmap_ty. }
+          revert i. use dB_Sn_rect; cbn; intros.
+          -- refine (derive_tm_conv (_;;_)
+                              (rename_ty dB_next (subst_ty f A)) _ _ _ _ _ _).
+            ++ refine (rename_derivation [! _ |- _ !] _
+                                       (dB_next_typed_renaming _ _) _); auto.
+            ++ refine (rename_derivation [! _ |- _ !] _
+                                       (dB_next_typed_renaming _ _) _); auto.
+               apply (subst_derivation [! _ |- _ !]); auto.
+            ++ refine (rename_derivation [! _ |- _ === _ !] _
+                                       (dB_next_typed_renaming _ _) _); auto.
+            ++ use (derive_var (_;;_) dB_top); auto.
+               refine (rename_derivation [! _ |- _ !] _
+                                       (dB_next_typed_renaming _ _) _); auto.
+          -- refine (derive_var (_;;_) (dB_next i) _ _); auto.
+             refine (rename_derivation [! _ |- _ !] _
+                                       (dB_next_typed_renaming _ _) _); auto.
+             apply flat_from_context_judgement; auto.
+        * (* TODO: factor out as lemma. *)
+          intros i; cbn.
+          eapply transportb. { apply maponpaths_3, subst_weaken_rename_ty. }
+          revert i; use dB_Sn_rect; cbn.
+          -- apply derive_tmeq_refl.
+             use (derive_var (_;;_) dB_top); auto.
+             refine (rename_derivation [! _ |- _ !] _
+                                       (dB_next_typed_renaming _ _) _); auto.
+          -- intros i. 
+             refine (rename_derivation [! _ |- _ === _ ::: _ !] _
+                                       (dB_next_typed_renaming _ _) _); auto.
+      + (* lambda-abstraction *)
+        admit.
+      + (* application *)
+        admit.
       + intros; exact tt.
     - split; intros; exact tt. (* pi cong rules *)
   Admitted.

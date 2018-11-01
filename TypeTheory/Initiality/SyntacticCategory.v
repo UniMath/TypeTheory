@@ -33,41 +33,26 @@ End Typed_Syntax.
 (** Identity and composition of _typed_ context maps. *)
 Section Typed_Context_Category_Operations.
 
-  Definition derivation_idmap_context (Γ : flat_context)
-    : [! |- idmap_raw_context Γ ::: Γ ---> Γ !] .
-  Proof.
-    intros i.
-    refine (transportb _ _ _).
-    { apply maponpaths_2, subst_idmap_ty. }
-    use derive_var; eauto using derivation_from_flat_context.
-    admit. (* TODO: either abolish context judgements, or add them in def of flat contexts *)
-  Admitted.
+  Definition wellformed_context
+    := ∑ (Γ : context), [! |- Γ !].
 
-  Definition idmap_context {Γ : flat_context}
+  Coercion flat_from_wellformed_context (Γ : wellformed_context)
+    : flat_context
+  := (pr1 Γ,, flat_from_context_judgement (pr2 Γ)).
+
+  Coercion derivation_from_wellformed_context (Γ : wellformed_context)
+    : [! |- Γ !]
+  := pr2 Γ.
+
+  Definition idmap_context {Γ : wellformed_context}
     : context_map Γ Γ
-  := (idmap_raw_context Γ,, derivation_idmap_context Γ).
+  := (_,, derivation_idmap_context Γ).
 
-  Definition derivation_comp_raw_context {Γ Δ Θ : flat_context }
-      {f : raw_context_map Γ Δ} {g : raw_context_map Δ Θ}
-      (d_f : [! |- f ::: Γ ---> Δ !])
-      (d_g : [! |- g ::: Δ ---> Θ !]) 
-    : [! |- comp_raw_context f g ::: Γ ---> Θ !].
-  Proof.
-    intros i. cbn. unfold comp_raw_context at 2.
-    refine (transportb _ _ _).
-    { apply maponpaths_2, pathsinv0, subst_subst_ty. }
-    refine (subst_derivation [! _ |- _ ::: _ !] _ _ _).
-    - apply d_g.
-    - admit. (* TODO: either abolish context judgements, or add them in def of flat contexts *)
-    - apply d_f.
-  Admitted.
-  
-  Definition comp_raw_context {Γ Δ Θ : flat_context }
+  Definition comp_raw_context {Γ Δ Θ : wellformed_context }
       {f : context_map Γ Δ} {g : context_map Δ Θ}
     : context_map Γ Θ
-  := (comp_raw_context f g,, 
-     derivation_comp_raw_context (derivation_from_context_map f)
-                                    (derivation_from_context_map g)).
+  := (_,, derivation_comp_raw_context Γ (derivation_from_context_map f)
+                                        (derivation_from_context_map g)).
 
 End Typed_Context_Category_Operations.
 
