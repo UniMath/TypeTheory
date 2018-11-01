@@ -34,7 +34,7 @@ End Typed_Syntax.
 Section Typed_Context_Category_Operations.
 
   Definition derivation_idmap_context (Γ : flat_context)
-    : derivation_context_map Γ Γ (idmap_raw_context Γ).
+    : [! |- idmap_raw_context Γ ::: Γ ---> Γ !] .
   Proof.
     intros i.
     refine (transportb _ _ _).
@@ -49,9 +49,9 @@ Section Typed_Context_Category_Operations.
 
   Definition derivation_comp_raw_context {Γ Δ Θ : flat_context }
       {f : raw_context_map Γ Δ} {g : raw_context_map Δ Θ}
-      (d_f : derivation_context_map Γ Δ f)
-      (d_g : derivation_context_map Δ Θ g) 
-    : derivation_context_map Γ Θ (comp_raw_context f g).
+      (d_f : [! |- f ::: Γ ---> Δ !])
+      (d_g : [! |- g ::: Δ ---> Θ !]) 
+    : [! |- comp_raw_context f g ::: Γ ---> Θ !].
   Proof.
     intros i. cbn. unfold comp_raw_context at 2.
     refine (transportb _ _ _).

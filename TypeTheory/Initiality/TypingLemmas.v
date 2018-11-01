@@ -52,15 +52,15 @@ Section Auxiliary_Judgements.
    Specifically, we prove that admissibility as [rename_derivation]
    below, and then prove [flat_from_context_judgement]. *)
 
-  Definition derivation_context_map
+  Definition derivation_map
       (Δ Γ : context) (f : raw_context_map Δ Γ) : UU
   := forall i:Γ, [! Δ |- f i ::: subst_ty f (Γ i) !].
 
-  Identity Coercion id_derivation_context_map
-    : derivation_context_map >-> Funclass.
+  Identity Coercion id_derivation_map
+    : derivation_map >-> Funclass.
 
-  Notation "[! |f- f ::: Δ ---> Γ !]" := (derivation_context_map Δ Γ f)
-                    (format "[! |f- f ::: Δ ---> Γ !]") : judgement_scope.
+  Notation "[! |- f ::: Δ ---> Γ !]" := (derivation_map Δ Γ f)
+                    (format "[! |- f ::: Δ ---> Γ !]") : judgement_scope.
 
 
   (** As with [ [! |f- Γ !] ], the actual key lemmas about
@@ -68,7 +68,7 @@ Section Auxiliary_Judgements.
   weakening, [rename_derivation]. *)
 
   Definition context_map (Δ Γ : context) : UU
-    := ∑ (f : raw_context_map Δ Γ), [! |f- f ::: Δ ---> Γ !].
+    := ∑ (f : raw_context_map Δ Γ), [! |- f ::: Δ ---> Γ !].
 
   Definition context_map_pr1 {Γ Δ} (f : context_map Γ Δ) := pr1 f
     : raw_context_map _ _.
@@ -78,13 +78,23 @@ Section Auxiliary_Judgements.
     : derivation _
   := pr2 f i.
 
+  Definition derivation_mapeq
+    (Δ Γ : context) (f g : raw_context_map Δ Γ) : UU
+  := forall i:Γ, [! Δ |- f i === g i ::: subst_ty f (Γ i) !].
+
+  Notation "[! |- f === g ::: Δ ---> Γ !]" := (derivation_mapeq Δ Γ f g)
+                    (format "[! |- f === g ::: Δ ---> Γ !]") : judgement_scope.
+
 End Auxiliary_Judgements.
 
 (** Re-declaring notations from section *)
 Notation "[! |f- Γ !]" := (derivation_flat_context Γ)
-                              (format "[!  |f-  Γ  !]") : judgement_scope.
-Notation "[! |f- f ::: Δ ---> Γ !]" := (derivation_context_map Δ Γ f)
-                    (format "[! |f- f ::: Δ ---> Γ !]") : judgement_scope.
+                                (format "[!  |f-  Γ  !]") : judgement_scope.
+Notation "[! |- f ::: Δ ---> Γ !]" := (derivation_map Δ Γ f)
+                       (format "[! |- f ::: Δ ---> Γ !]") : judgement_scope.
+Notation "[! |- f === g ::: Δ ---> Γ !]" := (derivation_mapeq Δ Γ f g)
+                 (format "[! |- f === g ::: Δ ---> Γ !]") : judgement_scope.
+
 
 (** Admissibility of weakening will be obtained as an instance of the general
 fact that one can rename variables throughout a derivation, providing the renaming
@@ -258,15 +268,15 @@ End Flat_Contexts.
 
 Section Context_Maps.
 
-  (** The eventual [weaken_derivation_context_map] shouldn’t need the
+  (** The eventual [weaken_derivation_map] shouldn’t need the
    hypothesis [ [! Δ |- subst_ty f A !] ]. However, that requires admissibility
    of substitution, which in turn uses this preliminary version. *)
-  Definition weaken_derivation_context_map_prelim
+  Definition weaken_derivation_map_prelim
       {Δ Γ : context} (f : raw_context_map Δ Γ) (A : ty_expr Γ)
-    : [! |f- f ::: Δ ---> Γ !]
+    : [! |- f ::: Δ ---> Γ !]
       -> [! |- Δ !]
       -> [! Δ |- subst_ty f A !]
-      -> [! |f- weaken_raw_context_map f ::: Δ ;; subst_ty f A ---> Γ ;; A !].
+      -> [! |- weaken_raw_context_map f ::: Δ ;; subst_ty f A ---> Γ ;; A !].
   Proof.
     intros d_f d_Δ d_fA i.
     eapply transportb.
@@ -284,14 +294,14 @@ Section Context_Maps.
         eauto using derive_cxt_extend.
   Defined.
 
-  (** Like [weaken_derivation_context_map_prelim], we will be able to give a
+  (** Like [weaken_derivation_map_prelim], we will be able to give a
   stronger version of this later, following admissibility of substitution. *)
   Definition weaken_context_map_prelim
     {Δ Γ : context} (f : context_map Δ Γ) (A : ty_expr Γ)
     (d_Δ : [! |- Δ !])
     (d_fA : [! Δ |- subst_ty f A !])
     : context_map (Δ ;; subst_ty f A) (Γ ;; A)
-  := (_,, weaken_derivation_context_map_prelim
+  := (_,, weaken_derivation_map_prelim
             f A (derivation_from_context_map f) d_Δ d_fA).
 
 End Context_Maps.
@@ -410,9 +420,9 @@ Section Substeq_Judgements.
       {J : judgement} (d_J : derivation J)
       {Δ : context} (d_Δ : [! |- Δ !])
       {f g : raw_context_map Δ (context_of_judgement J)}
-      (d_f : [! |f- f ::: Δ ---> context_of_judgement J !])
-      (d_g : [! |f- g ::: Δ ---> context_of_judgement J !])
-      (d_fg : forall i, [! Δ |- f i === g i ::: subst_ty f (context_of_judgement J i) !])
+      (d_f : [! |- f ::: Δ ---> context_of_judgement J !])
+      (d_g : [! |- g ::: Δ ---> context_of_judgement J !])
+      (d_fg : [! |- f === g ::: Δ ---> context_of_judgement J !])
 (* Note: if context judgement is removed from derivations, then this hypothesis
 [d_Δ] will probably still be needed (due to use of term-conv rule below), but
 as a flat context judgement [ [! |f- Δ !] ]. *)       
@@ -439,7 +449,7 @@ as a flat context judgement [ [! |f- Δ !] ]. *)
       + intros. apply derive_Pi_cong; auto.
         { refine (subst_derivation [! _ |- _ !] _ _ (_,,_)); auto. }
         use p_B.
-        * use weaken_derivation_context_map_prelim; auto.
+        * use weaken_derivation_map_prelim; auto.
           refine (subst_derivation [! _ |- _ !] _ _ (_,,_)); auto.
         * intros i. (* TODO: abstract as lemma [derive_context_map_conv] *)
           apply derive_tm_conv
