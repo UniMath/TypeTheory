@@ -16,111 +16,117 @@ Require Import TypeTheory.Initiality.TypingLemmas.
 
 Local Open Scope judgement.
 
-Section Typed_Syntax.
+Section Auxiliary.
+ (* we’ll need some material here about quotients:
+  particularly, [lemmas.setquotprpathsandR] from [PAdics], I guess? *)
 
-  Definition ty_with_derivation (Γ : context) : UU
-    := ∑ (A : ty_expr Γ), [! Γ |- A !].
+End Auxiliary.
 
-  Coercion ty_expr_of_ty_with_derivation {Γ} (A : ty_with_derivation Γ) :
-    ty_expr Γ := pr1 A.
+Section Context_Equality.
+(* Probably this (or some of it) should be upstreamed to with the other “auxiliary judgements” in [TypingLemmas]. *)
 
-  Definition tm_with_derivation (Γ : context) (A : ty_expr Γ) : UU
-    := ∑ (a : tm_expr Γ), [! Γ |- a ::: A !].
+  Definition wellformed_context_of_length (n : nat) : UU
+  := ∑ (Γ : context_of_length n), [! |- Γ !].
 
-  Coercion tm_expr_of_tm_with_derivation {Γ} {A : ty_with_derivation Γ}
-    (a : tm_with_derivation Γ A) : tm_expr Γ := pr1 a.
+  Coercion context_of_wellformed_context {n} (Γ : wellformed_context_of_length n)
+    : context_of_length n
+  := pr1 Γ.
 
-End Typed_Syntax.
+  (** We only compare contexts of the same length for equality.
 
-(** Identity and composition of _typed_ context maps. *)
-Section Typed_Context_Category_Operations.
+  Two contexts are equal if they _both_ believe all their types are equal.
 
-  Definition wellformed_context
-    := ∑ (Γ : context), [! |- Γ !].
+  (Note: one direction wouldn’t suffice, for general type theories.  E.g.
+  in ETT with the reflection rule, define a predicate [P] over [nat] with
+  [ P 0 ] false, and [ P 1 ] true.  Then [ P 0 ] proves that [ 0 === 1 : nat ]
+  and hence that [ P 0 === P 1 ], but [ P 1 ] doesn’t prove this, so for the
+  contexts [ x0 : P 0 ] and [ x0 : P 1 ], one direction of the below conditions
+  will hold, but not both. *)
+  Definition derivation_cxteq {n} (Γ Δ : context_of_length n) : UU
+  :=   (forall i, [! Γ |- Γ i === Δ i !])
+     × (forall i, [! Δ |- Δ i === Γ i !]).
 
-  Coercion flat_from_wellformed_context (Γ : wellformed_context)
-    : flat_context
-  := (pr1 Γ,, flat_from_context_judgement (pr2 Γ)).
+  Notation "[! |- Δ === Γ !]" := (derivation_cxteq Δ Γ)
+                    (format "[!  |-  Δ  ===  Γ  !]") : judgement_scope.
 
-  Coercion derivation_from_wellformed_context (Γ : wellformed_context)
-    : [! |- Γ !]
-  := pr2 Γ.
+  (** While the definition of this relation works for arbitrary raw contexts,
+  the proof that it is an equivalence relation requires restriction to well-
+  formed contexts. *)
+  Definition derivable_cxteq_hrel {n} : hrel (wellformed_context_of_length n)
+  := fun Γ Δ => ∥ derivation_cxteq Γ Δ ∥.
 
-  Definition idmap_context {Γ : wellformed_context}
-    : context_map Γ Γ
-  := (_,, derivation_idmap_context Γ).
+  Definition derivable_cxteq_is_eqrel n : iseqrel (@derivable_cxteq_hrel n).
+  Admitted.
 
-  Definition comp_raw_context {Γ Δ Θ : wellformed_context }
-      {f : context_map Γ Δ} {g : context_map Δ Θ}
-    : context_map Γ Θ
-  := (_,, derivation_comp_raw_context Γ (derivation_from_context_map f)
-                                        (derivation_from_context_map g)).
+  Definition derivable_cxteq {n} : eqrel (wellformed_context_of_length n)
+  := (_,,derivable_cxteq_is_eqrel n).
 
-End Typed_Context_Category_Operations.
+  (* TODO: raise issue upstream: shoud [pr1] of [eqrel] coerce to [hrel], not directly to [Funclass]? *)
+End Context_Equality.
 
+Section Contexts_Modulo_Equality.
 
+  Definition context_mod_eq
+  := ∑ (n:nat), setquot (@derivable_cxteq n).
 
-Section Stratified_Contexts.
-(** Here we define (well-typed) contexts, in the usual sense of being ordered + stratified. *)
+  Local Definition length : context_mod_eq -> nat := pr1.
 
-(* TODO: perhaps rename [context] upstream to e.g. [raw_context] or
-[flat_context], so these can just be [context]? *)
+  Definition context_class {n} (Γ : wellformed_context_of_length n)
+    : context_mod_eq
+  := (n,, setquotpr _ Γ).
+  Coercion context_class : wellformed_context_of_length >-> context_mod_eq.
 
-  Fixpoint stratified_context_aux (n : nat)
-    : ∑ (X : Type), X -> context_of_length n.
-  Proof.
-    destruct n as [ | n].
-    - exists unit. (* unique empty context *)
-      intros _; exact empty_context.
-    - set (cxt_n := pr1 (stratified_context_aux n)).
-      set (realise := pr2 (stratified_context_aux n) : cxt_n -> _).
-      exists (∑ (Γ : cxt_n), ty_with_derivation (realise Γ)).
-      intros Γ_A.
-      exact (context_extend (realise (pr1 Γ_A)) (pr2 Γ_A)).
-  Defined.
+  Definition context_representative (ΓΓ : context_mod_eq) : UU
+  := ∑ (Γ : wellformed_context_of_length (length ΓΓ)), setquotpr _ Γ = (pr2 ΓΓ).
+  Coercion context_representative : context_mod_eq >-> UU.
 
-  Definition stratified_context_of_length (n : nat)
-  := pr1 (stratified_context_aux n).
+  Definition context_representative_as_context
+      {ΓΓ} (Γ : context_representative ΓΓ)
+    : wellformed_context_of_length (length ΓΓ)
+  := pr1 Γ.
+  Coercion context_representative_as_context
+    : context_representative >-> wellformed_context_of_length.
 
-  Definition realise_stratified_context {n}
-    : stratified_context_of_length n -> context_of_length n
-  := pr2 (stratified_context_aux n).
-
-  Coercion realise_stratified_context
-    : stratified_context_of_length >-> context_of_length.
-
-  Definition stratified_context : UU
-  := ∑ (n : nat), stratified_context_of_length n.
-
-  Definition stratified_context_length : stratified_context -> nat := pr1.
-  Coercion stratified_context_length : stratified_context >-> nat.
-
-  Definition stratified_context_types : forall Γ : stratified_context, _ := pr2.
-  Coercion stratified_context_types : stratified_context >-> stratified_context_of_length.
-
-  Definition make_stratified_context {n}
-    : stratified_context_of_length n -> stratified_context
-  := fun Γ => (n,,Γ).
-  Coercion make_stratified_context : stratified_context_of_length >-> stratified_context.
-
-  (* any well-typed context is indeed derivably a context. *)
-  Lemma stratified_context_derivable (Γ : stratified_context) : [! |- Γ !].
-  Proof.
-    destruct Γ as [n Γ].
-    induction n as [|n IHn].
-    - now apply derive_cxt_empty.
-    - destruct Γ as [Γ A].
-      now apply (derive_cxt_extend (realise_stratified_context Γ) A (IHn _)), A.
-  Defined.
-
-End Stratified_Contexts.
+End Contexts_Modulo_Equality.
 
 Section Context_Maps.
-  (* Maybe all this section can be inlined into section [Category] below, depending how long it turns out. *)
 
-  (* TODO: define: context maps are raw context maps, plus suitable typing information (but truncate derivations!); then quotient by judgemental equality!
+  Local Definition map (ΓΓ ΔΔ : context_mod_eq) : UU
+    := ∑ (f : raw_context_map (length ΓΓ) (length ΔΔ)),
+       forall (Γ : ΓΓ) (Δ : ΔΔ), [! |- f ::: Γ ---> Δ !].
 
-  To behave well, they should be assumed to go between contexts that are at least well-typed (but “stratifiedness” shouldn’t really be needed). *)
+  (* TODO: lemma that here (and in later similar definitions) it’s sufficient to show typing for _some_ representative, to get it for all representatives. *)
+
+  Coercion raw_of_context_map {ΓΓ ΔΔ} (f : map ΓΓ ΔΔ)
+    : raw_context_map _ _
+  := pr1 f.
+
+  Local Definition derivation_of_map {ΓΓ ΔΔ} (f : map ΓΓ ΔΔ)
+    : forall (Γ : ΓΓ) (Δ : ΔΔ), [! |- f ::: Γ ---> Δ !]
+  := pr2 f.
+  
+  Local Definition mapeq_hrel {ΓΓ ΔΔ} (f g : map ΓΓ ΔΔ)
+  := ∥ forall (Γ : ΓΓ) (Δ : ΔΔ), [! |- f === g ::: Γ ---> Δ !] ∥.
+
+  Local Definition mapeq_is_eqrel (ΓΓ ΔΔ : context_mod_eq) 
+    : iseqrel (@mapeq_hrel ΓΓ ΔΔ).
+  Admitted.
+
+  Local Definition mapeq_eqrel ΓΓ ΔΔ : eqrel (map ΓΓ ΔΔ)
+  := (_,,mapeq_is_eqrel ΓΓ ΔΔ).
+
+  Local Definition map_mod_eq (ΓΓ ΔΔ : context_mod_eq) : UU
+  := setquot (mapeq_eqrel ΓΓ ΔΔ).
+
+  Local Definition map_representative {ΓΓ ΔΔ} (ff : map_mod_eq ΓΓ ΔΔ) : UU
+  := ∑ (f : map ΓΓ ΔΔ), setquotpr _ f = ff.
+  Coercion map_representative : map_mod_eq >-> UU.
+
+  Local Definition map_representative_as_map
+      {ΓΓ ΔΔ} {ff : map_mod_eq ΓΓ ΔΔ} (f : map_representative ff)
+    : map ΓΓ ΔΔ
+  := pr1 f.
+  Coercion map_representative_as_map : map_representative >-> map.
 
   (* TODO: define identity context map, composition.
 
