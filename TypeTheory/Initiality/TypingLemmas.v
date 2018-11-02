@@ -443,34 +443,7 @@ Section Compose_Derivations.
     refine (subst_derivation [! _ |- _ ::: _ !] _ _ _); auto.
   Defined.
   
-End Compose_Derivations.
-
-Section Substeq_Judgements.
-
-  Definition substeq_judgement
-      (J : judgement) {Δ : context}
-      (f g : raw_context_map Δ (context_of_judgement J))
-    : UU.
-  Proof.
-    revert f g; destruct J as [ Γ | Γ A | Γ | Γ A a | Γ ]; intros f g.
-    - exact unit.
-    - exact [! Δ |- subst_ty f A === subst_ty g A !].
-    - exact unit.
-    - exact [! Δ |- subst_tm f a === subst_tm g a ::: subst_ty f A !].
-    - exact unit.
-  Defined.
-
-  (* TODO: upstream to [SyntaxLemmas] *)
-  Lemma subst_weaken_rename_ty
-      {m n} (f : raw_context_map m n) (A : ty_expr n)
-    : subst_ty (weaken_raw_context_map f) (rename_ty dB_next A)
-      = rename_ty dB_next (subst_ty f A).
-  Proof.
-    eapply pathscomp0. { apply subst_rename_ty. }
-    apply pathsinv0, rename_subst_ty.
-  Defined.
-
-  (* TODO: upstream to preceding group *)
+  (* TODO: consider naming, organisation *)
   Lemma derivation_idmap_extend_equal_types
       {Γ} (d_Γ : [! |- Γ !])
       {A B} (d_A : [! Γ |- A !]) (d_B : [! Γ |- B !])
@@ -496,7 +469,7 @@ Section Substeq_Judgements.
       apply flat_from_context_judgement; auto.
   Defined.
 
-  (* TODO: upstream to preceding group *)
+  (* TODO: consider naming, organisation *)
   Lemma derivation_map_equal_extension
       {Γ} (d_Γ : [! |- Γ !])
       {A B} (d_A : [! Γ |- A !]) (d_B : [! Γ |- B !])
@@ -511,7 +484,7 @@ Section Substeq_Judgements.
     apply derivation_idmap_extend_equal_types; auto.
   Defined.
 
-  (* TODO: upstream to preceding group *)
+  (* TODO: consider naming, organisation *)
   Lemma derivation_weaken_mapeq
       {Γ Δ : context} (d_Δ : [! |- Δ !])
       {f g : raw_context_map Δ Γ}
@@ -533,6 +506,23 @@ Section Substeq_Judgements.
                                 (dB_next_typed_renaming _ _) _); auto.
     - intros i. refine (rename_derivation [! _ |- _ === _ ::: _ !] _
                                 (dB_next_typed_renaming _ _) _); auto.
+  Defined.
+
+End Compose_Derivations.
+
+Section Substeq_Judgements.
+
+  Definition substeq_judgement
+      (J : judgement) {Δ : context}
+      (f g : raw_context_map Δ (context_of_judgement J))
+    : UU.
+  Proof.
+    revert f g; destruct J as [ Γ | Γ A | Γ | Γ A a | Γ ]; intros f g.
+    - exact unit.
+    - exact [! Δ |- subst_ty f A === subst_ty g A !].
+    - exact unit.
+    - exact [! Δ |- subst_tm f a === subst_tm g a ::: subst_ty f A !].
+    - exact unit.
   Defined.
 
   Definition substeq_derivation
@@ -614,3 +604,4 @@ as a flat context judgement [ [! |f- Δ !] ]. *)
   Defined.
 
 End Substeq_Judgements.
+

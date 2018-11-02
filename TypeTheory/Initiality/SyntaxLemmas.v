@@ -311,4 +311,22 @@ Section Miscellaneous.
     apply maponpaths_2, comp_tm_as_raw_context_map.
   Defined.
 
+  Lemma subst_weaken_rename_ty
+      {m n} (f : raw_context_map m n) (A : ty_expr n)
+    : subst_ty (weaken_raw_context_map f) (rename_ty dB_next A)
+      = rename_ty dB_next (subst_ty f A).
+  Proof.
+    eapply pathscomp0. { apply subst_rename_ty. }
+    apply pathsinv0, rename_subst_ty.
+  Defined.
+
+  Lemma subst_weaken_rename_tm
+      {m n} (f : raw_context_map m n) (a : tm_expr n)
+    : subst_tm (weaken_raw_context_map f) (rename_tm dB_next a)
+      = rename_tm dB_next (subst_tm f a).
+  Proof.
+    eapply pathscomp0. { apply subst_rename_tm. }
+    apply pathsinv0, rename_subst_tm.
+  Defined.
+
 End Miscellaneous.

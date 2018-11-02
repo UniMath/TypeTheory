@@ -1,4 +1,6 @@
-(** This file defines the syntactic category of our toy type theory, and the logical structure on it. *)
+(** This file defines the syntactic category of our toy type theory, and the logical structure on it.
+
+As a matter of organisation: all concrete lemmas involving derivations should live upstream in [TypingLemmas]; this file should simply package them up into the appropriate categorical structure. *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
