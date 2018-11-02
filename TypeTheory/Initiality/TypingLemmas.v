@@ -605,3 +605,22 @@ as a flat context judgement [ [! |f- Δ !] ]. *)
 
 End Substeq_Judgements.
 
+Section Category_Laws.
+
+  (* TODO: left and right unitality of composition *)
+
+  (* TODO: associativity of composition *)
+
+  (* TODO: composition respecting equality in each argument *)
+
+End Category_Laws.
+
+Section Split_Typecat_Laws.
+
+  (* TODO: reindexing on types respects equality in both args *)
+
+  (* TODO: functoriality of reindexing on types *)
+
+  (* TODO: dependent projections, and respecting equality *)
+
+End Split_Typecat_Laws.
