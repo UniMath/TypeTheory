@@ -460,7 +460,7 @@ Section Substeq_Judgements.
     - exact unit.
   Defined.
 
-  (* TODO: upstream *)
+  (* TODO: upstream to [SyntaxLemmas] *)
   Lemma subst_weaken_rename_ty
       {m n} (f : raw_context_map m n) (A : ty_expr n)
     : subst_ty (weaken_raw_context_map f) (rename_ty dB_next A)
@@ -468,6 +468,71 @@ Section Substeq_Judgements.
   Proof.
     eapply pathscomp0. { apply subst_rename_ty. }
     apply pathsinv0, rename_subst_ty.
+  Defined.
+
+  (* TODO: upstream to preceding group *)
+  Lemma derivation_idmap_extend_equal_types
+      {Γ} (d_Γ : [! |- Γ !])
+      {A B} (d_A : [! Γ |- A !]) (d_B : [! Γ |- B !])
+      (d_AB : [! Γ |- A === B !])
+    : [! |- idmap_raw_context (Γ;;A) ::: Γ;;A ---> Γ;;B !].
+  Proof.
+    intros i. eapply transportb. { apply maponpaths_2, subst_idmap_ty. }
+    pose derive_cxt_extend.
+    revert i. use dB_Sn_rect; cbn; intros.
+    - refine (derive_tm_conv (_;;_) (rename_ty dB_next A) _ _ _ _ _ _).
+      + refine (rename_derivation [! _ |- _ !] _
+                                  (dB_next_typed_renaming _ _) _); auto.
+      + refine (rename_derivation [! _ |- _ !] _
+                                  (dB_next_typed_renaming _ _) _); auto.
+      + refine (rename_derivation [! _ |- _ === _ !] _
+                                  (dB_next_typed_renaming _ _) _); auto.
+      + use (derive_var (_;;_) dB_top); auto.
+        refine (rename_derivation [! _ |- _ !] _
+                                  (dB_next_typed_renaming _ _) _); auto.
+    - refine (derive_var (_;;_) (dB_next i) _ _); auto.
+      refine (rename_derivation [! _ |- _ !] _
+                                (dB_next_typed_renaming _ _) _); auto.
+      apply flat_from_context_judgement; auto.
+  Defined.
+
+  (* TODO: upstream to preceding group *)
+  Lemma derivation_map_equal_extension
+      {Γ} (d_Γ : [! |- Γ !])
+      {A B} (d_A : [! Γ |- A !]) (d_B : [! Γ |- B !])
+      (d_AB : [! Γ |- A === B !])
+      {Δ} {f} (d_f : [! |- f ::: Γ;;B ---> Δ !])
+    : [! |- f ::: Γ;;A ---> Δ !].
+  Proof.
+    pose derive_cxt_extend.
+    eapply transportb. { apply pathsinv0, id_left_raw_context. }
+    use (@derivation_comp_raw_context _ (Γ;; B));
+      auto using weaken_derivation_map.
+    apply derivation_idmap_extend_equal_types; auto.
+  Defined.
+
+  (* TODO: upstream to preceding group *)
+  Lemma derivation_weaken_mapeq
+      {Γ Δ : context} (d_Δ : [! |- Δ !])
+      {f g : raw_context_map Δ Γ}
+      (d_f : [! |- f ::: Δ ---> Γ !])
+      (d_fg : [! |- f === g ::: Δ ---> Γ !])
+      {A} (d_A : [! Γ |- A !])
+    : [! |- weaken_raw_context_map f === weaken_raw_context_map g
+                               ::: Δ;; subst_ty f A ---> Γ;; A !].
+  Proof.
+    pose derive_cxt_extend.
+    assert [! Δ |- subst_ty f A !].
+    { apply (subst_derivation [! _ |- _ !]); auto. }
+    intros i; cbn.
+    eapply transportb. { apply maponpaths_3, subst_weaken_rename_ty. }
+    revert i; use dB_Sn_rect; cbn.
+    - apply derive_tmeq_refl.
+      use (derive_var (_;;_) dB_top); auto.
+      refine (rename_derivation [! _ |- _ !] _
+                                (dB_next_typed_renaming _ _) _); auto.
+    - intros i. refine (rename_derivation [! _ |- _ === _ ::: _ !] _
+                                (dB_next_typed_renaming _ _) _); auto.
   Defined.
 
   Definition substeq_derivation
@@ -482,6 +547,7 @@ Section Substeq_Judgements.
 as a flat context judgement [ [! |f- Δ !] ]. *)       
     : substeq_judgement J f g.
   Proof.
+    pose derive_cxt_extend. (* frequently used by [auto] throughout *)
     revert J d_J Δ f g d_f d_g d_fg d_Δ.
     use derivation_rect_grouped.
     - split; cbn; intros; exact tt. (* context rules *)
@@ -502,52 +568,49 @@ as a flat context judgement [ [! |f- Δ !] ]. *)
     - split; cbn. (* pi rules *)
       + (* pi-formation *)
         intros. 
-        (* First pose a couple of hypotheses we’ll use repeatedly. *)
         assert [! Δ |- subst_ty f A !].
         { apply (subst_derivation [! _ |- _ !]); auto. }
-        pose derive_cxt_extend.
+        assert [! Δ |- subst_ty g A !].
+        { apply (subst_derivation [! _ |- _ !]); auto. }
         apply derive_Pi_cong; auto.
         use p_B; auto.
-        * use weaken_derivation_map; auto.
-        * (* TODO: factor out as lemma? *)
-          eapply transportb. { apply pathsinv0, id_left_raw_context. }
-          use (@derivation_comp_raw_context _ (Δ;; subst_ty g A));
+        * auto using weaken_derivation_map.
+        * apply derivation_map_equal_extension with (subst_ty g A);
             auto using weaken_derivation_map.
-          intros i. eapply transportb. { apply maponpaths_2, subst_idmap_ty. }
-          revert i. use dB_Sn_rect; cbn; intros.
-          -- refine (derive_tm_conv (_;;_)
-                              (rename_ty dB_next (subst_ty f A)) _ _ _ _ _ _).
-            ++ refine (rename_derivation [! _ |- _ !] _
-                                       (dB_next_typed_renaming _ _) _); auto.
-            ++ refine (rename_derivation [! _ |- _ !] _
-                                       (dB_next_typed_renaming _ _) _); auto.
-               apply (subst_derivation [! _ |- _ !]); auto.
-            ++ refine (rename_derivation [! _ |- _ === _ !] _
-                                       (dB_next_typed_renaming _ _) _); auto.
-            ++ use (derive_var (_;;_) dB_top); auto.
-               refine (rename_derivation [! _ |- _ !] _
-                                       (dB_next_typed_renaming _ _) _); auto.
-          -- refine (derive_var (_;;_) (dB_next i) _ _); auto.
-             refine (rename_derivation [! _ |- _ !] _
-                                       (dB_next_typed_renaming _ _) _); auto.
-             apply flat_from_context_judgement; auto.
-        * (* TODO: factor out as lemma. *)
-          intros i; cbn.
-          eapply transportb. { apply maponpaths_3, subst_weaken_rename_ty. }
-          revert i; use dB_Sn_rect; cbn.
-          -- apply derive_tmeq_refl.
-             use (derive_var (_;;_) dB_top); auto.
-             refine (rename_derivation [! _ |- _ !] _
-                                       (dB_next_typed_renaming _ _) _); auto.
-          -- intros i. 
-             refine (rename_derivation [! _ |- _ === _ ::: _ !] _
-                                       (dB_next_typed_renaming _ _) _); auto.
+        * apply derivation_weaken_mapeq; auto.
       + (* lambda-abstraction *)
-        admit.
+        intros. 
+        assert [! Δ |- subst_ty f A !].
+        { apply (subst_derivation [! _ |- _ !]); auto. }
+        assert [! Δ |- subst_ty g A !].
+        { apply (subst_derivation [! _ |- _ !]); auto. }
+        apply derive_lam_cong; auto.
+        * use p_B; auto.
+          -- auto using weaken_derivation_map.
+          -- apply derivation_map_equal_extension with (subst_ty g A);
+               auto using weaken_derivation_map.
+          -- apply derivation_weaken_mapeq; auto.
+        * use p_b; auto.
+          -- auto using weaken_derivation_map.
+          -- apply derivation_map_equal_extension with (subst_ty g A);
+               auto using weaken_derivation_map.
+          -- apply derivation_weaken_mapeq; auto.
       + (* application *)
-        admit.
+        intros ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? f g ? ? ? ?.
+        assert [! Δ |- subst_ty f A !].
+        { apply (subst_derivation [! _ |- _ !]); auto. }
+        assert [! Δ |- subst_ty g A !].
+        { apply (subst_derivation [! _ |- _ !]); auto. }
+        eapply transportb.
+        { apply maponpaths_3, subst_subst_top_ty. }
+        apply derive_app_cong; auto.
+        * use p_B; auto.
+          -- auto using weaken_derivation_map.
+          -- apply derivation_map_equal_extension with (subst_ty g A);
+               auto using weaken_derivation_map.
+          -- apply derivation_weaken_mapeq; auto.
       + intros; exact tt.
     - split; intros; exact tt. (* pi cong rules *)
-  Admitted.
+  Defined.
 
 End Substeq_Judgements.
