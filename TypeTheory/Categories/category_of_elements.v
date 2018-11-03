@@ -48,7 +48,7 @@ Defined.
   
 Lemma is_precategory_precategory_of_elements : is_precategory precategory_of_elements_data.
 Proof.
-  repeat split; intros;
+  apply mk_is_precategory_one_assoc; intros;
   simpl in *.
   - apply subtypeEquality.
     + intro. apply setproperty.

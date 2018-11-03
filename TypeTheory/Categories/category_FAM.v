@@ -192,7 +192,7 @@ Defined.
 
 Lemma is_precategory_FAM : is_precategory FAM_precategory_data.
 Proof.
-  repeat split; intros; simpl.
+  apply mk_is_precategory_one_assoc; intros; simpl.
   - apply (invmap (FAM_mor_equiv _ _ )). 
     exists (fun _ => idpath _ ).
     intros; apply id_left.
