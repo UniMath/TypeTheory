@@ -526,7 +526,7 @@ Section Substeq_Judgements.
   Defined.
 
   Definition substeq_derivation
-      {J : judgement} (d_J : derivation J)
+      (J : judgement) (d_J : derivation J)
       {Δ : context} (d_Δ : [! |- Δ !])
       {f g : raw_context_map Δ (context_of_judgement J)}
       (d_f : [! |- f ::: Δ ---> context_of_judgement J !])
@@ -611,7 +611,32 @@ Section Category_Laws.
 
   (* TODO: associativity of composition *)
 
-  (* TODO: composition respecting equality in each argument *)
+  Lemma comp_raw_context_cong_l
+      {Γ Δ Θ : context} (d_Γ : [! |- Γ !])
+      {f f' : raw_context_map Γ Δ}
+      (d_f : [! |- f ::: Γ ---> Δ !]) (d_f' : [! |- f' ::: Γ ---> Δ !])
+      (e_f : [! |- f === f' ::: Γ ---> Δ !])
+      {g : raw_context_map Δ Θ} (d_g : [! |- g ::: Δ ---> Θ !])
+    : [! |- comp_raw_context f g === comp_raw_context f' g ::: Γ ---> Θ !].
+  Proof.
+    intros i; unfold comp_raw_context.
+    eapply transportb.
+    { apply maponpaths_3, pathsinv0, subst_subst_ty. }
+    use (substeq_derivation [! _ |- _ ::: _ !]); auto.
+  Defined.
+
+  Lemma comp_raw_context_cong_r
+      {Γ Δ Θ : context} (d_Γ : [! |- Γ !])
+      {f : raw_context_map Γ Δ} (d_f : [! |- f ::: Γ ---> Δ !])
+      {g g' : raw_context_map Δ Θ}
+      (e_g : [! |- g === g' ::: Δ ---> Θ !])
+    : [! |- comp_raw_context f g === comp_raw_context f g' ::: Γ ---> Θ !].
+  Proof.
+    intros i; unfold comp_raw_context.
+    eapply transportb.
+    { apply maponpaths_3, pathsinv0, subst_subst_ty. }
+    use (subst_derivation [! _ |- _ === _ ::: _ !]); auto.
+  Defined.
 
 End Category_Laws.
 

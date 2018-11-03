@@ -202,13 +202,10 @@ Section Context_Maps.
       {ΓΓ ΔΔ ΘΘ} (ff : map_mod_eq ΓΓ ΔΔ) (gg : map_mod_eq ΔΔ ΘΘ)
     : map_mod_eq ΓΓ ΘΘ.
   Proof.
-    revert ff gg. use QuotientSet.setquotfun2.
-    - intros f g. exists (comp_raw_context f g).
-      (* destruct ΓΓ as [n ΓΓ]; revert ΓΓ f g.
-      (* TODO: abstract this universal property better. *)
-      refine (setquotunivprop' _ _ _).
-      { eauto using isapropishinh, impred_isaprop. }
-      intros Γ f g. *)
+    revert ff gg. use QuotientSet.setquotfun2; [ | split].
+    - (* construction of the composite *)
+      intros f g. exists (comp_raw_context f g).
+      (* TODO: perhaps try to condense and [abstract] the following. *)
       apply (squash_to_prop (map_derivable f)). { apply isapropishinh. }
       intros d_f.
       apply (squash_to_prop (map_derivable g)). { apply isapropishinh. }
@@ -219,11 +216,35 @@ Section Context_Maps.
       refine (@derivation_comp_raw_context Γ Δ Θ _ (raw_of_context_map f) _ _ _);
         auto.
       exact (pr2 (Γ : wellformed_context_of_length _)).
-        (* TODO: access function! *)
-    - admit.
-  Admitted.
+        (* TODO: access function instead of pr2 above! *)
+    - (* respecting equality in [f] *)
+      intros f f' g. cbn.
+      apply factor_through_squash. { apply isapropishinh. } intros e_f.
+      apply (squash_to_prop (map_derivable f)). { apply isapropishinh. }
+      intros d_f.
+      apply (squash_to_prop (map_derivable f')). { apply isapropishinh. }
+      intros d_f'.
+      apply (squash_to_prop (map_derivable g)). { apply isapropishinh. }
+      intros d_g.
+      apply (take_context_representative ΔΔ). { apply isapropishinh. }
+      intros Δ.
+      apply hinhpr; intros Γ Θ.
+      simple refine (comp_raw_context_cong_l _ _ _ (e_f _ _) _); auto.
+      exact (pr2 (Γ : wellformed_context_of_length _)).
+        (* TODO: access function instead of pr2 above! *)
+    - (* respecting equality in [g] *)
+      intros f g g'. cbn.
+      apply factor_through_squash. { apply isapropishinh. } intros e_g.
+      apply (squash_to_prop (map_derivable f)). { apply isapropishinh. }
+      intros d_f.
+      apply (take_context_representative ΔΔ). { apply isapropishinh. }
+      intros Δ.
+      apply hinhpr; intros Γ Θ.
+      simple refine (comp_raw_context_cong_r _ _ (e_g _ _)); auto.
+      exact (pr2 (Γ : wellformed_context_of_length _)).
+  Defined.
 
-  (* TODO: define identity context map, composition.
+  (* TODO: define identity context map
 
      These will make use of the variable and substitution structural rules, plus lemma above about derivability of well-typed contexts. *)
 
