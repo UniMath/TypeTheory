@@ -125,7 +125,19 @@ Section Context_Equality.
   Definition derivable_cxteq {n} : eqrel (wellformed_context_of_length n)
   := (_,,derivable_cxteq_is_eqrel n).
 
+  (* TODO: maybe weaken assumption [e_Γ] (only one direction should be needed). *)
+  Lemma derivation_idmap_gen
+      {n} {Γ Γ' : context_of_length n}
+      (d_Γ : [! |- Γ !]) (d_Γ' : [! |- Γ' !])
+      (e_Γ : [! |- Γ === Γ' !])
+    : [! |- idmap_raw_context Γ ::: Γ ---> Γ' !].
+  Proof.
+  Admitted.
+
 End Context_Equality.
+
+Notation "[! |- Δ === Γ !]" := (derivation_cxteq Δ Γ)
+                    (format "[!  |-  Δ  ===  Γ  !]") : judgement_scope.
 
 Section Contexts_Modulo_Equality.
 
@@ -152,6 +164,13 @@ Section Contexts_Modulo_Equality.
   Coercion context_representative_as_context
     : context_representative >-> wellformed_context_of_length.
 
+  Lemma cxteq_context_representatives {ΓΓ : context_mod_eq} (Γ Γ' : ΓΓ)
+    : ∥ derivation_cxteq Γ Γ' ∥.
+  Proof.
+    refine (lemmas.setquotprpathsandR (derivable_cxteq) Γ Γ' _).
+    exact (pr2 Γ @ ! pr2 Γ').
+  Defined.
+
   Lemma take_context_representative
       (ΓΓ : context_mod_eq) {X:UU} (h_X : isaprop X)
       (f : context_representative ΓΓ -> X)
@@ -173,7 +192,7 @@ Section Context_Maps.
   computational behaviour on the map part, in compositions etc. *)
   Local Definition map (ΓΓ ΔΔ : context_mod_eq) : UU
     := ∑ (f : raw_context_map (length ΓΓ) (length ΔΔ)),
-       ∥ forall (Γ : ΓΓ) (Δ : ΔΔ), [! |- f ::: Γ ---> Δ !] ∥.
+       forall (Γ : ΓΓ) (Δ : ΔΔ), ∥ [! |- f ::: Γ ---> Δ !] ∥.
 
   (* TODO: lemma that here (and in later similar definitions) it’s sufficient to show typing for _some_ representative, to get it for all representatives. *)
 
@@ -182,11 +201,11 @@ Section Context_Maps.
   Coercion raw_of_context_map : map >-> raw_context_map.
 
   Local Definition map_derivable {ΓΓ ΔΔ} (f : map ΓΓ ΔΔ)
-    : ∥ forall (Γ : ΓΓ) (Δ : ΔΔ), [! |- f ::: Γ ---> Δ !] ∥
+    : forall (Γ : ΓΓ) (Δ : ΔΔ), ∥ [! |- f ::: Γ ---> Δ !] ∥
   := pr2 f.
   
   Local Definition mapeq_hrel {ΓΓ ΔΔ} (f g : map ΓΓ ΔΔ)
-  := ∥ forall (Γ : ΓΓ) (Δ : ΔΔ), [! |- f === g ::: Γ ---> Δ !] ∥.
+  := ∀ (Γ : ΓΓ) (Δ : ΔΔ), ∥ [! |- f === g ::: Γ ---> Δ !] ∥.
 
   Local Definition mapeq_is_eqrel (ΓΓ ΔΔ : context_mod_eq) 
     : iseqrel (@mapeq_hrel ΓΓ ΔΔ).
@@ -214,46 +233,51 @@ Section Context_Maps.
   Proof.
     revert ff gg. use QuotientSet.setquotfun2; [ | split].
     - (* construction of the composite *)
-      intros f g. exists (comp_raw_context f g).
+      intros f g. exists (comp_raw_context f g); intros Γ Θ.
       (* TODO: perhaps try to condense and [abstract] the following. *)
-      apply (squash_to_prop (map_derivable f)). { apply isapropishinh. }
-      intros d_f.
-      apply (squash_to_prop (map_derivable g)). { apply isapropishinh. }
-      intros d_g.
       apply (take_context_representative ΔΔ). { apply isapropishinh. }
       intros Δ.
-      apply hinhpr; intros Γ Θ.
-      refine (@derivation_comp_raw_context Γ Δ Θ _ (raw_of_context_map f) _ _ _);
+      apply (squash_to_prop (map_derivable f Γ Δ)). { apply isapropishinh. }
+      intros d_f.
+      apply (squash_to_prop (map_derivable g Δ Θ)). { apply isapropishinh. }
+      intros d_g.
+      apply hinhpr. refine (derivation_comp_raw_context _ d_f d_g);
         auto using derivation_wellformed_context.
     - (* respecting equality in [f] *)
-      intros f f' g. cbn.
+      intros f f' g e_f Γ Θ. cbn.
+      apply (take_context_representative ΔΔ). { apply isapropishinh. } intros Δ.
+      specialize (e_f Γ Δ); revert e_f.
       apply factor_through_squash. { apply isapropishinh. } intros e_f.
-      apply (squash_to_prop (map_derivable f)). { apply isapropishinh. }
+      apply (squash_to_prop (map_derivable f Γ Δ)). { apply isapropishinh. }
       intros d_f.
-      apply (squash_to_prop (map_derivable f')). { apply isapropishinh. }
+      apply (squash_to_prop (map_derivable f' Γ Δ)). { apply isapropishinh. }
       intros d_f'.
-      apply (squash_to_prop (map_derivable g)). { apply isapropishinh. }
+      apply (squash_to_prop (map_derivable g Δ Θ)). { apply isapropishinh. }
       intros d_g.
-      apply (take_context_representative ΔΔ). { apply isapropishinh. }
-      intros Δ.
-      apply hinhpr; intros Γ Θ.
-      simple refine (comp_raw_context_cong_l _ _ _ (e_f _ _) _);
+      apply hinhpr; simple refine (comp_raw_context_cong_l _ _ _ e_f _);
         auto using derivation_wellformed_context.
     - (* respecting equality in [g] *)
-      intros f g g'. cbn.
-      apply factor_through_squash. { apply isapropishinh. } intros e_g.
-      apply (squash_to_prop (map_derivable f)). { apply isapropishinh. }
-      intros d_f.
+      cbn; intros f g g' e_g Γ Θ.
       apply (take_context_representative ΔΔ). { apply isapropishinh. }
       intros Δ.
-      apply hinhpr; intros Γ Θ.
-      simple refine (comp_raw_context_cong_r _ _ (e_g _ _));
+      specialize (e_g Δ Θ); revert e_g.
+      apply factor_through_squash. { apply isapropishinh. } intros e_g.
+      apply (squash_to_prop (map_derivable f Γ Δ)). { apply isapropishinh. }
+      intros d_f.
+      apply hinhpr; simple refine (comp_raw_context_cong_r _ _ e_g);
         auto using derivation_wellformed_context.
   Defined.
 
-  (* TODO: define identity context map
-
-     These will make use of the variable and substitution structural rules, plus lemma above about derivability of well-typed contexts. *)
+  Local Definition idmap ΓΓ : map_mod_eq ΓΓ ΓΓ.
+  Proof.
+    refine (setquotpr _ _).
+    exists (idmap_raw_context _).
+    intros Γ Γ'.
+    apply (squash_to_prop (cxteq_context_representatives Γ Γ')).
+    { apply isapropishinh. }
+    intros e_Γ; apply hinhpr;
+      eauto using derivation_idmap_gen, derivation_wellformed_context.
+  Defined.
 
   (* TODO: lemmas on associativity etc.  Should be immediate from the similar lemmas on raw ones in [SyntaxLemmas]. *)
 
