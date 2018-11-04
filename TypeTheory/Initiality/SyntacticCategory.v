@@ -89,6 +89,11 @@ Section Context_Equality.
     : context_of_length n
   := pr1 Γ.
 
+  Definition derivation_wellformed_context
+             {n} (Γ : wellformed_context_of_length n)
+    : [! |- Γ !]
+  := pr2 Γ.
+
   (** We only compare contexts of the same length for equality.
 
   Two contexts are equal if they _both_ believe all their types are equal.
@@ -124,8 +129,10 @@ End Context_Equality.
 
 Section Contexts_Modulo_Equality.
 
+  Definition context_of_length_mod_eq n := setquot (@derivable_cxteq n).
+
   Definition context_mod_eq
-  := ∑ (n:nat), setquot (@derivable_cxteq n).
+  := ∑ (n:nat), context_of_length_mod_eq n.
 
   Local Definition length : context_mod_eq -> nat := pr1.
 
@@ -144,6 +151,18 @@ Section Contexts_Modulo_Equality.
   := pr1 Γ.
   Coercion context_representative_as_context
     : context_representative >-> wellformed_context_of_length.
+
+  Lemma take_context_representative
+      (ΓΓ : context_mod_eq) {X:UU} (h_X : isaprop X)
+      (f : context_representative ΓΓ -> X)
+    : X.
+  Proof.
+    refine (factor_through_squash _ f _). { assumption. }
+    destruct ΓΓ as [n ΓΓ]. generalize ΓΓ.
+    apply setquotunivprop'.
+    { intros; apply isapropishinh. }
+    intros Γ; apply hinhpr. exists Γ; auto. 
+  Defined.
 
 End Contexts_Modulo_Equality.
 
@@ -189,15 +208,6 @@ Section Context_Maps.
   := pr1 f.
   Coercion map_representative_as_map : map_representative >-> map.
 
-  (* TODO: upsteam *)
-  Lemma take_context_representative
-      (ΓΓ : context_mod_eq) {X:UU} (h_X : isaprop X)
-      (f : context_representative ΓΓ -> X)
-    : X.
-  Proof.
-    (* use surjectivity *)
-  Admitted.
-
   Local Definition compose
       {ΓΓ ΔΔ ΘΘ} (ff : map_mod_eq ΓΓ ΔΔ) (gg : map_mod_eq ΔΔ ΘΘ)
     : map_mod_eq ΓΓ ΘΘ.
@@ -214,9 +224,7 @@ Section Context_Maps.
       intros Δ.
       apply hinhpr; intros Γ Θ.
       refine (@derivation_comp_raw_context Γ Δ Θ _ (raw_of_context_map f) _ _ _);
-        auto.
-      exact (pr2 (Γ : wellformed_context_of_length _)).
-        (* TODO: access function instead of pr2 above! *)
+        auto using derivation_wellformed_context.
     - (* respecting equality in [f] *)
       intros f f' g. cbn.
       apply factor_through_squash. { apply isapropishinh. } intros e_f.
@@ -229,9 +237,8 @@ Section Context_Maps.
       apply (take_context_representative ΔΔ). { apply isapropishinh. }
       intros Δ.
       apply hinhpr; intros Γ Θ.
-      simple refine (comp_raw_context_cong_l _ _ _ (e_f _ _) _); auto.
-      exact (pr2 (Γ : wellformed_context_of_length _)).
-        (* TODO: access function instead of pr2 above! *)
+      simple refine (comp_raw_context_cong_l _ _ _ (e_f _ _) _);
+        auto using derivation_wellformed_context.
     - (* respecting equality in [g] *)
       intros f g g'. cbn.
       apply factor_through_squash. { apply isapropishinh. } intros e_g.
@@ -240,8 +247,8 @@ Section Context_Maps.
       apply (take_context_representative ΔΔ). { apply isapropishinh. }
       intros Δ.
       apply hinhpr; intros Γ Θ.
-      simple refine (comp_raw_context_cong_r _ _ (e_g _ _)); auto.
-      exact (pr2 (Γ : wellformed_context_of_length _)).
+      simple refine (comp_raw_context_cong_r _ _ (e_g _ _));
+        auto using derivation_wellformed_context.
   Defined.
 
   (* TODO: define identity context map
