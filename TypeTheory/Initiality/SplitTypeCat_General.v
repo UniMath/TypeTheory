@@ -194,11 +194,13 @@ Section Terms.
   Proof.
   Admitted.
 
-  Definition tm_transportf_compose {C : split_typecat}
+  Lemma tm_transportf_compose {C : split_typecat}
       {Γ: C} {A A' A'' : C Γ} (e : A = A') (e' : A' = A'') (a : tm A)
     : tm_transportf (e @ e') a = tm_transportf e' (tm_transportf e a).
   Proof.
-  Admitted.
+    induction e, e'.
+    now rewrite !tm_transportf_idpath_gen.
+  Qed.
 
   Definition reind_compose_tm {C : split_typecat}
       {Γ Γ' Γ'' : C} (f : Γ' --> Γ) (g : Γ'' --> Γ') {A : C Γ} (a : tm A)
