@@ -195,7 +195,7 @@ Defined.
 Lemma is_precategory_precategory_data_from_ess_alg_cat : 
   is_precategory (precategory_data_from_ess_alg_cat).
 Proof.
-  repeat split; intros.
+  use mk_is_precategory_one_assoc; intros.
   - apply hom_eq. simpl. apply id_comp_l. 
     apply (pr1 (pr2 f)).
   - apply hom_eq, id_comp_r, (pr2 (pr2 f)).
@@ -203,6 +203,6 @@ Proof.
 Qed.
 
 Definition precategory_from_ess_alg_cat : precategory := 
-  tpair _ _ is_precategory_precategory_data_from_ess_alg_cat.
+  (_,,is_precategory_precategory_data_from_ess_alg_cat).
 
 End gen_alg_from_ess_alg.

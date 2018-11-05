@@ -178,16 +178,11 @@ Definition term_fun_data : precategory_data
 
 Definition term_fun_axioms : is_precategory term_fun_data.
 Proof.
-  repeat apply tpair.
-  - intros. apply isaprop_term_fun_mor.
-  - intros. apply isaprop_term_fun_mor.
-  - intros. apply isaprop_term_fun_mor.
+  use mk_is_precategory_one_assoc; intros; apply isaprop_term_fun_mor.
 Qed.
-
 
 Definition term_fun_precategory : precategory 
   := (_ ,, term_fun_axioms).
-
 
 Lemma has_homsets_term_fun_precat 
   : has_homsets term_fun_precategory.
@@ -276,8 +271,8 @@ Definition strucs_compat_data : precategory_data
 
 Definition strucs_compat_axioms : is_precategory strucs_compat_data.
 Proof.
-  repeat apply tpair; intros.
-  - apply dirprodeq;    apply id_left.
+  use mk_is_precategory_one_assoc; intros.
+  - apply dirprodeq; apply id_left.
   - apply dirprodeq; apply id_right.
   - apply dirprodeq; apply assoc.
 Qed.
