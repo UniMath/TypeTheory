@@ -1,5 +1,5 @@
 (** Some general infrastructure for split type-categories,
-  used in this package. 
+  used in this package.
 
 Note: much of this essentially duplicates material given already in the [ALV1] package, since everything there is given not for [split_typecat] itself but for the reassociated definition [split_typecat'], and the equivalence doesn’t compute straightforwardly enough to allow them to be used here.
 
@@ -123,16 +123,16 @@ Section Terms.
   Qed.
 
   Definition reind_tm {C : typecat} {Γ Γ'} (f : Γ' --> Γ) {A : C Γ}
-    : tm A -> tm (A⦃f⦄).
-  (* uses the pullback structure *)
-  Admitted.
+    (x : tm A) : tm (A⦃f⦄) := pb_of_section _ (reind_pb_typecat A f) _ (pr2 x).
 
-  Definition reind_tm_q {C : typecat} {Γ Γ'} (f : Γ' --> Γ)
+  Lemma reind_tm_q {C : typecat} {Γ Γ'} (f : Γ' --> Γ)
       {A : C Γ} (a : tm A)
     : reind_tm f a ;; q_typecat A f = f ;; a.
   Proof.
-    (* by def of [reind_tm] *)
-  Admitted.
+    simpl.
+    set (pb := mk_Pullback _ _ _ _ _ _ _).
+    now rewrite (PullbackArrow_PullbackPr2 pb).
+  Qed.
 
   (** A concrete construction of “transport” of terms, by composing with [comp_ext_compare]. *)
   Definition tm_transportf {C : typecat} {Γ} {A A' : C Γ} (e : A = A')
@@ -165,7 +165,7 @@ Section Terms.
   Defined.
 
   Lemma tm_transportf_idpath {C : typecat} {Γ} {A : C Γ} (t : tm A)
-    : tm_transportf (idpath A) t = t. 
+    : tm_transportf (idpath A) t = t.
   Proof.
     apply paths_tm. unfold tm_transportf; cbn.
     apply id_right.
@@ -173,7 +173,7 @@ Section Terms.
 
   Lemma tm_transportf_irrelevant {C : split_typecat} {Γ} {A A' : C Γ} (e e' : A = A')
       (t : tm A)
-    : tm_transportf e t = tm_transportf e' t. 
+    : tm_transportf e t = tm_transportf e' t.
   Proof.
     apply (maponpaths (fun e => tm_transportf e t)).
     apply (isaset_types_typecat C).
@@ -181,18 +181,35 @@ Section Terms.
 
   Lemma tm_transportf_idpath_gen {C : split_typecat}
       {Γ} {A : C Γ} (e : A = A) (t : tm A)
-    : tm_transportf e t = t. 
+    : tm_transportf e t = t.
   Proof.
     eauto using pathscomp0, tm_transportf_irrelevant, tm_transportf_idpath.
   Defined.
 
+  (* Why is there two versions of this structure? *)
+  Definition split_typecat_to_split_typecat_structure (C : split_typecat) :
+    split_typecat_structure C := (pr21 C,,pr2 C).
 
   Definition reind_id_tm {C : split_typecat}
       {Γ : C}{A : C Γ} (a : tm A)
     : reind_tm (id _) a
       = tm_transportb (reind_id_type_typecat C _ _) a.
   Proof.
-  Admitted.
+    apply subtypeEquality; [ intros x; apply homset_property|].
+    simpl.
+    set (pb := mk_Pullback _ _ _ _ _ _ _).
+    apply pathsinv0.
+    destruct a as [f hf]; simpl.
+    (* Why is there a ' version of this lemma??? *)
+    apply (PullbackArrowUnique' _ _ pb).
+    - rewrite <-assoc.
+      etrans.
+      eapply maponpaths, (@idtoiso_dpr_typecat _ (split_typecat_to_split_typecat_structure C)).
+      exact hf.
+    - unfold comp_ext_compare; cbn.
+      now rewrite (reind_id_term_typecat (split_typecat_to_split_typecat_structure C)), id_left,
+                  <-assoc, idtoiso_concat_pr, <- maponpathscomp0, pathsinv0l, id_right.
+  Qed.
 
   Lemma tm_transportf_compose {C : split_typecat}
       {Γ: C} {A A' A'' : C Γ} (e : A = A') (e' : A' = A'') (a : tm A)
@@ -274,7 +291,7 @@ Section Types_with_Terms.
       (e_tm : term_of Aa ;; comp_ext_compare e_ty = term_of Bb)
     : Aa = Bb.
   Proof.
-    destruct Aa as [A a], Bb as [B b]; cbn in *. 
+    destruct Aa as [A a], Bb as [B b]; cbn in *.
     destruct e_ty; cbn in *.
     apply maponpaths, paths_tm.
     refine (_ @ e_tm). apply pathsinv0, id_right.
