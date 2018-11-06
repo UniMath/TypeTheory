@@ -192,17 +192,13 @@ Section Terms.
     : reind_tm (id _) a
       = tm_transportb (reind_id_type_typecat _ _) a.
   Proof.
-    apply subtypeEquality; [ intros x; apply homset_property|].
-    simpl.
+    apply subtypeEquality; [ intros x; apply homset_property|]; simpl.
     set (pb := mk_Pullback _ _ _ _ _ _ _).
-    apply pathsinv0.
-    destruct a as [f hf]; simpl.
     (* Why is there a ' version of this lemma??? *)
-    apply (PullbackArrowUnique' _ _ pb).
+    apply pathsinv0, (PullbackArrowUnique' _ _ pb).
     - rewrite <-assoc.
-      etrans.
-      eapply maponpaths, idtoiso_dpr_typecat.
-      exact hf.
+      etrans; [eapply maponpaths, idtoiso_dpr_typecat|].
+      exact (pr2 a).
     - unfold comp_ext_compare; cbn.
       now rewrite reind_id_term_typecat, id_left,
                   <-assoc, idtoiso_concat_pr, <- maponpathscomp0,
@@ -223,7 +219,22 @@ Section Terms.
       = tm_transportb (reind_comp_typecat _ _ _ _ _ _)
           (reind_tm g (reind_tm f a)).
   Proof.
-  Admitted.
+    apply subtypeEquality; [ intros x; apply homset_property|]; simpl.
+    set (pb := mk_Pullback _ _ _ _ _ _ _).
+    set (pb' := mk_Pullback _ _ _ _ _ _ _).
+    set (pb'' := mk_Pullback _ _ _ _ _ _ _).
+    apply pathsinv0, (PullbackArrowUnique' _ _ pb).
+    - rewrite <- assoc.
+      etrans; [eapply maponpaths, idtoiso_dpr_typecat|].
+      apply (PullbackArrow_PullbackPr1 pb').
+    - unfold comp_ext_compare; cbn.
+      rewrite <- assoc, (reind_comp_term_typecat _ A).
+      etrans; [eapply maponpaths|].
+      rewrite !assoc, idtoiso_concat_pr, <- maponpathscomp0, pathsinv0l, <-assoc.
+      apply id_left.
+      rewrite assoc, (PullbackArrow_PullbackPr2 pb'), <-!assoc.
+      now apply maponpaths, (PullbackArrow_PullbackPr2 pb'').
+  Qed.
 
   Definition reind_compose_tm' {C : split_typecat}
       {Γ Γ' Γ'' : C} (f : Γ' --> Γ) (g : Γ'' --> Γ') {A : C Γ} (a : tm A)
