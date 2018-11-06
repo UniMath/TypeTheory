@@ -167,8 +167,13 @@ Section Terms.
   Lemma tm_transportf_idpath {C : typecat} {Γ} {A : C Γ} (t : tm A)
     : tm_transportf (idpath A) t = t.
   Proof.
-    apply paths_tm. unfold tm_transportf; cbn.
-    apply id_right.
+    apply paths_tm, id_right.
+  Defined.
+
+  Lemma tm_transportb_idpath {C : typecat} {Γ} {A : C Γ} (t : tm A)
+    : tm_transportb (idpath A) t = t.
+  Proof.
+    apply paths_tm, id_right.
   Defined.
 
   Lemma tm_transportf_irrelevant {C : split_typecat} {Γ} {A A' : C Γ} (e e' : A = A')
@@ -213,7 +218,7 @@ Section Terms.
     now rewrite !tm_transportf_idpath_gen.
   Qed.
 
-  Definition reind_compose_tm {C : split_typecat}
+  Lemma reind_compose_tm {C : split_typecat}
       {Γ Γ' Γ'' : C} (f : Γ' --> Γ) (g : Γ'' --> Γ') {A : C Γ} (a : tm A)
     : reind_tm (g ;; f) a
       = tm_transportb (reind_comp_typecat _ _ _ _ _ _)
@@ -236,27 +241,31 @@ Section Terms.
       now apply maponpaths, (PullbackArrow_PullbackPr2 pb'').
   Qed.
 
-  Definition reind_compose_tm' {C : split_typecat}
+  Lemma reind_compose_tm' {C : split_typecat}
       {Γ Γ' Γ'' : C} (f : Γ' --> Γ) (g : Γ'' --> Γ') {A : C Γ} (a : tm A)
     : tm_transportf (reind_comp_typecat _ _ _ _ _ _)
         (reind_tm (g ;; f) a)
       = reind_tm g (reind_tm f a).
   Proof.
-  Admitted.
-
-  Definition maponpaths_2_reind_tm {C : split_typecat}
+    rewrite reind_compose_tm; unfold tm_transportb.
+    now rewrite <- tm_transportf_compose, pathsinv0l, tm_transportf_idpath.
+  Qed.
+  
+  Lemma maponpaths_2_reind_tm {C : split_typecat}
       {Γ Γ' : C} {f f' : Γ' --> Γ} (e : f = f') {A : C Γ} (a : tm A)
-    : reind_tm f a
-      = tm_transportb (maponpaths _ e) (reind_tm f' a).
+    : reind_tm f a = tm_transportb (maponpaths _ e) (reind_tm f' a).
   Proof.
-  Admitted.
+    induction e.
+    rewrite maponpaths_eq_idpath; [|apply idpath].
+    now rewrite tm_transportb_idpath.
+  Qed.
 
   (** the “universal term of type A” *)
-  Definition var_typecat {C : typecat} {Γ:C} (A:C Γ)
-  : tm (A ⦃dpr_typecat A⦄).
+  Definition var_typecat {C : typecat} {Γ : C} (A : C Γ)
+    : tm (A ⦃dpr_typecat A⦄).
   Admitted.
 
-  Definition reind_tm_var_typecat {C : split_typecat} {Γ:C} {A:C Γ} (a : tm A)
+  Definition reind_tm_var_typecat {C : split_typecat} {Γ : C} {A : C Γ} (a : tm A)
     (e : A = (A ⦃dpr_typecat A⦄) ⦃a⦄
       := ! reind_id_type_typecat _ _
            @ maponpaths _ (! section_property a)
