@@ -28,7 +28,7 @@ Section Auxiliary.
 
   Definition type_paths_hProp {C : split_typecat} {Γ : C} (A B : C Γ)
     : hProp
-  := hProppair (A = B) (isaset_types_typecat C _ _ _).
+  := hProppair (A = B) (isaset_types_typecat _ _ _).
 
   Definition tm_paths_hProp {C : split_typecat} {Γ : C} {A : C Γ} (s t : tm A)
     : hProp
@@ -408,8 +408,8 @@ Section Partial_Interpretation.
         use assume_partial_leq.
         { cbn; intros e_T.
           eapply pathscomp0. 2: { eapply (maponpaths (fun A => A ⦃f⦄)), e_T. }
-          eapply pathscomp0. { apply pathsinv0, (reind_comp_typecat C). }
-          eapply pathscomp0. 2: { apply (reind_comp_typecat C). }
+          eapply pathscomp0. { apply pathsinv0, reind_comp_typecat. }
+          eapply pathscomp0. 2: { apply reind_comp_typecat. }
           (* TODO: unify duplicate access functions [reind_comp_typecat],
              [reind_comp_type_typecat]. *)
           apply maponpaths, reind_tm_q. }
@@ -763,7 +763,7 @@ a little more work to state. *)
       simple refine (_ @ _).
       { exact (transportf _ (idpath _) (evaluate (ts_def i))). }
       + apply idpath.
-      + apply maponpaths_2. apply (isaset_types_typecat C).
+      + apply maponpaths_2, isaset_types_typecat.
   (* This is a little tricky, because [partial_interpretation_raw_context_map]
   contains an equality of environments, i.e. equalities of types-and-terms,
   where the type part is redundant, and really the term part is the desired
@@ -801,8 +801,8 @@ a little more work to state. *)
 (* can this be simplified with [tm_transportf_partial_interpretation_tm_leq]? *)
       use tpair; cbn.
       + refine (_,,tt). cbn; apply pathsinv0.
-        eapply pathscomp0. { apply pathsinv0, (reind_comp_typecat C). }
-        eapply pathscomp0. 2: { apply (reind_id_type_typecat C). }
+        eapply pathscomp0. { apply pathsinv0, reind_comp_typecat. }
+        eapply pathscomp0. 2: { apply reind_id_type_typecat. }
         apply maponpaths, section_property.
       + cbn. eapply pathscomp0. 2: { apply reind_compose_tm'. }
         eapply pathscomp0.
@@ -813,8 +813,8 @@ a little more work to state. *)
         eapply pathscomp0. 2: { apply tm_transportf_compose. }
         apply tm_transportf_irrelevant.
     - refine (tm_transportf_partial_interpretation_tm_leq _ _ _ a_def). 
-      eapply pathscomp0. 2: { apply (reind_comp_typecat C). }
-      eapply pathsinv0, pathscomp0. 2: { apply (reind_id_type_typecat C). } 
+      eapply pathscomp0. 2: { apply reind_comp_typecat. }
+      eapply pathsinv0, pathscomp0. 2: { apply reind_id_type_typecat. } 
       apply maponpaths, section_property.
     - eapply pathscomp0. apply leq_partial_commutes.
       cbn. eapply pathscomp0. 2: { apply pathsinv0, reind_tm_var_typecat. }

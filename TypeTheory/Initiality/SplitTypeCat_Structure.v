@@ -95,8 +95,8 @@ Section Pi_Structure.
         {A : C Γ} (B : C (Γ ◂ A)) (a : tm A)
     : (B ⦃a⦄) ⦃f⦄ = (B ⦃q_typecat A f⦄) ⦃reind_tm f a⦄.
   Proof.
-    refine (!reind_comp_typecat C _ _ _ _ _ _ @
-             _ @ reind_comp_typecat C _ _ _ _ _ _).
+    refine (!reind_comp_typecat _ _ _ _ _ _ @
+             _ @ reind_comp_typecat _ _ _ _ _ _).
     apply maponpaths.
     admit. (* should be lemma about [reind_tm] *)
   Admitted.

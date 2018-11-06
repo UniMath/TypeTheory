@@ -40,7 +40,7 @@ Section Comp_Ext_Compare.
     : (comp_ext_compare e : _ --> _) = identity (Γ ◂ A).
   Proof.
     apply @pathscomp0 with (comp_ext_compare (idpath _)).
-    - apply maponpaths, maponpaths, (isaset_types_typecat C).
+    - apply maponpaths, maponpaths, isaset_types_typecat.
     - apply idpath.
   Qed.
 
@@ -65,16 +65,16 @@ Section Terms.
     - use mk_functor_data.
       + intros x.
         exists (ty_typecat C x).
-        abstract (apply isaset_types_typecat, C).
+        abstract (apply isaset_types_typecat).
       + simpl; intros Γ Γ' f A.
         exact (reind_typecat A f).
     - use tpair.
       + intros Γ.
         abstract (apply funextfun; intros y; simpl;
-                  apply reind_id_type_typecat, C).
+                  apply reind_id_type_typecat).
       + cbn; intros Γ Γ' Γ'' f g.
         abstract (apply funextfun; intros A;
-                  apply reind_comp_type_typecat, C).
+                  apply reind_comp_type_typecat).
   Defined.
 
   (* TODO: upstream this and following material on general sections to [TypeTheory.Auxiliary]? *)
@@ -176,24 +176,21 @@ Section Terms.
     : tm_transportf e t = tm_transportf e' t.
   Proof.
     apply (maponpaths (fun e => tm_transportf e t)).
-    apply (isaset_types_typecat C).
+    apply isaset_types_typecat.
   Defined.
 
   Lemma tm_transportf_idpath_gen {C : split_typecat}
       {Γ} {A : C Γ} (e : A = A) (t : tm A)
     : tm_transportf e t = t.
   Proof.
-    eauto using pathscomp0, tm_transportf_irrelevant, tm_transportf_idpath.
+    eapply pathscomp0; [apply tm_transportf_irrelevant|].
+    eapply tm_transportf_idpath.
   Defined.
-
-  (* Why is there two versions of this structure? *)
-  Definition split_typecat_to_split_typecat_structure (C : split_typecat) :
-    split_typecat_structure C := (pr21 C,,pr2 C).
 
   Definition reind_id_tm {C : split_typecat}
       {Γ : C}{A : C Γ} (a : tm A)
     : reind_tm (id _) a
-      = tm_transportb (reind_id_type_typecat C _ _) a.
+      = tm_transportb (reind_id_type_typecat _ _) a.
   Proof.
     apply subtypeEquality; [ intros x; apply homset_property|].
     simpl.
@@ -204,11 +201,12 @@ Section Terms.
     apply (PullbackArrowUnique' _ _ pb).
     - rewrite <-assoc.
       etrans.
-      eapply maponpaths, (@idtoiso_dpr_typecat _ (split_typecat_to_split_typecat_structure C)).
+      eapply maponpaths, idtoiso_dpr_typecat.
       exact hf.
     - unfold comp_ext_compare; cbn.
-      now rewrite (reind_id_term_typecat (split_typecat_to_split_typecat_structure C)), id_left,
-                  <-assoc, idtoiso_concat_pr, <- maponpathscomp0, pathsinv0l, id_right.
+      now rewrite reind_id_term_typecat, id_left,
+                  <-assoc, idtoiso_concat_pr, <- maponpathscomp0,
+                  pathsinv0l, id_right.
   Qed.
 
   Lemma tm_transportf_compose {C : split_typecat}
@@ -222,14 +220,14 @@ Section Terms.
   Definition reind_compose_tm {C : split_typecat}
       {Γ Γ' Γ'' : C} (f : Γ' --> Γ) (g : Γ'' --> Γ') {A : C Γ} (a : tm A)
     : reind_tm (g ;; f) a
-      = tm_transportb (reind_comp_typecat C _ _ _ _ _ _)
+      = tm_transportb (reind_comp_typecat _ _ _ _ _ _)
           (reind_tm g (reind_tm f a)).
   Proof.
   Admitted.
 
   Definition reind_compose_tm' {C : split_typecat}
       {Γ Γ' Γ'' : C} (f : Γ' --> Γ) (g : Γ'' --> Γ') {A : C Γ} (a : tm A)
-    : tm_transportf (reind_comp_typecat C _ _ _ _ _ _)
+    : tm_transportf (reind_comp_typecat _ _ _ _ _ _)
         (reind_tm (g ;; f) a)
       = reind_tm g (reind_tm f a).
   Proof.
@@ -249,18 +247,18 @@ Section Terms.
 
   Definition reind_tm_var_typecat {C : split_typecat} {Γ:C} {A:C Γ} (a : tm A)
     (e : A = (A ⦃dpr_typecat A⦄) ⦃a⦄
-      := ! reind_id_type_typecat C _ _
+      := ! reind_id_type_typecat _ _
            @ maponpaths _ (! section_property a)
-           @ reind_comp_typecat C _ _ _ _ _ _)
+           @ reind_comp_typecat _ _ _ _ _ _)
   : reind_tm a (var_typecat A)
     = tm_transportf e a.
   Admitted.
 
   Definition reind_tm_var_typecat' {C : split_typecat} {Γ:C} {A:C Γ} (a : tm A)
     (e : A = (A ⦃dpr_typecat A⦄) ⦃a⦄
-      := ! reind_id_type_typecat C _ _
+      := ! reind_id_type_typecat _ _
            @ maponpaths _ (! section_property a)
-           @ reind_comp_typecat C _ _ _ _ _ _)
+           @ reind_comp_typecat _ _ _ _ _ _)
   : tm_transportb e (reind_tm a (var_typecat A))
     = a.
   Admitted.
@@ -324,8 +322,8 @@ Section Types_with_Terms.
     = var_with_type (A ⦃f⦄).
   Proof.
       use paths_type_with_term.
-      + eapply pathscomp0. { apply pathsinv0, (reind_comp_typecat C). }
-        eapply pathscomp0. 2: { apply (reind_comp_typecat C). }
+      + eapply pathscomp0. { apply pathsinv0, reind_comp_typecat. }
+        eapply pathscomp0. 2: { apply reind_comp_typecat. }
         apply maponpaths, dpr_q_typecat.
       + cbn. admit. (* lemma about [var_typecat] *)
   Admitted.
@@ -334,8 +332,8 @@ Section Types_with_Terms.
     : reind_type_with_term a (var_with_type A) = (A,,a).
   Proof.
     use paths_type_with_term.
-    + eapply pathscomp0. { apply pathsinv0, (reind_comp_typecat C). }
-      eapply pathscomp0. 2: { apply (reind_id_type_typecat C). }
+    + eapply pathscomp0. { apply pathsinv0, reind_comp_typecat. }
+      eapply pathscomp0. 2: { apply reind_id_type_typecat. }
       apply maponpaths, section_property.
     + use (@maponpaths _ _ (section_pr1 _) (tm_transportf _ _) _ _).
       refine (_ @ reind_tm_var_typecat' a).

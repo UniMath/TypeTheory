@@ -201,58 +201,6 @@ Proof.
     apply hs.
 Qed.
 
-Definition split_typecat_structure (CC : precategory) : UU 
-  := ∑ C : typecat_structure CC, is_split_typecat C.
-
-Coercion typecat_from_split (CC : precategory) (C : split_typecat_structure CC) 
-  : typecat_structure _ 
-  := pr1 C.
-
-Coercion is_split_from_split_typecat (CC : precategory) (C : split_typecat_structure CC)
-  : is_split_typecat C
-  := pr2 C.
-
-Definition reind_comp_typecat {CC : precategory} {C : typecat_structure CC}
-           (H : is_split_typecat C)
-  : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
-      A {{g;;f}} = A{{f}}{{g}}
-  := pr1 (pr2 (pr2 H)).
-
-Definition q_q_typecat {CC : precategory} {C : split_typecat_structure CC}
-  : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
-            q_typecat A (g ;; f)
-            =  idtoiso (maponpaths (fun b => Γ''◂b) (reind_comp_typecat C _ A _ f _ g))
-               ;; q_typecat (A{{f}}) g
-               ;; q_typecat A f
-  := pr2 (pr2 (pr2 (pr2 C))).
-
-Section access_functions.
-
-Context {CC : precategory} {C : typecat_structure CC} (T : is_split_typecat C).
-
-Definition isaset_types_typecat : ∏ Γ:CC, isaset (C Γ) := pr1 T.
-
-Definition reind_id_type_typecat :  ∏ Γ (A : C Γ), A {{identity Γ}} = A := pr1 (pr1 (pr2 T)).
-
-Definition reind_id_term_typecat : 
-  ∏ Γ (A : C Γ), q_typecat A (identity Γ)
-                        = idtoiso (maponpaths (fun b => Γ◂b) (reind_id_type_typecat Γ A)) :=
- pr2 (pr1 (pr2 T)).
-
-Definition reind_comp_type_typecat : 
-  ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'), A {{g;;f}} = A{{f}}{{g}} 
- := pr1 (pr2 (pr2 T)).
-
-Definition reind_comp_term_typecat : 
-   ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
-            q_typecat A (g ;; f)
-            =  idtoiso (maponpaths (fun b => Γ''◂b) (reind_comp_type_typecat _ A _ f _ g))
-               ;; q_typecat (A{{f}}) g
-               ;; q_typecat A f
- := pr2 (pr2 (pr2 T)).
-
-End access_functions.
-
 Definition typecat := ∑ (C : category), (typecat_structure C).
 
 Coercion category_of_typecat (C : typecat) := pr1 C.
@@ -263,10 +211,59 @@ Definition split_typecat := ∑ (C : typecat), (is_split_typecat C).
 Coercion typecat_of_split_typecat (C : split_typecat) := pr1 C.
 Coercion split_typecat_is_split (C : split_typecat) := pr2 C.
 
+Definition split_typecat_structure (CC : precategory) : UU
+  := ∑ C : typecat_structure CC, is_split_typecat C.
+
+Coercion typecat_from_split (CC : precategory) (C : split_typecat_structure CC)
+  : typecat_structure _
+  := pr1 C.
+
+Coercion is_split_from_split_typecat (CC : precategory) (C : split_typecat_structure CC)
+  : is_split_typecat C
+  := pr2 C.
+
+Definition reind_comp_typecat {C : split_typecat}
+  : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
+    A {{g;;f}} = A{{f}}{{g}}
+  := pr1 (pr2 (pr2 (pr2 C))).
+
+Definition q_q_typecat {C : split_typecat}
+  : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
+            q_typecat A (g ;; f)
+            =  idtoiso (maponpaths (fun b => Γ''◂b) (reind_comp_typecat _ A _ f _ g))
+               ;; q_typecat (A{{f}}) g
+               ;; q_typecat A f
+  := pr2 (pr2 (pr2 (pr2 C))).
+
+Section access_functions.
+
+Context {C : split_typecat}.
+
+Definition isaset_types_typecat : ∏ Γ : C, isaset (C Γ) := pr1 (pr2 C).
+
+Definition reind_id_type_typecat :  ∏ Γ (A : C Γ), A {{identity Γ}} = A
+  := pr1 (pr1 (pr2 (pr2 C))).
+
+Definition reind_id_term_typecat : 
+  ∏ Γ (A : C Γ), q_typecat A (identity Γ)
+                        = idtoiso (maponpaths (fun b => Γ◂b) (reind_id_type_typecat Γ A)) :=
+ pr2 (pr1 (pr2 (pr2 C))).
+
+Definition reind_comp_type_typecat : 
+  ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'), A {{g;;f}} = A{{f}}{{g}} 
+ := pr1 (pr2 (pr2 (pr2 C))).
+
+Definition reind_comp_term_typecat : 
+   ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
+            q_typecat A (g ;; f)
+            =  idtoiso (maponpaths (fun b => Γ''◂b) (reind_comp_type_typecat _ A _ f _ g))
+               ;; q_typecat (A{{f}}) g
+               ;; q_typecat A f
+ := pr2 (pr2 (pr2 (pr2 C))).
+
+End access_functions.
+
 End Type_Precats.
-
-
-
 
 (* Globalising notations defined within section above: *)
 Notation "Γ ◂ A" := (ext_typecat Γ A) (at level 40).
@@ -276,11 +273,9 @@ Notation "A {{ f }}" := (reind_typecat A f) (at level 30).
 
 Section lemmas.
 
-Variable CC : precategory.
-Variable  C : split_typecat_structure CC.
-Variable hs : has_homsets CC.
+Variable (C : split_typecat).
 
-Lemma transportf_dpr_typecat (Γ : CC)
+Lemma transportf_dpr_typecat (Γ : C)
   (A B : C Γ)
   (f : Γ --> Γ ◂ A)
   (p : A = B) :
@@ -291,7 +286,7 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma idtoiso_dpr_typecat (Γ : CC)
+Lemma idtoiso_dpr_typecat (Γ : C)
   (A B : C Γ)
   (p : A = B) :
    idtoiso (maponpaths (λ B : C Γ,  Γ ◂ B) p);; dpr_typecat B =
@@ -302,14 +297,14 @@ Proof.
 Defined.
 
 
-Lemma transportf_reind_typecat (Γ Γ' : CC) (A A' : C Γ') (e : A = A') t :
+Lemma transportf_reind_typecat (Γ Γ' : C) (A A' : C Γ') (e : A = A') t :
   transportf (λ B, Γ --> Γ' ◂ B) e t = transportf (λ Δ, Γ --> Δ) (maponpaths _ e) t.
 Proof.
   induction e.
   apply idpath.
 Defined.
 
-Lemma transportf_reind_typecat' (Γ Γ' : CC) (A : C Γ) (i i' : Γ' --> Γ) (e : i = i')  t :
+Lemma transportf_reind_typecat' (Γ Γ' : C) (A : C Γ) (i i' : Γ' --> Γ) (e : i = i')  t :
    transportf (λ i0 : Γ' --> Γ, Γ' --> Γ' ◂ reind_typecat A i0) e t =
    transportf (λ B : C Γ', Γ' --> Γ' ◂ B) (maponpaths _  e) t.
 Proof.
