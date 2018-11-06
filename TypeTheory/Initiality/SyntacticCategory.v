@@ -19,7 +19,7 @@ Section Auxiliary.
   particularly, [lemmas.setquotprpathsandR] from [PAdics], I guess? *)
 
   (* Upstream issues to possibly raise about [setquot]:
-  - should [pr1] of [eqrel] coerce to [hrel], not directly to [Funclass]? 
+  - should [pr1] of [eqrel] coerce to [hrel], not directly to [Funclass]?
   - should [QuotientSet.setquotfun2] replace [setquotfun2]? *)
 
   (** Variant of [setquotuniv] with the [isaset] hypothesis separated out,
@@ -43,7 +43,7 @@ Section Auxiliary.
   Proof.
     transparent assert (f_nondep : (setquot R -> ∑ xx, P xx)).
     { use setquotuniv'.
-      - apply isaset_total2; try assumption. apply isasetsetquot. 
+      - apply isaset_total2; try assumption. apply isasetsetquot.
       - intros x. exact (_,, d x).
       - intros x y r. refine (total2_paths_f _ _). apply (d_respects_R _ _ r).
     }
@@ -96,16 +96,22 @@ Section Context_Equality.
 
   (** We only compare contexts of the same length for equality.
 
-  Two contexts are equal if they _both_ believe all their types are equal.
+  Two contexts are equal if they _both_ believe all their types are
+  equal.
 
-  Note 1: one direction wouldn’t suffice, for general type theories.  E.g.
-  in ETT with the reflection rule, define a predicate [P] over [nat] with
-  [ P 0 ] false, and [ P 1 ] true.  Then [ P 0 ] proves that [ 0 === 1 : nat ]
-  and hence that [ P 0 === P 1 ], but [ P 1 ] doesn’t prove this, so for the
-  contexts [ x0 : P 0 ] and [ x0 : P 1 ], one direction of the below conditions
-  will hold, but not both.
+  Note 1: one direction wouldn’t suffice, for general type theories.
+  E.g.  in ETT with the reflection rule, define a predicate [P] over
+  [nat] with [ P 0 ] false, and [ P 1 ] true.  Then [ P 0 ] proves
+  that [ 0 === 1 : nat ] and hence that [ P 0 === P 1 ], but [ P 1 ]
+  doesn’t prove this, so for the contexts [ x0 : P 0 ] and [ x0 : P 1
+  ], one direction of the below conditions will hold, but not both.
 
-  Note 2: this is a _flat_ form of context equality, not stratified, analogous to [ [! |f- Γ !] ] not [ [! |f- Γ !] ].  As such, we don’t expect it to give a contextual category: a context may (up to equality) be built up from types in several different ways.  For initiality, we will at some point have to remedy this: either by taking the contextual core of what this gives, or some other way. *)
+  Note 2: this is a _flat_ form of context equality, not stratified,
+  analogous to [ [! |f- Γ !] ] not [ [! |f- Γ !] ].  As such, we don’t
+  expect it to give a contextual category: a context may (up to
+  equality) be built up from types in several different ways.  For
+  initiality, we will at some point have to remedy this: either by
+  taking the contextual core of what this gives, or some other way. *)
   Definition derivation_cxteq {n} (Γ Δ : context_of_length n) : UU
   :=   (forall i, [! Γ |- Γ i === Δ i !])
      × (forall i, [! Δ |- Δ i === Γ i !]).
@@ -119,8 +125,55 @@ Section Context_Equality.
   Definition derivable_cxteq_hrel {n} : hrel (wellformed_context_of_length n)
   := fun Γ Δ => ∥ derivation_cxteq Γ Δ ∥.
 
-  Definition derivable_cxteq_is_eqrel n : iseqrel (@derivable_cxteq_hrel n).
+  Lemma derivation_cxteq_refl (n : ℕ) (G : wellformed_context_of_length n) :
+    [! |- G === G !].
+  Proof.
+    split; intros i; apply derive_tyeq_refl, (flat_from_context_judgement (pr2 G)).
+  Qed.
+
+  Lemma derivation_cxteq_sym (n : ℕ) (G D : wellformed_context_of_length n) :
+    [! |- G === D !] → [! |- D === G !].
+  Proof.
+    now intros [].
+  Qed.
+
+  (* Hmm, is this what we need to prove now? *)
+  Lemma foo (n : ℕ) (G D : wellformed_context_of_length n) (A : ty_expr n) :
+    [! |- G === D !] → [! G |- A !] → [! D |- A !].
   Admitted.
+
+  (* This is a mess... should be cleaned once the proof is finished *)
+  Lemma  derivation_cxteq_trans (n : ℕ) (G D T : wellformed_context_of_length n) :
+    [! |- G === D !] → [! |- D === T !] → [! |- G === T !].
+  Proof.
+    intros H1 H2.
+    assert (H3 := derivation_cxteq_sym n G D H1).
+    assert (H4 := derivation_cxteq_sym n D T H2).
+    destruct H1 as [H1 H1'].
+    destruct H2 as [H2 H2'].
+    destruct H3 as [H3 H3'].
+    destruct H4 as [H4 H4'].
+    split; intro i.
+    + eapply derive_tyeq_trans; trivial; simpl in *.
+      * apply (flat_from_context_judgement (pr2 G)).
+      * generalize (flat_from_context_judgement (pr2 D) i).
+        now apply foo.
+      * generalize (flat_from_context_judgement (pr2 T) i).
+        intros HH.
+        apply (foo _ D G (T i)); [split; [apply H1'|apply H1]|].
+        apply (foo _ T D (T i)); trivial.
+        split; [apply H4|apply H4'].
+      * admit.
+    + admit.
+  Admitted.
+  
+  Lemma derivable_cxteq_is_eqrel n : iseqrel (@derivable_cxteq_hrel n).
+  Proof.
+    repeat split.
+    - intros G D T; apply hinhfun2, derivation_cxteq_trans.
+    - intros G; apply hinhpr, derivation_cxteq_refl.
+    - intros G D; apply hinhfun, derivation_cxteq_sym.
+  Qed.
 
   Definition derivable_cxteq {n} : eqrel (wellformed_context_of_length n)
   := (_,,derivable_cxteq_is_eqrel n).
@@ -180,7 +233,7 @@ Section Contexts_Modulo_Equality.
     destruct ΓΓ as [n ΓΓ]. generalize ΓΓ.
     apply setquotunivprop'.
     { intros; apply isapropishinh. }
-    intros Γ; apply hinhpr. exists Γ; auto. 
+    intros Γ; apply hinhpr. exists Γ; auto.
   Defined.
 
 End Contexts_Modulo_Equality.
@@ -203,11 +256,11 @@ Section Context_Maps.
   Local Definition map_derivable {ΓΓ ΔΔ} (f : map ΓΓ ΔΔ)
     : forall (Γ : ΓΓ) (Δ : ΔΔ), ∥ [! |- f ::: Γ ---> Δ !] ∥
   := pr2 f.
-  
+
   Local Definition mapeq_hrel {ΓΓ ΔΔ} (f g : map ΓΓ ΔΔ)
   := ∀ (Γ : ΓΓ) (Δ : ΔΔ), ∥ [! |- f === g ::: Γ ---> Δ !] ∥.
 
-  Local Definition mapeq_is_eqrel (ΓΓ ΔΔ : context_mod_eq) 
+  Local Definition mapeq_is_eqrel (ΓΓ ΔΔ : context_mod_eq)
     : iseqrel (@mapeq_hrel ΓΓ ΔΔ).
   Admitted.
 
