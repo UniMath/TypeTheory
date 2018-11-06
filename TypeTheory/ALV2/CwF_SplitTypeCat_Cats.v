@@ -83,7 +83,7 @@ Proof.
     intros Γ; apply funextsec; intros A.
     apply e_TY.
   apply funextsec; intros Γ; apply funextsec; intros A.
-  use total2_paths_f. Focus 2. apply homset_property.
+  use total2_paths_f; [| apply homset_property].
   use (_ @ e_comp Γ A).
   etrans.
     apply maponpaths.
@@ -141,19 +141,21 @@ Definition obj_ext_precat_data : precategory_data
 
 Definition obj_ext_precat_axioms : is_precategory obj_ext_precat_data.
 Proof.
-  repeat apply tpair.
-  - intros X X' F. use obj_ext_mor_eq.
-      intros Γ A; apply idpath.
+  use mk_is_precategory_one_assoc.
+  - intros X X' F.
+    use obj_ext_mor_eq; [ intros Γ A; apply idpath|].
+    intros Γ A.
+    rewrite id_right.
+    apply id_left.
+  - intros X X' F.
+    use obj_ext_mor_eq; [ intros Γ A; apply idpath |].
     intros Γ A; cbn.
-    etrans. apply id_right. apply id_left.
-  - intros X X' F. use obj_ext_mor_eq.
-      intros Γ A; apply idpath.
+    rewrite id_right.
+    apply id_right.
+  - intros X0 X1 X2 X3 F G H.
+    use obj_ext_mor_eq; [ intros Γ A; apply idpath |].
     intros Γ A; cbn.
-    etrans. apply id_right. apply id_right.
-  - intros X0 X1 X2 X3 F G H. use obj_ext_mor_eq.
-      intros Γ A; apply idpath.
-    intros Γ A; cbn.
-    etrans. apply id_right.
+    rewrite id_right.
     apply assoc.
 Qed.
 
@@ -263,11 +265,11 @@ Proof.
   apply (pullback_HSET_elements_unique Pb); clear Pb.
   - unfold yoneda_morphisms_data; cbn.
     etrans. use (pr2 (term_to_section t')). apply pathsinv0.
-    etrans. Focus 2. use (pr2 (term_to_section t)).
+    etrans; [| use (pr2 (term_to_section t))].
     etrans. apply @pathsinv0, assoc.
     etrans. apply @pathsinv0, assoc.
     apply maponpaths.
-    etrans. Focus 2. apply @obj_ext_mor_ax.
+    etrans; [|apply @obj_ext_mor_ax].
     apply maponpaths. 
     apply comp_ext_compare_π.
   - etrans. apply term_to_section_recover. apply pathsinv0.
@@ -343,20 +345,17 @@ Definition term_fun_data : disp_cat_data (obj_ext_Precat C)
 Definition term_fun_axioms : disp_cat_axioms _ term_fun_data.
 Proof.
   repeat apply tpair.
-  - intros. apply term_fun_mor_eq. intros.
-    etrans. Focus 2. apply @pathsinv0, term_fun_mor_transportf.
-    apply idpath.
-  - intros. apply term_fun_mor_eq. intros.
-    etrans. Focus 2. apply @pathsinv0, term_fun_mor_transportf.
-    apply idpath.
-  - intros. apply term_fun_mor_eq. intros.
-    etrans. Focus 2. apply @pathsinv0, term_fun_mor_transportf.
-    apply idpath.
-  - intros. apply isaset_total2.
-    apply homset_property.
-    intros. apply isasetaprop, isapropdirprod.
-    apply homset_property.
-    repeat (apply impred_isaprop; intro). apply setproperty.
+  - intros. apply term_fun_mor_eq. intros; cbn.
+    apply pathsinv0, term_fun_mor_transportf.
+  - intros. apply term_fun_mor_eq. intros; cbn.
+    apply pathsinv0, term_fun_mor_transportf.
+  - intros. apply term_fun_mor_eq. intros; simpl.
+    apply pathsinv0, term_fun_mor_transportf.
+  - intros. apply isaset_total2; [ apply homset_property|].
+    intros.
+    apply isasetaprop, isapropdirprod.
+    + apply homset_property.
+    + repeat (apply impred_isaprop; intro). apply setproperty.
 Qed.
 
 Definition term_fun_disp_cat : disp_cat (obj_ext_Precat C)
@@ -413,10 +412,10 @@ Proof.
     etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths, GG.
     etrans. apply @pathsinv0, assoc.
-    etrans. Focus 2. etrans; apply assoc.
+    etrans; [| etrans; apply assoc].
     apply maponpaths.
     etrans. apply assoc.
-    etrans. Focus 2. apply @pathsinv0, assoc.
+    etrans; [| apply @pathsinv0, assoc].
     apply maponpaths_2.
     etrans. apply assoc.
     etrans. apply maponpaths_2, Δ_φ.

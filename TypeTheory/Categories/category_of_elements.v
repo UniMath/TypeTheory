@@ -48,8 +48,7 @@ Defined.
   
 Lemma is_precategory_precategory_of_elements : is_precategory precategory_of_elements_data.
 Proof.
-  repeat split; intros;
-  simpl in *.
+  use mk_is_precategory_one_assoc; intros.
   - apply subtypeEquality.
     + intro. apply setproperty.
     + apply id_left.
@@ -62,7 +61,7 @@ Proof.
 Qed.
 
 Definition precategory_of_elements : precategory 
-  := tpair _ _ is_precategory_precategory_of_elements.
+  := (_,,is_precategory_precategory_of_elements).
 
 Local Notation "∫" := precategory_of_elements.
 (* written \int in agda input mode *)

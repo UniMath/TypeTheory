@@ -192,7 +192,7 @@ Defined.
 
 Lemma is_precategory_FAM : is_precategory FAM_precategory_data.
 Proof.
-  repeat split; intros; simpl.
+  use mk_is_precategory_one_assoc; intros; simpl.
   - apply (invmap (FAM_mor_equiv _ _ )). 
     exists (fun _ => idpath _ ).
     intros; apply id_left.
@@ -550,8 +550,7 @@ Proof.
   apply FAM_obj_weq_3_id.
   apply FAM_obj_weq_4_id.
   apply eq_iso, FAM_obj_weq_5_id.
-Admitted.
-(* TODO: can we improve efficiency here? *)
+Qed.
 
 Theorem FAM_is_univalent : is_univalent C -> is_univalent FAM.
 Proof.
