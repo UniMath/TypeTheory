@@ -137,10 +137,35 @@ Section Context_Equality.
     now intros [].
   Qed.
 
-  (* Hmm, is this what we need to prove now? *)
+  (* This notation should maybe be global ? *)
+  Notation "[! |- f ::: Δ ---> Γ !]" := (derivation_map Δ Γ f)
+                    (format "[! |- f ::: Δ ---> Γ !]") : judgement_scope.
+
+  Lemma bar (n : ℕ) (G : wellformed_context_of_length n) (A B : ty_expr n) :
+    [! G |- A === B !] → [! G |- B !].
+  Proof.
+    intros H.
+    admit.
+  Admitted.
+  
   Lemma foo (n : ℕ) (G D : wellformed_context_of_length n) (A : ty_expr n) :
     [! |- G === D !] → [! G |- A !] → [! D |- A !].
-  Admitted.
+  Proof.
+    intros [H1 H2] GA.
+    rewrite <- (@subst_idmap_ty G A).
+    apply (@subst_derivation (ty_judgement G A) GA D (pr2 D)).
+    cbn.
+    intros i.
+    unfold idmap_raw_context.
+    rewrite subst_idmap_ty.
+    apply (@derive_tm_conv D (D i) (G i)); auto.
+    - apply (flat_from_context_judgement (pr2 D)).
+    - apply (bar _ _ _ _ (H2 i)).
+    - apply derive_var.
+      + apply (pr2 D).
+      + apply flat_from_context_judgement, (pr2 D).
+  Qed.
+
 
   (* This is a mess... should be cleaned once the proof is finished *)
   Lemma  derivation_cxteq_trans (n : ℕ) (G D T : wellformed_context_of_length n) :
