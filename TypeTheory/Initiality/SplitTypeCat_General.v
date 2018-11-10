@@ -263,15 +263,20 @@ Section Terms.
   (** the “universal term of type A” *)
   Definition var_typecat {C : typecat} {Γ : C} (A : C Γ)
     : tm (A ⦃dpr_typecat A⦄).
-  Admitted.
-
+  Proof.
+    use tpair.
+    + eapply (map_into_Pb _ _ _ _ _ (reind_pb_typecat A _) _ _ (idpath (identity _ ;; _))).
+    + apply Pb_map_commutes_1.
+  Defined.
+  
   Definition reind_tm_var_typecat {C : split_typecat} {Γ : C} {A : C Γ} (a : tm A)
     (e : A = (A ⦃dpr_typecat A⦄) ⦃a⦄
       := ! reind_id_type_typecat _ _
            @ maponpaths _ (! section_property a)
            @ reind_comp_typecat _ _ _ _ _ _)
   : reind_tm a (var_typecat A)
-    = tm_transportf e a.
+    = tm_transportf e a.  
+  Proof.
   Admitted.
 
   Definition reind_tm_var_typecat' {C : split_typecat} {Γ:C} {A:C Γ} (a : tm A)
