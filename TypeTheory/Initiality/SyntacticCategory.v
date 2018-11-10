@@ -114,8 +114,11 @@ Section Context_Equality.
   taking the contextual core of what this gives, or some other way. *)
   Definition derivation_cxteq {n} (Γ Δ : context_of_length n) : UU
   :=   (forall i, [! Γ |- Γ i === Δ i !])
-     × (forall i, [! Δ |- Δ i === Γ i !]).
-
+     × (forall i, [! Δ |- Δ i === Γ i !])
+     × (forall i, [! Γ |- Δ i !])     (* This should probably not be necessary? *)
+     × (forall i, [! Δ |- Γ i !])     (* This should probably not be necessary? *)
+  .
+  
   Notation "[! |- Δ === Γ !]" := (derivation_cxteq Δ Γ)
                     (format "[!  |-  Δ  ===  Γ  !]") : judgement_scope.
 
@@ -125,79 +128,79 @@ Section Context_Equality.
   Definition derivable_cxteq_hrel {n} : hrel (wellformed_context_of_length n)
   := fun Γ Δ => ∥ derivation_cxteq Γ Δ ∥.
 
-  Lemma derivation_cxteq_refl (n : ℕ) (G : wellformed_context_of_length n) :
-    [! |- G === G !].
+  Lemma derivation_cxteq_refl (n : ℕ) (Γ : wellformed_context_of_length n) :
+    [! |- Γ === Γ !].
   Proof.
-    split; intros i; apply derive_tyeq_refl, (flat_from_context_judgement (pr2 G)).
+    repeat split; intros i; try apply derive_tyeq_refl; 
+    apply (flat_from_context_judgement (pr2 Γ)).
   Qed.
 
-  Lemma derivation_cxteq_sym (n : ℕ) (G D : wellformed_context_of_length n) :
-    [! |- G === D !] → [! |- D === G !].
+  Lemma derivation_cxteq_sym (n : ℕ) (Γ Δ : wellformed_context_of_length n) :
+    [! |- Γ === Δ !] → [! |- Δ === Γ !].
   Proof.
-    now intros [].
+    now intros [H1 [H2 [H3 H4]]].
   Qed.
 
   (* This notation should maybe be global ? *)
   Notation "[! |- f ::: Δ ---> Γ !]" := (derivation_map Δ Γ f)
                     (format "[! |- f ::: Δ ---> Γ !]") : judgement_scope.
 
-  Lemma bar (n : ℕ) (G : wellformed_context_of_length n) (A B : ty_expr n) :
-    [! G |- A === B !] → [! G |- B !].
-  Proof.
-    intros H.
-    admit.
-  Admitted.
+  (* This is not needed now that we have everything we need in derivation_cxteq *)
+  (* Lemma bar (n : ℕ) (Γ : wellformed_context_of_length n) (A B : ty_expr n) : *)
+  (*   [! Γ |- A === B !] → [! Γ |- B !]. *)
   
-  Lemma foo (n : ℕ) (G D : wellformed_context_of_length n) (A : ty_expr n) :
-    [! |- G === D !] → [! G |- A !] → [! D |- A !].
+  Lemma foo (n : ℕ) (Γ Δ : wellformed_context_of_length n) (A : ty_expr n) :
+    [! |- Γ === Δ !] → [! Γ |- A !] → [! Δ |- A !].
   Proof.
-    intros [H1 H2] GA.
-    rewrite <- (@subst_idmap_ty G A).
-    apply (@subst_derivation (ty_judgement G A) GA D (pr2 D)).
+    intros [H1 [H2 [H3 H4]]] ΓA.
+    rewrite <- (@subst_idmap_ty _ A).
+    apply (@subst_derivation (ty_judgement Γ A) ΓA Δ (pr2 Δ)).
     cbn.
     intros i.
     unfold idmap_raw_context.
     rewrite subst_idmap_ty.
-    apply (@derive_tm_conv D (D i) (G i)); auto.
-    - apply (flat_from_context_judgement (pr2 D)).
-    - apply (bar _ _ _ _ (H2 i)).
+    apply (@derive_tm_conv Δ (Δ i) (Γ i)); auto.
+    - apply (flat_from_context_judgement (pr2 Δ)).
+    (* - apply (bar _ _ _ _ (H2 i)). *)
     - apply derive_var.
-      + apply (pr2 D).
-      + apply flat_from_context_judgement, (pr2 D).
+      + apply (pr2 Δ).
+      + apply flat_from_context_judgement, (pr2 Δ).
   Qed.
 
-
-  (* This is a mess... should be cleaned once the proof is finished *)
-  Lemma  derivation_cxteq_trans (n : ℕ) (G D T : wellformed_context_of_length n) :
-    [! |- G === D !] → [! |- D === T !] → [! |- G === T !].
+  Lemma foo2 (n : ℕ) (Γ Δ : wellformed_context_of_length n) (A B : ty_expr n) :
+    [! |- Γ === Δ !] → [! Γ |- A === B !] → [! Δ |- A === B !].
+  Admitted.
+  
+  (* This is a mess... should be cleaned once the above has been cleaned *)
+  Lemma  derivation_cxteq_trans (n : ℕ) (Γ Δ Θ : wellformed_context_of_length n) :
+    [! |- Γ === Δ !] → [! |- Δ === Θ !] → [! |- Γ === Θ !].
   Proof.
     intros H1 H2.
-    assert (H3 := derivation_cxteq_sym n G D H1).
-    assert (H4 := derivation_cxteq_sym n D T H2).
-    destruct H1 as [H1 H1'].
-    destruct H2 as [H2 H2'].
-    destruct H3 as [H3 H3'].
-    destruct H4 as [H4 H4'].
-    split; intro i.
+    assert (H3 := derivation_cxteq_sym n Γ Δ H1).
+    assert (H4 := derivation_cxteq_sym n Δ Θ H2).
+    destruct H1 as [H1 [H1' [H1'' H1''']]].
+    destruct H2 as [H2 [H2' [H2'' H2''']]].
+    destruct H3 as [H3 [H3' [H3'' H3''']]].
+    destruct H4 as [H4 [H4' [H4'' H4''']]].
+    repeat split; intro i.
     + eapply derive_tyeq_trans; trivial; simpl in *.
-      * apply (flat_from_context_judgement (pr2 G)).
-      * generalize (flat_from_context_judgement (pr2 D) i).
-        now apply foo.
-      * generalize (flat_from_context_judgement (pr2 T) i).
-        intros HH.
-        apply (foo _ D G (T i)); [split; [apply H1'|apply H1]|].
-        apply (foo _ T D (T i)); trivial.
-        split; [apply H4|apply H4'].
-      * admit.
-    + admit.
-  Admitted.
+      * apply (flat_from_context_judgement (pr2 Γ)).
+      * apply (foo _ _ _ (Θ i) (H3,,H3',,H3'',,H3''')), (H2'' i).
+      * eapply (foo2 _ Δ); trivial. apply (H3,,H3',,H3'',,H3''').
+    + eapply derive_tyeq_trans; trivial; simpl in *.
+      * apply (flat_from_context_judgement (pr2 Θ)).
+      * eapply (foo _ Δ); trivial; apply (H2,,H2',,H2'',,H2''').
+      * eapply (foo2 _ Δ); trivial; apply (H2,,H2',,H2'',,H2''').
+    + eapply (foo _ Δ); trivial; apply (H3,,H3',,H3'',,H3''').
+    + eapply (foo _ Δ); trivial; apply (H2,,H2',,H2'',,H2''').
+  Qed.
   
   Lemma derivable_cxteq_is_eqrel n : iseqrel (@derivable_cxteq_hrel n).
   Proof.
     repeat split.
-    - intros G D T; apply hinhfun2, derivation_cxteq_trans.
-    - intros G; apply hinhpr, derivation_cxteq_refl.
-    - intros G D; apply hinhfun, derivation_cxteq_sym.
+    - intros Γ Δ Θ; apply hinhfun2, derivation_cxteq_trans.
+    - intros Γ; apply hinhpr, derivation_cxteq_refl.
+    - intros Γ Δ; apply hinhfun, derivation_cxteq_sym.
   Qed.
 
   Definition derivable_cxteq {n} : eqrel (wellformed_context_of_length n)
@@ -357,15 +360,44 @@ Section Context_Maps.
       eauto using derivation_idmap_gen, derivation_wellformed_context.
   Defined.
 
-  (* TODO: lemmas on associativity etc.  Should be immediate from the similar lemmas on raw ones in [SyntaxLemmas]. *)
-
   (* TODO: “empty” and “extension” context maps. *)
 
 End Context_Maps.
 
 Section Category.
 
+  (* TODO: lemmas on associativity etc.  Should be immediate from the
+  similar lemmas on raw ones in [SyntaxLemmas]. *)
+
+  Lemma idmap_left {ΓΓ ΔΔ : context_mod_eq} (f : map_mod_eq ΓΓ ΔΔ) :
+    compose (idmap _) f = f.
+  Admitted.
+
+  Lemma idmap_right {ΓΓ ΔΔ : context_mod_eq} (f : map_mod_eq ΓΓ ΔΔ) :
+    compose f (idmap _) = f.
+  Admitted.
+
+  Lemma compose_assoc {ΓΓ0 ΓΓ1 ΓΓ2 ΓΓ3 : context_mod_eq} (f : map_mod_eq ΓΓ0 ΓΓ1)
+    (g : map_mod_eq ΓΓ1 ΓΓ2) (h : map_mod_eq ΓΓ2 ΓΓ3) :
+    compose f (compose g h) = compose (compose f g) h.    
+  Admitted.
+  
   Definition syntactic_category : category.
+  Proof.
+    use mk_category.
+    - use mk_precategory_one_assoc.
+      + use ((context_mod_eq,,map_mod_eq),,_).
+        exists idmap.
+        intros Γ Δ Θ.
+        apply compose.
+      + repeat split; simpl.
+        * intros ΓΓ ΔΔ f.
+          exact (idmap_left f).
+        * intros ΓΓ ΔΔ f.
+          exact (idmap_right f).
+        * intros ΓΓ0 ΓΓ1 ΓΓ2 ΓΓ3 f g h.
+          apply (compose_assoc f g h).
+    - admit.
   Admitted.
 
 End Category.
