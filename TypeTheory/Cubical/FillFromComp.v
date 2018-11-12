@@ -1,20 +1,91 @@
+(**
+
+This file formalizes one of the key theorems in the cubical set model
+of univalent type theory from:
+
+  Cubical Type Theory: a constructive interpretation of the univalence axiom
+  Cyril Cohen, Thierry Coquand, Simon Huber, Anders Mörtberg
+  https://arxiv.org/abs/1611.02108
+
+This theorem says that uniform Kan filling structures ("from 0 to 1")
+of CCHM can be reduced to uniform Kan composition structures ("from 0
+to 1"). This file formalizes this in a quite general setting of a
+category C with:
+
+- Binary coproducts
+
+- A subobject FF of the subobject classifier Ω in PreShv(C)
+
+- A cylinder functor F : C -> C (representing abstraction over i : II)
+  with natural transformations
+
+  <<
+    p : F ⟹ Id
+    e₀ e₁ : Id ⟹ F
+  >>
+
+  satisfying:
+
+  <<
+    e₀ p = Id
+    e₁ p = Id
+  >>
+
+  So that p represents the degeneracy map and e₀, e₁ are face
+  maps. Furthermore, we need to assume that the naturality square for e₀
+  are pullbacks (i.e. that e₀ is Cartesian).
+
+- A connection
+
+  <<
+    m : F ∙ F ⟹ F
+  >>
+
+  satisfying
+
+  <<
+     m (e₁ F) = Id
+     p m = p p
+  >>
+
+  This corresponds to the equations:
+
+  <<
+    1 ∧ i = i
+    i ∧ i = i
+  >>
+
+- Natural transformations
+
+  <<
+    δ₀ : yon (I +) --> FF
+  >>
+
+  which classifies e₀ lifted to PreShv(C). Which furthermore satisfies:
+
+  <<
+    m δ₀ = (p δ₀) ∨ δ₀
+  >>
+
+  This corresponds to the equation:
+
+  <<
+    (i ∧ j) = 0   iff   (i = 0) ∨ (j = 0)
+  >>
+
+
+Written by: Anders Mörtberg, 2017-2018
+
+*)
 Require Import UniMath.MoreFoundations.All.
 
-Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.categories.category_hset.
-Require Import UniMath.CategoryTheory.categories.category_hset_structures.
-Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.equivalences.
-Require Import UniMath.CategoryTheory.RightKanExtension.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.graphs.eqdiag.
 Require Import UniMath.CategoryTheory.LatticeObject.
 Require Import UniMath.CategoryTheory.Presheaf.
 Require Import UniMath.CategoryTheory.ElementsOp.
@@ -27,6 +98,8 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Local Open Scope cat.
 
 Ltac pathvia b := (eapply (@pathscomp0 _ _ b _ )).
+
+Arguments nat_trans_ax {_ _ _ _} _ {_ _} _.
 Arguments nat_trans_comp {_ _ _ _ _} _ _.
 Arguments isPullback {_ _ _ _ _ _ _ _ _} _.
 
@@ -47,7 +120,8 @@ Local Notation "f '××' g" :=
 Local Notation "1" := Terminal_PreShv.
 Local Notation "'Id'" := (functor_identity _).
 
-Definition binprod_delta x : x --> x ⊗ x := BinProductArrow _ _ (identity x) (identity x).
+Definition binprod_delta x : x --> x ⊗ x :=
+  BinProductArrow _ _ (identity x) (identity x).
 Local Notation "'δ'" := (binprod_delta _).
 
 Let Ω : bounded_latticeob BinProducts_PreShv 1 Ω_PreShv :=
@@ -79,7 +153,7 @@ use mk_nat_trans.
   exact (@FF1 I).
 + intros I J f; cbn.
   apply funextsec; intros _.
-  apply (eqtohomot (nat_trans_ax top_FF I J f) tt).
+  apply (eqtohomot (nat_trans_ax top_FF f) tt).
 Defined.
 
 (* The meet and join operations *)
@@ -133,12 +207,11 @@ use mk_functor.
     abstract (apply isaset_total2; [ apply setproperty
                                    | intros ρ; apply isasetaprop, setproperty ]).
   + simpl; intros I J f ρ.
-    use tpair.
-    * apply (# (pr1 Γ) f (pr1 ρ)).
-    * abstract (
-        etrans; [apply (eqtohomot (nat_trans_ax φ _ _ f) (pr1 ρ))|]; cbn;
+    exists (# (pr1 Γ) f (pr1 ρ)).
+    abstract (
+        etrans; [apply (eqtohomot (nat_trans_ax φ f) (pr1 ρ))|]; cbn;
         etrans; [apply maponpaths, (pr2 ρ)|];
-        now apply (!eqtohomot (nat_trans_ax top_FF _ _ f) tt)).
+        now apply (!eqtohomot (nat_trans_ax top_FF f) tt)).
 - split.
   + intros I; apply funextsec; simpl; intro ρ.
     apply subtypeEquality; [ intros x; apply setproperty |]; simpl.
@@ -187,7 +260,7 @@ use mk_nat_trans.
   apply (pr1 σ I (pr1 u),,pr2 u).
 + abstract (intros I J f; apply funextsec; intro ρ;
   apply subtypeEquality; [intros x; apply setproperty|]; simpl;
-  apply (eqtohomot (nat_trans_ax σ I J f) (pr1 ρ))).
+  apply (eqtohomot (nat_trans_ax σ f) (pr1 ρ))).
 Defined.
 
 
@@ -205,13 +278,13 @@ Context (Hpe₀ : nat_trans_comp e₀ p_F = nat_trans_id Id).
 Context (Hpe₁ : nat_trans_comp e₁ p_F = nat_trans_id Id).
 
 (* We further assume that the naturality squares for e₀ are pullbacks *)
-Context {e₀_pb : ∏ I J (f : J --> I), isPullback (nat_trans_ax e₀ _ _ f)}.
+Context {e₀_pb : ∏ I J (f : J --> I), isPullback (nat_trans_ax e₀ f)}.
 
 (* We could also assume that the naturality squares of p_F are
    pullbacks. This should be a consequence if there is an interval
    presheaf in PreShv(C) *)
 Lemma isPullback_pF_e₀ I J (f : J --> I) :
-  isPullback (nat_trans_ax p_F _ _ f) → isPullback (nat_trans_ax e₀ _ _ f).
+  isPullback (nat_trans_ax p_F f) → isPullback (nat_trans_ax e₀ f).
 Proof.
 intros H.
 apply (isPullback_two_pullback hsC _ _ _ _ _ _ H).
@@ -257,8 +330,8 @@ Abort.
 Lemma isMonic_e₀ I : isMonic (e₀ I).
 Proof.
 intros J f g H.
-set (H1 := nat_trans_ax e₀ J I f).
-set (H2 := nat_trans_ax p_F J I f).
+set (H1 := nat_trans_ax e₀ f).
+set (H2 := nat_trans_ax p_F f).
 set (H3 := nat_trans_eq_pointwise Hpe₀ I).
 set (H4 := nat_trans_eq_pointwise Hpe₀ J).
 cbn in *.
@@ -270,8 +343,8 @@ Qed.
 Lemma isMonic_e₁ I : isMonic (e₁ I).
 Proof.
 intros J f g H.
-set (H1 := nat_trans_ax e₁ J I f).
-set (H2 := nat_trans_ax p_F J I f).
+set (H1 := nat_trans_ax e₁ f).
+set (H2 := nat_trans_ax p_F f).
 set (H3 := nat_trans_eq_pointwise Hpe₁ I).
 set (H4 := nat_trans_eq_pointwise Hpe₁ J).
 cbn in *.
@@ -386,8 +459,8 @@ Context (Hδ₀_unique : ∏ (I : C) (d0 : yon (I+) --> FF)
    necessary. How can we weaken it? Maybe using something along the lines of:
      box(phi) m  <=  box(box(phi))
 
-This is like: 
-  (i ∧ j) = 0  iff   (i = 0) ∨ (j = 0) 
+This is like:
+  (i ∧ j) = 0  iff   (i = 0) ∨ (j = 0)
 *)
 Context (Hmδ₀ : ∏ I, m_PreShv I · δ₀ I = (p_PreShv (I +) · δ₀ I ∨ δ₀ (I +))).
 
@@ -412,7 +485,7 @@ assert (σ1 : yon(I),φ --> yon(I), (e₁_PreShv I · (p_PreShv I · φ))).
     apply id_right).
   + abstract (intros J K f; apply funextsec; intro ρ;
     now apply subtypeEquality; [intro x; apply setproperty|]).
-  (* This is a direct definition of this substitution, 
+  (* This is a direct definition of this substitution,
      but reasoning about it is a nightmare: *)
   (* rewrite assoc, e₁_p_PreShv, id_left. *)
   (* apply identity. *)
@@ -432,7 +505,7 @@ Proof.
 apply (nat_trans_eq has_homsets_HSET); intros K; apply funextsec; intro ρ.
 cbn; unfold yoneda_morphisms_data.
 rewrite <-!assoc.
-now apply maponpaths, (!nat_trans_ax e₀ J I f).
+now apply maponpaths, (!nat_trans_ax e₀ f).
 Qed.
 
 Lemma e₀_f_pb {I J} (f : J --> I) : isPullback (e₀_f f).
@@ -461,7 +534,7 @@ Qed.
 Lemma plus_δ₀_prf {I J} (f : J --> I) :
   e₀_PreShv J · (# yon (# F f) · δ₀ I) = TerminalArrow _ (yon J) · true.
 Proof.
-etrans; [apply glued_square|].
+etrans; [ apply glued_square|].
 apply cancel_postcomposition, TerminalArrowUnique.
 (* rewrite H, <- assoc, Hδ₀. *)
 (* now apply (nat_trans_eq has_homsets_HSET); intros K; apply funextsec. *)
@@ -514,7 +587,7 @@ unfold yoneda_objects_ob, yoneda_morphisms_data, prodtofuntoprod; simpl.
 apply pathsdirprod.
 - apply maponpaths.
   rewrite <-!assoc.
-  apply maponpaths, (!nat_trans_ax p_F J I f).
+  apply maponpaths, (!nat_trans_ax p_F f).
 - apply (!eqtohomot (nat_trans_eq_pointwise (plus_δ₀ I J f) K) ρ).
 Qed.
 
@@ -548,7 +621,7 @@ Defined.
 (* Composition and fill structures *)
 (***********************************)
 
-(* These definitions of fill and comp are a lot easier to 
+(* These definitions of fill and comp are a lot easier to
    work with than the ones similar to the paper *)
 Section fibrant.
 
@@ -614,7 +687,7 @@ use total2.
                      (fill_uniform_prf H f)).
 Defined.
 
-(* Very useful lemma for comparing two comp operations 
+(* Very useful lemma for comparing two comp operations
    (this is used in the proof of uniformity below) *)
 Lemma comp_eq {X Y : PreShv C} (α : X --> Y)
   (comp : ∏ (I : C) (φ : yon I --> FF) (u : box I φ --> X) (v : yon (I +) --> Y),
@@ -634,7 +707,7 @@ Qed.
 
 (* First define the operation *)
 Definition fill_to_comp_op {X Y : PreShv C} {α : X --> Y} (Fα : fill_struct α) :
-  ∏ (I : C) (φ : yon I --> FF) (u : box I φ --> X) 
+  ∏ (I : C) (φ : yon I --> FF) (u : box I φ --> X)
     (v : yon (I +) --> Y), u · α = ι · v → yon I --> X.
 Proof.
 intros I φ u v H.
@@ -705,7 +778,7 @@ abstract (apply (nat_trans_eq has_homsets_HSET); intros J; apply funextsec; intr
 Defined.
 
 (* Upper triangle commutes *)
-Lemma comp_to_fill_comm1 {X Y : PreShv C} {α : X --> Y} (Cα : comp_struct α) 
+Lemma comp_to_fill_comm1 {X Y : PreShv C} {α : X --> Y} (Cα : comp_struct α)
   (I : C) (φ : yon I --> FF) (u : box I φ --> X) (v : yon (I +) --> Y) (H : u · α = ι · v) :
   u = ι · comp_to_fill_op Cα I φ u v H.
 Proof.
@@ -762,7 +835,7 @@ pathvia (transportf (λ x, x --> X) (maponpaths (box (J+)) (b_yon f φ))
   apply subtypeEquality; [ intros x; apply setproperty|].
   (* simpl. *) (* This simpl gives an EXTREMELY slow Qed *)
   etrans; [|apply assoc].
-  etrans; [|eapply pathsinv0, maponpaths, (nat_trans_ax m J I f)].
+  etrans; [|eapply pathsinv0, maponpaths, (nat_trans_ax m f)].
   rewrite assoc.
   apply cancel_postcomposition, cancel_postcomposition.
   apply (ρ_eq (J +) K (b (# yon f · φ)) (# yon (# F f) · b φ) ρ (b_yon f φ)). }
@@ -776,11 +849,11 @@ Proof.
 apply (nat_trans_eq has_homsets_HSET); intro K; apply funextsec; intro ρ; cbn.
 apply maponpaths; simpl; unfold yoneda_morphisms_data.
 rewrite <- !assoc.
-apply maponpaths, (nat_trans_ax m J I f).
+apply maponpaths, (nat_trans_ax m f).
 Qed.
 
 Lemma comp_to_fill_uniform {X Y : PreShv C} {α : X --> Y} (Cα : comp_struct α)
-  (I : C) (φ : yon I --> FF) (u : box I φ --> X) (v : yon (I +) --> Y) (H : u · α = ι · v) : 
+  (I : C) (φ : yon I --> FF) (u : box I φ --> X) (v : yon (I +) --> Y) (H : u · α = ι · v) :
   ∏ (J : C) (f : J --> I),
   # yon (# F f) · comp_to_fill_op Cα I φ u v H =
   comp_to_fill_op Cα J (# yon f · φ) (box_subst f φ · u) (# yon (# F f) · v)
