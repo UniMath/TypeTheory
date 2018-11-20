@@ -6,9 +6,8 @@ Note: much of this essentially duplicates material given already in the [ALV1] p
 Probably much of this really should belong in a different pagckage. *)
 
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.All.
-
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.TypeCat.
 
@@ -87,7 +86,7 @@ Section Terms.
 
   Definition section_property {C : precategory}
       {X Y : C} {f : X --> Y} (s : section f)
-    : s ;; f = id _
+    : s ;; f = identity _
   := pr2 s.
 
   Definition paths_section {C : category} {X Y : C} {f : X --> Y}
@@ -144,7 +143,8 @@ Section Terms.
         exact (t · comp_ext_compare e).
       - abstract (now induction e; use (isweq_iso _ (idfun _));
                   intros x; unfold idfun; simpl; apply id_right).
-    + abstract (now intros x; induction e; simpl; rewrite <-assoc, id_left; apply idweq).
+    + abstract (now intros x; induction e; simpl;
+                  rewrite <-assoc, id_left; apply idweq).
   Defined.
 
   Global Arguments tm_transportf : simpl never.
@@ -194,7 +194,7 @@ Section Terms.
 
   Definition reind_id_tm {C : split_typecat}
       {Γ : C}{A : C Γ} (a : tm A)
-    : reind_tm (id _) a
+    : reind_tm (identity _) a
       = tm_transportb (reind_id_type_typecat _ _) a.
   Proof.
     apply subtypeEquality; [ intros x; apply homset_property|]; simpl.
@@ -326,7 +326,7 @@ Section Types_with_Terms.
 
   Definition reind_idmap_type_with_term
       {Γ} (Aa : type_with_term Γ)
-    : reind_type_with_term (id _) Aa = Aa.
+    : reind_type_with_term (identity _) Aa = Aa.
   Proof.
   Admitted.
 
