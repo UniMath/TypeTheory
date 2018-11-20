@@ -17,7 +17,9 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
-Require Import UniMath.CategoryTheory.categories.category_hset_structures.
+Require Export UniMath.CategoryTheory.categories.HSET.Core.
+Require Export UniMath.CategoryTheory.categories.HSET.Limits.
+Require Export UniMath.CategoryTheory.categories.HSET.Univalence.
 
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 (* Require Import TypeTheory.Auxiliary.UnicodeNotations. *)

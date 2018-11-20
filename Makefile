@@ -18,6 +18,7 @@ PACKAGES += Articles
 PACKAGES += Instances
 PACKAGES += Csystems
 PACKAGES += Bsystems
+PACKAGES += Cubical
 PACKAGES += Initiality
 ############################################
 # other user options; see also build/Makefile-configuration-template

@@ -19,8 +19,7 @@ Require Export UniMath.CategoryTheory.equivalences.
 Require Export UniMath.CategoryTheory.precomp_fully_faithful.
 Require Export UniMath.CategoryTheory.rezk_completion.
 Require Export UniMath.CategoryTheory.yoneda.
-Require Export UniMath.CategoryTheory.categories.category_hset.
-Require Export UniMath.CategoryTheory.categories.category_hset_structures.
+Require Export UniMath.CategoryTheory.categories.HSET.Core.
 
 Open Scope cat.
 Open Scope cat_deprecated.
