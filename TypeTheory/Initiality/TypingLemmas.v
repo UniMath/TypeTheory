@@ -807,35 +807,30 @@ Section Presuppositions.
   in order to apply [subst_derivation] for the presuppositions of the
   [pi_app] and [pi_comp] rules. *)
   Definition derive_presuppositions
-      (J : judgement) (d_J : derivation J) (d_Γ : [! |f- context_of_judgement J !])
+      (J : judgement) (d_J : derivation J)
     : presuppositions J.
   Proof.
-    revert J d_J d_Γ; use derivation_rect_grouped.
+    revert J d_J; use derivation_rect_grouped.
     - (* context rules *)
       split; intros; exact tt.
     - (* var rules *)
-      intros Γ i _ _ d_Γi _ _; exact d_Γi. 
+      intros ? ? _ _ d_Γi _; exact d_Γi. 
     - (* equiv_rel rules *)
-      split; try (intros; split; assumption).
+      split; try (intros; repeat split; assumption).
       + (* tyeq_sym *)
-        intros ? ? ? _ p ?; split; try apply p; assumption. 
-      + (* tmeq_refl *)
-        intros ? ? ? ? p ?; repeat split; try apply p; assumption. 
+        intros ? ? ? _ [? ?]; split; assumption. 
       + (* tmeq_sym *)
-        intros ? ? ? ? _ p ?; repeat split; try apply p; assumption.
-      + (* tmeq_trans *)
-        intros ? ? ? ? ? ? p; intros; repeat split; try apply p; assumption.
+        intros ? ? ? ? _ [? [? ?]]; repeat split; assumption.
     - (* conv rules *)
       split; try (intros; assumption).
       (* [tmeq_conv] *)
-      intros ? ? ? ? ? _ _ ? _ d_AA' _ _ p d_Γ; repeat split;
-        try refine (derive_tm_conv _ _ _ _ _ _ d_AA' _);
-        try apply p; assumption.
+      intros ? ? ? ? ? _ _ ? _ d_AA' _ _ [? [? ?]]; repeat split;
+        try refine (derive_tm_conv _ _ _ _ _ _ d_AA' _); assumption.
     - (* universe rules *)
       split; try (intros; exact tt).
       (* [El_cong] *)
-      intros ? ? ? ? ? ? p ?.
-      split; try apply derive_El; try apply p; assumption.
+      intros ? ? ? ? ? ? [? [? ?]].
+      split; try apply derive_El; assumption.
     - (* pi rules *)
       split.
       + (* pi-form *)
@@ -852,64 +847,46 @@ Section Presuppositions.
     - (* pi-cong rules *)
       split.
       + (* Pi-cong *)
-        intros ? ? ? ? ? ? _ ? _ d_AA' p_AA' _ p_BB' _.
+        intros ? ? ? ? ? ? _ ? _ d_AA' [? ?] _ [? ?].
         assert [! |f- Γ;;A !].
         { apply flat_from_context_judgement, derive_cxt_extend; assumption. }
-        assert [! Γ |- A' !].
-        { apply p_AA', flat_from_context_judgement; assumption. }
-        split; apply derive_Pi; try apply p_BB'; try assumption.
-        use derive_ty_conv_extend_equal_types; try apply p_BB'; try assumption.
+        split; apply derive_Pi; try assumption.
+        use derive_ty_conv_extend_equal_types; assumption.
       + (* lam-cong *)
-        intros ? ? ? ? ? ? ? ? _ ? _ d_AA' p_AA' ? p_BB' _ p_bb' _.
+        intros ? ? ? ? ? ? ? ? _ ? _ d_AA' [? ?] ? [? ?] _ [? [? ?]].
         assert [! |f- Γ;;A !].
         { apply flat_from_context_judgement, derive_cxt_extend; assumption. }
-        assert [! Γ |- A' !].
-        { apply p_AA', flat_from_context_judgement; assumption. }
-        assert [! Γ |- Pi_expr A B !].
-        { apply derive_Pi; try apply p_BB'; assumption. }
-        repeat split; try assumption.
-        * apply derive_lam; try apply p_BB'; try apply p_bb'; assumption.
+        assert [! Γ |- Pi_expr A B !]. { apply derive_Pi; assumption. }
+        repeat split; try apply derive_lam; try assumption.
         * apply (derive_tm_conv _ (Pi_expr A' B')); try assumption.
           -- apply derive_Pi; try assumption.
-             use derive_ty_conv_extend_equal_types; try apply p_BB'; assumption.
+             use derive_ty_conv_extend_equal_types; assumption.
           -- apply derive_tyeq_sym, derive_Pi_cong; try assumption.
-          -- apply derive_lam; try apply p_AA'; try apply p_BB';
-               auto using flat_from_context_judgement.
-            ++ use derive_ty_conv_extend_equal_types; try apply p_BB'; assumption.
-            ++ use derive_tm_conv_extend_equal_types; try apply p_BB';
-                 try assumption.
-               apply (derive_tm_conv _ B); try apply p_BB'; try apply p_bb';
-                 assumption.
+          -- apply derive_lam; auto using flat_from_context_judgement.
+            ++ use derive_ty_conv_extend_equal_types; assumption.
+            ++ use derive_tm_conv_extend_equal_types;
+               try apply (derive_tm_conv _ B); assumption.
       + (* app-cong *)
-        intros ? ? ? ? ? ? ? ? ? ? _ ? _ ? p_AA' ? p_BB' _ p_ff' ? p_aa' ?.
+        intros ? ? ? ? ? ? ? ? ? ? _ ? _ ? [? ?] ? [? ?] _ [? [? ?]] ? [? [? ?]].
         assert [! |f- Γ;;A !].
         { apply flat_from_context_judgement, derive_cxt_extend; assumption. }
-        assert [! Γ |- Pi_expr A B !].
-        { apply derive_Pi; try apply p_BB'; assumption. }
-        assert [! Γ |- A' !].
-        { apply p_AA', flat_from_context_judgement; assumption. }
+        assert [! Γ |- Pi_expr A B !]. { apply derive_Pi; assumption. }
         assert [! Γ;;A' |- B' !].
-        { use derive_ty_conv_extend_equal_types; try apply p_BB'; assumption. }
-        assert [! Γ |- Pi_expr A' B' !].
-        { apply derive_Pi; try assumption. }
-        repeat split.
-        * apply derive_subst_top_ty; try apply p_aa'; try apply p_BB'; assumption.
-        * apply derive_app;
-            try apply p_aa'; try apply p_BB'; try apply p_ff'; assumption.
-        * apply (derive_tm_conv _ (subst_top_ty a' B'));
-            try apply derive_subst_top_ty;
-            try apply p_aa'; try apply p_BB'; try apply p_ff'; 
-              try assumption.
-          -- apply derive_tyeq_sym, (derive_tyeq_trans _ _ (subst_top_ty a B'));
-               try apply derive_subst_top_ty;
-               try apply p_aa'; try apply p_BB'; try assumption.
-            ++ apply derive_subst_top_tyeq; try apply p_aa'; assumption.
-            ++ apply derive_substeq_top_ty;
-               try apply p_aa'; try apply p_BB'; assumption.
-          -- apply derive_app; try assumption.
-            ++ use (derive_tm_conv _ (Pi_expr A B));
-                 try apply p_ff'; try apply derive_Pi_cong; assumption.
-            ++ use (derive_tm_conv _ A); try apply p_aa'; assumption.
+        { use derive_ty_conv_extend_equal_types; assumption. }
+        assert [! Γ |- Pi_expr A' B' !]. { apply derive_Pi; assumption. }
+        repeat split;
+          [ apply derive_subst_top_ty; assumption
+          | apply derive_app; assumption | ].
+        apply (derive_tm_conv _ (subst_top_ty a' B'));
+          try apply derive_subst_top_ty; try assumption.
+        * apply derive_tyeq_sym, (derive_tyeq_trans _ _ (subst_top_ty a B'));
+            try apply derive_subst_top_ty; try assumption.
+          -- apply derive_subst_top_tyeq; assumption.
+          -- apply derive_substeq_top_ty; assumption.
+        * apply derive_app; try assumption.
+          -- apply (derive_tm_conv _ (Pi_expr A B));
+               try apply derive_Pi_cong; assumption.
+          -- apply (derive_tm_conv _ A); assumption.
   Defined.
 
 End Presuppositions.
