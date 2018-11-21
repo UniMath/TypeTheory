@@ -1,6 +1,4 @@
-(** In this file, we show admissibility of the substitution rule(s) for derivations.
-
-(NOTE: currently, the substitution rules still given explicitly; so for now, the file defines the transformation of derivations into a substitution-free form, with the intention of later removing those rules. *)
+(** In this file, we show admissibility of the substitution rule(s) for derivations, and several other key derivability constructions. *)
 
 Require Import UniMath.MoreFoundations.All.
 
@@ -666,25 +664,115 @@ as a flat context judgement [ [! |f- Δ !] ]. *)
 
 End Substeq_Judgements.
 
+Section Presuppositions.
+
+  Definition presuppositions (J : judgement) : UU.
+  Proof.
+    destruct J as [ Γ | Γ A | Γ A A' | Γ A a | Γ A a a' ].
+    - exact unit.
+    - exact unit.
+    - exact ( [! Γ |- A !] × [! Γ |- A' !]).
+    - exact [! Γ |- A !].
+    - exact ( [! Γ |- A !] × [! Γ |- a ::: A !] × [! Γ |- a' ::: A !]).
+  Defined.
+
+  (** Note: assumption of (flat) well-formedness of the context is needed
+  in order to apply [subst_derivation] for the presuppositions of the
+  [pi_app] and [pi_comp] rules. *)
+  Definition derive_presuppositions
+      (J : judgement) (d_J : derivation J) (d_Γ : [! |f- context_of_judgement J !])
+    : presuppositions J.
+  Proof.
+    revert J d_J d_Γ; use derivation_rect_grouped.
+    - (* context rules *)
+      split; intros; exact tt.
+    - (* var rules *)
+      intros Γ i _ _ d_Γi _ _; exact d_Γi. 
+    - (* equiv_rel rules *)
+      split; try (intros; split; assumption).
+      + (* tyeq_sym *)
+        intros ? ? ? _ p ?; split; try apply p; assumption. 
+      + (* tmeq_refl *)
+        intros ? ? ? ? p ?; repeat split; try apply p; assumption. 
+      + (* tmeq_sym *)
+        intros ? ? ? ? _ p ?; repeat split; try apply p; assumption.
+      + (* tmeq_trans *)
+        intros ? ? ? ? ? ? p; intros; repeat split; try apply p; assumption.
+    - (* conv rules *)
+      split; try (intros; assumption).
+      (* [tmeq_conv] *)
+      intros ? ? ? ? ? _ _ ? _ d_AA' _ _ p d_Γ;
+        repeat split;
+        try refine (derive_tm_conv _ _ _ _ _ _ d_AA' _);
+        try apply p; assumption.
+    - (* universe rules *)
+      split; try (intros; exact tt).
+      (* [El_cong] *)
+      intros ? ? ? ? ? ? p ?. split; try apply derive_El; try apply p; assumption.
+    - (* pi rules *)
+      split.
+      + (* pi-form *)
+        intros; exact tt.
+      + (* pi-lam *)
+        intros; apply derive_Pi; assumption.
+      + (* pi-app *)
+        intros.
+        refine (subst_derivation [! _;;_ |- _ !] _ _ _); try assumption.
+        admit. (* lemma derive_tm_as_raw_context_map *)
+      + (* pi-comp *)
+        intros; repeat split.
+        * refine (subst_derivation [! _;;_ |- _ !] _ _ _); try assumption.
+          admit. (* lemma derive_tm_as_raw_context_map *)
+        * auto using derive_app, derive_lam.
+        * refine (subst_derivation [! _;;_ |- _ ::: _ !] _ _ _); try assumption.
+          admit. (* lemma derive_tm_as_raw_context_map *)
+    - (* pi-cong rules *)
+      split.
+      + (* Pi-cong *)
+        intros ? ? ? ? ? ? _ ? _ d_AA' p_AA' _ p_BB' _.
+        split; apply derive_Pi; try apply p_BB'; try assumption.
+        * apply flat_from_context_judgement, derive_cxt_extend; assumption.
+        * apply p_AA', flat_from_context_judgement; assumption.
+        * admit. (* respect extension by equal types *)
+      + (* lam-cong *)
+        intros ? ? ? ? ? ? ? ? _ ? _ d_AA' p_AA' ? p_BB' _ p_bb' _.
+        assert [! |f- Γ;;A !].
+        { apply flat_from_context_judgement, derive_cxt_extend; assumption. }
+        assert [! Γ |- Pi_expr A B !].
+        { apply derive_Pi; try apply p_BB'; assumption. }
+        repeat split; try assumption.
+        * apply derive_lam; try apply p_BB'; try apply p_bb'; assumption.
+        * apply (derive_tm_conv _ (Pi_expr A' B')); try assumption.
+          -- apply derive_Pi; try assumption.
+             apply p_AA', flat_from_context_judgement; assumption.
+             admit. (* as in Pi-cong above *)
+          -- apply derive_tyeq_sym, derive_Pi_cong; try assumption.
+          -- apply derive_lam; try apply p_AA'; try apply p_BB'; try assumption;
+               admit.
+  Admitted.
+
+End Presuppositions.
+
 Section Flat_Context_Equality.
-(** Here we show that flat context equality is an equivalence relation, and
- other judgements (basic and auxiliary) respect it *)
+(** Here we show the key basic properties of flat context equality:
 
-  (** While the definition of flat context equality works for arbitrary raw
-  contexts, the proof that it is an equivalence relation requires requires the
-  contexts to be well-formed too. *)
-  Lemma derivation_cxteq_refl {Γ : context} (d_Γ : [! |f- Γ !])
-    : [! |- Γ === Γ !].
-  Proof.
-    repeat split; auto using derive_tyeq_refl.
-  Qed.
+- all hypothetical judgements (basic and auxiliary) respect it;
+- it is an equivalence relation
+*)
 
-  Lemma derivation_cxteq_sym {n} {Γ Δ : context_of_length n}
-    (d_Γ : [! |f- Γ !]) (d_Δ : [! |f- Δ !])
-    : [! |- Γ === Δ !] → [! |- Δ === Γ !].
+  (* TODO: maybe weaken assumption [e_Γ] (only one direction should be needed). *)
+  Lemma derivation_idmap_gen
+      {n} {Γ Γ' : context_of_length n}
+      (d_Γ : [! |- Γ !]) (d_Γ' : [! |- Γ' !])
+      (e_Γ : [! |- Γ === Γ' !])
+    : [! |- idmap_raw_context Γ ::: Γ ---> Γ' !].
   Proof.
-    now intros [H1 [H2 [H3 H4]]].
-  Qed.
+    intros i.
+    unfold idmap_raw_context.
+    rewrite subst_idmap_ty.
+    apply (@derive_tm_conv Γ (Γ' i) _).
+    (* need presuppositions theorem *)
+  Admitted.
 
   (* TODO: rename, clean up, and generalise to other judgement forms *)
   Lemma foo {n} {Γ Δ : context_of_length n} {A : ty_expr n}
@@ -711,6 +799,24 @@ Section Flat_Context_Equality.
     -> [! |- Γ === Δ !] → [! Γ |- A === B !] → [! Δ |- A === B !].
   Admitted.
   
+
+
+  (** While the definition of flat context equality works for arbitrary raw
+  contexts, the proof that it is an equivalence relation requires requires the
+  contexts to be well-formed too. *)
+  Lemma derivation_cxteq_refl {Γ : context} (d_Γ : [! |f- Γ !])
+    : [! |- Γ === Γ !].
+  Proof.
+    repeat split; auto using derive_tyeq_refl.
+  Qed.
+
+  Lemma derivation_cxteq_sym {n} {Γ Δ : context_of_length n}
+    (d_Γ : [! |f- Γ !]) (d_Δ : [! |f- Δ !])
+    : [! |- Γ === Δ !] → [! |- Δ === Γ !].
+  Proof.
+    now intros [H1 [H2 [H3 H4]]].
+  Qed.
+
   (* This is a mess... should be cleaned once the above has been cleaned *)
   Lemma  derivation_cxteq_trans {n} {Γ Δ Θ : context_of_length n}
     : [! |- Γ !] -> [! |- Δ !] -> [! |- Θ !]
@@ -738,15 +844,6 @@ Section Flat_Context_Equality.
     + apply (foo d_Δ d_Θ (H2,,H2',,H2'',,H2''')); auto.
   Qed.
   
-  (* TODO: maybe weaken assumption [e_Γ] (only one direction should be needed). *)
-  Lemma derivation_idmap_gen
-      {n} {Γ Γ' : context_of_length n}
-      (d_Γ : [! |- Γ !]) (d_Γ' : [! |- Γ' !])
-      (e_Γ : [! |- Γ === Γ' !])
-    : [! |- idmap_raw_context Γ ::: Γ ---> Γ' !].
-  Proof.
-  Admitted.
-
 End Flat_Context_Equality.
 
 Section Category_Laws.
