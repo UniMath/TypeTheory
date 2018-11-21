@@ -96,7 +96,7 @@ Section Context_Equality.
   Coercion derivation_wellformed_context : wellformed_context_of_length >-> derivation.
 
   Definition derivable_cxteq_hrel {n} : hrel (wellformed_context_of_length n)
-  := fun Γ Δ => ∥ derivation_cxteq Γ Δ ∥.
+  := fun Γ Δ => ∥ derivation_flat_cxteq Γ Δ ∥.
 
   Lemma derivable_cxteq_is_eqrel n : iseqrel (@derivable_cxteq_hrel n).
   Proof.
@@ -141,7 +141,7 @@ Section Contexts_Modulo_Equality.
     : context_representative >-> wellformed_context_of_length.
 
   Lemma cxteq_context_representatives {ΓΓ : context_mod_eq} (Γ Γ' : ΓΓ)
-    : ∥ derivation_cxteq Γ Γ' ∥.
+    : ∥ derivation_flat_cxteq Γ Γ' ∥.
   Proof.
     refine (lemmas.setquotprpathsandR (derivable_cxteq) Γ Γ' _).
     exact (pr2 Γ @ ! pr2 Γ').

@@ -15,7 +15,7 @@ Local Open Scope context_scope.
 
 - flat contexts and flat context equality, [! |f- Γ !] and [! |f- Γ === Δ !]
 - context maps (aka substitutions) and their equality, [! |- f ::: Γ ---> Δ !]
-- (stratified) context equality, [! |- Γ === Δ !] (stronger than flat cxt-eq)
+- (stratified) context equality, [! |f- Γ === Δ !] (stronger than flat cxt-eq)
 
 Besides these and their basic properties, the main results of this file are:
 
@@ -74,7 +74,7 @@ Section Flat_Contexts.
   However, we only need to compare contexts of equal lengths for equality.
 
   As with the basic context judgement, context equality has both a _flat_ form
-  [! |f- Γ === Δ !], and a slightly stronger _stratified_ form [! |- Γ === Δ !].
+  [! |f- Γ === Δ !], and a slightly stronger _stratified_ form [! |f- Γ === Δ !].
 
   Two contexts are flatly equal if they both believe all their types are equal;
   they are stratified-equal if at each stage of construction, they believe this.
@@ -89,7 +89,7 @@ Section Flat_Contexts.
   the syntactic category in order for it to be _contextual_, i.e. with each
   context uniquely constructible (up to the chosen equality) from a sequence of
   types (up to judg. eq.). *)
-  Definition derivation_cxteq {n} (Γ Δ : context_of_length n) : UU
+  Definition derivation_flat_cxteq {n} (Γ Δ : context_of_length n) : UU
   :=   (forall i, [! Γ |- Γ i === Δ i !])
      × (forall i, [! Δ |- Δ i === Γ i !]).
   (* Note: one direction wouldn’t suffice, for general type theories.
@@ -99,16 +99,16 @@ Section Flat_Contexts.
   doesn’t prove this, so for the contexts [ x0 : P 0 ] and [ x0 : P 1
   ], one direction of the below conditions will hold, but not both. *)
   
-  Notation "[! |- Δ === Γ !]" := (derivation_cxteq Δ Γ)
-                    (format "[!  |-  Δ  ===  Γ  !]") : judgement_scope.
+  Notation "[! |f- Δ === Γ !]" := (derivation_flat_cxteq Δ Γ)
+                    (format "[!  |f-  Δ  ===  Γ  !]") : judgement_scope.
 
 End Flat_Contexts.
 
 (** Re-declaring notations from section *)
 Notation "[! |f- Γ !]" := (derivation_flat_context Γ)
                                 (format "[!  |f-  Γ  !]") : judgement_scope.
-Notation "[! |- Δ === Γ !]" := (derivation_cxteq Δ Γ)
-                    (format "[!  |-  Δ  ===  Γ  !]") : judgement_scope.
+Notation "[! |f- Δ === Γ !]" := (derivation_flat_cxteq Δ Γ)
+                    (format "[!  |f-  Δ  ===  Γ  !]") : judgement_scope.
 
 Section Context_Maps.
 
@@ -902,7 +902,7 @@ Section Flat_Context_Equality.
   Lemma derivation_idmap_gen
       {n} {Γ Γ' : context_of_length n}
       (d_Γ' : [! |- Γ' !])
-      (e_Γ : [! |- Γ === Γ' !])
+      (e_Γ : [! |f- Γ === Γ' !])
     : [! |- idmap_raw_context Γ ::: Γ' ---> Γ !].
   Proof.
     intros i.
@@ -919,7 +919,7 @@ Section Flat_Context_Equality.
 
   Lemma derive_ty_conv_cxteq
       {n} {Γ Δ : context_of_length n}
-      (d_Δ : [! |- Δ !]) (d_ΓΔ : [! |- Γ === Δ !])
+      (d_Δ : [! |- Δ !]) (d_ΓΔ : [! |f- Γ === Δ !])
       {A : ty_expr n} (d_A : [! Γ |- A !])
     : [! Δ |- A !].
   Proof.
@@ -930,7 +930,7 @@ Section Flat_Context_Equality.
 
   Lemma derive_tyeq_conv_cxteq
       {n} {Γ Δ : context_of_length n}
-      (d_Δ : [! |- Δ !]) (d_ΓΔ : [! |- Γ === Δ !])
+      (d_Δ : [! |- Δ !]) (d_ΓΔ : [! |f- Γ === Δ !])
       {A B : ty_expr n} (d_AB : [! Γ |- A === B !])
     : [! Δ |- A === B !].
   Proof.
@@ -942,7 +942,7 @@ Section Flat_Context_Equality.
 
   Lemma derive_tm_conv_cxteq
       {n} {Γ Δ : context_of_length n}
-      (d_Δ : [! |- Δ !]) (d_ΓΔ : [! |- Γ === Δ !])
+      (d_Δ : [! |- Δ !]) (d_ΓΔ : [! |f- Γ === Δ !])
       {A : ty_expr n} {a : tm_expr n} (d_a : [! Γ |- a ::: A !])
     : [! Δ |- a ::: A !].
   Proof.
@@ -953,7 +953,7 @@ Section Flat_Context_Equality.
 
   Lemma derive_tmeq_conv_cxteq
       {n} {Γ Δ : context_of_length n}
-      (d_Δ : [! |- Δ !]) (d_ΓΔ : [! |- Γ === Δ !])
+      (d_Δ : [! |- Δ !]) (d_ΓΔ : [! |f- Γ === Δ !])
       {A : ty_expr n} {a a' : tm_expr n} (d_aa' : [! Γ |- a === a' ::: A !])
     : [! Δ |- a === a' ::: A !].
   Proof.
@@ -965,21 +965,21 @@ Section Flat_Context_Equality.
 
   (** We can now show that flat context equality is an equivalence relation. *)
   Lemma derivation_cxteq_refl {Γ : context} (d_Γ : [! |f- Γ !])
-    : [! |- Γ === Γ !].
+    : [! |f- Γ === Γ !].
   Proof.
     repeat split; auto using derive_tyeq_refl.
   Qed.
 
   Lemma derivation_cxteq_sym {n} {Γ Δ : context_of_length n}
     (d_Γ : [! |f- Γ !]) (d_Δ : [! |f- Δ !])
-    : [! |- Γ === Δ !] → [! |- Δ === Γ !].
+    : [! |f- Γ === Δ !] → [! |f- Δ === Γ !].
   Proof.
     now intros [H1 H2].
   Qed.
 
   Lemma  derivation_cxteq_trans {n} {Γ Δ Θ : context_of_length n}
     : [! |- Γ !] -> [! |- Δ !] -> [! |- Θ !]
-    -> [! |- Γ === Δ !] → [! |- Δ === Θ !] → [! |- Γ === Θ !].
+    -> [! |f- Γ === Δ !] → [! |f- Δ === Θ !] → [! |f- Γ === Θ !].
   Proof.
     intros d_Γ d_Δ d_Θ d_ΓΔ d_ΔΘ.
     assert (f_Γ := flat_from_context_judgement d_Γ).
