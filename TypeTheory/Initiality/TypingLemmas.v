@@ -13,10 +13,24 @@ Require Import TypeTheory.Initiality.Typing.
 Local Open Scope judgement_scope.
 Local Open Scope context_scope.
 
-Section Auxiliary_Judgements.
+(** We will define several “auxiliary judgement forms”, from the basic ones:
 
-  (** The context judgement [! |- Γ !] is almost entirely used just for one
-  consequence: that all its types are well-typed over it. 
+- flat contexts and flat context equality, [! |f- Γ !] and [! |f- Γ === Δ !]
+- context maps (aka substitutions) and their equality, [! |- f ::: Γ ---> Δ !]
+- (stratified) context equality, [! |- Γ === Δ !] (stronger than flat cxt-eq)
+
+Besides these and their basic properties, the main results of this file are:
+
+- admissibility of substitution
+
+*)
+
+Section Flat_Contexts.
+  (** The basic context judgement [! |- Γ !] is almost entirely used just for
+  one consequence: that all its types are well-typed over it. 
+
+  We call that fact the _flat_ context judgement, written [! |f- Γ !], since
+  it discards the _ordering_ or _stratification_ carried by [! |- Γ !].
 
   We quite happily could (and perhaps should) omit the context judgement
   entirely in the definition of derivations, and then define it as an
@@ -43,7 +57,8 @@ Section Auxiliary_Judgements.
     : [! Γ |- Γ i !]
   := pr2 Γ i.
 
-  (** We will want to prove that the context judgment implies this: *)
+  (** We would like to prove that the original context judgment implies
+  the flat one: *)
   Definition flat_from_context_judgement {Γ : context} 
     : [! |- Γ !] -> [! |f- Γ !].
   Abort.
@@ -52,6 +67,54 @@ Section Auxiliary_Judgements.
 
    Specifically, we prove that admissibility as [rename_derivation]
    below, and then prove [flat_from_context_judgement]. *)
+
+  (** Context equality (flat or stratified) is not needed for any directly
+  syntactic purposes, but it is required when forming the syntactic category:
+  types must be quotiended to form a presheaf, so for context extension to be
+  well-defined, contexts must be quotiented as well.
+
+  However, we only need to compare contexts of equal lengths for equality.
+
+  As with the basic context judgement, context equality has both a _flat_ form
+  [! |f- Γ === Δ !], and a slightly stronger _stratified_ form [! |- Γ === Δ !].
+
+  Two contexts are flatly equal if they both believe all their types are equal;
+  they are stratified-equal if at each stage of construction, they believe this.
+
+  For example, in ETT with reflection, the contexts [ x:N, e:Id(x,0) ] and
+  [ x:N, e:Id(0,x) ] would be flatly-equal, since over either of those contexts,
+  [ |- Id(0,x) === Id(x,0) ], but not stratified-equal, since over just [ x:N ],
+  [ Id(0,x) ] and [ Id(x,0) ] are not judgementally equal.
+
+  As with the main context judgement, flat context equality is simpler and
+  suffices for almost all purposes, but the stratified one is needed in defining
+  the syntactic category in order for it to be _contextual_, i.e. with each
+  context uniquely constructible (up to the chosen equality) from a sequence of
+  types (up to judg. eq.). *)
+  Definition derivation_cxteq {n} (Γ Δ : context_of_length n) : UU
+  :=   (forall i, [! Γ |- Γ i === Δ i !])
+     × (forall i, [! Δ |- Δ i === Γ i !])
+     × (forall i, [! Γ |- Δ i !])     (* This should not be necessary? *)
+     × (forall i, [! Δ |- Γ i !]).     (* This should not be necessary? *)
+  (* Note: one direction wouldn’t suffice, for general type theories.
+  E.g.  in ETT with the reflection rule, define a predicate [P] over
+  [nat] with [ P 0 ] false, and [ P 1 ] true.  Then [ P 0 ] proves
+  that [ 0 === 1 : nat ] and hence that [ P 0 === P 1 ], but [ P 1 ]
+  doesn’t prove this, so for the contexts [ x0 : P 0 ] and [ x0 : P 1
+  ], one direction of the below conditions will hold, but not both. *)
+  
+  Notation "[! |- Δ === Γ !]" := (derivation_cxteq Δ Γ)
+                    (format "[!  |-  Δ  ===  Γ  !]") : judgement_scope.
+
+End Flat_Contexts.
+
+(** Re-declaring notations from section *)
+Notation "[! |f- Γ !]" := (derivation_flat_context Γ)
+                                (format "[!  |f-  Γ  !]") : judgement_scope.
+Notation "[! |- Δ === Γ !]" := (derivation_cxteq Δ Γ)
+                    (format "[!  |-  Δ  ===  Γ  !]") : judgement_scope.
+
+Section Context_Maps.
 
   Definition derivation_map
       (Δ Γ : context) (f : raw_context_map Δ Γ) : UU
@@ -86,11 +149,9 @@ Section Auxiliary_Judgements.
   Notation "[! |- f === g ::: Δ ---> Γ !]" := (derivation_mapeq Δ Γ f g)
                     (format "[! |- f === g ::: Δ ---> Γ !]") : judgement_scope.
 
-End Auxiliary_Judgements.
+End Context_Maps.
 
 (** Re-declaring notations from section *)
-Notation "[! |f- Γ !]" := (derivation_flat_context Γ)
-                                (format "[!  |f-  Γ  !]") : judgement_scope.
 Notation "[! |- f ::: Δ ---> Γ !]" := (derivation_map Δ Γ f)
                 (format "[!  |-  f  :::  Δ  --->  Γ  !]") : judgement_scope.
 Notation "[! |- f === g ::: Δ ---> Γ !]" := (derivation_mapeq Δ Γ f g)
@@ -247,7 +308,7 @@ End Renaming_Judgements.
 (** With [rename_derivation], we can prove the basic lemmas about flat contexts
 and context maps. *)
 
-Section Flat_Contexts.
+Section Flat_Contexts_2.
 
   Definition flat_from_context_judgement {Γ : context} 
     : [! |- Γ !] -> [! |f- Γ !].
@@ -268,9 +329,9 @@ Section Flat_Contexts.
       revert i; use dB_Sn_rect; cbn; auto.
   Qed.
 
-End Flat_Contexts.
+End Flat_Contexts_2.
 
-Section Context_Maps.
+Section Context_Maps_2.
 
   (** The eventual [weaken_derivation_map] shouldn’t need the
    hypothesis [ [! Δ |- subst_ty f A !] ]. However, that requires admissibility
@@ -298,7 +359,7 @@ Section Context_Maps.
         eauto using derive_cxt_extend.
   Defined.
 
-End Context_Maps.
+End Context_Maps_2.
 
 Section Substitute_Judgements.
 
@@ -604,6 +665,89 @@ as a flat context judgement [ [! |f- Δ !] ]. *)
   Defined.
 
 End Substeq_Judgements.
+
+Section Flat_Context_Equality.
+(** Here we show that flat context equality is an equivalence relation, and
+ other judgements (basic and auxiliary) respect it *)
+
+  (** While the definition of flat context equality works for arbitrary raw
+  contexts, the proof that it is an equivalence relation requires requires the
+  contexts to be well-formed too. *)
+  Lemma derivation_cxteq_refl {Γ : context} (d_Γ : [! |f- Γ !])
+    : [! |- Γ === Γ !].
+  Proof.
+    repeat split; auto using derive_tyeq_refl.
+  Qed.
+
+  Lemma derivation_cxteq_sym {n} {Γ Δ : context_of_length n}
+    (d_Γ : [! |f- Γ !]) (d_Δ : [! |f- Δ !])
+    : [! |- Γ === Δ !] → [! |- Δ === Γ !].
+  Proof.
+    now intros [H1 [H2 [H3 H4]]].
+  Qed.
+
+  (* TODO: rename, clean up, and generalise to other judgement forms *)
+  Lemma foo {n} {Γ Δ : context_of_length n} {A : ty_expr n}
+    : [! |- Γ !] -> [! |- Δ !] 
+    -> [! |- Γ === Δ !] → [! Γ |- A !] → [! Δ |- A !].
+  Proof.
+    intros d_Γ d_Δ [H1 [H2 [H3 H4]]] ΓA.
+    rewrite <- (@subst_idmap_ty _ A).
+    apply (@subst_derivation (ty_judgement Γ A) ΓA Δ d_Δ).
+    cbn.
+    intros i.
+    unfold idmap_raw_context.
+    rewrite subst_idmap_ty.
+    apply (@derive_tm_conv Δ (Δ i) (Γ i)); auto.
+    - apply (flat_from_context_judgement d_Δ).
+    (* - apply (bar _ _ _ _ (H2 i)). *)
+    - apply derive_var.
+      + apply d_Δ.
+      + apply flat_from_context_judgement, d_Δ.
+  Defined.
+
+  Lemma foo2 {n} {Γ Δ : context_of_length n} {A B : ty_expr n}
+    : [! |- Γ !] -> [! |- Δ !]
+    -> [! |- Γ === Δ !] → [! Γ |- A === B !] → [! Δ |- A === B !].
+  Admitted.
+  
+  (* This is a mess... should be cleaned once the above has been cleaned *)
+  Lemma  derivation_cxteq_trans {n} {Γ Δ Θ : context_of_length n}
+    : [! |- Γ !] -> [! |- Δ !] -> [! |- Θ !]
+    -> [! |- Γ === Δ !] → [! |- Δ === Θ !] → [! |- Γ === Θ !].
+  Proof.
+    intros d_Γ d_Δ d_Θ H1 H2.
+    assert (H3 := derivation_cxteq_sym (flat_from_context_judgement d_Γ)
+                                       (flat_from_context_judgement d_Δ) H1).
+    assert (H4 := derivation_cxteq_sym (flat_from_context_judgement d_Δ)
+                                       (flat_from_context_judgement d_Θ) H2).
+    destruct H1 as [H1 [H1' [H1'' H1''']]].
+    destruct H2 as [H2 [H2' [H2'' H2''']]].
+    destruct H3 as [H3 [H3' [H3'' H3''']]].
+    destruct H4 as [H4 [H4' [H4'' H4''']]].
+    repeat split; intro i.
+    + eapply derive_tyeq_trans; trivial; simpl in *.
+      * apply (flat_from_context_judgement d_Γ).
+      * apply (foo d_Δ d_Γ (H3,,H3',,H3'',,H3''')); auto.
+      * eapply (foo2 d_Δ d_Γ); trivial. apply (H3,,H3',,H3'',,H3''').
+    + eapply derive_tyeq_trans; trivial; simpl in *.
+      * apply (flat_from_context_judgement d_Θ).
+      * apply (foo d_Δ d_Θ (H2,,H2',,H2'',,H2''')); auto.
+      * eapply (foo2 d_Δ d_Θ); trivial; apply (H2,,H2',,H2'',,H2''').
+    + apply (foo d_Δ d_Γ (H3,,H3',,H3'',,H3''')); auto.
+    + apply (foo d_Δ d_Θ (H2,,H2',,H2'',,H2''')); auto.
+  Qed.
+  
+  (* TODO: maybe weaken assumption [e_Γ] (only one direction should be needed). *)
+  Lemma derivation_idmap_gen
+      {n} {Γ Γ' : context_of_length n}
+      (d_Γ : [! |- Γ !]) (d_Γ' : [! |- Γ' !])
+      (e_Γ : [! |- Γ === Γ' !])
+    : [! |- idmap_raw_context Γ ::: Γ ---> Γ' !].
+  Proof.
+  Admitted.
+
+End Flat_Context_Equality.
 
 Section Category_Laws.
 

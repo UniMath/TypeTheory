@@ -93,124 +93,27 @@ Section Context_Equality.
              {n} (Γ : wellformed_context_of_length n)
     : [! |- Γ !]
   := pr2 Γ.
+  Coercion derivation_wellformed_context : wellformed_context_of_length >-> derivation.
 
-  (** We only compare contexts of the same length for equality.
-
-  Two contexts are equal if they _both_ believe all their types are
-  equal.
-
-  Note 1: one direction wouldn’t suffice, for general type theories.
-  E.g.  in ETT with the reflection rule, define a predicate [P] over
-  [nat] with [ P 0 ] false, and [ P 1 ] true.  Then [ P 0 ] proves
-  that [ 0 === 1 : nat ] and hence that [ P 0 === P 1 ], but [ P 1 ]
-  doesn’t prove this, so for the contexts [ x0 : P 0 ] and [ x0 : P 1
-  ], one direction of the below conditions will hold, but not both.
-
-  Note 2: this is a _flat_ form of context equality, not stratified,
-  analogous to [ [! |f- Γ !] ] not [ [! |f- Γ !] ].  As such, we don’t
-  expect it to give a contextual category: a context may (up to
-  equality) be built up from types in several different ways.  For
-  initiality, we will at some point have to remedy this: either by
-  taking the contextual core of what this gives, or some other way. *)
-  Definition derivation_cxteq {n} (Γ Δ : context_of_length n) : UU
-  :=   (forall i, [! Γ |- Γ i === Δ i !])
-     × (forall i, [! Δ |- Δ i === Γ i !])
-     × (forall i, [! Γ |- Δ i !])     (* This should probably not be necessary? *)
-     × (forall i, [! Δ |- Γ i !])     (* This should probably not be necessary? *)
-  .
-  
-  Notation "[! |- Δ === Γ !]" := (derivation_cxteq Δ Γ)
-                    (format "[!  |-  Δ  ===  Γ  !]") : judgement_scope.
-
-  (** While the definition of this relation works for arbitrary raw contexts,
-  the proof that it is an equivalence relation requires restriction to well-
-  formed contexts. *)
   Definition derivable_cxteq_hrel {n} : hrel (wellformed_context_of_length n)
   := fun Γ Δ => ∥ derivation_cxteq Γ Δ ∥.
 
-  Lemma derivation_cxteq_refl (n : ℕ) (Γ : wellformed_context_of_length n) :
-    [! |- Γ === Γ !].
-  Proof.
-    repeat split; intros i; try apply derive_tyeq_refl; 
-    apply (flat_from_context_judgement (pr2 Γ)).
-  Qed.
-
-  Lemma derivation_cxteq_sym (n : ℕ) (Γ Δ : wellformed_context_of_length n) :
-    [! |- Γ === Δ !] → [! |- Δ === Γ !].
-  Proof.
-    now intros [H1 [H2 [H3 H4]]].
-  Qed.
-
-  Lemma foo (n : ℕ) (Γ Δ : wellformed_context_of_length n) (A : ty_expr n) :
-    [! |- Γ === Δ !] → [! Γ |- A !] → [! Δ |- A !].
-  Proof.
-    intros [H1 [H2 [H3 H4]]] ΓA.
-    rewrite <- (@subst_idmap_ty _ A).
-    apply (@subst_derivation (ty_judgement Γ A) ΓA Δ (pr2 Δ)).
-    cbn.
-    intros i.
-    unfold idmap_raw_context.
-    rewrite subst_idmap_ty.
-    apply (@derive_tm_conv Δ (Δ i) (Γ i)); auto.
-    - apply (flat_from_context_judgement (pr2 Δ)).
-    (* - apply (bar _ _ _ _ (H2 i)). *)
-    - apply derive_var.
-      + apply (pr2 Δ).
-      + apply flat_from_context_judgement, (pr2 Δ).
-  Qed.
-
-  Lemma foo2 (n : ℕ) (Γ Δ : wellformed_context_of_length n) (A B : ty_expr n) :
-    [! |- Γ === Δ !] → [! Γ |- A === B !] → [! Δ |- A === B !].
-  Admitted.
-  
-  (* This is a mess... should be cleaned once the above has been cleaned *)
-  Lemma  derivation_cxteq_trans (n : ℕ) (Γ Δ Θ : wellformed_context_of_length n) :
-    [! |- Γ === Δ !] → [! |- Δ === Θ !] → [! |- Γ === Θ !].
-  Proof.
-    intros H1 H2.
-    assert (H3 := derivation_cxteq_sym n Γ Δ H1).
-    assert (H4 := derivation_cxteq_sym n Δ Θ H2).
-    destruct H1 as [H1 [H1' [H1'' H1''']]].
-    destruct H2 as [H2 [H2' [H2'' H2''']]].
-    destruct H3 as [H3 [H3' [H3'' H3''']]].
-    destruct H4 as [H4 [H4' [H4'' H4''']]].
-    repeat split; intro i.
-    + eapply derive_tyeq_trans; trivial; simpl in *.
-      * apply (flat_from_context_judgement (pr2 Γ)).
-      * apply (foo _ _ _ (Θ i) (H3,,H3',,H3'',,H3''')), (H2'' i).
-      * eapply (foo2 _ Δ); trivial. apply (H3,,H3',,H3'',,H3''').
-    + eapply derive_tyeq_trans; trivial; simpl in *.
-      * apply (flat_from_context_judgement (pr2 Θ)).
-      * eapply (foo _ Δ); trivial; apply (H2,,H2',,H2'',,H2''').
-      * eapply (foo2 _ Δ); trivial; apply (H2,,H2',,H2'',,H2''').
-    + eapply (foo _ Δ); trivial; apply (H3,,H3',,H3'',,H3''').
-    + eapply (foo _ Δ); trivial; apply (H2,,H2',,H2'',,H2''').
-  Qed.
-  
   Lemma derivable_cxteq_is_eqrel n : iseqrel (@derivable_cxteq_hrel n).
   Proof.
     repeat split.
-    - intros Γ Δ Θ; apply hinhfun2, derivation_cxteq_trans.
-    - intros Γ; apply hinhpr, derivation_cxteq_refl.
-    - intros Γ Δ; apply hinhfun, derivation_cxteq_sym.
+    - intros Γ Δ Θ; apply hinhfun2.
+      exact (derivation_cxteq_trans Γ Δ Θ).
+    - intros Γ; apply hinhpr.
+      exact (derivation_cxteq_refl (flat_from_context_judgement Γ)).
+    - intros Γ Δ; apply hinhfun.
+      exact (derivation_cxteq_sym (flat_from_context_judgement Γ)
+             (flat_from_context_judgement Δ)).
   Qed.
 
   Definition derivable_cxteq {n} : eqrel (wellformed_context_of_length n)
   := (_,,derivable_cxteq_is_eqrel n).
 
-  (* TODO: maybe weaken assumption [e_Γ] (only one direction should be needed). *)
-  Lemma derivation_idmap_gen
-      {n} {Γ Γ' : context_of_length n}
-      (d_Γ : [! |- Γ !]) (d_Γ' : [! |- Γ' !])
-      (e_Γ : [! |- Γ === Γ' !])
-    : [! |- idmap_raw_context Γ ::: Γ ---> Γ' !].
-  Proof.
-  Admitted.
-
 End Context_Equality.
-
-Notation "[! |- Δ === Γ !]" := (derivation_cxteq Δ Γ)
-                    (format "[!  |-  Δ  ===  Γ  !]") : judgement_scope.
 
 Section Contexts_Modulo_Equality.
 
