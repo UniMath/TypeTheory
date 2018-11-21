@@ -896,7 +896,9 @@ Section Flat_Context_Equality.
 - it is an equivalence relation
 *)
 
-  (* TODO: maybe weaken assumption [e_Γ] (only one direction should be needed). *)
+  (** When two contexts are (flatly) equal, the “identity” map forms a context
+   map between them *)
+  (* TODO: maybe weaken assumption [e_Γ] (only one direction is really needed). *)
   Lemma derivation_idmap_gen
       {n} {Γ Γ' : context_of_length n}
       (d_Γ' : [! |- Γ' !])
@@ -911,29 +913,57 @@ Section Flat_Context_Equality.
     use derive_var; assumption.
   Defined.
 
-  (* TODO: rename, and generalise to other judgement forms *)
-  Lemma foo {n} {Γ Δ : context_of_length n} (d_Δ : [! |- Δ !]) (d_ΓΔ : [! |- Γ === Δ !])
-        {A : ty_expr n} (d_A : [! Γ |- A !])
+  (** By substituting along this “identity” map between equal contexts,
+  we get that when two contexts are equal, the same judgements are derivable
+  over them. *)
+
+  Lemma derive_ty_conv_cxteq
+      {n} {Γ Δ : context_of_length n}
+      (d_Δ : [! |- Δ !]) (d_ΓΔ : [! |- Γ === Δ !])
+      {A : ty_expr n} (d_A : [! Γ |- A !])
     : [! Δ |- A !].
   Proof.
     rewrite <- (@subst_idmap_ty _ A).
-    apply (subst_derivation [! Γ |- A !]); try assumption.
+    use (subst_derivation [! Γ |- A !]); try assumption.
     apply derivation_idmap_gen; assumption.
   Defined.
 
-  Lemma foo2 {n} {Γ Δ : context_of_length n} {A B : ty_expr n}
-    : [! |- Γ !] -> [! |- Δ !]
-    -> [! |- Γ === Δ !] → [! Γ |- A === B !] → [! Δ |- A === B !].
+  Lemma derive_tyeq_conv_cxteq
+      {n} {Γ Δ : context_of_length n}
+      (d_Δ : [! |- Δ !]) (d_ΓΔ : [! |- Γ === Δ !])
+      {A B : ty_expr n} (d_AB : [! Γ |- A === B !])
+    : [! Δ |- A === B !].
   Proof.
     intros.
     rewrite <- (@subst_idmap_ty _ A), <- (@subst_idmap_ty _ B).
-    apply (subst_derivation [! Γ |- A === B !]); try assumption.
+    use (subst_derivation [! Γ |- A === B !]); try assumption.
     apply derivation_idmap_gen; assumption.
   Defined.
 
-  (** While the definition of flat context equality works for arbitrary raw
-  contexts, the proof that it is an equivalence relation requires the
-  contexts to be well-formed too. *)
+  Lemma derive_tm_conv_cxteq
+      {n} {Γ Δ : context_of_length n}
+      (d_Δ : [! |- Δ !]) (d_ΓΔ : [! |- Γ === Δ !])
+      {A : ty_expr n} {a : tm_expr n} (d_a : [! Γ |- a ::: A !])
+    : [! Δ |- a ::: A !].
+  Proof.
+    rewrite <- (@subst_idmap_ty _ A), <- (@subst_idmap_tm _ a).
+    use (subst_derivation [! Γ |- a ::: A !]); try assumption.
+    apply derivation_idmap_gen; assumption.
+  Defined.
+
+  Lemma derive_tmeq_conv_cxteq
+      {n} {Γ Δ : context_of_length n}
+      (d_Δ : [! |- Δ !]) (d_ΓΔ : [! |- Γ === Δ !])
+      {A : ty_expr n} {a a' : tm_expr n} (d_aa' : [! Γ |- a === a' ::: A !])
+    : [! Δ |- a === a' ::: A !].
+  Proof.
+    rewrite <- (@subst_idmap_ty _ A),
+            <- (@subst_idmap_tm _ a), <- (@subst_idmap_tm _ a').
+    use (subst_derivation [! Γ |- a === a' ::: A !]); try assumption.
+    apply derivation_idmap_gen; assumption.
+  Defined.
+
+  (** We can now show that flat context equality is an equivalence relation. *)
   Lemma derivation_cxteq_refl {Γ : context} (d_Γ : [! |f- Γ !])
     : [! |- Γ === Γ !].
   Proof.
@@ -958,18 +988,14 @@ Section Flat_Context_Equality.
     assert (d_ΔΓ := derivation_cxteq_sym f_Γ f_Δ d_ΓΔ).
     assert (d_ΘΔ := derivation_cxteq_sym f_Δ f_Θ d_ΔΘ).
     repeat split; intro i.
-    + eapply (derive_tyeq_trans Γ _ (Δ i)).
-      * apply f_Γ.
-      * apply (foo d_Γ d_ΔΓ), f_Δ.
-      * apply (foo d_Γ d_ΔΓ), (foo d_Δ d_ΘΔ), f_Θ.
-      * apply d_ΓΔ.
-      * apply (foo2 d_Δ d_Γ); [ apply d_ΔΓ | apply d_ΔΘ ].
-    + eapply (derive_tyeq_trans Θ _ (Δ i)).
-      * apply f_Θ.
-      * apply (foo d_Θ d_ΔΘ), f_Δ.
-      * apply (foo d_Θ d_ΔΘ), (foo d_Δ d_ΓΔ), f_Γ.
-      * apply d_ΘΔ.
-      * apply (foo2 d_Δ d_Θ); [ apply d_ΔΘ | apply d_ΔΓ ].
+    - eapply (derive_tyeq_trans Γ _ (Δ i));
+        eauto using derive_ty_conv_cxteq.
+      + apply d_ΓΔ.
+      + apply (derive_tyeq_conv_cxteq d_Γ d_ΔΓ), d_ΔΘ.
+    - eapply (derive_tyeq_trans Θ _ (Δ i));
+        eauto using derive_ty_conv_cxteq.
+      + apply d_ΘΔ.
+      + apply (derive_tyeq_conv_cxteq d_Θ d_ΔΘ), d_ΔΓ.
   Qed.
   
 End Flat_Context_Equality.
