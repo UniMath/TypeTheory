@@ -331,6 +331,23 @@ End Flat_Contexts_2.
 
 Section Context_Maps_2.
 
+  (* TODO: rename [add_to_raw_context_map] to [extend…] upstream *)
+  Lemma extend_derivation_context_map
+      {Γ Δ : context}
+      {f : raw_context_map Δ Γ} (d_f : [! |- f ::: Δ ---> Γ !])
+      {A} {a} (d_a : [! Δ |- a ::: subst_ty f A !])
+    : [! |- add_to_raw_context_map f a ::: Δ ---> Γ;;A !].
+  Proof.
+    intros i; cbn.
+    eapply transportb.
+    { apply maponpaths_2.
+      eapply pathscomp0. { apply subst_rename_ty. }
+      apply maponpaths_2. exact (idpath f). }
+    destruct i as [ | i]; cbn.
+    - apply d_a.
+    - apply d_f.
+  Defined.
+
   (** The eventual [weaken_derivation_map] shouldn’t need the
    hypothesis [ [! Δ |- subst_ty f A !] ]. However, that requires admissibility
    of substitution, which in turn uses this preliminary version. *)
@@ -359,7 +376,7 @@ Section Context_Maps_2.
 
 End Context_Maps_2.
 
-Section Substitute_Judgements.
+Section Substitute_Derivations.
 
   Definition subst_judgement
       (J : judgement) {Δ : context} 
@@ -453,9 +470,30 @@ then the hypothesis [d_Δ] should be unnecessary here (but compare
           auto using weaken_derivation_map_prelim, derive_cxt_extend.
   Defined.
 
-End Substitute_Judgements.
+End Substitute_Derivations.
 
-Section Compose_Derivations.
+Section Misc.
+
+  (* NOTE: if context judgements were abolished from derivations, a “flat”
+  hypothesis [ [! |f- Γ !] ] would suffice here. *)
+  Definition derivation_idmap_context {Γ : context} (d_Γ : [! |- Γ !]) 
+    : [! |- idmap_raw_context Γ ::: Γ ---> Γ !] .
+  Proof.
+    intros i.
+    refine (transportb _ _ _).
+    { apply maponpaths_2, subst_idmap_ty. }
+    use derive_var; try apply flat_from_context_judgement; auto.
+  Defined.
+
+  Lemma derive_tm_as_raw_context_map {Γ : context} (d_Γ : [! |- Γ !])
+       {A} {a} (d_a : [! Γ |- a ::: A !])
+    : [! |- tm_as_raw_context_map a ::: Γ ---> Γ;;A !].
+  Proof.
+    apply extend_derivation_context_map.
+    - apply derivation_idmap_context; assumption.
+    - eapply transportb. { apply maponpaths_2, subst_idmap_ty. }
+      assumption.
+  Defined.
 
   Local Definition weaken_derivation_map
       {Δ Γ : context} (f : raw_context_map Δ Γ) (A : ty_expr Γ)
@@ -476,17 +514,6 @@ Section Compose_Derivations.
     : context_map (Δ ;; subst_ty f A) (Γ ;; A)
   := (_,, weaken_derivation_map
             f A  d_Δ (derivation_from_context_map f) d_A).
-
-  (* NOTE: if context judgements were abolished from derivations, a “flat”
-  hypothesis [ [! |f- Γ !] ] would suffice here. *)
-  Definition derivation_idmap_context {Γ : context} (d_Γ : [! |- Γ !]) 
-    : [! |- idmap_raw_context Γ ::: Γ ---> Γ !] .
-  Proof.
-    intros i.
-    refine (transportb _ _ _).
-    { apply maponpaths_2, subst_idmap_ty. }
-    use derive_var; try apply flat_from_context_judgement; auto.
-  Defined.
 
   Definition derivation_comp_raw_context
       {Γ Δ Θ : context }
@@ -567,7 +594,45 @@ Section Compose_Derivations.
                                 (dB_next_typed_renaming _ _) _); auto.
   Defined.
 
-End Compose_Derivations.
+End Misc.
+
+Section CxtEq_Conv.
+(** Here we will show that _stratified_-equal contexts carry the same
+    judgements. *)
+
+(* TODO: find better naming conventions *)
+(* TODO: define stratified context equality, and rephrase section in terms of that? *)
+
+  Lemma derive_ty_conv_extend_equal_types
+      {Γ} (d_Γ : [! |- Γ !])
+      {A A'} (d_A : [! Γ |- A !]) (d_A' : [! Γ |- A' !])
+      (d_AA' : [! Γ |- A === A' !])
+      {B}
+    : [! Γ ;; A |- B !] -> [! Γ ;; A' |- B !].
+  Proof.
+    intros d_B.
+    eapply transportf. { apply maponpaths, subst_idmap_ty. }
+    refine (subst_derivation _ d_B _ _);
+      eauto using derive_cxt_extend, derive_tyeq_sym,
+        derivation_idmap_extend_equal_types.
+  Defined.
+
+  Lemma derive_tm_conv_extend_equal_types
+      {Γ} (d_Γ : [! |- Γ !])
+      {A A'} (d_A : [! Γ |- A !]) (d_A' : [! Γ |- A' !])
+      (d_AA' : [! Γ |- A === A' !])
+      {B} {b}
+    : [! Γ ;; A |- b ::: B !] -> [! Γ ;; A' |- b ::: B !].
+  Proof.
+    intros d_b.
+    eapply transportf.
+    { apply maponpaths_12; [ apply subst_idmap_ty | apply subst_idmap_tm ]. }
+    refine (subst_derivation _ d_b _ _);
+      eauto using derive_cxt_extend, derive_tyeq_sym,
+        derivation_idmap_extend_equal_types.
+  Defined.
+
+End CxtEq_Conv.
 
 Section Substeq_Judgements.
 
@@ -664,6 +729,68 @@ as a flat context judgement [ [! |f- Δ !] ]. *)
 
 End Substeq_Judgements.
 
+Section Misc_2.
+(* TODO: think about where these lemmas really belong *)
+
+  Lemma derive_subst_top_ty {Γ : context} (d_Γ : [! |- Γ !])
+       {A} {a} (d_a : [! Γ |- a ::: A !])
+       {B} (d_B : [! Γ;;A |- B !] )
+    : [! Γ |- subst_top_ty a B !].
+  Proof.
+    apply (subst_derivation [! _;;_ |- _ !]); try assumption.
+    apply derive_tm_as_raw_context_map; assumption.
+  Defined.
+
+  Lemma derive_subst_top_tyeq {Γ : context} (d_Γ : [! |- Γ !])
+       {A} {a} (d_a : [! Γ |- a ::: A !])
+       {B B'} (d_BB' : [! Γ;;A |- B === B' !] )
+    : [! Γ |- subst_top_ty a B === subst_top_ty a B' !].
+  Proof.
+    apply (subst_derivation [! _;;_ |- _ === _ !]); try assumption.
+    apply derive_tm_as_raw_context_map; assumption.
+  Defined.
+
+  Lemma derive_subst_top_tm {Γ : context} (d_Γ : [! |- Γ !])
+       {A} {a} (d_a : [! Γ |- a ::: A !])
+       {B} {b} (d_d : [! Γ;;A |- b ::: B !] )
+    : [! Γ |- subst_top_tm a b ::: subst_top_ty a B !].
+  Proof.
+    apply (subst_derivation [! _;;_ |- _ ::: _ !]); try assumption.
+    apply derive_tm_as_raw_context_map; assumption.
+  Defined.
+
+  Lemma derive_subst_top_tmeq {Γ : context} (d_Γ : [! |- Γ !])
+       {A} {a} (d_a : [! Γ |- a ::: A !])
+       {B} {b b'} (d_bb' : [! Γ;;A |- b === b' ::: B !] )
+    : [! Γ |- subst_top_tm a b === subst_top_tm a b' ::: subst_top_ty a B !].
+  Proof.
+    apply (subst_derivation [! _;;_ |- _ === _ ::: _ !]); try assumption.
+    apply derive_tm_as_raw_context_map; assumption.
+  Defined.
+
+  Lemma derive_substeq_top_ty {Γ : context} (d_Γ : [! |- Γ !])
+       {A} (d_A : [! Γ |- A !])
+       {a} (d_a : [! Γ |- a ::: A !]) {a'} (d_a' : [! Γ |- a' ::: A !])
+       (d_aa' : [! Γ |- a === a' ::: A !])
+       {B} (d_B : [! Γ;;A |- B !] )
+    : [! Γ |- subst_top_ty a B === subst_top_ty a' B !].
+  Proof.
+    apply (substeq_derivation [! _;;_ |- _ !]);
+    try apply derive_tm_as_raw_context_map; try assumption.
+    (* TODO: perhaps abstract following as lemma, [tmeq_as_context_mapeq]? *)
+    intros [ | i]; cbn.
+    - refine (transportb _ _ d_aa'). apply maponpaths_3.
+      eapply pathscomp0. { apply subst_rename_ty. }
+      apply subst_idmap_ty.
+    - eapply transportb.
+      { apply maponpaths_3.
+        eapply pathscomp0. { apply subst_rename_ty. }
+        apply subst_idmap_ty. }
+      apply derive_tmeq_refl, derive_var, flat_from_context_judgement; assumption.
+  Defined.
+
+End Misc_2.
+
 Section Presuppositions.
 
   Definition presuppositions (J : judgement) : UU.
@@ -701,14 +828,14 @@ Section Presuppositions.
     - (* conv rules *)
       split; try (intros; assumption).
       (* [tmeq_conv] *)
-      intros ? ? ? ? ? _ _ ? _ d_AA' _ _ p d_Γ;
-        repeat split;
+      intros ? ? ? ? ? _ _ ? _ d_AA' _ _ p d_Γ; repeat split;
         try refine (derive_tm_conv _ _ _ _ _ _ d_AA' _);
         try apply p; assumption.
     - (* universe rules *)
       split; try (intros; exact tt).
       (* [El_cong] *)
-      intros ? ? ? ? ? ? p ?. split; try apply derive_El; try apply p; assumption.
+      intros ? ? ? ? ? ? p ?.
+      split; try apply derive_El; try apply p; assumption.
     - (* pi rules *)
       split.
       + (* pi-form *)
@@ -716,40 +843,74 @@ Section Presuppositions.
       + (* pi-lam *)
         intros; apply derive_Pi; assumption.
       + (* pi-app *)
-        intros.
-        refine (subst_derivation [! _;;_ |- _ !] _ _ _); try assumption.
-        admit. (* lemma derive_tm_as_raw_context_map *)
+        intros. apply derive_subst_top_ty; assumption.
       + (* pi-comp *)
         intros; repeat split.
-        * refine (subst_derivation [! _;;_ |- _ !] _ _ _); try assumption.
-          admit. (* lemma derive_tm_as_raw_context_map *)
+        * apply derive_subst_top_ty; assumption.
         * auto using derive_app, derive_lam.
-        * refine (subst_derivation [! _;;_ |- _ ::: _ !] _ _ _); try assumption.
-          admit. (* lemma derive_tm_as_raw_context_map *)
+        * apply derive_subst_top_tm; assumption.
     - (* pi-cong rules *)
       split.
       + (* Pi-cong *)
         intros ? ? ? ? ? ? _ ? _ d_AA' p_AA' _ p_BB' _.
+        assert [! |f- Γ;;A !].
+        { apply flat_from_context_judgement, derive_cxt_extend; assumption. }
+        assert [! Γ |- A' !].
+        { apply p_AA', flat_from_context_judgement; assumption. }
         split; apply derive_Pi; try apply p_BB'; try assumption.
-        * apply flat_from_context_judgement, derive_cxt_extend; assumption.
-        * apply p_AA', flat_from_context_judgement; assumption.
-        * admit. (* respect extension by equal types *)
+        use derive_ty_conv_extend_equal_types; try apply p_BB'; try assumption.
       + (* lam-cong *)
         intros ? ? ? ? ? ? ? ? _ ? _ d_AA' p_AA' ? p_BB' _ p_bb' _.
         assert [! |f- Γ;;A !].
         { apply flat_from_context_judgement, derive_cxt_extend; assumption. }
+        assert [! Γ |- A' !].
+        { apply p_AA', flat_from_context_judgement; assumption. }
         assert [! Γ |- Pi_expr A B !].
         { apply derive_Pi; try apply p_BB'; assumption. }
         repeat split; try assumption.
         * apply derive_lam; try apply p_BB'; try apply p_bb'; assumption.
         * apply (derive_tm_conv _ (Pi_expr A' B')); try assumption.
           -- apply derive_Pi; try assumption.
-             apply p_AA', flat_from_context_judgement; assumption.
-             admit. (* as in Pi-cong above *)
+             use derive_ty_conv_extend_equal_types; try apply p_BB'; assumption.
           -- apply derive_tyeq_sym, derive_Pi_cong; try assumption.
-          -- apply derive_lam; try apply p_AA'; try apply p_BB'; try assumption;
-               admit.
-  Admitted.
+          -- apply derive_lam; try apply p_AA'; try apply p_BB';
+               auto using flat_from_context_judgement.
+            ++ use derive_ty_conv_extend_equal_types; try apply p_BB'; assumption.
+            ++ use derive_tm_conv_extend_equal_types; try apply p_BB';
+                 try assumption.
+               apply (derive_tm_conv _ B); try apply p_BB'; try apply p_bb';
+                 assumption.
+      + (* app-cong *)
+        intros ? ? ? ? ? ? ? ? ? ? _ ? _ ? p_AA' ? p_BB' _ p_ff' ? p_aa' ?.
+        assert [! |f- Γ;;A !].
+        { apply flat_from_context_judgement, derive_cxt_extend; assumption. }
+        assert [! Γ |- Pi_expr A B !].
+        { apply derive_Pi; try apply p_BB'; assumption. }
+        assert [! Γ |- A' !].
+        { apply p_AA', flat_from_context_judgement; assumption. }
+        assert [! Γ;;A' |- B' !].
+        { use derive_ty_conv_extend_equal_types; try apply p_BB'; assumption. }
+        assert [! Γ |- Pi_expr A' B' !].
+        { apply derive_Pi; try assumption. }
+        repeat split.
+        * apply derive_subst_top_ty; try apply p_aa'; try apply p_BB'; assumption.
+        * apply derive_app;
+            try apply p_aa'; try apply p_BB'; try apply p_ff'; assumption.
+        * apply (derive_tm_conv _ (subst_top_ty a' B'));
+            try apply derive_subst_top_ty;
+            try apply p_aa'; try apply p_BB'; try apply p_ff'; 
+              try assumption.
+          -- apply derive_tyeq_sym, (derive_tyeq_trans _ _ (subst_top_ty a B'));
+               try apply derive_subst_top_ty;
+               try apply p_aa'; try apply p_BB'; try assumption.
+            ++ apply derive_subst_top_tyeq; try apply p_aa'; assumption.
+            ++ apply derive_substeq_top_ty;
+               try apply p_aa'; try apply p_BB'; assumption.
+          -- apply derive_app; try assumption.
+            ++ use (derive_tm_conv _ (Pi_expr A B));
+                 try apply p_ff'; try apply derive_Pi_cong; assumption.
+            ++ use (derive_tm_conv _ A); try apply p_aa'; assumption.
+  Defined.
 
 End Presuppositions.
 
