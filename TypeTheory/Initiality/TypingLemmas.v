@@ -16,10 +16,10 @@ Local Open Scope context_scope.
 Section Auxiliary_Judgements.
 
   (** The context judgement [! |- Γ !] is almost entirely used just for one
-  consequence: that all types are well-typed over it. 
+  consequence: that all its types are well-typed over it. 
 
   We quite happily could (and perhaps should) omit the context judgement
-  entirely in the definition of derivations, and then define this as an
+  entirely in the definition of derivations, and then define it as an
   auxiliary judgement afterwards, as we do for context morphisms. 
 
   The only place where the extra “stratification” information carried by
@@ -43,7 +43,7 @@ Section Auxiliary_Judgements.
     : [! Γ |- Γ i !]
   := pr2 Γ i.
 
-  (** We want to prove that the context judgment implies this: *)
+  (** We will want to prove that the context judgment implies this: *)
   Definition flat_from_context_judgement {Γ : context} 
     : [! |- Γ !] -> [! |f- Γ !].
   Abort.

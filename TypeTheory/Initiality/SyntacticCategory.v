@@ -141,14 +141,6 @@ Section Context_Equality.
     now intros [H1 [H2 [H3 H4]]].
   Qed.
 
-  (* This notation should maybe be global ? *)
-  Notation "[! |- f ::: Δ ---> Γ !]" := (derivation_map Δ Γ f)
-                    (format "[! |- f ::: Δ ---> Γ !]") : judgement_scope.
-
-  (* This is not needed now that we have everything we need in derivation_cxteq *)
-  (* Lemma bar (n : ℕ) (Γ : wellformed_context_of_length n) (A B : ty_expr n) : *)
-  (*   [! Γ |- A === B !] → [! Γ |- B !]. *)
-  
   Lemma foo (n : ℕ) (Γ Δ : wellformed_context_of_length n) (A : ty_expr n) :
     [! |- Γ === Δ !] → [! Γ |- A !] → [! Δ |- A !].
   Proof.
