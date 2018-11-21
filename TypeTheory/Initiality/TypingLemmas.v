@@ -91,9 +91,7 @@ Section Flat_Contexts.
   types (up to judg. eq.). *)
   Definition derivation_cxteq {n} (Γ Δ : context_of_length n) : UU
   :=   (forall i, [! Γ |- Γ i === Δ i !])
-     × (forall i, [! Δ |- Δ i === Γ i !])
-     × (forall i, [! Γ |- Δ i !])     (* This should not be necessary? *)
-     × (forall i, [! Δ |- Γ i !]).     (* This should not be necessary? *)
+     × (forall i, [! Δ |- Δ i === Γ i !]).
   (* Note: one direction wouldn’t suffice, for general type theories.
   E.g.  in ETT with the reflection rule, define a predicate [P] over
   [nat] with [ P 0 ] false, and [ P 1 ] true.  Then [ P 0 ] proves
@@ -901,46 +899,40 @@ Section Flat_Context_Equality.
   (* TODO: maybe weaken assumption [e_Γ] (only one direction should be needed). *)
   Lemma derivation_idmap_gen
       {n} {Γ Γ' : context_of_length n}
-      (d_Γ : [! |- Γ !]) (d_Γ' : [! |- Γ' !])
+      (d_Γ' : [! |- Γ' !])
       (e_Γ : [! |- Γ === Γ' !])
-    : [! |- idmap_raw_context Γ ::: Γ ---> Γ' !].
+    : [! |- idmap_raw_context Γ ::: Γ' ---> Γ !].
   Proof.
     intros i.
-    unfold idmap_raw_context.
-    rewrite subst_idmap_ty.
-    apply (@derive_tm_conv Γ (Γ' i) _).
-    (* need presuppositions theorem *)
-  Admitted.
+    eapply transportb. { apply maponpaths_2, subst_idmap_ty. }
+    pose (e_Γi := pr2 e_Γ i).
+    destruct (derive_presuppositions _ e_Γi). 
+    apply (derive_tm_conv Γ' (Γ' i)); try assumption.
+    use derive_var; assumption.
+  Defined.
 
-  (* TODO: rename, clean up, and generalise to other judgement forms *)
-  Lemma foo {n} {Γ Δ : context_of_length n} {A : ty_expr n}
-    : [! |- Γ !] -> [! |- Δ !] 
-    -> [! |- Γ === Δ !] → [! Γ |- A !] → [! Δ |- A !].
+  (* TODO: rename, and generalise to other judgement forms *)
+  Lemma foo {n} {Γ Δ : context_of_length n} (d_Δ : [! |- Δ !]) (d_ΓΔ : [! |- Γ === Δ !])
+        {A : ty_expr n} (d_A : [! Γ |- A !])
+    : [! Δ |- A !].
   Proof.
-    intros d_Γ d_Δ [H1 [H2 [H3 H4]]] ΓA.
     rewrite <- (@subst_idmap_ty _ A).
-    apply (@subst_derivation (ty_judgement Γ A) ΓA Δ d_Δ).
-    cbn.
-    intros i.
-    unfold idmap_raw_context.
-    rewrite subst_idmap_ty.
-    apply (@derive_tm_conv Δ (Δ i) (Γ i)); auto.
-    - apply (flat_from_context_judgement d_Δ).
-    (* - apply (bar _ _ _ _ (H2 i)). *)
-    - apply derive_var.
-      + apply d_Δ.
-      + apply flat_from_context_judgement, d_Δ.
+    apply (subst_derivation [! Γ |- A !]); try assumption.
+    apply derivation_idmap_gen; assumption.
   Defined.
 
   Lemma foo2 {n} {Γ Δ : context_of_length n} {A B : ty_expr n}
     : [! |- Γ !] -> [! |- Δ !]
     -> [! |- Γ === Δ !] → [! Γ |- A === B !] → [! Δ |- A === B !].
-  Admitted.
-  
-
+  Proof.
+    intros.
+    rewrite <- (@subst_idmap_ty _ A), <- (@subst_idmap_ty _ B).
+    apply (subst_derivation [! Γ |- A === B !]); try assumption.
+    apply derivation_idmap_gen; assumption.
+  Defined.
 
   (** While the definition of flat context equality works for arbitrary raw
-  contexts, the proof that it is an equivalence relation requires requires the
+  contexts, the proof that it is an equivalence relation requires the
   contexts to be well-formed too. *)
   Lemma derivation_cxteq_refl {Γ : context} (d_Γ : [! |f- Γ !])
     : [! |- Γ === Γ !].
@@ -952,34 +944,32 @@ Section Flat_Context_Equality.
     (d_Γ : [! |f- Γ !]) (d_Δ : [! |f- Δ !])
     : [! |- Γ === Δ !] → [! |- Δ === Γ !].
   Proof.
-    now intros [H1 [H2 [H3 H4]]].
+    now intros [H1 H2].
   Qed.
 
-  (* This is a mess... should be cleaned once the above has been cleaned *)
   Lemma  derivation_cxteq_trans {n} {Γ Δ Θ : context_of_length n}
     : [! |- Γ !] -> [! |- Δ !] -> [! |- Θ !]
     -> [! |- Γ === Δ !] → [! |- Δ === Θ !] → [! |- Γ === Θ !].
   Proof.
-    intros d_Γ d_Δ d_Θ H1 H2.
-    assert (H3 := derivation_cxteq_sym (flat_from_context_judgement d_Γ)
-                                       (flat_from_context_judgement d_Δ) H1).
-    assert (H4 := derivation_cxteq_sym (flat_from_context_judgement d_Δ)
-                                       (flat_from_context_judgement d_Θ) H2).
-    destruct H1 as [H1 [H1' [H1'' H1''']]].
-    destruct H2 as [H2 [H2' [H2'' H2''']]].
-    destruct H3 as [H3 [H3' [H3'' H3''']]].
-    destruct H4 as [H4 [H4' [H4'' H4''']]].
+    intros d_Γ d_Δ d_Θ d_ΓΔ d_ΔΘ.
+    assert (f_Γ := flat_from_context_judgement d_Γ).
+    assert (f_Δ := flat_from_context_judgement d_Δ).
+    assert (f_Θ := flat_from_context_judgement d_Θ).
+    assert (d_ΔΓ := derivation_cxteq_sym f_Γ f_Δ d_ΓΔ).
+    assert (d_ΘΔ := derivation_cxteq_sym f_Δ f_Θ d_ΔΘ).
     repeat split; intro i.
-    + eapply derive_tyeq_trans; trivial; simpl in *.
-      * apply (flat_from_context_judgement d_Γ).
-      * apply (foo d_Δ d_Γ (H3,,H3',,H3'',,H3''')); auto.
-      * eapply (foo2 d_Δ d_Γ); trivial. apply (H3,,H3',,H3'',,H3''').
-    + eapply derive_tyeq_trans; trivial; simpl in *.
-      * apply (flat_from_context_judgement d_Θ).
-      * apply (foo d_Δ d_Θ (H2,,H2',,H2'',,H2''')); auto.
-      * eapply (foo2 d_Δ d_Θ); trivial; apply (H2,,H2',,H2'',,H2''').
-    + apply (foo d_Δ d_Γ (H3,,H3',,H3'',,H3''')); auto.
-    + apply (foo d_Δ d_Θ (H2,,H2',,H2'',,H2''')); auto.
+    + eapply (derive_tyeq_trans Γ _ (Δ i)).
+      * apply f_Γ.
+      * apply (foo d_Γ d_ΔΓ), f_Δ.
+      * apply (foo d_Γ d_ΔΓ), (foo d_Δ d_ΘΔ), f_Θ.
+      * apply d_ΓΔ.
+      * apply (foo2 d_Δ d_Γ); [ apply d_ΔΓ | apply d_ΔΘ ].
+    + eapply (derive_tyeq_trans Θ _ (Δ i)).
+      * apply f_Θ.
+      * apply (foo d_Θ d_ΔΘ), f_Δ.
+      * apply (foo d_Θ d_ΔΘ), (foo d_Δ d_ΓΔ), f_Γ.
+      * apply d_ΘΔ.
+      * apply (foo2 d_Δ d_Θ); [ apply d_ΔΘ | apply d_ΔΓ ].
   Qed.
   
 End Flat_Context_Equality.

@@ -249,7 +249,7 @@ Section Context_Maps.
     refine (setquotpr _ _).
     exists (idmap_raw_context _).
     intros Γ Γ'.
-    apply (squash_to_prop (cxteq_context_representatives Γ Γ')).
+    apply (squash_to_prop (cxteq_context_representatives Γ' Γ)).
     { apply isapropishinh. }
     intros e_Γ; apply hinhpr;
       eauto using derivation_idmap_gen, derivation_wellformed_context.
