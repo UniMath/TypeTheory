@@ -81,7 +81,104 @@ For just the _category_ this is unnecessary, but for the _type-category_, it is 
 
 At the same time, to get a _contextual_ type-category, one must stratify the objects: the flat contexts up to flat context equality form a type-category, but it will not in general contextual. *)
 
-Section Context_Equality.
+Section Stratified_Contexts.
+
+(** The conventional version of contexts, as opposed to the “flat” notion we take as primitive. *)
+  Fixpoint stratified_context_of_length (n:nat) : UU
+  := match n with
+    | O => unit
+    | S n => (stratified_context_of_length n) × (ty_expr n)
+  end.
+  Arguments stratified_context_of_length : simpl nomatch.
+
+  Definition empty_stratified_context
+    := tt : stratified_context_of_length 0.
+  Opaque empty_stratified_context.
+
+  (** NOTE: [context_last] and [context_rest] are only defined for stratified
+  contexts, so we don’t need to explicitly include it in their names. *)
+  Definition context_last {n} (Γ : stratified_context_of_length (S n))
+    : ty_expr n
+  := pr2 Γ.
+
+  Definition context_rest {n} (Γ : stratified_context_of_length (S n))
+    : stratified_context_of_length n
+  := pr1 Γ.
+  
+  Definition extend_stratified_context {n}
+      (Γ : stratified_context_of_length n) (A : ty_expr n)
+    : stratified_context_of_length (S n)
+  := (Γ,,A).
+
+  Fixpoint context_of_stratified_context
+      {n} (Γ : stratified_context_of_length n) {struct n}
+    : context_of_length n.
+  Proof.
+    destruct n as [ | n].
+    - exact [::]%context.
+    - exact (context_extend
+               (context_of_stratified_context _ (context_rest Γ))
+               (context_last Γ)).
+  Defined.
+  Global Arguments context_of_stratified_context : simpl nomatch.
+
+  Coercion context_of_stratified_context
+    : stratified_context_of_length >-> context_of_length.
+
+End Stratified_Contexts.
+
+Delimit Scope stratified_context_scope with strat_cxt.
+Bind Scope stratified_context_scope with stratified_context_of_length.
+Notation "[: :]"
+  := (empty_stratified_context) (format "[: :]") : stratified_context_scope.
+Notation "Γ ;; A" := (extend_stratified_context Γ A)
+               (at level 50, left associativity) : stratified_context_scope. 
+Notation "[: A ; .. ; Z :] " := (..([: :] ;; A) .. ;; Z)%strat_cxt
+                                                 : stratified_context_scope.
+
+Section Stratified_Context_Equality.
+
+  Fixpoint derivation_cxteq
+      {n} (Γ Δ : stratified_context_of_length n) {struct n}
+    : UU.
+  Proof.
+    destruct n as [ | n].
+    - exact unit.
+    - exact (derivation_cxteq _ (context_rest Γ) (context_rest Δ)
+             × [! context_rest Γ |- context_last Γ === context_last Δ !]).
+  Defined.
+  Arguments derivation_cxteq : simpl nomatch.
+
+  Notation "[! |- Δ === Γ !]" := (derivation_cxteq Δ Γ)
+                    (format "[!  |-  Δ  ===  Γ  !]") : judgement_scope.
+
+  Fixpoint derive_flat_cxteq_from_cxteq
+      {n} (Γ Δ : stratified_context_of_length n) {struct n}
+    : [! |- Γ === Δ !] -> [! |f- Γ === Δ !].
+  Proof.
+    destruct n as [ | n].
+    - intro; split; intros [].
+    - intros [? ?].
+  (* TODO: how to stop [@context_of_stratified_context] unfolding here? *)
+      apply derive_extend_flat_cxteq; fold @context_of_stratified_context;
+        auto; admit. (* TODO: add context-judgement assumptions, OR
+                      just remove them as primitive. *)
+  Admitted.
+
+  Coercion derive_flat_cxteq_from_cxteq
+    : derivation_cxteq >-> derivation_flat_cxteq.
+
+  (* TODO: 
+     - retool category definitions below to use stratified instead of flat
+       context+equalities
+   *)
+
+End Stratified_Context_Equality.
+
+  Notation "[! |f- Δ === Γ !]" := (derivation_flat_cxteq Δ Γ)
+                    (format "[!  |f-  Δ  ===  Γ  !]") : judgement_scope.
+
+Section Contexts_Modulo_Equality.
 
   Definition wellformed_context_of_length (n : nat) : UU
   := ∑ (Γ : context_of_length n), [! |- Γ !].
@@ -113,10 +210,6 @@ Section Context_Equality.
 
   Definition derivable_cxteq {n} : eqrel (wellformed_context_of_length n)
   := (_,,derivable_cxteq_is_eqrel n).
-
-End Context_Equality.
-
-Section Contexts_Modulo_Equality.
 
   Definition context_of_length_mod_eq n := setquot (@derivable_cxteq n).
 

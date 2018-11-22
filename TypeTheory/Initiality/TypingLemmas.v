@@ -998,6 +998,42 @@ Section Flat_Context_Equality.
       + apply (derive_tyeq_conv_cxteq d_Θ d_ΔΘ), d_ΔΓ.
   Qed.
   
+  (** Context extension respects flat equality *)
+  Lemma derive_extend_flat_cxteq
+      {n} {Γ Δ : context_of_length n}
+      (d_Γ : [! |- Γ !]) (d_Δ : [! |- Δ !]) (d_ΓΔ : [! |f- Γ === Δ !])
+      {A B : ty_expr n} (d_AB : [! Γ |- A === B !])
+    : [! |f- Γ;;A === Δ;;B !].
+  Proof.
+    assert [! |- Γ;;A !].
+    { apply derive_cxt_extend; try assumption.
+      apply (derive_presuppositions _ d_AB). }
+    assert [! |- Δ;;B !].
+    { apply derive_cxt_extend; try assumption.
+      apply (@derive_ty_conv_cxteq _ Γ); try assumption. 
+      apply (derive_presuppositions _ d_AB). }
+    (* TODO: if context judgements made auxiliary, then should be removable as assumptions in this lemma. *)
+    split.
+    - use dB_Sn_rect.
+      + (* top *)
+        refine (rename_derivation _ d_AB (dB_next_typed_renaming _ _) _); auto.
+      + intros i.
+        refine (rename_derivation [! Γ |- _ === _ !] _
+                                  (dB_next_typed_renaming _ _) _); auto.        
+        apply d_ΓΔ.
+    - use dB_Sn_rect.
+      + (* top *)
+        refine (rename_derivation [! Δ |- _ === _ !] _
+                                  (dB_next_typed_renaming _ _) _); auto.
+        apply derive_tyeq_sym.
+        apply (@derive_tyeq_conv_cxteq _ Γ); auto.
+        (* TODO: make argument [Γ] explicit in [derive_FOO_conv_cxteq]? *)
+      + intros i. hnf.
+        refine (rename_derivation [! Δ |- _ === _ !] _
+                                  (dB_next_typed_renaming _ _) _); auto.
+        apply d_ΓΔ.
+  Defined.
+
 End Flat_Context_Equality.
 
 Section Category_Laws.
