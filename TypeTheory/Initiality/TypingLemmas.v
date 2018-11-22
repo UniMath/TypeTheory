@@ -19,8 +19,9 @@ Local Open Scope context_scope.
 
 Besides these and their basic properties, the main results of this file are:
 
-- admissibility of substitution
-
+- admissibility of renaming (hence weakening) and substitution
+- the presuppositions lemma
+- the derivations that will be needed for the syntactic category 
 *)
 
 Section Flat_Contexts.
@@ -96,8 +97,8 @@ Section Flat_Contexts.
   E.g.  in ETT with the reflection rule, define a predicate [P] over
   [nat] with [ P 0 ] false, and [ P 1 ] true.  Then [ P 0 ] proves
   that [ 0 === 1 : nat ] and hence that [ P 0 === P 1 ], but [ P 1 ]
-  doesn’t prove this, so for the contexts [ x0 : P 0 ] and [ x0 : P 1
-  ], one direction of the below conditions will hold, but not both. *)
+  doesn’t prove this, so for the contexts [ x0 : P 0 ] and [ x0 : P 1 ],
+  one direction of the given conditions will hold, but not both. *)
   
   Notation "[! |f- Δ === Γ !]" := (derivation_flat_cxteq Δ Γ)
                     (format "[!  |f-  Δ  ===  Γ  !]") : judgement_scope.
@@ -116,8 +117,7 @@ Section Context_Maps.
       (Δ Γ : context) (f : raw_context_map Δ Γ) : UU
   := forall i:Γ, [! Δ |- f i ::: subst_ty f (Γ i) !].
 
-  Identity Coercion id_derivation_map
-    : derivation_map >-> Funclass.
+  Identity Coercion id_derivation_map : derivation_map >-> Funclass.
 
   Notation "[! |- f ::: Δ ---> Γ !]" := (derivation_map Δ Γ f)
                     (format "[! |- f ::: Δ ---> Γ !]") : judgement_scope.

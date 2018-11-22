@@ -77,10 +77,11 @@ End Auxiliary.
 
 (** The construction of the syntactic type-category is rather trickier than one might hope, because of the need to quotient by some form of context equality — which, as ever when quotienting objects of a category, is quite fiddly.
 
-For just the _category_ this is unnecessary, but for the _type-category_, it is unavoidable: types must be modulo equality, in order to form a presheaf, but then so must contexts, in order for context extension to be well-defined. *)
+For just the _category_ this is unnecessary, but for the _type-category_, it is unavoidable: types must be modulo equality, in order to form a presheaf, but then so must contexts, in order for context extension to be well-defined. 
+
+At the same time, to get a _contextual_ type-category, one must stratify the objects: the flat contexts up to flat context equality form a type-category, but it will not in general contextual. *)
 
 Section Context_Equality.
-(* Probably this (or some of it) should be upstreamed to with the other “auxiliary judgements” in [TypingLemmas]. *)
 
   Definition wellformed_context_of_length (n : nat) : UU
   := ∑ (Γ : context_of_length n), [! |- Γ !].
@@ -162,22 +163,21 @@ Section Contexts_Modulo_Equality.
 End Contexts_Modulo_Equality.
 
 Section Context_Maps.
+(** Definition of context maps, and basic auxiliary functions on them. *)
 
   (** Note: the truncation of the derivation part is mathematically redundant,
   since we will later quotient anyway.  However, it lets us get better
   computational behaviour on the map part, in compositions etc. *)
   Local Definition map (ΓΓ ΔΔ : context_mod_eq) : UU
     := ∑ (f : raw_context_map (length ΓΓ) (length ΔΔ)),
-       forall (Γ : ΓΓ) (Δ : ΔΔ), ∥ [! |- f ::: Γ ---> Δ !] ∥.
-
-  (* TODO: lemma that here (and in later similar definitions) it’s sufficient to show typing for _some_ representative, to get it for all representatives. *)
+       ∀ (Γ : ΓΓ) (Δ : ΔΔ), ∥ [! |- f ::: Γ ---> Δ !] ∥.
 
   Definition raw_of_context_map {ΓΓ ΔΔ} (f : map ΓΓ ΔΔ) : raw_context_map _ _
   := pr1 f.
   Coercion raw_of_context_map : map >-> raw_context_map.
 
   Local Definition map_derivable {ΓΓ ΔΔ} (f : map ΓΓ ΔΔ)
-    : forall (Γ : ΓΓ) (Δ : ΔΔ), ∥ [! |- f ::: Γ ---> Δ !] ∥
+    : ∀ (Γ : ΓΓ) (Δ : ΔΔ), ∥ [! |- f ::: Γ ---> Δ !] ∥
   := pr2 f.
 
   Local Definition mapeq_hrel {ΓΓ ΔΔ} (f g : map ΓΓ ΔΔ)
@@ -202,6 +202,61 @@ Section Context_Maps.
     : map ΓΓ ΔΔ
   := pr1 f.
   Coercion map_representative_as_map : map_representative >-> map.
+
+  (* TODO: consider naming of this and other analogous lemmas *)
+
+  (** Generally useful lemma: while the definition of map well-typedness is 
+  with respect to _all_ contexts representing of its source/target, it’s enough
+  to show it with respect to _some_ such representatives. *)
+  Lemma map_for_some_rep
+      {ΓΓ ΔΔ} (f : raw_context_map (length ΓΓ) (length ΔΔ))
+    : ∥ ∑ (Γ:ΓΓ) (Δ:ΔΔ), [! |- f ::: Γ ---> Δ !] ∥
+    -> ∀ (Γ:ΓΓ) (Δ:ΔΔ), ∥ [! |- f ::: Γ ---> Δ !] ∥.
+  Proof.
+    intros H Γ Δ.
+    apply (squash_to_prop H). { apply isapropishinh. }
+    intros [Γ' [Δ' d_f]].
+    apply (squash_to_prop (cxteq_context_representatives Γ Γ')).
+    { apply isapropishinh. }
+    intros e_Γ.
+    apply (squash_to_prop (cxteq_context_representatives Δ Δ')).
+    { apply isapropishinh. }
+    intros e_Δ.
+    apply hinhpr.
+    admit. (* TODO: show in [TypingLemmas] that context maps respect flat equality in source + target *)
+  Admitted.
+
+  Lemma mapeq_for_some_rep
+      {ΓΓ ΔΔ} (f g : raw_context_map (length ΓΓ) (length ΔΔ))
+    : ∥ ∑ (Γ:ΓΓ) (Δ:ΔΔ), [! |- f === g ::: Γ ---> Δ !] ∥
+    -> ∀ (Γ:ΓΓ) (Δ:ΔΔ), ∥ [! |- f === g ::: Γ ---> Δ !] ∥.
+  Proof.
+    intros H Γ Δ.
+    apply (squash_to_prop H). { apply isapropishinh. }
+    intros [Γ' [Δ' d_f]].
+    apply (squash_to_prop (cxteq_context_representatives Γ Γ')).
+    { apply isapropishinh. }
+    intros e_Γ.
+    apply (squash_to_prop (cxteq_context_representatives Δ Δ')).
+    { apply isapropishinh. }
+    intros e_Δ.
+    apply hinhpr.
+    admit. (* TODO: show in [TypingLemmas] that context map equality respects flat equality in source + target *)
+  Admitted.
+
+End Context_Maps.
+
+Section Context_Map_Operations.
+
+  Local Definition idmap ΓΓ : map_mod_eq ΓΓ ΓΓ.
+  Proof.
+    refine (setquotpr _ _).
+    exists (idmap_raw_context _).
+    apply map_for_some_rep.
+    apply (take_context_representative ΓΓ). { apply isapropishinh. }
+    intros Γ. apply hinhpr. exists Γ; exists Γ.
+    use derivation_idmap_context; apply derivation_wellformed_context.
+  Defined.
 
   Local Definition compose
       {ΓΓ ΔΔ ΘΘ} (ff : map_mod_eq ΓΓ ΔΔ) (gg : map_mod_eq ΔΔ ΘΘ)
@@ -243,57 +298,64 @@ Section Context_Maps.
       apply hinhpr; simple refine (comp_raw_context_cong_r _ _ e_g);
         auto using derivation_wellformed_context.
   Defined.
-
-  Local Definition idmap ΓΓ : map_mod_eq ΓΓ ΓΓ.
-  Proof.
-    refine (setquotpr _ _).
-    exists (idmap_raw_context _).
-    intros Γ Γ'.
-    apply (squash_to_prop (cxteq_context_representatives Γ' Γ)).
-    { apply isapropishinh. }
-    intros e_Γ; apply hinhpr;
-      eauto using derivation_idmap_gen, derivation_wellformed_context.
-  Defined.
-
+  
   (* TODO: “empty” and “extension” context maps. *)
 
-End Context_Maps.
+End Context_Map_Operations.
 
 Section Category.
 
   (* TODO: lemmas on associativity etc.  Should be immediate from the
   similar lemmas on raw ones in [SyntaxLemmas]. *)
 
-  Lemma idmap_left {ΓΓ ΔΔ : context_mod_eq} (f : map_mod_eq ΓΓ ΔΔ) :
-    compose (idmap _) f = f.
-  Admitted.
+  Lemma idmap_left {ΓΓ ΔΔ : context_mod_eq} (f : map_mod_eq ΓΓ ΔΔ)
+    : compose (idmap _) f = f.
+  Proof.
+    revert f. refine (setquotunivprop' _ _ _). { intro; apply isasetsetquot. }
+    intros f. cbn.
+    apply maponpaths. apply subtypeEquality_prop.
+    apply id_left_raw_context.
+  Qed.
 
-  Lemma idmap_right {ΓΓ ΔΔ : context_mod_eq} (f : map_mod_eq ΓΓ ΔΔ) :
-    compose f (idmap _) = f.
-  Admitted.
+  Lemma idmap_right {ΓΓ ΔΔ : context_mod_eq} (f : map_mod_eq ΓΓ ΔΔ)
+    : compose f (idmap _) = f.
+  Proof.
+    revert f. refine (setquotunivprop' _ _ _). { intro; apply isasetsetquot. }
+    intros f. cbn.
+    apply maponpaths. apply subtypeEquality_prop.
+    apply id_right_raw_context.
+  Qed.
 
   Lemma compose_assoc {ΓΓ0 ΓΓ1 ΓΓ2 ΓΓ3 : context_mod_eq} (f : map_mod_eq ΓΓ0 ΓΓ1)
-    (g : map_mod_eq ΓΓ1 ΓΓ2) (h : map_mod_eq ΓΓ2 ΓΓ3) :
-    compose f (compose g h) = compose (compose f g) h.    
-  Admitted.
+    (g : map_mod_eq ΓΓ1 ΓΓ2) (h : map_mod_eq ΓΓ2 ΓΓ3)
+    : compose f (compose g h) = compose (compose f g) h.
+  Proof.
+    revert f. apply setquotunivprop'. { intro; apply isasetsetquot. } intros f.
+    revert g. apply setquotunivprop'. { intro; apply isasetsetquot. } intros g.
+    revert h. apply setquotunivprop'. { intro; apply isasetsetquot. } intros h.
+    cbn.
+    apply maponpaths. apply subtypeEquality_prop.
+    cbn. apply pathsinv0, assoc_raw_context.
+  Qed.
   
+  (* TODO: issue to raise in UniMath: [mk_category] is constructor for a _univalent_ category! *)
   Definition syntactic_category : category.
   Proof.
-    use mk_category.
+    use tpair.
     - use mk_precategory_one_assoc.
-      + use ((context_mod_eq,,map_mod_eq),,_).
-        exists idmap.
-        intros Γ Δ Θ.
-        apply compose.
-      + repeat split; simpl.
-        * intros ΓΓ ΔΔ f.
-          exact (idmap_left f).
-        * intros ΓΓ ΔΔ f.
-          exact (idmap_right f).
-        * intros ΓΓ0 ΓΓ1 ΓΓ2 ΓΓ3 f g h.
-          apply (compose_assoc f g h).
-    - admit.
-  Admitted.
+     + use ((context_mod_eq,,map_mod_eq),,_).
+       exists idmap.
+       intros Γ Δ Θ.
+       apply compose.
+     + repeat split.
+       * intros ΓΓ ΔΔ f.
+         exact (idmap_left f).
+       * intros ΓΓ ΔΔ f.
+         exact (idmap_right f).
+       * intros ΓΓ0 ΓΓ1 ΓΓ2 ΓΓ3 f g h.
+         apply (compose_assoc f g h).
+    - intros ? ?; apply isasetsetquot.
+  Defined.
 
 End Category.
 
