@@ -276,7 +276,6 @@ Section Terms.
            @ reind_comp_typecat _ _ _ _ _ _)
   : reind_tm a (var_typecat A)
     = tm_transportf e a.  
-  Proof.
   Admitted.
 
   Definition reind_tm_var_typecat' {C : split_typecat} {Γ:C} {A:C Γ} (a : tm A)
@@ -286,8 +285,12 @@ Section Terms.
            @ reind_comp_typecat _ _ _ _ _ _)
   : tm_transportb e (reind_tm a (var_typecat A))
     = a.
-  Admitted.
-
+  Proof.
+    unfold tm_transportb.
+    rewrite reind_tm_var_typecat, <- tm_transportf_compose.
+    now rewrite pathsinv0r, tm_transportf_idpath.
+  Qed.
+  
   Definition reind_tm_var_typecat_gen {C : split_typecat} {Γ:C} {A:C Γ} (a : tm A)
     (e : A = (A ⦃dpr_typecat A⦄) ⦃a⦄)
   : reind_tm a (var_typecat A)
