@@ -153,8 +153,7 @@ Section Stratified_Context_Equality.
                     (format "[!  |-  Δ  ===  Γ  !]") : judgement_scope.
 
   Fixpoint derive_flat_cxteq_from_cxteq
-      {n} {Γ Δ : stratified_context_of_length n}
-      (d_Γ : [! |- Γ !]) (d_Δ : [! |- Δ !]) {struct n}
+      {n} {Γ Δ : stratified_context_of_length n} {struct n}
     : [! |- Γ === Δ !] -> [! |f- Γ === Δ !].
   Proof.
     destruct n as [ | n].
@@ -164,8 +163,9 @@ Section Stratified_Context_Equality.
   (* TODO: how to stop [@context_of_stratified_context] unfolding here? *)
       apply derive_extend_flat_cxteq; fold @context_of_stratified_context;
         auto.
-  (* TODO: either need to give inversion principle for context judgements
-     OR just make it defined instead of primitive. *)
+  (* TODO: need either eliminate flat-context assumption in [derive_extend_flat_cxteq],
+     or else add assumption of (stratified) well-formedness of [Γ], [Δ] here:
+      [ (d_Γ : [! |f- Γ !]) (d_Δ : [! |f- Δ !]) ] *)
   Admitted.
 
   Coercion derive_flat_cxteq_from_cxteq
@@ -184,8 +184,9 @@ Notation "[! |- Δ === Γ !]" := (derivation_cxteq Δ Γ)
 
 Section Contexts_Modulo_Equality.
 
+  (* TODO: replace [ |f- ] with [ |- ] here, once [ |- Γ ] defined above. *)
   Definition wellformed_context_of_length (n : nat) : UU
-  := ∑ (Γ : context_of_length n), [! |- Γ !].
+  := ∑ (Γ : context_of_length n), [! |f- Γ !].
 
   Coercion context_of_wellformed_context {n} (Γ : wellformed_context_of_length n)
     : context_of_length n
@@ -193,9 +194,10 @@ Section Contexts_Modulo_Equality.
 
   Definition derivation_wellformed_context
              {n} (Γ : wellformed_context_of_length n)
-    : [! |- Γ !]
+    : [! |f- Γ !]
   := pr2 Γ.
-  Coercion derivation_wellformed_context : wellformed_context_of_length >-> derivation.
+  Coercion derivation_wellformed_context
+    : wellformed_context_of_length >-> derivation_flat_context.
 
   Definition derivable_cxteq_hrel {n} : hrel (wellformed_context_of_length n)
   := fun Γ Δ => ∥ derivation_flat_cxteq Γ Δ ∥.
@@ -206,10 +208,9 @@ Section Contexts_Modulo_Equality.
     - intros Γ Δ Θ; apply hinhfun2.
       exact (derive_flat_cxteq_trans Γ Δ Θ).
     - intros Γ; apply hinhpr.
-      exact (derive_flat_cxteq_refl (flat_from_context_judgement Γ)).
+      exact (derive_flat_cxteq_refl Γ).
     - intros Γ Δ; apply hinhfun.
-      exact (derive_flat_cxteq_sym (flat_from_context_judgement Γ)
-             (flat_from_context_judgement Δ)).
+      exact (derive_flat_cxteq_sym Γ Δ).
   Qed.
 
   Definition derivable_cxteq {n} : eqrel (wellformed_context_of_length n)
@@ -369,7 +370,7 @@ Section Context_Map_Operations.
       intros d_f.
       apply (squash_to_prop (map_derivable g Δ Θ)). { apply isapropishinh. }
       intros d_g.
-      apply hinhpr. refine (derive_comp _ d_f d_g);
+      apply hinhpr. refine (derive_comp d_f _);
         auto using derivation_wellformed_context.
     - (* respecting equality in [f] *)
       intros f f' g e_f Γ Θ. cbn.

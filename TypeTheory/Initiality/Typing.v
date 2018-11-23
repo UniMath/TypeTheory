@@ -55,9 +55,13 @@ Notation "[: A ; .. ; Z :] "
 
 Section Judgements.
 
+(** NOTE: we take as primitive just the four main hypothetical judgements.
+
+Other judgements, such as well-formed contexts and context maps, will be “auxiliary” judgements defined in terms of these afterwards.
+
+The inductive definition of derivability involves only the primitive judgements. *)
   Inductive judgement
   :=
-    | cxt_judgement (Γ : context)
     | ty_judgement (Γ : context) (A : ty_expr Γ)
     | tyeq_judgement (Γ : context) (A A' : ty_expr Γ)
     | tm_judgement (Γ : context) (A : ty_expr Γ) (a : tm_expr Γ)
@@ -69,7 +73,6 @@ Delimit Scope judgement_scope with judgement.
 Bind Scope judgement_scope with judgement.
 Open Scope judgement_scope.
 
-Notation "[! |- Γ !]" := (cxt_judgement Γ) (format "[!  |-  Γ  !]") : judgement_scope.
 Notation "[! Γ |- A === B !]" := (tyeq_judgement Γ A B) (format "[!  Γ  |-  A  ===  B  !]")  : judgement_scope.
 Notation "[! Γ |- A !]" := (ty_judgement Γ A) (format "[!  Γ  |-  A  !]")  : judgement_scope.
 Notation "[! Γ |- a ::: A !]" := (tm_judgement Γ A a) (format "[!  Γ  |-  a  :::  A  !]")  : judgement_scope.
@@ -80,17 +83,9 @@ Section Derivations.
 
   Inductive derivation : judgement -> UU
   :=
-    (** context formation rules *)
-    | derive_cxt_empty
-      : derivation [! |- [::] !]
-    | derive_cxt_extend (Γ : context) (A : ty_expr Γ)
-      :    derivation [! |- Γ !]
-        -> derivation [! Γ |- A !]
-      -> derivation [! |- Γ ;; A !]
     (** variable rule *)
     | derive_var (Γ : context) (i : Γ)
-      :    derivation [! |- Γ !]
-        -> derivation [! Γ |- Γ i !] 
+      :    derivation [! Γ |- Γ i !] 
       -> derivation [! Γ |- (var_expr i) ::: Γ i !]
     (** structural rules for equality: equiv rels, plus type-conversion *)
     | derive_tyeq_refl (Γ : context) (A : _)
@@ -133,33 +128,27 @@ Section Derivations.
       -> derivation [! Γ |- a === a' ::: A' !]
     (** logical rules  *)
     | derive_U (Γ : context) 
-      :    derivation [! |- Γ !]
-      -> derivation [! Γ |- U_expr !]
+      : derivation [! Γ |- U_expr !]
     | derive_El (Γ : context) (a : _)
-      :    derivation [! |- Γ !]
-        -> derivation [! Γ |- a ::: U_expr !]
+      :    derivation [! Γ |- a ::: U_expr !]
       -> derivation [! Γ |- El_expr a !]
     | derive_Pi (Γ : context) (A : _) (B : _)
-      :    derivation [! |- Γ !]
-        -> derivation [! Γ |- A !]
+      :    derivation [! Γ |- A !]
         -> derivation [! Γ ;; A |- B !]
       -> derivation [! Γ |- Pi_expr A B !]
     | derive_lam (Γ : context) A B b
-      :    derivation [! |- Γ !]
-        -> derivation [! Γ |- A !]
+      :    derivation [! Γ |- A !]
         -> derivation [! Γ ;; A |- B !]
         -> derivation [! Γ ;; A |- b ::: B !]
       -> derivation [! Γ |- lam_expr A B b ::: Pi_expr A B !]
     | derive_app (Γ : context) A B f a
-      :    derivation [! |- Γ !]
-        -> derivation [! Γ |- A !]
+      :    derivation [! Γ |- A !]
         -> derivation [! Γ ;; A |- B !]
         -> derivation [! Γ |- f ::: Pi_expr A B !]
         -> derivation [! Γ |- a ::: A !]
       -> derivation [! Γ |- app_expr A B f a ::: subst_top_ty a B !]
     | derive_beta (Γ : context) A B b a
-      :    derivation [! |- Γ !]
-        -> derivation [! Γ |- A !]
+      :    derivation [! Γ |- A !]
         -> derivation [! Γ ;; A |- B !]
         -> derivation [! Γ ;; A |- b ::: B !]
         -> derivation [! Γ |- a ::: A !]
@@ -169,26 +158,22 @@ Section Derivations.
     (** congruence rules for constructors *)
     (* no congruence rule needed for U *)
     | derive_El_cong (Γ : context) (a a' : _)
-      :    derivation [! |- Γ !]
-        -> derivation [! Γ |- a === a' ::: U_expr !]
+      :    derivation [! Γ |- a === a' ::: U_expr !]
       -> derivation [! Γ |- El_expr a === El_expr a' !]
     | derive_Pi_cong (Γ : context) (A A' : _) (B B' : _)
-      :    derivation [! |- Γ !]
-        -> derivation [! Γ |- A !] 
+      :    derivation [! Γ |- A !] 
         -> derivation [! Γ |- A === A' !]
         -> derivation [! Γ ;; A |- B === B' !]
       -> derivation [! Γ |- Pi_expr A B === Pi_expr A' B' !]
     | derive_lam_cong (Γ : context) A A' B B' b b'
-      :    derivation [! |- Γ !]
-        -> derivation [! Γ |- A !] 
+      :    derivation [! Γ |- A !] 
         -> derivation [! Γ |- A === A' !]
         -> derivation [! Γ ;; A |- B === B' !]
         -> derivation [! Γ ;; A |- b === b' ::: B !]
       -> derivation [! Γ |- lam_expr A B b === lam_expr A' B' b'
                                                  ::: Pi_expr A B !]
     | derive_app_cong (Γ : context) A A' B B' f f' a a'
-      :    derivation [! |- Γ !]
-        -> derivation [! Γ |- A !] 
+      :    derivation [! Γ |- A !] 
         -> derivation [! Γ |- A === A' !]
         -> derivation [! Γ ;; A |- B === B' !]
         -> derivation [! Γ |- f === f' ::: Pi_expr A B !]
@@ -209,19 +194,10 @@ Section Derivation_Helpers.
   Context (P : forall J:judgement, derivation J -> Type).
   Local Arguments P {_} _.
 
-  Definition cases_for_context_rules
-  :=
-     (P derive_cxt_empty)
-   × (forall (Γ : context) (A : ty_expr Γ)
-             (d_Γ : [! |- Γ !]) (p_Γ : P d_Γ)
-             (d_Γ_A : [! Γ |- A !]) (p_Γ_A : P d_Γ_A),
-     P (derive_cxt_extend Γ A d_Γ d_Γ_A)).
-
   Definition case_for_var_rule
   := forall (Γ : context) (i : Γ)
-            (d_Γ : [! |- Γ !]) (p_Γ : P d_Γ)
             (d_Γi : [! Γ |- Γ i !]) (p_Γi : P d_Γi),
-    P (derive_var Γ i d_Γ d_Γi).
+    P (derive_var Γ i d_Γi).
 
   Record cases_for_equiv_rel_rules
   := {
@@ -280,88 +256,78 @@ Section Derivation_Helpers.
   Record cases_for_universe_rules
   := {
     case_for_U
-    : forall (Γ : context) (d : [! |- Γ !]) (p : P d),
-        P (derive_U Γ d)
+    : forall (Γ : context),
+        P (derive_U Γ)
   ; case_for_El
     : forall (Γ : context) (a : tm_expr Γ)
-             (d_Γ : [! |- Γ !]) (p_Γ : P d_Γ)
              (d_a : [! Γ |- a ::: U_expr !]) (p_a : P d_a),
-      P (derive_El Γ a d_Γ d_a)
+      P (derive_El Γ a d_a)
   ; case_for_El_cong
     : forall (Γ : context) (a a' : tm_expr Γ)
-             (d_Γ : [! |- Γ !]) (p_Γ : P d_Γ)
              (d_aa' : [! Γ |- a === a' ::: U_expr !]) (p_aa' : P d_aa'),
-      P (derive_El_cong Γ a a' d_Γ d_aa')
+      P (derive_El_cong Γ a a' d_aa')
   }.
 
   Record cases_for_pi_rules
   := {
     case_for_Pi
     : forall (Γ : context) (A : ty_expr Γ) (B : ty_expr (Γ ;; A))
-             (d_Γ : [! |- Γ !]) (p_Γ : P d_Γ)
              (d_A : [! Γ |- A !]) (p_A : P d_A)
              (d_B : [! Γ ;; A |- B !]) (p_B : P d_B),
-      P (derive_Pi Γ A B d_Γ d_A d_B)
+      P (derive_Pi Γ A B d_A d_B)
   ; case_for_lam
     : forall (Γ : context) (A : ty_expr Γ) (B : ty_expr (Γ ;; A))
              (b : tm_expr (Γ ;; A))
-             (d_Γ : [! |- Γ !]) (p_Γ : P d_Γ)
              (d_A : [! Γ |- A !]) (p_A : P d_A)
              (d_B : [! Γ ;; A |- B !]) (p_B : P d_B)
              (d_b : [! Γ ;; A |- b ::: B !]) (p_b : P d_b),
-      P (derive_lam Γ A B b  d_Γ d_A d_B d_b)
+      P (derive_lam Γ A B b  d_A d_B d_b)
   ; case_for_app
     : forall (Γ : context) (A : ty_expr Γ) (B : ty_expr (Γ ;; A))
              (f a : tm_expr Γ)
-             (d_Γ : [! |- Γ !]) (p_Γ : P d_Γ)
              (d_A : [! Γ |- A !]) (p_A : P d_A)
              (d_B : [! Γ ;; A |- B !]) (p_B : P d_B)
              (d_f : [! Γ |- f ::: Pi_expr A B !]) (p_f : P d_f)
              (d_a : [! Γ |- a ::: A !]) (p_a : P d_a),
-      P (derive_app Γ A B f a d_Γ d_A d_B d_f d_a)
+      P (derive_app Γ A B f a d_A d_B d_f d_a)
   ; case_for_beta
     : forall (Γ : context) (A : ty_expr Γ) (B : ty_expr (Γ ;; A))
              (b : tm_expr (Γ ;; A)) (a : tm_expr Γ)
-             (d_Γ : [! |- Γ !]) (p_Γ : P d_Γ)
              (d_A : [! Γ |- A !]) (p_A : P d_A)
              (d_B : [! Γ ;; A |- B !]) (p_B : P d_B)
              (d_b : [! Γ ;; A |- b ::: B !]) (p_b : P d_b)
              (d_a : [! Γ |- a ::: A !]) (p_a : P d_a),
-      P (derive_beta Γ A B b a d_Γ d_A d_B d_b d_a)
+      P (derive_beta Γ A B b a d_A d_B d_b d_a)
   }.
 
   Record cases_for_pi_cong_rules
   := {
     case_for_Pi_cong
     : forall (Γ : context) (A A' : ty_expr Γ) (B B' : ty_expr (Γ ;; A))
-        (d_Γ : [! |- Γ !]) (p_Γ : P d_Γ)
         (d_A : [! Γ |- A !]) (p_A : P d_A)
         (d_AA : [! Γ |- A === A' !]) (p_AA : P d_AA)
         (d_BB : [! Γ ;; A |- B === B' !]) (p_BB : P d_BB),
-      P (derive_Pi_cong Γ A A' B B' d_Γ d_A d_AA d_BB)
+      P (derive_Pi_cong Γ A A' B B' d_A d_AA d_BB)
   ; case_for_lam_cong
     : forall (Γ : context) (A A' : ty_expr Γ) (B B' : ty_expr (Γ ;; A))
         (b b' : tm_expr (Γ ;; A)) 
-        (d_Γ : [! |- Γ !]) (p_Γ : P d_Γ)
         (d_A : [! Γ |- A !]) (p_A : P d_A)
         (d_AA : [! Γ |- A === A' !]) (p_AA : P d_AA)
         (d_BB : [! Γ ;; A |- B === B' !]) (p_BB : P d_BB)
         (d_bb : [! Γ ;; A |- b === b' ::: B !]) (p_bb : P d_bb),
-      P (derive_lam_cong Γ A A' B B' b b' d_Γ d_A d_AA d_BB d_bb)
+      P (derive_lam_cong Γ A A' B B' b b' d_A d_AA d_BB d_bb)
   ; case_for_app_cong
     : forall (Γ : context) (A A' : ty_expr Γ) (B B' : ty_expr (Γ ;; A))
         (f f' a a' : tm_expr Γ)
-        (d_Γ : [! |- Γ !]) (p_Γ : P d_Γ)
         (d_A : [! Γ |- A !]) (p_A : P d_A)
         (d_AA : [! Γ |- A === A' !]) (p_AA : P d_AA)
         (d_BB : [! Γ ;; A |- B === B' !]) (p_BB : P d_BB)
         (d_ff : [! Γ |- f === f' ::: Pi_expr A B !]) (p_ff : P d_ff)
         (d_aa : [! Γ |- a === a' ::: A !]) (p_aa : P d_aa),
-      P (derive_app_cong Γ A A' B B' f f' a a' d_Γ d_A d_AA d_BB d_ff d_aa)
+      P (derive_app_cong Γ A A' B B' f f' a a' d_A d_AA d_BB d_ff d_aa)
     }.
 
   Definition derivation_rect_grouped
-      (H_context_rules : cases_for_context_rules)     (* 2 cases *)
       (H_var_rule : case_for_var_rule)               (* 1 case *)
       (H_equiv_rel_rules : cases_for_equiv_rel_rules) (* 6 cases *)
       (H_conv_rules : cases_for_conv_rules)           (* 2 cases *)
@@ -370,9 +336,9 @@ Section Derivation_Helpers.
       (H_pi_cong_rules : cases_for_pi_cong_rules)     (* 3 cases *)
     : forall J (d : derivation J), P d.
   Proof.
-    destruct H_context_rules, H_equiv_rel_rules, H_conv_rules, 
-    H_universe_rules, H_pi_rules, H_pi_cong_rules.
-    apply derivation_rect; eauto using pr1, pr2.
+    destruct H_equiv_rel_rules, H_conv_rules, 
+      H_universe_rules, H_pi_rules, H_pi_cong_rules.
+    apply derivation_rect; eauto.
   Defined.
 
 End Derivation_Helpers.

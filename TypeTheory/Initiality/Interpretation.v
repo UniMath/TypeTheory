@@ -944,7 +944,6 @@ Section Totality.
   Note we also don’t ask anything for interpretability of the context judgement. *)
   Definition is_interpretable (J : judgement) : hProp
   := match J with
-     | [! |- Γ !] => htrue
      | [! Γ |- A !]
        => ∀ (X:C) (E : typed_environment X Γ),
          is_defined (partial_interpretation_ty U Π E A)         
@@ -973,16 +972,10 @@ Section Totality.
     destruct J; eauto using propproperty. 
   Defined.
   
-  Local Lemma interpret_context_rules
-    : cases_for_context_rules (fun J _ => is_interpretable J).
-  Proof.
-    split; intros; cbn; constructor.
-  Defined.
-
   Local Lemma interpret_var_rule
     : case_for_var_rule (fun J _ => is_interpretable J).
   Proof.
-    intros ? ? ? H_Γ ? H_Γi.
+    intros ? ? ? H_Γi.
     intros X E Γi_interpretable.
     refine (_,,tt); cbn.
     eapply pathscomp0. { apply pathsinv0, typed_environment_respects_types. }
@@ -1033,7 +1026,7 @@ Section Totality.
   Proof.
     split.
     - (* universe formation *)
-      intros; intros X E; auto.
+      intros; intros X E; exact tt.
     - (* elements formation *)
       intros; intros X E.
       cbn. refine (_,,tt).
@@ -1041,7 +1034,7 @@ Section Totality.
     - (* elements congruence *)
       intros; intros X E d_a d_a'.
       cbn; apply maponpaths.
-      use p_aa'; auto.
+      use p_aa'; exact tt.
   Defined.
 
   Section Pi_Rules.
@@ -1151,13 +1144,13 @@ Section Totality.
     : cases_for_pi_cong_rules (fun J _ => is_interpretable J).
   Proof.
     split.
-    - intros Γ A A' B B' _ _ _ _ _ p_A_A' _ p_B_B' X E.
+    - intros Γ A A' B B' _ _ _ p_A_A' _ p_B_B' X E.
       apply compat_bind_partial'; fold (@partial_interpretation_ty).
       { use p_A_A'. }
       intros A_def. apply compat_bind_partial.
       { use (p_B_B' _ (extend_typed_environment E (A_def))). }
       intros; apply compat_partial_refl.
-    - intros Γ A A' B B' b b' _ _ _ _ _ p_A_A' _ p_B_B' _ p_b_b' X E A_def_0.
+    - intros Γ A A' B B' b b' _ _ _ p_A_A' _ p_B_B' _ p_b_b' X E A_def_0.
       apply compat_bind_partial';
         fold @partial_interpretation_ty @partial_interpretation_tm.
       { use p_A_A'. }
@@ -1167,7 +1160,7 @@ Section Totality.
       { use (p_b_b' _ (extend_typed_environment E A_def)). }
       intros; apply compat_partial_refl.
     - intros Γ A A' B B' f f' a a' 
-             _ _ _ _ _ p_A_A' _ p_B_B' _ p_f_f' _ p_a_a' X E Ba_def_0.
+             _ _ _ p_A_A' _ p_B_B' _ p_f_f' _ p_a_a' X E Ba_def_0.
       apply compat_bind_partial';
         fold @partial_interpretation_ty @partial_interpretation_tm.
       { use p_A_A'. }
@@ -1187,7 +1180,6 @@ Section Totality.
     : derivation J -> is_interpretable J.
   Proof.
     revert J. apply derivation_rect_grouped.
-    - apply interpret_context_rules.
     - apply interpret_var_rule.
     - apply interpret_equiv_rel_rules.
     - apply interpret_conv_rules.
