@@ -217,11 +217,25 @@ Section Contexts_Modulo_Equality.
   := (_,,derivable_cxteq_is_eqrel n).
 
   Definition context_of_length_mod_eq n := setquot (@derivable_cxteq n).
+  Identity Coercion id_context_of_length_mod_eq 
+    : context_of_length_mod_eq >-> setquot.
 
   Definition context_mod_eq
   := ∑ (n:nat), context_of_length_mod_eq n.
 
+  Definition mk_context_mod_eq {n} (ΓΓ : context_of_length_mod_eq n)
+    : context_mod_eq
+  := (n,,ΓΓ).
+  Coercion mk_context_mod_eq : context_of_length_mod_eq >-> context_mod_eq.
+
   Local Definition length : context_mod_eq -> nat := pr1.
+  Coercion length : context_mod_eq >-> nat.
+  Add Printing Coercion length.
+
+  Definition pr2_context_mod_eq (ΓΓ : context_mod_eq)
+    : context_of_length_mod_eq ΓΓ
+  := pr2 ΓΓ.
+  Coercion pr2_context_mod_eq : context_mod_eq >-> context_of_length_mod_eq.
 
   Definition context_class {n} (Γ : wellformed_context_of_length n)
     : context_mod_eq
@@ -230,7 +244,6 @@ Section Contexts_Modulo_Equality.
 
   Definition context_representative (ΓΓ : context_mod_eq) : UU
   := ∑ (Γ : wellformed_context_of_length (length ΓΓ)), setquotpr _ Γ = (pr2 ΓΓ).
-  Coercion context_representative : context_mod_eq >-> UU.
 
   Definition context_representative_as_context
       {ΓΓ} (Γ : context_representative ΓΓ)
@@ -239,7 +252,15 @@ Section Contexts_Modulo_Equality.
   Coercion context_representative_as_context
     : context_representative >-> wellformed_context_of_length.
 
-  Lemma cxteq_context_representatives {ΓΓ : context_mod_eq} (Γ Γ' : ΓΓ)
+  Definition context_as_context_representative
+      {n} (Γ : wellformed_context_of_length n)
+    : context_representative Γ
+  := (_,,idpath _).
+  Coercion context_as_context_representative
+    : wellformed_context_of_length >-> context_representative.
+
+  Lemma cxteq_context_representatives
+      {ΓΓ : context_mod_eq} (Γ Γ' : context_representative ΓΓ)
     : ∥ derivation_flat_cxteq Γ Γ' ∥.
   Proof.
     refine (lemmas.setquotprpathsandR (derivable_cxteq) Γ Γ' _).
@@ -263,23 +284,29 @@ End Contexts_Modulo_Equality.
 Section Context_Maps.
 (** Definition of context maps, and basic auxiliary functions on them. *)
 
+  (* TODO: will probably have to refactor the following to depend directly on [context_of_length_mod_eq], as with [type_over] etc below. *)
+
   (** Note: the truncation of the derivation part is mathematically redundant,
   since we will later quotient anyway.  However, it lets us get better
   computational behaviour on the map part, in compositions etc. *)
+  (* NOTE: does it really? *)
   Local Definition map (ΓΓ ΔΔ : context_mod_eq) : UU
-    := ∑ (f : raw_context_map (length ΓΓ) (length ΔΔ)),
-       ∀ (Γ : ΓΓ) (Δ : ΔΔ), ∥ [! |- f ::: Γ ---> Δ !] ∥.
+    := ∑ (f : raw_context_map ΓΓ ΔΔ),
+       ∀ (Γ : context_representative ΓΓ) (Δ : context_representative ΔΔ),
+         ∥ [! |- f ::: Γ ---> Δ !] ∥.
 
   Definition raw_of_context_map {ΓΓ ΔΔ} (f : map ΓΓ ΔΔ) : raw_context_map _ _
   := pr1 f.
   Coercion raw_of_context_map : map >-> raw_context_map.
 
   Local Definition map_derivable {ΓΓ ΔΔ} (f : map ΓΓ ΔΔ)
-    : ∀ (Γ : ΓΓ) (Δ : ΔΔ), ∥ [! |- f ::: Γ ---> Δ !] ∥
+    : ∀ (Γ : context_representative ΓΓ) (Δ : context_representative ΔΔ),
+      ∥ [! |- f ::: Γ ---> Δ !] ∥
   := pr2 f.
 
   Local Definition mapeq_hrel {ΓΓ ΔΔ} (f g : map ΓΓ ΔΔ)
-  := ∀ (Γ : ΓΓ) (Δ : ΔΔ), ∥ [! |- f === g ::: Γ ---> Δ !] ∥.
+  := ∀ (Γ : context_representative ΓΓ) (Δ : context_representative ΔΔ),
+      ∥ [! |- f === g ::: Γ ---> Δ !] ∥.
 
   Local Definition mapeq_is_eqrel (ΓΓ ΔΔ : context_mod_eq)
     : iseqrel (@mapeq_hrel ΓΓ ΔΔ).
@@ -307,9 +334,11 @@ Section Context_Maps.
   with respect to _all_ contexts representing of its source/target, it’s enough
   to show it with respect to _some_ such representatives. *)
   Lemma map_for_some_rep
-      {ΓΓ ΔΔ} (f : raw_context_map (length ΓΓ) (length ΔΔ))
-    : ∥ ∑ (Γ:ΓΓ) (Δ:ΔΔ), [! |- f ::: Γ ---> Δ !] ∥
-    -> ∀ (Γ:ΓΓ) (Δ:ΔΔ), ∥ [! |- f ::: Γ ---> Δ !] ∥.
+      {ΓΓ ΔΔ : context_mod_eq} (f : raw_context_map ΓΓ ΔΔ)
+    : (∃ (Γ:context_representative ΓΓ) (Δ:context_representative ΔΔ),
+          [! |- f ::: Γ ---> Δ !])
+    -> ∀ (Γ:context_representative ΓΓ) (Δ:context_representative ΔΔ),
+        ∥ [! |- f ::: Γ ---> Δ !] ∥.
   Proof.
     intros H Γ Δ.
     apply (squash_to_prop H). { apply isapropishinh. }
@@ -325,9 +354,11 @@ Section Context_Maps.
   Admitted.
 
   Lemma mapeq_for_some_rep
-      {ΓΓ ΔΔ} (f g : raw_context_map (length ΓΓ) (length ΔΔ))
-    : ∥ ∑ (Γ:ΓΓ) (Δ:ΔΔ), [! |- f === g ::: Γ ---> Δ !] ∥
-    -> ∀ (Γ:ΓΓ) (Δ:ΔΔ), ∥ [! |- f === g ::: Γ ---> Δ !] ∥.
+      {ΓΓ ΔΔ : context_mod_eq} (f g : raw_context_map ΓΓ ΔΔ)
+    : (∃ (Γ:context_representative ΓΓ) (Δ:context_representative ΔΔ),
+        [! |- f === g ::: Γ ---> Δ !])
+    -> ∀ (Γ:context_representative ΓΓ) (Δ:context_representative ΔΔ),
+        ∥ [! |- f === g ::: Γ ---> Δ !] ∥.
   Proof.
     intros H Γ Δ.
     apply (squash_to_prop H). { apply isapropishinh. }
@@ -457,9 +488,141 @@ Section Category.
 
 End Category.
 
+Section Syntactic_Types.
+
+  (** NOTE: it is slightly subtle, but crucial, that the following definitions 
+  depend directly on [context_of_length_mod_eq] not on [context_mod_eq]: it is 
+  [context_of_length_mod_eq] that is directly a [setquot], and so we need this
+  dependence in order to apply the dependent universal property of [setquot],
+  i.e. for constructing functions whose first argument is a context and whose
+  later arguments depend on the context, e.g. context extension or any of the
+  logical structure on the syntactic category. *)
+
+  Definition is_type_over {n} (ΓΓ : context_of_length_mod_eq n)
+     (A : ty_expr n) : UU
+  := ∀ Γ : context_representative (n,,ΓΓ), ∥ [! Γ |- A !] ∥.
+
+  Definition id_is_type_over {n}
+    {ΓΓ : context_of_length_mod_eq n} {A : ty_expr n} (d_A : is_type_over ΓΓ A)
+  := d_A : ∏ Γ, _.
+  Coercion id_is_type_over : is_type_over >-> Funclass.
+
+  Local Definition type_over {n} (ΓΓ : context_of_length_mod_eq n)
+  := ∑ A, is_type_over ΓΓ A.
+
+  Coercion type_of_type_over {n} {ΓΓ : _ n} : type_over ΓΓ -> ty_expr ΓΓ := pr1.
+
+  Definition type_over_is_type {n} {ΓΓ : _ n} (A : type_over ΓΓ)
+  := pr2 A : is_type_over ΓΓ A.
+  Coercion type_over_is_type : type_over >-> is_type_over.
+
+  Definition typeeq_hrel {n} {ΓΓ : _ n} : hrel (type_over ΓΓ)
+  := fun A B => ∀ Γ : context_representative ΓΓ, ∥ [! Γ |- A === B !] ∥.
+
+  Proposition typeeq_is_eqrel {n} (ΓΓ : _ n) : iseqrel (@typeeq_hrel n ΓΓ).
+  Proof.
+    repeat split.
+    - intros A B C e_AB e_BC Γ.
+      apply (squash_to_prop (A Γ)). { apply isapropishinh. } intros d_A.
+      apply (squash_to_prop (B Γ)). { apply isapropishinh. } intros d_B.
+      apply (squash_to_prop (C Γ)). { apply isapropishinh. } intros d_C.
+      apply (squash_to_prop (e_AB Γ)). { apply isapropishinh. } 
+      clear e_AB; intros e_AB.
+      apply (squash_to_prop (e_BC Γ)). { apply isapropishinh. } 
+      clear e_BC; intros e_BC.
+      now apply hinhpr, (derive_tyeq_trans Γ _ B).
+    - intros A Γ.
+      apply (squash_to_prop (A Γ)). { apply isapropishinh. } intros d_A.
+      now apply hinhpr, derive_tyeq_refl.
+    - intros A B e_AB Γ.
+      apply (squash_to_prop (e_AB Γ)). { apply isapropishinh. } 
+      clear e_AB; intros e_AB.
+      now apply hinhpr, derive_tyeq_sym.
+  Defined.
+
+  Definition typeeq_eqrel {n} {ΓΓ : _ n} : eqrel (type_over ΓΓ)
+  := (_,, typeeq_is_eqrel ΓΓ).
+
+  Local Definition type_mod_eq {n} (ΓΓ : context_of_length_mod_eq n) : UU
+  := setquot (@typeeq_eqrel _ ΓΓ).
+
+  Local Definition type_representative {n} {ΓΓ : _ n} (AA : type_mod_eq ΓΓ) : UU
+  := ∑ (A : type_over ΓΓ), setquotpr _ A = AA.
+  Coercion type_representative : type_mod_eq >-> UU.
+
+  Local Definition type_representative_as_type
+      {n} {ΓΓ : _ n} {AA : type_mod_eq ΓΓ} (A : type_representative AA)
+  := pr1 A : type_over ΓΓ.
+  Coercion type_representative_as_type : type_representative >-> type_over.
+
+  (* TODO: upstream *)
+  Arguments derive_ty_conv_cxteq [_] _ [_] _ _ [_] _.
+  Arguments derive_tyeq_conv_cxteq [_] _ [_] _ _ [_] _.
+
+  Lemma type_for_some_rep
+      {ΓΓ : context_mod_eq} (A : ty_expr ΓΓ)
+    : (∃ (Γ:context_representative ΓΓ), [! Γ |- A !])
+    -> is_type_over ΓΓ A.
+  Proof.
+    intros H Γ.
+    apply (squash_to_prop H). { apply isapropishinh. }
+    intros [Γ' d_A].
+    apply (squash_to_prop (cxteq_context_representatives Γ Γ')).
+    { apply isapropishinh. } intros e_Γ.
+    apply hinhpr.
+    apply (derive_ty_conv_cxteq Γ' Γ); auto.
+    exact (derive_flat_cxteq_sym Γ Γ' e_Γ).
+  Qed.
+
+  Lemma typeeq_for_some_rep
+      {ΓΓ : context_mod_eq} (A B : type_over ΓΓ)
+    : (∃ (Γ:context_representative ΓΓ), [! Γ |- A === B !])
+    -> typeeq_hrel A B.
+  Proof.
+    intros H Γ.
+    apply (squash_to_prop H). { apply isapropishinh. }
+    intros [Γ' d_AB].
+    apply (squash_to_prop (cxteq_context_representatives Γ Γ')).
+    { apply isapropishinh. } intros e_Γ.
+    apply hinhpr.
+    apply (derive_tyeq_conv_cxteq Γ' Γ); auto.
+    exact (derive_flat_cxteq_sym Γ Γ' e_Γ).
+  Qed.
+
+End Syntactic_Types.
+
 Section Split_Typecat.
 
-  Definition syntactic_typecat : split_typecat.
+  (* TODO: prove, upstream, maybe upstream to UniMath. *)
+  Definition syntactic_typecat_structure : typecat_structure syntactic_category.
+  Proof.
+    repeat use tpair.
+    - (* define the types *)
+      intros ΓΓ; cbn in ΓΓ. exact (type_mod_eq ΓΓ).
+    - (* context extension *)
+      intros ΓΓ AA; cbn in ΓΓ, AA.
+      exists (S (length ΓΓ)).
+      revert AA.
+      (* TODO: figure out utility function for better taking representative of [ΓΓ] in situations like this! Later for the logical structure, we’ll need many such functions with more arguments. *)
+      simple refine (setquot_rect (fun ΔΔ => type_mod_eq ΔΔ -> _) _ _ _ ΓΓ).
+      { intros; apply funspace_isaset, isasetsetquot. }
+      + intros Γ; cbn. use setquotfun.
+        * intros A. exists (Γ;;A)%context.
+          refine (derive_flat_extend_context Γ _).
+          admit. (* should be [exact (A Γ)], but need to either truncate the cxt derivation or un-truncate the type derivation *)
+        * intros A B e_AB.
+          admit.
+      + intros Γ Δ e_ΓΔ. simpl. unfold setquotfun; simpl.
+        admit. (* TODO: transport lemma! *)
   Admitted.
+
+  Lemma is_split_syntactic_typecat_structure
+    : is_split_typecat syntactic_typecat_structure.
+  Proof.
+  Admitted.
+
+  Definition syntactic_typecat : split_typecat
+  := ((syntactic_category,, syntactic_typecat_structure),,
+                                          is_split_syntactic_typecat_structure).
 
 End Split_Typecat.
