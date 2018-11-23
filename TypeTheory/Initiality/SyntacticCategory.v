@@ -153,16 +153,19 @@ Section Stratified_Context_Equality.
                     (format "[!  |-  Δ  ===  Γ  !]") : judgement_scope.
 
   Fixpoint derive_flat_cxteq_from_cxteq
-      {n} (Γ Δ : stratified_context_of_length n) {struct n}
+      {n} {Γ Δ : stratified_context_of_length n}
+      (d_Γ : [! |- Γ !]) (d_Δ : [! |- Δ !]) {struct n}
     : [! |- Γ === Δ !] -> [! |f- Γ === Δ !].
   Proof.
     destruct n as [ | n].
     - intro; split; intros [].
-    - intros [? ?].
+    - destruct Γ as [Γ A], Δ as [Δ B]. 
+      cbn; intros [? ?].
   (* TODO: how to stop [@context_of_stratified_context] unfolding here? *)
       apply derive_extend_flat_cxteq; fold @context_of_stratified_context;
-        auto; admit. (* TODO: add context-judgement assumptions, OR
-                      just remove them as primitive. *)
+        auto.
+  (* TODO: either need to give inversion principle for context judgements
+     OR just make it defined instead of primitive. *)
   Admitted.
 
   Coercion derive_flat_cxteq_from_cxteq
@@ -175,8 +178,9 @@ Section Stratified_Context_Equality.
 
 End Stratified_Context_Equality.
 
-  Notation "[! |f- Δ === Γ !]" := (derivation_flat_cxteq Δ Γ)
-                    (format "[!  |f-  Δ  ===  Γ  !]") : judgement_scope.
+Notation "[! |- Δ === Γ !]" := (derivation_cxteq Δ Γ)
+                          (format "[!  |-  Δ  ===  Γ  !]") : judgement_scope.
+
 
 Section Contexts_Modulo_Equality.
 
