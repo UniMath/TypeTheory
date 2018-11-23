@@ -39,7 +39,7 @@ Section Flat_Contexts.
   [! |- Γ !] is needed is in the construction of the _contextual_ syntactic
   category below; but that too can be instead done by defining stratification
   as an auxiliary notion just when it’s really needed. *)
-  Definition derivation_flat_context (Γ : context)
+  Definition derivation_flat_context (Γ : context) : UU
     := forall i:Γ, [! Γ |- Γ i !].
 
   Notation "[! |f- Γ !]" := (derivation_flat_context Γ)
@@ -330,7 +330,7 @@ End Flat_Contexts_2.
 Section Context_Maps_2.
 
   (* TODO: rename [add_to_raw_context_map] to [extend…] upstream *)
-  Lemma extend_derivation_context_map
+  Lemma derive_extend_context_map
       {Γ Δ : context}
       {f : raw_context_map Δ Γ} (d_f : [! |- f ::: Δ ---> Γ !])
       {A} {a} (d_a : [! Δ |- a ::: subst_ty f A !])
@@ -346,10 +346,10 @@ Section Context_Maps_2.
     - apply d_f.
   Defined.
 
-  (** The eventual [weaken_derivation_map] shouldn’t need the
+  (** The eventual [derive_weaken_map] shouldn’t need the
    hypothesis [ [! Δ |- subst_ty f A !] ]. However, that requires admissibility
    of substitution, which in turn uses this preliminary version. *)
-  Local Definition weaken_derivation_map_prelim
+  Local Definition derive_weaken_map_prelim
       {Δ Γ : context} (f : raw_context_map Δ Γ) (A : ty_expr Γ)
     : [! |- Δ !]
       -> [! |- f ::: Δ ---> Γ !]
@@ -427,18 +427,18 @@ then the hypothesis [d_Δ] should be unnecessary here (but compare
     - split. (* Pi rules *)
       + cbn. intros; apply derive_Pi; auto.
         refine (p_B _ _ _ _);
-          auto using weaken_derivation_map_prelim, derive_cxt_extend.
+          auto using derive_weaken_map_prelim, derive_cxt_extend.
       + cbn. intros; apply derive_lam; auto.
         * refine (p_B _ _ _ _);
-          auto using weaken_derivation_map_prelim, derive_cxt_extend.
+          auto using derive_weaken_map_prelim, derive_cxt_extend.
         * refine (p_b _ _ _ _);
-          auto using weaken_derivation_map_prelim, derive_cxt_extend.
+          auto using derive_weaken_map_prelim, derive_cxt_extend.
       + cbn. intros ? A ? ? ? ? ? ? ? ? p_B ? ? ? ? ? ? f ?.
         refine (transportb _ _ _). 
         { eapply maponpaths_2, subst_subst_top_ty. }
         apply derive_app; eauto.
         refine (p_B _ _ _ _);
-          auto using weaken_derivation_map_prelim, derive_cxt_extend.
+          auto using derive_weaken_map_prelim, derive_cxt_extend.
       + cbn. intros ? A ? ? ? ? ? ? ? ? p_B ? p_b ? ? ? ? f ?.
         refine (transportb _ _ _). 
         { eapply maponpaths_13. 
@@ -446,26 +446,26 @@ then the hypothesis [d_Δ] should be unnecessary here (but compare
           - apply subst_subst_top_tm. }
         apply derive_beta; eauto.
         * refine (p_B _ _ _ _);
-          auto using weaken_derivation_map_prelim, derive_cxt_extend.
+          auto using derive_weaken_map_prelim, derive_cxt_extend.
         * refine (p_b _ _ _ _);
-          auto using weaken_derivation_map_prelim, derive_cxt_extend.
+          auto using derive_weaken_map_prelim, derive_cxt_extend.
     - split. (* congruences for pi-constructors *)
       + cbn. intros ? A ? ? ? ? ? ? ? ? ? ? p_BB ? ? f ?.
         apply derive_Pi_cong; auto.
         refine (p_BB _ _ _ _);
-          auto using weaken_derivation_map_prelim, derive_cxt_extend.
+          auto using derive_weaken_map_prelim, derive_cxt_extend.
       + cbn. intros ? A ? ? ? ? ? ? ? ? ? ? ? ? p_BB ? p_bb ? ? f ?.
         apply derive_lam_cong; auto.
         * refine (p_BB _ _ _ _);
-          auto using weaken_derivation_map_prelim, derive_cxt_extend.
+          auto using derive_weaken_map_prelim, derive_cxt_extend.
         * refine (p_bb _ _ _ _);
-          auto using weaken_derivation_map_prelim, derive_cxt_extend.
+          auto using derive_weaken_map_prelim, derive_cxt_extend.
       + cbn. intros ? A ? ? ? ? ? ? ? ? ? ? ? ? ? ? p_BB ? ? ? ? ? ? f ?.
         refine (transportb _ _ _). 
         { eapply maponpaths_3, subst_subst_top_ty. }
         apply derive_app_cong; auto.
         refine (p_BB _ _ _ _);
-          auto using weaken_derivation_map_prelim, derive_cxt_extend.
+          auto using derive_weaken_map_prelim, derive_cxt_extend.
   Defined.
 
 End Substitute_Derivations.
@@ -474,7 +474,7 @@ Section Misc.
 
   (* NOTE: if context judgements were abolished from derivations, a “flat”
   hypothesis [ [! |f- Γ !] ] would suffice here. *)
-  Definition derivation_idmap_context {Γ : context} (d_Γ : [! |- Γ !]) 
+  Definition derive_idmap {Γ : context} (d_Γ : [! |- Γ !]) 
     : [! |- idmap_raw_context Γ ::: Γ ---> Γ !] .
   Proof.
     intros i.
@@ -487,20 +487,20 @@ Section Misc.
        {A} {a} (d_a : [! Γ |- a ::: A !])
     : [! |- tm_as_raw_context_map a ::: Γ ---> Γ;;A !].
   Proof.
-    apply extend_derivation_context_map.
-    - apply derivation_idmap_context; assumption.
+    apply derive_extend_context_map.
+    - apply derive_idmap; assumption.
     - eapply transportb. { apply maponpaths_2, subst_idmap_ty. }
       assumption.
   Defined.
 
-  Local Definition weaken_derivation_map
+  Local Definition derive_weaken_map
       {Δ Γ : context} (f : raw_context_map Δ Γ) (A : ty_expr Γ)
     : [! |- Δ !]
       -> [! |- f ::: Δ ---> Γ !]
       -> [! Γ |- A !]
       -> [! |- weaken_raw_context_map f ::: Δ ;; subst_ty f A ---> Γ ;; A !].
   Proof.
-    intros; apply weaken_derivation_map_prelim; auto.
+    intros; apply derive_weaken_map_prelim; auto.
     refine (subst_derivation [! _ |- _ !] _ _ _); auto.
   Defined.
 
@@ -510,10 +510,10 @@ Section Misc.
     (d_Δ : [! |- Δ !])
     (d_A : [! Γ |- A !])
     : context_map (Δ ;; subst_ty f A) (Γ ;; A)
-  := (_,, weaken_derivation_map
+  := (_,, derive_weaken_map
             f A  d_Δ (derivation_from_context_map f) d_A).
 
-  Definition derivation_comp_raw_context
+  Definition derive_comp
       {Γ Δ Θ : context }
       (d_Γ : [! |- Γ !])
       {f : raw_context_map Γ Δ} {g : raw_context_map Δ Θ}
@@ -528,7 +528,7 @@ Section Misc.
   Defined.
   
   (* TODO: consider naming, organisation *)
-  Lemma derivation_idmap_extend_equal_types
+  Lemma derive_idmap_extend_equal_types
       {Γ} (d_Γ : [! |- Γ !])
       {A B} (d_A : [! Γ |- A !]) (d_B : [! Γ |- B !])
       (d_AB : [! Γ |- A === B !])
@@ -554,7 +554,7 @@ Section Misc.
   Defined.
 
   (* TODO: consider naming, organisation *)
-  Lemma derivation_map_equal_extension
+  Lemma derive_map_equal_extension
       {Γ} (d_Γ : [! |- Γ !])
       {A B} (d_A : [! Γ |- A !]) (d_B : [! Γ |- B !])
       (d_AB : [! Γ |- A === B !])
@@ -563,13 +563,13 @@ Section Misc.
   Proof.
     pose derive_cxt_extend.
     eapply transportb. { apply pathsinv0, id_left_raw_context. }
-    use (@derivation_comp_raw_context _ (Γ;; B));
-      auto using weaken_derivation_map.
-    apply derivation_idmap_extend_equal_types; auto.
+    use (@derive_comp _ (Γ;; B));
+      auto using derive_weaken_map.
+    apply derive_idmap_extend_equal_types; auto.
   Defined.
 
   (* TODO: consider naming, organisation *)
-  Lemma derivation_weaken_mapeq
+  Lemma derive_weaken_mapeq
       {Γ Δ : context} (d_Δ : [! |- Δ !])
       {f g : raw_context_map Δ Γ}
       (d_f : [! |- f ::: Δ ---> Γ !])
@@ -612,7 +612,7 @@ Section CxtEq_Conv.
     eapply transportf. { apply maponpaths, subst_idmap_ty. }
     refine (subst_derivation _ d_B _ _);
       eauto using derive_cxt_extend, derive_tyeq_sym,
-        derivation_idmap_extend_equal_types.
+        derive_idmap_extend_equal_types.
   Defined.
 
   Lemma derive_tm_conv_extend_equal_types
@@ -627,7 +627,7 @@ Section CxtEq_Conv.
     { apply maponpaths_12; [ apply subst_idmap_ty | apply subst_idmap_tm ]. }
     refine (subst_derivation _ d_b _ _);
       eauto using derive_cxt_extend, derive_tyeq_sym,
-        derivation_idmap_extend_equal_types.
+        derive_idmap_extend_equal_types.
   Defined.
 
 End CxtEq_Conv.
@@ -686,10 +686,10 @@ as a flat context judgement [ [! |f- Δ !] ]. *)
         { apply (subst_derivation [! _ |- _ !]); auto. }
         apply derive_Pi_cong; auto.
         use p_B; auto.
-        * auto using weaken_derivation_map.
-        * apply derivation_map_equal_extension with (subst_ty g A);
-            auto using weaken_derivation_map.
-        * apply derivation_weaken_mapeq; auto.
+        * auto using derive_weaken_map.
+        * apply derive_map_equal_extension with (subst_ty g A);
+            auto using derive_weaken_map.
+        * apply derive_weaken_mapeq; auto.
       + (* lambda-abstraction *)
         intros. 
         assert [! Δ |- subst_ty f A !].
@@ -698,15 +698,15 @@ as a flat context judgement [ [! |f- Δ !] ]. *)
         { apply (subst_derivation [! _ |- _ !]); auto. }
         apply derive_lam_cong; auto.
         * use p_B; auto.
-          -- auto using weaken_derivation_map.
-          -- apply derivation_map_equal_extension with (subst_ty g A);
-               auto using weaken_derivation_map.
-          -- apply derivation_weaken_mapeq; auto.
+          -- auto using derive_weaken_map.
+          -- apply derive_map_equal_extension with (subst_ty g A);
+               auto using derive_weaken_map.
+          -- apply derive_weaken_mapeq; auto.
         * use p_b; auto.
-          -- auto using weaken_derivation_map.
-          -- apply derivation_map_equal_extension with (subst_ty g A);
-               auto using weaken_derivation_map.
-          -- apply derivation_weaken_mapeq; auto.
+          -- auto using derive_weaken_map.
+          -- apply derive_map_equal_extension with (subst_ty g A);
+               auto using derive_weaken_map.
+          -- apply derive_weaken_mapeq; auto.
       + (* application *)
         intros ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? f g ? ? ? ?.
         assert [! Δ |- subst_ty f A !].
@@ -717,10 +717,10 @@ as a flat context judgement [ [! |f- Δ !] ]. *)
         { apply maponpaths_3, subst_subst_top_ty. }
         apply derive_app_cong; auto.
         * use p_B; auto.
-          -- auto using weaken_derivation_map.
-          -- apply derivation_map_equal_extension with (subst_ty g A);
-               auto using weaken_derivation_map.
-          -- apply derivation_weaken_mapeq; auto.
+          -- auto using derive_weaken_map.
+          -- apply derive_map_equal_extension with (subst_ty g A);
+               auto using derive_weaken_map.
+          -- apply derive_weaken_mapeq; auto.
       + intros; exact tt.
     - split; intros; exact tt. (* pi cong rules *)
   Defined.
@@ -899,7 +899,7 @@ Section Flat_Context_Equality.
   (** When two contexts are (flatly) equal, the “identity” map forms a context
    map between them *)
   (* TODO: maybe weaken assumption [e_Γ] (only one direction is really needed). *)
-  Lemma derivation_idmap_gen
+  Lemma derive_idmap_gen
       {n} {Γ Γ' : context_of_length n}
       (d_Γ' : [! |- Γ' !])
       (e_Γ : [! |f- Γ === Γ' !])
@@ -925,7 +925,7 @@ Section Flat_Context_Equality.
   Proof.
     rewrite <- (@subst_idmap_ty _ A).
     use (subst_derivation [! Γ |- A !]); try assumption.
-    apply derivation_idmap_gen; assumption.
+    apply derive_idmap_gen; assumption.
   Defined.
 
   Lemma derive_tyeq_conv_cxteq
@@ -937,7 +937,7 @@ Section Flat_Context_Equality.
     intros.
     rewrite <- (@subst_idmap_ty _ A), <- (@subst_idmap_ty _ B).
     use (subst_derivation [! Γ |- A === B !]); try assumption.
-    apply derivation_idmap_gen; assumption.
+    apply derive_idmap_gen; assumption.
   Defined.
 
   Lemma derive_tm_conv_cxteq
@@ -948,7 +948,7 @@ Section Flat_Context_Equality.
   Proof.
     rewrite <- (@subst_idmap_ty _ A), <- (@subst_idmap_tm _ a).
     use (subst_derivation [! Γ |- a ::: A !]); try assumption.
-    apply derivation_idmap_gen; assumption.
+    apply derive_idmap_gen; assumption.
   Defined.
 
   Lemma derive_tmeq_conv_cxteq
@@ -960,24 +960,24 @@ Section Flat_Context_Equality.
     rewrite <- (@subst_idmap_ty _ A),
             <- (@subst_idmap_tm _ a), <- (@subst_idmap_tm _ a').
     use (subst_derivation [! Γ |- a === a' ::: A !]); try assumption.
-    apply derivation_idmap_gen; assumption.
+    apply derive_idmap_gen; assumption.
   Defined.
 
   (** We can now show that flat context equality is an equivalence relation. *)
-  Lemma derivation_cxteq_refl {Γ : context} (d_Γ : [! |f- Γ !])
+  Lemma derive_flat_cxteq_refl {Γ : context} (d_Γ : [! |f- Γ !])
     : [! |f- Γ === Γ !].
   Proof.
     repeat split; auto using derive_tyeq_refl.
   Qed.
 
-  Lemma derivation_cxteq_sym {n} {Γ Δ : context_of_length n}
+  Lemma derive_flat_cxteq_sym {n} {Γ Δ : context_of_length n}
     (d_Γ : [! |f- Γ !]) (d_Δ : [! |f- Δ !])
     : [! |f- Γ === Δ !] → [! |f- Δ === Γ !].
   Proof.
     now intros [H1 H2].
   Qed.
 
-  Lemma  derivation_cxteq_trans {n} {Γ Δ Θ : context_of_length n}
+  Lemma  derive_flat_cxteq_trans {n} {Γ Δ Θ : context_of_length n}
     : [! |- Γ !] -> [! |- Δ !] -> [! |- Θ !]
     -> [! |f- Γ === Δ !] → [! |f- Δ === Θ !] → [! |f- Γ === Θ !].
   Proof.
@@ -985,8 +985,8 @@ Section Flat_Context_Equality.
     assert (f_Γ := flat_from_context_judgement d_Γ).
     assert (f_Δ := flat_from_context_judgement d_Δ).
     assert (f_Θ := flat_from_context_judgement d_Θ).
-    assert (d_ΔΓ := derivation_cxteq_sym f_Γ f_Δ d_ΓΔ).
-    assert (d_ΘΔ := derivation_cxteq_sym f_Δ f_Θ d_ΔΘ).
+    assert (d_ΔΓ := derive_flat_cxteq_sym f_Γ f_Δ d_ΓΔ).
+    assert (d_ΘΔ := derive_flat_cxteq_sym f_Δ f_Θ d_ΔΘ).
     repeat split; intro i.
     - eapply (derive_tyeq_trans Γ _ (Δ i));
         eauto using derive_ty_conv_cxteq.

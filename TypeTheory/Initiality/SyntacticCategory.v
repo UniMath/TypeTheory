@@ -200,11 +200,11 @@ Section Contexts_Modulo_Equality.
   Proof.
     repeat split.
     - intros Γ Δ Θ; apply hinhfun2.
-      exact (derivation_cxteq_trans Γ Δ Θ).
+      exact (derive_flat_cxteq_trans Γ Δ Θ).
     - intros Γ; apply hinhpr.
-      exact (derivation_cxteq_refl (flat_from_context_judgement Γ)).
+      exact (derive_flat_cxteq_refl (flat_from_context_judgement Γ)).
     - intros Γ Δ; apply hinhfun.
-      exact (derivation_cxteq_sym (flat_from_context_judgement Γ)
+      exact (derive_flat_cxteq_sym (flat_from_context_judgement Γ)
              (flat_from_context_judgement Δ)).
   Qed.
 
@@ -348,7 +348,7 @@ Section Context_Map_Operations.
     apply map_for_some_rep.
     apply (take_context_representative ΓΓ). { apply isapropishinh. }
     intros Γ. apply hinhpr. exists Γ; exists Γ.
-    use derivation_idmap_context; apply derivation_wellformed_context.
+    use derive_idmap; apply derivation_wellformed_context.
   Defined.
 
   Local Definition compose
@@ -365,7 +365,7 @@ Section Context_Map_Operations.
       intros d_f.
       apply (squash_to_prop (map_derivable g Δ Θ)). { apply isapropishinh. }
       intros d_g.
-      apply hinhpr. refine (derivation_comp_raw_context _ d_f d_g);
+      apply hinhpr. refine (derive_comp _ d_f d_g);
         auto using derivation_wellformed_context.
     - (* respecting equality in [f] *)
       intros f f' g e_f Γ Θ. cbn.
