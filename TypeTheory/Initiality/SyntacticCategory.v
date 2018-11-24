@@ -4,6 +4,7 @@ As a matter of organisation: all concrete lemmas involving derivations should li
 
 Require Import UniMath.All.
 
+Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.Initiality.SplitTypeCat_Maps.
 Require Import TypeTheory.Initiality.SplitTypeCat_Structure.
@@ -73,6 +74,49 @@ Section Auxiliary.
     : forall x, (setquot_rect P isaset_P d d_respects_R) (setquotpr R x) = d x
   := pr2 (setquot_rect_aux P isaset_P d d_respects_R).
 
+  Definition representative {X:UU} {R:eqrel X} (x:setquot R) : UU
+  := hfiber (setquotpr R) x.
+
+  (** Make [simpl] unfold [ (f ∘ g) x ] but not [ f ∘ g ]: *)
+  Arguments funcomp {_ _ _} _ _ _/.
+  (* TODO: see if upstreaming this helps other places where [unfold funcomp] is given explicitly *)
+
+  Definition take_representative_with_isaset
+      {X:UU} {R:eqrel X} (xx:setquot R)
+      {Y:UU} (H_Y : isaset Y)
+      (f : representative xx -> Y) (H_f : forall xx xx', f xx = f xx')
+    : Y.
+  Proof.
+    simple refine (setquot_rect (fun xx' => (xx' = xx -> Y)) _ _ _ xx (idpath _)).
+    - intros xx'. repeat (apply impred_isaset; intros); assumption.
+    - intros x e. exact (f (x,, e)).
+    - intros x y r.
+      eapply pathscomp0. { use transportf_fun. }
+      apply funextfun; intros e. simpl.
+      apply H_f.
+  Defined.
+
+  Lemma take_representative_comp
+      {X:UU} {R:eqrel X} (x:X)
+      {Y:UU} (H_Y : isaset Y)
+      (f : representative (setquotpr R x) -> Y) (H_f : forall xx xx', f xx = f xx')
+    : take_representative_with_isaset (setquotpr R x) H_Y f H_f = f (x,,idpath _).
+  Proof.
+    unfold take_representative_with_isaset.
+    eapply pathscomp0. { refine (toforallpaths _ _ _ _ _).  use setquot_comp. }
+    apply idpath.
+  Qed.
+
+  Definition take_representative_with_hSet
+      {X:UU} {R:eqrel X} (xx:setquot R)
+      (Y:hSet)
+      (f : representative xx -> Y) (H_f : forall xx xx', f xx = f xx')
+    : Y.
+  Proof.
+    use take_representative_with_isaset; auto; apply setproperty.
+  Defined.
+
+  (* TODO: perhaps add [take_representative_with_isaprop], […with_hProp] also *)
 End Auxiliary.
 
 (** The construction of the syntactic type-category is rather trickier than one might hope, because of the need to quotient by some form of context equality — which, as ever when quotienting objects of a category, is quite fiddly.
@@ -165,7 +209,7 @@ Section Stratified_Context_Equality.
         auto.
   (* TODO: need either eliminate flat-context assumption in [derive_extend_flat_cxteq],
      or else add assumption of (stratified) well-formedness of [Γ], [Δ] here:
-      [ (d_Γ : [! |f- Γ !]) (d_Δ : [! |f- Δ !]) ] *)
+      [ (d_Γ : [! |- Γ !]) (d_Δ : [! |- Δ !]) ] *)
   Admitted.
 
   Coercion derive_flat_cxteq_from_cxteq
@@ -555,6 +599,15 @@ Section Syntactic_Types.
   := pr1 A : type_over ΓΓ.
   Coercion type_representative_as_type : type_representative >-> type_over.
 
+  (* TODO: generalise to general “representatives” *)
+  Lemma typeeq_type_representatives
+      {n} {ΓΓ : _ n} {AA : type_mod_eq ΓΓ} (A A' : type_representative AA)
+    : typeeq_eqrel A A'.
+  Proof.
+    refine (lemmas.setquotprpathsandR typeeq_eqrel A A' _).
+    exact (pr2 A @ ! pr2 A').
+  Defined.
+
   (* TODO: upstream *)
   Arguments derive_ty_conv_cxteq [_] _ [_] _ _ [_] _.
   Arguments derive_tyeq_conv_cxteq [_] _ [_] _ _ [_] _.
@@ -593,27 +646,45 @@ End Syntactic_Types.
 
 Section Split_Typecat.
 
-  (* TODO: prove, upstream, maybe upstream to UniMath. *)
   Definition syntactic_typecat_structure : typecat_structure syntactic_category.
   Proof.
     repeat use tpair.
     - (* define the types *)
       intros ΓΓ; cbn in ΓΓ. exact (type_mod_eq ΓΓ).
     - (* context extension *)
+      (* TODO: abstract this out *)
       intros ΓΓ AA; cbn in ΓΓ, AA.
       exists (S (length ΓΓ)).
-      revert AA.
-      (* TODO: figure out utility function for better taking representative of [ΓΓ] in situations like this! Later for the logical structure, we’ll need many such functions with more arguments. *)
-      simple refine (setquot_rect (fun ΔΔ => type_mod_eq ΔΔ -> _) _ _ _ ΓΓ).
-      { intros; apply funspace_isaset, isasetsetquot. }
-      + intros Γ; cbn. use setquotfun.
-        * intros A. exists (Γ;;A)%context.
-          refine (derive_flat_extend_context Γ _).
-          admit. (* should be [exact (A Γ)], but need to either truncate the cxt derivation or un-truncate the type derivation *)
-        * intros A B e_AB.
-          admit.
-      + intros Γ Δ e_ΓΔ. simpl. unfold setquotfun; simpl.
-        admit. (* TODO: transport lemma! *)
+      use (take_representative_with_isaset ΓΓ); try apply isasetsetquot;
+        change (representative ΓΓ) with (context_representative ΓΓ).
+      + intros Γ.
+        use (take_representative_with_isaset AA); try apply isasetsetquot;
+          change (representative AA) with (type_representative AA).
+    (* TODO: make specialisations of [take_representative] to avoid these [change]s? *)
+        * intros A.
+          apply setquotpr; exists (Γ;;A)%context.
+          admit. (* TODO: should be [exact (A Γ)], but need to either truncate the cxt derivation in defs of objects, or un-truncate the type derivation in def of types. *)
+        * intros A A'. simpl.
+          apply iscompsetquotpr. cbn.
+          apply (squash_to_prop (typeeq_type_representatives A A' Γ)).
+          { apply isapropishinh. }
+          intros e_AA'. apply hinhpr, derive_extend_flat_cxteq; try apply (pr1 Γ).
+          -- exact (derive_flat_cxteq_refl (pr1 Γ)).
+          -- exact e_AA'.
+      + intros Γ Γ'. simpl.
+        revert AA.
+        use setquotunivprop'. { intros; apply isasetsetquot. } intros A.
+        eapply pathscomp0. { apply take_representative_comp. }
+        eapply pathscomp0. 2: { apply pathsinv0, take_representative_comp. }
+        apply iscompsetquotpr. cbn.
+        apply (squash_to_prop (A Γ)). { apply isapropishinh. } intros d_A.
+        apply (squash_to_prop (cxteq_context_representatives Γ Γ')).
+        { apply isapropishinh. } intros e_ΓΓ'.
+        apply hinhpr, derive_extend_flat_cxteq; auto using derive_tyeq_refl.
+        * apply (pr1 Γ).
+        * apply (pr1 Γ').
+    - (* dependent projection *)
+      admit.
   Admitted.
 
   Lemma is_split_syntactic_typecat_structure

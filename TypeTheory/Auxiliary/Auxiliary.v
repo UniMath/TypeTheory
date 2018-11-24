@@ -165,6 +165,9 @@ Proof.
   apply idpath.
 Defined.
 
+(* TODO: systematise these variants of [transportf_forall]:
+- probably make [transportf_forall] the most general form, where [B] depends on [A] and [C] depends on both
+- and then give the partly-reduced variants some systematic names, if possible. *)
 Lemma transportf_forall {A B} (C : A -> B -> UU)
   {x0 x1 : A} (e : x0 = x1) (f : forall y:B, C x0 y)
   : transportf (fun x => forall y, C x y) e f
