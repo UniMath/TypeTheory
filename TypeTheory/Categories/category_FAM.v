@@ -349,7 +349,7 @@ Proof.
           (maponpaths f1 q)
           (inv_from_iso (isopair (f2 a2) (H2 a2))))
       = identity (A ₂ a1)).
-      intros. destruct q; simpl. cbn. unfold idfun; simpl.
+      intros. destruct q; cbn.
       apply (iso_inv_after_iso (isopair _ _)).
     apply transp_lem.
 

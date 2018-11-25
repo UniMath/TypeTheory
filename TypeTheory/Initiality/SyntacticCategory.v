@@ -84,10 +84,6 @@ Section Auxiliary.
   Definition representative {X:UU} {R:eqrel X} (x:setquot R) : UU
   := hfiber (setquotpr R) x.
 
-  (** Make [simpl] unfold [ (f ∘ g) x ] but not [ f ∘ g ]: *)
-  Arguments funcomp {_ _ _} _ _ _/.
-  (* TODO: see if upstreaming this helps other places where [unfold funcomp] is given explicitly *)
-
   Definition take_representative_with_isaset
       {X:UU} {R:eqrel X} (xx:setquot R)
       {Y:UU} (H_Y : isaset Y)

@@ -142,7 +142,7 @@ Section Terms.
       - intros t.
         exact (t · comp_ext_compare e).
       - abstract (now induction e; use (isweq_iso _ (idfun _));
-                  intros x; unfold idfun; simpl; apply id_right).
+                  intros x; apply id_right).
     + abstract (now intros x; induction e; simpl;
                   rewrite <-assoc, id_left; apply idweq).
   Defined.

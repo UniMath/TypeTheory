@@ -52,6 +52,12 @@ Tactic Notation "assoc" := apply @pathsinv0, path_assoc.
 
 Arguments functor_on_inv_from_iso {_ _} _  {_ _} f.
 
+(** Make [simpl], [cbn], etc. unfold [ (f ∘ g) x ] but not [ f ∘ g ]: *)
+Arguments funcomp {_ _ _} _ _ _/.
+(** Make [simpl], [cbn], etc. unfold [idfun X x] but not [ idfun x ]: *)
+Arguments idfun _ _ / .
+(* TODO: perhaps try upstreaming these to [UniMath], which has over 100 instances of [unfold funcomp]? *)
+
 (** * Path-algebra: general lemmas about transport, equivalences, etc. *)
 
 (** A uniformly-named set of lemmas giving how multi-argument (non-dependent) functions act on paths, generalising [maponpaths].

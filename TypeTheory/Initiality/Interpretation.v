@@ -15,8 +15,6 @@ Require Import TypeTheory.Initiality.Syntax.
 Require Import TypeTheory.Initiality.Typing.
 
 Local Open Scope functions.
-Local Arguments funcomp {_ _ _} _ / . (* perhaps upstream? *)
-Local Arguments idfun _ _ / . (* perhaps upstream? *)
 
 Section Auxiliary.
 
