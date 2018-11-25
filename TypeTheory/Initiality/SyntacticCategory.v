@@ -32,47 +32,54 @@ Section Auxiliary.
     use (setquotuniv _ (_,,_)); assumption.
   Defined.
 
-  (** TODO: is [setquot_rect], the general dependent universal property of [setquot], really not provided in the library somewhere?
+  (** [setquot_rect]: the general dependent universal property of [setquot].
+  To give a function into a dependent family of sets over the quotient, it suffices to construct the function on the domain of the quotient, and show your construction respects equivalence.
 
-  Here we put it together from [setquotuniv] (the non-dependent version) and [setquotunivprop] (the version for hprop-valued predicates). Unfortunately, that means it doesn’t compute, since [setquotunivprop] doesn’t.  With a bit more thought, could we give a version that computes nicely like [setquotuniv]? *)
-  Definition setquot_rect_aux {X:UU} {R:eqrel X}
-      (P : setquot R -> UU) (isaset_P : forall xx, isaset (P xx))
-      (d : forall x:X, P (setquotpr R x))
-      (d_respects_R : forall (x y:X) (r : R x y),
-          transportf _ (iscompsetquotpr _ _ _ r) (d x) = d y)
-    : ∑ (f : forall xx, P xx), forall x, f (setquotpr R x) = d x.
-  Proof.
-    transparent assert (f_nondep : (setquot R -> ∑ xx, P xx)).
-    { use setquotuniv'.
-      - apply isaset_total2; try assumption. apply isasetsetquot.
-      - intros x. exact (_,, d x).
-      - intros x y r. refine (total2_paths_f _ _). apply (d_respects_R _ _ r).
-    }
-    transparent assert (f_commutes : (forall xx, pr1 (f_nondep xx) = xx)).
-    { use setquotunivprop'.
-      - intros; apply isasetsetquot.
-      - intros x. apply idpath.
-    }
-    exists (fun xx => transportf _ (f_commutes xx) (pr2 (f_nondep xx))).
-    intros x. eapply pathscomp0. 2: { apply idpath_transportf. }
-    apply maponpaths_2. apply isasetsetquot.
-  Qed.
-
+  Unfortunately, this currently doesn’t compute; the intended “computation” is given as a lemma, [setquot_comp.] *)
+  (* TODO: with a bit more thought, could one give a version that computes nicely, like [setquotuniv]? *)
+  (* TODO: possible alternative name [setquotuniv_dep] *)
   Definition setquot_rect {X:UU} {R:eqrel X}
       (P : setquot R -> UU) (isaset_P : forall xx, isaset (P xx))
       (d : forall x:X, P (setquotpr R x))
       (d_respects_R : forall (x y:X) (r : R x y),
           transportf _ (iscompsetquotpr _ _ _ r) (d x) = d y)
-    : forall xx, P xx
-  := pr1 (setquot_rect_aux P isaset_P d d_respects_R).
+    : forall xx, P xx.
+  Proof.
+    intros xx.
+    transparent assert (f : (xx -> P xx)).
+    { intros x. refine (transportf _ _ (d (pr1 x))). apply setquotl0. }
+    apply (pr1image f).
+    apply (squash_to_prop (eqax0 (pr2 xx))).
+    2: { apply prtoimage. }
+    apply invproofirrelevance. intros [y Hy] [y' Hy'].
+    apply subtypeEquality. { intro; apply isapropishinh. } simpl.
+    apply (squash_to_prop Hy). { apply isaset_P. }
+    clear Hy; intros [x e_xy].
+    apply (squash_to_prop Hy'). { apply isaset_P. }
+    clear Hy'; intros [x' e_xy'].
+    destruct e_xy, e_xy'. subst f; simpl.
+    assert (R_xx' : R (pr1 x) (pr1 x')).
+    { apply (eqax2 (pr2 xx)); [apply x | apply x']. }
+    rewrite <- (d_respects_R _ _ R_xx').
+    eapply pathscomp0. 2: { apply pathsinv0, transport_f_f. }
+    (* TODO: raise issue in [UniMath], several redundant identical lemmas: [app], [transportf_paths], [transportf_ext].
+     One of these is certainly enough (and in any case, all are instances of [maponpaths_2]). *)
+    apply maponpaths_2, isasetsetquot.
+  Defined.
 
   Definition setquot_comp {X:UU} {R:eqrel X}
       (P : setquot R -> UU) (isaset_P : forall xx, isaset (P xx))
       (d : forall x:X, P (setquotpr R x))
       (d_respects_R : forall (x y:X) (r : R x y),
           transportf _ (iscompsetquotpr _ _ _ r) (d x) = d y)
-    : forall x, (setquot_rect P isaset_P d d_respects_R) (setquotpr R x) = d x
-  := pr2 (setquot_rect_aux P isaset_P d d_respects_R).
+    : forall x, (setquot_rect P isaset_P d d_respects_R) (setquotpr R x) = d x.
+  Proof.
+    intros x. unfold setquot_rect; simpl.
+    eapply pathscomp0. 2: { apply idpath_transportf. }
+    apply maponpaths_2, isasetsetquot.
+  Defined.
+
+  Opaque setquot_rect setquot_comp.
 
   Definition representative {X:UU} {R:eqrel X} (x:setquot R) : UU
   := hfiber (setquotpr R) x.
@@ -237,7 +244,7 @@ Section Contexts_Modulo_Equality.
   := pr1 Γ.
 
   Definition derivation_wellformed_context
-             {n} (Γ : wellformed_context_of_length n)
+      {n} (Γ : wellformed_context_of_length n)
     : [! |f- Γ !]
   := pr2 Γ.
   Coercion derivation_wellformed_context
