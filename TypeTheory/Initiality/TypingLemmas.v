@@ -865,7 +865,7 @@ Section Flat_Context_Equality.
   over them. *)
 
   Lemma derive_ty_conv_cxteq
-      {n} {Γ Δ : context_of_length n}
+      {n} Γ {Δ : context_of_length n}
       (d_Δ : [! |f- Δ !]) (d_ΓΔ : [! |f- Γ === Δ !])
       {A : ty_expr n} (d_A : [! Γ |- A !])
     : [! Δ |- A !].
@@ -910,6 +910,11 @@ Section Flat_Context_Equality.
     apply derive_idmap_gen; assumption.
   Defined.
 
+  Arguments derive_ty_conv_cxteq [_] _ [_] _ _ [_] _.
+  Arguments derive_tyeq_conv_cxteq [_] _ [_] _ _ [_ _] _.
+  Arguments derive_tm_conv_cxteq [_] _ [_] _ _ [_ _] _.
+  Arguments derive_tmeq_conv_cxteq [_] _ [_] _ _ [_ _ _] _.
+
   (** We can now show that flat context equality is an equivalence relation. *)
   Lemma derive_flat_cxteq_refl {Γ : context} (d_Γ : [! |f- Γ !])
     : [! |f- Γ === Γ !].
@@ -935,11 +940,11 @@ Section Flat_Context_Equality.
     - eapply (derive_tyeq_trans Γ _ (Δ i));
         eauto using derive_ty_conv_cxteq.
       + apply d_ΓΔ.
-      + apply (derive_tyeq_conv_cxteq d_Γ d_ΔΓ), d_ΔΘ.
+      + apply (derive_tyeq_conv_cxteq Δ); auto; apply d_ΔΘ.
     - eapply (derive_tyeq_trans Θ _ (Δ i));
         eauto using derive_ty_conv_cxteq.
       + apply d_ΘΔ.
-      + apply (derive_tyeq_conv_cxteq d_Θ d_ΔΘ), d_ΔΓ.
+      + apply (derive_tyeq_conv_cxteq Δ); auto; apply d_ΔΓ.
   Qed.
   
   (** Context extension respects flat equality *)
@@ -978,6 +983,11 @@ Section Flat_Context_Equality.
   Defined.
 
 End Flat_Context_Equality.
+
+Arguments derive_ty_conv_cxteq [_] _ [_] _ _ [_] _.
+Arguments derive_tyeq_conv_cxteq [_] _ [_] _ _ [_ _] _.
+Arguments derive_tm_conv_cxteq [_] _ [_] _ _ [_ _] _.
+Arguments derive_tmeq_conv_cxteq [_] _ [_] _ _ [_ _ _] _.
 
 Section Category_Laws.
 

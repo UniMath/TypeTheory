@@ -608,10 +608,6 @@ Section Syntactic_Types.
     exact (pr2 A @ ! pr2 A').
   Defined.
 
-  (* TODO: upstream *)
-  Arguments derive_ty_conv_cxteq [_] _ [_] _ _ [_] _.
-  Arguments derive_tyeq_conv_cxteq [_] _ [_] _ _ [_] _.
-
   Lemma type_for_some_rep
       {ΓΓ : context_mod_eq} (A : ty_expr ΓΓ)
     : (∃ (Γ:context_representative ΓΓ), [! Γ |- A !])
