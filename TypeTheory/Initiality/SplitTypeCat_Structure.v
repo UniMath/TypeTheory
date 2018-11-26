@@ -97,10 +97,9 @@ Section Pi_Structure.
   Proof.
     refine (!reind_comp_typecat _ _ _ _ _ _ @
              _ @ reind_comp_typecat _ _ _ _ _ _).
-    apply maponpaths.
-    admit. (* should be lemma about [reind_tm] *)
-  Admitted.
-
+    now apply maponpaths; rewrite (reind_tm_q f).
+  Qed.
+  
   Definition pi_app_struct (Π : pi_form_struct) : UU
   := ∑ (app : forall (Γ : C) (A : C Γ) (B : C (Γ ◂ A))
                      (p : tm (Π _ A B)) (a : tm A),
