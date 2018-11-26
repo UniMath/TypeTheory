@@ -250,7 +250,7 @@ Section Terms.
     rewrite reind_compose_tm; unfold tm_transportb.
     now rewrite <- tm_transportf_compose, pathsinv0l, tm_transportf_idpath.
   Qed.
-  
+
   Lemma maponpaths_2_reind_tm {C : split_typecat}
       {Γ Γ' : C} {f f' : Γ' --> Γ} (e : f = f') {A : C Γ} (a : tm A)
     : reind_tm f a = tm_transportb (maponpaths _ e) (reind_tm f' a).
@@ -268,37 +268,53 @@ Section Terms.
     + eapply (map_into_Pb _ _ _ _ _ (reind_pb_typecat A _) _ _ (idpath (identity _ ;; _))).
     + apply Pb_map_commutes_1.
   Defined.
-  
+
   Definition reind_tm_var_typecat {C : split_typecat} {Γ : C} {A : C Γ} (a : tm A)
     (e : A = (A ⦃dpr_typecat A⦄) ⦃a⦄
       := ! reind_id_type_typecat _ _
            @ maponpaths _ (! section_property a)
            @ reind_comp_typecat _ _ _ _ _ _)
-  : reind_tm a (var_typecat A)
-    = tm_transportf e a.  
-  Admitted.
+  : reind_tm a (var_typecat A) = tm_transportf e a.
+  Proof.
+    induction a as [a af]; cbn in *.
+    apply subtypeEquality; [ intros x; apply homset_property|]; simpl.
+    apply pathsinv0, PullbackArrowUnique; cbn.
+    + now induction e; rewrite <-assoc, id_left.
+    + unfold map_into_Pb.
+      set (pb := Auxiliary.Pbb _ _ _ _ _ _ _ _ _ _ _).
+      rewrite <-assoc, (postCompWithPullbackArrow _ _ _ pb).
+      apply PullbackArrowUnique; cbn.
+    - rewrite <-!assoc, dpr_q_typecat; induction e.
+      now rewrite id_left, assoc, af, id_left, id_right.
+    - rewrite <-!assoc; apply maponpaths.
+      unfold e, comp_ext_compare.
+      rewrite !maponpathscomp0, <-!idtoiso_concat_pr, <-!assoc.
+      etrans; [ do 2 eapply maponpaths; rewrite assoc;
+                apply (!@q_q_typecat C _ A _ (dpr_typecat A) _ a)|].
+      now rewrite af, id_left, reind_id_term_typecat,
+                  idtoiso_concat_pr, <-maponpathscomp0, pathsinv0l.
+  Qed.
 
   Definition reind_tm_var_typecat' {C : split_typecat} {Γ:C} {A:C Γ} (a : tm A)
     (e : A = (A ⦃dpr_typecat A⦄) ⦃a⦄
       := ! reind_id_type_typecat _ _
            @ maponpaths _ (! section_property a)
            @ reind_comp_typecat _ _ _ _ _ _)
-  : tm_transportb e (reind_tm a (var_typecat A))
-    = a.
+  : tm_transportb e (reind_tm a (var_typecat A)) = a.
   Proof.
     unfold tm_transportb.
     rewrite reind_tm_var_typecat, <- tm_transportf_compose.
     now rewrite pathsinv0r, tm_transportf_idpath.
   Qed.
-  
+
   Definition reind_tm_var_typecat_gen {C : split_typecat} {Γ:C} {A:C Γ} (a : tm A)
     (e : A = (A ⦃dpr_typecat A⦄) ⦃a⦄)
   : reind_tm a (var_typecat A)
     = tm_transportf e a.
   Proof.
-    eauto using pathscomp0, tm_transportf_irrelevant, reind_tm_var_typecat.
+    rewrite reind_tm_var_typecat; apply tm_transportf_irrelevant.
   Defined.
-
+  
 End Terms.
 
 Section Types_with_Terms.
@@ -317,8 +333,8 @@ Section Types_with_Terms.
       (e_tm : term_of Aa ;; comp_ext_compare e_ty = term_of Bb)
     : Aa = Bb.
   Proof.
-    destruct Aa as [A a], Bb as [B b]; cbn in *.
-    destruct e_ty; cbn in *.
+    induction Aa as [A a], Bb as [B b]; cbn in *.
+    induction e_ty; cbn in *.
     apply maponpaths, paths_tm.
     refine (_ @ e_tm). apply pathsinv0, id_right.
   Defined.
@@ -331,7 +347,12 @@ Section Types_with_Terms.
       {Γ} (Aa : type_with_term Γ)
     : reind_type_with_term (identity _) Aa = Aa.
   Proof.
-  Admitted.
+    induction Aa as [A a]; cbn in *.
+    use total2_paths2_f; [apply reind_id_type_typecat|].
+    etrans; [ eapply maponpaths, reind_id_tm |].
+    unfold tm_transportb.
+    now rewrite <- transportf_tm, transport_f_f, pathsinv0l.
+  Qed.
 
   Definition reind_compose_type_with_term
       {Γ Γ' Γ''} (f : Γ' --> Γ) (f' : Γ'' --> Γ')
@@ -339,7 +360,11 @@ Section Types_with_Terms.
     : reind_type_with_term (f' ;; f) Aa
       = reind_type_with_term f' (reind_type_with_term f Aa).
   Proof.
-  Admitted.
+    induction Aa as [A a]; cbn in *.
+    use total2_paths2_f; [apply reind_comp_type_typecat|].
+    rewrite reind_compose_tm; unfold tm_transportb.
+    now rewrite <- transportf_tm, transport_f_f, pathsinv0l.
+  Qed.
 
   Definition var_with_type {Γ} (A : C Γ)
     : type_with_term (Γ ◂ A)
@@ -349,11 +374,11 @@ Section Types_with_Terms.
     : reind_type_with_term (q_typecat A f) (var_with_type A)
     = var_with_type (A ⦃f⦄).
   Proof.
-      use paths_type_with_term.
-      + eapply pathscomp0. { apply pathsinv0, reind_comp_typecat. }
-        eapply pathscomp0. 2: { apply reind_comp_typecat. }
-        apply maponpaths, dpr_q_typecat.
-      + cbn. admit. (* lemma about [var_typecat] *)
+    use paths_type_with_term.
+    + eapply pathscomp0. { apply pathsinv0, reind_comp_typecat. }
+      eapply pathscomp0. 2: { apply reind_comp_typecat. }
+      apply maponpaths, dpr_q_typecat.
+    + admit. (* lemma about [var_typecat] *)
   Admitted.
 
   Lemma reind_term_var_with_type {Γ} {A : C Γ} (a : tm A)
