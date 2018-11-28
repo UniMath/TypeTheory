@@ -326,6 +326,35 @@ Section Contexts_Modulo_Equality.
     intros Γ; apply hinhpr. exists Γ; auto.
   Defined.
 
+  (** When giving a context-mod-equality, it suffices to show the given context
+  _is derivable_: the actual derivation doesn’t matter, since it is ignored by
+  the quotienting. 
+
+  This is useful in cases where giving derivation may require derivations for
+  things only known to be _derivable_. *)
+  Definition derivable_context_suffices
+      {n} (Γ : context_of_length n) (h_Γ : ∥ [! |f- Γ !] ∥)
+    : context_mod_eq.
+  Proof.
+    assert (∑ (ΓΓ : context_of_length_mod_eq Γ),
+             ∃ (d_Γ : [! |f- Γ !]), setquotpr _ (Γ,,d_Γ) = ΓΓ)
+      as ΓΓ_unique.
+    2: { exact (pr1 ΓΓ_unique). }
+    apply (squash_to_prop h_Γ).
+    2: { intros d_Γ. exists (context_class (Γ,,d_Γ)).
+         apply hinhpr; exists d_Γ; apply idpath. }
+    apply invproofirrelevance.
+    intros [ΓΓ H_Γ] [ΓΓ' H_Γ'].
+    apply subtypeEquality. { intros x; apply isapropishinh. }
+    cbn.
+    apply (squash_to_prop H_Γ). { apply isasetsetquot. }
+    clear H_Γ. intros [d_Γ e_Γ]. destruct e_Γ.
+    apply (squash_to_prop H_Γ'). { apply isasetsetquot. }
+    clear H_Γ'. intros [d_Γ' e_Γ']. destruct e_Γ'.
+    apply iscompsetquotpr. apply hinhpr. cbn.
+    exact (derive_flat_cxteq_refl d_Γ).
+  Defined.
+
 End Contexts_Modulo_Equality.
 
 Section Context_Maps.
