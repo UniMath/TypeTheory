@@ -675,46 +675,56 @@ End Syntactic_Types.
 
 Section Split_Typecat.
 
-  Definition syntactic_typecat_structure : typecat_structure syntactic_category.
+  Local Definition ext (ΓΓ : context_mod_eq) (AA : type_mod_eq ΓΓ)
+    : context_mod_eq.
+  Proof.
+    exists (S (length ΓΓ)).
+    (* TODO: use a non-dependent elimination principle here 
+       (ideally, a non-dependent version of [take_representative_with_isaset])
+       to get the syntax part computing. *)
+    use (take_representative_with_isaset ΓΓ); try apply isasetsetquot;
+      change (representative ΓΓ) with (context_representative ΓΓ).
+    + intros Γ.
+      use (take_representative_with_isaset AA); try apply isasetsetquot;
+        change (representative AA) with (type_representative AA).
+      (* TODO: make specialisations of [take_representative] to avoid these [change]s? *)
+      * intros A.
+        apply setquotpr; exists (Γ;;A)%context.
+        refine (hinhfun2 _ Γ (A Γ)). intros d_Γ d_ΓA.
+        exact (derive_flat_extend_context d_Γ d_ΓA).
+      * intros A A'. simpl.
+        apply iscompsetquotpr.
+        refine (hinhfun2 _ Γ (typeeq_type_representatives A A' Γ)).
+        intros d_Γ e_AA'.
+        apply derive_extend_flat_cxteq; try apply d_Γ.
+        -- exact (derive_flat_cxteq_refl d_Γ).
+        -- exact e_AA'.
+    + intros Γ Γ'. simpl.
+      revert AA.
+      use setquotunivprop'. { intros; apply isasetsetquot. } intros A.
+      eapply pathscomp0. { apply take_representative_comp. }
+      eapply pathscomp0. 2: { apply pathsinv0, take_representative_comp. }
+      apply iscompsetquotpr.
+      refine (hinhfun4 _ Γ Γ' (A Γ) (cxteq_context_representatives Γ Γ')).
+      intros.
+      apply derive_extend_flat_cxteq; auto using derive_tyeq_refl.
+  Defined.
+ 
+  Definition syntactic_typecat_structure1 : typecat_structure1 syntactic_category.
   Proof.
     repeat use tpair.
     - (* define the types *)
       intros ΓΓ; cbn in ΓΓ. exact (type_mod_eq ΓΓ).
     - (* context extension *)
-      (* TODO: abstract this out *)
-      intros ΓΓ AA; cbn in ΓΓ, AA.
-      exists (S (length ΓΓ)).
-      (* TODO: use a non-dependent elimination principle here 
-       (ideally, a non-dependent version of [take_representative_with_isaset])
-       to get the syntax part computing. *)
-      use (take_representative_with_isaset ΓΓ); try apply isasetsetquot;
-        change (representative ΓΓ) with (context_representative ΓΓ).
-      + intros Γ.
-        use (take_representative_with_isaset AA); try apply isasetsetquot;
-          change (representative AA) with (type_representative AA).
-    (* TODO: make specialisations of [take_representative] to avoid these [change]s? *)
-        * intros A.
-          apply setquotpr; exists (Γ;;A)%context.
-          refine (hinhfun2 _ Γ (A Γ)). intros d_Γ d_ΓA.
-          exact (derive_flat_extend_context d_Γ d_ΓA).
-        * intros A A'. simpl.
-          apply iscompsetquotpr.
-          refine (hinhfun2 _ Γ (typeeq_type_representatives A A' Γ)).
-          intros d_Γ e_AA'.
-          apply derive_extend_flat_cxteq; try apply d_Γ.
-          -- exact (derive_flat_cxteq_refl d_Γ).
-          -- exact e_AA'.
-      + intros Γ Γ'. simpl.
-        revert AA.
-        use setquotunivprop'. { intros; apply isasetsetquot. } intros A.
-        eapply pathscomp0. { apply take_representative_comp. }
-        eapply pathscomp0. 2: { apply pathsinv0, take_representative_comp. }
-        apply iscompsetquotpr.
-        refine (hinhfun4 _ Γ Γ' (A Γ) (cxteq_context_representatives Γ Γ')).
-        intros.
-        apply derive_extend_flat_cxteq; auto using derive_tyeq_refl.
+      exact ext.
     - (* dependent projection *)
       admit.
+  Admitted.
+
+  Definition syntactic_typecat_structure : typecat_structure syntactic_category.
+  Proof.
+    exists syntactic_typecat_structure1.
+    admit.
   Admitted.
 
   Lemma is_split_syntactic_typecat_structure
