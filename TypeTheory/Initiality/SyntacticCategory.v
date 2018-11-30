@@ -591,9 +591,9 @@ Section Syntactic_Types.
 
   Coercion type_of_type_over {n} {ΓΓ : _ n} : type_over ΓΓ -> ty_expr ΓΓ := pr1.
 
-  Definition type_over_is_type {n} {ΓΓ : _ n} (A : type_over ΓΓ)
+  Definition type_derivable {n} {ΓΓ : _ n} (A : type_over ΓΓ)
   := pr2 A : is_type_over ΓΓ A.
-  Coercion type_over_is_type : type_over >-> is_type_over.
+  Coercion type_derivable : type_over >-> is_type_over.
 
   Definition typeeq_hrel {n} {ΓΓ : _ n} : hrel (type_over ΓΓ)
   := fun A B => ∀ Γ : context_representative ΓΓ, ∥ [! Γ |- A === B !] ∥.
@@ -710,6 +710,43 @@ Section Split_Typecat.
       apply derive_extend_flat_cxteq; auto using derive_tyeq_refl.
   Defined.
  
+  Local Definition reind
+      {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
+      {ΓΓ' : context_mod_eq} (ff : map_mod_eq ΓΓ' ΓΓ)
+    : type_mod_eq ΓΓ'.
+  Proof.
+    simple refine (QuotientSet.setquotfun2 _ _ ff AA); try split.
+    - (* give the reindexed type *)
+      intros f A.
+      exists (subst_ty f A).
+      intros Γ'.
+      use (take_context_representative ΓΓ); try apply isapropishinh;
+        change (representative ΓΓ) with (context_representative ΓΓ).
+      intros Γ.
+      refine (hinhfun2 _ (map_derivable f Γ' Γ) (type_derivable A Γ)).
+      (* TODO: make [derive_subst_ty] etc. as specialisations of [subst_derivation], and replace [subst_derivation [! _ |- _ !] ] with them throughout? *)
+      intros d_f d_A.
+      exact (subst_derivation _ d_A d_f).
+    - (* respects equality in the map *)
+      clear AA ff. intros f f' A e_f Γ'. cbn.
+      use (take_context_representative ΓΓ); try apply isapropishinh;
+        change (representative ΓΓ) with (context_representative ΓΓ).
+      intros Γ.
+      refine (hinhfun5 _ (type_derivable A Γ) Γ'
+                       (map_derivable f Γ' Γ) (map_derivable f' Γ' Γ)
+                       (e_f Γ' Γ)).
+      intros d_Γ_A d_Γ' d_f d_f' d_e_f.
+      refine (substeq_derivation _ d_Γ_A _ _ _ _); assumption.
+    - (* respects equality in the type *)
+      clear AA ff. intros f A A' e_A Γ'. cbn.
+      use (take_context_representative ΓΓ); try apply isapropishinh;
+        change (representative ΓΓ) with (context_representative ΓΓ).
+      intros Γ.
+      refine (hinhfun2 _ (map_derivable f Γ' Γ) (e_A Γ)).
+      intros d_f d_e_A.
+      exact (subst_derivation _ d_e_A d_f).
+  Defined.
+
   Definition syntactic_typecat_structure1 : typecat_structure1 syntactic_category.
   Proof.
     repeat use tpair.
@@ -717,9 +754,9 @@ Section Split_Typecat.
       intros ΓΓ; cbn in ΓΓ. exact (type_mod_eq ΓΓ).
     - (* context extension *)
       exact ext.
-    - (* dependent projection *)
-      admit.
-  Admitted.
+    - (* reindexing *)
+      exact @reind.
+  Defined.
 
   Definition syntactic_typecat_structure : typecat_structure syntactic_category.
   Proof.
