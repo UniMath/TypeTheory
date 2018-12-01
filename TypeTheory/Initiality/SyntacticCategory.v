@@ -678,37 +678,29 @@ Section Split_Typecat.
     : context_mod_eq.
   Proof.
     exists (S (length ΓΓ)).
-    (* TODO: use a non-dependent elimination principle here 
+    (* TODO: can we do this with a non-dependent elimination principle 
        (ideally, a non-dependent version of [take_representative_with_isaset])
-       to get the syntax part computing. *)
+       to get the syntax part computing?? *)
     use (take_representative_with_isaset ΓΓ); try apply isasetsetquot;
       change (representative ΓΓ) with (context_representative ΓΓ).
-    + intros Γ.
-      use (take_representative_with_isaset AA); try apply isasetsetquot;
-        change (representative AA) with (type_representative AA).
-      (* TODO: make specialisations of [take_representative] to avoid these [change]s? *)
-      * intros A.
-        apply setquotpr; exists (Γ;;A)%context.
+    - intros Γ.
+      simple refine (setquotfun _ _ _ _ AA). 
+      + intros A. exists (Γ;;A)%context.
         refine (hinhfun2 _ Γ (A Γ)). intros d_Γ d_ΓA.
         exact (derive_flat_extend_context d_Γ d_ΓA).
-      * intros A A'. simpl.
-        apply iscompsetquotpr.
-        refine (hinhfun2 _ Γ (typeeq_type_representatives A A' Γ)).
-        intros d_Γ e_AA'.
+      + intros A A' e_A.
+        refine (hinhfun2 _ Γ (e_A Γ)). clear e_A; intros d_Γ e_A.
         apply derive_extend_flat_cxteq; try apply d_Γ.
         -- exact (derive_flat_cxteq_refl d_Γ).
-        -- exact e_AA'.
-    + intros Γ Γ'. simpl.
-      revert AA.
+        -- exact e_A.
+    - intros Γ Γ'; simpl; revert AA.
       use setquotunivprop'. { intros; apply isasetsetquot. } intros A.
-      eapply pathscomp0. { apply take_representative_comp. }
-      eapply pathscomp0. 2: { apply pathsinv0, take_representative_comp. }
       apply iscompsetquotpr.
       refine (hinhfun4 _ Γ Γ' (A Γ) (cxteq_context_representatives Γ Γ')).
       intros.
       apply derive_extend_flat_cxteq; auto using derive_tyeq_refl.
   Defined.
- 
+  
   Local Definition reind
       {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
       {ΓΓ' : context_mod_eq} (ff : map_mod_eq ΓΓ' ΓΓ)
