@@ -314,7 +314,15 @@ Section Terms.
   Proof.
     rewrite reind_tm_var_typecat; apply tm_transportf_irrelevant.
   Defined.
-  
+
+  Definition reind_tm_var_typecat2
+             {C : split_typecat}
+             {Γ Γ'} (f : Γ' --> Γ) (A : C Γ)
+             (e : (A ⦃dpr_typecat A⦄) ⦃q_typecat A f⦄ = (A ⦃f⦄) ⦃dpr_typecat (A ⦃f⦄)⦄)
+    : reind_tm (q_typecat A f) (var_typecat A)
+      = tm_transportb e (var_typecat (A ⦃f⦄)).
+  Admitted.
+
 End Terms.
 
 Section Types_with_Terms.
@@ -338,6 +346,18 @@ Section Types_with_Terms.
     apply maponpaths, paths_tm.
     refine (_ @ e_tm). apply pathsinv0, id_right.
   Defined.
+
+  Definition paths_type_with_term2 {Γ} {Aa Bb : type_with_term Γ}
+      (e_ty : type_of Aa = type_of Bb)
+      (e_tm : transportf _ e_ty (term_of Aa) = term_of Bb)
+    : Aa = Bb.
+  Proof.
+    use (paths_type_with_term e_ty).
+    induction Aa as [A a], Bb as [B b]; cbn in *.
+    induction e_ty; cbn in *.
+    rewrite id_right.
+    now induction e_tm.
+  Qed.
 
   Definition reind_type_with_term {Γ Γ'} (f : Γ' --> Γ)
     : type_with_term Γ -> type_with_term Γ'
@@ -368,18 +388,21 @@ Section Types_with_Terms.
 
   Definition var_with_type {Γ} (A : C Γ)
     : type_with_term (Γ ◂ A)
-  := (A⦃dpr_typecat A⦄,, var_typecat A).
+    := (A⦃dpr_typecat A⦄,, var_typecat A).
 
   Lemma reind_type_with_term_q_var {Γ Γ'} (f : Γ' --> Γ) (A : C Γ)
     : reind_type_with_term (q_typecat A f) (var_with_type A)
     = var_with_type (A ⦃f⦄).
   Proof.
-    use paths_type_with_term.
+    use paths_type_with_term2.
     + eapply pathscomp0. { apply pathsinv0, reind_comp_typecat. }
       eapply pathscomp0. 2: { apply reind_comp_typecat. }
       apply maponpaths, dpr_q_typecat.
-    + admit. (* lemma about [var_typecat] *)
-  Admitted.
+    + set (e := (! _ @ _)); cbn.
+      rewrite (reind_tm_var_typecat2 _ _ e).
+      unfold tm_transportb.
+      now rewrite <- transportf_tm, transport_f_f, pathsinv0l.
+  Qed.
 
   Lemma reind_term_var_with_type {Γ} {A : C Γ} (a : tm A)
     : reind_type_with_term a (var_with_type A) = (A,,a).
