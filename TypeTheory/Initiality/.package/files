@@ -4,7 +4,8 @@ SplitTypeCat_Structure.v
 Syntax.v
 SyntaxLemmas.v
 Typing.v
-Interpretation.v
 TypingLemmas.v
+Interpretation.v
+InterpretationLemmas.v
 SyntacticCategory.v
 Initiality.v

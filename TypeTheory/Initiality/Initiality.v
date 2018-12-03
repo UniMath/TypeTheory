@@ -42,12 +42,10 @@ Section Uniqueness.
   upstream in [Interpretation], or perhaps a separate file
   [interpretation_2] or something:
 
-  - the partial interpretation function is _natural_: given a typecat
-    map [ f : C -> C' ] and a piece of syntax, then [f] applied to its
-    interpretation in [C] is ≤ its its interpretation in [D].  This should
-    be a single induction on raw syntax.
+  - functoriality of the partial interpretation under typecat maps:
+    [fmap_partial_interpretation_ty] and […tm] in [InterpretationLemmas].
 
-  - the total interpretation function into the symtactic category is the
+  - the total interpretation function into the syntactic category is the
     same as the canonical quotient inclusion.  This should be a single
     induction over derivations.
 
