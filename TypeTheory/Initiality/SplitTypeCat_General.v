@@ -321,6 +321,34 @@ Section Terms.
              (e : (A ⦃dpr_typecat A⦄) ⦃q_typecat A f⦄ = (A ⦃f⦄) ⦃dpr_typecat (A ⦃f⦄)⦄)
     : reind_tm (q_typecat A f) (var_typecat A)
       = tm_transportb e (var_typecat (A ⦃f⦄)).
+  Proof.
+    apply subtypeEquality; [ intros x; apply homset_property|]; simpl.
+    unfold map_into_Pb.
+    apply pathsinv0, PullbackArrowUnique; cbn.
+    - rewrite <-assoc.
+      unfold comp_ext_compare.
+      etrans; [ apply maponpaths, idtoiso_dpr_typecat|].
+      set (pb := Auxiliary.Pbb _ _ _ _ _ _ _ _ _ _ _).
+      apply (PullbackArrow_PullbackPr1 pb).
+    - rewrite <-assoc.
+      apply pathsinv0.
+      etrans.
+      set (pb := Auxiliary.Pbb _ _ _ _ _ _ _ _ _ _ _).
+      apply (postCompWithPullbackArrow _ _ _ pb).
+      apply pathsinv0, PullbackArrowUnique; cbn.
+      * set (pb := Auxiliary.Pbb _ _ _ _ _ _ _ _ _ _ _).
+        rewrite id_right, <-!assoc, dpr_q_typecat.
+        unfold comp_ext_compare.
+        assert (afoo : idtoiso (maponpaths (ext_typecat (Γ' ◂ (A ⦃f⦄))) (! e));;
+                               dpr_typecat ((A ⦃dpr_typecat A⦄) ⦃q_typecat A f⦄) =
+                       dpr_typecat ((A ⦃f⦄) ⦃dpr_typecat (A ⦃f⦄)⦄)).
+        { induction e.
+          now rewrite id_left. }
+        etrans; [apply maponpaths; rewrite assoc; apply cancel_postcomposition, afoo|].
+        now rewrite assoc, (PullbackArrow_PullbackPr1 pb), id_left.
+      * set (pb := Auxiliary.Pbb _ _ _ _ _ _ _ _ _ _ _).
+        rewrite id_right.
+        (* This gets very complicated... *)
   Admitted.
 
 End Terms.
