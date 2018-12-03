@@ -15,6 +15,9 @@ Require Import TypeTheory.Initiality.TypingLemmas.
 Local Open Scope judgement.
 
 Section Auxiliary.
+
+  Global Arguments ishinh : simpl never.
+
  (* we’ll need some material here about quotients:
   particularly, [lemmas.setquotprpathsandR] from [PAdics], I guess? *)
 
@@ -674,6 +677,9 @@ End Syntactic_Types.
 
 Section Split_Typecat.
 
+  (* TODO: upstream? *)
+  Arguments context_extend : simpl never.
+
   Local Definition ext (ΓΓ : context_mod_eq) (AA : type_mod_eq ΓΓ)
     : context_mod_eq.
   Proof.
@@ -749,10 +755,56 @@ Section Split_Typecat.
       exact @reind.
   Defined.
 
+  (* TODO: upstream the following few items *)
+  Definition dB_next_context_map (n:nat)
+    : raw_context_map (S n) n
+  := fun i => var_expr (dB_next i).
+
+  Definition rename_as_subst_ty {m n : nat} (f : m -> n) (e : ty_expr m)
+    : rename_ty f e = subst_ty (var_expr ∘ f)%functions e.
+  Proof.
+    (* TODO: perhaps [subst_idmap_ty] should be derived from this, rather than vice versa? *)
+    eapply pathscomp0. { apply maponpaths, pathsinv0, subst_idmap_ty. }
+    use rename_subst_ty.
+  Defined.
+
+  Definition derive_dB_next_context_map {Γ} {A}
+      (d_Γ : [! |f- Γ !]) (d_A : [! Γ |- A !])
+    : [! |- dB_next_context_map Γ ::: Γ;;A ---> Γ !].
+  Proof.
+    intros i.
+    eapply transportb.
+    { apply maponpaths_2, pathsinv0, rename_as_subst_ty. }
+    refine (derive_var (_;;_) (dB_next i) _).
+    refine (derive_flat_extend_context _ _ (dB_next i)); assumption.
+  Defined.
+  Opaque derive_dB_next_context_map.
+
+  Local Definition dpr (ΓΓ : context_mod_eq) (AA : type_mod_eq ΓΓ)
+    : map_mod_eq (ext ΓΓ AA) ΓΓ.
+  Proof.
+    use setquotpr.
+    exists (dB_next_context_map _).
+    apply map_for_some_rep.
+    destruct ΓΓ as [n ΓΓ]. revert ΓΓ AA.
+    use setquotunivprop'. { intro; apply isaprop_forall_hProp. } intros Γ.
+    use setquotunivprop'. { intros; apply isapropishinh. } intros A.
+    cbn. apply hinhpr. 
+    unfold ext. simpl. rewrite take_representative_comp. cbn.
+    refine ((_,, idpath _),, _).
+    cbn. refine ((_,,idpath _),, _).
+    cbn. refine (hinhfun2 _ Γ (A Γ)). intros d_Γ d_A.
+    exact (derive_dB_next_context_map d_Γ d_A).
+  Defined.
+
   Definition syntactic_typecat_structure : typecat_structure syntactic_category.
   Proof.
     exists syntactic_typecat_structure1.
-    admit.
+    repeat use tpair.
+    - exact dpr. (* dependent projection *)
+    - admit. (* “q-morphisms” *)
+    - admit. (* commutativity of q-morphisms*)
+    - admit. (* pullback condition *)
   Admitted.
 
   Lemma is_split_syntactic_typecat_structure
