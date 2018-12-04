@@ -185,7 +185,7 @@ Section Stratified_Contexts.
   Opaque empty_stratified_context.
 
   (** NOTE: [context_last] and [context_rest] are only defined for stratified
-  contexts, so we don’t need to explicitly include it in their names. *)
+  contexts, so we don’t explicitly include “stratified” in their names. *)
   Definition context_last {n} (Γ : stratified_context_of_length (S n))
     : ty_expr n
   := pr2 Γ.
@@ -209,7 +209,9 @@ Section Stratified_Contexts.
                (context_of_stratified_context _ (context_rest Γ))
                (context_last Γ)).
   Defined.
-  Global Arguments context_of_stratified_context : simpl nomatch.
+  Global Arguments context_of_stratified_context : simpl never.
+  (* TODO: this seems to often unfold too much.  Why?? 
+   A workaround for now: manual folding, [fold @context_of_stratified_context]. *)
 
   Coercion context_of_stratified_context
     : stratified_context_of_length >-> context_of_length.
@@ -224,6 +226,8 @@ Notation "Γ ;; A" := (extend_stratified_context Γ A)
                (at level 50, left associativity) : stratified_context_scope. 
 Notation "[: A ; .. ; Z :] " := (..([: :] ;; A) .. ;; Z)%strat_cxt
                                                  : stratified_context_scope.
+
+Local Open Scope stratified_context_scope.
 
 Section Stratified_Wellformed_Contexts.
 
@@ -241,6 +245,14 @@ Section Stratified_Wellformed_Contexts.
   Notation "[! |- Γ !]" := (derivation_strat_cxt Γ)
                     (format "[!  |-  Γ  !]") : judgement_scope.
 
+  Definition derive_empty_stratified_context : [! |- [::] !] := tt.
+
+  Definition derive_extend_stratified_context
+      {n} {Γ : stratified_context_of_length n} {A : ty_expr Γ}
+      (d_Γ : [! |- Γ !]) (d_A : [! Γ |- A !])
+    : [! |- Γ;;A !]
+  := (d_Γ,d_A).
+
   Fixpoint derive_flat_cxt_from_strat
       {n} {Γ : stratified_context_of_length n} {struct n}
     : [! |- Γ !] -> [! |f- Γ !].
@@ -248,7 +260,8 @@ Section Stratified_Wellformed_Contexts.
     destruct n as [ | n].
     - intro; intros [].
     - destruct Γ as [Γ A]. intros [d_Γ d_A].
-      exact (derive_flat_extend_context (derive_flat_cxt_from_strat _ _ d_Γ) d_A).
+      exact (derive_flat_extend_context
+               (derive_flat_cxt_from_strat _ _ d_Γ) d_A).
   Defined.
 
   Coercion derive_flat_cxt_from_strat
@@ -293,11 +306,6 @@ Section Stratified_Context_Equality.
   Coercion derive_flat_cxteq_from_cxteq
     : derivation_cxteq >-> derivation_flat_cxteq.
 
-  (* TODO: 
-     - retool category definitions below to use stratified instead of flat
-       context+equalities
-   *)
-
 End Stratified_Context_Equality.
 
 Notation "[! |- Δ === Γ !]" := (derivation_cxteq Δ Γ)
@@ -306,23 +314,22 @@ Notation "[! |- Δ === Γ !]" := (derivation_cxteq Δ Γ)
 
 Section Contexts_Modulo_Equality.
 
-  (* TODO: replace [ |f- ] with [ |- ] here, once [ |- Γ ] defined above. *)
   Definition wellformed_context_of_length (n : nat) : UU
-  := ∑ (Γ : context_of_length n), ∥ [! |f- Γ !] ∥.
+  := ∑ (Γ : stratified_context_of_length n), ∥ [! |- Γ !] ∥.
 
   Coercion context_of_wellformed_context {n} (Γ : wellformed_context_of_length n)
-    : context_of_length n
+    : stratified_context_of_length n
   := pr1 Γ.
 
   Definition context_derivable
       {n} (Γ : wellformed_context_of_length n)
-  := pr2 Γ  : ∥ [! |f- Γ !] ∥.
+  := pr2 Γ  : ∥ [! |- Γ !] ∥.
   Coercion context_derivable
     : wellformed_context_of_length >-> pr1hSet.
 
   Definition context_derivable'
       {n} (Γ : wellformed_context_of_length n)
-  := pr2 Γ  : hProptoType (∥ [! |f- Γ !] ∥).
+  := pr2 Γ  : hProptoType (∥ [! |- Γ !] ∥).
   Coercion context_derivable'
     : wellformed_context_of_length >-> hProptoType.
   (* NOTE: this is needed since [ ∥ _ ∥ ] sometimes desugars to [ pr1hSet … ] and sometimes to [ hProptoType … ]. *)
@@ -335,12 +342,12 @@ Section Contexts_Modulo_Equality.
     repeat split.
     - intros Γ Δ Θ.
       refine (hinhfun5 _ Γ Δ Θ); intros.
-      eauto using derive_flat_cxteq_trans. 
+      eauto using derive_flat_cxteq_trans, derive_flat_cxt_from_strat. 
     - intros Γ. refine (hinhfun _ Γ).
       exact derive_flat_cxteq_refl.
     - intros Γ Δ.
       refine (hinhfun3 _ Γ Δ); intros.
-      eauto using derive_flat_cxteq_sym.
+      eauto using derive_flat_cxteq_sym, derive_flat_cxt_from_strat.
   Qed.
 
   Definition derivable_cxteq {n} : eqrel (wellformed_context_of_length n)
@@ -515,7 +522,7 @@ Section Context_Map_Operations.
     apply (take_context_representative ΓΓ). { apply isapropishinh. }
     intros Γ. apply hinhpr. exists Γ; exists Γ.
     apply (squash_to_prop Γ). { apply isapropishinh. } intros.
-    apply hinhpr. use derive_idmap; assumption.
+    apply hinhpr. use derive_idmap; apply derive_flat_cxt_from_strat; assumption.
   Defined.
 
   Local Definition compose
@@ -534,12 +541,14 @@ Section Context_Map_Operations.
       apply (take_context_representative ΔΔ). { apply isapropishinh. } intros Δ.
       refine (hinhfun5 _ Γ (e_f Γ Δ) (map_derivable f Γ Δ)
                        (map_derivable f' Γ Δ) (map_derivable g Δ Θ)).
-      intros ? e ? ? ?; refine (comp_raw_context_cong_l _ _ _ e _); auto.
+      intros ? e ? ? ?; refine (comp_raw_context_cong_l _ _ _ e _);
+        auto using derive_flat_cxt_from_strat.
     - (* respecting equality in [g] *)
       cbn; intros f g g' e_g Γ Θ.
       apply (take_context_representative ΔΔ). { apply isapropishinh. } intros Δ.
       refine (hinhfun3 _ Γ (e_g Δ Θ) (map_derivable f Γ Δ)).
-      intros ? e ?; refine (comp_raw_context_cong_r _ _ e); auto.
+      intros ? e ?; refine (comp_raw_context_cong_r _ _ e);
+        auto using derive_flat_cxt_from_strat.
   Defined.
   
   (* TODO: “empty” and “extension” context maps. *)
@@ -688,8 +697,8 @@ Section Syntactic_Types.
     intros [Γ' d_A].
     refine (hinhfun3 _ Γ Γ' (cxteq_context_representatives Γ Γ')).
     intros d_Γ d_Γ' e_Γ.
-    apply (derive_ty_conv_cxteq Γ'); auto.
-    eauto using derive_flat_cxteq_sym.
+    apply (derive_ty_conv_cxteq Γ'); auto using derive_flat_cxt_from_strat.
+    eauto using derive_flat_cxteq_sym, derive_flat_cxt_from_strat.
   Qed.
 
   Lemma typeeq_for_some_rep
@@ -702,8 +711,8 @@ Section Syntactic_Types.
     intros [Γ' d_AB].
     refine (hinhfun3 _ Γ Γ' (cxteq_context_representatives Γ Γ')).
     intros d_Γ d_Γ' e_Γ.
-    apply (derive_tyeq_conv_cxteq Γ'); auto.
-    eauto using derive_flat_cxteq_sym.
+    apply (derive_tyeq_conv_cxteq Γ'); auto using derive_flat_cxt_from_strat.
+    eauto using derive_flat_cxteq_sym, derive_flat_cxt_from_strat.
   Qed.
 
 End Syntactic_Types.
@@ -724,20 +733,20 @@ Section Split_Typecat.
       change (representative ΓΓ) with (context_representative ΓΓ).
     - intros Γ.
       simple refine (setquotfun _ _ _ _ AA). 
-      + intros A. exists (Γ;;A)%context.
+      + intros A. exists (Γ;;A)%strat_cxt.
         refine (hinhfun2 _ Γ (A Γ)). intros d_Γ d_ΓA.
-        exact (derive_flat_extend_context d_Γ d_ΓA).
+        exact (derive_extend_stratified_context d_Γ d_ΓA).
       + intros A A' e_A.
         refine (hinhfun2 _ Γ (e_A Γ)). clear e_A; intros d_Γ e_A.
-        apply derive_extend_flat_cxteq; try apply d_Γ.
-        -- exact (derive_flat_cxteq_refl d_Γ).
-        -- exact e_A.
+        apply derive_extend_flat_cxteq; auto using derive_flat_cxt_from_strat, d_Γ.
+        exact (derive_flat_cxteq_refl d_Γ).
     - intros Γ Γ'; simpl; revert AA.
       use setquotunivprop'. { intros; apply isasetsetquot. } intros A.
       apply iscompsetquotpr.
       refine (hinhfun4 _ Γ Γ' (A Γ) (cxteq_context_representatives Γ Γ')).
       intros.
-      apply derive_extend_flat_cxteq; auto using derive_tyeq_refl.
+      apply derive_extend_flat_cxteq;
+        auto using derive_flat_cxt_from_strat, derive_tyeq_refl.
   Defined.
   
   Local Definition reind
@@ -766,7 +775,7 @@ Section Split_Typecat.
                        (map_derivable f Γ' Γ) (map_derivable f' Γ' Γ)
                        (e_f Γ' Γ)).
       intros d_Γ_A d_Γ' d_f d_f' d_e_f.
-      refine (substeq_derivation _ d_Γ_A _ _ _ _); assumption.
+      refine (substeq_derivation _ d_Γ_A _ _ _ _); auto using derive_flat_cxt_from_strat.
     - (* respects equality in the type *)
       clear AA ff. intros f A A' e_A Γ'. cbn.
       use (take_context_representative ΓΓ); try apply isapropishinh;
