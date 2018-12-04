@@ -225,6 +225,41 @@ Notation "Γ ;; A" := (extend_stratified_context Γ A)
 Notation "[: A ; .. ; Z :] " := (..([: :] ;; A) .. ;; Z)%strat_cxt
                                                  : stratified_context_scope.
 
+Section Stratified_Wellformed_Contexts.
+
+  Fixpoint derivation_strat_cxt
+      {n} (Γ : stratified_context_of_length n) {struct n}
+    : UU.
+  Proof.
+    destruct n as [ | n].
+    - exact unit.
+    - exact (derivation_strat_cxt _ (context_rest Γ)
+             × [! context_rest Γ |- context_last Γ !]).
+  Defined.
+  Arguments derivation_strat_cxt : simpl nomatch.
+
+  Notation "[! |- Γ !]" := (derivation_strat_cxt Γ)
+                    (format "[!  |-  Γ  !]") : judgement_scope.
+
+  Fixpoint derive_flat_cxt_from_strat
+      {n} {Γ : stratified_context_of_length n} {struct n}
+    : [! |- Γ !] -> [! |f- Γ !].
+  Proof.
+    destruct n as [ | n].
+    - intro; intros [].
+    - destruct Γ as [Γ A]. intros [d_Γ d_A].
+      exact (derive_flat_extend_context (derive_flat_cxt_from_strat _ _ d_Γ) d_A).
+  Defined.
+
+  Coercion derive_flat_cxt_from_strat
+    : derivation_strat_cxt >-> derivation_flat_context.
+  (* TODO: rename a bit to be more consistent with [_cxt] vs [_context]. *)
+  
+End Stratified_Wellformed_Contexts.
+
+Notation "[! |- Γ !]" := (derivation_strat_cxt Γ)
+                    (format "[!  |-  Γ  !]") : judgement_scope.
+
 Section Stratified_Context_Equality.
 
   Fixpoint derivation_cxteq
@@ -242,20 +277,18 @@ Section Stratified_Context_Equality.
                     (format "[!  |-  Δ  ===  Γ  !]") : judgement_scope.
 
   Fixpoint derive_flat_cxteq_from_cxteq
-      {n} {Γ Δ : stratified_context_of_length n} {struct n}
+      {n} {Γ Δ : stratified_context_of_length n}
+      (d_Γ : [! |- Γ !]) (d_Δ : [! |- Δ !]) {struct n}
     : [! |- Γ === Δ !] -> [! |f- Γ === Δ !].
   Proof.
     destruct n as [ | n].
     - intro; split; intros [].
-    - destruct Γ as [Γ A], Δ as [Δ B]. 
+    - destruct Γ as [Γ A], Δ as [Δ B], d_Γ as [? ?], d_Δ as [? ?]. 
       cbn; intros [? ?].
   (* TODO: how to stop [@context_of_stratified_context] unfolding here? *)
       apply derive_extend_flat_cxteq; fold @context_of_stratified_context;
-        auto.
-  (* TODO: need either eliminate flat-context assumption in [derive_extend_flat_cxteq],
-     or else add assumption of (stratified) well-formedness of [Γ], [Δ] here:
-      [ (d_Γ : [! |- Γ !]) (d_Δ : [! |- Δ !]) ] *)
-  Admitted.
+        auto using derive_flat_cxt_from_strat.
+  Defined.
 
   Coercion derive_flat_cxteq_from_cxteq
     : derivation_cxteq >-> derivation_flat_cxteq.
