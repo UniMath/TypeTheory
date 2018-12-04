@@ -55,6 +55,26 @@ Section Bare_Universe_Structure.
 
 End Bare_Universe_Structure.
 
+Section Universe_Preservation.
+
+  Definition preserves_basetype_struct
+      {C} (U : basetype_struct C) {C'} (U' : basetype_struct C')
+      (F : typecat_mor C C')
+    : UU
+  := forall (Γ : C), typecat_mor_Ty F _ (U Γ)
+                     = U' (F Γ).
+
+  Definition preserves_deptype_struct
+      {C} {U : basetype_struct C} (El : deptype_struct C U)
+      {C'} {U' : basetype_struct C'} (El' : deptype_struct C' U')
+      (F : typecat_mor C C') (F_U : preserves_basetype_struct U U' F)
+    : UU
+  := forall (Γ : C) (a : tm (U Γ)),
+            typecat_mor_Ty F _ (El _ a)
+            = El' _ (tm_transportf (F_U _) (fmap_tm F a)).
+
+End Universe_Preservation.
+
 Section Pi_Structure.
 (** The structure to model Pi-types in a split type-category. *)
 
