@@ -191,39 +191,37 @@ Section Interpretation_Stratified_Contexts.
     intros [].
   Defined.
 
-  (* TODO: refactor this!
-     Show separately:
-     - an extension carries a canonical environment;
-     - a strat cxt interprets as a partial extension *)
-  Definition partial_interpretation_strat_cxt {n}
-      (Γ : stratified_context_of_length n)
-    : partial (∑ Y : C, environment Y n).
+  Definition environment_of_extension {n}
+      (AA : extension_of_length n X)
+    : environment (ext_extension X AA) n.
   Proof.
     induction n as [ | n' IH].
-    - apply return_partial.
-      exists X. exact empty_environment.
+    - exact empty_environment.
+    - use extend_environment.
+      apply IH.
+  Defined.
+
+  Definition partial_interpretation_strat_cxt {n}
+      (Γ : stratified_context_of_length n)
+    : partial (extension_of_length n X).
+  Proof.
+    induction n as [ | n' IH].
+    - apply return_partial. exact tt.
     - apply (bind_partial (IH (context_rest Γ))).
-      intros [interp_Γ E].
-      apply (bind_partial
-              (partial_interpretation_ty U Π E (context_last Γ))).
+      intros interp_Γ.
+      apply (bind_partial (partial_interpretation_ty U Π
+                  (environment_of_extension interp_Γ) (context_last Γ))).
       intros interp_A.
       apply return_partial.
-      exists (interp_Γ ◂ interp_A).
-      apply extend_environment, E.
+      eauto using extension_extend.
   Defined.
   Arguments partial_interpretation_strat_cxt : simpl nomatch.
-
-  (* TODO: upstream *)
-  Definition isaprop_environment_respects_type {Y}
-      (Γ : context) (E : environment Y Γ)
-    : isaprop (environment_respects_type U Π Γ E).
-  Proof.
-  Admitted.
 
   Definition strat_cxt_partial_interpretation_respects_type {n}
       (Γ : stratified_context_of_length n)
       (Γ_def : is_defined (partial_interpretation_strat_cxt Γ))
-    : environment_respects_type U Π Γ (pr2 (evaluate Γ_def)).
+    : environment_respects_type U Π Γ
+                             (environment_of_extension (evaluate Γ_def)).
   Proof.
     induction n as [ | n' IH].
     - intros [].
@@ -252,16 +250,37 @@ Section Interpretation_Stratified_Contexts.
   Qed.
 
   Definition derivable_strat_cxteq_is_interpretable {n}
-      (Γ Γ' : stratified_context_of_length n)
-      (e_Γ : ∥ [! |- Γ === Γ' !] ∥)
+      (Γ Δ : stratified_context_of_length n)
+      (e_ΓΔ : ∥ [! |- Γ === Δ !] ∥)
       (Γ_def : is_defined (partial_interpretation_strat_cxt Γ))
-      (Γ'_def : is_defined (partial_interpretation_strat_cxt Γ'))
-    : evaluate Γ_def = evaluate Γ'_def.
+      (Δ_def : is_defined (partial_interpretation_strat_cxt Δ))
+    : evaluate Γ_def = evaluate Δ_def.
   Proof.
-    refine (factor_through_squash _ _ e_Γ);
-    admit. (* Requires refactoring of [partial_interpretation_strat_cxt]
-            to give extension instead of object. *)
-  Admitted.
+    refine (factor_through_squash _ _ e_ΓΔ).
+    { apply isaset_extension_of_length. }
+    clear e_ΓΔ; intros e_ΓΔ.
+    induction n as [ | n' IH].
+    - apply isapropunit.
+    - destruct Γ_def as [Γ'_def [A_def []]]; simpl in Γ'_def, A_def. 
+      destruct Δ_def as [Δ'_def [B_def []]]; simpl in Δ'_def, B_def. 
+      destruct e_ΓΔ as [e_ΓΔ' e_AB].
+      cbn.
+      specialize (IH _ _ Γ'_def Δ'_def e_ΓΔ').
+      set (interp_Γ' := evaluate Γ'_def) in *.
+      simple refine (idpath (extension_extend _ (evaluate A_def)) @ _).
+      set (interp_Δ' := evaluate Δ'_def) in *.
+      simple refine (_ @ idpath (extension_extend _ (evaluate B_def))).
+      assert (H: environment_respects_type U Π (context_rest Γ)
+                                 (environment_of_extension interp_Γ')).
+      { apply strat_cxt_partial_interpretation_respects_type. }
+      clearbody interp_Γ' interp_Δ'.
+      clear Γ'_def Δ'_def.
+      destruct IH.
+      apply maponpaths.
+      refine (@derivable_judgement_is_interpretable _ U Π
+                           [! context_rest Γ |- _ === _!] _ _ (_,,_) _ _);
+        auto using hinhpr.
+  Qed.
 
 End Interpretation_Stratified_Contexts.
 
