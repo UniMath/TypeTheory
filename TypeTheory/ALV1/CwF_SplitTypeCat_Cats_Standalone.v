@@ -25,7 +25,7 @@ Main definitions:
 
 Require Import UniMath.Foundations.Sets.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
-
+Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
@@ -742,16 +742,11 @@ Defined.
 Definition pr1_equiv_inv : adj_equivalence_of_precats (right_adjoint pr1_equiv).
 Proof.
   use adj_equivalence_of_precats_inv.
-  - apply has_homsets_compat_structures_precategory.
-  - apply has_homsets_term_fun_precategory.
 Defined.
 
 Definition equiv_of_structures : adj_equivalence_of_precats _ 
-  := @comp_adj_equivalence_of_precats _ _ _ 
-       has_homsets_term_fun_precategory
-       has_homsets_compat_structures_precategory
-       has_homsets_qq_structure_precategory
-       _ _ pr1_equiv_inv pr2_equiv.
+  := @comp_adj_equivalence_of_precats _ _ _ _ _ 
+                                      pr1_equiv_inv pr2_equiv.
 
 Definition equiv_of_types_of_structures 
   : term_fun_precategory ≃ qq_structure_precategory.

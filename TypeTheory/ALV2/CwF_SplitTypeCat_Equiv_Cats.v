@@ -5,6 +5,8 @@
 *)
 
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
@@ -634,9 +636,6 @@ Definition term_struc_to_qq_struc_is_equiv
       term_struc_to_qq_struc_fiber_functor.
 Proof.
   use comp_adj_equivalence_of_precats.
-  - apply homset_property. 
-  - apply homset_property. 
-  - apply homset_property. 
   - apply fiber_equiv.
     apply is_equiv_of_equiv_over_id.
   - apply fiber_equiv.
