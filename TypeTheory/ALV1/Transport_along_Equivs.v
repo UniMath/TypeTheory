@@ -117,7 +117,7 @@ Defined.
 Definition epsinv : iso (C:=[_ , _ , has_homsets_preShv _ ])
                         (functor_identity (preShv C)) (ext ∙ Fop_precomp).
 Proof.
-  set (XR':= (counit_iso_from_adj_equivalence_of_precats (has_homsets_preShv _ ) equiv_Fcomp)).
+  set (XR':= (counit_iso_from_adj_equivalence_of_precats equiv_Fcomp)).
   apply iso_inv_from_iso.
   apply XR'.
 Defined.
@@ -126,7 +126,7 @@ Defined.
 Definition etainv : iso (C:=[ _ , _ , (has_homsets_preShv _ )]) 
                         (Fop_precomp ∙ ext) (functor_identity (preShv D)).
 Proof.
-  set (XR := (unit_iso_from_adj_equivalence_of_precats (has_homsets_preShv _ ) equiv_Fcomp)).
+  set (XR := (unit_iso_from_adj_equivalence_of_precats equiv_Fcomp)).
   apply iso_inv_from_iso.
   apply XR.
 Defined.
