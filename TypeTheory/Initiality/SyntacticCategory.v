@@ -447,6 +447,33 @@ Section Context_Maps.
 
   Local Definition mapeq_is_eqrel (ΓΓ ΔΔ : context_mod_eq)
     : iseqrel (@mapeq_hrel ΓΓ ΔΔ).
+  Proof.
+    repeat split.
+    - intros f g h e1 e2 Γ Δ.
+      generalize (e1 Γ Δ).
+      generalize (e2 Γ Δ).
+      apply hinhuniv2; intros H1 H2.
+      apply hinhpr; intros i.
+      generalize (H2 i) (H1 i).
+      assert (HH : [! Γ |- subst_ty f (Δ i) === subst_ty g (Δ i) !]).
+      { admit. }
+      Check derive_tmeq_trans.
+      admit.
+    - intros f Γ Δ.
+      generalize (map_derivable f Γ Δ); apply hinhuniv; intros H.
+      apply hinhpr; intros i.
+      now apply derive_tmeq_refl, id_derivation_map.
+    - intros f g e Γ Δ.
+      generalize (e Γ Δ); apply hinhuniv; intros H.
+      generalize (pr2 (pr1 Γ)); apply hinhuniv; intro HΓ.
+      apply hinhpr; intro i.
+      apply derive_tmeq_sym.
+      assert (HH : [! Γ |- subst_ty f (Δ i) === subst_ty g (Δ i) !]).
+      { (* TODO: use substeq_derivation *)
+        admit. }
+      destruct (derive_presuppositions _ HH).
+      now apply derive_flat_cxt_from_strat.
+      now refine (derive_tmeq_conv _ _ _ _ _ _ _ HH (H i)).
   Admitted.
 
   Local Definition mapeq_eqrel ΓΓ ΔΔ : eqrel (map ΓΓ ΔΔ)

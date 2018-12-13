@@ -126,6 +126,7 @@ Section Derivations.
         -> derivation [! Γ |- A === A' !]
         -> derivation [! Γ |- a === a' ::: A !]
       -> derivation [! Γ |- a === a' ::: A' !]
+
     (** logical rules  *)
     | derive_U (Γ : context) 
       : derivation [! Γ |- U_expr !]
@@ -155,6 +156,7 @@ Section Derivations.
       -> derivation
              [! Γ |- app_expr A B (lam_expr A B b) a === subst_top_tm a b 
                                                      ::: subst_top_ty a B !]
+
     (** congruence rules for constructors *)
     (* no congruence rule needed for U *)
     | derive_El_cong (Γ : context) (a a' : _)

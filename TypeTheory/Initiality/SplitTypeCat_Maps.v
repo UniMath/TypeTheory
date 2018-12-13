@@ -15,11 +15,11 @@ Local Open Scope cat.
 Section morphisms.
 
 (* The definition of a morphism between split typecategories
-constsists of (modulo ^op):
+consists of (modulo ^op):
 
 - a functor F : C -> D
 - a natural transformation FTy : Ty C -> Ty D
-- a familry of isomorphisms ϕ : F(Γ.A) ≃ F(Γ).F_Ty(A)
+- a family of isomorphisms ϕ : F(Γ.A) ≃ F(Γ).F_Ty(A)
 
 satisfying triangle:
 
