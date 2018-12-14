@@ -162,11 +162,43 @@ Section Auxiliary.
     apply hinhpr; auto.
   Defined.
 
+  Lemma hinhfun6 {X1 X2 X3 X4 X5 X6 Y : UU} (f : X1 -> X2 -> X3 -> X4 -> X5 -> X6 -> Y)
+      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥) (x5 : ∥ X5 ∥) (x6 : ∥ X6 ∥)
+    : ∥ Y ∥.
+  Proof.
+    assert (temp := fun (X:UU) (x:∥X∥) (f : X->∥Y∥)
+                    => squash_to_prop x (isapropishinh Y) f).
+    apply (temp _ x1); intro.
+    apply (temp _ x2); intro.
+    apply (temp _ x3); intro.
+    apply (temp _ x4); intro.
+    apply (temp _ x5); intro.
+    apply (temp _ x6); intro.
+    apply hinhpr; auto.
+  Defined.
+
+  Lemma hinhfun7 {X1 X2 X3 X4 X5 X6 X7 Y : UU}
+                 (f : X1 -> X2 -> X3 -> X4 -> X5 -> X6 -> X7 ->  Y)
+                 (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥) (x5 : ∥ X5 ∥)
+                 (x6 : ∥ X6 ∥) (x7 : ∥ X7 ∥) : ∥ Y ∥.
+  Proof.
+    assert (temp := fun (X:UU) (x : ∥X∥) (f : X->∥Y∥)
+                    => squash_to_prop x (isapropishinh Y) f).
+    apply (temp _ x1); intro.
+    apply (temp _ x2); intro.
+    apply (temp _ x3); intro.
+    apply (temp _ x4); intro.
+    apply (temp _ x5); intro.
+    apply (temp _ x6); intro.
+    apply (temp _ x7); intro.
+    apply hinhpr; auto.
+  Defined.
+
 End Auxiliary.
 
 (** The construction of the syntactic type-category is rather trickier than one might hope, because of the need to quotient by some form of context equality — which, as ever when quotienting objects of a category, is quite fiddly.
 
-For just the _category_ this is unnecessary, but for the _type-category_, it is unavoidable: types must be modulo equality, in order to form a presheaf, but then so must contexts, in order for context extension to be well-defined. 
+For just the _category_ this is unnecessary, but for the _type-category_, it is unavoidable: types must be modulo equality, in order to form a presheaf, but then so must contexts, in order for context extension to be well-defined.
 
 At the same time, to get a _contextual_ type-category, one must stratify the objects: the flat contexts up to flat context equality form a type-category, but it will not in general contextual. *)
 
@@ -193,7 +225,7 @@ Section Stratified_Contexts.
   Definition context_rest {n} (Γ : stratified_context_of_length (S n))
     : stratified_context_of_length n
   := pr1 Γ.
-  
+
   Definition extend_stratified_context {n}
       (Γ : stratified_context_of_length n) (A : ty_expr n)
     : stratified_context_of_length (S n)
@@ -210,7 +242,7 @@ Section Stratified_Contexts.
                (context_last Γ)).
   Defined.
   Global Arguments context_of_stratified_context : simpl never.
-  (* TODO: this seems to often unfold too much.  Why?? 
+  (* TODO: this seems to often unfold too much.  Why??
    A workaround for now: manual folding, [fold @context_of_stratified_context]. *)
 
   Coercion context_of_stratified_context
@@ -223,7 +255,7 @@ Bind Scope stratified_context_scope with stratified_context_of_length.
 Notation "[: :]"
   := (empty_stratified_context) (format "[: :]") : stratified_context_scope.
 Notation "Γ ;; A" := (extend_stratified_context Γ A)
-               (at level 50, left associativity) : stratified_context_scope. 
+               (at level 50, left associativity) : stratified_context_scope.
 Notation "[: A ; .. ; Z :] " := (..([: :] ;; A) .. ;; Z)%strat_cxt
                                                  : stratified_context_scope.
 
@@ -267,7 +299,7 @@ Section Stratified_Wellformed_Contexts.
   Coercion derive_flat_cxt_from_strat
     : derivation_strat_cxt >-> derivation_flat_context.
   (* TODO: rename a bit to be more consistent with [_cxt] vs [_context]. *)
-  
+
 End Stratified_Wellformed_Contexts.
 
 Notation "[! |- Γ !]" := (derivation_strat_cxt Γ)
@@ -296,7 +328,7 @@ Section Stratified_Context_Equality.
   Proof.
     destruct n as [ | n].
     - intro; split; intros [].
-    - destruct Γ as [Γ A], Δ as [Δ B], d_Γ as [? ?], d_Δ as [? ?]. 
+    - destruct Γ as [Γ A], Δ as [Δ B], d_Γ as [? ?], d_Δ as [? ?].
       cbn; intros [? ?].
   (* TODO: how to stop [@context_of_stratified_context] unfolding here? *)
       apply derive_extend_flat_cxteq; fold @context_of_stratified_context;
@@ -342,7 +374,7 @@ Section Contexts_Modulo_Equality.
     repeat split.
     - intros Γ Δ Θ.
       refine (hinhfun5 _ Γ Δ Θ); intros.
-      eauto using derive_flat_cxteq_trans, derive_flat_cxt_from_strat. 
+      eauto using derive_flat_cxteq_trans, derive_flat_cxt_from_strat.
     - intros Γ. refine (hinhfun _ Γ).
       exact derive_flat_cxteq_refl.
     - intros Γ Δ.
@@ -354,7 +386,7 @@ Section Contexts_Modulo_Equality.
   := (_,,derivable_cxteq_is_eqrel n).
 
   Definition context_of_length_mod_eq n := setquot (@derivable_cxteq n).
-  Identity Coercion id_context_of_length_mod_eq 
+  Identity Coercion id_context_of_length_mod_eq
     : context_of_length_mod_eq >-> setquot.
 
   Definition context_mod_eq
@@ -450,31 +482,46 @@ Section Context_Maps.
   Proof.
     repeat split.
     - intros f g h e1 e2 Γ Δ.
-      generalize (e1 Γ Δ).
-      generalize (e2 Γ Δ).
-      apply hinhuniv2; intros H1 H2.
-      apply hinhpr; intros i.
-      generalize (H2 i) (H1 i).
-      assert (HH : [! Γ |- subst_ty f (Δ i) === subst_ty g (Δ i) !]).
-      { admit. }
-      Check derive_tmeq_trans.
-      admit.
+      use (hinhfun7 _ Γ Δ (map_derivable f Γ Δ) (map_derivable g Γ Δ)
+                    (map_derivable h Γ Δ) (e1 Γ Δ) (e2 Γ Δ)).
+      intros d_Γ d_Δ d_f d_g d_h d_fg d_gh i.
+      assert (H' : [! Γ |- subst_ty g (Δ i) === subst_ty f (Δ i) !]).
+      { apply derive_tyeq_sym.
+        use (substeq_derivation _ (derive_flat_cxt_from_strat d_Δ i));
+          auto using derive_flat_cxt_from_strat. }
+      assert (H'' : [! Γ |- subst_ty h (Δ i) === subst_ty g (Δ i) !]).
+      { apply derive_tyeq_sym.
+        use (substeq_derivation _ (derive_flat_cxt_from_strat d_Δ i));
+          auto using derive_flat_cxt_from_strat. }
+      use derive_tmeq_trans.
+      + exact (g i).
+      + exact (d_f i).
+      + induction (derive_presuppositions _ H' (derive_flat_cxt_from_strat d_Γ)) as [H1 H2].
+        use (derive_tm_conv _ _ _ _ _ _ H'); trivial.
+        exact (d_g i).
+      + induction (derive_presuppositions _ H' (derive_flat_cxt_from_strat d_Γ)) as [H1 H2].
+        use (derive_tm_conv _ _ _ _ _ _ H'); trivial.
+        induction (derive_presuppositions _ H'' (derive_flat_cxt_from_strat d_Γ)) as [H3 H4].
+        use (derive_tm_conv _ _ _ _ _ _ H''); trivial.
+        exact (d_h i).
+      + exact (d_fg i).
+      + induction (derive_presuppositions _ H' (derive_flat_cxt_from_strat d_Γ)) as [H1 H2].
+        use (derive_tmeq_conv _ _ _ _ _ _ _ H'); trivial.
+        exact (d_gh i).
     - intros f Γ Δ.
       generalize (map_derivable f Γ Δ); apply hinhuniv; intros H.
       apply hinhpr; intros i.
       now apply derive_tmeq_refl, id_derivation_map.
     - intros f g e Γ Δ.
-      generalize (e Γ Δ); apply hinhuniv; intros H.
-      generalize (pr2 (pr1 Γ)); apply hinhuniv; intro HΓ.
-      apply hinhpr; intro i.
+      use (hinhfun5 _ Γ Δ (map_derivable f Γ Δ) (map_derivable g Γ Δ) (e Γ Δ)).
+      intros d_Γ d_Δ d_f d_g H i.
       apply derive_tmeq_sym.
-      assert (HH : [! Γ |- subst_ty f (Δ i) === subst_ty g (Δ i) !]).
-      { (* TODO: use substeq_derivation *)
-        admit. }
-      destruct (derive_presuppositions _ HH).
-      now apply derive_flat_cxt_from_strat.
-      now refine (derive_tmeq_conv _ _ _ _ _ _ _ HH (H i)).
-  Admitted.
+      assert (H' : [! Γ |- subst_ty f (Δ i) === subst_ty g (Δ i) !]).
+      { use (substeq_derivation _ (derive_flat_cxt_from_strat d_Δ i));
+        auto using derive_flat_cxt_from_strat. }
+      induction (derive_presuppositions _ H' (derive_flat_cxt_from_strat d_Γ)) as [H1 H2].
+      now use (derive_tmeq_conv _ _ _ _ _ _ _ H' (H i)).
+  Qed.
 
   Local Definition mapeq_eqrel ΓΓ ΔΔ : eqrel (map ΓΓ ΔΔ)
   := (_,,mapeq_is_eqrel ΓΓ ΔΔ).
@@ -494,7 +541,7 @@ Section Context_Maps.
 
   (* TODO: consider naming of this and other analogous lemmas *)
 
-  (** Generally useful lemma: while the definition of map well-typedness is 
+  (** Generally useful lemma: while the definition of map well-typedness is
   with respect to _all_ contexts representing of its source/target, it’s enough
   to show it with respect to _some_ such representatives. *)
   Lemma map_for_some_rep
@@ -577,7 +624,7 @@ Section Context_Map_Operations.
       intros ? e ?; refine (comp_raw_context_cong_r _ _ e);
         auto using derive_flat_cxt_from_strat.
   Defined.
-  
+
   (* TODO: “empty” and “extension” context maps. *)
 
 End Context_Map_Operations.
@@ -616,7 +663,7 @@ Section Category.
     apply maponpaths. apply subtypeEquality_prop.
     cbn. apply pathsinv0, assoc_raw_context.
   Qed.
-  
+
   (* TODO: issue to raise in UniMath: [mk_category] is constructor for a _univalent_ category! *)
   Definition syntactic_category : category.
   Proof.
@@ -640,8 +687,8 @@ End Category.
 
 Section Syntactic_Types.
 
-  (** NOTE: it is slightly subtle, but crucial, that the following definitions 
-  depend directly on [context_of_length_mod_eq] not on [context_mod_eq]: it is 
+  (** NOTE: it is slightly subtle, but crucial, that the following definitions
+  depend directly on [context_of_length_mod_eq] not on [context_mod_eq]: it is
   [context_of_length_mod_eq] that is directly a [setquot], and so we need this
   dependence in order to apply the dependent universal property of [setquot],
   i.e. for constructing functions whose first argument is a context and whose
@@ -676,16 +723,16 @@ Section Syntactic_Types.
       apply (squash_to_prop (A Γ)). { apply isapropishinh. } intros d_A.
       apply (squash_to_prop (B Γ)). { apply isapropishinh. } intros d_B.
       apply (squash_to_prop (C Γ)). { apply isapropishinh. } intros d_C.
-      apply (squash_to_prop (e_AB Γ)). { apply isapropishinh. } 
+      apply (squash_to_prop (e_AB Γ)). { apply isapropishinh. }
       clear e_AB; intros e_AB.
-      apply (squash_to_prop (e_BC Γ)). { apply isapropishinh. } 
+      apply (squash_to_prop (e_BC Γ)). { apply isapropishinh. }
       clear e_BC; intros e_BC.
       now apply hinhpr, (derive_tyeq_trans Γ _ B).
     - intros A Γ.
       apply (squash_to_prop (A Γ)). { apply isapropishinh. } intros d_A.
       now apply hinhpr, derive_tyeq_refl.
     - intros A B e_AB Γ.
-      apply (squash_to_prop (e_AB Γ)). { apply isapropishinh. } 
+      apply (squash_to_prop (e_AB Γ)). { apply isapropishinh. }
       clear e_AB; intros e_AB.
       now apply hinhpr, derive_tyeq_sym.
   Defined.
@@ -753,13 +800,13 @@ Section Split_Typecat.
     : context_mod_eq.
   Proof.
     exists (S (length ΓΓ)).
-    (* TODO: can we do this with a non-dependent elimination principle 
+    (* TODO: can we do this with a non-dependent elimination principle
        (ideally, a non-dependent version of [take_representative_with_isaset])
        to get the syntax part computing?? *)
     use (take_representative_with_isaset ΓΓ); try apply isasetsetquot;
       change (representative ΓΓ) with (context_representative ΓΓ).
     - intros Γ.
-      simple refine (setquotfun _ _ _ _ AA). 
+      simple refine (setquotfun _ _ _ _ AA).
       + intros A. exists (Γ;;A)%strat_cxt.
         refine (hinhfun2 _ Γ (A Γ)). intros d_Γ d_ΓA.
         exact (derive_extend_stratified_context d_Γ d_ΓA).
@@ -775,7 +822,7 @@ Section Split_Typecat.
       apply derive_extend_flat_cxteq;
         auto using derive_flat_cxt_from_strat, derive_tyeq_refl.
   Defined.
-  
+
   Local Definition reind
       {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
       {ΓΓ' : context_mod_eq} (ff : map_mod_eq ΓΓ' ΓΓ)
@@ -858,7 +905,7 @@ Section Split_Typecat.
     destruct ΓΓ as [n ΓΓ]. revert ΓΓ AA.
     use setquotunivprop'. { intro; apply isaprop_forall_hProp. } intros Γ.
     use setquotunivprop'. { intros; apply isapropishinh. } intros A.
-    cbn. apply hinhpr. 
+    cbn. apply hinhpr.
     unfold ext. simpl. rewrite take_representative_comp. cbn.
     refine ((_,, idpath _),, _).
     cbn. refine ((_,,idpath _),, _).
