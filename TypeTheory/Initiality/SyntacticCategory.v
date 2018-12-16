@@ -121,60 +121,42 @@ Section Auxiliary.
     use take_representative_with_isaset; auto; apply setproperty.
   Defined.
 
+  Lemma hinh_apply {X Y : UU} (f : ∥ X → Y ∥) : ∥ X ∥ → ∥ Y ∥.
+  Proof.
+    intros x P a.
+    apply (x P); auto.
+  Defined.
+
+  Infix "⊛" := hinh_apply (at level 100).
+
   (* TODO: perhaps add [take_representative_with_isaprop], […with_hProp] also *)
 
   Lemma hinhfun3 {X1 X2 X3 Y : UU} (f : X1 -> X2 -> X3 -> Y)
       (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)
     : ∥ Y ∥.
   Proof.
-    assert (temp := fun (X:UU) (x:∥X∥) (f : X->∥Y∥)
-                    => squash_to_prop x (isapropishinh Y) f).
-    apply (temp _ x1); intro.
-    apply (temp _ x2); intro.
-    apply (temp _ x3); intro.
-    apply hinhpr; auto.
+    exact (hinhpr f ⊛ x1 ⊛ x2 ⊛ x3).
   Defined.
 
   Lemma hinhfun4 {X1 X2 X3 X4 Y : UU} (f : X1 -> X2 -> X3 -> X4 -> Y)
       (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥)
     : ∥ Y ∥.
   Proof.
-    assert (temp := fun (X:UU) (x:∥X∥) (f : X->∥Y∥)
-                    => squash_to_prop x (isapropishinh Y) f).
-    apply (temp _ x1); intro.
-    apply (temp _ x2); intro.
-    apply (temp _ x3); intro.
-    apply (temp _ x4); intro.
-    apply hinhpr; auto.
+    exact (hinhpr f ⊛ x1 ⊛ x2 ⊛ x3 ⊛ x4).
   Defined.
 
   Lemma hinhfun5 {X1 X2 X3 X4 X5 Y : UU} (f : X1 -> X2 -> X3 -> X4 -> X5 -> Y)
       (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥) (x5 : ∥ X5 ∥)
     : ∥ Y ∥.
   Proof.
-    assert (temp := fun (X:UU) (x:∥X∥) (f : X->∥Y∥)
-                    => squash_to_prop x (isapropishinh Y) f).
-    apply (temp _ x1); intro.
-    apply (temp _ x2); intro.
-    apply (temp _ x3); intro.
-    apply (temp _ x4); intro.
-    apply (temp _ x5); intro.
-    apply hinhpr; auto.
+    exact (hinhpr f ⊛ x1 ⊛ x2 ⊛ x3 ⊛ x4 ⊛ x5).
   Defined.
 
   Lemma hinhfun6 {X1 X2 X3 X4 X5 X6 Y : UU} (f : X1 -> X2 -> X3 -> X4 -> X5 -> X6 -> Y)
       (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥) (x5 : ∥ X5 ∥) (x6 : ∥ X6 ∥)
     : ∥ Y ∥.
   Proof.
-    assert (temp := fun (X:UU) (x:∥X∥) (f : X->∥Y∥)
-                    => squash_to_prop x (isapropishinh Y) f).
-    apply (temp _ x1); intro.
-    apply (temp _ x2); intro.
-    apply (temp _ x3); intro.
-    apply (temp _ x4); intro.
-    apply (temp _ x5); intro.
-    apply (temp _ x6); intro.
-    apply hinhpr; auto.
+    exact (hinhpr f ⊛ x1 ⊛ x2 ⊛ x3 ⊛ x4 ⊛ x5 ⊛ x6).
   Defined.
 
   Lemma hinhfun7 {X1 X2 X3 X4 X5 X6 X7 Y : UU}
@@ -182,16 +164,7 @@ Section Auxiliary.
                  (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥) (x5 : ∥ X5 ∥)
                  (x6 : ∥ X6 ∥) (x7 : ∥ X7 ∥) : ∥ Y ∥.
   Proof.
-    assert (temp := fun (X:UU) (x : ∥X∥) (f : X->∥Y∥)
-                    => squash_to_prop x (isapropishinh Y) f).
-    apply (temp _ x1); intro.
-    apply (temp _ x2); intro.
-    apply (temp _ x3); intro.
-    apply (temp _ x4); intro.
-    apply (temp _ x5); intro.
-    apply (temp _ x6); intro.
-    apply (temp _ x7); intro.
-    apply hinhpr; auto.
+    exact (hinhpr f ⊛ x1 ⊛ x2 ⊛ x3 ⊛ x4 ⊛ x5 ⊛ x6 ⊛ x7).
   Defined.
 
 End Auxiliary.
