@@ -4,7 +4,6 @@
 - and what it means for maps of split type-cats to preserve this logical structure. *)
 
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.All.
 
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.ALV1.TypeCat.
@@ -191,16 +190,104 @@ Section Pi_Structure.
 
 End Pi_Structure.
 
+Arguments pi_form {_} _.
+Arguments pi_intro {_} _.
+Arguments pi_app {_} _.
+Arguments pi_comp {_} _.
 
 Section Pi_Preservation.
+
+  Definition preserves_pi_form_struct
+      {C} (Π : pi_form_struct C)
+      {C'} (Π' : pi_form_struct C')
+      (F : typecat_mor C C')
+    : UU
+  := forall Γ A B,
+    typecat_mor_Ty F _ (Π Γ A B)
+    = Π' (F Γ) 
+         (typecat_mor_Ty F _ A)
+         ((typecat_mor_Ty F _ B) ⦃inv_from_iso (typecat_mor_iso F A)⦄).
+
+  Definition preserves_pi_intro_struct
+      {C} {Π : pi_form_struct C} (lam : pi_intro_struct C Π)
+      {C'} {Π' : pi_form_struct C'} (lam' : pi_intro_struct C' Π')
+      {F : typecat_mor C C'} (F_Π : preserves_pi_form_struct Π Π' F)
+    : UU
+  := forall Γ A B b,
+    fmap_tm F (lam Γ A B b)
+    = tm_transportb (F_Π _ _ _)
+      (lam' (F Γ)
+         (typecat_mor_Ty F _ A)
+         ((typecat_mor_Ty F _ B) ⦃inv_from_iso (typecat_mor_iso F A)⦄)
+         (reind_tm (inv_from_iso (typecat_mor_iso F A))
+           (fmap_tm F b))).
+
+  (* TODO: upstream *)
+  (* Other possible names: [typecat_mor_reind_ty], [typecat_mor_Ty_nat] *)
+  Definition reindex_fmap_ty
+      {C C' : split_typecat} (F : typecat_mor C C')
+      {Γ:C} (A: C Γ) {Γ' : C} (f : Γ' --> Γ)
+    : typecat_mor_Ty F _ (A ⦃f⦄)
+    = (typecat_mor_Ty F _ A) ⦃ # F f ⦄.
+  Proof.
+    generalize A; apply toforallpaths. 
+    exact (nat_trans_ax (typecat_mor_Ty F) f).
+  Defined.
+
+  Lemma fmap_tm_as_map 
+      {C C' : split_typecat} (F : typecat_mor C C')
+      {Γ:C} {A: C Γ} (a : tm A)
+    : # F a
+    = fmap_tm F a · inv_from_iso (typecat_mor_iso F A).
+  Proof.
+    cbn.
+    eapply pathscomp0. 2: { apply assoc. }
+    apply pathsinv0.
+    eapply pathscomp0. { apply maponpaths, iso_inv_after_iso. }
+    apply id_right.
+  Qed.
+
+  Definition preserves_pi_app_struct
+      {C} {Π : pi_form_struct C} (app : pi_app_struct C Π)
+      {C'} {Π' : pi_form_struct C'} (app' : pi_app_struct C' Π')
+      {F : typecat_mor C C'} (F_Π : preserves_pi_form_struct Π Π' F)
+    : UU
+  := forall Γ A B t a,
+    fmap_tm F (app Γ A B t a)
+    = tm_transportb (reindex_fmap_ty _ _ _
+                    @ maponpaths _ (fmap_tm_as_map _ _)
+                    @ reind_comp_typecat _ _ _ _ _ _)
+      (app' (F Γ)
+         (typecat_mor_Ty F _ A)
+         ((typecat_mor_Ty F _ B) ⦃inv_from_iso (typecat_mor_iso F A)⦄)
+         (tm_transportf (F_Π _ _ _) (fmap_tm F t)) 
+         (fmap_tm F a)).
 
   Definition preserves_pi_struct
       {C} (Π : pi_struct C)
       {C'} (Π' : pi_struct C')
       (F : typecat_mor C C')
-  : UU.
-    (* TODO: define preservation of Pi-structure.
-     Cf. preservation of universe structure above. *)
-  Admitted.
+    : UU
+  := ∑ (F_Π : preserves_pi_form_struct Π Π' F),
+       (preserves_pi_intro_struct (pi_intro Π) (pi_intro Π') F_Π)
+         × (preserves_pi_app_struct (pi_app Π) (pi_app Π') F_Π).
+
+  Definition fmap_pi_form
+      {C} {Π : pi_struct C}
+      {C'} {Π' : pi_struct C'}
+      {F : typecat_mor C C'} (F_Π : preserves_pi_struct Π Π' F)
+  := pr1 F_Π.
+
+  Definition fmap_pi_intro
+      {C} {Π : pi_struct C}
+      {C'} {Π' : pi_struct C'}
+      {F : typecat_mor C C'} (F_Π : preserves_pi_struct Π Π' F)
+  := pr1 (pr2 F_Π) : preserves_pi_intro_struct _ _ (fmap_pi_form F_Π).
+
+  Definition fmap_pi_app
+      {C} {Π : pi_struct C}
+      {C'} {Π' : pi_struct C'}
+      {F : typecat_mor C C'} (F_Π : preserves_pi_struct Π Π' F)
+  := pr2 (pr2 F_Π) : preserves_pi_app_struct _ _ (fmap_pi_form F_Π).
 
 End Pi_Preservation.

@@ -145,7 +145,7 @@ Section Partial_Interpretation.
         assume_partial (type_paths_hProp (Π _ interp_A interp_B) T) e_ΠAB_T.
         apply return_partial.
         refine (tm_transportf e_ΠAB_T _).
-        exact (pi_intro _ _ _ _ _ interp_b).
+        exact (pi_intro _ _ _ _ interp_b).
       + (* [app_expr A B f a] *)
         get_partial (partial_interpretation_ty _ U Π _ _ E A) interp_A.
         set (E_A := extend_environment E interp_A).
@@ -156,7 +156,7 @@ Section Partial_Interpretation.
         assume_partial (type_paths_hProp (interp_B ⦃interp_a⦄) T) e_Ba_T.
         apply return_partial.
         refine (tm_transportf e_Ba_T _).
-        refine (pi_app _ _ _ _ _ interp_f interp_a).
+        refine (pi_app _ _ _ _ interp_f interp_a).
   Defined.
 
   (** Note: alternatively, we could give the interpretation of terms as 
@@ -1120,7 +1120,7 @@ Section Totality.
            apply tm_as_raw_context_map_tracks_environments. }
       (* Step 3: apply the semantic pi-comp, modulo a little wrangling transports *)
       cbn. eapply maponpaths, pathscomp0.
-      { eapply (maponpaths (fun t => pi_app C Π _ _ _ t _)).
+      { eapply (maponpaths (fun t => pi_app Π _ _ _ t _)).
         apply tm_transportf_idpath_gen. }
       apply pi_comp.
     Qed.
