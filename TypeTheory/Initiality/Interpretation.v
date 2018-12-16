@@ -125,7 +125,7 @@ Section Partial_Interpretation.
         apply return_partial, U.
       + (* [El_expr a] *)
         get_partial (partial_interpretation_tm _ U Π _ _ E (U _) a) interp_a.
-        apply return_partial. exact (@elements _ U _ interp_a).
+        apply return_partial. exact (elements _ interp_a).
       + (* [Pi_expr A B] *)
         get_partial (partial_interpretation_ty _ U Π _ _ E A) interp_A.
         set (E_A := extend_environment E interp_A).

@@ -55,6 +55,8 @@ Section Bare_Universe_Structure.
 
 End Bare_Universe_Structure.
 
+Arguments elements {_ _}.
+
 Section Universe_Preservation.
 
   Definition preserves_basetype_struct
@@ -64,6 +66,9 @@ Section Universe_Preservation.
   := forall (Γ : C), typecat_mor_Ty F _ (U Γ)
                      = U' (F Γ).
 
+  Identity Coercion id_preserves_basetype_struct
+    : preserves_basetype_struct >-> Funclass.
+
   Definition preserves_deptype_struct
       {C} {U : basetype_struct C} (El : deptype_struct C U)
       {C'} {U' : basetype_struct C'} (El' : deptype_struct C' U')
@@ -72,6 +77,30 @@ Section Universe_Preservation.
   := forall (Γ : C) (a : tm (U Γ)),
             typecat_mor_Ty F _ (El _ a)
             = El' _ (tm_transportf (F_U _) (fmap_tm F a)).
+
+  Identity Coercion id_preserves_deptype_struct
+    : preserves_deptype_struct >-> Funclass.
+
+  Definition preserves_universe_struct
+      {C} (U : universe_struct C)
+      {C'} (U' : universe_struct C')
+      (F : typecat_mor C C')
+  := ∑ F_U, preserves_deptype_struct (@elements _ U) (@elements _ U') F F_U.
+
+  Definition fmap_universe
+      {C} {U : universe_struct C}
+      {C'} {U' : universe_struct C'}
+      {F : typecat_mor C C'} (F_U : preserves_universe_struct U U' F)
+  := pr1 F_U : preserves_basetype_struct _ _ _.
+
+  Definition fmap_elements
+      {C} {U : universe_struct C}
+      {C'} {U' : universe_struct C'}
+      {F : typecat_mor C C'} (F_U : preserves_universe_struct U U' F)
+  : forall (Γ : C) (a : tm (U Γ)),
+            typecat_mor_Ty F _ (elements _ a)
+            = elements _ (tm_transportf (fmap_universe F_U _) (fmap_tm F a))
+  := pr2 F_U.
 
 End Universe_Preservation.
 
@@ -161,3 +190,17 @@ Section Pi_Structure.
     := pr2 (pr2 Π).
 
 End Pi_Structure.
+
+
+Section Pi_Preservation.
+
+  Definition preserves_pi_struct
+      {C} (Π : pi_struct C)
+      {C'} (Π' : pi_struct C')
+      (F : typecat_mor C C')
+  : UU.
+    (* TODO: define preservation of Pi-structure.
+     Cf. preservation of universe structure above. *)
+  Admitted.
+
+End Pi_Preservation.
