@@ -906,19 +906,65 @@ Section Split_Typecat.
     use setquotunivprop'. { intro; apply isaprop_forall_hProp. } intros Γ.
     use setquotunivprop'. { intros; apply isapropishinh. } intros A.
     cbn. apply hinhpr.
-    unfold ext. simpl. rewrite take_representative_comp. cbn.
+    unfold ext. simpl. rewrite take_representative_comp.
     refine ((_,, idpath _),, _).
-    cbn. refine ((_,,idpath _),, _).
+    refine ((_,,idpath _),, _).
     cbn. refine (hinhfun2 _ Γ (A Γ)). intros d_Γ d_A.
     exact (derive_dB_next_context_map d_Γ d_A).
   Defined.
 
+  Definition derive_weaken_raw_context_map {Γ} {A} {Γ'} {f}
+             (d_Γ : [! |f- Γ !]) (d_A : [! Γ |- A !]) (d_Γ' : [! |f- Γ' !])
+             (d_f : [! |- f ::: Γ' ---> Γ !])
+     : [! |- weaken_raw_context_map f ::: Γ' ;; subst_ty f A --->  Γ ;; A !].
+  Proof.
+    (* Why do I have to use this qualified? *)
+    now use TypingLemmas.derive_weaken_map.
+  Defined.
+  
+  Local Definition qmor (ΓΓ : context_mod_eq) (AA : type_mod_eq ΓΓ)
+                        (ΓΓ' : context_mod_eq) :
+    ∏ (f : map_mod_eq ΓΓ' ΓΓ), map_mod_eq (ext ΓΓ' (reind AA f)) (ext ΓΓ AA).
+  Proof.
+    use setquot_rect.
+    - intros; apply isasetsetquot.
+    - simpl; intros f.
+      apply setquotpr.
+      exists (weaken_raw_context_map f).
+      apply map_for_some_rep.
+      destruct ΓΓ as [n ΓΓ].
+      destruct ΓΓ' as [m ΓΓ'].
+      revert ΓΓ AA ΓΓ' f.
+      (* TODO: how can we make the "use setquotunivprop'" reasoning nicer? *)
+      use setquotunivprop'.
+      { intro x; do 3 (apply impred_isaprop; intro); apply isapropishinh. }
+      intros Γ.
+      use setquotunivprop'.
+      { intro x; do 2 (apply impred_isaprop; intro); apply isapropishinh. }
+      intros A.
+      simpl.
+      use setquotunivprop'.
+      { intro x; apply impred_isaprop; intro; apply isapropishinh. }
+      intros Γ' f.
+      apply hinhpr.
+      unfold ext; simpl.
+      rewrite !take_representative_comp.
+      refine ((_,, idpath _),, _).
+      refine ((_,,idpath _),, _).
+      cbn.
+      induction f as [f Hf].
+      refine (hinhfun4 _ Γ (A Γ) Γ' (Hf (Γ',,idpath _) (Γ,,idpath _))).
+      exact derive_weaken_raw_context_map.
+    - (* This goal is scary! Things are also getting slow. TODO: more Qed's? Better lemma? *)
+      admit.
+  Admitted.
+      
   Definition syntactic_typecat_structure : typecat_structure syntactic_category.
   Proof.
     exists syntactic_typecat_structure1.
     repeat use tpair.
-    - exact dpr. (* dependent projection *)
-    - admit. (* “q-morphisms” *)
+    - exact dpr.  (* dependent projection *)
+    - exact qmor. (* “q-morphisms” *)
     - admit. (* commutativity of q-morphisms*)
     - admit. (* pullback condition *)
   Admitted.
