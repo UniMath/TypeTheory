@@ -62,14 +62,14 @@ Section Functoriality.
 
   Fixpoint
     fmap_partial_interpretation_ty
-      {Γ:C} {n:nat} (E : environment Γ n) (e : ty_expr n)
+      {Γ:C} {n:nat} (E : environment Γ n) (e : ty_expr n) {struct e}
     : leq_partial
         (fmap_partial (fun A => typecat_mor_Ty F _ A)
            (partial_interpretation_ty U Π E e))
         (partial_interpretation_ty U' Π' (fmap_environment F E) e)
   with
     fmap_partial_interpretation_tm
-      {Γ:C} {n:nat} (E : environment Γ n) (T : C Γ) (e : tm_expr n)
+      {Γ:C} {n:nat} (E : environment Γ n) (T : C Γ) (e : tm_expr n) {struct e}
     : leq_partial
         (fmap_partial (fun a => fmap_tm F a)
            (partial_interpretation_tm U Π E T e))
@@ -270,5 +270,9 @@ Section Functoriality.
         eapply pathscomp0. { apply (fmap_pi_app F_Π). }
         apply tm_transportf_irrelevant.
   Time Defined.
+(* Notes re slowdown here:
 
-End Functoriality.
+- moving context variables to be parameters in the theorem does _not_ seem to help typechecking speed.
+*)
+
+Time End Functoriality.
