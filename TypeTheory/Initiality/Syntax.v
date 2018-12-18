@@ -175,9 +175,9 @@ End Raw_Context_Maps.
 Section Substitution.
 
   Fixpoint
-    subst_ty {m n} (f : raw_context_map n m) (e : ty_expr m) : ty_expr n
+    subst_ty {m n} (f : raw_context_map n m) (e : ty_expr m) {struct e} : ty_expr n
   with
-    subst_tm {m n} (f : raw_context_map n m) (e : tm_expr m) : tm_expr n.
+    subst_tm {m n} (f : raw_context_map n m) (e : tm_expr m) {struct e} : tm_expr n.
   Proof.
     - (* subst_ty *)
       destruct e as [ m | m a | m A B ].

@@ -64,14 +64,14 @@ Section Environments.
     : reind_environment (id _) E = E.
   Proof.
     apply funextfun; intros i; apply reind_idmap_type_with_term.
-  Defined.
+  Qed.
 
   Definition reind_compose_environment
       {Γ Γ' Γ''} (f : Γ' --> Γ) (f' : Γ'' --> Γ') {n} (E : environment Γ n)
     : reind_environment (f';;f) E = reind_environment f' (reind_environment f E).
   Proof.
     apply funextfun; intros i; apply reind_compose_type_with_term.
-  Defined.
+  Qed.
 
   Definition reind_add_to_environment
       {Γ Γ':C} (f : Γ' --> Γ)
@@ -112,11 +112,11 @@ Section Partial_Interpretation.
 
   Fixpoint
     partial_interpretation_ty {C} (U : universe_struct C) (Π : pi_struct C)
-      {Γ:C} {n:nat} (E : environment Γ n) (e : ty_expr n)
+      {Γ:C} {n:nat} (E : environment Γ n) (e : ty_expr n) {struct e}
     : partial (C Γ)
   with
     partial_interpretation_tm {C} (U : universe_struct C) (Π : pi_struct C)
-      {Γ:C} {n:nat} (E : environment Γ n) (T : C Γ) (e : tm_expr n)
+      {Γ:C} {n:nat} (E : environment Γ n) (T : C Γ) (e : tm_expr n) {struct e}
     : partial (tm T). (* See note below re type. *)
   Proof.
     - (* type expressions *)
@@ -544,7 +544,7 @@ For now, we keep the definition parametrised, not packaged. *)
                            (extend_environment E A) E.
   Proof.
     apply idpath.
-  Defined.
+  Qed.
 
 End Environment_Maps.
 
@@ -646,7 +646,7 @@ a little more work to state. *)
       {X} {m n:nat} (E : environment X m)
       (f : raw_context_map m n) (T : n -> C X)
       (f_def : is_defined (partial_interpretation_raw_context_map E T f))
-      (e : ty_expr n)
+      (e : ty_expr n) {struct e}
     : leq_partial
         (partial_interpretation_ty U Π (evaluate f_def) e)
         (partial_interpretation_ty U Π E (subst_ty f e))
@@ -655,7 +655,7 @@ a little more work to state. *)
       {X} {m n:nat} (E : environment X m)
       (f : raw_context_map m n) (T : n -> C X)
       (f_def : is_defined (partial_interpretation_raw_context_map E T f))
-      (S : C X) (e : tm_expr n)
+      (S : C X) (e : tm_expr n) {struct e}
     : leq_partial
         (partial_interpretation_tm U Π (evaluate f_def) S e)
         (partial_interpretation_tm U Π E S (subst_tm f e)).

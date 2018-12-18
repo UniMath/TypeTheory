@@ -162,19 +162,19 @@ Section Terms.
     apply subtypeEquality.
     + now intros x; apply homset_property.
     + now unfold tm_transportf; cbn; rewrite id_right.
-  Defined.
+  Qed.
 
   Lemma tm_transportf_idpath {C : typecat} {Γ} {A : C Γ} (t : tm A)
     : tm_transportf (idpath A) t = t.
   Proof.
     apply paths_tm, id_right.
-  Defined.
+  Qed.
 
   Lemma tm_transportb_idpath {C : typecat} {Γ} {A : C Γ} (t : tm A)
     : tm_transportb (idpath A) t = t.
   Proof.
     apply paths_tm, id_right.
-  Defined.
+  Qed.
 
   Lemma tm_transportf_irrelevant {C : split_typecat} {Γ} {A A' : C Γ} (e e' : A = A')
       (t : tm A)
@@ -182,7 +182,7 @@ Section Terms.
   Proof.
     apply (maponpaths (fun e => tm_transportf e t)).
     apply isaset_types_typecat.
-  Defined.
+  Qed.
 
   Lemma tm_transportf_idpath_gen {C : split_typecat}
       {Γ} {A : C Γ} (e : A = A) (t : tm A)
@@ -190,7 +190,7 @@ Section Terms.
   Proof.
     eapply pathscomp0; [apply tm_transportf_irrelevant|].
     eapply tm_transportf_idpath.
-  Defined.
+  Qed.
 
   Definition reind_id_tm {C : split_typecat}
       {Γ : C}{A : C Γ} (a : tm A)
@@ -313,7 +313,7 @@ Section Terms.
     = tm_transportf e a.
   Proof.
     rewrite reind_tm_var_typecat; apply tm_transportf_irrelevant.
-  Defined.
+  Qed.
 
   Definition reind_tm_var_typecat2
              {C : split_typecat}

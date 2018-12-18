@@ -109,11 +109,11 @@ Section Derived_Actions.
     use tpair.
     - refine (# F a · _).
       apply typecat_mor_iso.
-    - cbn. eapply pathscomp0. { apply pathsinv0, assoc. }
-      eapply pathscomp0. { apply maponpaths, pathsinv0, typecat_mor_triangle. }
-      eapply pathscomp0. { apply pathsinv0, functor_comp. }
-      eapply pathscomp0. { apply maponpaths, section_property. }
-      apply functor_id.
+    - abstract (cbn; eapply pathscomp0; [ apply pathsinv0, assoc |];
+      eapply pathscomp0; [ apply maponpaths, pathsinv0, typecat_mor_triangle|];
+      eapply pathscomp0; [ apply pathsinv0, functor_comp|];
+      eapply pathscomp0; [ apply maponpaths, section_property|];
+      apply functor_id).
   Defined.
 
 End Derived_Actions.
