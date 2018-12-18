@@ -77,24 +77,27 @@ Section Functoriality.
                                    (typecat_mor_Ty F _ T)
                                    e).
   Proof.
-  (* Note: entire proof closely parallels that of [reindex_partial_interpretation], essentially since reindexing is a map of CwA’s and the reindexing axioms say precisely that it is structure_preserving. *)
+    (* Note: entire proof closely parallels that of [reindex_partial_interpretation], essentially since reindexing is a map of CwA’s and the reindexing axioms say precisely that it is structure_preserving. *)
     - (* type expressions *)
       destruct e as [ n | n a | n A B ].
       + (* [U_expr] *)
         apply leq_partial_of_path.
         eapply pathscomp0. { apply fmap_return_partial. }
-        cbn; apply maponpaths. apply fmap_universe; assumption.
+        eapply pathscomp0. { eapply maponpaths, (@fmap_universe _ _ _ U' _ F_U). }
+        apply idpath.
       + (* [El_expr a] *)
-        assert (IH_a := fun T => fmap_partial_interpretation_tm Γ n E T a).
         (* part for [a] argument *)
         eapply leq_partial_trans.
-        { apply leq_partial_of_path, fmap_bind_partial. }
+        { apply leq_partial_of_path.
+          apply (fmap_bind_partial (partial_interpretation_tm _ _ _ _ _)). }
         eapply leq_partial_trans.
-        2: { eapply bind_leq_partial_1. 
+        2: { refine (@bind_leq_partial_1 _ _ _
+                        (partial_interpretation_tm _ _ _ _ _) _ _).
           eapply leq_partial_trans.
           2: { refine (tm_transportf_partial_interpretation_tm_leq _ _ _).
                apply (fmap_universe F_U). }
-             apply fmap_leq_partial, IH_a. }
+          apply fmap_leq_partial.
+          apply fmap_partial_interpretation_tm. }
         eapply leq_partial_trans.
         2: { apply leq_partial_of_path, pathsinv0.
              eapply pathscomp0; apply bind_fmap_partial_1. }
@@ -102,15 +105,23 @@ Section Functoriality.
         (* final naturality part *)
         apply leq_partial_of_path.
         eapply pathscomp0. { apply fmap_return_partial. }
-        cbn; apply maponpaths, fmap_elements.
+        eapply pathscomp0. { eapply maponpaths, (@fmap_elements _ _ _ U'). }
+        apply idpath.
       + (* [Pi_expr A B] *)
         assert (IH_A := fmap_partial_interpretation_ty Γ n E A).
         assert (IH_B := fun Γ E => fmap_partial_interpretation_ty Γ (S n) E B).
         (* part for [A] argument *)
         eapply leq_partial_trans.
-        { apply leq_partial_of_path, fmap_bind_partial. }
+        { apply leq_partial_of_path.          
+          apply (fmap_bind_partial
+                   (partial_interpretation_ty _ _ _ _)
+                   (λ interp_A, bind_partial
+                                  (partial_interpretation_ty _ _ _ _) _)). }
         eapply leq_partial_trans.
-        2: { eapply bind_leq_partial_1, IH_A. }
+        2: { refine (@bind_leq_partial_1 _ _ _
+                        (partial_interpretation_ty _ _ _ _) _
+                        (λ interp_A, bind_partial (partial_interpretation_ty _ _ _ _) _)).
+             apply IH_A. }
         eapply leq_partial_trans.
         2: { apply leq_partial_of_path, pathsinv0, bind_fmap_partial_1. }
         apply bind_leq_partial_2; intros A_interp.
@@ -118,8 +129,7 @@ Section Functoriality.
         eapply leq_partial_trans.
         { apply leq_partial_of_path, fmap_bind_partial. }
         eapply leq_partial_trans.
-        2: { eapply bind_leq_partial_1.
-             eapply leq_partial_trans.
+        2: { eapply bind_leq_partial_1, leq_partial_trans.
              2: { apply leq_partial_of_path.
                   apply maponpaths_2, pathsinv0, fmap_extend_environment'. }
              eapply leq_partial_trans.
@@ -132,7 +142,8 @@ Section Functoriality.
         (* final naturality part *)
         apply leq_partial_of_path.
         eapply pathscomp0. { apply fmap_return_partial. }
-        cbn; apply maponpaths, fmap_pi_form, F_Π.
+        eapply pathscomp0. { eapply maponpaths, (@fmap_pi_form _ _ _ Π' _ F_Π). }
+        apply idpath.
     - (* term expressions *)
       destruct e as [ n i | n A B b | n A B t a ].
       + (* [var_expr i] *)
@@ -152,9 +163,21 @@ Section Functoriality.
                         => fmap_partial_interpretation_tm Γ (S n) E T b).
         (* part for [A] argument *)
         eapply leq_partial_trans.
-        { apply leq_partial_of_path, fmap_bind_partial. }
+        { apply leq_partial_of_path.          
+          apply (fmap_bind_partial
+                   (partial_interpretation_ty U Π E A)
+                   (λ iA, bind_partial
+                            (partial_interpretation_ty _ _ _ _)
+                            (λ iB, bind_partial
+                                     (partial_interpretation_tm _ _ _ _ _)
+                                     _)) _). }
         eapply leq_partial_trans.
-        2: { eapply bind_leq_partial_1, IH_A. }
+        2: { refine (@bind_leq_partial_1 _ _ _
+                       (partial_interpretation_ty _ _ _ _) _
+                       (λ iA, bind_partial
+                                (partial_interpretation_ty _ _ _ _)
+                                (λ iB, bind_partial (partial_interpretation_tm _ _ _ _ _) _))).
+             apply IH_A. }
         eapply leq_partial_trans.
         2: { apply leq_partial_of_path, pathsinv0, bind_fmap_partial_1. }
         apply bind_leq_partial_2; intros A_interp.
@@ -165,7 +188,7 @@ Section Functoriality.
         2: { eapply bind_leq_partial_1.
           eapply leq_partial_trans.
           2: { apply leq_partial_of_path.
-            apply maponpaths_2, pathsinv0, fmap_extend_environment'. }
+               apply maponpaths_2, pathsinv0, fmap_extend_environment'. }
           eapply leq_partial_trans.
           2: { apply reindex_partial_interpretation_ty. }
           apply fmap_leq_partial, IH_B. }
@@ -193,7 +216,7 @@ Section Functoriality.
         eapply leq_partial_trans.
         { eapply leq_partial_of_path, fmap_assume_partial. }
         use assume_partial_leq.
-        { cbn; intros e_T.
+        { intros e_T.
           eapply pathscomp0. 2: { apply maponpaths, e_T. }
           apply pathsinv0, fmap_pi_form, F_Π. }
         intros e_T; destruct e_T.
@@ -210,9 +233,31 @@ Section Functoriality.
         assert (IH_a := fun T => fmap_partial_interpretation_tm Γ n E T a).
         (* part for [A] argument *)
         eapply leq_partial_trans.
-        { apply leq_partial_of_path, fmap_bind_partial. }
+        { apply leq_partial_of_path.          
+          apply (fmap_bind_partial
+                   (partial_interpretation_ty _ _ _ _)
+                   (λ interp_A,
+                    bind_partial
+                      (partial_interpretation_ty _ _ _ _)
+                      (λ interp_B,
+                       bind_partial (partial_interpretation_tm _ _ _ _ _)
+                                    (λ interp_a,
+                                     bind_partial (partial_interpretation_tm _ _ _ _ _)
+                                                  _)))).
+        }
         eapply leq_partial_trans.
-        2: { eapply bind_leq_partial_1, IH_A. }
+        2: { refine (@bind_leq_partial_1 _ _ _
+                        (partial_interpretation_ty _ _ _ _) _
+                        (λ interp_A,
+                         bind_partial
+                           (partial_interpretation_ty _ _ _ _)
+                           (λ interp_B,
+                            bind_partial
+                              (partial_interpretation_tm _ _ _ _ _)
+                              (λ interp_a,
+                               bind_partial
+                                 (partial_interpretation_tm _ _ _ _ _) _)))).
+             apply IH_A. }
         eapply leq_partial_trans.
         2: { apply leq_partial_of_path, pathsinv0, bind_fmap_partial_1. }
         apply bind_leq_partial_2; intros A_interp.
@@ -233,15 +278,21 @@ Section Functoriality.
         apply bind_leq_partial_2; intros B_interp.
         (* part for [a] argument *)
         eapply leq_partial_trans.
-        { cbn. apply leq_partial_of_path, fmap_bind_partial. }
+        { apply leq_partial_of_path.          
+          apply (fmap_bind_partial
+                   (partial_interpretation_tm U Π E _ a)
+                   (λ ia, bind_partial
+                            (partial_interpretation_tm _ _ _ _ _) _) _). }
         eapply leq_partial_trans.
         2: { eapply bind_leq_partial_1, IH_a. }
         eapply leq_partial_trans.
         2: { apply leq_partial_of_path, pathsinv0, bind_fmap_partial_1. }
         apply bind_leq_partial_2; intros a_interp.
         (* part for [t] argument *)
-        eapply leq_partial_trans.
-        { cbn. apply leq_partial_of_path, fmap_bind_partial. }
+        eapply leq_partial_trans.        
+        { apply leq_partial_of_path.          
+          apply (fmap_bind_partial
+                   (partial_interpretation_tm _ _ _ _ _)). }
         eapply leq_partial_trans.
         2: { eapply bind_leq_partial_1.
           eapply leq_partial_trans.
@@ -270,9 +321,20 @@ Section Functoriality.
         eapply pathscomp0. { apply (fmap_pi_app F_Π). }
         apply tm_transportf_irrelevant.
   Time Defined.
+
 (* Notes re slowdown here:
 
-- moving context variables to be parameters in the theorem does _not_ seem to help typechecking speed.
+- Moving context variables to be parameters in the theorem does
+  _not_ seem to help typechecking speed.
+
+- Removing all uses of cbn made it a bit faster.
+
+- Things get faster if we give Coq some more information in
+  [fmap_bind_partial] and [bind_leq_partial_1]. If we don't tell Coq
+  where [partial_interpretation_tm] and [partial_interpretation_ty]
+  should be Coq picks unfolded versions of these two functions which
+  blows up term sizes. Maybe we can control this some other way? Maybe
+  using locking?
 *)
 
 Time End Functoriality.
