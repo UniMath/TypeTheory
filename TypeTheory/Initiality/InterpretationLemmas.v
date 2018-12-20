@@ -34,21 +34,44 @@ Section Functoriality_General.
     intros i. exact (fmap_type_with_term (E i)). 
   Defined.
 
-  Lemma fmap_extend_environment {Γ} {n} (E : environment Γ n) (A : C Γ)
-    : fmap_environment (extend_environment E A)
-    = reind_environment (typecat_mor_iso F _)
-      (extend_environment (fmap_environment E) (fmap_ty _ A)).
+  Lemma fmap_reind_environment
+      {Γ Γ' : C} (f : Γ' --> Γ) {n} (E : environment Γ n)
+    : fmap_environment (reind_environment f E)
+    = reind_environment (# F f) (fmap_environment E).
   Proof.
   Admitted.
 
-  Lemma fmap_extend_environment' {Γ} {n} (E : environment Γ n) (A : C Γ)
+  Lemma var_with_type_fmap_type
+      {Γ} (A : C Γ)
+    : var_with_type (fmap_ty Γ A)
+    = reind_type_with_term (inv_from_iso (typecat_mor_iso F A))
+          (fmap_type_with_term (var_with_type A)).
+  Proof.
+  Admitted.
+
+  Lemma fmap_add_to_environment
+        {Γ:C} {n} (E : environment Γ n) (Aa : type_with_term Γ)
+    : fmap_environment (add_to_environment E Aa)
+    = add_to_environment (fmap_environment E) (fmap_type_with_term Aa).
+  Proof.
+    apply funextfun. use dB_Sn_rect; intros; apply idpath.
+  Qed.
+
+  Lemma fmap_extend_environment {Γ} {n} (E : environment Γ n) (A : C Γ)
     : extend_environment (fmap_environment E) (fmap_ty _ A)
     = reind_environment (inv_from_iso (typecat_mor_iso F _))
       (fmap_environment (extend_environment E A)).
   Proof.
-  Admitted.
+    apply pathsinv0.
+    eapply pathscomp0. { apply maponpaths, fmap_add_to_environment. }
+    eapply pathscomp0. { apply reind_add_to_environment. }
+    apply (maponpaths_12 add_to_environment).
+    - eapply pathscomp0. { apply maponpaths, fmap_reind_environment. }
+      eapply pathscomp0. { apply pathsinv0, reind_compose_environment. }
+      apply maponpaths_2. apply iso_inv_on_right, typecat_mor_triangle.
+    - apply pathsinv0, var_with_type_fmap_type.
+  Qed.
 
-  (* TODO: after some use, see which direction of [fmap_extend_environment] is more useful.  Indeed, consider at some point which direction of [typecat_mor_iso] is used more often and so should be taken as primitive. *)
 End Functoriality_General.
 
 Section Functoriality.
@@ -127,7 +150,7 @@ Section Functoriality.
         eapply leq_partial_trans.
         2: { eapply bind_leq_partial_1, leq_partial_trans.
              2: { apply leq_partial_of_path.
-                  apply maponpaths_2, pathsinv0, fmap_extend_environment'. }
+                  apply maponpaths_2, pathsinv0, fmap_extend_environment. }
              eapply leq_partial_trans.
              2: { apply reindex_partial_interpretation_ty. }
              apply fmap_leq_partial, IH_B. }
@@ -180,7 +203,7 @@ Section Functoriality.
         2: { eapply bind_leq_partial_1.
           eapply leq_partial_trans.
           2: { apply leq_partial_of_path.
-               apply maponpaths_2, pathsinv0, fmap_extend_environment'. }
+               apply maponpaths_2, pathsinv0, fmap_extend_environment. }
           eapply leq_partial_trans.
           2: { apply reindex_partial_interpretation_ty. }
           apply fmap_leq_partial, IH_B. }
@@ -196,7 +219,7 @@ Section Functoriality.
           eapply leq_partial_trans.
           2: { apply leq_partial_of_path.
              eapply (maponpaths (fun E => partial_interpretation_tm _ _ E _ _)),
-                    pathsinv0, fmap_extend_environment'. }
+                    pathsinv0, fmap_extend_environment. }
           eapply leq_partial_trans.
           2: { apply reindex_partial_interpretation_tm. }
           apply fmap_leq_partial, IH_b. }
@@ -250,7 +273,7 @@ Section Functoriality.
         2: { eapply bind_leq_partial_1.
           eapply leq_partial_trans.
           2: { apply leq_partial_of_path.
-            apply maponpaths_2, pathsinv0, fmap_extend_environment'. }
+            apply maponpaths_2, pathsinv0, fmap_extend_environment. }
           eapply leq_partial_trans.
           2: { apply reindex_partial_interpretation_ty. }
           apply fmap_leq_partial, IH_B. }
