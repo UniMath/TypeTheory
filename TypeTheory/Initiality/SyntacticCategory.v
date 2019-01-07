@@ -173,14 +173,14 @@ computational behaviour. *)
   Defined.
 
   Lemma take_representative_comp
-      {X:UU} {R:eqrel X} (x:X)
-      {Y:UU} (H_Y : isaset Y)
-      (f : representative (setquotpr R x) -> Y) (H_f : forall xx xx', f xx = f xx')
-    : take_representative_with_isaset (setquotpr R x) H_Y f H_f = f (x,,idpath _).
+      {X:UU} {R:eqrel X} (xx : setquot R)
+      {Y:UU} (H_Y : isaset Y) (f : representative xx -> Y)
+      (H_f : forall x x', f x = f x') (x : representative xx) 
+    : take_representative_with_isaset xx H_Y f H_f = f x.
   Proof.
     unfold take_representative_with_isaset.
-    eapply pathscomp0. { refine (toforallpaths _ _ _ _ _).  use setquot_comp. }
-    apply idpath.
+    destruct x as [x e]; induction e.
+    now rewrite setquot_comp.
   Qed.
 
   Definition take_representative_with_hSet
@@ -823,9 +823,9 @@ Section Split_Typecat.
     use (take_representative_with_isaset ΓΓ); try apply isasetsetquot;
       change (representative ΓΓ) with (context_representative ΓΓ).
     - intros Γ.
-      simple refine (setquotfun _ _ _ _ AA).
-      + intros A. exists (Γ;;A)%strat_cxt.
-        refine (hinhfun2 _ Γ (A Γ)). intros d_Γ d_ΓA.
+      use (setquotfun _ _ _ _ AA).
+      + intros A. exists (Γ ;; A)%strat_cxt.
+        refine (hinhfun2 _ Γ (A Γ)); intros d_Γ d_ΓA.
         exact (derive_extend_stratified_context d_Γ d_ΓA).
       + intros A A' e_A.
         refine (hinhfun2 _ Γ (e_A Γ)). clear e_A; intros d_Γ e_A.
@@ -845,12 +845,13 @@ Section Split_Typecat.
       (A : type_over ΓΓ)
     : context_representative (ext ΓΓ (setquotpr _ A)).
   Proof.
-    simple refine (_,,_).
-    - exists (Γ;;A)%strat_cxt.
-      apply temp_admit.
-    - apply temp_admit.
+    use tpair.
+    - exists (Γ ;; A)%strat_cxt.
+      refine (hinhfun2 _ Γ (A Γ)); intros d_Γ d_ΓA.
+      exact (derive_extend_stratified_context d_Γ d_ΓA).
+    - now simpl; rewrite (take_representative_comp _ _ _ _ Γ).
   Defined.
-
+  
   Local Definition reind
       {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
       {ΓΓ' : context_mod_eq} (ff : map_mod_eq ΓΓ' ΓΓ)
