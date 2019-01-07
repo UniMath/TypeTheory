@@ -183,6 +183,15 @@ computational behaviour. *)
     now rewrite setquot_comp.
   Qed.
 
+  Lemma take_representative_comp_canon
+      {X:UU} {R:eqrel X} (x : X)
+      {Y:UU} (H_Y : isaset Y) (f : representative (setquotpr R x) -> Y)
+      (H_f : forall xx xx', f xx = f xx')
+    : take_representative_with_isaset (setquotpr R x) H_Y f H_f = f (x,,idpath _).
+  Proof.
+    now rewrite (take_representative_comp _ _ _ _ (x,, idpath _)).
+  Defined.
+  
   Definition take_representative_with_hSet
       {X:UU} {R:eqrel X} (xx:setquot R)
       (Y:hSet)
@@ -935,7 +944,7 @@ Section Split_Typecat.
     use setquotunivprop'. { intro; apply isaprop_forall_hProp. } intros Γ.
     use setquotunivprop'. { intros; apply isapropishinh. } intros A.
     cbn. apply hinhpr.
-    unfold ext. simpl. rewrite take_representative_comp.
+    unfold ext. simpl. rewrite take_representative_comp_canon.
     refine ((_,, idpath _),, _).
     refine ((_,,idpath _),, _).
     cbn. refine (hinhfun2 _ Γ (A Γ)). intros d_Γ d_A.
