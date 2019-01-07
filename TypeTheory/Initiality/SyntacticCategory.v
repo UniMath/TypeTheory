@@ -201,6 +201,8 @@ computational behaviour. *)
     use take_representative_with_isaset; auto; apply setproperty.
   Defined.
 
+  (* TODO: perhaps add [take_representative_with_isaprop], […with_hProp] also *)
+
   Lemma hinh_apply {X Y : UU} (f : ∥ X → Y ∥) : ∥ X ∥ → ∥ Y ∥.
   Proof.
     intros x P a.
@@ -208,8 +210,6 @@ computational behaviour. *)
   Defined.
 
   Infix "⊛" := hinh_apply (at level 100).
-
-  (* TODO: perhaps add [take_representative_with_isaprop], […with_hProp] also *)
 
   Lemma hinhfun3 {X1 X2 X3 Y : UU} (f : X1 -> X2 -> X3 -> Y)
       (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)
@@ -248,6 +248,9 @@ computational behaviour. *)
   Defined.
 
 End Auxiliary.
+
+Infix "⊛" := hinh_apply (at level 100).
+
 
 (** The construction of the syntactic type-category is rather trickier than one might hope, because of the need to quotient by some form of context equality — which, as ever when quotienting objects of a category, is quite fiddly.
 
@@ -580,35 +583,41 @@ Section Context_Maps.
     intros H Γ Δ.
     apply (squash_to_prop H). { apply isapropishinh. }
     intros [Γ' [Δ' d_f]].
-    apply (squash_to_prop (cxteq_context_representatives Γ Γ')).
-    { apply isapropishinh. }
-    intros e_Γ.
-    apply (squash_to_prop (cxteq_context_representatives Δ Δ')).
-    { apply isapropishinh. }
-    intros e_Δ.
-    apply hinhpr.
-    admit. (* Local. TODO: show in [TypingLemmas] that context maps respect flat equality in source + target *)
-  Admitted.
+    refine (hinhfun7 _ Γ Γ' Δ Δ'
+                    (cxteq_context_representatives Γ Γ')
+                    (cxteq_context_representatives Δ Δ')
+                    d_f).
+    clear d_f. intros ? d_Γ' ? d_Δ' ? ? ?.
+    apply (derive_map_conv_cxteq_dom d_Γ');
+      auto using derive_flat_cxt_from_strat, derive_flat_cxteq_sym.
+    use (derive_map_conv_cxteq_cod _ d_Δ');
+      auto using derive_flat_cxt_from_strat, derive_flat_cxteq_sym.
+  Defined.
 
   Lemma mapeq_for_some_rep
       {ΓΓ ΔΔ : context_mod_eq} (f g : raw_context_map ΓΓ ΔΔ)
+      
     : (∃ (Γ:context_representative ΓΓ) (Δ:context_representative ΔΔ),
-        [! |- f === g ::: Γ ---> Δ !])
+        ∥ [! |- f ::: Γ ---> Δ !]
+          × [! |- g ::: Γ ---> Δ !]
+          × [! |- f === g ::: Γ ---> Δ !] ∥)
     -> ∀ (Γ:context_representative ΓΓ) (Δ:context_representative ΔΔ),
         ∥ [! |- f === g ::: Γ ---> Δ !] ∥.
   Proof.
     intros H Γ Δ.
     apply (squash_to_prop H). { apply isapropishinh. }
-    intros [Γ' [Δ' d_f]].
-    apply (squash_to_prop (cxteq_context_representatives Γ Γ')).
-    { apply isapropishinh. }
-    intros e_Γ.
-    apply (squash_to_prop (cxteq_context_representatives Δ Δ')).
-    { apply isapropishinh. }
-    intros e_Δ.
-    apply hinhpr.
-    admit. (* Local. TODO: show in [TypingLemmas] that context map equality respects flat equality in source + target *)
-  Admitted.
+    intros [Γ' [Δ' d_fg]].
+    refine (hinhpr _ ⊛ Γ ⊛ Γ' ⊛ Δ ⊛ Δ'
+                    ⊛ (cxteq_context_representatives Γ Γ')
+                    ⊛ (cxteq_context_representatives Δ Δ')
+                    ⊛ d_fg).
+    intros ? d_Γ' ? d_Δ' ? ? [? [? ?]].
+    apply (derive_mapeq_conv_cxteq_dom d_Γ');
+      auto using derive_flat_cxt_from_strat, derive_flat_cxteq_sym,
+         (derive_map_conv_cxteq_cod d_Γ' d_Δ').
+    use (derive_mapeq_conv_cxteq_cod _ d_Δ');
+      auto using derive_flat_cxt_from_strat, derive_flat_cxteq_sym.
+  Defined.
 
 End Context_Maps.
 
@@ -950,16 +959,6 @@ Section Split_Typecat.
     cbn. refine (hinhfun2 _ Γ (A Γ)). intros d_Γ d_A.
     exact (derive_dB_next_context_map d_Γ d_A).
   Defined.
-
-  (* TODO: does this really need to be re-defined here? *)
-  Definition derive_weaken_raw_context_map {Γ} {A} {Γ'} {f}
-             (d_Γ : [! |f- Γ !]) (d_A : [! Γ |- A !]) (d_Γ' : [! |f- Γ' !])
-             (d_f : [! |- f ::: Γ' ---> Γ !])
-     : [! |- weaken_raw_context_map f ::: Γ' ;; subst_ty f A --->  Γ ;; A !].
-  Proof.
-    now use derive_weaken_map.
-  Defined.
-  Opaque derive_weaken_raw_context_map.
   
   Local Definition qmor (ΓΓ : context_mod_eq) (AA : type_mod_eq ΓΓ)
                         (ΓΓ' : context_mod_eq) :
@@ -989,16 +988,21 @@ Section Split_Typecat.
       intros d_Γ d_Γ' d_A d_f d_g d_fg.
       exists (ext_representative Γ' _); simpl.
       exists (ext_representative Γ _); simpl.
-      apply derive_mapeq_sym; auto using derive_flat_extend_context.
-      + refine (@derive_flat_extend_context Γ' _ _ _);
-          auto using derive_flat_cxt_from_strat. 
-        refine (subst_derivation [! _ |- _ !] _ d_g); auto.
-      + refine (@derive_flat_extend_context Γ _ _ _);
-          auto using derive_flat_cxt_from_strat.
+      apply hinhpr; repeat split.
+      + (* TODO: this should probably be abstracted to [TypingLemmas];
+           but it seems such an unnatural lemma! *)
+        refine (@derive_map_conv_cxteq_dom (S _)
+                            (Γ';;subst_ty f A) (Γ';;subst_ty g A) _ _ _ _ _ _ _);
+          try apply derive_flat_extend_context;
+          try apply (subst_derivation [! Γ |- A !]);
+          try apply derive_extend_flat_cxteq, (substeq_derivation [! Γ |- A !]);
+          try refine (derive_flat_extend_context _ d_A);
+          try refine (derive_weaken_raw_context_map _ _ _ d_f);
+            auto using derive_flat_cxt_from_strat, (@derive_flat_cxteq_refl Γ').
       + refine (derive_weaken_raw_context_map _ _ _ d_g);
+        auto using derive_flat_cxt_from_strat.     
+      + refine (derive_weaken_raw_context_mapeq _ _ _ _ _ d_fg);
         auto using derive_flat_cxt_from_strat.
-      + apply temp_admit. (* TODO: find if [derive_mapeq_flat_cxteq_conv] or something (i.e. mapeq respects context equality) is already defined; define it if not! *)
-      + apply temp_admit. (* TODO: again, use that mapeq respects context equality, then use [derive_weaken_mapeq]. *)
   Defined.
       
   Definition syntactic_typecat_structure : typecat_structure syntactic_category.

@@ -989,7 +989,51 @@ Arguments derive_tyeq_conv_cxteq [_] _ [_] _ _ [_ _] _.
 Arguments derive_tm_conv_cxteq [_] _ [_] _ _ [_ _] _.
 Arguments derive_tmeq_conv_cxteq [_] _ [_] _ _ [_ _ _] _.
 
+
+Section Category_Laws.
+
+  (* TODO: left and right unitality of composition *)
+
+  (* TODO: associativity of composition *)
+
+  Lemma comp_raw_context_cong_l
+      {Γ Δ Θ : context} (d_Γ : [! |f- Γ !])
+      {f f' : raw_context_map Γ Δ}
+      (d_f : [! |- f ::: Γ ---> Δ !]) (d_f' : [! |- f' ::: Γ ---> Δ !])
+      (e_f : [! |- f === f' ::: Γ ---> Δ !])
+      {g : raw_context_map Δ Θ} (d_g : [! |- g ::: Δ ---> Θ !])
+    : [! |- comp_raw_context f g === comp_raw_context f' g ::: Γ ---> Θ !].
+  Proof.
+    intros i; unfold comp_raw_context.
+    eapply transportb.
+    { apply maponpaths_3, pathsinv0, subst_subst_ty. }
+    use (substeq_derivation [! _ |- _ ::: _ !]); auto.
+  Defined.
+
+  Lemma comp_raw_context_cong_r
+      {Γ Δ Θ : context} (d_Γ : [! |f- Γ !])
+      {f : raw_context_map Γ Δ} (d_f : [! |- f ::: Γ ---> Δ !])
+      {g g' : raw_context_map Δ Θ}
+      (e_g : [! |- g === g' ::: Δ ---> Θ !])
+    : [! |- comp_raw_context f g === comp_raw_context f g' ::: Γ ---> Θ !].
+  Proof.
+    intros i; unfold comp_raw_context.
+    eapply transportb.
+    { apply maponpaths_3, pathsinv0, subst_subst_ty. }
+    use (subst_derivation [! _ |- _ === _ ::: _ !]); auto.
+  Defined.
+
+End Category_Laws.
+
 Section Map_Equality.
+(** Results on the map-equality judgement [! |- f == g ::: Γ === Δ !]:
+
+- it’s an equivalence relation
+- it respects (flat) context equality
+
+assuming whenever necessary that the maps and contexts involved are themselves
+well-typed.
+*)
 
   Definition derive_mapeq_refl
       {Γ Δ : context} {f : raw_context_map Γ Δ}
@@ -1036,42 +1080,60 @@ Section Map_Equality.
       apply derive_tyeq_sym, (substeq_derivation [! _ |- _ !]); auto.
   Defined.
 
+  (** cf. [derive_ty_conv_cxteq], etc. *)
+  Definition derive_map_conv_cxteq_dom
+      {n} {Γ Γ' : context_of_length n} {Δ : context} {f : raw_context_map Γ Δ}
+      (d_Γ : [! |f- Γ !]) (d_Γ' : [! |f- Γ' !]) (e_Γ : [! |f- Γ === Γ' !])
+      (d_Δ : [! |f- Δ !])
+      (d_f : [! |- f ::: Γ ---> Δ !])
+    : [! |- f ::: Γ' ---> Δ !].
+  Proof.
+    rewrite <- (id_left_raw_context f).
+    refine (derive_comp _ d_f).
+    apply derive_idmap_gen; assumption.
+  Defined.
+
+  Definition derive_map_conv_cxteq_cod
+      {n} {Γ : context} {Δ Δ' : context_of_length n} {f : raw_context_map Γ Δ}
+      (d_Γ : [! |f- Γ !])
+      (d_Δ : [! |f- Δ !]) (d_Δ' : [! |f- Δ' !]) (e_Δ : [! |f- Δ === Δ' !])
+      (d_f : [! |- f ::: Γ ---> Δ !])
+    : [! |- f ::: Γ ---> Δ' !].
+  Proof.
+    rewrite <- (id_right_raw_context f).
+    refine (derive_comp d_f _).
+    refine (derive_idmap_gen _ _); auto using derive_flat_cxteq_sym.
+  Defined.
+
+  Definition derive_mapeq_conv_cxteq_dom
+      {n} {Γ Γ' : context_of_length n} {Δ : context}
+      {f g : raw_context_map Γ Δ}
+      (d_Γ : [! |f- Γ !]) (d_Γ' : [! |f- Γ' !]) (e_Γ : [! |f- Γ === Γ' !])
+      (d_Δ : [! |f- Δ !])
+      (d_f : [! |- f ::: Γ ---> Δ !]) (d_g : [! |- g ::: Γ ---> Δ !])
+      (d_fg : [! |- f === g ::: Γ ---> Δ !])
+    : [! |- f === g ::: Γ' ---> Δ !].
+  Proof.
+    rewrite <- (id_left_raw_context f), <- (id_left_raw_context g).
+    refine (comp_raw_context_cong_r _ _ _); auto.
+    apply derive_idmap_gen; assumption.
+  Defined.
+
+  Definition derive_mapeq_conv_cxteq_cod
+      {n} {Γ : context} {Δ Δ' : context_of_length n}
+      {f g : raw_context_map Γ Δ}
+      (d_Γ : [! |f- Γ !])
+      (d_Δ : [! |f- Δ !]) (d_Δ' : [! |f- Δ' !]) (e_Δ : [! |f- Δ === Δ' !])
+      (d_f : [! |- f ::: Γ ---> Δ !]) (d_g : [! |- g ::: Γ ---> Δ !])
+      (d_fg : [! |- f === g ::: Γ ---> Δ !])
+    : [! |- f === g ::: Γ ---> Δ' !].
+  Proof.
+    rewrite <- (id_right_raw_context f), <- (id_right_raw_context g).
+    refine (comp_raw_context_cong_l _ _ _ _ _); auto.
+    refine (derive_idmap_gen _ _); auto using derive_flat_cxteq_sym.
+  Defined.
+
 End Map_Equality.
-
-Section Category_Laws.
-
-  (* TODO: left and right unitality of composition *)
-
-  (* TODO: associativity of composition *)
-
-  Lemma comp_raw_context_cong_l
-      {Γ Δ Θ : context} (d_Γ : [! |f- Γ !])
-      {f f' : raw_context_map Γ Δ}
-      (d_f : [! |- f ::: Γ ---> Δ !]) (d_f' : [! |- f' ::: Γ ---> Δ !])
-      (e_f : [! |- f === f' ::: Γ ---> Δ !])
-      {g : raw_context_map Δ Θ} (d_g : [! |- g ::: Δ ---> Θ !])
-    : [! |- comp_raw_context f g === comp_raw_context f' g ::: Γ ---> Θ !].
-  Proof.
-    intros i; unfold comp_raw_context.
-    eapply transportb.
-    { apply maponpaths_3, pathsinv0, subst_subst_ty. }
-    use (substeq_derivation [! _ |- _ ::: _ !]); auto.
-  Defined.
-
-  Lemma comp_raw_context_cong_r
-      {Γ Δ Θ : context} (d_Γ : [! |f- Γ !])
-      {f : raw_context_map Γ Δ} (d_f : [! |- f ::: Γ ---> Δ !])
-      {g g' : raw_context_map Δ Θ}
-      (e_g : [! |- g === g' ::: Δ ---> Θ !])
-    : [! |- comp_raw_context f g === comp_raw_context f g' ::: Γ ---> Θ !].
-  Proof.
-    intros i; unfold comp_raw_context.
-    eapply transportb.
-    { apply maponpaths_3, pathsinv0, subst_subst_ty. }
-    use (subst_derivation [! _ |- _ === _ ::: _ !]); auto.
-  Defined.
-
-End Category_Laws.
 
 Section Split_Typecat_Laws.
 
@@ -1080,5 +1142,43 @@ Section Split_Typecat_Laws.
   (* TODO: functoriality of reindexing on types *)
 
   (* TODO: dependent projections, and respecting equality *)
+
+  (** Just an alias. *)
+  (* TODO: consider naming: which is better? or do we want both, to fit both conventions? *)
+  Definition derive_weaken_raw_context_map {Γ} {A} {Γ'} {f}
+             (d_Γ : [! |f- Γ !]) (d_A : [! Γ |- A !]) (d_Γ' : [! |f- Γ' !])
+             (d_f : [! |- f ::: Γ' ---> Γ !])
+     : [! |- weaken_raw_context_map f ::: Γ' ;; subst_ty f A --->  Γ ;; A !].
+  Proof.
+    now use derive_weaken_map.
+  Defined.
+  Opaque derive_weaken_raw_context_map.
+
+  Definition derive_weaken_raw_context_mapeq {Γ} {A} {Γ'} {f g}
+      (d_Γ : [! |f- Γ !]) (d_A : [! Γ |- A !]) (d_Γ' : [! |f- Γ' !])
+      (d_f : [! |- f ::: Γ' ---> Γ !]) (d_g : [! |- g ::: Γ' ---> Γ !])
+      (d_fg : [! |- f === g ::: Γ' ---> Γ !])
+    : [! |- weaken_raw_context_map f === weaken_raw_context_map g
+                                   ::: Γ' ;; subst_ty g A ---> Γ ;; A !].
+  Proof.
+    (* TODO: this proof can almost certainly be simplified, with a bit of
+       thought, e.g. by adapting the proof of [derive_weaken_mapeq]. *) 
+    assert (H := derive_weaken_mapeq d_Γ' d_f d_fg d_A).
+    eapply (@derive_mapeq_conv_cxteq_dom (S _) (Γ';;_) (Γ';;_));
+      try apply derive_weaken_raw_context_map;
+      try apply derive_flat_extend_context; 
+      try apply (subst_derivation [! _ |- _ !]);
+      auto.
+    - apply derive_extend_flat_cxteq; auto using derive_flat_cxteq_refl.
+      apply (substeq_derivation [! _ |- _ !]); auto.
+    - use (@derive_map_conv_cxteq_dom _ (Γ';;subst_ty g A));
+      try apply derive_weaken_raw_context_map;
+      try apply derive_flat_extend_context;
+      try apply derive_extend_flat_cxteq;
+      try apply (subst_derivation [! _ |- _ !]);
+      try apply (substeq_derivation [! _ |- _ !]);
+      auto using derive_flat_cxteq_refl, derive_mapeq_sym.
+  Defined.
+  Opaque derive_weaken_raw_context_mapeq.
 
 End Split_Typecat_Laws.
