@@ -1,7 +1,8 @@
 (** Further lemmas on the interpretation function, separated here in order to keep [TypeTheory.Initiality.Interpretation] itself reasonably streamlined *)
 
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.All.
+
+Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.Partial.
@@ -30,7 +31,7 @@ Section Functoriality_General.
   Definition fmap_environment {Γ:C} {n:nat} (E : environment Γ n)
     : environment (F Γ) n.
   Proof.
-    intros i. exact (fmap_type_with_term (E i)). 
+    intros i. exact (fmap_type_with_term (E i)).
   Defined.
 
   Lemma fmap_reind_environment
@@ -44,13 +45,30 @@ Section Functoriality_General.
     - rewrite transportf_tm.
       apply reindex_fmap_tm.
   Defined.
-  
+
   Lemma var_with_type_fmap_type
       {Γ} (A : C Γ)
     : var_with_type (fmap_ty Γ A)
     = reind_type_with_term (inv_from_iso (typecat_mor_iso F A))
-          (fmap_type_with_term (var_with_type A)).
+                           (fmap_type_with_term (var_with_type A)).
   Proof.
+    use paths_type_with_term.
+    + simpl.
+      etrans; [|exact (maponpaths (fun X => reind_typecat X _) (!reindex_fmap_ty F _ (dpr_typecat A)))].
+      etrans; [|apply reind_comp_type_typecat].
+      apply maponpaths, pathsinv0, iso_inv_on_right, (typecat_mor_triangle F A).
+    + apply PullbackArrowUnique; cbn.
+    - rewrite <- assoc.
+      etrans; [apply maponpaths, comp_ext_compare_dpr_typecat|].
+      unfold map_into_Pb.
+      set (pb := Auxiliary.Pbb _ _ _ _ _ _ _ _ _ _ _).
+      apply (PullbackArrow_PullbackPr1 pb).
+    - apply pathsinv0, iso_inv_on_right.
+      set (f1 := map_into_Pb _ _ _ _ _ _ _ _ _).
+      set (f2 := map_into_Pb _ _ _ _ _ _ _ _ _).
+      rewrite comp_ext_compare_comp.
+      rewrite comp_ext_compare_comp.
+      admit. (* this is complicated... *)
   Admitted.
 
   Lemma fmap_add_to_environment
@@ -137,7 +155,7 @@ Section Functoriality.
         assert (IH_B := fun Γ E => fmap_partial_interpretation_ty Γ (S n) E B).
         (* part for [A] argument *)
         eapply leq_partial_trans.
-        { apply leq_partial_of_path.          
+        { apply leq_partial_of_path.
           apply (fmap_bind_partial (partial_interpretation_ty _ _ _ _)
                   (λ iA, bind_partial (partial_interpretation_ty _ _ _ _) _)). }
         eapply leq_partial_trans.
@@ -185,7 +203,7 @@ Section Functoriality.
                         => fmap_partial_interpretation_tm Γ (S n) E T b).
         (* part for [A] argument *)
         eapply leq_partial_trans.
-        { apply leq_partial_of_path.          
+        { apply leq_partial_of_path.
           apply (fmap_bind_partial (partial_interpretation_ty _ _ _ _)
                    (λ iA, bind_partial (partial_interpretation_ty _ _ _ _)
                    (λ iB, bind_partial (partial_interpretation_tm _ _ _ _ _)
@@ -252,7 +270,7 @@ Section Functoriality.
         assert (IH_a := fun T => fmap_partial_interpretation_tm Γ n E T a).
         (* part for [A] argument *)
         eapply leq_partial_trans.
-        { apply leq_partial_of_path.          
+        { apply leq_partial_of_path.
           apply (fmap_bind_partial (partial_interpretation_ty _ _ _ _)
                 (λ interp_A, bind_partial (partial_interpretation_ty _ _ _ _)
                 (λ interp_B, bind_partial (partial_interpretation_tm _ _ _ _ _)
@@ -297,14 +315,14 @@ Section Functoriality.
         2: { apply leq_partial_of_path, pathsinv0, bind_fmap_partial_1. }
         apply bind_leq_partial_2; intros a_interp.
         (* part for [t] argument *)
-        eapply leq_partial_trans.        
+        eapply leq_partial_trans.
         { apply leq_partial_of_path.
           apply (fmap_bind_partial
                    (partial_interpretation_tm _ _ _ _ _)). }
         eapply leq_partial_trans.
         2: { eapply bind_leq_partial_1.
           eapply leq_partial_trans.
-          2: { refine (tm_transportf_partial_interpretation_tm_leq _ _ _). 
+          2: { refine (tm_transportf_partial_interpretation_tm_leq _ _ _).
                apply (fmap_pi_form F_Π). }
           apply fmap_leq_partial, IH_t. }
         eapply leq_partial_trans.
