@@ -534,7 +534,7 @@ Section Context_Maps.
     { apply isapropishinh. }
     intros e_Δ.
     apply hinhpr.
-    admit. (* TODO: show in [TypingLemmas] that context maps respect flat equality in source + target *)
+    admit. (* Local. TODO: show in [TypingLemmas] that context maps respect flat equality in source + target *)
   Admitted.
 
   Lemma mapeq_for_some_rep
@@ -554,7 +554,7 @@ Section Context_Maps.
     { apply isapropishinh. }
     intros e_Δ.
     apply hinhpr.
-    admit. (* TODO: show in [TypingLemmas] that context map equality respects flat equality in source + target *)
+    admit. (* Local. TODO: show in [TypingLemmas] that context map equality respects flat equality in source + target *)
   Admitted.
 
 End Context_Maps.
@@ -886,14 +886,15 @@ Section Split_Typecat.
     exact (derive_dB_next_context_map d_Γ d_A).
   Defined.
 
+  (* TODO: does this really need to be re-defined here? *)
   Definition derive_weaken_raw_context_map {Γ} {A} {Γ'} {f}
              (d_Γ : [! |f- Γ !]) (d_A : [! Γ |- A !]) (d_Γ' : [! |f- Γ' !])
              (d_f : [! |- f ::: Γ' ---> Γ !])
      : [! |- weaken_raw_context_map f ::: Γ' ;; subst_ty f A --->  Γ ;; A !].
   Proof.
-    (* Why do I have to use this qualified? *)
-    now use TypingLemmas.derive_weaken_map.
+    now use derive_weaken_map.
   Defined.
+  Opaque derive_weaken_raw_context_map.
   
   Local Definition qmor (ΓΓ : context_mod_eq) (AA : type_mod_eq ΓΓ)
                         (ΓΓ' : context_mod_eq) :

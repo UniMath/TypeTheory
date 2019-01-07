@@ -436,7 +436,7 @@ Section Misc.
       assumption.
   Defined.
 
-  Local Definition derive_weaken_map
+  Definition derive_weaken_map
       {Δ Γ : context} (f : raw_context_map Δ Γ) (A : ty_expr Γ)
     : [! |- f ::: Δ ---> Γ !]
       -> [! Γ |- A !]
