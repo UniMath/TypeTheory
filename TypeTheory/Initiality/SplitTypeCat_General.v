@@ -54,6 +54,38 @@ Section Comp_Ext_Compare.
     apply pathsinv0, maponpathscomp0.
   Qed.
 
+  Lemma comp_ext_compare_inv {C : typecat}
+      {Γ : C} {A A' : C Γ} (e : A = A')
+    : (comp_ext_compare (!e) : _ --> _) = inv_from_iso (comp_ext_compare e).
+  Proof.
+    destruct e; apply idpath.
+  Qed.
+
+  Lemma comp_ext_compare_irrelevant {C : split_typecat}
+      {Γ : C} {A A' : C Γ} (e e' : A = A')
+    : (comp_ext_compare e : _ --> _) = comp_ext_compare e'.
+  Proof.
+    apply maponpaths, maponpaths, isaset_types_typecat.
+  Qed.
+
+  Definition comp_ext_compare_dpr_typecat {C : typecat}
+      {Γ} {A A' : C Γ} (e : A = A')
+    : comp_ext_compare e
+        ;; dpr_typecat A'
+      = dpr_typecat A.
+  Proof.
+    destruct e; apply id_left.
+  Qed.
+
+  Definition comp_ext_compare_q_typecat {C : typecat}
+      {Γ Γ'} {f f' : Γ' --> Γ} (e : f = f') (A : C Γ)
+    : comp_ext_compare (maponpaths _ e)
+        ;; q_typecat A f'
+      = q_typecat A f.
+  Proof.
+    destruct e; apply id_left.
+  Qed.
+
 End Comp_Ext_Compare.
 
 Section Terms.
@@ -269,12 +301,76 @@ Section Terms.
     + apply Pb_map_commutes_1.
   Defined.
 
-  Definition reind_tm_var_typecat {C : split_typecat} {Γ : C} {A : C Γ} (a : tm A)
-    (e : A = (A ⦃dpr_typecat A⦄) ⦃a⦄
-      := ! reind_id_type_typecat _ _
+  (* TODO: upstream; consider whether this should be primitive instead of [q_q_typecat]. *)
+  Definition q_q_typecat' {C : split_typecat}
+    : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
+      q_typecat (A{{f}}) g ;; q_typecat A f
+      = idtoiso (maponpaths (fun b => Γ''◂b) (!reind_comp_typecat _ A _ f _ g))
+        ;; q_typecat A (g ;; f).
+  Proof.
+    intros. apply iso_inv_to_left, pathsinv0. 
+    etrans. { apply q_q_typecat. }
+    repeat rewrite <- assoc; apply maponpaths_2.
+    etrans. 2: { apply comp_ext_compare_inv. }
+    apply comp_ext_compare_irrelevant.
+  Qed.
+
+  (** naturality of [var_typecat] in the context *)
+  Definition reind_var_typecat {C : split_typecat}
+      {Γ Γ'} (f : Γ' --> Γ) (A : C Γ)
+      (e : (A ⦃dpr_typecat A⦄) ⦃q_typecat A f⦄ = (A ⦃f⦄) ⦃dpr_typecat (A ⦃f⦄)⦄
+        := ! reind_comp_typecat _ _ _ _ _ _
+           @ maponpaths _ (dpr_q_typecat _ _)
+           @ reind_comp_typecat _ _ _ _ _ _ )
+    : reind_tm (q_typecat A f) (var_typecat A)
+      = tm_transportb e (var_typecat (A ⦃f⦄)).
+  Proof.
+    apply subtypeEquality; [ intros x; apply homset_property|].
+    apply pathsinv0, PullbackArrowUnique.
+    { apply (section_property (tm_transportb _ _)). }
+    apply pathsinv0.
+    etrans. { refine (postCompWithPullbackArrow _ _ _
+                                       (mk_Pullback _ _ _ _ _ _ _) _ _ _). }
+    apply pathsinv0, PullbackArrowUnique; cbn; refine (_ @ ! id_right _).
+    - rewrite <- assoc.
+      etrans. { apply maponpaths, dpr_q_typecat. }
+      rewrite assoc.
+      etrans. { apply maponpaths_2.
+                refine (section_property (tm_transportb _ _)). }
+      apply id_left.
+    - unfold tm_transportb, e.
+      rewrite ! pathscomp_inv, ! tm_transportf_compose, pathsinv0inv0.
+      unfold tm_transportf; simpl.
+      repeat rewrite <- assoc.
+      etrans.
+      { do 3 apply maponpaths; rewrite assoc. apply pathsinv0, q_q_typecat. }
+      etrans.
+      { rewrite <- maponpathsinv0.
+        apply maponpaths, maponpaths, comp_ext_compare_q_typecat. }
+      etrans. { apply maponpaths, pathsinv0, q_q_typecat'. }
+      rewrite assoc.
+      etrans. { apply maponpaths_2, Pb_map_commutes_2. }
+      apply id_left.
+  Qed.
+
+  Definition reind_var_typecat_gen {C : split_typecat}
+      {Γ Γ'} (f : Γ' --> Γ) (A : C Γ)
+      (e : (A ⦃dpr_typecat A⦄) ⦃q_typecat A f⦄ = (A ⦃f⦄) ⦃dpr_typecat (A ⦃f⦄)⦄)
+    : reind_tm (q_typecat A f) (var_typecat A)
+      = tm_transportb e (var_typecat (A ⦃f⦄)).
+  Proof.
+    etrans. { apply reind_var_typecat. }
+    apply tm_transportf_irrelevant.
+  Qed.
+
+  (** reindexing [var_typecat] along a term is the term itself  *)
+  Definition reind_tm_var_typecat {C : split_typecat}
+      {Γ : C} {A : C Γ} (a : tm A)
+      (e : A = (A ⦃dpr_typecat A⦄) ⦃a⦄
+        := ! reind_id_type_typecat _ _
            @ maponpaths _ (! section_property a)
            @ reind_comp_typecat _ _ _ _ _ _)
-  : reind_tm a (var_typecat A) = tm_transportf e a.
+    : reind_tm a (var_typecat A) = tm_transportf e a.
   Proof.
     induction a as [a af]; cbn in *.
     apply subtypeEquality; [ intros x; apply homset_property|]; simpl.
@@ -295,12 +391,13 @@ Section Terms.
                   idtoiso_concat_pr, <-maponpathscomp0, pathsinv0l.
   Qed.
 
-  Definition reind_tm_var_typecat' {C : split_typecat} {Γ:C} {A:C Γ} (a : tm A)
-    (e : A = (A ⦃dpr_typecat A⦄) ⦃a⦄
-      := ! reind_id_type_typecat _ _
+  Definition reind_tm_var_typecat' {C : split_typecat}
+      {Γ:C} {A:C Γ} (a : tm A)
+      (e : A = (A ⦃dpr_typecat A⦄) ⦃a⦄
+        := ! reind_id_type_typecat _ _
            @ maponpaths _ (! section_property a)
            @ reind_comp_typecat _ _ _ _ _ _)
-  : tm_transportb e (reind_tm a (var_typecat A)) = a.
+    : tm_transportb e (reind_tm a (var_typecat A)) = a.
   Proof.
     unfold tm_transportb.
     rewrite reind_tm_var_typecat, <- tm_transportf_compose.
@@ -314,42 +411,6 @@ Section Terms.
   Proof.
     rewrite reind_tm_var_typecat; apply tm_transportf_irrelevant.
   Qed.
-
-  Definition reind_tm_var_typecat2
-             {C : split_typecat}
-             {Γ Γ'} (f : Γ' --> Γ) (A : C Γ)
-             (e : (A ⦃dpr_typecat A⦄) ⦃q_typecat A f⦄ = (A ⦃f⦄) ⦃dpr_typecat (A ⦃f⦄)⦄)
-    : reind_tm (q_typecat A f) (var_typecat A)
-      = tm_transportb e (var_typecat (A ⦃f⦄)).
-  Proof.
-    apply subtypeEquality; [ intros x; apply homset_property|]; simpl.
-    unfold map_into_Pb.
-    apply pathsinv0, PullbackArrowUnique; cbn.
-    - rewrite <-assoc.
-      unfold comp_ext_compare.
-      etrans; [ apply maponpaths, idtoiso_dpr_typecat|].
-      set (pb := Auxiliary.Pbb _ _ _ _ _ _ _ _ _ _ _).
-      apply (PullbackArrow_PullbackPr1 pb).
-    - rewrite <-assoc.
-      apply pathsinv0.
-      etrans.
-      set (pb := Auxiliary.Pbb _ _ _ _ _ _ _ _ _ _ _).
-      apply (postCompWithPullbackArrow _ _ _ pb).
-      apply pathsinv0, PullbackArrowUnique; cbn.
-      * set (pb := Auxiliary.Pbb _ _ _ _ _ _ _ _ _ _ _).
-        rewrite id_right, <-!assoc, dpr_q_typecat.
-        unfold comp_ext_compare.
-        assert (afoo : idtoiso (maponpaths (ext_typecat (Γ' ◂ (A ⦃f⦄))) (! e));;
-                               dpr_typecat ((A ⦃dpr_typecat A⦄) ⦃q_typecat A f⦄) =
-                       dpr_typecat ((A ⦃f⦄) ⦃dpr_typecat (A ⦃f⦄)⦄)).
-        { induction e.
-          now rewrite id_left. }
-        etrans; [apply maponpaths; rewrite assoc; apply cancel_postcomposition, afoo|].
-        now rewrite assoc, (PullbackArrow_PullbackPr1 pb), id_left.
-      * set (pb := Auxiliary.Pbb _ _ _ _ _ _ _ _ _ _ _).
-        rewrite id_right.
-        (* This gets very complicated... *)
-  Admitted.
 
 End Terms.
 
@@ -427,7 +488,7 @@ Section Types_with_Terms.
       eapply pathscomp0. 2: { apply reind_comp_typecat. }
       apply maponpaths, dpr_q_typecat.
     + set (e := (! _ @ _)); cbn.
-      rewrite (reind_tm_var_typecat2 _ _ e).
+      rewrite (reind_var_typecat_gen _ _ e).
       unfold tm_transportb.
       now rewrite <- transportf_tm, transport_f_f, pathsinv0l.
   Qed.
