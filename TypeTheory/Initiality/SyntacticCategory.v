@@ -864,6 +864,19 @@ Section Split_Typecat.
         auto using derive_flat_cxt_from_strat, derive_tyeq_refl.
   Defined.
 
+  Lemma temp_admit {X} : X. Admitted.
+
+  Local Definition ext_representative
+      {ΓΓ : context_mod_eq} (Γ : context_representative ΓΓ)
+      (A : type_over ΓΓ)
+    : context_representative (ext ΓΓ (setquotpr _ A)).
+  Proof.
+    simple refine (_,,_).
+    - exists (Γ;;A)%strat_cxt.
+      apply temp_admit.
+    - apply temp_admit.
+  Defined.
+
   Local Definition reind
       {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
       {ΓΓ' : context_mod_eq} (ff : map_mod_eq ΓΓ' ΓΓ)
@@ -972,17 +985,27 @@ Section Split_Typecat.
               (raw_context_map (S _) _) _ _ _ _ _).
     - intros f; exact (weaken_raw_context_map f).
     - intros f.
+      apply (take_context_representative ΓΓ). { apply propproperty. } intros Γ.
+      apply (take_context_representative ΓΓ'). { apply propproperty. } intros Γ'.
       revert AA. use setquotunivprop'. { intros; apply propproperty. } intros A.
-      apply (take_context_representative ΓΓ). { apply propproperty. }
-      intros Γ.
-      apply (take_context_representative ΓΓ'). { apply propproperty. }
-      intros Γ'.
-      apply map_for_some_rep.
-      apply hinhpr.
-      admit. (* TODO: set up [ext_context_representative] or something *)
-    - simpl; intros f f' e_f.
+      apply map_for_some_rep, hinhpr.
+      exists (ext_representative Γ' _); simpl.
+      exists (ext_representative Γ _); simpl.
+      refine (hinhfun4 _ Γ Γ' (A Γ) (map_derivable f Γ' Γ)).
+      intros d_Γ d_Γ' d_A d_f.
+      refine (derive_weaken_raw_context_map _ _ _ d_f);
+        auto using derive_flat_cxt_from_strat.
+    - simpl. intros f g e_fg.
       refine (mapeq_for_some_rep _ _ _).
-      admit. (* TODO: as in previous bullet, set up [ext_context_representative] etc. *)
+      apply (take_context_representative ΓΓ). { apply propproperty. } intros Γ.
+      apply (take_context_representative ΓΓ'). { apply propproperty. } intros Γ'.
+      revert AA. use setquotunivprop'. { intros; apply propproperty. } intros A.
+      refine (hinhfun4 _ Γ' (A Γ) (map_derivable f Γ' Γ) (e_fg Γ' Γ)).
+      intros d_Γ' d_A d_f d_fg.
+      exists (ext_representative Γ' _); simpl.
+      exists (ext_representative Γ _); simpl.
+      (* TODO: refactor typing lemmas of [mapeq_is_eqrel] into [TypingLemmas];
+      then, use [derive_mapeq_sym] followed by [derive_weaken_mapeq]. *)
   Admitted.
       
   Definition syntactic_typecat_structure : typecat_structure syntactic_category.
