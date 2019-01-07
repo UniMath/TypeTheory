@@ -106,14 +106,42 @@ Section Derived_Actions.
       {Γ:C} {A : C Γ} (a : tm A)
     : tm (typecat_mor_Ty F _ A).
   Proof.
-    use tpair.
-    - refine (# F a · _).
-      apply typecat_mor_iso.
-    - abstract (cbn; eapply pathscomp0; [ apply pathsinv0, assoc |];
+    exists (# F a · typecat_mor_iso F A).
+    abstract (cbn; eapply pathscomp0; [ apply pathsinv0, assoc |];
       eapply pathscomp0; [ apply maponpaths, pathsinv0, typecat_mor_triangle|];
       eapply pathscomp0; [ apply pathsinv0, functor_comp|];
       eapply pathscomp0; [ apply maponpaths, section_property|];
       apply functor_id).
   Defined.
 
+  Lemma fmap_tm_as_map 
+      {C C' : split_typecat} (F : typecat_mor C C')
+      {Γ:C} {A: C Γ} (a : tm A)
+    : # F a = fmap_tm F a · inv_from_iso (typecat_mor_iso F A).
+  Proof.
+    now apply iso_inv_on_left.
+  Qed.
+  
+  (* Other possible names: [typecat_mor_reind_ty], [typecat_mor_Ty_nat] *)
+  Definition reindex_fmap_ty
+      {C C' : split_typecat} (F : typecat_mor C C')
+      {Γ:C} (A: C Γ) {Γ' : C} (f : Γ' --> Γ)
+    : typecat_mor_Ty F _ (A ⦃f⦄) = (typecat_mor_Ty F _ A) ⦃ # F f ⦄
+    := eqtohomot (nat_trans_ax (typecat_mor_Ty F) f) A.
+
+  Lemma reindex_fmap_tm {C D : split_typecat} (F : typecat_mor C D) {Γ Γ' : C}
+        (f : C ⟦ Γ', Γ ⟧) {A : C Γ} (a : tm A) :
+    tm_transportf (reindex_fmap_ty F A f) (fmap_tm F (reind_tm f a)) =
+    reind_tm (# F f) (fmap_tm F a).
+  Proof.
+    apply paths_tm, PullbackArrowUnique; cbn; simpl;
+      set (pb := mk_Pullback _ _ _ _ _ _ _); rewrite <-!assoc.
+    - etrans; [apply maponpaths, maponpaths, comp_ext_compare_dpr_typecat|].
+      etrans; [apply maponpaths, (!typecat_mor_triangle F (A ⦃f⦄))|].
+      now rewrite <- functor_comp, (PullbackArrow_PullbackPr1 pb), functor_id.
+    - etrans; [apply maponpaths; rewrite assoc;
+               apply (!typecat_mor_pentagon F A f)|].
+      now rewrite !assoc, <- !functor_comp, (PullbackArrow_PullbackPr2 pb).
+  Qed.
+  
 End Derived_Actions.

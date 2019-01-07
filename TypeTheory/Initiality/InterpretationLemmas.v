@@ -24,8 +24,7 @@ Section Functoriality_General.
   Definition fmap_type_with_term {Γ:C} (Aa : type_with_term Γ)
     : type_with_term (F Γ).
   Proof.
-    exists (typecat_mor_Ty F _ (type_of Aa)).
-    exact (fmap_tm F Aa).
+    exact (typecat_mor_Ty F _ (type_of Aa),,fmap_tm F Aa).
   Defined.
 
   Definition fmap_environment {Γ:C} {n:nat} (E : environment Γ n)
@@ -39,8 +38,13 @@ Section Functoriality_General.
     : fmap_environment (reind_environment f E)
     = reind_environment (# F f) (fmap_environment E).
   Proof.
-  Admitted.
-
+    apply funextsec; intros i.
+    use paths_type_with_term2.
+    - apply reindex_fmap_ty.
+    - rewrite transportf_tm.
+      apply reindex_fmap_tm.
+  Defined.
+  
   Lemma var_with_type_fmap_type
       {Γ} (A : C Γ)
     : var_with_type (fmap_ty Γ A)

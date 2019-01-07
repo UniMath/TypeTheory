@@ -222,31 +222,6 @@ Section Pi_Preservation.
          (reind_tm (inv_from_iso (typecat_mor_iso F A))
            (fmap_tm F b))).
 
-  (* TODO: upstream *)
-  (* Other possible names: [typecat_mor_reind_ty], [typecat_mor_Ty_nat] *)
-  Definition reindex_fmap_ty
-      {C C' : split_typecat} (F : typecat_mor C C')
-      {Γ:C} (A: C Γ) {Γ' : C} (f : Γ' --> Γ)
-    : typecat_mor_Ty F _ (A ⦃f⦄)
-    = (typecat_mor_Ty F _ A) ⦃ # F f ⦄.
-  Proof.
-    generalize A; apply toforallpaths. 
-    exact (nat_trans_ax (typecat_mor_Ty F) f).
-  Defined.
-
-  Lemma fmap_tm_as_map 
-      {C C' : split_typecat} (F : typecat_mor C C')
-      {Γ:C} {A: C Γ} (a : tm A)
-    : # F a
-    = fmap_tm F a · inv_from_iso (typecat_mor_iso F A).
-  Proof.
-    cbn.
-    eapply pathscomp0. 2: { apply assoc. }
-    apply pathsinv0.
-    eapply pathscomp0. { apply maponpaths, iso_inv_after_iso. }
-    apply id_right.
-  Qed.
-
   Definition preserves_pi_app_struct
       {C} {Π : pi_form_struct C} (app : pi_app_struct C Π)
       {C'} {Π' : pi_form_struct C'} (app' : pi_app_struct C' Π')
