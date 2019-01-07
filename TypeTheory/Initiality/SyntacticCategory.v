@@ -83,6 +83,74 @@ Section Auxiliary.
 
   Opaque setquot_rect setquot_comp.
 
+
+(** A specialised eliminator for quotients, with better computational
+behaviour than [setquot_rect], but not quite an instance of the simpler
+eliminators: the target type is a subquotient, whose predicate and equivalence
+relation may depend on the input, but whose underlying type is independent.
+
+So this gives, in certain circumstances, a dependent eliminator with some
+computational behaviour. *)
+  Definition setquot_rect_to_dependent_subquotient {X:UU} {R:eqrel X}
+      {P_pre:UU}
+      (P_good : setquot R -> hsubtype P_pre)
+      (P_eq : forall xx, eqrel (P_good xx))
+      (d_pre : X -> P_pre)
+      (d_good : forall x:X, P_good (setquotpr R x) (d_pre x))
+      (d_eq : forall (x y:X) (r : R x y),
+          P_eq (setquotpr R y)
+               (d_pre x,, transportf (fun xx => P_good xx (d_pre x))
+                                     (iscompsetquotpr _ _ _ r) (d_good x))
+               (d_pre y,, d_good y))
+    : forall xx, setquot (P_eq xx).
+  Proof.
+    intros xx.
+    transparent assert (f : (xx -> setquot (P_eq xx))).
+    { intros x. apply setquotpr.
+      exists (d_pre (pr1 x)).
+      refine (transportf (fun xx => P_good xx (d_pre _)) _ (d_good _)).
+      apply setquotl0. }
+    apply (pr1image f).
+    apply (squash_to_prop (eqax0 (pr2 xx))).
+    2: { apply prtoimage. }
+    apply invproofirrelevance. intros [y Hy] [y' Hy'].
+    apply subtypeEquality. { intro; apply isapropishinh. } simpl.
+    apply (squash_to_prop Hy). { apply isasetsetquot. }
+    clear Hy; intros [x e_xy].
+    apply (squash_to_prop Hy'). { apply isasetsetquot. }
+    clear Hy'; intros [x' e_xy'].
+    destruct e_xy, e_xy'. subst f; simpl.
+    apply iscompsetquotpr.
+    set (e := setquotl0 R xx x'); clearbody e.
+    destruct x' as [x' x1']; simpl in *. clear x1'.
+    destruct e. simpl.
+    assert (r : R (pr1 x) x'). { apply eqrelsymm, (pr2 x). }
+    refine (eqreltrans _ _ _ _ _ _).
+    2: apply (d_eq _ _ r).
+    apply Presentation'.eqreleq. (* TODO: propose upstreaming that? *)
+    apply maponpaths, propproperty.
+  Defined.
+
+  Definition setquot_to_dependent_subquotient_comp {X:UU} {R:eqrel X}
+      {P_pre:UU}
+      (P_good : setquot R -> hsubtype P_pre)
+      (P_eq : forall xx, eqrel (P_good xx))
+      (d_pre : X -> P_pre)
+      (d_good : forall x:X, P_good (setquotpr R x) (d_pre x))
+      (d_eq : forall (x y:X) (r : R x y),
+          P_eq (setquotpr R y)
+               (d_pre x,, transportf (fun xx => P_good xx (d_pre x))
+                                     (iscompsetquotpr _ _ _ r) (d_good x))
+               (d_pre y,, d_good y))
+    : forall x,
+       (setquot_rect_to_dependent_subquotient P_good P_eq
+                                   d_pre d_good d_eq) (setquotpr R x)
+       = setquotpr (P_eq (setquotpr _ x)) (d_pre x,, d_good x).
+  Proof.
+    intros x. unfold setquot_rect_to_dependent_subquotient; simpl.
+    apply maponpaths, maponpaths, propproperty.
+  Defined.
+
   Definition representative {X:UU} {R:eqrel X} (x:setquot R) : UU
   := hfiber (setquotpr R) x.
 
@@ -610,7 +678,7 @@ Section Category.
   Lemma idmap_left {ΓΓ ΔΔ : context_mod_eq} (f : map_mod_eq ΓΓ ΔΔ)
     : compose (idmap _) f = f.
   Proof.
-    revert f. refine (setquotunivprop' _ _ _). { intro; apply isasetsetquot. }
+    revert f. apply setquotunivprop'. { intro; apply isasetsetquot. }
     intros f. cbn.
     apply maponpaths. apply subtypeEquality_prop.
     apply id_left_raw_context.
@@ -619,7 +687,7 @@ Section Category.
   Lemma idmap_right {ΓΓ ΔΔ : context_mod_eq} (f : map_mod_eq ΓΓ ΔΔ)
     : compose f (idmap _) = f.
   Proof.
-    revert f. refine (setquotunivprop' _ _ _). { intro; apply isasetsetquot. }
+    revert f. apply setquotunivprop'. { intro; apply isasetsetquot. }
     intros f. cbn.
     apply maponpaths. apply subtypeEquality_prop.
     apply id_right_raw_context.
@@ -900,37 +968,21 @@ Section Split_Typecat.
                         (ΓΓ' : context_mod_eq) :
     ∏ (f : map_mod_eq ΓΓ' ΓΓ), map_mod_eq (ext ΓΓ' (reind AA f)) (ext ΓΓ AA).
   Proof.
-    use setquot_rect.
-    - intros; apply isasetsetquot.
-    - simpl; intros f.
-      apply setquotpr.
-      exists (weaken_raw_context_map f).
-      apply map_for_some_rep.
-      destruct ΓΓ as [n ΓΓ].
-      destruct ΓΓ' as [m ΓΓ'].
-      revert ΓΓ AA ΓΓ' f.
-      (* TODO: how can we make the "use setquotunivprop'" reasoning nicer? *)
-      use setquotunivprop'.
-      { intro x; do 3 (apply impred_isaprop; intro); apply isapropishinh. }
+    simple refine (@setquot_rect_to_dependent_subquotient _ _
+              (raw_context_map (S _) _) _ _ _ _ _).
+    - intros f; exact (weaken_raw_context_map f).
+    - intros f.
+      revert AA. use setquotunivprop'. { intros; apply propproperty. } intros A.
+      apply (take_context_representative ΓΓ). { apply propproperty. }
       intros Γ.
-      use setquotunivprop'.
-      { intro x; do 2 (apply impred_isaprop; intro); apply isapropishinh. }
-      intros A.
-      simpl.
-      use setquotunivprop'.
-      { intro x; apply impred_isaprop; intro; apply isapropishinh. }
-      intros Γ' f.
+      apply (take_context_representative ΓΓ'). { apply propproperty. }
+      intros Γ'.
+      apply map_for_some_rep.
       apply hinhpr.
-      unfold ext; simpl.
-      rewrite !take_representative_comp.
-      refine ((_,, idpath _),, _).
-      refine ((_,,idpath _),, _).
-      cbn.
-      induction f as [f Hf].
-      refine (hinhfun4 _ Γ (A Γ) Γ' (Hf (Γ',,idpath _) (Γ,,idpath _))).
-      exact derive_weaken_raw_context_map.
-    - (* This goal is scary! Things are also getting slow. TODO: more Qed's? Better lemma? *)
-      admit.
+      admit. (* TODO: set up [ext_context_representative] or something *)
+    - simpl; intros f f' e_f.
+      refine (mapeq_for_some_rep _ _ _).
+      admit. (* TODO: as in previous bullet, set up [ext_context_representative] etc. *)
   Admitted.
       
   Definition syntactic_typecat_structure : typecat_structure syntactic_category.
