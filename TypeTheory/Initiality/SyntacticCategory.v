@@ -16,6 +16,9 @@ Local Open Scope judgement.
 
 Section Auxiliary.
 
+  (* TODO: remove, eventually *)
+  Lemma temp_admit {X} : X. Admitted. (* For getting computation on partially complete definitions. *)
+
   Global Arguments ishinh : simpl never.
 
  (* we’ll need some material here about quotients:
@@ -525,43 +528,16 @@ Section Context_Maps.
     - intros f g h e1 e2 Γ Δ.
       use (hinhfun7 _ Γ Δ (map_derivable f Γ Δ) (map_derivable g Γ Δ)
                     (map_derivable h Γ Δ) (e1 Γ Δ) (e2 Γ Δ)).
-      intros d_Γ d_Δ d_f d_g d_h d_fg d_gh i.
-      assert (H' : [! Γ |- subst_ty g (Δ i) === subst_ty f (Δ i) !]).
-      { apply derive_tyeq_sym.
-        use (substeq_derivation _ (derive_flat_cxt_from_strat d_Δ i));
-          auto using derive_flat_cxt_from_strat. }
-      assert (H'' : [! Γ |- subst_ty h (Δ i) === subst_ty g (Δ i) !]).
-      { apply derive_tyeq_sym.
-        use (substeq_derivation _ (derive_flat_cxt_from_strat d_Δ i));
-          auto using derive_flat_cxt_from_strat. }
-      use derive_tmeq_trans.
-      + exact (g i).
-      + exact (d_f i).
-      + induction (derive_presuppositions _ H' (derive_flat_cxt_from_strat d_Γ)) as [H1 H2].
-        use (derive_tm_conv _ _ _ _ _ _ H'); trivial.
-        exact (d_g i).
-      + induction (derive_presuppositions _ H' (derive_flat_cxt_from_strat d_Γ)) as [H1 H2].
-        use (derive_tm_conv _ _ _ _ _ _ H'); trivial.
-        induction (derive_presuppositions _ H'' (derive_flat_cxt_from_strat d_Γ)) as [H3 H4].
-        use (derive_tm_conv _ _ _ _ _ _ H''); trivial.
-        exact (d_h i).
-      + exact (d_fg i).
-      + induction (derive_presuppositions _ H' (derive_flat_cxt_from_strat d_Γ)) as [H1 H2].
-        use (derive_tmeq_conv _ _ _ _ _ _ _ H'); trivial.
-        exact (d_gh i).
+      intros d_Γ d_Δ d_f d_g d_h d_fg d_gh.
+      refine (derive_mapeq_trans _ _ _ d_g _ _ _);
+        auto using derive_flat_cxt_from_strat.
     - intros f Γ Δ.
-      generalize (map_derivable f Γ Δ); apply hinhuniv; intros H.
-      apply hinhpr; intros i.
-      now apply derive_tmeq_refl, id_derivation_map.
+      use (hinhfun _ (map_derivable f Γ Δ)); intros H.
+      apply derive_mapeq_refl; auto.
     - intros f g e Γ Δ.
-      use (hinhfun5 _ Γ Δ (map_derivable f Γ Δ) (map_derivable g Γ Δ) (e Γ Δ)).
+      use (hinhfun5 _ Γ Δ (map_derivable f Γ Δ) (map_derivable g Γ Δ) (e Γ Δ));
       intros d_Γ d_Δ d_f d_g H i.
-      apply derive_tmeq_sym.
-      assert (H' : [! Γ |- subst_ty f (Δ i) === subst_ty g (Δ i) !]).
-      { use (substeq_derivation _ (derive_flat_cxt_from_strat d_Δ i));
-        auto using derive_flat_cxt_from_strat. }
-      induction (derive_presuppositions _ H' (derive_flat_cxt_from_strat d_Γ)) as [H1 H2].
-      now use (derive_tmeq_conv _ _ _ _ _ _ _ H' (H i)).
+      apply derive_mapeq_sym; auto using derive_flat_cxt_from_strat.
   Qed.
 
   Local Definition mapeq_eqrel ΓΓ ΔΔ : eqrel (map ΓΓ ΔΔ)
@@ -864,8 +840,6 @@ Section Split_Typecat.
         auto using derive_flat_cxt_from_strat, derive_tyeq_refl.
   Defined.
 
-  Lemma temp_admit {X} : X. Admitted.
-
   Local Definition ext_representative
       {ΓΓ : context_mod_eq} (Γ : context_representative ΓΓ)
       (A : type_over ΓΓ)
@@ -1000,13 +974,22 @@ Section Split_Typecat.
       apply (take_context_representative ΓΓ). { apply propproperty. } intros Γ.
       apply (take_context_representative ΓΓ'). { apply propproperty. } intros Γ'.
       revert AA. use setquotunivprop'. { intros; apply propproperty. } intros A.
-      refine (hinhfun4 _ Γ' (A Γ) (map_derivable f Γ' Γ) (e_fg Γ' Γ)).
-      intros d_Γ' d_A d_f d_fg.
+      refine (hinhfun6 _ Γ Γ' (A Γ)
+                     (map_derivable f Γ' Γ) (map_derivable g Γ' Γ) (e_fg Γ' Γ)).
+      intros d_Γ d_Γ' d_A d_f d_g d_fg.
       exists (ext_representative Γ' _); simpl.
       exists (ext_representative Γ _); simpl.
-      (* TODO: refactor typing lemmas of [mapeq_is_eqrel] into [TypingLemmas];
-      then, use [derive_mapeq_sym] followed by [derive_weaken_mapeq]. *)
-  Admitted.
+      apply derive_mapeq_sym; auto using derive_flat_extend_context.
+      + refine (@derive_flat_extend_context Γ' _ _ _);
+          auto using derive_flat_cxt_from_strat. 
+        refine (subst_derivation [! _ |- _ !] _ d_g); auto.
+      + refine (@derive_flat_extend_context Γ _ _ _);
+          auto using derive_flat_cxt_from_strat.
+      + refine (derive_weaken_raw_context_map _ _ _ d_g);
+        auto using derive_flat_cxt_from_strat.
+      + apply temp_admit. (* TODO: find if [derive_mapeq_flat_cxteq_conv] or something (i.e. mapeq respects context equality) is already defined; define it if not! *)
+      + apply temp_admit. (* TODO: again, use that mapeq respects context equality, then use [derive_weaken_mapeq]. *)
+  Defined.
       
   Definition syntactic_typecat_structure : typecat_structure syntactic_category.
   Proof.

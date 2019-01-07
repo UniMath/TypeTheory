@@ -989,6 +989,55 @@ Arguments derive_tyeq_conv_cxteq [_] _ [_] _ _ [_ _] _.
 Arguments derive_tm_conv_cxteq [_] _ [_] _ _ [_ _] _.
 Arguments derive_tmeq_conv_cxteq [_] _ [_] _ _ [_ _ _] _.
 
+Section Map_Equality.
+
+  Definition derive_mapeq_refl
+      {Γ Δ : context} {f : raw_context_map Γ Δ}
+      (d_f : [! |- f ::: Γ ---> Δ !])
+    : [! |- f === f ::: Γ ---> Δ !].
+  Proof.
+    intros i. apply derive_tmeq_refl, d_f.
+  Defined.
+
+  Definition derive_mapeq_sym
+      {Γ Δ : context} {f g : raw_context_map Γ Δ}
+      (d_Γ : [! |f- Γ !]) (d_Δ : [! |f- Δ !])
+      (d_f : [! |- f ::: Γ ---> Δ !]) (d_g : [! |- g ::: Γ ---> Δ !])
+      (d_fg : [! |- f === g ::: Γ ---> Δ !])
+    : [! |- g === f ::: Γ ---> Δ !].
+  Proof.
+    intros i. apply derive_tmeq_sym.
+    refine (derive_tmeq_conv _ _ _ _ _ _ _ _ (d_fg i));
+      try apply (subst_derivation [! _ |- _ !]); auto.
+    apply (substeq_derivation [! _ |- _ !]); auto.
+  Defined.
+
+  Definition derive_mapeq_trans
+      {Γ Δ : context} {f g h : raw_context_map Γ Δ}
+      (d_Γ : [! |f- Γ !]) (d_Δ : [! |f- Δ !])
+      (d_f : [! |- f ::: Γ ---> Δ !])
+      (d_g : [! |- g ::: Γ ---> Δ !])
+      (d_h : [! |- h ::: Γ ---> Δ !])
+      (d_fg : [! |- f === g ::: Γ ---> Δ !])
+      (d_gh : [! |- g === h ::: Γ ---> Δ !])
+    : [! |- f === h ::: Γ ---> Δ !].
+  Proof.
+    intros i. apply derive_tmeq_trans with (g i); auto.
+    - refine (derive_tm_conv _ _ _ _ _ _ _ (d_g i));
+        try apply (subst_derivation [! _ |- _ !]); auto.
+      apply derive_tyeq_sym, (substeq_derivation [! _ |- _ !]); auto.
+    - refine (derive_tm_conv _ _ _ _ _ _ _ (d_h i));
+        try apply (subst_derivation [! _ |- _ !]); auto.
+      apply derive_tyeq_trans with (subst_ty g (Δ i));
+        try apply (subst_derivation [! _ |- _ !]); auto;
+        apply derive_tyeq_sym, (substeq_derivation [! _ |- _ !]); auto.
+    - refine (derive_tmeq_conv _ _ _ _ _ _ _ _ (d_gh i));
+      try apply (subst_derivation [! _ |- _ !]); auto.
+      apply derive_tyeq_sym, (substeq_derivation [! _ |- _ !]); auto.
+  Defined.
+
+End Map_Equality.
+
 Section Category_Laws.
 
   (* TODO: left and right unitality of composition *)
