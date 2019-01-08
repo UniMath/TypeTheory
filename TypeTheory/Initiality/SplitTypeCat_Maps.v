@@ -114,6 +114,17 @@ End morphisms.
 
 Section Derived_Actions.
 
+  Lemma comp_ext_compare_typecat_mor_iso
+      {C C' : split_typecat} (F : typecat_mor C C')
+      (Γ : C) (A A' : C Γ) (e : A = A')
+    : # F (comp_ext_compare e) ;; typecat_mor_iso F A'
+      = typecat_mor_iso F A ;; comp_ext_compare (maponpaths _ e).
+  Proof.
+    destruct e; cbn.
+    rewrite functor_id, id_left.
+    apply pathsinv0, id_right.
+  Qed.
+
   (* Call this [fmap_tm] for consistency with later defs, or [typecat_mor_tm] for consistency with primitive components? *)
   Definition fmap_tm
       {C D : split_typecat} (F : typecat_mor C D)
@@ -157,7 +168,7 @@ Section Derived_Actions.
                apply (!typecat_mor_pentagon F A f)|].
       now rewrite !assoc, <- !functor_comp, (PullbackArrow_PullbackPr2 pb).
   Qed.
-  
+
 End Derived_Actions.
 
 Section Composition.
@@ -165,7 +176,7 @@ Section Composition.
   Definition id_typecat (C : split_typecat)
     : typecat_mor C C.
   Proof.
-    apply mk_typecat_mor.
+    use mk_typecat_mor.
     - (* functor *)
       apply functor_identity.
     - (* naturality *)
@@ -183,18 +194,6 @@ Section Composition.
       etrans. { apply maponpaths_2, id_right. }
       apply id_left.
   Defined.
-
-  (* TODO: upstream within file *)
-  Lemma comp_ext_compare_typecat_mor_iso
-      {C C' : split_typecat} (F : typecat_mor C C')
-      (Γ : C) (A A' : C Γ) (e : A = A')
-    : # F (comp_ext_compare e) ;; typecat_mor_iso F A'
-      = typecat_mor_iso F A ;; comp_ext_compare (maponpaths _ e).
-  Proof.
-    destruct e; cbn.
-    rewrite functor_id, id_left.
-    apply pathsinv0, id_right.
-  Qed.
 
   Definition compose_typecat_data {C C' C'' : split_typecat}
       (F : typecat_mor C C') (F' : typecat_mor C' C'')
