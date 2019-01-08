@@ -930,6 +930,14 @@ Section Split_Typecat.
   Defined.
 
   (* TODO: upstream *)
+  Definition rename_as_subst_tm {m n : nat} (f : m -> n) (e : tm_expr m)
+    : rename_tm f e = subst_tm (var_expr ∘ f)%functions e.
+  Proof.
+    eapply pathscomp0. { apply maponpaths, pathsinv0, subst_idmap_tm. }
+    use rename_subst_tm.
+  Defined.
+
+  (* TODO: upstream *)
   Definition derive_dB_next_context_map {Γ} {A}
       (d_Γ : [! |f- Γ !]) (d_A : [! Γ |- A !])
     : [! |- dB_next_context_map Γ ::: Γ;;A ---> Γ !].
@@ -1018,24 +1026,50 @@ Section Split_Typecat.
         auto using derive_flat_cxt_from_strat.
   Qed.
 
-  Local Definition qmor (ΓΓ : context_mod_eq) (AA : type_mod_eq ΓΓ)
-                        (ΓΓ' : context_mod_eq) :
-    ∏ (f : map_mod_eq ΓΓ' ΓΓ), map_mod_eq (ext ΓΓ' (reind AA f)) (ext ΓΓ AA).
+  Local Definition qmor
+      {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
+      {ΓΓ' : context_mod_eq} (ff : map_mod_eq ΓΓ' ΓΓ)
+    : map_mod_eq (ext ΓΓ' (reind AA ff)) (ext ΓΓ AA).
   Proof.
+    revert ff.
     simple refine (@setquot_rect_to_dependent_subquotient _ _
               (raw_context_map (S _) _) _ _ _ _ _).
     - intros f. exact (qmor_raw AA f).
     - intros f. apply qmor_derivable.
     - intros f g e_fg. exact (qmor_eq AA e_fg).
   Defined.
-      
+
+  Local Definition dpr_q
+      {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
+      {ΓΓ' : context_mod_eq} (ff : map_mod_eq ΓΓ' ΓΓ)
+    : compose (qmor AA ff) (dpr _ AA) = compose (dpr _ (reind AA ff)) ff.
+  Proof.
+    revert AA; use setquotunivprop'. { intros; apply isasetsetquot. } intros A.
+    revert ff; use setquotunivprop'. { intros; apply isasetsetquot. } intros f.
+    simpl. (* TODO: see if [abstract] in [dpr], or factoring the hard part out,
+            makes this quicker? *)
+    unfold qmor, setquot_rect_to_dependent_subquotient; simpl.
+    unfold dpr; simpl.
+    unfold compose; simpl.
+    unfold QuotientSet.setquotfun2; unfold QuotientSet.setquotuniv2; unfold setquotuniv; simpl. (* Agh! Can’t we have a version that computes more easily?? *)
+    apply iscompsetquotpr.
+    simpl. intros ΓA' Γ.
+    apply hinhpr.
+    (* TODO: abstract this to a lemma about them in [TypingLemmas] *)
+    intro i; unfold comp_raw_context; cbn.
+    rewrite rename_as_subst_tm.
+    apply derive_tmeq_refl.
+    admit. (* TODO: local, a typing lemma *)
+    (* NOTE: actually probably go back a few lines and fix from there *)
+  Admitted.
+
   Definition syntactic_typecat_structure : typecat_structure syntactic_category.
   Proof.
     exists syntactic_typecat_structure1.
     repeat use tpair.
     - exact dpr.  (* dependent projection *)
-    - exact qmor. (* “q-morphisms” *)
-    - admit. (* commutativity of q-morphisms*)
+    - exact @qmor. (* “q-morphisms” *)
+    - exact @dpr_q. (* commutativity of q-morphisms*)
     - admit. (* pullback condition *)
   Admitted.
 
