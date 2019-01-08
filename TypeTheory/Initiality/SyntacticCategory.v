@@ -1088,8 +1088,39 @@ Section Split_Typecat.
   Lemma is_split_syntactic_typecat_structure
     : is_split_typecat syntactic_typecat_structure.
   Proof.
+    repeat split.
+    - intros Γ.
+      apply isasetsetquot.
+    - use tpair.
+      + intros ΓΓ AA.
+        revert AA; use setquotunivprop'; [intros; apply isasetsetquot|]; intros A.
+        apply iscompsetquotpr; simpl; intros Γ.
+        use (hinhfun _ (type_derivable A Γ)); intro d_A.
+        rewrite subst_idmap_ty.
+        now apply derive_tyeq_refl.
+      + simpl.
+        intros ΓΓ AA.
+        Check derive_idmap_gen. (* TODO: state this in terms of syntactic category *)
+        admit.
+    - use tpair.
+      + simpl.
+        intros ΓΓ AA ΓΓ' ff ΓΓ'' gg.
+        revert AA; use setquotunivprop'; [intros; apply isasetsetquot|]; intros A.
+        revert ff; use setquotunivprop'; [intros; apply isasetsetquot|]; intros f.
+        revert gg; use setquotunivprop'; [intros; apply isasetsetquot|]; intros g.
+        apply (take_context_representative ΓΓ). { apply isasetsetquot. } intros Γ.
+        apply (take_context_representative ΓΓ'). { apply isasetsetquot. } intros Γ'.
+        apply iscompsetquotpr; simpl.
+        intros Γ''.
+        apply hinhpr.
+        rewrite <- subst_subst_ty.
+        apply derive_tyeq_refl.
+        (* refine (subst_derivation [!  Γ'' |- _ !] _ _). *)
+        admit. (* should be easy now *)
+      + simpl.
+        admit.
   Admitted.
-
+  
   Definition syntactic_typecat : split_typecat
   := ((syntactic_category,, syntactic_typecat_structure),,
                                           is_split_syntactic_typecat_structure).
