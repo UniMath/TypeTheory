@@ -150,7 +150,25 @@ Section Composition.
 
   Definition id_typecat (C : split_typecat)
     : typecat_mor C C.
-  Admitted. (* [id_typecat]: should be self-contained *)
+  Proof.
+    use mk_typecat_mor.
+    - (* functor *)
+      apply functor_identity.
+    - (* naturality *)
+      use tpair.
+      + intros Γ A; exact A.
+      + intros ? ? ?; apply idpath.
+    - (* comparison isomorphisms *)
+      intros; apply identity_iso.
+    - (* axiom [typecat_mor_triangle] *)
+      intros; simpl. apply pathsinv0, id_left.
+    - (* axiom [typecat_mor_pentagon] *)
+      intros; cbn.
+      etrans. { apply id_right. }
+      apply pathsinv0.
+      etrans. { apply maponpaths_2, id_right. }
+      apply id_left.
+  Defined.
 
   Definition compose_typecat {C C' C'' : split_typecat}
       (F : typecat_mor C C') (F' : typecat_mor C' C'')
