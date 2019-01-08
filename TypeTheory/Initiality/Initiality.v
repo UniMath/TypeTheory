@@ -14,6 +14,7 @@ Require Import TypeTheory.Initiality.SplitTypeCat_Maps.
 Require Import TypeTheory.Initiality.SplitTypeCat_Contextual.
 Require Import TypeTheory.Initiality.Typing.
 Require Import TypeTheory.Initiality.SyntacticCategory.
+Require Import TypeTheory.Initiality.SyntacticCategory_Structure.
 Require Import TypeTheory.Initiality.Interpretation.
 
 
@@ -139,7 +140,22 @@ Section Existence.
      defined, using the total interpretation. *) 
   Admitted.
 
-  (* TODO: add lemmas that it preserves [U] and [Π] *)
+  Lemma interpretation_map_preserves_universe
+    : preserves_universe_struct
+        SyntacticCategory_Structure.univ
+        U
+        interpretation_map.
+  Proof.
+  Admitted.
+
+  Lemma interpretation_map_preserves_pi
+    : preserves_pi_struct
+        SyntacticCategory_Structure.pi
+        Π
+        interpretation_map.
+  Proof.
+  Admitted.
+
 End Existence.
 
 Section Uniqueness.
@@ -150,7 +166,8 @@ Section Uniqueness.
 
   Definition interpretation_unique
       (f : typecat_mor syntactic_typecat C)
-      (* TODO: and hypotheses that [f] preserves [U] and [Π] *)
+      (f_U : preserves_universe_struct SyntacticCategory_Structure.univ U f)
+      (f_Π : preserves_pi_struct SyntacticCategory_Structure.pi Π f)
     : f = interpretation_map C U Π.
   Proof.
   (* this should come from a couple of lemmas, to be proven not here but
