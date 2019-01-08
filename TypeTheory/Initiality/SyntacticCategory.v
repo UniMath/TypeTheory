@@ -16,8 +16,11 @@ Local Open Scope judgement.
 
 Section Auxiliary.
 
-  (* TODO: remove, eventually *)
-  Lemma temp_admit {X} : X. Admitted. (* For getting computation on partially complete definitions. *)
+(** Useful for getting computation on partially complete definitions (like how [admit] used to behave).
+  BUT: keep commented out when not needed, so as not to have inconsistency lying around. *)
+(*
+  Lemma temp_admit {X} : X. Admitted.
+*)
 
   Global Arguments ishinh : simpl never.
 
@@ -1063,6 +1066,15 @@ Section Split_Typecat.
     (* NOTE: actually probably go back a few lines and fix from there *)
   Admitted.
 
+  Local Definition reind_pb 
+      {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
+      {ΓΓ' : context_mod_eq} (ff : map_mod_eq ΓΓ' ΓΓ)
+    : @isPullback syntactic_category _ _ _ _
+           ff (dpr ΓΓ AA) (dpr ΓΓ' (reind AA ff)) (qmor AA ff)
+           (! dpr_q AA ff).
+  Proof.
+  Admitted.
+
   Definition syntactic_typecat_structure : typecat_structure syntactic_category.
   Proof.
     exists syntactic_typecat_structure1.
@@ -1070,8 +1082,8 @@ Section Split_Typecat.
     - exact dpr.  (* dependent projection *)
     - exact @qmor. (* “q-morphisms” *)
     - exact @dpr_q. (* commutativity of q-morphisms*)
-    - admit. (* pullback condition *)
-  Admitted.
+    - exact @reind_pb. (* pullback condition *)
+  Defined.
 
   Lemma is_split_syntactic_typecat_structure
     : is_split_typecat syntactic_typecat_structure.
