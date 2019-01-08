@@ -8,4 +8,5 @@ TypingLemmas.v
 Interpretation.v
 InterpretationLemmas.v
 SyntacticCategory.v
+SyntacticCategory_Structure.v
 Initiality.v

@@ -108,7 +108,7 @@ Section Extensions.
 End Extensions.
 
 Section Contextual_Cats.
-(** A split type-categoy is _contextual_ if it has some base object, such that every object arises uniquely as an extension of this base object. 
+(** A split type-category is _contextual_ if it has some base object, such that every object arises uniquely as an extension of this base object. 
 
 Note that such a base object is necessarily unique: see [isaprop_is_contextual]. *)
 
