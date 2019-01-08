@@ -43,15 +43,38 @@ F (Γ' ⋆ A⦃f⦄) ------> F Γ' ⋆ (F A)⦃f⦄ -----> F Γ' ⋆ F A⦃f⦄ 
                  ϕ                       =                     q
 
 *)
-Definition typecat_mor (C D : split_typecat) : UU
+Definition typecat_mor_data (C D : split_typecat) : UU
   := ∑ (F : functor C D)
-       (FTy : PreShv C ⟦ty C, functor_opp F ∙ ty D⟧)
-       (ϕ : ∏ (Γ : C) (A : C Γ), iso (F (Γ ⋆ A)) (F Γ ⋆ pr1 FTy _ A)),
-         (∏ Γ (A : C Γ), # F (dpr_typecat A) = ϕ _ A · dpr_typecat (pr1 FTy _ A))
-       × (∏ Γ Γ' (A : C Γ) (σ : Γ' --> Γ),
-            # F (q_typecat A σ) · ϕ Γ A =
-            ϕ Γ' _ · comp_ext_compare (eqtohomot (nat_trans_ax FTy σ) A) ·
-              q_typecat (pr1 FTy _ A) (# F σ)).
+       (FTy : PreShv C ⟦ty C, functor_opp F ∙ ty D⟧),
+       (∏ (Γ : C) (A : C Γ), iso (F (Γ ⋆ A)) (F Γ ⋆ pr1 FTy _ A)).
+
+Definition typecat_mor_functor {C D} {F : typecat_mor_data C D}
+  : functor C D := pr1 F.
+Coercion typecat_mor_functor : typecat_mor_data >-> functor.
+
+Definition typecat_mor_Ty {C D}  (F : typecat_mor_data C D)
+  : nat_trans (ty C : functor _ _) (functor_opp F ∙ ty D)
+:= pr12 F.
+
+Definition typecat_mor_iso {C D} (F : typecat_mor_data C D)
+    {Γ} (A : C Γ)
+  : iso (F (Γ ⋆ A)) (F Γ ⋆ typecat_mor_Ty F Γ A)
+:= pr22 F Γ A.
+
+Definition typecat_mor_axioms
+    {C D : split_typecat} (F : typecat_mor_data C D) : UU
+  := (∏ Γ (A : C Γ),
+        # F (dpr_typecat A)
+        = typecat_mor_iso F A · dpr_typecat (typecat_mor_Ty F _ A))
+   × (∏ Γ Γ' (A : C Γ) (f : Γ' --> Γ),
+        # F (q_typecat A f) · typecat_mor_iso F A
+        = typecat_mor_iso F _
+          · comp_ext_compare (eqtohomot (nat_trans_ax (typecat_mor_Ty F) f) A)
+          · q_typecat (typecat_mor_Ty F _ A) (# F f)).
+
+
+Definition typecat_mor (C D : split_typecat) : UU
+  := ∑ (F : typecat_mor_data C D), typecat_mor_axioms F.
 
 Definition mk_typecat_mor
   {C D : split_typecat}
@@ -65,36 +88,27 @@ Definition mk_typecat_mor
           q_typecat (pr1 FTy _ A) (# F σ))
   : typecat_mor C D.
 Proof.
-exists F, FTy, ϕ; split; [ apply H1 | apply H2 ].
+  exact ((F,,(FTy,,ϕ)),,(H1,,H2)).
 Defined.
 
-Definition typecat_mor_functor {C D} {f : typecat_mor C D}
-  : functor C D := pr1 f.
-Coercion typecat_mor_functor : typecat_mor >-> functor.
+Coercion typecat_mor_data_of_typecat_mor {C D} (F : typecat_mor C D)
+  : typecat_mor_data C D
+:= pr1 F.
 
-Definition typecat_mor_Ty {C D}  (f : typecat_mor C D)
-  : nat_trans (ty C : functor _ _) (functor_opp f ∙ ty D)
-:= pr12 f.
-
-Definition typecat_mor_iso {C D} (f : typecat_mor C D)
+Definition typecat_mor_triangle {C D} (F : typecat_mor C D)
     {Γ} (A : C Γ)
-  : iso (f (Γ ⋆ A)) (f Γ ⋆ typecat_mor_Ty f Γ A)
-:= pr122 f Γ A.
+  : # F (dpr_typecat A)
+    = typecat_mor_iso F A · dpr_typecat (typecat_mor_Ty F _ A)
+:= pr1 (pr2 F) Γ A.
 
-Definition typecat_mor_triangle {C D} (f : typecat_mor C D)
-    {Γ} (A : C Γ)
-  : # f (dpr_typecat A)
-    = typecat_mor_iso f A · dpr_typecat (typecat_mor_Ty f _ A)
-:= pr1 (pr222 f) Γ A.
-
-Definition typecat_mor_pentagon {C D} (f : typecat_mor C D)
+Definition typecat_mor_pentagon {C D} (F : typecat_mor C D)
     {Γ Γ'} (A : C Γ) (σ : Γ' --> Γ)
-  : # f (q_typecat A σ)
-    · typecat_mor_iso f A
-  = typecat_mor_iso f _
-    · comp_ext_compare (eqtohomot (nat_trans_ax (typecat_mor_Ty f) σ) A)
-    · q_typecat (typecat_mor_Ty f Γ A) (# f σ)
-:= pr2 (pr222 f) Γ Γ' A σ.
+  : # F (q_typecat A σ)
+    · typecat_mor_iso F A
+  = typecat_mor_iso F _
+    · comp_ext_compare (eqtohomot (nat_trans_ax (typecat_mor_Ty F) σ) A)
+    · q_typecat (typecat_mor_Ty F Γ A) (# F σ)
+:= pr2 (pr2 F) Γ Γ' A σ.
 
 End morphisms.
 
@@ -151,7 +165,7 @@ Section Composition.
   Definition id_typecat (C : split_typecat)
     : typecat_mor C C.
   Proof.
-    use mk_typecat_mor.
+    apply mk_typecat_mor.
     - (* functor *)
       apply functor_identity.
     - (* naturality *)
@@ -182,12 +196,12 @@ Section Composition.
     apply pathsinv0, id_right.
   Qed.
 
-  Definition compose_typecat {C C' C'' : split_typecat}
+  Definition compose_typecat_data {C C' C'' : split_typecat}
       (F : typecat_mor C C') (F' : typecat_mor C' C'')
-    : typecat_mor C C''.
+    : typecat_mor_data C C''.
   Proof.
-    use mk_typecat_mor.
-    - exact (functor_composite F F').
+    exists (functor_composite F F').
+    use tpair.
     - refine (_ ;; _).
       { exact (typecat_mor_Ty F). }
       simple refine (_ ;; _).
@@ -202,6 +216,13 @@ Section Composition.
       refine (iso_comp _ _).
       2: { apply typecat_mor_iso. }
       apply functor_on_iso, typecat_mor_iso.
+  Defined.
+
+  Definition compose_typecat_axioms {C C' C'' : split_typecat}
+      (F : typecat_mor C C') (F' : typecat_mor C' C'')
+    : typecat_mor_axioms (compose_typecat_data F F').
+  Proof.
+    split.
     - (* axiom [typecat_mor_triangle] *)
       intros Γ A; cbn.
       etrans. { apply maponpaths, typecat_mor_triangle. }
@@ -209,10 +230,10 @@ Section Composition.
       etrans. 2: { apply assoc. }
       apply maponpaths, typecat_mor_triangle.
     - (* axiom [typecat_mor_pentagon] *)
-      intros Γ Γ' A f.
+      intros Γ Γ' A f; cbn.
       etrans. { apply assoc. } 
       etrans. { apply maponpaths_2.
-        etrans. { apply pathsinv0. refine (functor_comp F' _ _). }
+        etrans. { apply pathsinv0. apply (functor_comp F'). }
         etrans. { apply maponpaths, typecat_mor_pentagon. }
         apply (functor_comp F'). }
       etrans. { apply pathsinv0, assoc. }
@@ -228,7 +249,15 @@ Section Composition.
       etrans. { apply pathsinv0, assoc. } apply maponpaths.
       etrans. { apply pathsinv0, comp_ext_compare_comp. }
       apply comp_ext_compare_irrelevant.
-  Time Defined.
+  Qed.
+
+  Definition compose_typecat {C C' C'' : split_typecat}
+      (F : typecat_mor C C') (F' : typecat_mor C' C'')
+    : typecat_mor C C''.
+  Proof.
+    exists (compose_typecat_data F F').
+    apply compose_typecat_axioms.
+  Defined.
 
   (* TODO: also will need at least [id_left] for the proof of initiality *)
 
