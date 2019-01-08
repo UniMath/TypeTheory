@@ -205,24 +205,30 @@ Section Composition.
     - (* axiom [typecat_mor_triangle] *)
       intros Γ A; cbn.
       etrans. { apply maponpaths, typecat_mor_triangle. }
-      rewrite functor_comp, <- assoc. apply maponpaths.
-      apply typecat_mor_triangle.
+      etrans. { apply functor_comp. }
+      etrans. 2: { apply assoc. }
+      apply maponpaths, typecat_mor_triangle.
     - (* axiom [typecat_mor_pentagon] *)
-      intros Γ Γ' A f; cbn.
-      etrans.
-      { rewrite assoc. apply maponpaths_2.
-        rewrite <- functor_comp. apply maponpaths.
-        apply typecat_mor_pentagon. }
-      rewrite functor_comp. rewrite <- assoc.
+      intros Γ Γ' A f.
+      etrans. { apply assoc. } 
+      etrans. { apply maponpaths_2.
+        etrans. { apply pathsinv0. refine (functor_comp F' _ _). }
+        etrans. { apply maponpaths, typecat_mor_pentagon. }
+        apply (functor_comp F'). }
+      etrans. { apply pathsinv0, assoc. }
       etrans. { apply maponpaths, typecat_mor_pentagon. }
-      rewrite ! functor_comp. 
-      rewrite <- ! assoc. apply maponpaths.
-      rewrite ! assoc. apply maponpaths_2.
+      etrans. { apply maponpaths_2, functor_comp. }
+      etrans. { apply assoc. }
+      apply maponpaths_2.
+      etrans. { apply pathsinv0, assoc. }
+      etrans. 2: { apply assoc. }
+      apply maponpaths.
+      etrans. { apply assoc. }
       etrans. { apply maponpaths_2, comp_ext_compare_typecat_mor_iso. }
-      rewrite <- assoc. apply maponpaths.
+      etrans. { apply pathsinv0, assoc. } apply maponpaths.
       etrans. { apply pathsinv0, comp_ext_compare_comp. }
       apply comp_ext_compare_irrelevant.
-  Defined.
+  Time Defined.
 
   (* TODO: also will need at least [id_left] for the proof of initiality *)
 
