@@ -170,10 +170,59 @@ Section Composition.
       apply id_left.
   Defined.
 
+  (* TODO: upstream within file *)
+  Lemma comp_ext_compare_typecat_mor_iso
+      {C C' : split_typecat} (F : typecat_mor C C')
+      (Γ : C) (A A' : C Γ) (e : A = A')
+    : # F (comp_ext_compare e) ;; typecat_mor_iso F A'
+      = typecat_mor_iso F A ;; comp_ext_compare (maponpaths _ e).
+  Proof.
+    destruct e; cbn.
+    rewrite functor_id, id_left.
+    apply pathsinv0, id_right.
+  Qed.
+
   Definition compose_typecat {C C' C'' : split_typecat}
       (F : typecat_mor C C') (F' : typecat_mor C' C'')
     : typecat_mor C C''.
-  Admitted. (* [compose_typecat]: should be self-contained *)
+  Proof.
+    use mk_typecat_mor.
+    - exact (functor_composite F F').
+    - refine (_ ;; _).
+      { exact (typecat_mor_Ty F). }
+      simple refine (_ ;; _).
+      { exact (functor_opp F ∙ (functor_opp F' ∙ ty C'')). }
+      { apply pre_whisker, typecat_mor_Ty. }
+      (* TODO: the following should exist as a lemma somewhere *)
+      use tpair.
+      + intros Γ A; exact A.
+      + intros ? ? ?; apply idpath.
+    - (* [typecat_mor_iso] *)
+      intros Γ A; simpl.
+      refine (iso_comp _ _).
+      2: { apply typecat_mor_iso. }
+      apply functor_on_iso, typecat_mor_iso.
+    - (* axiom [typecat_mor_triangle] *)
+      intros Γ A; cbn.
+      etrans. { apply maponpaths, typecat_mor_triangle. }
+      rewrite functor_comp, <- assoc. apply maponpaths.
+      apply typecat_mor_triangle.
+    - (* axiom [typecat_mor_pentagon] *)
+      intros Γ Γ' A f; cbn.
+      etrans.
+      { rewrite assoc. apply maponpaths_2.
+        rewrite <- functor_comp. apply maponpaths.
+        apply typecat_mor_pentagon. }
+      rewrite functor_comp. rewrite <- assoc.
+      etrans. { apply maponpaths, typecat_mor_pentagon. }
+      rewrite ! functor_comp. 
+      rewrite <- ! assoc. apply maponpaths.
+      rewrite ! assoc. apply maponpaths_2.
+      etrans. { apply maponpaths_2, comp_ext_compare_typecat_mor_iso. }
+      rewrite <- assoc. apply maponpaths.
+      etrans. { apply pathsinv0, comp_ext_compare_comp. }
+      apply comp_ext_compare_irrelevant.
+  Defined.
 
   (* TODO: also will need at least [id_left] for the proof of initiality *)
 
