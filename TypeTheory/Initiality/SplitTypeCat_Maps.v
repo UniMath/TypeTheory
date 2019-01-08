@@ -145,3 +145,18 @@ Section Derived_Actions.
   Qed.
   
 End Derived_Actions.
+
+Section Composition.
+
+  Definition id_typecat (C : split_typecat)
+    : typecat_mor C C.
+  Admitted. (* [id_typecat]: should be self-contained *)
+
+  Definition compose_typecat {C C' C'' : split_typecat}
+      (F : typecat_mor C C') (F' : typecat_mor C' C'')
+    : typecat_mor C C''.
+  Admitted. (* [compose_typecat]: should be self-contained *)
+
+  (* TODO: also will need at least [id_left] for the proof of initiality *)
+
+End Composition.

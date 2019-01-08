@@ -128,11 +128,8 @@ End Interpretation_Stratified_Contexts.
 
 Section Existence.
 
-  Context (C : contextual_cat)
-          (U : universe_struct C)
-          (Π : pi_struct C).
-
   Definition interpretation_map
+      (C : contextual_cat) (U : universe_struct C) (Π : pi_struct C)
     : typecat_mor syntactic_typecat C.
   Proof.
   (* should be able to put this together component-by-component,
@@ -141,22 +138,45 @@ Section Existence.
   Admitted.
 
   Lemma interpretation_map_preserves_universe
+      (C : contextual_cat) (U : universe_struct C) (Π : pi_struct C)
     : preserves_universe_struct
         SyntacticCategory_Structure.univ
         U
-        interpretation_map.
+        (interpretation_map C U Π).
   Proof.
   Admitted.
 
   Lemma interpretation_map_preserves_pi
+      (C : contextual_cat) (U : universe_struct C) (Π : pi_struct C)
     : preserves_pi_struct
         SyntacticCategory_Structure.pi
         Π
-        interpretation_map.
+        (interpretation_map C U Π).
   Proof.
   Admitted.
 
+  Lemma interpretation_map_natural
+      {C : contextual_cat} {U : universe_struct C} {Π : pi_struct C}
+      {C' : contextual_cat} {U' : universe_struct C'} {Π' : pi_struct C'}
+      (F : typecat_mor C C')
+      (F_U : preserves_universe_struct U U' F)
+      (F_Π : preserves_pi_struct Π Π' F)
+    : interpretation_map C' U' Π'
+    = compose_typecat (interpretation_map C U Π) F.
+  Proof.
+  Admitted. (* [interpretation_map_natural]: depends on at least [interpretation_map], [compose_typecat]. Sketch proof: after giving each component of the construction of [interpretation_map] above, show that that component is natural; then assemble it all here.  Should mostly be a formal repackaging of [fmap_interpretation], from [InterpretationLemmas]. *)
+
+  Lemma interpretation_map_id
+    : interpretation_map
+        syntactic_contextual_cat
+        SyntacticCategory_Structure.univ
+        SyntacticCategory_Structure.pi
+    = id_typecat syntactic_typecat.
+  Proof.
+  Admitted. (* [intepretation_map_id]: proof-irrelevant; depends on [interpretation_map].  Proof sketch: go via a version of this statement in [InterpretationLemmas], something like “for any derivable judgement, its interpretation is just [setquotpr] of it”, which should be provable by an induction over raw syntax, or possibly derivations. *)
+
 End Existence.
+
 
 Section Uniqueness.
 

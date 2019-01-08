@@ -6,7 +6,8 @@ Require Import UniMath.All.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.TypeCat.
-Require Import TypeTheory.Initiality.SplitTypeCat_Structure.
+Require Import TypeTheory.Initiality.SplitTypeCat_General.
+Require Import TypeTheory.Initiality.SplitTypeCat_Contextual.
 Require Import TypeTheory.Initiality.Syntax.
 Require Import TypeTheory.Initiality.SyntaxLemmas.
 Require Import TypeTheory.Initiality.Typing.
@@ -1126,3 +1127,18 @@ Section Split_Typecat.
                                           is_split_syntactic_typecat_structure).
 
 End Split_Typecat.
+
+Section Contextuality.
+
+  (* TODO: upstream, probably to [SyntacticCategory]. *)
+  Lemma syntactic_typecat_is_contextual
+    : is_contextual syntactic_typecat.
+  Proof.
+  Admitted. (* [syntactic_typecat_is_contextual].  Self-contained, proof-irrelevant. *) 
+
+  (* TODO: upstream, probably to [SyntacticCategory]. *)
+  Definition syntactic_contextual_cat
+    : contextual_cat
+  := (syntactic_typecat,, syntactic_typecat_is_contextual).
+
+End Contextuality.
