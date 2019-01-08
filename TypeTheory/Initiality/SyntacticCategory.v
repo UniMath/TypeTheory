@@ -529,9 +529,12 @@ Section Context_Maps.
       ∥ [! |- f ::: Γ ---> Δ !] ∥
   := pr2 f.
 
-  Local Definition mapeq_hrel {ΓΓ ΔΔ} (f g : map ΓΓ ΔΔ)
+  Local Definition mapeq (ΓΓ ΔΔ : context_mod_eq) (f g : raw_context_map ΓΓ ΔΔ)
   := ∀ (Γ : context_representative ΓΓ) (Δ : context_representative ΔΔ),
       ∥ [! |- f === g ::: Γ ---> Δ !] ∥.
+
+  Local Definition mapeq_hrel {ΓΓ ΔΔ} (f g : map ΓΓ ΔΔ)
+  := mapeq ΓΓ ΔΔ f g.
 
   Local Definition mapeq_is_eqrel (ΓΓ ΔΔ : context_mod_eq)
     : iseqrel (@mapeq_hrel ΓΓ ΔΔ).
@@ -880,28 +883,22 @@ Section Split_Typecat.
       intros f A.
       exists (subst_ty f A).
       intros Γ'.
-      use (take_context_representative ΓΓ); try apply isapropishinh;
-        change (representative ΓΓ) with (context_representative ΓΓ).
-      intros Γ.
+      apply (take_context_representative ΓΓ). { apply propproperty. } intros Γ.
       refine (hinhfun2 _ (map_derivable f Γ' Γ) (type_derivable A Γ)).
-      (* TODO: make [derive_subst_ty] etc. as specialisations of [subst_derivation], and replace [subst_derivation [! _ |- _ !] ] with them throughout? *)
       intros d_f d_A.
+      (* TODO: make [derive_subst_ty] etc. as specialisations of [subst_derivation], and replace [subst_derivation [! _ |- _ !] ] with them throughout? *)
       exact (subst_derivation _ d_A d_f).
     - (* respects equality in the map *)
       clear AA ff. intros f f' A e_f Γ'. cbn.
-      use (take_context_representative ΓΓ); try apply isapropishinh;
-        change (representative ΓΓ) with (context_representative ΓΓ).
-      intros Γ.
+      apply (take_context_representative ΓΓ). { apply propproperty. } intros Γ.
       refine (hinhfun5 _ (type_derivable A Γ) Γ'
                        (map_derivable f Γ' Γ) (map_derivable f' Γ' Γ)
                        (e_f Γ' Γ)).
       intros d_Γ_A d_Γ' d_f d_f' d_e_f.
-      refine (substeq_derivation _ d_Γ_A _ _ _ _); auto using derive_flat_cxt_from_strat.
+      use (substeq_derivation _ d_Γ_A); auto using derive_flat_cxt_from_strat.
     - (* respects equality in the type *)
       clear AA ff. intros f A A' e_A Γ'. cbn.
-      use (take_context_representative ΓΓ); try apply isapropishinh;
-        change (representative ΓΓ) with (context_representative ΓΓ).
-      intros Γ.
+      apply (take_context_representative ΓΓ). { apply propproperty. } intros Γ.
       refine (hinhfun2 _ (map_derivable f Γ' Γ) (e_A Γ)).
       intros d_f d_e_A.
       exact (subst_derivation _ d_e_A d_f).
@@ -923,6 +920,7 @@ Section Split_Typecat.
     : raw_context_map (S n) n
   := fun i => var_expr (dB_next i).
 
+  (* TODO: upstream *)
   Definition rename_as_subst_ty {m n : nat} (f : m -> n) (e : ty_expr m)
     : rename_ty f e = subst_ty (var_expr ∘ f)%functions e.
   Proof.
@@ -931,6 +929,7 @@ Section Split_Typecat.
     use rename_subst_ty.
   Defined.
 
+  (* TODO: upstream *)
   Definition derive_dB_next_context_map {Γ} {A}
       (d_Γ : [! |f- Γ !]) (d_A : [! Γ |- A !])
     : [! |- dB_next_context_map Γ ::: Γ;;A ---> Γ !].
@@ -949,60 +948,85 @@ Section Split_Typecat.
     use setquotpr.
     exists (dB_next_context_map _).
     apply map_for_some_rep.
-    destruct ΓΓ as [n ΓΓ]. revert ΓΓ AA.
-    use setquotunivprop'. { intro; apply isaprop_forall_hProp. } intros Γ.
-    use setquotunivprop'. { intros; apply isapropishinh. } intros A.
+    apply (take_context_representative ΓΓ). { apply propproperty. } intros Γ.
+    revert AA. use setquotunivprop'. { intros; apply isapropishinh. } intros A.
     cbn. apply hinhpr.
-    unfold ext. simpl. rewrite take_representative_comp_canon.
-    refine ((_,, idpath _),, _).
-    refine ((_,,idpath _),, _).
-    cbn. refine (hinhfun2 _ Γ (A Γ)). intros d_Γ d_A.
+    unfold ext. simpl. rewrite (take_representative_comp _ _ _ _ Γ).
+    refine ((_,, idpath _),, _). exists Γ.
+    simpl. refine (hinhfun2 _ Γ (A Γ)). intros d_Γ d_A.
     exact (derive_dB_next_context_map d_Γ d_A).
   Defined.
-  
+
+  Local Definition qmor_raw 
+      {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
+      {ΓΓ' : context_mod_eq} (f : raw_context_map ΓΓ' ΓΓ)
+    : raw_context_map (S ΓΓ') (S ΓΓ).
+  Proof.
+    exact (weaken_raw_context_map f).
+  Defined.
+
+  Local Definition qmor_derivable
+      {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
+      {ΓΓ' : context_mod_eq} (f : map ΓΓ' ΓΓ)
+    : ∀ (Γ : context_representative (ext ΓΓ' (reind AA (setquotpr _ f))))
+        (Δ : context_representative (ext ΓΓ AA)),
+       ∥ [! |- qmor_raw AA f ::: Γ ---> Δ !] ∥.
+  Proof.
+    apply (take_context_representative ΓΓ). { apply propproperty. } intros Γ.
+    apply (take_context_representative ΓΓ'). { apply propproperty. } intros Γ'.
+    revert AA. use setquotunivprop'. { intros; apply propproperty. } intros A.
+    apply map_for_some_rep, hinhpr.
+    exists (ext_representative Γ' _); simpl.
+    exists (ext_representative Γ _); simpl.
+    refine (hinhfun4 _ Γ Γ' (A Γ) (map_derivable f Γ' Γ)).
+    intros d_Γ d_Γ' d_A d_f.
+    refine (derive_weaken_raw_context_map _ _ _ d_f);
+      auto using derive_flat_cxt_from_strat.
+  Qed.
+
+
+  Local Definition qmor_eq
+      {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
+      {ΓΓ' : context_mod_eq}
+      {f g : map ΓΓ' ΓΓ} (e_fg : mapeq ΓΓ' ΓΓ f g)
+    : mapeq (ext ΓΓ' (reind AA (setquotpr _ g))) (ext ΓΓ AA)
+            (qmor_raw AA f) (qmor_raw AA g).
+  Proof.
+    refine (mapeq_for_some_rep _ _ _).
+    apply (take_context_representative ΓΓ). { apply propproperty. } intros Γ.
+    apply (take_context_representative ΓΓ'). { apply propproperty. } intros Γ'.
+    revert AA. use setquotunivprop'. { intros; apply propproperty. } intros A.
+    refine (hinhfun6 _ Γ Γ' (A Γ)
+                     (map_derivable f Γ' Γ) (map_derivable g Γ' Γ) (e_fg Γ' Γ)).
+    intros d_Γ d_Γ' d_A d_f d_g d_fg.
+    exists (ext_representative Γ' _); simpl.
+    exists (ext_representative Γ _); simpl.
+    apply hinhpr; repeat split.
+    + (* TODO: this should probably be abstracted to [TypingLemmas];
+           but it seems such an unnatural lemma! *)
+      refine (@derive_map_conv_cxteq_dom (S _)
+                         (Γ';;subst_ty f A) (Γ';;subst_ty g A) _ _ _ _ _ _ _);
+        try apply derive_flat_extend_context;
+        try apply (subst_derivation [! Γ |- A !]);
+        try apply derive_extend_flat_cxteq, (substeq_derivation [! Γ |- A !]);
+        try refine (derive_flat_extend_context _ d_A);
+        try refine (derive_weaken_raw_context_map _ _ _ d_f);
+        auto using derive_flat_cxt_from_strat, (@derive_flat_cxteq_refl Γ').
+    + refine (derive_weaken_raw_context_map _ _ _ d_g);
+        auto using derive_flat_cxt_from_strat.     
+    + refine (derive_weaken_raw_context_mapeq _ _ _ _ _ d_fg);
+        auto using derive_flat_cxt_from_strat.
+  Qed.
+
   Local Definition qmor (ΓΓ : context_mod_eq) (AA : type_mod_eq ΓΓ)
                         (ΓΓ' : context_mod_eq) :
     ∏ (f : map_mod_eq ΓΓ' ΓΓ), map_mod_eq (ext ΓΓ' (reind AA f)) (ext ΓΓ AA).
   Proof.
     simple refine (@setquot_rect_to_dependent_subquotient _ _
               (raw_context_map (S _) _) _ _ _ _ _).
-    - intros f; exact (weaken_raw_context_map f).
-    - intros f.
-      apply (take_context_representative ΓΓ). { apply propproperty. } intros Γ.
-      apply (take_context_representative ΓΓ'). { apply propproperty. } intros Γ'.
-      revert AA. use setquotunivprop'. { intros; apply propproperty. } intros A.
-      apply map_for_some_rep, hinhpr.
-      exists (ext_representative Γ' _); simpl.
-      exists (ext_representative Γ _); simpl.
-      refine (hinhfun4 _ Γ Γ' (A Γ) (map_derivable f Γ' Γ)).
-      intros d_Γ d_Γ' d_A d_f.
-      refine (derive_weaken_raw_context_map _ _ _ d_f);
-        auto using derive_flat_cxt_from_strat.
-    - simpl. intros f g e_fg.
-      refine (mapeq_for_some_rep _ _ _).
-      apply (take_context_representative ΓΓ). { apply propproperty. } intros Γ.
-      apply (take_context_representative ΓΓ'). { apply propproperty. } intros Γ'.
-      revert AA. use setquotunivprop'. { intros; apply propproperty. } intros A.
-      refine (hinhfun6 _ Γ Γ' (A Γ)
-                     (map_derivable f Γ' Γ) (map_derivable g Γ' Γ) (e_fg Γ' Γ)).
-      intros d_Γ d_Γ' d_A d_f d_g d_fg.
-      exists (ext_representative Γ' _); simpl.
-      exists (ext_representative Γ _); simpl.
-      apply hinhpr; repeat split.
-      + (* TODO: this should probably be abstracted to [TypingLemmas];
-           but it seems such an unnatural lemma! *)
-        refine (@derive_map_conv_cxteq_dom (S _)
-                            (Γ';;subst_ty f A) (Γ';;subst_ty g A) _ _ _ _ _ _ _);
-          try apply derive_flat_extend_context;
-          try apply (subst_derivation [! Γ |- A !]);
-          try apply derive_extend_flat_cxteq, (substeq_derivation [! Γ |- A !]);
-          try refine (derive_flat_extend_context _ d_A);
-          try refine (derive_weaken_raw_context_map _ _ _ d_f);
-            auto using derive_flat_cxt_from_strat, (@derive_flat_cxteq_refl Γ').
-      + refine (derive_weaken_raw_context_map _ _ _ d_g);
-        auto using derive_flat_cxt_from_strat.     
-      + refine (derive_weaken_raw_context_mapeq _ _ _ _ _ d_fg);
-        auto using derive_flat_cxt_from_strat.
+    - intros f. exact (qmor_raw AA f).
+    - intros f. apply qmor_derivable.
+    - intros f g e_fg. exact (qmor_eq AA e_fg).
   Defined.
       
   Definition syntactic_typecat_structure : typecat_structure syntactic_category.
