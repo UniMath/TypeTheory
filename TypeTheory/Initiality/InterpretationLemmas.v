@@ -12,6 +12,7 @@ Require Import TypeTheory.Initiality.SplitTypeCat_Structure.
 Require Import TypeTheory.Initiality.SplitTypeCat_Maps.
 Require Import TypeTheory.Initiality.Syntax.
 Require Import TypeTheory.Initiality.Typing.
+Require Import TypeTheory.Initiality.Environments.
 Require Import TypeTheory.Initiality.Interpretation.
 
 Section Functoriality_General.
@@ -19,21 +20,24 @@ Section Functoriality_General.
 
   Context {C C'} (F : typecat_mor C C').
 
-  (* TODO: consider, probably upstream at least to with [fmap_tm], etc. *)
+  (* TODO: consider naming/existence; probably upstream at least to with [fmap_tm], etc. *)
   Local Definition fmap_ty := typecat_mor_Ty F.
 
+  (* TODO: upstream to with definition of [type_with_term] *)
   Definition fmap_type_with_term {Γ:C} (Aa : type_with_term Γ)
     : type_with_term (F Γ).
   Proof.
     exact (typecat_mor_Ty F _ (type_of Aa),,fmap_tm F Aa).
   Defined.
 
+  (* TODO: upstream to [Environments] *)
   Definition fmap_environment {Γ:C} {n:nat} (E : environment Γ n)
     : environment (F Γ) n.
   Proof.
     intros i. exact (fmap_type_with_term (E i)).
   Defined.
 
+  (* TODO: upstream to [Environments] *)
   Lemma fmap_reind_environment
       {Γ Γ' : C} (f : Γ' --> Γ) {n} (E : environment Γ n)
     : fmap_environment (reind_environment f E)
@@ -46,6 +50,7 @@ Section Functoriality_General.
       apply reindex_fmap_tm.
   Defined.
 
+  (* TODO: upstream to follow [var_with_type] *)
   Lemma var_with_type_fmap_type
       {Γ} (A : C Γ)
     : var_with_type (fmap_ty Γ A)
@@ -71,6 +76,7 @@ Section Functoriality_General.
       admit. (* this is complicated... *)
   Admitted.
 
+  (* TODO: upstream to with [fmap_environment] *)
   Lemma fmap_add_to_environment
         {Γ:C} {n} (E : environment Γ n) (Aa : type_with_term Γ)
     : fmap_environment (add_to_environment E Aa)
@@ -79,6 +85,7 @@ Section Functoriality_General.
     apply funextfun. use dB_Sn_rect; intros; apply idpath.
   Qed.
 
+  (* TODO: upstream to follow [extend_environment] *)
   Lemma fmap_extend_environment {Γ} {n} (E : environment Γ n) (A : C Γ)
     : extend_environment (fmap_environment E) (fmap_ty _ A)
     = reind_environment (inv_from_iso (typecat_mor_iso F _))

@@ -15,8 +15,8 @@ Require Import TypeTheory.Initiality.SplitTypeCat_Contextual.
 Require Import TypeTheory.Initiality.Typing.
 Require Import TypeTheory.Initiality.SyntacticCategory.
 Require Import TypeTheory.Initiality.SyntacticCategory_Structure.
+Require Import TypeTheory.Initiality.Environments.
 Require Import TypeTheory.Initiality.Interpretation.
-
 
 Section Interpretation_Stratified_Contexts.
 (* TODO: upstream to [InterpretationLemmas]? *)
@@ -25,23 +25,6 @@ Section Interpretation_Stratified_Contexts.
           (U : universe_struct C)
           (Π : pi_struct C)
           (X : C).
-
-  (* TODO: upstream *)
-  Definition empty_environment
-    : environment X 0.
-  Proof.
-    intros [].
-  Defined.
-
-  Definition environment_of_extension {n}
-      (AA : extension_of_length n X)
-    : environment (ext_extension X AA) n.
-  Proof.
-    induction n as [ | n' IH].
-    - exact empty_environment.
-    - use extend_environment.
-      apply IH.
-  Defined.
 
   Definition partial_interpretation_strat_cxt {n}
       (Γ : stratified_context_of_length n)

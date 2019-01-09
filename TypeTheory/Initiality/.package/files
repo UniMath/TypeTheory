@@ -6,6 +6,7 @@ Syntax.v
 SyntaxLemmas.v
 Typing.v
 TypingLemmas.v
+Environments.v
 Interpretation.v
 InterpretationLemmas.v
 SyntacticCategory.v
