@@ -65,12 +65,10 @@ Section Functoriality_General.
     + apply PullbackArrowUnique; cbn.
     - rewrite <- assoc.
       etrans; [apply maponpaths, comp_ext_compare_dpr_typecat|].
-      unfold map_into_Pb.
-      set (pb := Auxiliary.Pbb _ _ _ _ _ _ _ _ _ _ _).
-      apply (PullbackArrow_PullbackPr1 pb).
-    - apply pathsinv0, iso_inv_on_right.
-      set (f1 := map_into_Pb _ _ _ _ _ _ _ _ _).
+      apply (section_property (var_with_type (fmap_ty Γ A))).
+    - set (f1 := map_into_Pb _ _ _ _ _ _ _ _ _).
       set (f2 := map_into_Pb _ _ _ _ _ _ _ _ _).
+      apply pathsinv0, iso_inv_on_right.
       rewrite comp_ext_compare_comp.
       rewrite comp_ext_compare_comp.
       admit. (* this is complicated... *)
