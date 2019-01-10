@@ -12,6 +12,24 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.Partial.
 Require Import TypeTheory.ALV1.TypeCat.
 
+(* These two lemmas should be upstreamed to UniMath/CategoryTheory/limits/terminal.v and initial.v *)
+Section upstream.
+
+  Lemma isaprop_isTerminal {C : precategory} (x : C) : isaprop (isTerminal C x).
+  Proof.
+    repeat (apply impred; intro).
+    apply isapropiscontr.
+  Qed.
+
+  Lemma isaprop_isInitial {C : precategory} (x : C) : isaprop (isInitial C x).
+  Proof.
+    repeat (apply impred; intro).
+    apply isapropiscontr.
+  Qed.
+    
+End upstream.
+
+
 Section Extensions.
 (** Context extensions in type-categories, i.e. suitable sequences of types *)
 (* TODO: upstream somewhere! And connect to [CSystems] files? *)
@@ -139,9 +157,8 @@ Note that such a base object is necessarily unique: see [isaprop_is_contextual].
     apply invproofirrelevance; intros H H'.
     apply subtypeEquality.
     { intros Γ0; apply isapropdirprod.
-    - admit. (* couldn’t find in library for either [isTerminal]
-                or [limits.terminal.isTerminal]. *)
-    - apply propproperty. }
+      - apply isaprop_isTerminal.
+      - apply propproperty. }
     destruct H as [Γ0 [K H]], H' as [Γ0' [K' H']]; cbn; clear K K'.
     destruct (H Γ0') as [[AA e] _], (H' Γ0) as [[AA' e'] _].
     admit.
