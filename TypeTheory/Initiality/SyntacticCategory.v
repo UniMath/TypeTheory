@@ -76,7 +76,7 @@ Section Auxiliary.
     apply maponpaths_2, isasetsetquot.
   Defined.
 
-  Definition setquot_comp {X:UU} {R:eqrel X}
+  Definition setquot_rect_comp {X:UU} {R:eqrel X}
       (P : setquot R -> UU) (isaset_P : forall xx, isaset (P xx))
       (d : forall x:X, P (setquotpr R x))
       (d_respects_R : forall (x y:X) (r : R x y),
@@ -88,8 +88,17 @@ Section Auxiliary.
     apply maponpaths_2, isasetsetquot.
   Defined.
 
-  Opaque setquot_rect setquot_comp.
-
+  Definition setquot_rect_isaprop {X:UU} {R:eqrel X}
+      (P : setquot R -> UU) (isaprop_P : forall xx, isaprop (P xx))
+      (d : forall x:X, P (setquotpr R x))
+    : forall xx, P xx.
+  Proof.
+    use (setquot_rect P (λ x, isasetaprop (isaprop_P x)) d).
+    intros x y r.
+    apply isaprop_P.
+  Defined.
+  
+  Opaque setquot_rect setquot_rect_comp setquot_rect_isaprop.
 
 (** A specialised eliminator for quotients, with better computational
 behaviour than [setquot_rect], but not quite an instance of the simpler
@@ -98,7 +107,7 @@ relation may depend on the input, but whose underlying type is independent.
 
 So this gives, in certain circumstances, a dependent eliminator with some
 computational behaviour. *)
-  Definition setquot_rect_to_dependent_subquotient {X:UU} {R:eqrel X}
+  Definition setquot_to_dependent_subquotient {X:UU} {R:eqrel X}
       {P_pre:UU}
       (P_good : setquot R -> hsubtype P_pre)
       (P_eq : forall xx, eqrel (P_good xx))
@@ -150,11 +159,11 @@ computational behaviour. *)
                                      (iscompsetquotpr _ _ _ r) (d_good x))
                (d_pre y,, d_good y))
     : forall x,
-       (setquot_rect_to_dependent_subquotient P_good P_eq
+       (setquot_to_dependent_subquotient P_good P_eq
                                    d_pre d_good d_eq) (setquotpr R x)
        = setquotpr (P_eq (setquotpr _ x)) (d_pre x,, d_good x).
   Proof.
-    intros x. unfold setquot_rect_to_dependent_subquotient; simpl.
+    intros x. unfold setquot_to_dependent_subquotient; simpl.
     apply maponpaths, maponpaths, propproperty.
   Defined.
 
@@ -184,7 +193,7 @@ computational behaviour. *)
   Proof.
     unfold take_representative_with_isaset.
     destruct x as [x e]; induction e.
-    now rewrite setquot_comp.
+    now rewrite setquot_rect_comp.
   Qed.
 
   Lemma take_representative_comp_canon
@@ -426,6 +435,13 @@ Section Contexts_Modulo_Equality.
     : wellformed_context_of_length >-> hProptoType.
   (* NOTE: this is needed since [ ∥ _ ∥ ] sometimes desugars to [ pr1hSet … ] and sometimes to [ hProptoType … ]. *)
 
+  Definition empty_wellformed_context_of_length : wellformed_context_of_length 0.
+  Proof.
+    exists tt.
+    apply hinhpr.
+    exact tt.
+  Defined.
+  
   Definition derivable_cxteq_hrel {n} : hrel (wellformed_context_of_length n)
   := fun Γ Δ => ∥ derivation_flat_cxteq Γ Δ ∥.
 
@@ -1036,7 +1052,7 @@ Section Split_Typecat.
     : map_mod_eq (ext ΓΓ' (reind AA ff)) (ext ΓΓ AA).
   Proof.
     revert ff.
-    simple refine (@setquot_rect_to_dependent_subquotient _ _
+    simple refine (@setquot_to_dependent_subquotient _ _
               (raw_context_map (S _) _) _ _ _ _ _).
     - intros f. exact (qmor_raw AA f).
     - intros f. apply qmor_derivable.
@@ -1052,7 +1068,7 @@ Section Split_Typecat.
     revert ff; use setquotunivprop'. { intros; apply isasetsetquot. } intros f.
     simpl. (* TODO: see if [abstract] in [dpr], or factoring the hard part out,
             makes this quicker? *)
-    unfold qmor, setquot_rect_to_dependent_subquotient; simpl.
+    unfold qmor, setquot_to_dependent_subquotient; simpl.
     unfold dpr; simpl.
     unfold compose; simpl.
     unfold QuotientSet.setquotfun2; unfold QuotientSet.setquotuniv2; unfold setquotuniv; simpl. (* Agh! Can’t we have a version that computes more easily?? *)
@@ -1074,6 +1090,17 @@ Section Split_Typecat.
            ff (dpr ΓΓ AA) (dpr ΓΓ' (reind AA ff)) (qmor AA ff)
            (! dpr_q AA ff).
   Proof.
+    use mk_isPullback; simpl.
+    intros ΓΓ'' gg hh Heq.
+    use unique_exists; simpl.
+    - admit.
+    - split.
+      + admit.
+      + admit.
+    - intros hh'.
+      now apply isapropdirprod; apply (homset_property syntactic_category).
+    - intros hh' [Hgg Hhh].
+      admit.
   Admitted.
 
   Definition syntactic_typecat_structure : typecat_structure syntactic_category.
@@ -1099,8 +1126,10 @@ Section Split_Typecat.
         use (hinhfun _ (type_derivable A Γ)); intro d_A.
         rewrite subst_idmap_ty.
         now apply derive_tyeq_refl.
-      + simpl.
-        intros ΓΓ AA.
+      + intros ΓΓ AA.
+        unfold q_typecat; simpl; unfold qmor, identity, idmap; simpl.
+        rewrite setquot_to_dependent_subquotient_comp.
+        simpl.
         Check derive_idmap_gen. (* TODO: state this in terms of syntactic category *)
         admit.
     - use tpair.
@@ -1124,21 +1153,56 @@ Section Split_Typecat.
   
   Definition syntactic_typecat : split_typecat
   := ((syntactic_category,, syntactic_typecat_structure),,
-                                          is_split_syntactic_typecat_structure).
-
+       is_split_syntactic_typecat_structure).
+  
 End Split_Typecat.
 
 Section Contextuality.
 
-  (* TODO: upstream, probably to [SyntacticCategory]. *)
-  Lemma syntactic_typecat_is_contextual
-    : is_contextual syntactic_typecat.
+  (* Some of these should be upstreamed *)
+  
+  Local Definition empty_context : syntactic_typecat.
   Proof.
+    exists 0.
+    apply setquotpr.
+    exact empty_wellformed_context_of_length.
+  Defined.
+
+  Definition raw_context_map_0 (n : ℕ) : raw_context_map n 0.
+  Proof.
+    intros x; induction x.
+  Defined.
+
+  (* TODO: opacify parts of this *)
+  Lemma isTerminal_empty_context : isTerminal syntactic_typecat empty_context.
+  Proof.
+    use mk_isTerminal.
+    intros x.
+    use tpair.
+    - apply setquotpr.     
+      use tpair.
+      + apply raw_context_map_0.
+      + simpl.
+        intros xx xxx.
+        apply hinhpr.
+        intros e; induction e.
+    - cbn; intros f.
+      use (setquot_rect_isaprop (fun X => X = _)); clear f.
+      + intros g.
+        use (isasetsetquot (mapeq_eqrel x empty_context)).
+      + cbn; intros g.
+        apply (iscompsetquotpr (mapeq_eqrel x empty_context)).
+        intros ? ?; apply hinhpr.
+        intros e; induction e.
+  Defined.
+  
+  Lemma syntactic_typecat_is_contextual : is_contextual syntactic_typecat.
+  Proof.
+    exists empty_context, isTerminal_empty_context.
+    admit.
   Admitted. (* [syntactic_typecat_is_contextual].  Self-contained, proof-irrelevant. *) 
 
-  (* TODO: upstream, probably to [SyntacticCategory]. *)
-  Definition syntactic_contextual_cat
-    : contextual_cat
-  := (syntactic_typecat,, syntactic_typecat_is_contextual).
+  Definition syntactic_contextual_cat : contextual_cat
+    := (syntactic_typecat,, syntactic_typecat_is_contextual).
 
 End Contextuality.
