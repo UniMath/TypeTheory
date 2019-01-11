@@ -1138,15 +1138,15 @@ Section Split_Typecat.
         revert AA; use setquotunivprop'; [intros; apply isasetsetquot|]; intros A.
         revert ff; use setquotunivprop'; [intros; apply isasetsetquot|]; intros f.
         revert gg; use setquotunivprop'; [intros; apply isasetsetquot|]; intros g.
-        apply (take_context_representative ΓΓ). { apply isasetsetquot. } intros Γ.
-        apply (take_context_representative ΓΓ'). { apply isasetsetquot. } intros Γ'.
-        apply iscompsetquotpr; simpl.
-        intros Γ''.
-        apply hinhpr.
+        apply (take_context_representative ΓΓ); [apply isasetsetquot|]; intros Γ.
+        apply (take_context_representative ΓΓ'); [apply isasetsetquot|]; intros Γ'.
+        apply iscompsetquotpr; simpl; intros Γ''.
+        refine (hinhfun3 _ (type_derivable A Γ) (map_derivable f Γ' Γ) (map_derivable g Γ'' Γ')).
+        intros hA hf hg.
         rewrite <- subst_subst_ty.
         apply derive_tyeq_refl.
-        (* refine (subst_derivation [!  Γ'' |- _ !] _ _). *)
-        admit. (* should be easy now *)
+        use (subst_derivation [! Γ' |- _ !] _ hg).
+        exact (subst_derivation [! Γ |- _ !] hA hf).
       + simpl.
         admit.
   Admitted.
