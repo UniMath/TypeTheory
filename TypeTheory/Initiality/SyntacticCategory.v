@@ -1131,7 +1131,7 @@ Section Split_Typecat.
         rewrite setquot_to_dependent_subquotient_comp.
         simpl.
         Check derive_idmap_gen. (* TODO: state this in terms of syntactic category *)
-        admit.
+        admit. (* How to approach this? *)
     - use tpair.
       + simpl.
         intros ΓΓ AA ΓΓ' ff ΓΓ'' gg.
@@ -1199,6 +1199,18 @@ Section Contextuality.
   Lemma syntactic_typecat_is_contextual : is_contextual syntactic_typecat.
   Proof.
     exists empty_context, isTerminal_empty_context.
+    simpl.
+    intros [n Γ].
+    use unique_exists.
+    - admit.
+    - induction n.
+      + admit.
+      + simpl.
+        admit.
+    - intros y.
+      admit.
+    - cbn.
+      intros [m Γ'].
     admit.
   Admitted. (* [syntactic_typecat_is_contextual].  Self-contained, proof-irrelevant. *) 
 

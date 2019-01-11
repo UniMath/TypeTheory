@@ -17,7 +17,7 @@ Section Bare_Universe_Structure.
 
   Definition basetype_struct : UU
   :=  ∑ U : (forall Γ, C Γ),
-        forall Γ Δ (σ : Δ --> Γ), U Γ ⦃σ⦄ = U Δ.
+        forall Γ Δ (f: Δ --> Γ), U Γ ⦃f⦄ = U Δ.
 
   Definition basetype_struct_pr1 : basetype_struct -> ∏ Γ, C Γ := pr1.
   Coercion basetype_struct_pr1 : basetype_struct >-> Funclass.
@@ -29,9 +29,9 @@ Section Bare_Universe_Structure.
   Definition deptype_struct (U : basetype_struct) : UU.
   Proof.
     use (∑ (D : ∏ Γ (a : tm (U Γ)), C Γ), _).
-    use (∏ Δ Γ (σ : C ⟦ Δ, Γ ⟧) (a : tm (U Γ)), _).
-    refine ((D Γ a) ⦃σ⦄ = D Δ _).
-    refine (tm_transportf _ (reind_tm σ a)).
+    use (∏ Δ Γ (f : C ⟦ Δ, Γ ⟧) (a : tm (U Γ)), _).
+    refine ((D Γ a) ⦃f⦄ = D Δ _).
+    refine (tm_transportf _ (reind_tm f a)).
     apply basetype_natural.
   Defined.
 
