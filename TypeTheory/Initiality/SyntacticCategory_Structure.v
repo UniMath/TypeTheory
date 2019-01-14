@@ -45,7 +45,7 @@ Section Universe_Structure.
     - admit.
   Admitted.
 
-  Definition univeverse_struct_syntactic_typecat :
+  Local Definition univ :
     universe_struct syntactic_typecat
     := (basetype_struct_syntactic_typecat,,deptype_struct_syntactic_typecat).
   
@@ -70,7 +70,7 @@ Section Pi_Structure.
                                      pi_app_struct_syntactic_typecat.
   Admitted.
   
-  Local Definition pi_struct_syntactic_typecat : pi_struct syntactic_typecat
+  Local Definition pi : pi_struct syntactic_typecat
     := (pi_form_struct_syntactic_typecat,,
        (pi_intro_struct_syntactic_typecat,,pi_app_struct_syntactic_typecat),,
         pi_comp_struct_syntactic_typecat).
