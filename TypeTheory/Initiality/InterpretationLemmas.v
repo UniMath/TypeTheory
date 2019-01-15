@@ -108,8 +108,8 @@ End Functoriality_General.
 Section Functoriality.
 (** Key property of the interpretation: if [F : C --> D] is a map of split type-cats with logical structure, and some expression [e] is interpretable in [C] in some environment [E] with value [a], then [e] is also interpretable in [D] in environment [F E], with value [F a]. *)
 
-  Context {C} {U : universe_struct C} {Π : pi_struct C}
-          {C'} {U' : universe_struct C'} {Π' : pi_struct C'}
+  Context {C : split_typecat} {U : universe_struct C} {Π : pi_struct C}
+          {C' : split_typecat} {U' : universe_struct C'} {Π' : pi_struct C'}
           {F : typecat_mor C C'}
           (F_U : preserves_universe_struct U U' F)
           (F_Π : preserves_pi_struct Π Π' F).
@@ -468,7 +468,7 @@ Section Trivial_Interpretation.
 
   - if a type/term is derivable and interpretable, then its interpretation is “itself” (by induction on expressions)?
   - if a type/term is interpretable, then it is derivable, and its interpretation is “itself”?  (by induction on expressions)
-  - for any derivable judgement, its interpretation its “itself”? (by induction on derivatinos)?
+  - for any derivable judgement, its interpretation its “itself”? (by induction on derivations)?
 
   Probably go for the middle option — “if a type/term is interpretable in the standard environmnent (and at some type), then it’s derivable, and its interpretation is itself”.   This can be phrased nicely in terms of [partial_leq] and [tm_/ty_expr_as_partial_type/_term], which may help organise the proof.
 *)

@@ -13,7 +13,7 @@ Require Import TypeTheory.Initiality.SplitTypeCat_Maps.
 Section Bare_Universe_Structure.
 (** The structure of a “bare à-la-Tarski universe” in a split type-cat: a base type (the universe) with a family of types over it (the “El” family).  *)
 
-  Context (C : split_typecat).
+  Context (C : typecat).
 
   Definition basetype_struct : UU
   :=  ∑ U : (forall Γ, C Γ),
@@ -31,8 +31,7 @@ Section Bare_Universe_Structure.
     use (∑ (D : ∏ Γ (a : tm (U Γ)), C Γ), _).
     use (∏ Δ Γ (f : C ⟦ Δ, Γ ⟧) (a : tm (U Γ)), _).
     refine ((D Γ a) ⦃f⦄ = D Δ _).
-    refine (tm_transportf _ (reind_tm f a)).
-    apply basetype_natural.
+    exact (tm_transportf (basetype_natural f) (reind_tm f a)).
   Defined.
 
   Definition deptype_struct_pr1 {U} (El : deptype_struct U) := pr1 El.
@@ -59,7 +58,8 @@ Arguments elements {_ _}.
 Section Universe_Preservation.
 
   Definition preserves_basetype_struct
-      {C} (U : basetype_struct C) {C'} (U' : basetype_struct C')
+      {C : split_typecat} (U : basetype_struct C)
+      {C' : split_typecat} (U' : basetype_struct C')
       (F : typecat_mor C C')
     : UU
   := forall (Γ : C), typecat_mor_Ty F _ (U Γ)
@@ -69,8 +69,8 @@ Section Universe_Preservation.
     : preserves_basetype_struct >-> Funclass.
 
   Definition preserves_deptype_struct
-      {C} {U : basetype_struct C} (El : deptype_struct C U)
-      {C'} {U' : basetype_struct C'} (El' : deptype_struct C' U')
+      {C : split_typecat} {U : basetype_struct C} (El : deptype_struct C U)
+      {C' : split_typecat} {U' : basetype_struct C'} (El' : deptype_struct C' U')
       (F : typecat_mor C C') (F_U : preserves_basetype_struct U U' F)
     : UU
   := forall (Γ : C) (a : tm (U Γ)),
@@ -81,20 +81,20 @@ Section Universe_Preservation.
     : preserves_deptype_struct >-> Funclass.
 
   Definition preserves_universe_struct
-      {C} (U : universe_struct C)
-      {C'} (U' : universe_struct C')
+      {C : split_typecat} (U : universe_struct C)
+      {C' : split_typecat} (U' : universe_struct C')
       (F : typecat_mor C C')
   := ∑ F_U, preserves_deptype_struct (@elements _ U) (@elements _ U') F F_U.
 
   Definition fmap_universe
-      {C} {U : universe_struct C}
-      {C'} {U' : universe_struct C'}
+      {C : split_typecat} {U : universe_struct C}
+      {C' : split_typecat} {U' : universe_struct C'}
       {F : typecat_mor C C'} (F_U : preserves_universe_struct U U' F)
   := pr1 F_U : preserves_basetype_struct _ _ _.
 
   Definition fmap_elements
-      {C} {U : universe_struct C}
-      {C'} {U' : universe_struct C'}
+      {C : split_typecat} {U : universe_struct C}
+      {C' : split_typecat} {U' : universe_struct C'}
       {F : typecat_mor C C'} (F_U : preserves_universe_struct U U' F)
   : forall (Γ : C) (a : tm (U Γ)),
             typecat_mor_Ty F _ (elements _ a)
@@ -111,14 +111,14 @@ Section Pi_Structure.
   Definition pi_form_struct : UU
   := ∑ (Π : forall (Γ : C) (A : C Γ) (B : C (Γ ◂ A)), C Γ),
        (forall (Γ Γ' : C) (f : Γ' --> Γ) (A : C Γ) (B : C (Γ ◂ A)),
-         (Π Γ A B) ⦃ f ⦄ = Π Γ' (A⦃f⦄) (B⦃q_typecat _ _⦄)).
+         (Π Γ A B) ⦃ f ⦄ = Π Γ' (A⦃f⦄) (B⦃q_typecat A f⦄)).
 
   Definition pi_form_struct_pr1 (Π : pi_form_struct) := pr1 Π.
   Coercion pi_form_struct_pr1 : pi_form_struct >-> Funclass.
 
   Definition pi_form_struct_natural {Π : pi_form_struct}
       {Γ Γ'} (f : Γ' --> Γ) (A : C Γ) B
-    : (Π _ A B) ⦃ _ ⦄ = Π Γ' _ _ 
+    : (Π _ A B) ⦃ f ⦄ = Π Γ' _ _ 
   := pr2 Π _ _ f A B.
   
   Definition pi_intro_struct (Π : pi_form_struct) : UU
@@ -181,12 +181,12 @@ Section Pi_Structure.
 
   Coercion pi_form (Π : pi_struct) : pi_form_struct := pr1 Π.
 
-  Definition pi_intro (Π : pi_struct) : pi_intro_struct Π := pr1 (pr1 (pr2 Π)).
+  Definition pi_intro (Π : pi_struct) : pi_intro_struct Π := pr112 Π.
 
-  Definition pi_app (Π : pi_struct) : pi_app_struct Π := pr2 (pr1 (pr2 Π)).
+  Definition pi_app (Π : pi_struct) : pi_app_struct Π := pr212 Π.
 
   Definition pi_comp (Π : pi_struct) : pi_comp_struct (pi_intro Π) (pi_app Π)
-    := pr2 (pr2 Π).
+    := pr22 Π.
 
 End Pi_Structure.
 
@@ -257,12 +257,12 @@ Section Pi_Preservation.
       {C} {Π : pi_struct C}
       {C'} {Π' : pi_struct C'}
       {F : typecat_mor C C'} (F_Π : preserves_pi_struct Π Π' F)
-  := pr1 (pr2 F_Π) : preserves_pi_intro_struct _ _ (fmap_pi_form F_Π).
+  := pr12 F_Π : preserves_pi_intro_struct _ _ (fmap_pi_form F_Π).
 
   Definition fmap_pi_app
       {C} {Π : pi_struct C}
       {C'} {Π' : pi_struct C'}
       {F : typecat_mor C C'} (F_Π : preserves_pi_struct Π Π' F)
-  := pr2 (pr2 F_Π) : preserves_pi_app_struct _ _ (fmap_pi_form F_Π).
+  := pr22 F_Π : preserves_pi_app_struct _ _ (fmap_pi_form F_Π).
 
 End Pi_Preservation.

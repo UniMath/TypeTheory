@@ -38,11 +38,11 @@ Section Partial_Interpretation.
 (** In this section, we construct the partial interpretation function. *)
 
   Fixpoint
-    partial_interpretation_ty {C} (U : universe_struct C) (Π : pi_struct C)
+    partial_interpretation_ty {C : split_typecat} (U : universe_struct C) (Π : pi_struct C)
       {Γ:C} {n:nat} (E : environment Γ n) (e : ty_expr n) {struct e}
     : partial (C Γ)
   with
-    partial_interpretation_tm {C} (U : universe_struct C) (Π : pi_struct C)
+    partial_interpretation_tm {C : split_typecat} (U : universe_struct C) (Π : pi_struct C)
       {Γ:C} {n:nat} (E : environment Γ n) (T : C Γ) (e : tm_expr n) {struct e}
     : partial (tm T). (* See note below re type. *)
   Proof.
@@ -92,7 +92,7 @@ Section Partial_Interpretation.
      : partial (type_with_term Γ). ]
   I think either should work fine; I’m not sure which will work more cleanly. *)
 
-  Context {C} {U : universe_struct C} {Π : pi_struct C}.
+  Context {C : split_typecat} {U : universe_struct C} {Π : pi_struct C}.
   (** Note: the section variables are assumed only _after_ the definition of the partial interpretation, since otherwise after they are generalized, it explodes under [simpl]/[cbn]. *)
 
   (** We start with several (lax) naturality properties for the partial
@@ -411,7 +411,7 @@ Section Environment_Maps.
 (** A framework for putting together the lemmas about interaction of the
 partial interpretation with (syntactic) renaming and (semantic) reindexing). *)
 
-  Context {C} {U : universe_struct C} {Π : pi_struct C}.
+  Context {C : split_typecat} {U : universe_struct C} {Π : pi_struct C}.
 
 (** A _map of environments_ consists of a map between their underlying objects,
 and a _backwards_ map of their sets of variables, respecting the types/terms
@@ -479,7 +479,7 @@ Section Partial_Interpretation_Substitution.
 (** The interaction of the partial interpretation with substitution requires
 a little more work to state. *)
 
-  Context {C} {U : universe_struct C} {Π : pi_struct C}.
+  Context {C : split_typecat} {U : universe_struct C} {Π : pi_struct C}.
 
   (* Note: perhaps this should really just be the terms, with a function
      afterward assembling them into a partial environment.  But the partial
