@@ -41,6 +41,16 @@ Section Auxiliary.
     use (setquotuniv _ (_,,_)); assumption.
   Defined.
 
+  Definition setquotuniv_isaprop {X : UU} {R : hrel X} {Y : UU}
+      (isaprop_Y : isaprop Y) (f : X -> Y) : setquot R -> Y.
+  Proof.
+    use setquotuniv'.
+    - now apply isasetaprop.
+    - exact f.
+    - intros x y h.
+      now apply isaprop_Y.
+  Defined.
+
   (** [setquot_rect]: the general dependent universal property of [setquot].
   To give a function into a dependent family of sets over the quotient, it suffices to construct the function on the domain of the quotient, and show your construction respects equivalence.
 
@@ -1148,7 +1158,7 @@ Section Split_Typecat.
         use (subst_derivation [! Γ' |- _ !] _ hg).
         exact (subst_derivation [! Γ |- _ !] hA hf).
       + simpl.
-        admit.
+        admit. (* This should be provable once we know how to do the above admit *)
   Admitted.
   
   Definition syntactic_typecat : split_typecat
@@ -1195,23 +1205,35 @@ Section Contextuality.
         intros ? ?; apply hinhpr.
         intros e; induction e.
   Defined.
+
+  (* This is maybe not needed *)
+  Lemma wellformed_context_of_length_rest (n : ℕ) :
+    wellformed_context_of_length (S n) → wellformed_context_of_length n.
+  Proof.
+    intros G.
+    exists (pr11 G).
+    apply (hinhfun pr1 (pr2 G)).
+  Defined.
   
   Lemma syntactic_typecat_is_contextual : is_contextual syntactic_typecat.
   Proof.
     exists empty_context, isTerminal_empty_context.
-    simpl.
-    intros [n Γ].
-    use unique_exists.
-    - admit.
-    - induction n.
-      + admit.
-      + simpl.
+    intros [n G].
+    revert G.
+    use setquot_rect_isaprop; intros [G HG].
+    - apply isapropiscontr.
+    - use unique_exists.
+      + induction n.
+        apply (0,,tt).
+        exists (S (pr1 (IHn (context_rest G) (hinhfun pr1 HG)))).
+        use extension_extend.
+        apply (pr2 (IHn (context_rest G) (hinhfun pr1 HG))).
+        apply setquotpr.
         admit.
-    - intros y.
-      admit.
-    - cbn.
-      intros [m Γ'].
-    admit.
+      + admit.
+      + simpl in *.
+        admit.
+      + admit.
   Admitted. (* [syntactic_typecat_is_contextual].  Self-contained, proof-irrelevant. *) 
 
   Definition syntactic_contextual_cat : contextual_cat
