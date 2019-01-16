@@ -110,6 +110,12 @@ Definition typecat_mor_pentagon {C D} (F : typecat_mor C D)
     · q_typecat (typecat_mor_Ty F Γ A) (# F σ)
 := pr2 (pr2 F) Γ Γ' A σ.
 
+Lemma isaprop_typecat_mor_axioms {C D} (F : typecat_mor_data C D) :
+  isaprop (typecat_mor_axioms F).
+Proof.
+  apply isapropdirprod; repeat (apply impred_isaprop; intro); apply homset_property.
+Qed.
+
 End morphisms.
 
 Section Derived_Actions.
@@ -258,6 +264,6 @@ Section Composition.
     apply compose_typecat_axioms.
   Defined.
 
-  (* TODO: also will need at least [id_left] for the proof of initiality *)
+(* TODO: also will need at least [id_left] for the proof of initiality *)
 
 End Composition.
