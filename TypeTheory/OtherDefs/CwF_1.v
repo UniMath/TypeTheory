@@ -13,7 +13,7 @@
   http://www.cl.cam.ac.uk/~amp12/papers/nompcs/nompcs.pdf (page=9)
 *)
 
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.limits.pullbacks.

@@ -17,7 +17,7 @@ In this file, we define functions back and forth and show that
 
 
 Require Import UniMath.Foundations.Sets.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Categories.ess_alg_categories.
 

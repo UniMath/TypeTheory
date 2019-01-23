@@ -8,13 +8,11 @@
 
 Require Export UniMath.CategoryTheory.limits.pullbacks.
 Require Export UniMath.Foundations.Propositions.
-Require Export UniMath.CategoryTheory.Categories.
-Require Export UniMath.CategoryTheory.functor_categories.
+Require Export UniMath.CategoryTheory.Core.Categories.
+Require Export UniMath.CategoryTheory.Core.Functors.
 Require Export UniMath.CategoryTheory.opp_precat.
-Require Export UniMath.CategoryTheory.functor_categories.
 Require Export UniMath.CategoryTheory.whiskering.
-Require Export UniMath.CategoryTheory.opp_precat.
-Require Export UniMath.CategoryTheory.Adjunctions.
+Require Export UniMath.CategoryTheory.Adjunctions.Core.
 Require Export UniMath.CategoryTheory.Equivalences.Core.
 Require Export UniMath.CategoryTheory.precomp_fully_faithful.
 Require Export UniMath.CategoryTheory.rezk_completion.

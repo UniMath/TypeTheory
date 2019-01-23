@@ -15,7 +15,7 @@
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
 Open Scope cat.
