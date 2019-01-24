@@ -8,11 +8,7 @@
 
 Require Export UniMath.CategoryTheory.limits.pullbacks.
 Require Export UniMath.Foundations.Propositions.
-Require Export UniMath.CategoryTheory.Core.Categories.
-Require Export UniMath.CategoryTheory.Core.Functors.
-Require Export UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Export UniMath.CategoryTheory.Core.Univalence.
-Require Export UniMath.CategoryTheory.Core.Isos.
+Require Export UniMath.CategoryTheory.Core.Prelude.
 Require Export UniMath.CategoryTheory.opp_precat.
 Require Export UniMath.CategoryTheory.whiskering.
 Require Export UniMath.CategoryTheory.Adjunctions.Core.
