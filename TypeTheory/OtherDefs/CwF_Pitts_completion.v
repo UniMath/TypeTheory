@@ -20,7 +20,7 @@ Require Import TypeTheory.Categories.category_of_elements.
 
 Set Automatic Introduction.
 
-Implicit Arguments iso.
+Arguments iso: clear implicits.
 
 (** How to get a functor from RC(C) to D when having one from C to D **)
 
