@@ -136,7 +136,9 @@ Section Derivations.
     | derive_Pi (Γ : context) (A : _) (B : _)
       :    derivation [! Γ |- A !]
         -> derivation [! Γ ;; A |- B !]
-      -> derivation [! Γ |- Pi_expr A B !]
+        -> derivation [! Γ |- Pi_expr A B !]
+    | derive_Nat (Γ : context) 
+      : derivation [! Γ |- Nat_expr !]
     | derive_lam (Γ : context) A B b
       :    derivation [! Γ |- A !]
         -> derivation [! Γ ;; A |- B !]
@@ -155,7 +157,24 @@ Section Derivations.
         -> derivation [! Γ |- a ::: A !]
       -> derivation
              [! Γ |- app_expr A B (lam_expr A B b) a === subst_top_tm a b 
-                                                     ::: subst_top_ty a B !]
+                              ::: subst_top_ty a B !]
+    | derive_zero (Γ : context)
+      :    derivation [! Γ |- zero_expr ::: Nat_expr !]
+    | derive_suc (Γ : context) (a : _)
+      :    derivation [! Γ |- a ::: Nat_expr !]
+      -> derivation [! Γ |- (suc_expr a) ::: Nat_expr !]
+    | derive_natrec (Γ : context) P dZ dS a
+      :    derivation [! Γ ;; Nat_expr |- P !]
+        -> derivation [! Γ |- dZ ::: subst_top_ty zero_expr P !]
+        -> derivation [! Γ ;; Nat_expr ;; P
+                       |- dS
+                          ::: subst_ty
+                             (add_to_raw_context_map
+                               (fun i => var_expr (dB_next (dB_next i)))
+                               (suc_expr (var_expr (dB_next dB_top))))
+                             P !] 
+      -> derivation [! Γ |- natrec_expr P dZ dS a
+                                          ::: subst_top_ty a P !]
 
     (** congruence rules for constructors *)
     (* no congruence rule needed for U *)

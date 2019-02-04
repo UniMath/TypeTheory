@@ -99,6 +99,7 @@ Section Expressions.
     | U_expr {n} : ty_expr n
     | El_expr {n} : tm_expr n -> ty_expr n
     | Pi_expr {n} : ty_expr n -> ty_expr (S n) -> ty_expr n
+    | Nat_expr {n} : ty_expr n
   with tm_expr : nat -> UU
   :=
     | var_expr {n} : dB_vars n -> tm_expr n
@@ -106,7 +107,14 @@ Section Expressions.
                       -> tm_expr n
     | app_expr {n} : ty_expr n -> ty_expr (S n)
                       -> tm_expr n -> tm_expr n
-                      -> tm_expr n.
+                      -> tm_expr n
+    | zero_expr {n} : tm_expr n
+    | suc_expr {n} : tm_expr n -> tm_expr n
+    | natrec_expr {n} : ty_expr (S n)
+                        -> tm_expr n -> tm_expr (S (S n))
+                        -> tm_expr n
+                        -> tm_expr n.
+                              
 End Expressions.
 
 Section Renaming.
@@ -118,7 +126,7 @@ Section Renaming.
     rename_tm {m n : nat} (f : m -> n) (e : tm_expr m) : tm_expr n.
   Proof.
     - (* rename_ty *)
-      destruct e as [ m | m a | m A B ].
+      destruct e as [ m | m a | m A B | m ].
       + (* case [U_expr] *)
         exact U_expr.
       + (* case [El_expr] *)
@@ -126,8 +134,11 @@ Section Renaming.
       + (* case [Pi_expr] *)
         refine (Pi_expr (rename_ty _ _ f A) _).
         refine (rename_ty _ _ (fmap_dB_S f) B).
+      + (* case [Nat_expr] *)
+        exact Nat_expr.
     - (* rename_tm *)
-      destruct e as [ m i | m A B b | m A B g a ].
+      destruct e as [ m i | m A B b | m A B g a
+                    | m | m a | m P dZ dS a ].
       + (* case [var_expr] *)
         apply var_expr, f, i.
       + (* case [lam_expr] *)
@@ -140,6 +151,16 @@ Section Renaming.
         * exact (rename_ty _ _ f A).
         * exact (rename_ty _ _ (fmap_dB_S f) B).
         * exact (rename_tm _ _ f g).
+        * exact (rename_tm _ _ f a).
+      + (* case [zero_expr] *)
+        exact zero_expr.
+      + (* case [suc_expr] *)
+        apply suc_expr, (rename_tm _ _ f), a.
+      + (* case [natrec_expr] *)
+        refine (natrec_expr _ _ _ _).
+        * exact (rename_ty _ _ (fmap_dB_S f) P).
+        * exact (rename_tm _ _ f dZ).
+        * exact (rename_tm _ _ (fmap_dB_S (fmap_dB_S f)) dS).
         * exact (rename_tm _ _ f a).
   Defined.
 
@@ -180,7 +201,7 @@ Section Substitution.
     subst_tm {m n} (f : raw_context_map n m) (e : tm_expr m) {struct e} : tm_expr n.
   Proof.
     - (* subst_ty *)
-      destruct e as [ m | m a | m A B ].
+      destruct e as [ m | m a | m A B | m ].
       + (* case [U_expr] *)
         exact U_expr.
       + (* case [El_expr] *)
@@ -188,8 +209,11 @@ Section Substitution.
       + (* case [Pi_expr] *)
         refine (Pi_expr (subst_ty _ _ f A) _).
         refine (subst_ty _ _ (weaken_raw_context_map f) B).
+      + (* case [Nat_expr] *)
+        exact Nat_expr.
     - (* subst_tm *)
-      destruct e as [ m i | m A B b | m A B g a ].
+      destruct e as [ m i | m A B b | m A B g a
+                    | m | m a | m P dZ dS a ].
       + (* case [var_expr] *)
         apply f, i.
       + (* case [lam_expr] *)
@@ -203,7 +227,20 @@ Section Substitution.
         * exact (subst_ty _ _ (weaken_raw_context_map f) B).
         * exact (subst_tm _ _ f g).
         * exact (subst_tm _ _ f a).
+      + (* case [zero_expr] *)
+        exact zero_expr.
+      + (* case [suc_expr] *)
+        apply suc_expr, (subst_tm _ _ f), a.
+      + (* case [natrec_expr] *)
+        refine (natrec_expr _ _ _ _).
+        * exact (subst_ty _ _ (weaken_raw_context_map f) P).
+        * exact (subst_tm _ _ f dZ).
+        * exact (subst_tm _ _ (weaken_raw_context_map
+                                 (weaken_raw_context_map f)) dS).
+        * exact (subst_tm _ _ f a).
   Defined.
+
+
 
   (** Some auxiliary functions for common special cases *)
 
