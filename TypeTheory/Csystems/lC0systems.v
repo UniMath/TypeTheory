@@ -20,7 +20,7 @@ Require Export TypeTheory.Csystems.hSet_ltowers.
 Section Upstream.
 
 Lemma idtoiso_inv0 (C : precategory) (a a' : ob C) (p : a = a'):
-  morphism_from_iso _ _ _ (idtoiso (!p)) = inv_from_iso (idtoiso p).
+  morphism_from_iso (idtoiso (!p)) = inv_from_iso (idtoiso p).
 Proof.
   destruct p.
   simpl.
@@ -34,7 +34,7 @@ Proof.
 Qed.
 
 Lemma idtoiso_idpath0 {C : precategory} (a : ob C):
-  morphism_from_iso _ _ _ (idtoiso (idpath a)) = identity a.
+  morphism_from_iso (idtoiso (idpath a)) = identity a.
 Proof.
   apply idpath.
 Qed.
@@ -49,8 +49,8 @@ Qed.
 
 Lemma idtoiso_concat0 (C : precategory) (a a' a'' : ob C)
   (p : a = a') (q : a' = a'') :
-  morphism_from_iso _ _ _ (idtoiso (p @ q)) =
-  morphism_from_iso _ _ _ (idtoiso p) · (morphism_from_iso _ _ _(idtoiso q)).
+  morphism_from_iso (idtoiso (p @ q)) =
+  morphism_from_iso (idtoiso p) · (morphism_from_iso (idtoiso q)).
 Proof.
   destruct p.
   destruct q.
@@ -193,8 +193,8 @@ Lemma cancelidtoiso_left {CC: precategory}(is: isaset (ob CC)) {a b c: CC}
   m1 = m2 -> idtoiso p1 · m1  = idtoiso p2 · m2.
 Proof.
   intro Hyp.
-  assert (H1: morphism_from_iso _ _ _ (idtoiso p1) =
-              morphism_from_iso _ _ _ (idtoiso p2)).
+  assert (H1: morphism_from_iso (idtoiso p1) =
+              morphism_from_iso (idtoiso p2)).
   apply maponpaths.
   apply maponpaths.
   apply is.
@@ -219,8 +219,8 @@ Lemma cancelidtoiso_right {CC: precategory}(is: isaset (ob CC)) {a b c: CC}
   m1 = m2 -> m1 · idtoiso q1  =  m2 · idtoiso q2.
 Proof.
   intro Hyp.
-  assert (H1: morphism_from_iso _ _ _ (idtoiso q1) =
-              morphism_from_iso _ _ _ (idtoiso q2)).
+  assert (H1: morphism_from_iso (idtoiso q1) =
+              morphism_from_iso (idtoiso q2)).
   apply maponpaths.
   apply maponpaths.
   apply is.

@@ -12,7 +12,6 @@ Require Import UniMath.Foundations.Sets.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.total2_paths.
 
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.OtherDefs.DM.
