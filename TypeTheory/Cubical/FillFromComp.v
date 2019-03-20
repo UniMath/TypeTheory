@@ -77,7 +77,10 @@ category C with:
 Written by: Anders Mörtberg, 2017-2018
 
 *)
-Require Import UniMath.MoreFoundations.All.
+
+Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.MoreFoundations.Notations.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.

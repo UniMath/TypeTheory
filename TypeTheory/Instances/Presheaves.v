@@ -97,8 +97,12 @@ And the last square is a pullback square ([isPullback_q_gen_mor]).
 
 Written by: Anders Mörtberg, 2017
 
-*)
-Require Import UniMath.MoreFoundations.All.
+ *)
+
+Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.MoreFoundations.Notations.
+Require Import UniMath.MoreFoundations.Univalence.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.

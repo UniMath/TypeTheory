@@ -335,7 +335,7 @@ Proof.
   apply isweqtotaltofib. (* first of the two key steps *)
   use gradth.
   - intros bp. exists (pr1 bp). apply v, (pr2 bp).
-  - intros be; apply connectedcoconusfromt. (* the second key step *)
+  - intros be; apply coconusfromt_isProofIrrelevant. (* the second key step *)
   - intros bp. use total2_paths_f. apply idpath. apply wv.
 Qed.
 
