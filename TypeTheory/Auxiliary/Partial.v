@@ -8,13 +8,13 @@ Section Partial.
 (** Definition of partial elements, access functions, and some utility lemmas. *)
 
   Definition partial (X : UU) : UU
-  := { a : hProp & a -> X }.
+    := ∑ a : hProp, a → X.
 
   Definition make_partial {X} {a : hProp} (f : a -> X) : partial X
   := (a,,f).
- 
+
   Definition is_defined {X} : partial X -> hProp := pr1.
-  
+
   Definition evaluate {X} {x : partial X} : is_defined x -> X := pr2 x.
 
 (** To display arguments of a specific [evaluate], use
@@ -185,7 +185,7 @@ Section Monad.
     apply mk_leq_partial'. intros [H H'].
     use tpair.
     - exists (l H).
-      refine (transportb is_defined _ H'). 
+      refine (transportb is_defined _ H').
       apply leq_partial_commutes.
     - cbn.
       generalize (leq_partial_commutes l H : evaluate (l H) = _) as e.
@@ -242,7 +242,7 @@ Section Monad.
     exists (fun fx_def => H (pr1 fx_def) (pr2 fx_def)).
     intros x_def. apply (leq_partial_commutes (H _)).
   Defined.
- 
+
   (* TODO: upstream *)
   Lemma leq_bind_partial {X Y} {x : partial X} (f : X -> partial Y)
       (x_def : is_defined x)
@@ -399,7 +399,3 @@ End Partial_Maps.
 Notation "X ⇢ Y" := (partial_map X Y) (at level 99) : type_scope.
 Notation "f ∘ g" := (compose_partial f g) : partial_map_scope.
 Bind Scope partial_map with partial_map.
-
-
- 
-
