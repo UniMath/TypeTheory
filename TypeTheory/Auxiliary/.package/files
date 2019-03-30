@@ -1,2 +1,3 @@
 Auxiliary.v
 CategoryTheoryImports.v
+Partial.v
