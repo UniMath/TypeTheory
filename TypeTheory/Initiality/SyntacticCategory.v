@@ -153,8 +153,7 @@ computational behaviour. *)
     assert (r : R (pr1 x) x'). { apply eqrelsymm, (pr2 x). }
     refine (eqreltrans _ _ _ _ _ _).
     2: apply (d_eq _ _ r).
-    apply Presentation'.eqreleq. (* TODO: propose upstreaming that? *)
-    apply maponpaths, propproperty.
+    apply eqreleq, maponpaths, propproperty.
   Defined.
 
   Definition setquot_to_dependent_subquotient_comp {X:UU} {R:eqrel X}
