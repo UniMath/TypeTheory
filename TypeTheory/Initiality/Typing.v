@@ -6,7 +6,7 @@
   This file sets up the contexts, judgements, and derivations of the toy type theory under consideration. 
 *)
 
-Require Import UniMath.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Initiality.Syntax.
 
 Section Contexts.
@@ -17,7 +17,7 @@ Section Contexts.
   Identity Coercion id_context_of_length : context_of_length >-> Funclass.
 
   Definition context
-    := { n : nat & context_of_length n }.
+    := ∑ (n : nat), context_of_length n.
 
   Definition context_length : context -> nat := pr1.
   Coercion context_length : context >-> nat.

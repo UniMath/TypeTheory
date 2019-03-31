@@ -2,7 +2,8 @@
 
 As a matter of organisation: all concrete lemmas involving derivations should live upstream in [TypingLemmas]; this file should simply package them up into the appropriate categorical structure. *)
 
-Require Import UniMath.All.
+Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.CategoryTheory.All.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.TypeCat.
@@ -361,7 +362,7 @@ Section Stratified_Wellformed_Contexts.
       {n} {Γ : stratified_context_of_length n} {A : ty_expr Γ}
       (d_Γ : [! |- Γ !]) (d_A : [! Γ |- A !])
     : [! |- Γ;;A !]
-  := (d_Γ,d_A).
+  := (d_Γ,,d_A).
 
   Fixpoint derive_flat_cxt_from_strat
       {n} {Γ : stratified_context_of_length n} {struct n}

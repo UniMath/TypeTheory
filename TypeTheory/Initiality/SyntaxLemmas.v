@@ -6,7 +6,7 @@
   This file proves the various structural lemmas on renaming and substitution in the syntax, that (among other uses) will become the axioms for the syntactic category.
 *)
 
-Require Import UniMath.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Initiality.Syntax.
 

@@ -1,4 +1,5 @@
-Require Import UniMath.All.
+Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.CategoryTheory.All.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.TypeCat.

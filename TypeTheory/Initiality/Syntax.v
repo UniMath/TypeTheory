@@ -11,7 +11,7 @@
 *)
 
 
-Require Import UniMath.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
 Section deBruijn.
