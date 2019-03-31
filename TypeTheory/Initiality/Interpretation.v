@@ -505,7 +505,7 @@ a little more work to state. *)
     use tpair.
     - intros i; repeat constructor.
     - apply funextfun; intros i.
-      apply (maponpaths (tpair _)).
+      apply (maponpaths (tpair _ _)).
       apply tm_transportf_idpath.
   Defined.
 
@@ -563,8 +563,8 @@ a little more work to state. *)
         refine (partial_interpretation_environment_map_tm _ _ _ _ _ (fs_def i)).
         apply dpr_environment.
     - apply funextfun. refine (dB_Sn_rect _ _ _).
-      + cbn. apply (maponpaths (tpair _)), tm_transportf_idpath.
-      + intros i; cbn. apply (maponpaths (tpair _)).
+      + cbn. apply (maponpaths (tpair _ _)), tm_transportf_idpath.
+      + intros i; cbn. apply (maponpaths (tpair _ _)).
         refine (leq_partial_commutes _ _).
   Qed.
 
@@ -677,7 +677,7 @@ a little more work to state. *)
       use tpair.
       + intros i; apply ts_track.
       + cbn. apply funextfun; intros i.
-        apply (maponpaths (tpair _)).
+        apply (maponpaths (tpair _ _)).
         apply ts_track.
     - intros l.
       destruct (apply_leq_partial_pair l tt) as [ts_def H]; clear l.

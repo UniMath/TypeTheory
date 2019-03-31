@@ -2,7 +2,7 @@
 
 (* TODO: try to work out better organisation + naming conventions for the many functoriality/monotonicity lemmas in this file. *)
 
-Require Import UniMath.All.
+Require Import UniMath.MoreFoundations.All.
 
 Section Partial.
 (** Definition of partial elements, access functions, and some utility lemmas. *)
