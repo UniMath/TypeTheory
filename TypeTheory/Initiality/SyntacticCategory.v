@@ -30,7 +30,7 @@ Section Auxiliary.
 
   (* Upstream issues to possibly raise about [setquot]:
   - should [pr1] of [eqrel] coerce to [hrel], not directly to [Funclass]?
-  - should [QuotientSet.setquotfun2] replace [setquotfun2]? *)
+  - should [setquotfun2'] replace [setquotfun2]?    *)
 
   (** Variant of [setquotuniv] with the [isaset] hypothesis separated out,
   for easier interactive use with [use], analogous to [setquotunivprop']. *)
@@ -435,7 +435,7 @@ Section Contexts_Modulo_Equality.
       {n} (Γ : wellformed_context_of_length n)
   := pr2 Γ  : ∥ [! |- Γ !] ∥.
   Coercion context_derivable
-    : wellformed_context_of_length >-> pr1hSet.
+    : wellformed_context_of_length >-> hProptoType.
 
   Definition context_derivable'
       {n} (Γ : wellformed_context_of_length n)
@@ -670,7 +670,7 @@ Section Context_Map_Operations.
       {ΓΓ ΔΔ ΘΘ} (ff : map_mod_eq ΓΓ ΔΔ) (gg : map_mod_eq ΔΔ ΘΘ)
     : map_mod_eq ΓΓ ΘΘ.
   Proof.
-    revert ff gg. use QuotientSet.setquotfun2; [ | split].
+    revert ff gg. use setquotfun2'; [ | split].
     - (* construction of the composite *)
       intros f g. exists (comp_raw_context f g); intros Γ Θ.
       apply (take_context_representative ΔΔ). { apply isapropishinh. }
@@ -907,7 +907,7 @@ Section Split_Typecat.
       {ΓΓ' : context_mod_eq} (ff : map_mod_eq ΓΓ' ΓΓ)
     : type_mod_eq ΓΓ'.
   Proof.
-    simple refine (QuotientSet.setquotfun2 _ _ ff AA); try split.
+    simple refine (setquotfun2' _ _ ff AA); try split.
     - (* give the reindexed type *)
       intros f A.
       exists (subst_ty f A).
@@ -1080,7 +1080,7 @@ Section Split_Typecat.
     unfold qmor, setquot_to_dependent_subquotient; simpl.
     unfold dpr; simpl.
     unfold compose; simpl.
-    unfold QuotientSet.setquotfun2; unfold QuotientSet.setquotuniv2; unfold setquotuniv; simpl. (* Agh! Can’t we have a version that computes more easily?? *)
+    unfold setquotfun2'; unfold setquotuniv2'; unfold setquotuniv; simpl. (* Agh! Can’t we have a version that computes more easily?? *)
     apply iscompsetquotpr.
     simpl. intros ΓA' Γ.
     apply hinhpr.
@@ -1139,7 +1139,8 @@ Section Split_Typecat.
         unfold q_typecat; simpl; unfold qmor, identity, idmap; simpl.
         rewrite setquot_to_dependent_subquotient_comp.
         simpl.
-        Check derive_idmap_gen. (* TODO: state this in terms of syntactic category *)
+        (* Should use [derive_idmap_gen]. *)
+        (* TODO: state this in terms of syntactic category *)
         admit. (* How to approach this? *)
     - use tpair.
       + simpl.
