@@ -1,0 +1,14 @@
+SplitTypeCat_General.v
+SplitTypeCat_Maps.v
+SplitTypeCat_Structure.v
+SplitTypeCat_Contextual.v
+Syntax.v
+SyntaxLemmas.v
+Typing.v
+TypingLemmas.v
+Environments.v
+Interpretation.v
+InterpretationLemmas.v
+SyntacticCategory.v
+SyntacticCategory_Structure.v
+Initiality.v

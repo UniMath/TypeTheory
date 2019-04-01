@@ -31,8 +31,8 @@ Module Record_Preview.
 
 Reserved Notation "C ⟨ Γ ⟩" (at level 60).
 Reserved Notation "C ⟨ Γ ⊢ A ⟩" (at level 60).
-Reserved Notation "A {{ γ }}" (at level 40).
-Reserved Notation "a ⟦ γ ⟧" (at level 40).
+Reserved Notation "A {{ γ }}" (at level 30).
+Reserved Notation "a ⟦ γ ⟧" (at level 30).
 Reserved Notation "Γ ∙ A" (at level 35).
 Reserved Notation "'π' A" (at level 20).
 Reserved Notation "'ν' A" (at level 15).
@@ -117,7 +117,7 @@ Definition rtype {CC : precategory}{C : tt_reindx_struct CC}
 := 
    pr1 (pr2 C).
 
-Notation "A {{ γ }}" := (rtype A γ) (at level 40).
+Notation "A {{ γ }}" := (rtype A γ) (at level 30).
 
 Definition rterm {CC : precategory}{C : tt_reindx_struct CC}  
   : ∏ {Γ Γ' : CC} {A : C⟨Γ⟩}  (a : C⟨Γ⊢A⟩) (γ : Γ' --> Γ), C⟨Γ'⊢ A {{γ}} ⟩ 
