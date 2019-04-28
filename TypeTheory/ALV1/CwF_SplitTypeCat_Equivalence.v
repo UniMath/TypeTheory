@@ -114,7 +114,7 @@ Proof.
   }
   use total2_paths_f.
   exact (!eA).
-  cbn. destruct eA; cbn. unfold idfun.
+  destruct eA; cbn.
   apply subtypeEquality. { intros x; apply homset_property. }
   set (temp := proofirrelevance _ (isapropifcontr (term_to_section_aux t))).
   use (maponpaths pr1 (temp (_,,_) (_,,_))).

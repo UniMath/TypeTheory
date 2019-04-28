@@ -52,16 +52,62 @@ Tactic Notation "assoc" := apply @pathsinv0, path_assoc.
 
 Arguments functor_on_inv_from_iso {_ _} _  {_ _} f.
 
+(** Make [simpl], [cbn], etc. unfold [ (f ∘ g) x ] but not [ f ∘ g ]: *)
+Arguments funcomp {_ _ _} _ _ _/.
+(** Make [simpl], [cbn], etc. unfold [idfun X x] but not [ idfun x ]: *)
+Arguments idfun _ _ / .
+(* TODO: perhaps try upstreaming these to [UniMath], which has over 100 instances of [unfold funcomp]? *)
+
 (** * Path-algebra: general lemmas about transport, equivalences, etc. *)
 
-(** A useful lemma for binary functions, generalising e.g. [apply maponpaths_2]: *)
-(*TODO: look carefully for this in the library *)
-Definition maponpaths_2 {X Y Z : UU} (f : X -> Y -> Z) {x x'} (e : x = x') y
-  : f x y = f x' y
-:= maponpaths (fun x => f x y) e.
+(** A uniformly-named set of lemmas giving how multi-argument (non-dependent) functions act on paths, generalising [maponpaths].
 
+  The naming convention is that e.g. [maponpaths_135] takes paths in the 1st, 3rd, and 5th arguments, counting _backwards_ from the end.  (The “counting backwards” is so that it doesn’t depend on the total number of arguments the function takes.)
 
-(** TODO: see https://github.com/UniMath/UniMath/issues/677 *)
+  All are defined in terms of [maponpaths], to allow use of lemmas about it for reasoning about these. *)
+Definition maponpaths_1 {X A : UU} (f : X -> A) {x x'} (e : x = x')
+  : f x = f x'
+:= maponpaths f e.
+
+Definition maponpaths_2 {Y X A : UU} (f : Y -> X -> A)
+    {y y'} (e_y : y = y') x
+  : f y x = f y' x
+:= maponpaths (fun y => f y x) e_y.
+
+(** Note: dupicate of [map_on_two_paths], [two_arg_paths], and several others from [UniMath]. *)
+  (* TODO: raise redundancy issue in UniMath! [Search (?x = ?x' -> ?y = ?y' -> ?f ?x ?y = ?f ?x' ?y')] reveals many redundant versions of this lemma: [aptwice, binproducts.f_equal_2, map_on_two_paths, two_arg_paths] are all approximately equal; and a few others are specialised versions (maybe for good reason, maybe not. *) 
+Definition maponpaths_12 {Y X A : UU} (f : Y -> X -> A)
+    {y y'} (e_y : y = y') {x x'} (e_x : x = x')
+  : f y x = f y' x'
+:= maponpaths_1 _ e_x @ maponpaths_2 f e_y _.
+
+Definition maponpaths_3 {Z Y X A : UU} (f : Z -> Y -> X -> A)
+    {z z'} (e_z : z = z') y x
+  : f z y x = f z' y x
+:= maponpaths (fun z => f z y x) e_z.
+
+Definition maponpaths_123 {Z Y X A : UU} (f : Z -> Y -> X -> A)
+    {z z'} (e_z : z = z') {y y'} (e_y : y = y') {x x'} (e_x : x = x')
+  : f z y x = f z' y' x'
+:= maponpaths_12 _ e_y e_x @ maponpaths_3 f e_z _ _.
+
+Definition maponpaths_13 {Z Y X A : UU} (f : Z -> Y -> X -> A)
+    {z z'} (e_z : z = z') (y:Y) {x x'} (e_x : x = x')
+  : f z y x = f z' y x'
+:= maponpaths_123 _ e_z (idpath y) e_x.
+
+Definition maponpaths_4 {W Z Y X A : UU} (f : W -> Z -> Y -> X -> A)
+    {w w'} (e_w : w = w') z y x
+  : f w z y x = f w' z y x
+:= maponpaths (fun w => f w z y x) e_w.
+
+Definition maponpaths_1234 {W Z Y X A : UU} (f : W -> Z -> Y -> X -> A)
+    {w w'} (e_w : w = w') {z z'} (e_z : z = z')
+    {y y'} (e_y : y = y') {x x'} (e_x : x = x')
+  : f w z y x = f w' z' y' x'
+:= maponpaths_123 _ e_z e_y e_x @ maponpaths_4 _ e_w _ _ _.
+
+(* TODO: delete this and replace with [pr1_issurjective], now that https://github.com/UniMath/UniMath/issues/677 is resolved*)
 Lemma pr1_issurjective' {X : UU} {P : X -> UU} :
   (∏ x : X, ∥ P x ∥) -> issurjective (pr1 : (∑ x, P x) -> X).
 Proof.
@@ -125,6 +171,9 @@ Proof.
   apply idpath.
 Defined.
 
+(* TODO: systematise these variants of [transportf_forall]:
+- probably make [transportf_forall] the most general form, where [B] depends on [A] and [C] depends on both
+- and then give the partly-reduced variants some systematic names, if possible. *)
 Lemma transportf_forall {A B} (C : A -> B -> UU)
   {x0 x1 : A} (e : x0 = x1) (f : forall y:B, C x0 y)
   : transportf (fun x => forall y, C x y) e f
