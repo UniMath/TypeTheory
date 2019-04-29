@@ -76,7 +76,7 @@ Definition typecat_mor_axioms
 Definition typecat_mor (C D : split_typecat) : UU
   := ∑ (F : typecat_mor_data C D), typecat_mor_axioms F.
 
-Definition mk_typecat_mor
+Definition make_typecat_mor
   {C D : split_typecat}
   (F : functor C D)
   (FTy : PreShv C ⟦ty C, functor_opp F ∙ ty D⟧)
@@ -166,7 +166,7 @@ Section Derived_Actions.
     reind_tm (# F f) (fmap_tm F a).
   Proof.
     apply paths_tm, PullbackArrowUnique; cbn; simpl;
-      set (pb := mk_Pullback _ _ _ _ _ _ _); rewrite <-!assoc.
+      set (pb := make_Pullback _ _ _ _ _ _ _); rewrite <-!assoc.
     - etrans; [apply maponpaths, maponpaths, comp_ext_compare_dpr_typecat|].
       etrans; [apply maponpaths, (!typecat_mor_triangle F (A ⦃f⦄))|].
       now rewrite <- functor_comp, (PullbackArrow_PullbackPr1 pb), functor_id.
@@ -182,7 +182,7 @@ Section Composition.
   Definition id_typecat (C : split_typecat)
     : typecat_mor C C.
   Proof.
-    use mk_typecat_mor.
+    use make_typecat_mor.
     - (* functor *)
       apply functor_identity.
     - (* naturality *)

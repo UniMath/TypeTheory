@@ -141,7 +141,7 @@ Definition obj_ext_precat_data : precategory_data
 
 Definition obj_ext_precat_axioms : is_precategory obj_ext_precat_data.
 Proof.
-  use mk_is_precategory_one_assoc.
+  use make_is_precategory_one_assoc.
   - intros X X' F.
     use obj_ext_mor_eq; [ intros Γ A; apply idpath|].
     intros Γ A.

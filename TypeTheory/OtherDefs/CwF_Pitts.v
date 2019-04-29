@@ -701,7 +701,7 @@ Lemma is_pullback_reindx_cwf (hs : has_homsets CC) : ∏ (Γ : CC) (A : C⟨Γ�
    isPullback (π A) f (q_precwf A f) (π (A {{f}})) (dpr_q_precwf A f).
 Proof.
   intros.
-  apply mk_isPullback; try assumption.
+  apply make_isPullback; try assumption.
   intros e h k H.
   exists (dpr_q_pbpairing_precwf _ _ h k H).
   apply dpr_q_pbpairing_precwf_unique.

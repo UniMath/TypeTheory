@@ -95,7 +95,7 @@ Coercion pre_functor_square_of_lax_functor_square
   : lax_functor_square J J' -> pre_functor_square J J'
 := pr1.
 
-Definition mk_lax_functor_square
+Definition make_lax_functor_square
     {C D : precategory} {J : C ⟶ D}
     {C' D' : precategory} {J' : C' ⟶ D'}
     (F : C ⟶ C') (G : D ⟶ D') (α : nat_trans (F ∙ J') (J ∙ G))

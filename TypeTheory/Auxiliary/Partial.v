@@ -38,7 +38,7 @@ Section Ordering.
   Definition leq_partial_commutes {X} {x x' : partial X} (l : leq_partial x x')
     := pr2 l : forall x_def, _ = _.
 
-  Definition mk_leq_partial' {X} (x x' : partial X)
+  Definition make_leq_partial' {X} (x x' : partial X)
     (H : forall (x_def : is_defined x),
        ∑ (x'_def : is_defined x'), evaluate x'_def = evaluate x_def)
     : leq_partial x x'.
@@ -182,7 +182,7 @@ Section Monad.
       {X} {x x' : partial (partial X)} (l : leq_partial x x')
     : leq_partial (multiply_partial x) (multiply_partial x').
   Proof.
-    apply mk_leq_partial'. intros [H H'].
+    apply make_leq_partial'. intros [H H'].
     use tpair.
     - exists (l H).
       refine (transportb is_defined _ H').
@@ -199,7 +199,7 @@ Section Monad.
       (l1 : forall x_def, leq_partial (evaluate x_def) (evaluate (l0 x_def)))
     : leq_partial (multiply_partial x) (multiply_partial x').
   Proof.
-    apply mk_leq_partial'. intros [x_def x_def'].
+    apply make_leq_partial'. intros [x_def x_def'].
     use tpair.
     - exists (l0 x_def).
       apply l1, x_def'.
@@ -325,7 +325,7 @@ Section Monad.
     (l : forall i:p, leq_partial (x i) (y (f i)))
     : leq_partial (assume_partial p x) (assume_partial q y).
   Proof.
-    apply mk_leq_partial'. intros [i x_def].
+    apply make_leq_partial'. intros [i x_def].
     exists (f i,, l i x_def); cbn.
     apply leq_partial_commutes.
   Defined.
@@ -374,7 +374,7 @@ Section Various.
       {f g : forall x:X, partial (Y x)} (l : forall x, leq_partial (f x) (g x))
     : leq_partial (forall_partial f) (forall_partial g).
   Proof.
-    apply mk_leq_partial'. intros fs_def.
+    apply make_leq_partial'. intros fs_def.
     use tpair.
     - intros x; exact (l x (fs_def x)).
     - apply funextsec; intros x. apply leq_partial_commutes.

@@ -56,7 +56,7 @@ Proof.
   etrans. apply (toforallpaths _ _ _ (!functor_comp (TM Y) _ _ ) _).
   etrans. Focus 2. apply (toforallpaths _ _ _ (functor_comp (TM Y) _ _ ) _).
   apply maponpaths_2. 
-  apply (@PullbackArrow_PullbackPr2 C _ _ _ _ _ (mk_Pullback _ _ _ _ _ _ _)).
+  apply (@PullbackArrow_PullbackPr2 C _ _ _ _ _ (make_Pullback _ _ _ _ _ _ _)).
 Qed.
 
 Definition canonical_TM_to_given : (preShv C) ⟦tm_from_qq Z, TM (pr1 Y)⟧.
@@ -180,7 +180,7 @@ Proof.
   etrans. apply maponpaths, (pr2 Y).
   etrans. use (toforallpaths _ _ _ (!functor_comp (TM Y) _ _ )).
   etrans. apply maponpaths_2; cbn.
-    apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). 
+    apply (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _)). 
   apply (toforallpaths _ _ _ (functor_id (TM Y) _) _).
 Qed.
 
@@ -231,7 +231,7 @@ Proof.
       etrans. apply maponpaths, YH.
       etrans. use (toforallpaths _ _ _ (!functor_comp tm _ _ )).
       etrans. apply maponpaths_2; cbn.
-        apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). 
+        apply (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _)). 
       apply (toforallpaths _ _ _ (functor_id tm _) _).
 Defined.
 
@@ -268,7 +268,7 @@ Proof.
   apply funextsec; intro Γ'.
   apply funextsec; intro f.
   apply funextsec; intro A.    
-  apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
+  apply (invmaponpathsweq (make_weq _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
   apply pathsinv0.
   etrans. apply Yo_qq_term_Yo_of_qq.
   unfold Yo_of_qq.

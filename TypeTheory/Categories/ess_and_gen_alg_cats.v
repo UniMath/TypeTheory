@@ -58,7 +58,7 @@ Proof.
   apply idpath.  
 Qed.
 
-Definition obmor : UU × UU := dirprodpair (ob C) (total_morphisms C).
+Definition obmor : UU × UU := make_dirprod (ob C) (total_morphisms C).
 
 Definition graph_from_gen_alg : graph.
 Proof.   
@@ -70,7 +70,7 @@ Defined.
 Definition graph_from_gen_alg_comp : @comp_op graph_from_gen_alg.
 Proof.
   intros f g e.
-  exists (dirprodpair (pr1 (pr1 f)) (pr2 (pr1 g))).
+  exists (make_dirprod (pr1 (pr1 f)) (pr2 (pr1 g))).
   exact ((pr2 f ;; idtomor _ _ e) ;; pr2 g).
 Defined.
 
@@ -78,7 +78,7 @@ Definition graph_w_comp_from_gen_alg : graph_w_comp :=
   tpair _ graph_from_gen_alg graph_from_gen_alg_comp.
 
 Definition id_op1 : @id_op graph_w_comp_from_gen_alg := 
-  λ c : C, tpair _ (dirprodpair c c) (identity c).
+  λ c : C, tpair _ (make_dirprod c c) (identity c).
 
 (** This proof should probably be transparent, since otherwise identity does not compute *)
 
@@ -196,7 +196,7 @@ Defined.
 Lemma is_precategory_precategory_data_from_ess_alg_cat : 
   is_precategory (precategory_data_from_ess_alg_cat).
 Proof.
-  use mk_is_precategory_one_assoc; intros.
+  use make_is_precategory_one_assoc; intros.
   - apply hom_eq. simpl. apply id_comp_l. 
     apply (pr1 (pr2 f)).
   - apply hom_eq, id_comp_r, (pr2 (pr2 f)).

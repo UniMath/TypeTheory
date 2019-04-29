@@ -122,10 +122,10 @@ Lemma ll_T_fun { BB : lBsystem_carrier }
       { X1 : BB } ( gt0 : ll X1 > 0 ) ( X2' : ltower_over ( ft X1 ) ) :
   ll ( T_fun_int ax1b gt0 X2' ) = ll X2' .
 Proof.
-  change ( ll ( T_ext T ( dirprodpair gt0 ( pr2 X2' ) ) ) - ll X1 = ll X2' ) .
+  change ( ll ( T_ext T ( make_dirprod gt0 ( pr2 X2' ) ) ) - ll X1 = ll X2' ) .
   change ( ll X2' ) with ( ll ( pr1 X2' ) - ll ( ft X1 ) ) . 
   unfold T_ext . 
-  destruct (ovab_choice (pr2 (dirprodpair gt0 (pr2 X2')))) as [ isab | eq ] . 
+  destruct (ovab_choice (pr2 (make_dirprod gt0 (pr2 X2')))) as [ isab | eq ] . 
   + rewrite ax0 . 
     rewrite ll_ft .
     assert ( ge : ll (pr1 X2') >= ll X1 ) .
@@ -511,7 +511,7 @@ Proof.
   simpl .
   assert ( gt : ll X > ll ( cntr BB ) ) . rewrite (@ll_cntr BB). apply gt0 .
   
-  set ( isab := dirprodpair gt (isoverll0 (ll_cntr BB) X) : isabove X ( cntr BB ) ) .  
+  set ( isab := make_dirprod gt (isoverll0 (ll_cntr BB) X) : isabove X ( cntr BB ) ) .  
   change (isoverll0 (ll_cntr BB) X) with ( isabove_to_isover isab ) . 
   rewrite Tj_fun_compt . 
   simpl .

@@ -53,7 +53,7 @@ Definition obj_ext_iso_alt (X X' : obj_ext_Precat C) : UU :=
 (* TODO: anstract this as a general function on any [category] (if there isn’t one already provided). *) 
 Definition is_saturated_preShv (F G : preShv C) : F = G ≃ iso F G.
 Proof.
-  apply (weqpair idtoiso (pr1 (univalent_category_is_univalent _) _ _ )).
+  apply (make_weq idtoiso (pr1 (univalent_category_is_univalent _) _ _ )).
 Defined.
 
 Definition weq_eq_obj_ext_iso_alt (X X' : obj_ext_Precat C) :

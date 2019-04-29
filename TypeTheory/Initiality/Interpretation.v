@@ -22,15 +22,15 @@ Section Auxiliary.
   (* TODO: work out better way to treat them? *)
   Definition mor_paths_hProp {C : category} {X Y : C} (f g : X --> Y)
     : hProp
-  := hProppair (f = g) (homset_property C _ _ _ _).
+  := make_hProp (f = g) (homset_property C _ _ _ _).
 
   Definition type_paths_hProp {C : split_typecat} {Γ : C} (A B : C Γ)
     : hProp
-  := hProppair (A = B) (isaset_types_typecat _ _ _).
+  := make_hProp (A = B) (isaset_types_typecat _ _ _).
 
   Definition tm_paths_hProp {C : split_typecat} {Γ : C} {A : C Γ} (s t : tm A)
     : hProp
-  := hProppair (s = t) (isaset_tm _ _).
+  := make_hProp (s = t) (isaset_tm _ _).
 
 End Auxiliary.
 
@@ -501,7 +501,7 @@ a little more work to state. *)
         (partial_interpretation_raw_context_map E
           (type_of ∘ E) (idmap_raw_context n)).
   Proof.
-    apply mk_leq_partial'; cbn; intros _.
+    apply make_leq_partial'; cbn; intros _.
     use tpair.
     - intros i; repeat constructor.
     - apply funextfun; intros i.
@@ -520,7 +520,7 @@ a little more work to state. *)
           (dB_Sn_rect _ B As)
           (add_to_raw_context_map f b)).
   Proof.
-    apply mk_leq_partial'; cbn; intros [f_def b_def].
+    apply make_leq_partial'; cbn; intros [f_def b_def].
     use tpair.
     - refine (dB_Sn_rect _ _ _); assumption.
     - apply funextfun. refine (dB_Sn_rect _ _ _); auto.
@@ -554,7 +554,7 @@ a little more work to state. *)
           (dB_Sn_rect _ (B ⦃dpr_typecat B⦄) (fun i => A i ⦃dpr_typecat B⦄))
           (weaken_raw_context_map f)).
   Proof.
-    apply mk_leq_partial'. cbn.
+    apply make_leq_partial'. cbn.
     intros fs_def.
     use tpair.
     - refine (dB_Sn_rect _ _ _).
@@ -673,7 +673,7 @@ a little more work to state. *)
   Proof.
     split.
     - intros ts_track.
-      apply mk_leq_partial'; cbn; intros _.
+      apply make_leq_partial'; cbn; intros _.
       use tpair.
       + intros i; apply ts_track.
       + cbn. apply funextfun; intros i.

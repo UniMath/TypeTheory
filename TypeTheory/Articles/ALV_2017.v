@@ -133,7 +133,7 @@ Proof.
   eapply weqcomp.
     apply Rezk_on_rep_map.
   apply invweq.
-  use (weqpair _ (isweq_from_cwf_to_rep _ _ )).
+  use (make_weq _ (isweq_from_cwf_to_rep _ _ )).
   apply univalent_category_is_univalent.
 Defined.
 

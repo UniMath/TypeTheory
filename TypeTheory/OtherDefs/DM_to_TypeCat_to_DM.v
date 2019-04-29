@@ -35,7 +35,7 @@ Proof.
     unfold DM_type in X. simpl in *.
     unfold dm_sub_struct_of_TypeCat in X; simpl in X.
     unfold type_cat_struct_from_DM in X. simpl in *.
-    set (X' := hProppair (DM_type C f) (pr2 (pr2 C) _ _ _ )).
+    set (X' := make_hProp (DM_type C f) (pr2 (pr2 C) _ _ _ )).
     apply (X X'). unfold X'; clear X' X.
     intro T. simpl in *.
     unfold iso_to_dpr in T. simpl.

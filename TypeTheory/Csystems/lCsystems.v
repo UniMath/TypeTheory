@@ -655,7 +655,7 @@ Proof.
   - red.
     intros Y X gt0 f.
     exact (s_sec_in_lC0system gt0 f (q_of_f_is_pb X Y gt0 f)).
-  - apply dirprodpair.
+  - apply make_dirprod.
     + red.
       intros Y X gt0 f.
       simpl.
@@ -682,7 +682,7 @@ Proof.
                   gt0
                   (f · q_of_f gt0 g)
                   (q_of_f_is_pb _ _ gt0 (f · q_of_f gt0 g)))).
-      apply dirprodpair.
+      apply make_dirprod.
       * apply (sec_pnX_eq (n:=1)).
       * assert (s_f_ok := pr2 (pr2 (iscontrpr1
           (s_pb_in_lC0system (C0ax5a gt0 g)

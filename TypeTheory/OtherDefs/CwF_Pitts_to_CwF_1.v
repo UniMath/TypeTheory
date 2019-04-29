@@ -39,7 +39,7 @@ Section fix_a_precategory.
   Definition type_functor : functor C^op HSET.
   Proof.
     refine (tpair _ _ _ ).
-    - exists (fun Γ => hSetpair
+    - exists (fun Γ => make_hSet
                          (CwF.type CC Γ)
                          (CwF.cwf_types_isaset CC Γ) ).
       simpl.
@@ -73,7 +73,7 @@ Section fix_a_precategory.
           exact (CwF.proj_mor  A).
       + simpl.
         intros Γ A; simpl in *.
-        refine (dirprodpair _ _ ).
+        refine (make_dirprod _ _ ).
         * apply (CwF.gen_elem  _ ).
         * intros Γ' γ a.
           apply (CwF.pairing γ a ).

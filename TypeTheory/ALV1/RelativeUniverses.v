@@ -120,8 +120,8 @@ Proof.
     destruct H' as [H' isP'].
     use total2_paths_f.
     + unfold fpullback_prop in *.
-      set (T1 := mk_Pullback _ _ _ _ _ _ isP).
-      set (T2 := mk_Pullback _ _ _ _ _ _ isP').
+      set (T1 := make_Pullback _ _ _ _ _ _ isP).
+      set (T2 := make_Pullback _ _ _ _ _ _ isP').
       set (i := iso_from_Pullback_to_Pullback T1 T2). cbn in i.
       set (i' := invmap (weq_ff_functor_on_iso HJ a a') i ).
       set (TT := isotoid _ is_c i').
@@ -150,7 +150,7 @@ Proof.
         cbn in *.
         rewrite functor_comp. rewrite T. clear T.
         clear XT' XT. clear TT. 
-        assert (X1:= PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ isP)).
+        assert (X1:= PullbackArrow_PullbackPr1 (make_Pullback _ _ _ _ _ _ isP)).
         cbn in X1.
         apply X1.
       * unfold TT. clear TT. clear XT' XT.
@@ -160,7 +160,7 @@ Proof.
         cbn. unfold precomp_with. rewrite id_right. rewrite id_right.
         assert (XX:=homotweqinvweq (weq_from_fully_faithful HJ a' a  )).
         simpl in XX. rewrite XX. simpl. cbn.
-        assert (X1:= PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ isP)).
+        assert (X1:= PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ isP)).
         apply X1.
 Qed.
 
@@ -357,7 +357,7 @@ Definition fq_nat_fpb_mor (Y : functorial_structure_relu)
   := pr2 (pr2 (pr2 (pr2 Y))).                                                                       
 
 
-Definition mk_functorial_structure_relu
+Definition make_functorial_structure_relu
            (fpb_mor : fpullback_mor_type)
   : id_fpb_mor_type fpb_mor
     -> comp_fpb_mor_type fpb_mor
@@ -468,7 +468,7 @@ Qed.
 
 Definition ff_functorial_structure_relu : functorial_structure_relu.
 Proof.
-  use mk_functorial_structure_relu.
+  use make_functorial_structure_relu.
   - exact @rel_universe_fpullback_mor.
   - exact @rel_universe_fpullback_mor_id.
   - exact @rel_universe_fpullback_mor_comp.
@@ -561,7 +561,7 @@ Context
      surjectivity assumptions. 
 *)
 
-Let αiso := isopair α is_iso_α.
+Let αiso := make_iso α is_iso_α.
 Let α' := inv_from_iso αiso. 
 Let α'_α := nat_trans_eq_pointwise (iso_after_iso_inv αiso).
 Let α_α' := nat_trans_eq_pointwise (iso_inv_after_iso αiso).
@@ -738,7 +738,7 @@ Context
 
    (S_pb : maps_pb_squares_to_pb_squares _ _ S).
 
-Let αiso := isopair α is_iso_α.
+Let αiso := make_iso α is_iso_α.
 Let α' := inv_from_iso αiso. 
 Let α'_α := nat_trans_eq_pointwise (iso_after_iso_inv αiso).
 Let α_α' := nat_trans_eq_pointwise (iso_inv_after_iso αiso).
@@ -968,7 +968,7 @@ Definition weq_weak_relative_universe_transfer
            (eps : iso (C:=[D', D', pr2 D']) (T ∙ S) (functor_identity D'))
            (S_ff : fully_faithful S)
 : weak_relative_universe J ≃ weak_relative_universe J'
-:= weqpair _ (isweq_weak_relative_universe_transfer R_full isD isD' T eta eps S_ff).
+:= make_weq _ (isweq_weak_relative_universe_transfer R_full isD isD' T eta eps S_ff).
 
 End Is_universe_relative_to_Transfer.
 
