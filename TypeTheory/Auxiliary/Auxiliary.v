@@ -28,8 +28,8 @@ Set Automatic Introduction.
 
 Undelimit Scope transport.
 
-Notation "( x , y , .. , z )" := (dirprodpair .. (dirprodpair x y) .. z) : core_scope.
-(** Replaces builtin notation for [pair], since we use [dirprod, dirprodpair] instead of [prod, pair]. *)
+Notation "( x , y , .. , z )" := (make_dirprod .. (make_dirprod x y) .. z) : core_scope.
+(** Replaces builtin notation for [pair], since we use [dirprod, make_dirprod] instead of [prod, pair]. *)
 
 
 (** Redeclare this notation, along with a new scope. *)
@@ -318,7 +318,7 @@ Definition isweqbandfmap_var {X Y : UU} (w : X -> Y)
 : isweq w -> (∏ x, isweq (fw x)) -> isweq (bandfmap w P Q (λ x : X, fw x)).
 Proof.
   intros Hw Hfw.
-  apply (isweqbandfmap (weqpair w Hw) _ _ (fun x => weqpair _ (Hfw x))).
+  apply (isweqbandfmap (make_weq w Hw) _ _ (fun x => make_weq _ (Hfw x))).
 Defined.
 
 (* TODO: see if this can be used to more easily get other instances of [weqtotal2asstol] that currently need careful use of [specialize]. *)
@@ -404,13 +404,13 @@ Lemma is_iso_comp_is_iso {C : precategory} {a b c : ob C}
   : is_iso f -> is_iso g -> is_iso (f ;; g).
 Proof.
   intros Hf Hg.
-  apply (is_iso_comp_of_isos (isopair f Hf) (isopair g Hg)).
+  apply (is_iso_comp_of_isos (make_iso f Hf) (make_iso g Hg)).
 Defined.
 
 Lemma functor_is_iso_is_iso {C C' : precategory} (F : functor C C')
     {a b : ob C} (f : C ⟦a,b⟧) (fH : is_iso f) : is_iso (#F f).
 Proof.
-  apply (functor_on_iso_is_iso _ _ F _ _ (isopair f fH)).
+  apply (functor_on_iso_is_iso _ _ F _ _ (make_iso f fH)).
 Defined.
 
 
@@ -504,7 +504,7 @@ Definition iso_ob {C D : precategory} (hsD : has_homsets D)
   : ∏ c, iso (F c) (G c).
 Proof.
   intro c.
-  use isopair.
+  use make_iso.
   - cbn. apply ((pr1 a : nat_trans _ _ ) c).
   - apply is_functor_iso_pointwise_if_iso. apply (pr2 a).
 Defined.
@@ -572,16 +572,16 @@ Lemma fully_faithful_impl_ff_on_isos {C D : precategory} (F : functor C D)
 Proof.
   intros Fff c c'.
   use gradth.
-  - intro XR. exists (invmap (weqpair _ (Fff _ _ )) XR). cbn.
+  - intro XR. exists (invmap (make_weq _ (Fff _ _ )) XR). cbn.
     apply (ff_reflects_is_iso _ _ _ Fff).
-    assert (XT := homotweqinvweq (weqpair _ (Fff c c' ))).
+    assert (XT := homotweqinvweq (make_weq _ (Fff c c' ))).
     cbn in *.
     apply (transportb (λ i : _ --> _, is_iso i) (XT (pr1 XR) )).
     apply XR.
   - cbn. intro i. apply eq_iso. cbn.
-    apply (homotinvweqweq (weqpair _ (Fff _ _ ))).
+    apply (homotinvweqweq (make_weq _ (Fff _ _ ))).
   - cbn. intro i. apply eq_iso. cbn.
-    apply (homotweqinvweq (weqpair _ (Fff _ _ ))).
+    apply (homotweqinvweq (make_weq _ (Fff _ _ ))).
 Defined.
 
 
@@ -696,9 +696,9 @@ Proof.
     rewrite functor_comp.
     apply pathsinv0.
     etrans. apply maponpaths.
-       apply (homotweqinvweq (weqpair _ (Fff _ _ ))).
+       apply (homotweqinvweq (make_weq _ (Fff _ _ ))).
     etrans. apply maponpaths_2.
-       apply (homotweqinvweq (weqpair _ (Fff _ _ ))).
+       apply (homotweqinvweq (make_weq _ (Fff _ _ ))).
     repeat rewrite <- assoc. apply maponpaths. apply maponpaths.
     repeat rewrite assoc. apply maponpaths_2.
     etrans. apply maponpaths_2.  apply iso_after_iso_inv.
@@ -735,7 +735,7 @@ Lemma is_nat_trans_η_ff_split :
     (λ a : A, Finv (inv_from_iso (pr2 (Fses (F ((functor_identity A) a)))))).
 Proof.
   intros a a' f;
-  apply (invmaponpathsweq (weqpair _ (Fff _ _ )));
+  apply (invmaponpathsweq (make_weq _ (Fff _ _ )));
   cbn;
   rewrite functor_comp;
   rewrite functor_comp;
@@ -768,7 +768,7 @@ Lemma form_adjunction_ff_split
     apply iso_after_iso_inv.
   * intro b.
     cbn. 
-    apply (invmaponpathsweq (weqpair _ (Fff _ _ ))).
+    apply (invmaponpathsweq (make_weq _ (Fff _ _ ))).
     cbn.
     rewrite functor_comp.
     rewrite functor_id.
@@ -790,7 +790,7 @@ Proof.
     + apply form_adjunction_ff_split. 
   - split; cbn.
     + intro a. 
-      use (fully_faithful_reflects_iso_proof _ _ _ Fff _ _ (isopair _ _ )).
+      use (fully_faithful_reflects_iso_proof _ _ _ Fff _ _ (make_iso _ _ )).
       apply is_iso_inv_from_iso. 
     + intro b. apply pr2.
 Defined.
@@ -856,7 +856,7 @@ Defined.
 Definition preShv C := functor_univalent_category C^op HSET_univalent_category.
 
 Notation "'Yo'" := (yoneda _ (homset_property _) : functor _ (preShv _)).
-Notation "'Yo^-1'" := (invweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
+Notation "'Yo^-1'" := (invweq (make_weq _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
 
 (* TODO: perhaps rename e.g. [yoneda_eq]? *)
 Definition yy {C : precategory} {hsC : has_homsets C}
@@ -1153,12 +1153,12 @@ Lemma isPullback_transfer_iso {C : category}
    -> isPullback _ _ _ _ H'.
 Proof.
   intros Hpb.
-  apply (mk_isPullback _ ).    
+  apply (make_isPullback _ ).    
   intros X h k H''.
   simple refine (tpair _ _ _ ).
   - simple refine (tpair _ _ _ ).
     { refine ( _ ;; i_d ).
-      simple refine (PullbackArrow (mk_Pullback _ _ _ _ _ _ Hpb) _ _ _ _).
+      simple refine (PullbackArrow (make_Pullback _ _ _ _ _ _ Hpb) _ _ _ _).
       + exact (h ;; iso_inv_from_iso i_b).
       + exact (k ;; iso_inv_from_iso i_c).
       + abstract (
@@ -1185,8 +1185,8 @@ Proof.
       | rewrite assoc;
       eapply @pathscomp0;
       [ apply maponpaths_2;
-        try apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _));
-        try apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _))
+        try apply (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _));
+        try apply (PullbackArrow_PullbackPr1 (make_Pullback _ _ _ _ _ _ _))
       | rewrite <- assoc, iso_after_iso_inv; apply id_right]] ).
   - intros hk'.
     apply subtypeEquality.
@@ -1268,7 +1268,7 @@ Section on_pullbacks.
 
   Local Definition Pbb : Pullback k h.
   Proof.
-    unshelve refine (mk_Pullback _ _ _ _ _ _ _ ).
+    unshelve refine (make_Pullback _ _ _ _ _ _ _ ).
       - apply a.
       - apply f.
       - apply g.
@@ -1387,7 +1387,7 @@ Lemma pullback_HSET_univprop_elements {P A B C : HSET}
   : (∏ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b).
 Proof.
   intros a b e.
-  set (Pb := (mk_Pullback _ _ _ _ _ _ pb)).
+  set (Pb := (make_Pullback _ _ _ _ _ _ pb)).
   apply iscontraprop1.
   - apply invproofirrelevance; intros [ab [ea eb]] [ab' [ea' eb']].
     apply subtypeEquality; simpl.
@@ -1475,7 +1475,7 @@ Proof.
         HC :  (cone
               (@colimits.diagram_pointwise C^op HSET has_homsets_HSET
                                                pullback_graph (pullback_diagram (preShv C) f g) c) S)).
-    { use mk_cone.
+    { use make_cone.
       apply three_rec_dep; cbn.
       - apply h.
       - simpl. apply (h ;; (pr1 f c)).

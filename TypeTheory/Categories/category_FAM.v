@@ -70,7 +70,7 @@ Proof.
 Qed.
 
 Definition weqpathscomp0l {X : UU} {x x' : X} (x'' : X) (e : x = x')
-  := weqpair _ (isweqpathscomp0l x'' e).
+  := make_weq _ (isweqpathscomp0l x'' e).
 
 End Auxiliary.
 
@@ -134,7 +134,7 @@ Definition FAM_obj_UU_weq (A B : obj_UU) : (A = B) ≃ FAM_obj_eq_type A B.
 Proof.
   eapply weqcomp.
   - apply total2_paths_equiv.
-  - apply (weqbandf (weqpair _ (univalenceAxiom _  _ ))).
+  - apply (weqbandf (make_weq _ (univalenceAxiom _  _ ))).
     simpl.
     intro p.
     destruct A as [A x].
@@ -192,7 +192,7 @@ Defined.
 
 Lemma is_precategory_FAM : is_precategory FAM_precategory_data.
 Proof.
-  use mk_is_precategory_one_assoc; intros; simpl.
+  use make_is_precategory_one_assoc; intros; simpl.
   - apply (invmap (FAM_mor_equiv _ _ )). 
     exists (fun _ => idpath _ ).
     intros; apply id_left.
@@ -282,7 +282,7 @@ Defined.
 
 (** Characterisation of isos in [FAM] as pairs of a bijection and a family of isos **)
 
-Definition isopair {C : precategory} {a b : C} (f : a --> b) (H : is_iso f) : iso a b 
+Definition make_iso {C : precategory} {a b : C} (f : a --> b) (H : is_iso f) : iso a b 
   := tpair _ f H.
 
 Section isos.
@@ -290,11 +290,11 @@ Section isos.
 Definition isweq_from_is_iso {A B : FAM} (f : A --> B) : is_iso f → isweq (pr1 f). 
 Proof.
   intro H.
-  apply (gradth _ (pr1 (inv_from_iso (isopair f H)))).
+  apply (gradth _ (pr1 (inv_from_iso (make_iso f H)))).
   - intro x. 
-    apply (toforallpaths _ _ _ (maponpaths pr1 (iso_inv_after_iso (isopair f H)))).
+    apply (toforallpaths _ _ _ (maponpaths pr1 (iso_inv_after_iso (make_iso f H)))).
   - intro x.
-    apply (toforallpaths _ _ _ (maponpaths pr1 (iso_after_iso_inv (isopair f H)))).
+    apply (toforallpaths _ _ _ (maponpaths pr1 (iso_after_iso_inv (make_iso f H)))).
 Defined.
 
 Definition FAM_is_iso {A B : FAM} (f : A --> B) : UU := 
@@ -302,14 +302,14 @@ Definition FAM_is_iso {A B : FAM} (f : A --> B) : UU :=
 
 Definition inv_from_FAM_is_iso {A B : FAM} {f : A --> B} (H : FAM_is_iso f) : B --> A.
 Proof.
-  set (finv := invmap (weqpair _ (pr1 H))).
+  set (finv := invmap (make_weq _ (pr1 H))).
   exists finv.
   intro b.
   set (H' := pr2 H (finv b)). simpl in H'.
-  set (x  := isopair _ H': iso (A ₂ (finv b)) (B ₂ (pr1 f (finv b)))).
+  set (x  := make_iso _ H': iso (A ₂ (finv b)) (B ₂ (pr1 f (finv b)))).
   set (xinv := inv_from_iso x).
   cbn in *.
-  use (transportf (λ b', B ₂ b' --> A ₂ (finv b)) (homotweqinvweq (weqpair _ (pr1 H)) _ )).
+  use (transportf (λ b', B ₂ b' --> A ₂ (finv b)) (homotweqinvweq (make_weq _ (pr1 H)) _ )).
   apply xinv.
 Defined.
 
@@ -336,9 +336,9 @@ Proof.
     exists (λ a, homotinvweqweq _ _ ).
     intro a. simpl.
     
-    set (p := homotinvweqweq (weqpair f1 H1) a).
-    set (p' := homotweqinvweq (weqpair f1 H1) (f1 a)).
-    assert (tri : maponpaths f1 p = p'). apply (homotweqinvweqweq (weqpair _ _)).
+    set (p := homotinvweqweq (make_weq f1 H1) a).
+    set (p' := homotweqinvweq (make_weq f1 H1) (f1 a)).
+    assert (tri : maponpaths f1 p = p'). apply (homotweqinvweqweq (make_weq _ _)).
     clearbody p'. destruct tri. simpl in *.
 
     assert (transp_lem : forall (a1 a2 : A ₁) (q : a2 = a1),
@@ -347,20 +347,20 @@ Proof.
         transportf
           (λ b' : B ₁, B ₂ b' --> A ₂ a2)
           (maponpaths f1 q)
-          (inv_from_iso (isopair (f2 a2) (H2 a2))))
+          (inv_from_iso (make_iso (f2 a2) (H2 a2))))
       = identity (A ₂ a1)).
       intros. destruct q; cbn.
-      apply (iso_inv_after_iso (isopair _ _)).
+      apply (iso_inv_after_iso (make_iso _ _)).
     apply transp_lem.
 
   - apply (invmap (FAM_mor_equiv _ _ )).
-    exists (λ a, homotweqinvweq (weqpair _ _) _).
+    exists (λ a, homotweqinvweq (make_weq _ _) _).
     intro b. simpl.
-    set (p := (homotweqinvweq (weqpair f1 H1) b)).
+    set (p := (homotweqinvweq (make_weq f1 H1) b)).
     change (transportf (λ b0 : B ₁, B ₂ b --> B ₂ b0)
-                         (homotweqinvweq (weqpair f1 H1) b))
+                         (homotweqinvweq (make_weq f1 H1) b))
     with (transportf (λ b0 : B ₁, B ₂ b --> B ₂ b0) p).
-    set (a := (invmap (weqpair f1 H1) b)) in *. clearbody p. clearbody a.
+    set (a := (invmap (make_weq f1 H1) b)) in *. clearbody p. clearbody a.
     destruct p. cbn. unfold idfun; simpl. apply iso_after_iso_inv.
 Qed.
 
@@ -370,7 +370,7 @@ Proof.
   intro f_iso.
   split.
   - apply isweq_from_is_iso. assumption.
-  - set (g := iso_inv_from_iso (isopair f f_iso) : B --> A).
+  - set (g := iso_inv_from_iso (make_iso f f_iso) : B --> A).
     set (fg' := iso_inv_after_iso _ : f ;; g = identity A).
     set (gf' := iso_after_iso_inv _ : g ;; f = identity B).
     set (fg:= FAM_mor_equiv _ _ fg'). clearbody fg; clear fg'.

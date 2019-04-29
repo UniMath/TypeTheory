@@ -247,14 +247,14 @@ Proof.
       etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, obj_ext_mor_ax.
       use (PullbackArrow_PullbackPr1
-                (mk_Pullback _ _ _ _ _ _ (qq_π_Pb _ f A))).
+                (make_Pullback _ _ _ _ _ _ (qq_π_Pb _ f A))).
     + cbn in FZ; cbn.
       etrans. apply maponpaths_2, @pathsinv0, assoc.
       etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, @pathsinv0, FZ.
       etrans. apply assoc.
       etrans. apply maponpaths_2.
-        apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). 
+        apply (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _)). 
       apply pathsinv0, assoc.
 Time Qed.
 
@@ -290,7 +290,7 @@ Proof.
     etrans. Focus 2. cbn. apply maponpaths_2, @pathsinv0, obj_ext_mor_ax.
     exact (toforallpaths _ _ _ (nat_trans_ax (obj_ext_mor_TY F) _ _ _) _).
   - etrans. Focus 2. apply @pathsinv0, 
-        (postCompWithPullbackArrow _ _ _ (mk_Pullback _ _ _ _ _ _ _)).
+        (postCompWithPullbackArrow _ _ _ (make_Pullback _ _ _ _ _ _ _)).
     apply PullbackArrowUnique.
     + cbn.
       etrans. apply @pathsinv0, assoc.
@@ -303,7 +303,7 @@ Proof.
       etrans. apply maponpaths, comp_ext_compare_π.
       etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, obj_ext_mor_ax.
-      apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
+      apply (PullbackArrow_PullbackPr1 (make_Pullback _ _ _ _ _ _ _)).
     + etrans. Focus 2. apply @pathsinv0, id_right.
       etrans. cbn. apply maponpaths_2, maponpaths_2, maponpaths.
         etrans. apply comp_ext_compare_comp.
@@ -323,7 +323,7 @@ Proof.
         (* TODO: give access function [qq_structure_mor_ax]! *)
       etrans. apply assoc.
       etrans. apply maponpaths_2.
-        apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
+        apply (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _)).
       apply id_left.
 Time Qed.
 
@@ -353,7 +353,7 @@ Proof.
   simpl in Y, Y'.  (* To avoid needing casts [Y : term_fun_structure _]. *)
   use (_,,tt). simpl; unfold term_fun_mor.
   exists (term_from_qq_mor_TM FZ W W').
-  apply dirprodpair; try intros Γ A.
+  apply make_dirprod; try intros Γ A.
   - etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths, (pp_canonical_TM_to_given _ _ (_,,_)).
     etrans. apply @pathsinv0, assoc.

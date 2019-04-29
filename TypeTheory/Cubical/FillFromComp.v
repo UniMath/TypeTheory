@@ -153,7 +153,7 @@ Definition FF0 {I} : pr1 FF I : hSet := pr1 bot_FF I tt.
 (* The map that constantly returns FF1 *)
 Definition true : 1 --> FF.
 Proof.
-use mk_nat_trans.
+use make_nat_trans.
 + intros I _.
   exact (@FF1 I).
 + intros I J f; cbn.
@@ -205,7 +205,7 @@ Qed.
 (* Context restriction: Γ, φ |- *)
 Definition ctx_restrict (Γ : PreShv C) (φ : Γ --> FF) : PreShv C.
 Proof.
-use mk_functor.
+use make_functor.
 - use tpair.
   + simpl; intros I.
     exists (∑ ρ : pr1 ((pr1 Γ) I), pr1 φ I ρ = FF1).
@@ -231,7 +231,7 @@ Local Notation "Γ , φ" := (ctx_restrict Γ φ) (at level 30, format "Γ , φ")
 (* Canonical inclusion *)
 Definition ι {Γ : PreShv C} {φ : Γ --> FF} : Γ,φ --> Γ.
 Proof.
-use mk_nat_trans.
+use make_nat_trans.
 - simpl; intros I; cbn; apply pr1.
 - intros I J f; apply idpath.
 Defined.
@@ -247,7 +247,7 @@ Qed.
 
 Definition join_subst {Γ : PreShv C} (φ ψ : Γ --> FF) : Γ,φ --> Γ,(φ ∨ ψ).
 Proof.
-use mk_nat_trans.
+use make_nat_trans.
 - intros I ρ.
   exists (pr1 ρ).
   abstract (cbn; etrans; [apply maponpaths, (pathsdirprod (pr2 ρ) (idpath _))|];
@@ -260,7 +260,7 @@ Defined.
 Definition subst_restriction {Γ Δ : PreShv C} (σ : Δ --> Γ) (φ : Γ --> FF) :
   Δ,(σ · φ) --> Γ,φ.
 Proof.
-use mk_nat_trans.
+use make_nat_trans.
 + intros I u.
   apply (pr1 σ I (pr1 u),,pr2 u).
 + abstract (intros I J f; apply funextsec; intro ρ;
@@ -366,7 +366,7 @@ Definition p_PreShv (I : C) : yon (I+) --> yon I := # yon (p_F I).
 (* e₀ defines a natural map from yon(I) to yon(I+) *)
 Definition e₀_PreShv (I : C) : yon I --> yon (I +).
 Proof.
-use mk_nat_trans.
+use make_nat_trans.
 + intros J f.
   exact (f · e₀ I).
 + intros J K f.
@@ -375,7 +375,7 @@ Defined.
 
 Definition e₁_PreShv (I : C) : yon I --> yon (I +).
 Proof.
-use mk_nat_trans.
+use make_nat_trans.
 + intros J f.
   exact (f · e₁ I).
 + intros J K f.
@@ -384,7 +384,7 @@ Defined.
 
 Definition m_PreShv (I : C) : yon ((I +) +) --> yon (I+).
 Proof.
-use mk_nat_trans.
+use make_nat_trans.
 + intros J f.
   exact (f · m I).
 + intros J K f.
@@ -481,7 +481,7 @@ Definition box (I : C) (φ : yon I --> FF) : PreShv C :=
 Definition u_subst {I : C} (φ : yon I --> FF) : yon I,φ --> box I φ.
 Proof.
 assert (σ1 : yon(I),φ --> yon(I), (e₁_PreShv I · (p_PreShv I · φ))).
-{ use mk_nat_trans.
+{ use make_nat_trans.
   + intros J ρ.
     exists (pr1 ρ).
     abstract (rewrite <- (pr2 ρ); cbn; unfold yoneda_morphisms_data;
@@ -574,7 +574,7 @@ Definition box_subst {I J : C} (f : J --> I) (φ : yon I --> FF) :
 Proof.
 set (ψ := (p_PreShv I · φ ∨ δ₀ I) : yon (I+) --> FF).
 use (_ · subst_restriction (# yon (# F f)) ψ).
-use mk_nat_trans.
+use make_nat_trans.
 - intros K ρ'.
   exists (pr1 ρ').
   apply box_subst_prf.
@@ -612,7 +612,7 @@ Lemma box_b_subst {X Y : PreShv C} (α : X --> Y) (I : C) (φ : yon I --> FF)
 Proof.
 use (_ · subst_restriction (m_PreShv I) (b φ) · u).
 (* Make a special lemma for this? *)
-use mk_nat_trans.
+use make_nat_trans.
 - intros J XX.
   exists (pr1 XX).
   abstract (now rewrite m_b, (pr2 XX)).

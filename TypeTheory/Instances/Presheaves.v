@@ -230,7 +230,7 @@ Qed.
 (** Context extension: given a context Γ and a type Γ ⊢ A define Γ.A *)
 Definition ctx_ext {Γ : PreShv C} (A : Γ ⊢) : PreShv C.
 Proof.
-use mk_functor.
+use make_functor.
 - use tpair.
   + simpl; intros I.
     use total2_hSet.
@@ -263,7 +263,7 @@ Local Notation "Γ ⋆ A" := (@ctx_ext Γ A) (at level 30).
 (** Context projection *)
 Definition ctx_proj {Γ : PreShv C} {A : Γ ⊢} : Γ ⋆ A --> Γ.
 Proof.
-use mk_nat_trans.
+use make_nat_trans.
 - intros I X.
   apply (pr1 X).
 - now intros I J f; apply funextsec.
@@ -377,7 +377,7 @@ Qed.
 (** Pairing of substitutions *)
 Definition subst_pair {Γ Δ : PreShv C} {A : Γ ⊢} (σ : Δ --> Γ) (a : Δ ⊢ A⦃σ⦄) : Δ --> Γ ⋆ A.
 Proof.
-use mk_nat_trans.
+use make_nat_trans.
 - intros I ρ.
   apply (pr1 σ _ ρ,,pr1 a I ρ).
 - intros I J f.
@@ -508,7 +508,7 @@ Defined.
 (* Definition q' {Γ : PreShv C} (A : Γ ⊢) : TermInSection (A⦃@p Γ A⦄). *)
 (* Proof. *)
 (* mkpair. *)
-(* - use mk_nat_trans. *)
+(* - use make_nat_trans. *)
 (*   + intros I ρ. *)
 (*     exists ρ. *)
 (*     apply (pr2 ρ). *)
@@ -527,7 +527,7 @@ Defined.
 
 Definition p_gen {Γ Δ : PreShv C} {A : Δ ⊢} (σ : Δ --> Γ) : Δ ⋆ A --> Γ.
 Proof.
-use mk_nat_trans.
+use make_nat_trans.
 - intros I X.
   apply (pr1 σ _ (pr1 X)).
 - intros I J f; apply funextsec; intro ρ.

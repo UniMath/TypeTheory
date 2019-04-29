@@ -67,7 +67,7 @@ Proof.
   }
   unfold DM_type in B. simpl in *.
   unfold dm_sub_struct_of_TypeCat in B.
-  set (T:= hProppair _ X).
+  set (T:= make_hProp _ X).
   set (T':= B T).
   apply T'.
   unfold T; simpl;
@@ -77,7 +77,7 @@ Proof.
   destruct T as [A [h e]].
   clear B.
   unshelve refine (tpair _ _ _ ).
-  - unshelve refine (mk_Pullback _ _ _ _ _ _ _ ).
+  - unshelve refine (make_Pullback _ _ _ _ _ _ _ ).
     + apply (Γ' ◂ (A{{f}})).
     + apply (q_typecat _ _ ;; h).
     + apply (dpr_typecat _ ).

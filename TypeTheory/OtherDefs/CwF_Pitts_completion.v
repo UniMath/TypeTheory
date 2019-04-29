@@ -29,7 +29,7 @@ Definition Rezk_functor (C : precategory) (hs : has_homsets C) (D : univalent_ca
   :  functor (Rezk_completion C hs) D.
 Proof.
   set (H:=Rezk_eta_Universal_Property C hs D  (pr2 D)).
-  apply (invmap (weqpair _  H)).
+  apply (invmap (make_weq _  H)).
   apply F.
 Defined.
 
@@ -76,7 +76,7 @@ Proof.
   eapply weqcomp.
   - apply weqpathsinv0.
   - eapply weqcomp.
-    + apply (weqpair (@idtoiso C b a) (pr1 H b a)).
+    + apply (make_weq (@idtoiso C b a) (pr1 H b a)).
     + apply weq_opp_iso.
 Defined.
 
@@ -113,7 +113,7 @@ Context (CC : precategory) (C : cwf_struct CC).
     We thus obtain a "type" functor on RC(C) by univ property
 **)
 
-Definition type_hSet (Γ : CC) : hSet := hSetpair (C⟨Γ⟩) (cwf_types_isaset _ _ ). 
+Definition type_hSet (Γ : CC) : hSet := make_hSet (C⟨Γ⟩) (cwf_types_isaset _ _ ). 
 
 Definition type_functor_data : functor_data CC (opp_precat HSET).
 Proof.

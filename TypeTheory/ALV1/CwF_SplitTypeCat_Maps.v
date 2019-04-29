@@ -160,7 +160,7 @@ Proof.
     + intro. apply isasetaprop. apply homset_property.
 Qed.
 
-Definition tm_from_qq_functor_ob Γ : hSet := hSetpair _ (isaset_tm_from_qq Γ).
+Definition tm_from_qq_functor_ob Γ : hSet := make_hSet _ (isaset_tm_from_qq Γ).
 
 Definition tm_from_qq_functor_mor Γ Γ' (f : C⟦Γ',Γ⟧) : tm_from_qq_carrier Γ → tm_from_qq_carrier Γ'.
 Proof.
@@ -227,7 +227,7 @@ Proof.
     use tm_from_qq_eq; simpl.
     + exact (toforallpaths _ _ _ (functor_id (TY X) _ ) A).
     + etrans. apply maponpaths, @pathsinv0, qq_id.
-      etrans. apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). 
+      etrans. apply (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _)). 
       apply id_left.
   - intros Γ Γ' Γ'' f g; apply funextsec; intro t.
     destruct t as [A [s e]]; cbn in *.
@@ -237,12 +237,12 @@ Proof.
       apply PullbackArrowUnique; cbn.
       - rewrite <- assoc.
         rewrite @comp_ext_compare_π.
-        apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
+        apply (PullbackArrow_PullbackPr1 (make_Pullback _ _ _ _ _ _ _)).
       - apply (MorphismsIntoPullbackEqual (qq_π_Pb Z _ _)).
         + etrans. Focus 2. apply assoc.
           etrans. Focus 2.
             apply maponpaths, @pathsinv0.
-            apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
+            apply (PullbackArrow_PullbackPr1 (make_Pullback _ _ _ _ _ _ _)).
           etrans. Focus 2. apply @pathsinv0, id_right.
           etrans. apply @pathsinv0, assoc.
           etrans. eapply maponpaths, qq_π.
@@ -251,15 +251,15 @@ Proof.
           apply maponpaths_2.
           etrans. apply @pathsinv0, assoc.
           rewrite @comp_ext_compare_π.
-          apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
+          apply (PullbackArrow_PullbackPr1 (make_Pullback _ _ _ _ _ _ _)).
         + repeat rewrite <- assoc.
           etrans. apply maponpaths. rewrite assoc.
             apply @pathsinv0, qq_comp_general.
-          etrans. apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
+          etrans. apply (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _)).
           etrans. apply @pathsinv0, assoc.
           apply maponpaths.
           apply @pathsinv0.
-          apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). }
+          apply (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _)). }
 Qed.
 
 Definition tm_from_qq : functor _ _
@@ -370,11 +370,11 @@ Proof.
   apply pathsinv0.
   etrans. {
     apply maponpaths_2.
-    apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). }
+    apply (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _)). }
   use (_ @ id_right _).  
   etrans. apply @pathsinv0, assoc.
   apply maponpaths.
-  apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
+  apply (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _)).
 Qed.
 
 (* TODO: try to speed this up! *)
@@ -403,7 +403,7 @@ Proof.
         use (_ @ !e).
         etrans. apply @pathsinv0, assoc.
         etrans. apply @maponpaths, comp_ext_compare_π.
-        apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
+        apply (PullbackArrow_PullbackPr1 (make_Pullback _ _ _ _ _ _ _)).
       * etrans. apply @pathsinv0, assoc.
         use (maponpaths _ _ @ _).
             { use (qq Z _ _ ;; qq Z _ _). }
@@ -419,11 +419,11 @@ Proof.
          apply (section_qq_π _ _ _ e). }
         etrans. apply assoc.
         etrans. { apply maponpaths_2,
-                  (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)). }
+                  (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _)). }
         etrans. apply @pathsinv0, assoc.
         etrans.
           apply maponpaths.
-          apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
+          apply (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _)).
         apply id_right.
   - idtac. intros ft. apply subtypeEquality.
     { intro. apply isapropdirprod.
@@ -480,7 +480,7 @@ Proof.
     + cbn.
       etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, comp_ext_compare_π.
-      apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)). 
+      apply (PullbackArrow_PullbackPr1 (make_Pullback _ _ _ _ _ _ _)). 
     + apply (map_into_Pb_unique _ (qq_π_Pb Z _ _)). 
       * cbn.
         etrans. apply @pathsinv0, assoc.
@@ -489,12 +489,12 @@ Proof.
         etrans. apply maponpaths_2.
           etrans. apply @pathsinv0, assoc.
           etrans. apply maponpaths, comp_ext_compare_π.
-          apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
+          apply (PullbackArrow_PullbackPr1 (make_Pullback _ _ _ _ _ _ _)).
         etrans. apply id_left.
         apply pathsinv0.
         etrans. apply @pathsinv0, assoc.
         etrans. apply maponpaths.
-          apply (PullbackArrow_PullbackPr1 (mk_Pullback _ _ _ _ _ _ _)).
+          apply (PullbackArrow_PullbackPr1 (make_Pullback _ _ _ _ _ _ _)).
         apply id_right.
       * cbn.
         etrans. apply @pathsinv0, assoc.
@@ -520,12 +520,12 @@ Proof.
               etrans. apply @pathsinv0, comp_ext_compare_comp.
               apply comp_ext_compare_id_general.
             apply id_left.
-          apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
+          apply (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _)).
         etrans. apply id_left.
         apply pathsinv0.
         etrans. apply @pathsinv0, assoc.
         etrans. apply maponpaths.
-          apply (PullbackArrow_PullbackPr2 (mk_Pullback _ _ _ _ _ _ _)).
+          apply (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _)).
         apply id_right.
 Time Qed.
 
@@ -556,7 +556,7 @@ Variables Γ Γ' : C.
 Variable f : C⟦Γ', Γ⟧.
 Variable A : Ty X Γ.
 
-Let Xk := mk_Pullback _ _ _ _ _ _ (isPullback_Q_pp Y A).
+Let Xk := make_Pullback _ _ _ _ _ _ (isPullback_Q_pp Y A).
 
 (** ** Groundwork in presheaves
 
@@ -608,7 +608,7 @@ Qed.
 (** ** Construction of the _q_-morphisms *)
 Definition qq_term :  _ ⟦Γ' ◂ A[f] , Γ ◂ A⟧.
 Proof.
-  apply (invweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
+  apply (invweq (make_weq _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
   apply Yo_of_qq.
 Defined.
 
@@ -616,7 +616,7 @@ Lemma Yo_qq_term_Yo_of_qq : # Yo qq_term = Yo_of_qq.
 Proof.
   unfold qq_term.
   assert (XT := homotweqinvweq
-     (weqpair _ (yoneda_fully_faithful _ (homset_property _) (Γ'◂ A[f]) (Γ ◂ A)))).
+     (make_weq _ (yoneda_fully_faithful _ (homset_property _) (Γ'◂ A[f]) (Γ ◂ A)))).
   apply XT.
 Qed.
 
@@ -625,7 +625,7 @@ Proof.
   assert (XT:= Yo_of_qq_commutes_1).
   rewrite <- Yo_qq_term_Yo_of_qq in XT.
   do 2 rewrite <- functor_comp in XT.
-  apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
+  apply (invmaponpathsweq (make_weq _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
   apply @pathsinv0, XT.
 Qed.
 
@@ -657,8 +657,8 @@ Lemma is_split_qq_from_term : qq_morphism_axioms qq_from_term_data.
 Proof.
   split.
   - intros Γ A. simpl.
-    apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
-    etrans; [ apply (homotweqinvweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))) | idtac ].    
+    apply (invmaponpathsweq (make_weq _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
+    etrans; [ apply (homotweqinvweq (make_weq _ (yoneda_fully_faithful _ (homset_property _) _ _ ))) | idtac ].    
     apply pathsinv0.
     unfold Yo_of_qq.
     apply PullbackArrowUnique. 
@@ -670,8 +670,8 @@ Proof.
     + etrans. apply maponpaths. cbn. apply idpath.
       apply comp_ext_compare_Q.
   - intros.
-    apply (invmaponpathsweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
-    etrans; [ apply (homotweqinvweq (weqpair _ (yoneda_fully_faithful _ (homset_property _) _ _ ))) | idtac ].    
+    apply (invmaponpathsweq (make_weq _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
+    etrans; [ apply (homotweqinvweq (make_weq _ (yoneda_fully_faithful _ (homset_property _) _ _ ))) | idtac ].    
     sym. apply PullbackArrowUnique.
     + etrans. apply maponpaths. cbn. apply idpath.
       rewrite <- functor_comp.

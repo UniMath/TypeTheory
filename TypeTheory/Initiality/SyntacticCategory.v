@@ -479,10 +479,10 @@ Section Contexts_Modulo_Equality.
   Definition context_mod_eq
   := ∑ (n:nat), context_of_length_mod_eq n.
 
-  Definition mk_context_mod_eq {n} (ΓΓ : context_of_length_mod_eq n)
+  Definition make_context_mod_eq {n} (ΓΓ : context_of_length_mod_eq n)
     : context_mod_eq
   := (n,,ΓΓ).
-  Coercion mk_context_mod_eq : context_of_length_mod_eq >-> context_mod_eq.
+  Coercion make_context_mod_eq : context_of_length_mod_eq >-> context_mod_eq.
 
   Local Definition length : context_mod_eq -> nat := pr1.
   Coercion length : context_mod_eq >-> nat.
@@ -733,11 +733,11 @@ Section Category.
     cbn. apply pathsinv0, assoc_raw_context.
   Qed.
 
-  (* TODO: issue to raise in UniMath: [mk_category] is constructor for a _univalent_ category! *)
+  (* TODO: issue to raise in UniMath: [make_category] is constructor for a _univalent_ category! *)
   Definition syntactic_category : category.
   Proof.
     use tpair.
-    - use mk_precategory_one_assoc.
+    - use make_precategory_one_assoc.
      + use ((context_mod_eq,,map_mod_eq),,_).
        exists idmap.
        intros Γ Δ Θ.
@@ -1101,7 +1101,7 @@ Section Split_Typecat.
            ff (dpr ΓΓ AA) (dpr ΓΓ' (reind AA ff)) (qmor AA ff)
            (! dpr_q AA ff).
   Proof.
-    use mk_isPullback; simpl.
+    use make_isPullback; simpl.
     intros ΓΓ'' gg hh Heq.
     use unique_exists; simpl.
     - admit.
@@ -1188,7 +1188,7 @@ Section Contextuality.
   (* TODO: opacify parts of this *)
   Lemma isTerminal_empty_context : isTerminal syntactic_typecat empty_context.
   Proof.
-    use mk_isTerminal.
+    use make_isTerminal.
     intros x.
     use tpair.
     - apply setquotpr.     

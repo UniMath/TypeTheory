@@ -48,7 +48,7 @@ Defined.
   
 Lemma is_precategory_precategory_of_elements : is_precategory precategory_of_elements_data.
 Proof.
-  use mk_is_precategory_one_assoc; intros.
+  use make_is_precategory_one_assoc; intros.
   - apply subtypeEquality.
     + intro. apply setproperty.
     + apply id_left.
@@ -190,7 +190,7 @@ Lemma bla (H : is_univalent C) (ac bd : ∫) :
 Proof.
   eapply weqcomp.
   apply total2_paths_equiv.
-  unshelve refine (weqbandf (weqpair (@idtoiso _ _ _ ) _ ) _ _ _ ).
+  unshelve refine (weqbandf (make_weq (@idtoiso _ _ _ ) _ ) _ _ _ ).
   - apply (pr1 H).
   - simpl. intro x.
     destruct ac. destruct bd.

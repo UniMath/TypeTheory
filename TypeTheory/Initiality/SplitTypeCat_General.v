@@ -92,8 +92,8 @@ Section Terms.
 
   Definition ty (C : split_typecat) : PreShv C.
   Proof.
-    use mk_functor.
-    - use mk_functor_data.
+    use make_functor.
+    - use make_functor_data.
       + intros x.
         exists (ty_typecat C x).
         abstract (apply isaset_types_typecat).
@@ -161,7 +161,7 @@ Section Terms.
     : reind_tm f a ;; q_typecat A f = f ;; a.
   Proof.
     simpl.
-    set (pb := mk_Pullback _ _ _ _ _ _ _).
+    set (pb := make_Pullback _ _ _ _ _ _ _).
     now rewrite (PullbackArrow_PullbackPr2 pb).
   Qed.
 
@@ -230,7 +230,7 @@ Section Terms.
       = tm_transportb (reind_id_type_typecat _ _) a.
   Proof.
     apply subtypeEquality; [ intros x; apply homset_property|]; simpl.
-    set (pb := mk_Pullback _ _ _ _ _ _ _).
+    set (pb := make_Pullback _ _ _ _ _ _ _).
     (* Why is there a ' version of this lemma??? *)
     apply pathsinv0, (PullbackArrowUnique' _ _ pb).
     - rewrite <-assoc.
@@ -257,9 +257,9 @@ Section Terms.
           (reind_tm g (reind_tm f a)).
   Proof.
     apply subtypeEquality; [ intros x; apply homset_property|]; simpl.
-    set (pb := mk_Pullback _ _ _ _ _ _ _).
-    set (pb' := mk_Pullback _ _ _ _ _ _ _).
-    set (pb'' := mk_Pullback _ _ _ _ _ _ _).
+    set (pb := make_Pullback _ _ _ _ _ _ _).
+    set (pb' := make_Pullback _ _ _ _ _ _ _).
+    set (pb'' := make_Pullback _ _ _ _ _ _ _).
     apply pathsinv0, (PullbackArrowUnique' _ _ pb).
     - rewrite <- assoc.
       etrans; [eapply maponpaths, idtoiso_dpr_typecat|].
@@ -330,7 +330,7 @@ Section Terms.
     { apply (section_property (tm_transportb _ _)). }
     apply pathsinv0.
     etrans. { refine (postCompWithPullbackArrow _ _ _
-                                       (mk_Pullback _ _ _ _ _ _ _) _ _ _). }
+                                       (make_Pullback _ _ _ _ _ _ _) _ _ _). }
     apply pathsinv0, PullbackArrowUnique; cbn; refine (_ @ ! id_right _).
     - rewrite <- assoc.
       etrans. { apply maponpaths, dpr_q_typecat. }

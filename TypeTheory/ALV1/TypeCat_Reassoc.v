@@ -139,7 +139,7 @@ Proof.
   - exists (pr1 (pr1 (pr1 (pr1 (pr1 S)))) ,,
                 (pr1 (pr2 (pr1 S)) ,, (pr2 (pr1 (pr1 (pr1 S)))))).
     exact (pr2 (pr2 (pr1 S)),, pr1 (pr2 S)).
-  - repeat apply dirprodpair; simpl.
+  - repeat apply make_dirprod; simpl.
     + exact (pr2 (pr1 (pr1 (pr1 (pr1 S))))).
     + exact (pr1 (pr2 (pr1 (pr1 S))),, pr1 (pr2 (pr2 S))).
     + exact (pr2 (pr2 (pr1 (pr1 S))),, pr2 (pr2 (pr2 S))).
