@@ -404,4 +404,8 @@ Section CwF_structure_cat.
           apply setproperty.
   Defined.
 
+  (* Category of CwF-structures *)
+  Definition cwf_structure_cat : category
+    := (cwf_structure_precat ,, cwf_structure_has_homsets).
+
 End CwF_structure_cat.
