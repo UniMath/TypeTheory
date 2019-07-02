@@ -11,6 +11,7 @@ Contents:
 *)
 
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.PartA.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
@@ -85,25 +86,77 @@ Section CwF_structure_cat.
 
   Local Notation "'te' A" := (cwf_extended_context_term _ _ A) (at level 40).
 
+  (* CwF morphism type-related data:
+     - a natural transformation of types presheaves;
+     - a morphism in C moving context from one CwF to another.
+  *)
+  Definition cwf_structure_mor_ty_data (X X' : cwf_structure C) : UU
+    := ∑ (F_TY : TY X --> TY X'),
+       ∏ (Γ : C) (A : (TY X : functor _ _) Γ : hSet),
+       (Γ ◂ A --> Γ ◂ ((F_TY : nat_trans _ _) _ A)).
+
+
+  (* CwF morphism data:
+     - a natural transformation of terms presheaves;
+     - a natural transformation of types presheaves;
+     - a morphism in C moving context from one CwF to another.
+  *)
+  Definition cwf_structure_mor_data (X X' : cwf_structure C) : UU
+    := (TM X --> TM X') × cwf_structure_mor_ty_data X X'.
+
+  (* coherence for extended context Γ ◂ A and weakening π *)
+  Definition cwf_structure_mor_weakening_axiom
+             (X X' : cwf_structure C)
+             (ty_data : cwf_structure_mor_ty_data X X')
+    : UU
+    := ∏ (Γ : C) (A : (TY X : functor _ _) Γ : hSet),
+       pr2 ty_data Γ A ;; π ((pr1 ty_data : nat_trans _ _) _ A) = π A.
+
+  (* coherence for "typing" natural transformation *)
+  Definition cwf_structure_mor_typing_axiom
+             (X X' : cwf_structure C)
+             (mor : cwf_structure_mor_data X X')
+    : UU
+    := pr1 mor ;; pr1 X' = pr1 X ;; pr1 (pr2 mor).
+
+  (* coherence for term (te A) in extended context *)
+  Definition cwf_structure_mor_term_axiom
+             (X X' : cwf_structure C)
+             (mor : cwf_structure_mor_data X X')
+    : UU
+    := ∏ (Γ : C) (A : (TY X : functor _ _) Γ : hSet),
+       ((pr1 mor : nat_trans _ _) _ (te A))
+       = # (TM X' : functor _ _) (pr2 (pr2 mor) Γ A) (te _).
+
+  Definition is_cwf_structure_mor
+             (X X' : cwf_structure C)
+             (mor : cwf_structure_mor_data X X')
+    : UU
+    := cwf_structure_mor_weakening_axiom X X' (pr2 mor)
+       ×
+       cwf_structure_mor_typing_axiom X X' mor
+       ×
+       cwf_structure_mor_term_axiom X X' mor.
+                                         
   (* CwF morphism:
      - a natural transformation of terms presheaves;
      - a natural transformation of types presheaves;
      - a morphism in C moving context from one CwF to another;
      - coherence conditions.
   *)
-  Definition cwf_structure_mor (X X' : cwf_structure C)
-    : UU
-    := ∑ (F_TM : TM X --> TM X')
-         (F_TY : TY X --> TY X'),
-       ∏ (Γ : C) (A : (TY X : functor _ _) Γ : hSet),
-       ∑ (ϕ : Γ ◂ A --> Γ ◂ ((F_TY : nat_trans _ _) _ A)),
-            (* coherence for extended context Γ ◂ A and weakening π *)
-            ϕ ;; π ((F_TY : nat_trans _ _) _ A) = π A
-            × (* coherence for "typing" natural transformation *)
-            F_TM ;; pr1 X' = pr1 X ;; F_TY
-            × (* coherence for term (te A) in extended context *)
-            ((F_TM : nat_trans _ _) _ (te A))
-            = # (TM X' : functor _ _) ϕ (te _).
+  Definition cwf_structure_mor (X X' : cwf_structure C) : UU
+    := ∑ (mor : cwf_structure_mor_data X X'),
+       is_cwf_structure_mor X X' mor.
+
+  Definition make_cwf_structure_mor
+             {X X' : cwf_structure C}
+             (mor : cwf_structure_mor_data X X')
+             (e_weakening : cwf_structure_mor_weakening_axiom X X' (pr2 mor))
+             (e_typing : cwf_structure_mor_typing_axiom X X' mor)
+             (e_term : cwf_structure_mor_term_axiom X X' mor)
+    : cwf_structure_mor X X'
+    := (mor ,, (e_weakening ,, (e_typing ,, e_term))).
+  
 
   (* TM part of CwF morphism:
      a natural transformation of terms presheaves. *)
@@ -111,7 +164,7 @@ Section CwF_structure_cat.
              {X X' : cwf_structure C}
              (f : cwf_structure_mor X X')
     : TM X --> TM X'
-    := pr1 f.
+    := pr1 (pr1 f).
 
   (* TY part of CwF morphism:
      a natural transformation of types presheaves. *)
@@ -119,7 +172,7 @@ Section CwF_structure_cat.
              {X X' : cwf_structure C}
              (f : cwf_structure_mor X X')
     : TY X --> TY X'
-    := pr1 (pr2 f).
+    := pr1 (pr2 (pr1 f)).
 
   (* ϕ part of CwF morphism:
      a morphism in C moving context from one CwF to another. *)
@@ -128,7 +181,7 @@ Section CwF_structure_cat.
              (f : cwf_structure_mor X X')
              (Γ : C) (A : (TY X : functor _ _) Γ : hSet)
     : (Γ ◂ A --> Γ ◂ ((cwf_structure_mor_TY f : nat_trans _ _) _ A))
-    := pr1 (pr2 (pr2 f) Γ A).
+    := pr2 (pr2 (pr1 f)) Γ A.
 
   (* Convert extended contexts given that
      natural transformations of type presheaves are equal
@@ -166,43 +219,48 @@ Section CwF_structure_cat.
 
     + (* Identity morphisms *)
       intros X.
-      exists (identity (TM X)). (* F_TM = identity *)
-      exists (identity (TY X)). (* F_TY = identity *)
-      intros Γ A.
-      exists (identity _). (* ϕ = identity *)
-      use make_dirprod.
-      - apply id_left.
-      - use make_dirprod.
-        * etrans. apply id_left. apply @pathsinv0, id_right.
-        * cbn. exact (!maponpaths (λ f, f (te A)) (functor_id (TM X) _)).
-          (* TODO: make previous line nicer! *)
+      use make_cwf_structure_mor.
+      - exists (identity (TM X)). (* F_TM = identity *)
+        exists (identity (TY X)). (* F_TY = identity *)
+        intros Γ A.
+        exact (identity _). (* ϕ = identity *)
+      - intros Γ A. cbn. apply id_left.
+      - etrans. apply id_left. apply @pathsinv0, id_right.
+      - intros Γ A. cbn. rewrite (functor_id (TM X)). apply idpath.
 
     + (* Composition of morphisms *)
       intros X Y Z.
-      intros [F_TM [F_TY f]] [F_TM' [F_TY' f']].
-      exists (F_TM ;; F_TM'). (* reuse composition of nat_trans *)
-      exists (F_TY ;; F_TY'). (* reuse composition of nat_trans *)
-      intros Γ A.
-      set (A' := (F_TY : nat_trans _ _) _ A).
-      destruct (f  Γ A)  as [ϕ  [f1 [f2 f3]]].
-      destruct (f' Γ A') as [ϕ' [g1 [g2 g3]]].
-      exists (ϕ ;; ϕ'). (* reuse composition of morphisms *)
-      use make_dirprod.
-      - rewrite assoc'.
-        refine (maponpaths (λ p, ϕ  ;; p) _ @ f1).
-        refine (maponpaths (λ p, ϕ' ;; p) _ @ g1).
-        set (e := (nat_trans_compose_ap _ _ _ _ F_TY F_TY' A)).
-        exact (transportf (λ x, π _ = π x) e (idpath _)).
-      - use make_dirprod.
-        * rewrite assoc', g2.
-          rewrite <- assoc', <- assoc'.
-          exact (maponpaths (λ p, p ;; F_TY') f2).
-        * cbn.
-          refine (maponpaths _ f3 @ _).
-          rewrite <- compose_ap, nat_trans_ax, compose_ap.
-          refine (maponpaths _ g3 @ _).
-          rewrite <- compose_ap, <- functor_comp.
-          apply idpath. (* XXX: how does this work?! *)
+      intros [[F_TM  [F_TY  ϕ ]] [f1 [f2 f3]]]
+             [[F_TM' [F_TY' ϕ']] [g1 [g2 g3]]].
+      use make_cwf_structure_mor.
+      - exists (F_TM ;; F_TM').
+        exists (F_TY ;; F_TY').
+        intros Γ A.
+        set (A' := (F_TY : nat_trans _ _) _ A).
+        exact (ϕ Γ A ;; ϕ' Γ A').
+      - intros Γ A. simpl.
+        set (A' := (F_TY : nat_trans _ _) _ A).
+        rewrite assoc'.
+        refine (_ @ f1 Γ A). simpl.
+        apply (maponpaths (λ p, ϕ Γ A ;; p)).
+        exact (g1 Γ A').
+      - unfold cwf_structure_mor_typing_axiom. simpl.
+        unfold cwf_structure_mor_typing_axiom in f2, g2.
+        simpl in f2, g2.
+        rewrite (assoc' F_TM).
+        etrans. apply maponpaths. exact g2.
+        rewrite <- assoc'.
+        rewrite <- (assoc' (pr1 X)).
+        apply (maponpaths (λ p, p ;; F_TY')).
+        exact f2.
+      - intros Γ A. simpl.
+        set (A' := (F_TY : nat_trans _ _) _ A).
+        unfold cwf_structure_mor_term_axiom in f3, g3. simpl in f3, g3.
+        refine (maponpaths _ (f3 Γ A) @ _).
+        rewrite <- compose_ap, (nat_trans_ax F_TM'), compose_ap.
+        refine (maponpaths _ (g3 Γ A') @ _).
+        rewrite <- compose_ap, <- (functor_comp (TM Z)).
+        apply idpath. (* XXX: how does this work?! *)
   Defined.
 
   (* Prove that two morphisms of CwF structures are equal
@@ -225,32 +283,37 @@ Section CwF_structure_cat.
     : f = g.
   Proof.
     use total2_paths_f.
-    - (* proving that F_TM parts are equal *)
-      apply nat_trans_eq. apply has_homsets_HSET.
-      intros Γ. apply funextsec. intros A.
-      exact (e_TM Γ A).
-    - (* goal UNREADABLE from here onwards *)
-      use total2_paths_f.
-      + (* proving that F_TY parts are equal *)
-        etrans. use (pr1_transportf (nat_trans _ _)).
-        etrans. use transportf_const. (* no dependency on first part *)
-        apply nat_trans_eq. apply has_homsets_HSET.
+    - (* proving that data parts are equal *)
+      Search dirprod.
+      use dirprod_paths.
+      + apply nat_trans_eq. apply has_homsets_HSET.
         intros Γ. apply funextsec. intros A.
-        exact (e_TY Γ A).
-      + (* !!! goal DOES NOT FIT the screen anymore !!! *)
-        apply funextsec. intros Γ.
-        apply funextsec. intros A.
-        use total2_paths_f.
-        * (* prove ϕ parts are equal *)
+        exact (e_TM Γ A).
+      + use total2_paths_f.
+        * apply nat_trans_eq. apply has_homsets_HSET.
+          intros Γ. apply funextsec. intros A.
+          exact (e_TY Γ A).
+        * apply funextsec. intros Γ.
+          apply funextsec. intros A.
+          rewrite transportf_forall, transportf_forall.
+          rewrite functtransportf.
+          etrans. apply pathsinv0, idtoiso_postcompose.
           refine (_ @ e_ϕ Γ A).
-          etrans. apply maponpaths.
-          refine (toforallpaths _ _ _ _ _).
-          etrans. refine (toforallpaths _ _ _ _ _).
-          refine (transportf_forall _ _ _).
-          refine (transportf_forall _ _ _).
-          etrans. use (pr1_transportf (nat_trans _ _)).
-          etrans. use (@functtransportf (nat_trans _ _)).
-          (* !!! STUCK HERE for now !!! *)
+          apply maponpaths.
+          unfold cwf_extended_context_compare.
+          etrans. apply maponpaths, maponpaths.
+          apply pathsinv0.
+          use (@maponpathscomp (nat_trans _ _)).
+          apply (maponpaths cwf_extended_context_compare), setproperty.
+    - use dirprod_paths.
+      + apply funextsec. intros Γ.
+        apply funextsec. intros A.
+        apply homset_property.
+      + use dirprod_paths.
+        * apply homset_property.
+        * apply funextsec. intros Γ.
+            apply funextsec. intros A.
+            apply setproperty.
   Defined.
 
   (* Axioms for CwF structure morphisms:
