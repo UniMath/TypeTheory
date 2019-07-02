@@ -316,6 +316,19 @@ Section CwF_structure_cat.
             apply setproperty.
   Defined.
 
+  Definition idtoiso_idpath (c : C)
+    : idtoiso (idpath c) = identity_iso c
+    := idpath _.
+
+  Definition pointwise
+             (A B : UU)
+             (f g : A -> B)
+             (x : A)
+    : f = g -> f x = g x.
+  Proof.
+    apply (maponpaths (λ k, k x)).
+  Defined.
+
   (* Axioms for CwF structure morphisms:
      - identity · f = f
      - f · identity = f
@@ -325,14 +338,37 @@ Section CwF_structure_cat.
     : is_precategory cwf_structure_precategory_data.
   Proof.
     use make_is_precategory_one_assoc.
-    + (* Left identity: identity · f = f *)
+    - (* Left identity: identity · f = f *)
       intros a b f.
-      use total2_paths2_f.
-      - apply id_left.
-      - use total2_paths2_f.
-        * (* !!! we need cwf_structure_mor_eq for easier proofs !!! *)
-          apply id_left.
-          (* !!! STUCK for now !!! *)
+      use cwf_structure_mor_eq.
+      + intros Γ t. apply idpath.
+      + intros Γ A. apply idpath.
+      + intros Γ A.
+        unfold cwf_extended_context_compare, cwf_structure_mor_ϕ.
+        simpl.
+        rewrite id_left, id_right.
+        apply idpath.
+    - (* Right identity: f · identity = f *)
+      intros a b f.
+      use cwf_structure_mor_eq.
+      + intros Γ t. apply idpath.
+      + intros Γ A. apply idpath.
+      + intros Γ A.
+        unfold cwf_extended_context_compare, cwf_structure_mor_ϕ.
+        simpl.
+        rewrite id_right, id_right.
+        apply idpath.
+    - (* Associativity: f · (g · h) = (f · g) · h *)
+      intros a b c d.
+      intros f g h.
+      use cwf_structure_mor_eq.
+      + intros Γ t. apply idpath.
+      + intros Γ A. apply idpath.
+      + intros Γ A.
+        unfold cwf_extended_context_compare, cwf_structure_mor_ϕ.
+        simpl.
+        rewrite id_right, assoc'.
+        apply idpath.
   Defined.
 
 End CwF_structure_cat.
