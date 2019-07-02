@@ -371,4 +371,37 @@ Section CwF_structure_cat.
         apply idpath.
   Defined.
 
+  (* Precategory of CwF-structures *)
+  Definition cwf_structure_precat : precategory
+    := (_,, cwf_structure_precategory_axioms).
+
+  Definition cwf_structure_has_homsets
+    : has_homsets cwf_structure_precategory_data.
+  Proof.
+    unfold has_homsets.
+    intros X X'.
+    apply isaset_total2.
+    - apply isaset_dirprod.
+      + apply homset_property.
+      + apply isaset_total2.
+        * apply homset_property.
+        * intros F_TY.
+          apply impred_isaset. intros Γ.
+          apply impred_isaset. intros A.
+          apply homset_property.
+    - intros f.
+      apply isaset_dirprod.
+      + apply impred_isaset. intros Γ.
+        apply impred_isaset. intros A.
+        apply isasetaprop.
+        apply homset_property.
+      + apply isaset_dirprod.
+        * apply isasetaprop.
+          apply homset_property.
+        * apply impred_isaset. intros Γ.
+          apply impred_isaset. intros A.
+          apply isasetaprop.
+          apply setproperty.
+  Defined.
+
 End CwF_structure_cat.
