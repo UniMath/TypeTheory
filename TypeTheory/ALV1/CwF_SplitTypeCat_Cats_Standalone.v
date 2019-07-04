@@ -93,7 +93,7 @@ Local Lemma term_fun_mor_eq {Y} {Y'} (FF FF' : term_fun_mor Y Y')
       = (term_fun_mor_TM FF' : nat_trans _ _) _ t)
   : FF = FF'.
 Proof.
-  apply subtypeEquality.
+  apply subtypePath.
   - intros x; apply isapropdirprod.
     + apply homset_property.
     + repeat (apply impred_isaprop; intro). apply setproperty.
@@ -592,7 +592,7 @@ Definition iso_to_id_term_fun_precategory
   : iso Y Y' -> Y = Y'.
 Proof.
   intros i.
-  apply subtypeEquality. { intro. apply isaprop_term_fun_structure_axioms. }
+  apply subtypePath. { intro. apply isaprop_term_fun_structure_axioms. }
   apply total2_paths_f with (iso_to_TM_eq _ _ i).
   rewrite transportf_dirprod.
   apply dirprodeq.
@@ -674,9 +674,9 @@ Lemma qq_structure_eq
            qq d f A = qq d' f A)
   : d = d'.
 Proof.
-  apply subtypeEquality.
+  apply subtypePath.
   { intro. apply isaprop_qq_morphism_axioms. }
-  apply subtypeEquality.
+  apply subtypePath.
   { intro. do 4 (apply impred; intro). 
            apply isofhleveltotal2.
      + apply homset_property.

@@ -219,10 +219,10 @@ use make_functor.
         now apply (!eqtohomot (nat_trans_ax top_FF f) tt)).
 - split.
   + intros I; apply funextsec; simpl; intro ρ.
-    apply subtypeEquality; [ intros x; apply setproperty |]; simpl.
+    apply subtypePath; [ intros x; apply setproperty |]; simpl.
     now rewrite (functor_id Γ).
   + intros I J K f g; apply funextsec; simpl; intro ρ.
-    apply subtypeEquality; [ intros x; apply setproperty |]; simpl.
+    apply subtypePath; [ intros x; apply setproperty |]; simpl.
     now rewrite (functor_comp Γ).
 Defined.
 
@@ -241,7 +241,7 @@ Proof.
 intros Δ σ1 σ2 H.
 apply (nat_trans_eq has_homsets_HSET); intro I.
 apply funextsec; intro ρ.
-apply subtypeEquality; [ intros x; apply setproperty |]; simpl.
+apply subtypePath; [ intros x; apply setproperty |]; simpl.
 exact (eqtohomot (nat_trans_eq_pointwise H I) ρ).
 Qed.
 
@@ -254,7 +254,7 @@ use make_nat_trans.
             apply join_FF1).
 - intros I J f.
   apply funextsec; intro ρ.
-  now apply subtypeEquality; [intros x; apply setproperty|].
+  now apply subtypePath; [intros x; apply setproperty|].
 Defined.
 
 Definition subst_restriction {Γ Δ : PreShv C} (σ : Δ --> Γ) (φ : Γ --> FF) :
@@ -264,7 +264,7 @@ use make_nat_trans.
 + intros I u.
   apply (pr1 σ I (pr1 u),,pr2 u).
 + abstract (intros I J f; apply funextsec; intro ρ;
-  apply subtypeEquality; [intros x; apply setproperty|]; simpl;
+  apply subtypePath; [intros x; apply setproperty|]; simpl;
   apply (eqtohomot (nat_trans_ax σ f) (pr1 ρ))).
 Defined.
 
@@ -489,7 +489,7 @@ assert (σ1 : yon(I),φ --> yon(I), (e₁_PreShv I · (p_PreShv I · φ))).
     etrans; [apply maponpaths, (nat_trans_eq_pointwise Hpe₁ I)|];
     apply id_right).
   + abstract (intros J K f; apply funextsec; intro ρ;
-    now apply subtypeEquality; [intro x; apply setproperty|]).
+    now apply subtypePath; [intro x; apply setproperty|]).
   (* This is a direct definition of this substitution,
      but reasoning about it is a nightmare: *)
   (* rewrite assoc, e₁_p_PreShv, id_left. *)
@@ -580,7 +580,7 @@ use make_nat_trans.
   apply box_subst_prf.
 - intros K L g.
   apply funextsec; intro ρ''.
-  apply subtypeEquality; trivial; intros x; apply setproperty.
+  apply subtypePath; trivial; intros x; apply setproperty.
 Defined.
 
 Lemma b_yon {I J} (f : J --> I) (φ : yon I --> FF) :
@@ -618,7 +618,7 @@ use make_nat_trans.
   abstract (now rewrite m_b, (pr2 XX)).
 - intros J K f.
   apply funextsec; intro ρ.
-  apply subtypeEquality; trivial; intros x; apply setproperty.
+  apply subtypePath; trivial; intros x; apply setproperty.
 Defined.
 
 
@@ -794,7 +794,7 @@ destruct (Hcomp (I +) (b φ) (box_b_subst α I φ u) (m_PreShv I · v)
 etrans; [|apply (!Hcomp1)].
 apply (nat_trans_eq has_homsets_HSET (pr1 (box I φ)) (pr1 X)); intros J.
 apply funextsec; intro ρ; cbn.
-apply maponpaths, subtypeEquality; [ intros x; apply setproperty|]; cbn.
+apply maponpaths, subtypePath; [ intros x; apply setproperty|]; cbn.
 rewrite <-assoc; apply pathsinv0.
 etrans; [ apply maponpaths, (nat_trans_eq_pointwise He₁m' I)|].
 now apply id_right.
@@ -837,7 +837,7 @@ pathvia (transportf (λ x, x --> X) (maponpaths (box (J+)) (b_yon f φ))
   rewrite pathsinv0inv0.
   apply (nat_trans_eq has_homsets_HSET); intro K; apply funextsec; intros ρ.
   apply (maponpaths (pr1 u K)).
-  apply subtypeEquality; [ intros x; apply setproperty|].
+  apply subtypePath; [ intros x; apply setproperty|].
   (* simpl. *) (* This simpl gives an EXTREMELY slow Qed *)
   etrans; [|apply assoc].
   etrans; [|eapply pathsinv0, maponpaths, (nat_trans_ax m f)].

@@ -125,7 +125,7 @@ Section Terms.
       {s s' : section f}
     : ((s : Y --> X) = s') -> s = s'.
   Proof.
-    apply subtypeEquality.
+    apply subtypePath.
     intro; apply homset_property.
   Qed.
 
@@ -191,7 +191,7 @@ Section Terms.
     : transportf tm e s = tm_transportf e s.
   Proof.
     induction e.
-    apply subtypeEquality.
+    apply subtypePath.
     + now intros x; apply homset_property.
     + now unfold tm_transportf; cbn; rewrite id_right.
   Qed.
@@ -229,7 +229,7 @@ Section Terms.
     : reind_tm (identity _) a
       = tm_transportb (reind_id_type_typecat _ _) a.
   Proof.
-    apply subtypeEquality; [ intros x; apply homset_property|]; simpl.
+    apply subtypePath; [ intros x; apply homset_property|]; simpl.
     set (pb := make_Pullback _ _ _ _ _ _ _).
     (* Why is there a ' version of this lemma??? *)
     apply pathsinv0, (PullbackArrowUnique' _ _ pb).
@@ -256,7 +256,7 @@ Section Terms.
       = tm_transportb (reind_comp_typecat _ _ _ _ _ _)
           (reind_tm g (reind_tm f a)).
   Proof.
-    apply subtypeEquality; [ intros x; apply homset_property|]; simpl.
+    apply subtypePath; [ intros x; apply homset_property|]; simpl.
     set (pb := make_Pullback _ _ _ _ _ _ _).
     set (pb' := make_Pullback _ _ _ _ _ _ _).
     set (pb'' := make_Pullback _ _ _ _ _ _ _).
@@ -325,7 +325,7 @@ Section Terms.
     : reind_tm (q_typecat A f) (var_typecat A)
       = tm_transportb e (var_typecat (A ⦃f⦄)).
   Proof.
-    apply subtypeEquality; [ intros x; apply homset_property|].
+    apply subtypePath; [ intros x; apply homset_property|].
     apply pathsinv0, PullbackArrowUnique.
     { apply (section_property (tm_transportb _ _)). }
     apply pathsinv0.
@@ -373,7 +373,7 @@ Section Terms.
     : reind_tm a (var_typecat A) = tm_transportf e a.
   Proof.
     induction a as [a af]; cbn in *.
-    apply subtypeEquality; [ intros x; apply homset_property|]; simpl.
+    apply subtypePath; [ intros x; apply homset_property|]; simpl.
     apply pathsinv0, PullbackArrowUnique; cbn.
     + now induction e; rewrite <-assoc, id_left.
     + unfold map_into_Pb.

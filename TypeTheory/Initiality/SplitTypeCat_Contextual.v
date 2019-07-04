@@ -155,7 +155,7 @@ Note that such a base object is necessarily unique: see [isaprop_is_contextual].
     : isaprop (is_contextual C).
   Proof.
     apply invproofirrelevance; intros H H'.
-    apply subtypeEquality.
+    apply subtypePath.
     { intros Γ0; apply isapropdirprod.
       - apply isaprop_isTerminal.
       - apply propproperty. }

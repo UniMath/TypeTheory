@@ -195,7 +195,7 @@ Lemma isaprop_cwf_fiber_representation' {Γ:C} (A : Ty pp Γ : hSet)
 Proof.
   intro isC.
   apply invproofirrelevance.
-  intros x x'. apply subtypeEquality.
+  intros x x'. apply subtypePath.
   { intro. 
     apply isofhleveltotal2. 
     - apply setproperty.

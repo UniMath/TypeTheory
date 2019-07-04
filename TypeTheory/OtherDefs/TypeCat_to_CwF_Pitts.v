@@ -103,7 +103,7 @@ Lemma reindx_law_1_term_of_typecat
               (! (@reind_id_type_typecat HC Γ A)) a.
 Proof.
   intros. simpl. unfold tt_reindx_from_typecat in *. simpl in *.
-  apply subtypeEquality.
+  apply subtypePath.
   intro; apply homs_sets. simpl.
   apply pathsinv0.
   apply PullbackArrowUnique.
@@ -173,7 +173,7 @@ Lemma foo
 Proof.
   intros.
   unfold tt_reindx_from_typecat in *. simpl.
-  apply subtypeEquality.
+  apply subtypePath.
   intro; apply homs_sets. simpl.
   apply pathsinv0.
   apply PullbackArrowUnique.
@@ -305,7 +305,7 @@ Proof.
     etrans. apply maponpaths_2. apply a_sec.
     apply id_left.
   * simpl.
-    apply subtypeEquality'.
+    apply subtypePath'.
     + destruct a as [a a_sec]; simpl in *.
 
     (* Commute the [pr1] through the [transportf]s. *)

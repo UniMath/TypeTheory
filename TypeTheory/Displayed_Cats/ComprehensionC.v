@@ -47,11 +47,11 @@ Definition comprehension_of_dm_structure_axioms
 Proof.
   cbn; repeat split; cbn.
   + intros.
-    apply subtypeEquality.
+    apply subtypePath.
     { intro. apply homset_property. }
     apply idpath.
   + intros.
-    apply subtypeEquality.
+    apply subtypePath.
     { intro. apply homset_property. }
     apply idpath.
 Qed.

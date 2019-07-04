@@ -190,7 +190,7 @@ Lemma cwf_repmap_diagram (C : category) (X : cwf_structure C)
     = 
     Rezk_on_rep_map _ (from_cwf_to_rep_map _ X).
 Proof.
-  apply subtypeEquality.
+  apply subtypePath.
   { intro. apply isaprop_is_representable. }
   apply idpath.
 Qed.

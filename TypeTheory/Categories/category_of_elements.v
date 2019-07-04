@@ -49,13 +49,13 @@ Defined.
 Lemma is_precategory_precategory_of_elements : is_precategory precategory_of_elements_data.
 Proof.
   use make_is_precategory_one_assoc; intros.
-  - apply subtypeEquality.
+  - apply subtypePath.
     + intro. apply setproperty.
     + apply id_left.
-  - apply subtypeEquality.
+  - apply subtypePath.
     + intro; apply setproperty.
     + apply id_right.
-  - apply subtypeEquality.
+  - apply subtypePath.
     + intro; apply setproperty.
     + apply assoc.
 Qed.
@@ -161,10 +161,10 @@ Proof.
     exists (inv_from_iso (pr1 H)).
     apply foo.
     split.
-    + apply subtypeEquality.
+    + apply subtypePath.
       intro; apply setproperty.
       simpl. apply iso_inv_after_iso.
-    + apply subtypeEquality.
+    + apply subtypePath.
       intro; apply setproperty.
       simpl. apply iso_after_iso_inv.
 Defined.
@@ -177,7 +177,7 @@ Proof.
   apply (gradth _ (Elem_cov_iso_type_to_Elem_cov_iso _ _ )).
   - intro.
     apply eq_iso. simpl.
-    apply subtypeEquality.
+    apply subtypePath.
     + intro; apply setproperty.
     + apply idpath.
   - intro.
@@ -225,7 +225,7 @@ Proof.
     simpl.
     apply eq_iso.
     simpl.
-    apply subtypeEquality. intro; apply setproperty.
+    apply subtypePath. intro; apply setproperty.
     apply idpath.
     apply pr2.
   - intros a b.

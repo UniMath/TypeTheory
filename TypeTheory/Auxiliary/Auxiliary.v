@@ -1189,7 +1189,7 @@ Proof.
         try apply (PullbackArrow_PullbackPr1 (make_Pullback _ _ _ _ _ _ _))
       | rewrite <- assoc, iso_after_iso_inv; apply id_right]] ).
   - intros hk'.
-    apply subtypeEquality.
+    apply subtypePath.
       intro; apply isapropdirprod; apply homset_property.
     cbn.
     apply (post_comp_with_iso_is_inj _ _ _ (iso_inv_from_iso i_d) (pr2 _)).
@@ -1363,7 +1363,7 @@ Proof.
   apply iscontraprop1.
   - apply invproofirrelevance.
     intros hk hk'.
-    apply subtypeEquality. { intro. apply isapropdirprod; apply setproperty. }
+    apply subtypePath. { intro. apply isapropdirprod; apply setproperty. }
     destruct hk as [hk [eh ek]], hk' as [hk' [eh' ek']]; simpl.
     apply funextsec; intro x.
     refine (H_uniqueness (h x) (k x) _ (_,,_) (_,,_)).
@@ -1390,7 +1390,7 @@ Proof.
   set (Pb := (make_Pullback _ _ _ _ _ _ pb)).
   apply iscontraprop1.
   - apply invproofirrelevance; intros [ab [ea eb]] [ab' [ea' eb']].
-    apply subtypeEquality; simpl.
+    apply subtypePath; simpl.
       intros x; apply isapropdirprod; apply setproperty.
     refine (@toforallpaths unitset _ (fun _ => ab) (fun _ => ab') _ tt).
     refine (MorphismsIntoPullbackEqual pb _ _ _ _ );
@@ -1498,7 +1498,7 @@ Proof.
     + apply (pr2 (pr1 XR) One).
     + apply (pr2 (pr1 XR) Three).
   - intro t.
-    apply subtypeEquality.
+    apply subtypePath.
     + intro. apply isapropdirprod; apply has_homsets_HSET.
     + simpl.
       apply path_to_ctr.
@@ -1525,7 +1525,7 @@ Proof.
   apply invproofirrelevance.
   unfold Pullback.
   intros Pb Pb'.
-  apply subtypeEquality.
+  apply subtypePath.
   - intro; apply isofhleveltotal2.
     + destruct H as [H1 H2]. apply H2.
     + intros; apply isaprop_isPullback.

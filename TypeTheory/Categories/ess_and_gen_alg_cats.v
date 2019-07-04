@@ -141,7 +141,7 @@ Definition hom (a b : C) : UU := ∑ f : mor C, source f = a × target f = b.
 Lemma hom_eq (a b : C) (f f' : hom a b) : pr1 f = pr1 f' → f = f'.
 Proof.
   intro H.  
-  apply subtypeEquality; try assumption.
+  apply subtypePath; try assumption.
   intro x. apply isapropdirprod; apply (isaset_objects C (pr2 C)).
 Qed.
 

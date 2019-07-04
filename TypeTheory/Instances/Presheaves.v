@@ -167,7 +167,7 @@ apply (functor_eq _ _ has_homsets_HSET).
 use functor_data_eq.
 - intros c; apply idpath.
 - intros [a1 a2] [b1 b2] f; cbn.
-  now apply maponpaths, subtypeEquality; [intros x; apply setproperty|].
+  now apply maponpaths, subtypePath; [intros x; apply setproperty|].
 Defined.
 
 (* It is important that the above proof is the way it is so the following is provable *)
@@ -187,7 +187,7 @@ apply (functor_eq _ _ has_homsets_HSET).
 use functor_data_eq.
 - intros c; apply idpath.
 - intros [a1 a2] [b1 b2] f; cbn.
-  now apply maponpaths, subtypeEquality; [intros x; apply setproperty|].
+  now apply maponpaths, subtypePath; [intros x; apply setproperty|].
 Defined.
 
 Lemma base_paths_subst_type_comp {Γ Δ Θ : PreShv C}
@@ -223,7 +223,7 @@ Defined.
 
 Lemma TermIn_eq {Γ : PreShv C} {A : Γ ⊢} (a b : Γ ⊢ A) (H : pr1 a = pr1 b) : a = b.
 Proof.
-apply subtypeEquality; trivial.
+apply subtypePath; trivial.
 now intros x; repeat (apply impred; intros); apply setproperty.
 Qed.
 
@@ -423,7 +423,7 @@ apply (functor_eq _ _ has_homsets_HSET).
 use functor_data_eq.
 - intros c; apply idpath.
 - intros [a1 a2] [b1 b2] f; cbn.
-  now apply maponpaths, subtypeEquality; [intros x; apply setproperty|].
+  now apply maponpaths, subtypePath; [intros x; apply setproperty|].
 Defined.
 
 (* The above lemma could also be proved by: *)

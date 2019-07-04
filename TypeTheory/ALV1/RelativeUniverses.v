@@ -110,7 +110,7 @@ Lemma isaprop_fpullback {X : C} (f : D ⟦J X, U⟧)
   : isaprop (fpullback J pp f).
 Proof.
   apply invproofirrelevance.
-  intros x x'. apply subtypeEquality.
+  intros x x'. apply subtypePath.
   - intro t. apply isaprop_fpullback_prop.
   - destruct x as [x H]. 
     destruct x' as [x' H']. cbn.    
@@ -483,7 +483,7 @@ Lemma isaprop_functorial_structure_relu (HJ : faithful J)
 Proof.
   apply invproofirrelevance.
   intros xf xf'.
-  apply subtypeEquality.
+  apply subtypePath.
   { intro x. repeat (apply isapropdirprod).
     - apply isaprop_id_fpb_mor_type.
     - apply isaprop_comp_fpb_mor_type.

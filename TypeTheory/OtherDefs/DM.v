@@ -388,11 +388,11 @@ Section lemmas.
              (X' : ∏ Δ Γ (f : Δ --> Γ), DM_type D' f → DM_type D f)
   : D = D'.
   Proof.
-    apply subtypeEquality'.
+    apply subtypePath'.
     - simpl.
       destruct D as [D Dh];
         destruct D' as [D' Dh']; simpl in *.
-      apply subtypeEquality'.
+      apply subtypePath'.
       + destruct D as [D Da];
         destruct D' as [D' Da'];
         simpl in *.
