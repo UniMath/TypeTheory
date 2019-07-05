@@ -196,7 +196,7 @@ Proof.
   destruct t as [A [s e]], t' as [A' [s' e']]; simpl in *.
   use total2_paths_f; simpl.
     apply eA.
-  apply subtypeEquality. intro; apply homset_property.
+  apply subtypePath. intro; apply homset_property.
   simpl. eapply pathscomp0. use (pr1_transportf _ _ _ _ _ eA).
   simpl. eapply pathscomp0. apply functtransportf.
   eapply pathscomp0. eapply pathsinv0. apply idtoiso_postcompose.
@@ -425,7 +425,7 @@ Proof.
           apply maponpaths.
           apply (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _)).
         apply id_right.
-  - idtac. intros ft. apply subtypeEquality.
+  - idtac. intros ft. apply subtypePath.
     { intro. apply isapropdirprod.
     + apply homset_property.
     + apply setproperty. }

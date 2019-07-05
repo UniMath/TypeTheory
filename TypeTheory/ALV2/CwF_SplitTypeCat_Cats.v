@@ -241,7 +241,7 @@ Lemma term_fun_mor_eq {X X'} {Y} {Y'} {F : X --> X'} (FF FF' : term_fun_mor Y Y'
       = (term_fun_mor_TM FF' : nat_trans _ _) _ t)
   : FF = FF'.
 Proof.
-  apply subtypeEquality.
+  apply subtypePath.
   - intros x; apply isapropdirprod.
     + apply homset_property.
     + repeat (apply impred_isaprop; intro). apply setproperty.

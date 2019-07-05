@@ -79,21 +79,21 @@ Lemma DM_disp_axioms : disp_cat_axioms CC DM_disp_data.
 Proof.
   repeat apply tpair; intros; try apply homset_property.
   - (* id_left_disp *) 
-    apply subtypeEquality.
+    apply subtypePath.
     { intro. apply homset_property. }
     etrans. apply id_left.
     apply pathsinv0.
     etrans. refine (pr1_transportf (CC⟦_,_⟧) _ _ _ _ _ _ ).
     use transportf_const.
   - (* id_right_disp *) 
-    apply subtypeEquality.
+    apply subtypePath.
     { intro. apply homset_property. }
     etrans. apply id_right.
     apply pathsinv0.
     etrans. refine (pr1_transportf (CC⟦_,_⟧) _ _ _ _ _ _ ).
     use transportf_const.
   - (* assoc_disp *) 
-    apply subtypeEquality.
+    apply subtypePath.
     { intro. apply homset_property. }
     etrans. apply assoc.
     apply pathsinv0.
@@ -134,7 +134,7 @@ Proof.
     + intros. apply homsets_disp.
   - intros gg; split; intros H.
     + exists (pr2 H).
-      apply subtypeEquality.
+      apply subtypePath.
         intro; apply homset_property.
       exact (pr1 H).
     + split.

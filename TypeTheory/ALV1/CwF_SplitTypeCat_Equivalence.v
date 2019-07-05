@@ -115,7 +115,7 @@ Proof.
   use total2_paths_f.
   exact (!eA).
   destruct eA; cbn.
-  apply subtypeEquality. { intros x; apply homset_property. }
+  apply subtypePath. { intros x; apply homset_property. }
   set (temp := proofirrelevance _ (isapropifcontr (term_to_section_aux t))).
   use (maponpaths pr1 (temp (_,,_) (_,,_))).
   - cbn; split.
@@ -201,10 +201,10 @@ Proof.
   set (i := isotoid _
                    (univalent_category_is_univalent _)
                    (canonical_TM_to_given_iso Z Y)).
-  apply subtypeEquality.
+  apply subtypePath.
   { intro. apply isaprop_iscompatible_term_qq. } 
   destruct Y as [Y YH]. simpl.
-  apply subtypeEquality.
+  apply subtypePath.
   { intro. apply isaprop_term_fun_structure_axioms. }
   simpl.
   destruct Y as [Y YH']; simpl.
@@ -250,11 +250,11 @@ Lemma compatible_qq_morphism_structure_equals_canonical
     {Y : term_fun_structure _ X} (t : compatible_qq_morphism_structure Y)
   : t = compatible_qq_from_term Y.
 Proof.
-  apply subtypeEquality.
+  apply subtypePath.
   { intro. apply isaprop_iscompatible_term_qq. }
-  simpl; apply subtypeEquality.
+  simpl; apply subtypePath.
   { intro. apply @isaprop_qq_morphism_axioms. }
-  apply subtypeEquality.
+  apply subtypePath.
   { intro.
     do 4 (apply impred; intro).
     apply isofhleveltotal2. 

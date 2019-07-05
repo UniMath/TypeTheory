@@ -73,7 +73,7 @@ Section Auxiliary.
     apply (squash_to_prop (eqax0 (pr2 xx))).
     2: { apply prtoimage. }
     apply invproofirrelevance. intros [y Hy] [y' Hy'].
-    apply subtypeEquality. { intro; apply isapropishinh. } simpl.
+    apply subtypePath. { intro; apply isapropishinh. } simpl.
     apply (squash_to_prop Hy). { apply isaset_P. }
     clear Hy; intros [x e_xy].
     apply (squash_to_prop Hy'). { apply isaset_P. }
@@ -142,7 +142,7 @@ computational behaviour. *)
     apply (squash_to_prop (eqax0 (pr2 xx))).
     2: { apply prtoimage. }
     apply invproofirrelevance. intros [y Hy] [y' Hy'].
-    apply subtypeEquality. { intro; apply isapropishinh. } simpl.
+    apply subtypePath. { intro; apply isapropishinh. } simpl.
     apply (squash_to_prop Hy). { apply isasetsetquot. }
     clear Hy; intros [x e_xy].
     apply (squash_to_prop Hy'). { apply isasetsetquot. }
@@ -708,7 +708,7 @@ Section Category.
   Proof.
     revert f. apply setquotunivprop'. { intro; apply isasetsetquot. }
     intros f. cbn.
-    apply maponpaths. apply subtypeEquality_prop.
+    apply maponpaths. apply subtypePath_prop.
     apply id_left_raw_context.
   Qed.
 
@@ -717,7 +717,7 @@ Section Category.
   Proof.
     revert f. apply setquotunivprop'. { intro; apply isasetsetquot. }
     intros f. cbn.
-    apply maponpaths. apply subtypeEquality_prop.
+    apply maponpaths. apply subtypePath_prop.
     apply id_right_raw_context.
   Qed.
 
@@ -729,7 +729,7 @@ Section Category.
     revert g. apply setquotunivprop'. { intro; apply isasetsetquot. } intros g.
     revert h. apply setquotunivprop'. { intro; apply isasetsetquot. } intros h.
     cbn.
-    apply maponpaths. apply subtypeEquality_prop.
+    apply maponpaths. apply subtypePath_prop.
     cbn. apply pathsinv0, assoc_raw_context.
   Qed.
 

@@ -36,7 +36,7 @@ Section Auxiliary.
 Lemma eq_weq {A B} (e e' : A ≃ B)
   : pr1weq e = pr1weq e' -> e = e'.
 Proof.
-  apply subtypeEquality; intro; apply isapropisweq.
+  apply subtypePath; intro; apply isapropisweq.
 Defined.
 
 End Auxiliary.
