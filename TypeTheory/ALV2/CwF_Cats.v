@@ -354,13 +354,10 @@ Section CwF_structure_cat.
   Definition cwf_structure_precat : precategory
     := (_,, cwf_structure_precategory_axioms).
 
-  Definition cwf_structure_has_homsets
-    : has_homsets cwf_structure_precategory_data.
+  Lemma isaset_cwf_structure_mor
+           (X X' : cwf_structure C)
+     : isaset (cwf_structure_mor X X').
   Proof.
-    unfold has_homsets.
-    intros X X'. cbn in *.
-
-    (* TODO: put everything below in a separate lemma *)
     apply isaset_total2.
     - apply isaset_dirprod.
       + apply homset_property.
@@ -383,6 +380,14 @@ Section CwF_structure_cat.
           apply impred_isaset. intros A.
           apply isasetaprop.
           apply setproperty.
+  Qed.
+
+  Definition cwf_structure_has_homsets
+    : has_homsets cwf_structure_precategory_data.
+  Proof.
+    unfold has_homsets.
+    intros X X'. cbn in *.
+    apply isaset_cwf_structure_mor.
   Defined.
 
   (* Category of CwF-structures *)
