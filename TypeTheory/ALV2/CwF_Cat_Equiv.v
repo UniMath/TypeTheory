@@ -10,22 +10,23 @@ Contents:
 - 
 *)
 
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.CwF_def.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
+Require Import TypeTheory.ALV1.CwF_Defs_Equiv.
 
 Require Import TypeTheory.ALV2.CwF_Cats.
 Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Cats.
+Require Import UniMath.CategoryTheory.catiso.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
-
 
 
 Set Automatic Introduction.
@@ -34,107 +35,134 @@ Section CwF_Cat_Equiv.
 
   Context (C : category).
 
-  (* Mapping of objects: cwf_structure → obj_ext_structure *)
-  Definition cwf_structure_to_obj_ext_structure
-             (X : cwf_structure C)
-    : obj_ext_structure C.
-  Proof.
-    exists (TY X).
-    intros Γ A.
-    exists (cwf_extended_context X Γ A).
-    apply cwf_projection.
-  Defined.
+  Definition cwf_to_cwf'_structure
+    : cwf_structure C → cwf'_structure C
+    := weq_cwf_cwf'_structure C.
 
-  (* Mapping of objects: cwf_structure → term_fun_structure *)
-  Definition cwf_structure_to_term_fun_structure
-             (X : cwf_structure C)
-    : ∑ (ext : obj_ext_structure C), term_fun_structure C ext.
-  Proof.
-    use tpair.
-    - apply (cwf_structure_to_obj_ext_structure X).
-    - cbn. unfold term_fun_structure.
-      use tpair.
-      + unfold term_fun_structure_data. cbn.
-        exists (TM X).
-        use make_dirprod.
-        * exact (pr2 (pr1 X)).
-        * intros Γ A.
-          apply cwf_extended_context_term.
-      + unfold term_fun_structure_axioms. cbn.
-        intros Γ A.
-        set (ΓAπ := pr1 (pr2 X Γ A)).
-        set (te := pr1 (pr2 (pr2 X Γ A))).
-        set (pullback := pr2 (pr2 (pr2 X Γ A))).
-        exists (pr2 te).
-        exact pullback.
-  Defined.
+  Definition cwf'_structure_mor (X Y : cwf'_structure C) : UU
+    := ∑ (ext : obj_ext_mor (pr1 X) (pr1 Y)),
+       term_fun_mor X Y ext.
 
-  (* Mapping of morphisms: cwf_structure_mor → obj_ext_mor *)
-  Definition cwf_structure_mor_to_obj_ext_mor
+  Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
+
+  Definition obj_ext_mor_data (X X' : obj_ext_structure C)
+    := ∑ F_TY : pr1 X --> pr1 X',
+        ∏ {Γ:C} {A : (pr1 X : functor _ _) Γ : hSet},
+        Γ ◂ A --> Γ ◂ ((F_TY : nat_trans _ _) _ A).
+
+  Definition cwf'_structure_mor_data (X Y : cwf'_structure C) : UU
+    := obj_ext_mor_data (pr1 X) (pr1 Y)
+        ×
+       (pr112 X --> pr112 Y).
+
+  
+
+  (*
+  TODO: try define an equivalence of
+            cwf_structure_mor and cwf'_structure_mor
+        similarly to how weq_cwf_cwf'_structure is defined
+  *)
+
+  (* FIXME: fix this definition, remove corresponsing axiom *)
+  Definition weq_cwf_cwf'_structure_mor_ty_STUCK
              (X Y : cwf_structure C)
-             (f : cwf_structure_mor X Y)
-    : obj_ext_mor
-        (pr1 (cwf_structure_to_term_fun_structure X))
-        (pr1 (cwf_structure_to_term_fun_structure Y)).
+  : (∑ (x : cwf_structure_mor_ty_data X Y),
+    cwf_structure_mor_weakening_axiom X Y x)
+      ≃ obj_ext_mor (pr1 (cwf_to_cwf'_structure X))
+                    (pr1 (cwf_to_cwf'_structure Y)).
   Proof.
-    unfold obj_ext_mor.
-    destruct f as [[F_TM [F_TY ϕ]] f_is_cwf_structure_mor].
-    exists F_TY.
-    intros Γ A.
-    exists (ϕ Γ A).
-    exact (pr1 f_is_cwf_structure_mor Γ A).
-  Defined.
+    unfold obj_ext_mor, cwf_structure_mor_ty_data.
+    refine (_ ∘ weqtotal2asstor _ _)%weq.
+    apply weqfibtototal. intros F_TY.
 
-  (* Mapping of morphisms: cwf_structure_mor → term_fun_structure_mor *)
-  Definition cwf_structure_mor_to_term_fun_structure_mor
+    (* === STUCK HERE ===
+
+       tried to apply
+
+       - sec_total2_distributivity to LHS
+       - weqsecovertotal2 to RHS
+
+       - weqtotaltoforall to LHS
+       - weqforalltototal to RHS
+       
+       however, both approaches fail (see most successful attempt below)
+     *)
+
+    (* almost there:
+
+    eapply weqcomp.
+    unfold cwf_structure_mor_weakening_axiom. cbn. (* NOTE: here cbn does not hang! *)
+    apply invweq. apply sec_total2_distributivity.
+
+    *)
+  Abort.
+
+  (* FIXME: create a definition instead of this axiom *)
+  Axiom weq_cwf_cwf'_structure_mor_ty
+    : ∏ (X Y : cwf_structure C),
+      (∑ (x : cwf_structure_mor_ty_data X Y),
+    cwf_structure_mor_weakening_axiom X Y x)
+      ≃ obj_ext_mor (pr1 (cwf_to_cwf'_structure X))
+                    (pr1 (cwf_to_cwf'_structure Y)).
+  
+  (* FIXME: create a definition instead of this axiom *)
+  Axiom weq_cwf_cwf'_structure_mor_weakening_axiom
+    : ∏ (X Y : cwf_structure C)
+        (F_TM : PreShv C ⟦ TM X, TM Y ⟧)
+        (x : ∑ (x' : cwf_structure_mor_ty_data X Y),
+             cwf_structure_mor_weakening_axiom X Y x'),
+      (F_TM ;; pr1 Y = pr1 X ;; pr1 (pr1 x))
+        ≃ (F_TM ;; pp (cwf_to_cwf'_structure Y) = pp (cwf_to_cwf'_structure X) ;; obj_ext_mor_TY ((weq_cwf_cwf'_structure_mor_ty X Y) x)).
+
+  (* NOTE: definition of this Axiom HANGS!!! *)
+  (*
+  Axiom weq_cwf_cwf'_structure_mor_term_axiom
+    : ∏ (X Y : cwf_structure C)
+        (F_TM : PreShv C ⟦ TM X, TM Y ⟧)
+        (x : ∑ (x' : cwf_structure_mor_ty_data X Y),
+             cwf_structure_mor_weakening_axiom X Y x'),
+  cwf_structure_mor_term_axiom X Y (F_TM,, pr1 x)
+  ≃ (∏ (Γ : C) (A : (CwF_SplitTypeCat_Defs.TY (cwf_to_cwf'_structure X) : functor _ _) Γ : hSet),
+     (F_TM : nat_trans _ _) (Γ ◂ A) (CwF_SplitTypeCat_Defs.te (cwf_to_cwf'_structure X) A) =
+     # (CwF_SplitTypeCat_Defs.TM (cwf_to_cwf'_structure Y) : functor _ _)
+       (obj_ext_mor_φ ((weq_cwf_cwf'_structure_mor_ty X Y) x) A)
+       (CwF_SplitTypeCat_Defs.te (cwf_to_cwf'_structure Y)
+          ((obj_ext_mor_TY ((weq_cwf_cwf'_structure_mor_ty X Y) x)) Γ A))).
+   *)
+
+  (* Equivalence of CwF morphisms
+     (for two different definitions) *)
+  Definition weq_cwf_cwf'_structure_mor
              (X Y : cwf_structure C)
-             (f : cwf_structure_mor X Y)
-    : ∑ (ext : obj_ext_mor
-                 (cwf_structure_to_obj_ext_structure X)
-                 (cwf_structure_to_obj_ext_structure Y)
-        ), term_fun_mor
-             (pr2 (cwf_structure_to_term_fun_structure X))
-             (pr2 (cwf_structure_to_term_fun_structure Y))
-             ext.
+    : cwf_structure_mor X Y ≃ cwf'_structure_mor
+                        (cwf_to_cwf'_structure X)
+                        (cwf_to_cwf'_structure Y).
   Proof.
-    exists (cwf_structure_mor_to_obj_ext_mor _ _ f).
-    unfold term_fun_mor.
-    destruct f as [[F_TM [F_TY ϕ]] [axiom1 [axiom2 axiom3]]].
-    exists F_TM.
-    exists axiom2.
-    exact axiom3.
-  Defined.
+    unfold cwf_structure_mor, cwf'_structure_mor.
+    unfold term_fun_mor, cwf_structure_mor_data.
 
-  Definition cwf_structure_to_term_fun_structure_functor_data
-    : functor_data
-        (@cwf_structure_precat C)
-        (term_fun_structure_precat C).
-  Proof.
-    exists cwf_structure_to_term_fun_structure.
-    intros X Y f.
-    apply (cwf_structure_mor_to_term_fun_structure_mor _ _ f).
-  Defined.
- 
-  Definition cwf_structure_mor_to_term_fun_structure_is_functor
-    : is_functor cwf_structure_to_term_fun_structure_functor_data.
-  Proof.
-    use make_dirprod.
-    - unfold functor_idax.
-      intros X.
-      use total2_paths_f.
-      + simpl. use obj_ext_mor_eq.
-        * intros Γ A. apply idpath.
-        * intros Γ A. cbn. apply id_left.
-      + apply term_fun_mor_eq.
-        intros Γ t. apply term_fun_mor_transportf.
-  Defined.
+    (* Factor out F_TM *)
+    refine (_ ∘ weqtotal2dirprodassoc _)%weq.
+    refine (weqtotal2comm ∘ _)%weq.
+    apply weqfibtototal. intros F_TM.
 
-  Definition cwf_structure_to_term_struc_functor
-  : functor
-      (@cwf_structure_precat C) (* Why C is implicit? *)
-      (term_fun_structure_precat C).
-  Proof.
-    exists cwf_structure_to_term_fun_structure_functor_data.
+    (* pack axiom 1 together with type-relevant data of morphism *)
+    (* this allows us to use weqtotal2 and split proof *)
+    refine (_ ∘ weqtotal2asstol' _ _)%weq.
+    use weqtotal2.
+    - (* prove equivalence for type-relevant parts *)
+      apply weq_cwf_cwf'_structure_mor_ty. (* FIXME: using axiom here! *)
+    - (* prove equivalence for term-relevant parts *)
+      (* FIXME: cbn/simpl do not work :( *)
+      intros.
+      use weqdirprodf.
+      + (* prove equivalence for typing axiom *)
+        (* FIXME: using axiom here! *)
+        use weq_cwf_cwf'_structure_mor_weakening_axiom.
+      + (* prove equivalence for term axiom *)
+        (* FIXME: STUCK HERE *)
+        (* Can't even factor out an axiom — it hangs (see above)! *)
+        Search (_ ≃ _).
   Defined.
 
 End CwF_Cat_Equiv.
