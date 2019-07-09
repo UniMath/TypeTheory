@@ -116,7 +116,6 @@ Section CwF_structure_cat.
        ((pr1 mor : nat_trans _ _) _ (te A))
        = # (TM X' : functor _ _) (pr2 (pr2 mor) Γ A) (te _).
 
-  (* TODO: add isaprop *)
   Definition is_cwf_structure_mor
              (X X' : cwf_structure C)
              (mor : cwf_structure_mor_data X X')
@@ -126,6 +125,22 @@ Section CwF_structure_cat.
        cwf_structure_mor_typing_axiom X X' mor
        ×
        cwf_structure_mor_term_axiom X X' mor.
+
+  Lemma isaprop_is_cwf_structure_mor
+        (X X' : cwf_structure C)
+        (mor : cwf_structure_mor_data X X')
+    : isaprop (is_cwf_structure_mor X X' mor).
+  Proof.
+    use isapropdirprod.
+    - apply impred_isaprop. intros Γ.
+      apply impred_isaprop. intros A.
+      apply homset_property.
+    - use isapropdirprod.
+      + apply homset_property.
+      + apply impred_isaprop. intros Γ.
+        apply impred_isaprop. intros A.
+        apply setproperty.
+  Qed.
                                          
   (* CwF morphism:
      - a natural transformation of terms presheaves;
@@ -293,19 +308,7 @@ Section CwF_structure_cat.
           apply pathsinv0.
           use (@maponpathscomp (nat_trans _ _)).
           apply (maponpaths cwf_extended_context_compare), setproperty.
-    - (* properties
-         TODO: (pr1 f = pr1 g) ≃ (f = g) (find lemma)
-         TODO: use isaprop
-       *)
-      use dirprod_paths.
-      + apply funextsec. intros Γ.
-        apply funextsec. intros A.
-        apply homset_property.
-      + use dirprod_paths.
-        * apply homset_property.
-        * apply funextsec. intros Γ.
-            apply funextsec. intros A.
-            apply setproperty.
+    - apply isaprop_is_cwf_structure_mor.
   Defined.
 
   (* Axioms for CwF structure morphisms:
