@@ -348,9 +348,6 @@ Section CwF_structure_cat.
       + intros Γ t. apply idpath.
       + intros Γ A. apply idpath.
       + intros Γ A. cbn.
-        (* TODO: define accessor functions for cwf_structure_mor_data *)
-        (* TODO: add Coercion for cwf_structure_mor_data *)
-        (* TODO: check if it helps here with nested pr1/pr2 *)
         rewrite id_right, assoc'.
         apply idpath.
   Defined.
@@ -400,5 +397,3 @@ Section CwF_structure_cat.
     := (cwf_structure_precat ,, cwf_structure_has_homsets).
 
 End CwF_structure_cat.
-
-(* TODO: send a link to Benedikt once I fix all TODOs *)
