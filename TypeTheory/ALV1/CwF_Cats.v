@@ -1,4 +1,6 @@
 (**
+   TODO: move to ALV2
+
   [TypeTheory.ALV1.CwF_Cats]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
@@ -20,18 +22,6 @@ Require Import TypeTheory.ALV1.CwF_def.
 Set Automatic Introduction.
 
 Section Auxiliary.
-
-  (* TODO: switch to a more general version *)
-  (* Switch between composition and application
-     for natural transformations of presheaves *)
-  Lemma nat_trans_compose_ap
-        {C : category}
-        (F G H : preShv C) (a: C)
-        (f : F --> G) (g : G --> H) (x : (F : functor _ _) a : hSet)
-    : ((f ;; g) : nat_trans _ _) _ x = (g : nat_trans _ _) _ ((f : nat_trans _ _) _ x) .
-  Proof.
-    unfold compose. cbn. apply idpath.
-  Qed.
 
   (* Switch between composition and application for morphisms *)
   Lemma compose_ap
@@ -128,6 +118,7 @@ Section CwF_structure_cat.
        ((pr1 mor : nat_trans _ _) _ (te A))
        = # (TM X' : functor _ _) (pr2 (pr2 mor) Γ A) (te _).
 
+  (* TODO: add isaprop *)
   Definition is_cwf_structure_mor
              (X X' : cwf_structure C)
              (mor : cwf_structure_mor_data X X')
@@ -179,7 +170,7 @@ Section CwF_structure_cat.
   Definition cwf_structure_mor_ϕ
              {X X' : cwf_structure C}
              (f : cwf_structure_mor X X')
-             (Γ : C) (A : (TY X : functor _ _) Γ : hSet)
+             (Γ : C^op) (A : (TY X : functor _ _) Γ : hSet)
     : (Γ ◂ A --> Γ ◂ ((cwf_structure_mor_TY f : nat_trans _ _) _ A))
     := pr2 (pr2 (pr1 f)) Γ A.
 
@@ -257,10 +248,10 @@ Section CwF_structure_cat.
         set (A' := (F_TY : nat_trans _ _) _ A).
         unfold cwf_structure_mor_term_axiom in f3, g3. simpl in f3, g3.
         refine (maponpaths _ (f3 Γ A) @ _).
-        rewrite <- compose_ap, (nat_trans_ax F_TM'), compose_ap.
+        etrans. apply (toforallpaths _ _ _ (nat_trans_ax F_TM' _ _ _)).
         refine (maponpaths _ (g3 Γ A') @ _).
         rewrite <- compose_ap, <- (functor_comp (TM Z)).
-        apply idpath. (* XXX: how does this work?! *)
+        apply idpath.
   Defined.
 
   (* Prove that two morphisms of CwF structures are equal
@@ -284,7 +275,6 @@ Section CwF_structure_cat.
   Proof.
     use total2_paths_f.
     - (* proving that data parts are equal *)
-      Search dirprod.
       use dirprod_paths.
       + apply nat_trans_eq. apply has_homsets_HSET.
         intros Γ. apply funextsec. intros A.
@@ -305,7 +295,11 @@ Section CwF_structure_cat.
           apply pathsinv0.
           use (@maponpathscomp (nat_trans _ _)).
           apply (maponpaths cwf_extended_context_compare), setproperty.
-    - use dirprod_paths.
+    - (* properties
+         TODO: (pr1 f = pr1 g) ≃ (f = g) (find lemma)
+         TODO: use isaprop
+       *)
+      use dirprod_paths.
       + apply funextsec. intros Γ.
         apply funextsec. intros A.
         apply homset_property.
@@ -314,19 +308,6 @@ Section CwF_structure_cat.
         * apply funextsec. intros Γ.
             apply funextsec. intros A.
             apply setproperty.
-  Defined.
-
-  Definition idtoiso_idpath (c : C)
-    : idtoiso (idpath c) = identity_iso c
-    := idpath _.
-
-  Definition pointwise
-             (A B : UU)
-             (f g : A -> B)
-             (x : A)
-    : f = g -> f x = g x.
-  Proof.
-    apply (maponpaths (λ k, k x)).
   Defined.
 
   (* Axioms for CwF structure morphisms:
@@ -343,9 +324,7 @@ Section CwF_structure_cat.
       use cwf_structure_mor_eq.
       + intros Γ t. apply idpath.
       + intros Γ A. apply idpath.
-      + intros Γ A.
-        unfold cwf_extended_context_compare, cwf_structure_mor_ϕ.
-        simpl.
+      + intros Γ A. cbn.
         rewrite id_left, id_right.
         apply idpath.
     - (* Right identity: f · identity = f *)
@@ -353,9 +332,7 @@ Section CwF_structure_cat.
       use cwf_structure_mor_eq.
       + intros Γ t. apply idpath.
       + intros Γ A. apply idpath.
-      + intros Γ A.
-        unfold cwf_extended_context_compare, cwf_structure_mor_ϕ.
-        simpl.
+      + intros Γ A. cbn.
         rewrite id_right, id_right.
         apply idpath.
     - (* Associativity: f · (g · h) = (f · g) · h *)
@@ -364,9 +341,10 @@ Section CwF_structure_cat.
       use cwf_structure_mor_eq.
       + intros Γ t. apply idpath.
       + intros Γ A. apply idpath.
-      + intros Γ A.
-        unfold cwf_extended_context_compare, cwf_structure_mor_ϕ.
-        simpl.
+      + intros Γ A. cbn.
+        (* TODO: define accessor functions for cwf_structure_mor_data *)
+        (* TODO: add Coercion for cwf_structure_mor_data *)
+        (* TODO: check if it helps here with nested pr1/pr2 *)
         rewrite id_right, assoc'.
         apply idpath.
   Defined.
@@ -379,7 +357,9 @@ Section CwF_structure_cat.
     : has_homsets cwf_structure_precategory_data.
   Proof.
     unfold has_homsets.
-    intros X X'.
+    intros X X'. cbn in *.
+
+    (* TODO: put everything below in a separate lemma *)
     apply isaset_total2.
     - apply isaset_dirprod.
       + apply homset_property.
@@ -409,3 +389,5 @@ Section CwF_structure_cat.
     := (cwf_structure_precat ,, cwf_structure_has_homsets).
 
 End CwF_structure_cat.
+
+(* TODO: send a link to Benedikt once I fix all TODOs *)
