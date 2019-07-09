@@ -1,6 +1,4 @@
 (**
-   TODO: move to ALV2
-
   [TypeTheory.ALV1.CwF_Cats]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
