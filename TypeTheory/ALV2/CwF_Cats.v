@@ -83,7 +83,6 @@ Section CwF_structure_cat.
        ∏ (Γ : C) (A : (TY X : functor _ _) Γ : hSet),
        (Γ ◂ A --> Γ ◂ ((F_TY : nat_trans _ _) _ A)).
 
-
   (* CwF morphism data:
      - a natural transformation of terms presheaves;
      - a natural transformation of types presheaves;
@@ -91,6 +90,31 @@ Section CwF_structure_cat.
   *)
   Definition cwf_structure_mor_data (X X' : cwf_structure C) : UU
     := (TM X --> TM X') × cwf_structure_mor_ty_data X X'.
+
+  (* TM part of CwF morphism:
+     a natural transformation of terms presheaves. *)
+  Definition cwf_structure_mor_TM
+             {X X' : cwf_structure C}
+             (f : cwf_structure_mor_data X X')
+    : TM X --> TM X'
+    := pr1 f.
+
+  (* TY part of CwF morphism:
+     a natural transformation of types presheaves. *)
+  Definition cwf_structure_mor_TY
+             {X X' : cwf_structure C}
+             (f : cwf_structure_mor_data X X')
+    : TY X --> TY X'
+    := pr1 (pr2 f).
+
+  (* ϕ part of CwF morphism:
+     a morphism in C moving context from one CwF to another. *)
+  Definition cwf_structure_mor_ϕ
+             {X X' : cwf_structure C}
+             (f : cwf_structure_mor_data X X')
+             (Γ : C^op) (A : (TY X : functor _ _) Γ : hSet)
+    : (Γ ◂ A --> Γ ◂ ((cwf_structure_mor_TY f : nat_trans _ _) _ A))
+    := pr2 (pr2 f) Γ A.
 
   (* coherence for extended context Γ ◂ A and weakening π *)
   Definition cwf_structure_mor_weakening_axiom
@@ -152,6 +176,13 @@ Section CwF_structure_cat.
     := ∑ (mor : cwf_structure_mor_data X X'),
        is_cwf_structure_mor X X' mor.
 
+  Coercion cwf_structure_mor_to_data
+           (X X' : cwf_structure C)
+           (mor : cwf_structure_mor X X')
+    : cwf_structure_mor_data X X'
+    := pr1 mor.
+           
+
   Definition make_cwf_structure_mor
              {X X' : cwf_structure C}
              (mor : cwf_structure_mor_data X X')
@@ -160,32 +191,6 @@ Section CwF_structure_cat.
              (e_term : cwf_structure_mor_term_axiom X X' mor)
     : cwf_structure_mor X X'
     := (mor ,, (e_weakening ,, (e_typing ,, e_term))).
-  
-
-  (* TM part of CwF morphism:
-     a natural transformation of terms presheaves. *)
-  Definition cwf_structure_mor_TM
-             {X X' : cwf_structure C}
-             (f : cwf_structure_mor X X')
-    : TM X --> TM X'
-    := pr1 (pr1 f).
-
-  (* TY part of CwF morphism:
-     a natural transformation of types presheaves. *)
-  Definition cwf_structure_mor_TY
-             {X X' : cwf_structure C}
-             (f : cwf_structure_mor X X')
-    : TY X --> TY X'
-    := pr1 (pr2 (pr1 f)).
-
-  (* ϕ part of CwF morphism:
-     a morphism in C moving context from one CwF to another. *)
-  Definition cwf_structure_mor_ϕ
-             {X X' : cwf_structure C}
-             (f : cwf_structure_mor X X')
-             (Γ : C^op) (A : (TY X : functor _ _) Γ : hSet)
-    : (Γ ◂ A --> Γ ◂ ((cwf_structure_mor_TY f : nat_trans _ _) _ A))
-    := pr2 (pr2 (pr1 f)) Γ A.
 
   (* Convert extended contexts given that
      natural transformations of type presheaves are equal
