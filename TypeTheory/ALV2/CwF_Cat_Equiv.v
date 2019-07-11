@@ -45,6 +45,7 @@ Section CwF_Cat_Equiv.
 
   Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 
+  (*
   Definition obj_ext_mor_data (X X' : obj_ext_structure C)
     := ∑ F_TY : pr1 X --> pr1 X',
         ∏ {Γ:C} {A : (pr1 X : functor _ _) Γ : hSet},
@@ -54,7 +55,7 @@ Section CwF_Cat_Equiv.
     := obj_ext_mor_data (pr1 X) (pr1 Y)
         ×
        (pr112 X --> pr112 Y).
-
+*)
   
 
   (*
@@ -88,13 +89,28 @@ Section CwF_Cat_Equiv.
        however, both approaches fail (see most successful attempt below)
      *)
 
-    (* almost there:
+   (* almost there: *)
 
     eapply weqcomp.
     unfold cwf_structure_mor_weakening_axiom. cbn. (* NOTE: here cbn does not hang! *)
-    apply invweq. apply sec_total2_distributivity.
-
-    *)
+    apply invweq.
+    set (T := @sec_total2_distributivity
+                _ 
+                (fun Γ : C => ∏ (A : (TY X : functor _ _ ) Γ : hSet),
+                              C ⟦ cwf_extended_context X Γ A, cwf_extended_context Y Γ ((F_TY : nat_trans _ _ ) Γ  A) ⟧)).
+    cbn in T.
+    
+    transparent assert (CC : (∏ a : C,
+                                    (∏ A : (TY X : functor _ _ ) a : hSet, C ⟦ cwf_extended_context X a A, cwf_extended_context Y a ((F_TY : nat_trans _ _ ) a A) ⟧) → UU)).
+    {
+      intro Gamma'. intro phi'.
+      cbn in phi'.
+      exact (∏ (A : (TY X : functor _ _ ) Gamma' : hSet), phi' A;; cwf_projection Y Gamma' ((F_TY : nat_trans _ _ ) Gamma' A) = cwf_projection X Gamma' A).
+      
+    }
+    
+    set (T' := T CC).
+    apply T'.
   Abort.
 
   (* FIXME: create a definition instead of this axiom *)
