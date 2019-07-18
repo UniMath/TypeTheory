@@ -3,14 +3,13 @@
 
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.MoreFoundations.Propositions.
-(* [MoreFoundations.Propositions] seems to need individual importing
-to provide notation [∃!] as [iscontr_hProp] instead of just [iscontr]. *)
-(* TODO: figure out why; perhaps raise issue upstream? *)
+Local Open Scope logic. (* to read notation [∃!] as [iscontr_hProp] instead of [iscontr]. *)
 Require Import UniMath.CategoryTheory.All.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.Partial.
 Require Import TypeTheory.ALV1.TypeCat.
+
 
 (* These two lemmas should be upstreamed to UniMath/CategoryTheory/limits/terminal.v and initial.v *)
 Section upstream.
