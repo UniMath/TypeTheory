@@ -71,6 +71,9 @@ We give an overview of the packages and refer to each package's README for detai
   * the implementation of Vladimir Voevodsky's notion of B system
 * *Csystems/*
   * the implementation of Vladimir Voevodsky's notion of C system
+* *Initiality/*
+  * the interpretation from the syntax of a small type theory into suitably-structured CwA’s
+  * (incomplete) the syntactic CwA of the type theory, and its initiality
 * *OtherDefs/*
   * Various other categorical structures used in the study of type theory
 
