@@ -35,83 +35,123 @@ Section CwF_Cat_Equiv.
 
   Context (C : category).
 
+  (* A mapping from one definition of CwF structure to another *)
   Definition cwf_to_cwf'_structure
     : cwf_structure C → cwf'_structure C
     := weq_cwf_cwf'_structure C.
 
+  (* Morphisms of CwF' structures *)
   Definition cwf'_structure_mor (X Y : cwf'_structure C) : UU
     := ∑ (ext : obj_ext_mor (pr1 X) (pr1 Y)),
        term_fun_mor X Y ext.
 
+  (* Extended context notation for CwF' structures *)
   Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 
-  (*
+  (* obj_ext data part of CwF' structure morphisms *)
   Definition obj_ext_mor_data (X X' : obj_ext_structure C)
     := ∑ F_TY : pr1 X --> pr1 X',
         ∏ {Γ:C} {A : (pr1 X : functor _ _) Γ : hSet},
         Γ ◂ A --> Γ ◂ ((F_TY : nat_trans _ _) _ A).
 
+  (* data part of CwF' structure morphisms *)
   Definition cwf'_structure_mor_data (X Y : cwf'_structure C) : UU
     := obj_ext_mor_data (pr1 X) (pr1 Y)
         ×
        (pr112 X --> pr112 Y).
-*)
-  
+
+  Print sec_total2_distributivity.
 
   (*
-  TODO: try define an equivalence of
-            cwf_structure_mor and cwf'_structure_mor
-        similarly to how weq_cwf_cwf'_structure is defined
+  Definition iso_cwf_extended_contexts
+             (X : cwf_structure C)
+             (Γ : C)
+             (A : (TY X : functor _ _) Γ : hSet)
+    : iso (cwf_extended_context X Γ A)
+          (comp_ext (cwf_to_cwf'_structure X) Γ A).
+  Proof.
+    Search iso.
+    Search weq.
+    apply identity_iso.
+  Defined.
   *)
-
-  (* FIXME: fix this definition, remove corresponsing axiom *)
-  Definition weq_cwf_cwf'_structure_mor_ty_STUCK
+  
+  (* Equivalence of typing parts for CwF and CwF' structures *)
+  Definition weq_cwf_cwf'_structure_mor_ty
              (X Y : cwf_structure C)
   : (∑ (x : cwf_structure_mor_ty_data X Y),
     cwf_structure_mor_weakening_axiom X Y x)
       ≃ obj_ext_mor (pr1 (cwf_to_cwf'_structure X))
                     (pr1 (cwf_to_cwf'_structure Y)).
   Proof.
-    unfold obj_ext_mor, cwf_structure_mor_ty_data.
-    refine (_ ∘ weqtotal2asstor _ _)%weq.
-    apply weqfibtototal. intros F_TY.
+    unfold obj_ext_mor, cwf_structure_mor_ty_data. (* Unfold definitions *)
+    refine (_ ∘ weqtotal2asstor _ _)%weq. (* Reassociate LHS *)
+    apply weqfibtototal. intros F_TY. (* Factor out F_TY component *)
 
-    (* === STUCK HERE ===
-
-       tried to apply
-
-       - sec_total2_distributivity to LHS
-       - weqsecovertotal2 to RHS
-
-       - weqtotaltoforall to LHS
-       - weqforalltototal to RHS
-       
-       however, both approaches fail (see most successful attempt below)
-     *)
-
-   (* almost there: *)
-
+    (* Focus on LHS and simplify it *)
     eapply weqcomp.
-    unfold cwf_structure_mor_weakening_axiom. cbn. (* NOTE: here cbn does not hang! *)
+    unfold cwf_structure_mor_weakening_axiom.
+    cbn. (* NOTE: here cbn does not hang! *)
     apply invweq.
-    set (T := @sec_total2_distributivity
-                _ 
-                (fun Γ : C => ∏ (A : (TY X : functor _ _ ) Γ : hSet),
-                              C ⟦ cwf_extended_context X Γ A, cwf_extended_context Y Γ ((F_TY : nat_trans _ _ ) Γ  A) ⟧)).
-    cbn in T.
+
+    (* NOTE: at this point we have as a goal
+       an equivalence of this form:
+
+       ∑ (_ : ∏ (Γ : _) (A : _), _), _
+       ≃
+       ∏ (Γ : _) (A : _), ∑ (_ : _), _
+
+       So we want to factor out Γ and A
+       by applying [sec_total2_distributivity].
+
+       Unfortunately, Coq is unable to infer our intentions
+       (most likely because we have 2 arguments, not 1),
+       so we have to spell out most arguments.
+    *)
+    Check @sec_total2_distributivity.
+
+    (* Factor out Γ *)
+    set (CC := λ (Γ : C), λ (p : _),
+               ∏ (A : (TY X : functor _ _) Γ : hSet),
+               p A ;; cwf_projection Y Γ ((F_TY : nat_trans _ _) Γ A)
+               = cwf_projection X Γ A).
+    apply (@sec_total2_distributivity _ _ CC).
+    apply weqonsecfibers.
+    intros Γ.
+
+    (* Factor out A *)
+    eapply weqcomp. apply invweq.
+    apply (@sec_total2_distributivity
+             _ _
+             (λ (A : _), λ (p : _),
+              p ;; cwf_projection Y Γ ((F_TY : nat_trans _ _) Γ A)
+              = cwf_projection X Γ A)).
+    apply weqonsecfibers.
+    intros A.
+
+    (* NOTE: now we have the same structure *)
+
+    (* STUCK: however, idweq does not work here.
+     * This is because Coq does not understand that
+     *
+     * cwf_extended_context X = comp_ext (cwf_to_cwf'_structure X)
+     *
+     * (it cannot derive it from weq_cwf_cwf'_structure definition)
+     *)
     
-    transparent assert (CC : (∏ a : C,
-                                    (∏ A : (TY X : functor _ _ ) a : hSet, C ⟦ cwf_extended_context X a A, cwf_extended_context Y a ((F_TY : nat_trans _ _ ) a A) ⟧) → UU)).
-    {
-      intro Gamma'. intro phi'.
-      cbn in phi'.
-      exact (∏ (A : (TY X : functor _ _ ) Gamma' : hSet), phi' A;; cwf_projection Y Gamma' ((F_TY : nat_trans _ _ ) Gamma' A) = cwf_projection X Gamma' A).
-      
-    }
-    
-    set (T' := T CC).
-    apply T'.
-  Abort.
+    (* STUCK: below are some attempts to get insight into this *)
+    Check @weqtotal2.
+    use weqtotal2.
+    - Search weq.
+      Check iso_comp_right_weq.
+      Check iso_comp_left_weq.
+      unfold cwf_extended_context, comp_ext.
+      unfold cwf_to_cwf'_structure.
+      exact (idweq _).
+      unfold weq_cwf_cwf'_structure.
+      unfold invweq, make_weq.
+
+  Defined.
 
   (* FIXME: create a definition instead of this axiom *)
   Axiom weq_cwf_cwf'_structure_mor_ty
