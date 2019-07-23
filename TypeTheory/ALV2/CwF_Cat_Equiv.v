@@ -124,7 +124,9 @@ Section CwF_Cat_Equiv.
         * intros Γ A. apply idpath.
         * intros Γ A. cbn. apply id_left.
       + apply term_fun_mor_eq.
-        intros Γ t. apply term_fun_mor_transportf.
+        intros Γ t.
+        (* STUCK here: too much transportf *)
+        apply term_fun_mor_transportf.
   Defined.
 
   Definition cwf_structure_to_term_struc_functor
