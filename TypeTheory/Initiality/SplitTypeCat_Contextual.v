@@ -2,7 +2,6 @@
 (** This file provides a definition (and basic development) of contextual categories as split type-cats/CwA’s in which every object is uniquely expressible as an iterated extension of a chosen terminal object. *)
 
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.MoreFoundations.Propositions.
 Local Open Scope logic. (* to read notation [∃!] as [iscontr_hProp] instead of [iscontr]. *)
 Require Import UniMath.CategoryTheory.All.
 
@@ -10,6 +9,7 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.Partial.
 Require Import TypeTheory.ALV1.TypeCat.
 
+Require Import TypeTheory.Initiality.SplitTypeCat_General.
 
 (* These two lemmas should be upstreamed to UniMath/CategoryTheory/limits/terminal.v and initial.v *)
 Section upstream.
@@ -119,6 +119,101 @@ Section Extensions.
     - intros; apply isaset_extension_of_length.
   Qed.
 
+  (* To define concatenation of extensions, we also need to mutually define some comparison between the extension by the concatenation (Γ + (AA + BB)) and the two-stage extension ((Γ + AA) + BB).
+     
+   This comparison could be given as an equality; however we avoid taking that as primary, to minimise use of equality on objects, and instead give it just as the morphism required, and show afterwards that it’s an equality. *)
+  Definition concat_extension_aux {C : typecat} {Γ:C}
+    {n} (AA : extension_of_length n Γ)
+    {m} (BB : extension_of_length m (ext_extension Γ AA))
+  : ∑ (AABB : extension_of_length (m+n) Γ),
+      ext_extension Γ AABB --> ext_extension _ BB. 
+  Proof.
+    induction m as [ | m' IH]; simpl.
+    - (* m = 0, BB empty *)
+      exists AA. apply identity.
+    - (* m = S m', BB = BB';;B *)
+      set (B := extension_last BB); set (BB' := extension_rest BB) in *.
+      set (AABB'_f := IH BB'); set (AABB' := pr1 AABB'_f).
+      simple refine (_,,_).
+      + refine (extension_extend AABB' _).
+        refine (B {{ pr2 AABB'_f }}).
+      + apply q_typecat.
+        (* more verbose/explanatory version:
+        cbn. change BB with (extension_extend BB' B).
+        unfold extension_extend, ext_extension, ext_extension_of_length; cbn.
+        apply q_typecat.
+        *)
+  Defined.
+
+  Definition concat_extension {C : typecat} {Γ:C}
+      {n} (AA : extension_of_length n Γ)
+      {m} (BB : extension_of_length m (ext_extension Γ AA))
+    : extension_of_length (m+n) Γ
+  := pr1 (concat_extension_aux AA BB).
+  
+  Definition compare_concat_extension {C : typecat} {Γ:C}
+      {n} (AA : extension_of_length n Γ)
+      {m} (BB : extension_of_length m (ext_extension Γ AA))
+    : ext_extension Γ (concat_extension AA BB)
+      --> ext_extension (ext_extension Γ AA) BB 
+  := pr2 (concat_extension_aux AA BB).
+
+  Definition path_ext_typecat {C : split_typecat}
+      {Γ Γ' : C} (e_Γ : Γ = Γ')
+      {A : C Γ} {A' : C Γ'} (e_A : A = A' {{ idtoiso e_Γ }})
+    : ext_typecat Γ A = ext_typecat Γ' A'.
+  Proof.
+    destruct e_Γ. apply maponpaths.
+    etrans. { apply e_A. }
+    apply reind_id_type_typecat.
+  Defined.
+
+  Definition idtoiso_path_ext_typecat {C : split_typecat}
+      {Γ Γ' : C} (e_Γ : Γ = Γ')
+      {A : C Γ} {A' : C Γ'} (e_A : A = A' {{ idtoiso e_Γ }})
+    : (idtoiso (path_ext_typecat e_Γ e_A) : _ --> _)
+      = comp_ext_compare e_A ;; q_typecat A' (idtoiso e_Γ).
+  Proof.
+    destruct e_Γ; cbn in *.
+    etrans. { apply maponpaths, maponpaths, maponpathscomp0. }
+    etrans. { apply pathsinv0, idtoiso_concat_pr. }
+    (* TODO: should direction of [idtoiso_concat_pr] be reversed, to fit conventions?
+    Check upstream which direction is wanted more often. *)
+    apply maponpaths.
+    apply pathsinv0, reind_id_term_typecat.
+  Defined.
+
+  Definition ext_concat_extension_aux {C : split_typecat} {Γ:C}
+    {n} (AA : extension_of_length n Γ)
+    {m} (BB : extension_of_length m (ext_extension Γ AA))
+  : ∑ (e : ext_extension Γ (concat_extension AA BB) = (ext_extension _ BB)),
+    compare_concat_extension AA BB = idtoiso e.
+  Proof.
+    induction m as [ | m' IH]; simpl.
+    - (* m = 0, BB empty *)
+      use tpair; apply idpath. 
+    - (* m = S m', BB = BB';;B *)
+      set (B := extension_last BB); set (BB' := extension_rest BB) in *.
+      destruct (IH BB') as [e1 e2]; clear IH.
+      unfold ext_extension, ext_extension_of_length; simpl.
+      use tpair. 
+      + use path_ext_typecat.
+        * exact e1.
+        * apply maponpaths, e2.
+      + simpl. apply pathsinv0.
+        etrans. { apply idtoiso_path_ext_typecat. }
+        unfold compare_concat_extension. simpl pr2.
+        apply comp_ext_compare_q_typecat.
+  Defined.
+
+  Definition ext_concat_extension {C : split_typecat} {Γ:C}
+      {n} (AA : extension_of_length n Γ)
+      {m} (BB : extension_of_length m (ext_extension Γ AA))
+    : ext_extension Γ (concat_extension AA BB) = (ext_extension _ BB).
+  Proof.
+    exact (pr1 (ext_concat_extension_aux AA BB)).
+  Defined.  
+
 End Extensions.
 
 Section Contextual_Cats.
@@ -153,6 +248,7 @@ Note that such a base object is necessarily unique: see [isaprop_is_contextual].
   Lemma isaprop_is_contextual {C : split_typecat}
     : isaprop (is_contextual C).
   Proof.
+    (* First part: note it suffices to show the two “contextual structures” have the same “empty context”, since the rest of the data is obviously propositional. *)
     apply invproofirrelevance; intros H H'.
     apply subtypePath.
     { intros Γ0; apply isapropdirprod.
@@ -160,16 +256,25 @@ Note that such a base object is necessarily unique: see [isaprop_is_contextual].
       - apply propproperty. }
     destruct H as [Γ0 [K H]], H' as [Γ0' [K' H']]; cbn; clear K K'.
     destruct (H Γ0') as [[AA e] _], (H' Γ0) as [[AA' e'] _].
-    admit.
-    (* sketch:
-    - define concatenation of extensions
-    - conclude [ext_extension Γ0 (AA+AA') = Γ0] 
-    - by uniqueness part of [H Γ0], conclude [AA+AA' = extension_empty]
-    - conclude [AA = extension_empty]
-    - conclude [Γ0' = Γ0]. *)
-  Admitted. (* [isaprop_is_contextual]: low-priority, since probably not
-             actually needed, just included to justify un-truncated def of
-             [is_contextual]. *)
+    (* Second part: notice that
+    [ Γ0 = Γ0' ◂◂ AA' = (Γ0 ◂◂ AA) ◂◂ AA' = Γ0 ◂◂ (AA + AA') ]
+    and so by uniqueness [ AA + AA' ] is empty, so [AA] is empty and Γ0' = Γ0. *)
+    destruct e.
+    assert (p : ext_extension Γ0 (concat_extension AA AA') = Γ0).
+    { etrans. { apply ext_concat_extension. } exact e'. }
+    assert (exts_trivial : (concat_extension AA AA' : extension Γ0) = (0,,tt)).
+    { simple refine (maponpaths pr1 (_ : (_,,_) = (_,,_))).
+      - exact (fun BB => ext_extension Γ0 BB = Γ0).
+      - exact p.
+      - apply idpath.
+      - apply isapropifcontr, (H Γ0).
+    }
+    apply (maponpaths pr1) in exts_trivial; cbn in exts_trivial.
+    destruct AA as [n AA].
+    apply plusmn0n0, pathsinv0 in exts_trivial; cbn in exts_trivial.
+    destruct exts_trivial.
+    apply idpath.
+  Defined.
 
   Definition contextual_cat : UU
     := ∑ C : split_typecat, is_contextual C.
