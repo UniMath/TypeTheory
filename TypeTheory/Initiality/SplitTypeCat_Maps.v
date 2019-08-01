@@ -116,10 +116,6 @@ Proof.
   apply isapropdirprod; repeat (apply impred_isaprop; intro); apply homset_property.
 Qed.
 
-End morphisms.
-
-Section Derived_Actions.
-
   Lemma comp_ext_compare_typecat_mor_iso
       {C C' : split_typecat} (F : typecat_mor C C')
       (Γ : C) (A A' : C Γ) (e : A = A')
@@ -131,51 +127,7 @@ Section Derived_Actions.
     apply pathsinv0, id_right.
   Qed.
 
-  (* Call this [fmap_tm] for consistency with later defs, or [typecat_mor_tm] for consistency with primitive components? *)
-  Definition fmap_tm
-      {C D : split_typecat} (F : typecat_mor C D)
-      {Γ:C} {A : C Γ} (a : tm A)
-    : tm (typecat_mor_Ty F _ A).
-  Proof.
-    exists (# F a · typecat_mor_iso F A).
-    abstract (cbn; eapply pathscomp0; [ apply pathsinv0, assoc |];
-      eapply pathscomp0; [ apply maponpaths, pathsinv0, typecat_mor_triangle|];
-      eapply pathscomp0; [ apply pathsinv0, functor_comp|];
-      eapply pathscomp0; [ apply maponpaths, section_property|];
-      apply functor_id).
-  Defined.
-
-  Lemma fmap_tm_as_map 
-      {C C' : split_typecat} (F : typecat_mor C C')
-      {Γ:C} {A: C Γ} (a : tm A)
-    : # F a = fmap_tm F a · inv_from_iso (typecat_mor_iso F A).
-  Proof.
-    now apply iso_inv_on_left.
-  Qed.
-  
-  (* Other possible names: [typecat_mor_reind_ty], [typecat_mor_Ty_nat] *)
-  Definition reindex_fmap_ty
-      {C C' : split_typecat} (F : typecat_mor C C')
-      {Γ:C} (A: C Γ) {Γ' : C} (f : Γ' --> Γ)
-    : typecat_mor_Ty F _ (A ⦃f⦄) = (typecat_mor_Ty F _ A) ⦃ # F f ⦄
-    := eqtohomot (nat_trans_ax (typecat_mor_Ty F) f) A.
-
-  Lemma reindex_fmap_tm {C D : split_typecat} (F : typecat_mor C D) {Γ Γ' : C}
-        (f : C ⟦ Γ', Γ ⟧) {A : C Γ} (a : tm A) :
-    tm_transportf (reindex_fmap_ty F A f) (fmap_tm F (reind_tm f a)) =
-    reind_tm (# F f) (fmap_tm F a).
-  Proof.
-    apply paths_tm, PullbackArrowUnique; cbn; simpl;
-      set (pb := make_Pullback _ _ _ _ _ _ _); rewrite <-!assoc.
-    - etrans; [apply maponpaths, maponpaths, comp_ext_compare_dpr_typecat|].
-      etrans; [apply maponpaths, (!typecat_mor_triangle F (A ⦃f⦄))|].
-      now rewrite <- functor_comp, (PullbackArrow_PullbackPr1 pb), functor_id.
-    - etrans; [apply maponpaths; rewrite assoc;
-               apply (!typecat_mor_pentagon F A f)|].
-      now rewrite !assoc, <- !functor_comp, (PullbackArrow_PullbackPr2 pb).
-  Qed.
-
-End Derived_Actions.
+End morphisms.
 
 Section Composition.
 
@@ -267,3 +219,88 @@ Section Composition.
 (* TODO: also will need at least [id_left] for the proof of initiality *)
 
 End Composition.
+
+Section Derived_Actions.
+
+  (* Alias of [typecat_mor_Ty], to fit a more consistent naming convention.
+   TODO: consider making this the primitive name of the field? *)
+  Definition fmap_ty {C D} (F : typecat_mor C D)
+    := typecat_mor_Ty F.
+
+  (* Call this [fmap_tm] for consistency with later defs, or [typecat_mor_tm] for consistency with primitive components? *)
+  Definition fmap_tm
+      {C D : split_typecat} (F : typecat_mor C D)
+      {Γ:C} {A : C Γ} (a : tm A)
+    : tm (typecat_mor_Ty F _ A).
+  Proof.
+    exists (# F a · typecat_mor_iso F A).
+    abstract (cbn; eapply pathscomp0; [ apply pathsinv0, assoc |];
+      eapply pathscomp0; [ apply maponpaths, pathsinv0, typecat_mor_triangle|];
+      eapply pathscomp0; [ apply pathsinv0, functor_comp|];
+      eapply pathscomp0; [ apply maponpaths, section_property|];
+      apply functor_id).
+  Defined.
+
+  Lemma fmap_tm_as_map 
+      {C C' : split_typecat} (F : typecat_mor C C')
+      {Γ:C} {A: C Γ} (a : tm A)
+    : # F a = fmap_tm F a · inv_from_iso (typecat_mor_iso F A).
+  Proof.
+    now apply iso_inv_on_left.
+  Qed.
+  
+  (* Other possible names: [typecat_mor_reind_ty], [typecat_mor_Ty_nat] *)
+  Definition reindex_fmap_ty
+      {C C' : split_typecat} (F : typecat_mor C C')
+      {Γ:C} (A: C Γ) {Γ' : C} (f : Γ' --> Γ)
+    : typecat_mor_Ty F _ (A ⦃f⦄) = (typecat_mor_Ty F _ A) ⦃ # F f ⦄
+    := eqtohomot (nat_trans_ax (typecat_mor_Ty F) f) A.
+
+  Lemma reindex_fmap_tm {C D : split_typecat} (F : typecat_mor C D) {Γ Γ' : C}
+        (f : C ⟦ Γ', Γ ⟧) {A : C Γ} (a : tm A) :
+    tm_transportf (reindex_fmap_ty F A f) (fmap_tm F (reind_tm f a)) =
+    reind_tm (# F f) (fmap_tm F a).
+  Proof.
+    apply paths_tm, PullbackArrowUnique; cbn; simpl;
+      set (pb := make_Pullback _ _ _ _ _ _ _); rewrite <-!assoc.
+    - etrans; [apply maponpaths, maponpaths, comp_ext_compare_dpr_typecat|].
+      etrans; [apply maponpaths, (!typecat_mor_triangle F (A ⦃f⦄))|].
+      now rewrite <- functor_comp, (PullbackArrow_PullbackPr1 pb), functor_id.
+    - etrans; [apply maponpaths; rewrite assoc;
+               apply (!typecat_mor_pentagon F A f)|].
+      now rewrite !assoc, <- !functor_comp, (PullbackArrow_PullbackPr2 pb).
+  Qed.
+
+  Definition fmap_type_with_term {C C'} (F : typecat_mor C C')
+      {Γ:C} (Aa : type_with_term Γ)
+    : type_with_term (F Γ).
+  Proof.
+    exact (typecat_mor_Ty F _ (type_of Aa),,fmap_tm F Aa).
+  Defined.
+
+  Lemma var_with_type_fmap_type
+      {C C'} (F : typecat_mor C C')
+      {Γ} (A : C Γ)
+    : var_with_type (fmap_ty F Γ A)
+    = reind_type_with_term (inv_from_iso (typecat_mor_iso F A))
+                           (fmap_type_with_term F (var_with_type A)).
+  Proof.
+    use paths_type_with_term.
+    + simpl.
+      etrans; [|exact (maponpaths (fun X => reind_typecat X _) (!reindex_fmap_ty F _ (dpr_typecat A)))].
+      etrans; [|apply reind_comp_type_typecat].
+      apply maponpaths, pathsinv0, iso_inv_on_right, (typecat_mor_triangle F A).
+    + apply PullbackArrowUnique; cbn.
+    - rewrite <- assoc.
+      etrans; [apply maponpaths, comp_ext_compare_dpr_typecat|].
+      apply (section_property (var_with_type (fmap_ty F Γ A))).
+    - set (f1 := map_into_Pb _ _ _ _ _ _ _ _ _).
+      set (f2 := map_into_Pb _ _ _ _ _ _ _ _ _).
+      apply pathsinv0, iso_inv_on_right.
+      rewrite comp_ext_compare_comp.
+      rewrite comp_ext_compare_comp.
+      admit. (* this is complicated... *)
+  Admitted.
+
+End Derived_Actions.
+

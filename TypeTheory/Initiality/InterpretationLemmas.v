@@ -19,92 +19,6 @@ Require Import TypeTheory.Initiality.Interpretation.
 Require Import TypeTheory.Initiality.SyntacticCategory.
 Require Import TypeTheory.Initiality.SyntacticCategory_Structure.
 
-Section Functoriality_General.
-(** Preparatory for section [Functoriality] below: some generalities on functoriality, independent of the logical structure. *)
-
-  Context {C C'} (F : typecat_mor C C').
-
-  (* TODO: consider naming/existence; probably upstream at least to with [fmap_tm], etc. *)
-  Local Definition fmap_ty := typecat_mor_Ty F.
-
-  (* TODO: upstream to with definition of [type_with_term] *)
-  Definition fmap_type_with_term {Γ:C} (Aa : type_with_term Γ)
-    : type_with_term (F Γ).
-  Proof.
-    exact (typecat_mor_Ty F _ (type_of Aa),,fmap_tm F Aa).
-  Defined.
-
-  (* TODO: upstream to [Environments] *)
-  Definition fmap_environment {Γ:C} {n:nat} (E : environment Γ n)
-    : environment (F Γ) n.
-  Proof.
-    intros i. exact (fmap_type_with_term (E i)).
-  Defined.
-
-  (* TODO: upstream to [Environments] *)
-  Lemma fmap_reind_environment
-      {Γ Γ' : C} (f : Γ' --> Γ) {n} (E : environment Γ n)
-    : fmap_environment (reind_environment f E)
-    = reind_environment (# F f) (fmap_environment E).
-  Proof.
-    apply funextsec; intros i.
-    use paths_type_with_term2.
-    - apply reindex_fmap_ty.
-    - rewrite transportf_tm.
-      apply reindex_fmap_tm.
-  Defined.
-
-  (* TODO: upstream to follow [var_with_type] *)
-  Lemma var_with_type_fmap_type
-      {Γ} (A : C Γ)
-    : var_with_type (fmap_ty Γ A)
-    = reind_type_with_term (inv_from_iso (typecat_mor_iso F A))
-                           (fmap_type_with_term (var_with_type A)).
-  Proof.
-    use paths_type_with_term.
-    + simpl.
-      etrans; [|exact (maponpaths (fun X => reind_typecat X _) (!reindex_fmap_ty F _ (dpr_typecat A)))].
-      etrans; [|apply reind_comp_type_typecat].
-      apply maponpaths, pathsinv0, iso_inv_on_right, (typecat_mor_triangle F A).
-    + apply PullbackArrowUnique; cbn.
-    - rewrite <- assoc.
-      etrans; [apply maponpaths, comp_ext_compare_dpr_typecat|].
-      apply (section_property (var_with_type (fmap_ty Γ A))).
-    - set (f1 := map_into_Pb _ _ _ _ _ _ _ _ _).
-      set (f2 := map_into_Pb _ _ _ _ _ _ _ _ _).
-      apply pathsinv0, iso_inv_on_right.
-      rewrite comp_ext_compare_comp.
-      rewrite comp_ext_compare_comp.
-      admit. (* this is complicated... *)
-  Admitted.
-
-  (* TODO: upstream to with [fmap_environment] *)
-  Lemma fmap_add_to_environment
-        {Γ:C} {n} (E : environment Γ n) (Aa : type_with_term Γ)
-    : fmap_environment (add_to_environment E Aa)
-    = add_to_environment (fmap_environment E) (fmap_type_with_term Aa).
-  Proof.
-    apply funextfun. use dB_Sn_rect; intros; apply idpath.
-  Qed.
-
-  (* TODO: upstream to follow [extend_environment] *)
-  Lemma fmap_extend_environment {Γ} {n} (E : environment Γ n) (A : C Γ)
-    : extend_environment (fmap_environment E) (fmap_ty _ A)
-    = reind_environment (inv_from_iso (typecat_mor_iso F _))
-      (fmap_environment (extend_environment E A)).
-  Proof.
-    apply pathsinv0.
-    eapply pathscomp0. { apply maponpaths, fmap_add_to_environment. }
-    eapply pathscomp0. { apply reind_add_to_environment. }
-    apply (maponpaths_12 add_to_environment).
-    - eapply pathscomp0. { apply maponpaths, fmap_reind_environment. }
-      eapply pathscomp0. { apply pathsinv0, reind_compose_environment. }
-      apply maponpaths_2. apply iso_inv_on_right, typecat_mor_triangle.
-    - apply pathsinv0, var_with_type_fmap_type.
-  Qed.
-
-End Functoriality_General.
-
 Section Functoriality.
 (** Key property of the interpretation: if [F : C --> D] is a map of split type-cats with logical structure, and some expression [e] is interpretable in [C] in some environment [E] with value [a], then [e] is also interpretable in [D] in environment [F E], with value [F a]. *)
 
@@ -442,7 +356,7 @@ Section Trivial_Interpretation.
         use (@derive_comp _ (Γ;;A)%context).
         * refine (derive_tm_as_raw_context_map _ _);
             auto using derive_flat_cxt_from_strat.
-        * use derive_dB_next_context_map; auto using derive_flat_cxt_from_strat.        
+        * use derive_dB_next_context_map; auto using derive_flat_cxt_from_strat.
   Defined.
 
   (* TODO: [tm_expr_as_partial_term] *)
