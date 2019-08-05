@@ -278,6 +278,19 @@ Section Derived_Actions.
     exact (typecat_mor_Ty F _ (type_of Aa),,fmap_tm F Aa).
   Defined.
 
+  (* TODO: upstream to [SplitTypeCat_General];
+     and consider harmonising with name of [comp_ext_compare_q_typecat],
+     e.g. by changing that to [q_typecat_mapeq]? *)
+  Lemma q_typecat_typeeq {C : typecat} {Γ:C}
+        {A A' : C Γ} (e : A = A')
+        {Γ' : C} (f : Γ' --> Γ)
+    : comp_ext_compare (maponpaths (fun X => X {{ f }}) e) ;; q_typecat A' f
+    = q_typecat A f ;; comp_ext_compare e.
+  Proof.
+    destruct e; cbn.
+    rewrite id_right; apply id_left.
+  Qed.
+
   Lemma var_with_type_fmap_type
       {C C'} (F : typecat_mor C C')
       {Γ} (A : C Γ)
@@ -285,22 +298,60 @@ Section Derived_Actions.
     = reind_type_with_term (inv_from_iso (typecat_mor_iso F A))
                            (fmap_type_with_term F (var_with_type A)).
   Proof.
+    apply pathsinv0.
     use paths_type_with_term.
-    + simpl.
-      etrans; [|exact (maponpaths (fun X => reind_typecat X _) (!reindex_fmap_ty F _ (dpr_typecat A)))].
-      etrans; [|apply reind_comp_type_typecat].
-      apply maponpaths, pathsinv0, iso_inv_on_right, (typecat_mor_triangle F A).
-    + apply PullbackArrowUnique; cbn.
-    - rewrite <- assoc.
-      etrans; [apply maponpaths, comp_ext_compare_dpr_typecat|].
-      apply (section_property (var_with_type (fmap_ty F Γ A))).
-    - set (f1 := map_into_Pb _ _ _ _ _ _ _ _ _).
-      set (f2 := map_into_Pb _ _ _ _ _ _ _ _ _).
-      apply pathsinv0, iso_inv_on_right.
-      rewrite comp_ext_compare_comp.
-      rewrite comp_ext_compare_comp.
-      admit. (* this is complicated... *)
-  Admitted.
+    - simpl.
+      etrans. { eapply (maponpaths (fun X => reind_typecat X _)).
+           exact (reindex_fmap_ty F _ (dpr_typecat A)). }
+      etrans. { apply pathsinv0, reind_comp_type_typecat. }
+      apply maponpaths, iso_inv_on_right, typecat_mor_triangle.
+    - apply PullbackArrowUnique.
+      + etrans. { apply pathsinv0, assoc. }
+        etrans. { apply maponpaths, comp_ext_compare_dpr_typecat. }
+        apply section_property.
+      + (* NOTE: the next step is just asking to apply [cbn] to the subterm
+         beginning [PullbackPr2].  [simpl PullbackPr2] applies [simpl] to this
+         subterm, but [simpl] doesn’t simplify enough in this case. *)
+        etrans. { apply maponpaths. cbn. apply idpath. }
+        rewrite comp_ext_compare_comp.
+        rewrite comp_ext_compare_comp.
+        etrans. { apply pathsinv0, assoc. }
+        etrans.
+        { apply maponpaths.
+          etrans. { apply pathsinv0, assoc. }
+          etrans. { apply maponpaths, pathsinv0, assoc. }
+          etrans. { apply maponpaths, maponpaths, comp_ext_compare_q_typecat. }
+          etrans. { apply maponpaths, pathsinv0, q_q_typecat'. }
+          etrans. { apply assoc. }
+          apply maponpaths_2, q_typecat_typeeq.
+        }
+        etrans. { apply assoc. }
+        etrans. { apply maponpaths_2, assoc. }
+        etrans. { apply maponpaths_2, maponpaths_2.
+                  refine (PullbackArrow_PullbackPr2
+                            (make_Pullback _ _ _ _ _ _ _) _ _ _ _). }
+        simpl pr1.
+        etrans. { apply maponpaths_2, maponpaths_2, assoc. }
+        etrans. { apply pathsinv0, assoc. }
+        etrans. { apply pathsinv0, assoc. }
+        etrans. { apply maponpaths, assoc. }
+        etrans. { apply maponpaths, pathsinv0, typecat_mor_pentagon. }
+        etrans. { apply pathsinv0, assoc. }
+        etrans. { apply maponpaths, assoc. }
+        etrans.
+        { apply maponpaths, maponpaths_2. 
+          etrans. { apply pathsinv0, functor_comp. }
+          etrans.
+          { apply maponpaths.
+            refine (PullbackArrow_PullbackPr2
+                            (make_Pullback _ _ _ _ _ _ _) _ _ _ _).
+          }
+          apply functor_id.
+        }
+        etrans. { apply maponpaths, id_left. }
+        apply iso_after_iso_inv.
+  Qed.
+  (* TODO: can we speed this proof up, perhaps by factoring out some lemma(s)? *)
 
 End Derived_Actions.
 
