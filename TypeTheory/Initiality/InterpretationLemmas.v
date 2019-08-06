@@ -301,12 +301,13 @@ Section Trivial_Interpretation.
 
   Definition ty_expr_as_type {n}
       (Γ : wellformed_context_of_length n)
-      {A : ty_expr n} (d_A : [! Γ |- A !])
+      {A : ty_expr n} (d_A : ∥ [! Γ |- A !] ∥)
     : SyntacticCategory.type_mod_eq Γ.
   Proof.
     apply setquotpr; exists A.
     apply type_for_some_rep.
-    apply hinhpr; exact ((_,,idpath _),,d_A).
+    refine (hinhfun _ d_A); clear d_A; intros d_A.
+    exact (context_as_context_representative Γ,, d_A).
   Defined.
 
   Definition ty_expr_as_partial_type {n}
@@ -314,27 +315,24 @@ Section Trivial_Interpretation.
     : partial (SyntacticCategory.type_mod_eq Γ).
   Proof.
     exists (∥ [! Γ |- A !] ∥).
-    intros d_A; apply setquotpr; exists A.
-    apply type_for_some_rep.
-    refine (hinhfun _ d_A); clear d_A; intros d_A.
-    exact ((_,,idpath _),,d_A).
+    apply ty_expr_as_type.
   Defined.
 
   Definition tm_expr_as_term {n}
       {Γ : wellformed_context_of_length n}
-      {A : ty_expr n} (d_A : [! Γ |- A !])
-      {a : tm_expr n} (d_a : [! Γ |- a ::: A !])
-    : @tm syntactic_typecat _ (ty_expr_as_type Γ d_A).
+      {A : ty_expr n} (isd_A : ∥ [! Γ |- A !] ∥)
+      {a : tm_expr n} (isd_a : ∥ [! Γ |- a ::: A !] ∥)
+    : @tm syntactic_typecat _ (ty_expr_as_type Γ isd_A).
   Proof.
     use tpair.
     - (* morphism part *)
       apply setquotpr.
       exists (tm_as_raw_context_map a).
       apply map_for_some_rep, hinhpr.
-      refine ((_,,idpath _),,_).
+      refine (context_as_context_representative _,,_).
       use tpair.
-      { apply SyntacticCategory.ext_representative. refine (_,,idpath _). }
-      refine (hinhfun _ (context_derivable Γ)); intros d_Γ; cbn.
+      { apply SyntacticCategory.ext_representative. apply context_as_context_representative. }
+      refine (hinhfun2 _ (context_derivable Γ) (isd_a)); intros d_Γ d_a; cbn.
       refine (derive_tm_as_raw_context_map _ _);
         auto using derive_flat_cxt_from_strat.
     - (* section property *)
@@ -343,9 +341,9 @@ Section Trivial_Interpretation.
        [mapeq_for_some_rep] that (a) incorporates [iscompsetquotpr],
        and (b) already knows that the maps are well-typed. *)
       refine (mapeq_for_some_rep _ _ _); apply hinhpr.
-      refine ((_,,idpath _),,_).
-      refine ((_,,idpath _),,_).
-      refine (hinhfun _ (context_derivable Γ)); intros d_Γ.
+      refine (context_as_context_representative _,,_).
+      refine (context_as_context_representative _,,_).
+      refine (hinhfun3 _ (context_derivable Γ) isd_A isd_a); intros d_Γ d_A d_a.
       repeat split; simpl.
       + use (@derive_comp _ (Γ;;A)%context).
         * refine (derive_tm_as_raw_context_map _ _);
@@ -361,14 +359,20 @@ Section Trivial_Interpretation.
 
   (* TODO: [tm_expr_as_partial_term] *)
 
-  (** Each object of the syntactic category carries a canonical environment *)
-  Definition standard_environment (ΓΓ : syntactic_typecat)
-    : environment ΓΓ (SyntacticCategory.length ΓΓ).
+  (** Each object of the syntactic category carries a “canonical environment”,
+   with types/terms just the types/variables of the context. *)
+  Definition canonical_environment_over_wellformed_context
+      {n} (Γ : wellformed_context_of_length n)
+    : @environment syntactic_typecat (context_class Γ) n.
   Proof.
     intros i. use tpair.
-    - admit. (* will need to take representatives, etc, and then use [ty_expr_as_type]? *)
-    - admit. (* use something like [tm_expr_as_term] *)
-  Admitted.  (* [standard_environment]: a bit annoying, not as self-contained as might expect. *)
+    - apply (@ty_expr_as_type _ Γ (Γ i)).
+      refine (hinhfun _ (context_derivable Γ)); intros d_Γ.
+      apply derive_flat_cxt_from_strat, d_Γ.
+    - refine (@tm_expr_as_term _ Γ (Γ i) _ (var_expr i) _).
+      refine (hinhfun _ (context_derivable Γ)); intros d_Γ.
+      apply derive_var, derive_flat_cxt_from_strat, d_Γ.
+  Defined.
 
   (* TODO: triviality of the interpretation into the syntactic category:
 
@@ -378,13 +382,13 @@ Section Trivial_Interpretation.
 
   Surprisingly unclear how best to state this.  Something like:
 
-  Over any (well-formed, stratified) context, with its standard environment…
+  Over any (well-formed, stratified) context, with its canonical environment…
 
   - if a type/term is derivable and interpretable, then its interpretation is “itself” (by induction on expressions)?
   - if a type/term is interpretable, then it is derivable, and its interpretation is “itself”?  (by induction on expressions)
   - for any derivable judgement, its interpretation its “itself”? (by induction on derivations)?
 
-  Probably go for the middle option — “if a type/term is interpretable in the standard environmnent (and at some type), then it’s derivable, and its interpretation is itself”.   This can be phrased nicely in terms of [partial_leq] and [tm_/ty_expr_as_partial_type/_term], which may help organise the proof.
+  Probably go for the middle option — “if a type/term is interpretable in the canonical environmnent (and at some type), then it’s derivable, and its interpretation is itself”.   This can be phrased nicely in terms of [partial_leq] and [tm_/ty_expr_as_partial_type/_term], which may help organise the proof.
 *)
   
 End Trivial_Interpretation.
