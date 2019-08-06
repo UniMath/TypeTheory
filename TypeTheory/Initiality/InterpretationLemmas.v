@@ -1,6 +1,7 @@
 (** Further lemmas on the interpretation function, separated here in order to keep [TypeTheory.Initiality.Interpretation] itself reasonably streamlined *)
 
 Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.PAdics.lemmas. (* just for [setquotprpathsandR] *)
 
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
@@ -299,8 +300,8 @@ Section Trivial_Interpretation.
     exists n; apply setquotpr; exists Γ; assumption.
   Defined.
 
-  Definition ty_expr_as_type {n}
-      (Γ : wellformed_context_of_length n)
+  Definition ty_expr_as_type
+      {n} (Γ : wellformed_context_of_length n)
       {A : ty_expr n} (d_A : ∥ [! Γ |- A !] ∥)
     : SyntacticCategory.type_mod_eq Γ.
   Proof.
@@ -310,16 +311,16 @@ Section Trivial_Interpretation.
     exact (context_as_context_representative Γ,, d_A).
   Defined.
 
-  Definition ty_expr_as_partial_type {n}
-      (Γ : wellformed_context_of_length n) (A : ty_expr n)
+  Definition ty_expr_as_partial_type
+      {n} (Γ : wellformed_context_of_length n) (A : ty_expr n)
     : partial (SyntacticCategory.type_mod_eq Γ).
   Proof.
     exists (∥ [! Γ |- A !] ∥).
     apply ty_expr_as_type.
   Defined.
 
-  Definition tm_expr_as_term {n}
-      {Γ : wellformed_context_of_length n}
+  Definition tm_expr_as_term
+      {n} (Γ : wellformed_context_of_length n)
       {A : ty_expr n} (isd_A : ∥ [! Γ |- A !] ∥)
       {a : tm_expr n} (isd_a : ∥ [! Γ |- a ::: A !] ∥)
     : @tm syntactic_typecat _ (ty_expr_as_type Γ isd_A).
@@ -358,8 +359,8 @@ Section Trivial_Interpretation.
   Defined.
 
 
-  Definition tm_expr_as_partial_term {n}
-      {Γ : wellformed_context_of_length n}
+  Definition tm_expr_as_partial_term
+      {n} (Γ : wellformed_context_of_length n)
       {A : ty_expr n} (isd_A : ∥ [! Γ |- A !] ∥)
       (a : tm_expr n)
     : partial (@tm syntactic_typecat _ (ty_expr_as_type Γ isd_A)).
@@ -367,8 +368,7 @@ Section Trivial_Interpretation.
     exists (∥ [! Γ |- a ::: A !] ∥).
     apply tm_expr_as_term.
   Defined.
-
-  (* TODO: [tm_expr_as_partial_term] *)
+  
 
   (** Each object of the syntactic category carries a “canonical environment”,
    with types/terms just the types/variables of the context. *)
@@ -384,6 +384,19 @@ Section Trivial_Interpretation.
       refine (hinhfun _ (context_derivable Γ)); intros d_Γ.
       apply derive_var, derive_flat_cxt_from_strat, d_Γ.
   Defined.
+
+  Lemma tm_transportf_tm_expr_as_term_gen
+      {n} (Γ : wellformed_context_of_length n)
+      {A : ty_expr n} (isd_A : ∥ [! Γ |- A !] ∥)
+      {A' : ty_expr n} (isd_A' : ∥ [! Γ |- A' !] ∥)
+      (e_A : ty_expr_as_type Γ isd_A = ty_expr_as_type Γ isd_A')
+      {a : tm_expr n} (isd_a : ∥ [! Γ |- a ::: A !] ∥)
+      (isd_a' : ∥ [! Γ |- a ::: A' !] ∥)
+    : @tm_transportf syntactic_typecat _ (ty_expr_as_type Γ isd_A) _
+        e_A (tm_expr_as_term Γ isd_A isd_a)
+      = tm_expr_as_term Γ isd_A' isd_a'.
+  Proof.
+  Admitted. (* [tm_transportf_tm_expr_as_term_gen]: hopefully not too hard *)
 
   (* TODO: triviality of the interpretation into the syntactic category:
 
@@ -414,21 +427,28 @@ Section Trivial_Interpretation.
           (ty_expr_as_partial_type Γ e)
   with trivial_interpretation_tm
       {n} (Γ : wellformed_context_of_length n)
-      {T : ty_expr n} (d_T : ∥ [! Γ |- T !] ∥)
+      {T : ty_expr n} (isd_T : ∥ [! Γ |- T !] ∥)
       (e : tm_expr n)
       : leq_partial
           (partial_interpretation_tm
              SyntacticCategory_Structure.univ
              SyntacticCategory_Structure.pi
              (canonical_environment Γ)
-             (ty_expr_as_type Γ d_T)
+             (ty_expr_as_type Γ isd_T)
              e)
-          (tm_expr_as_partial_term d_T e).
+          (tm_expr_as_partial_term Γ isd_T e).
   Proof.
     - (* rename_ty *)
       destruct e as [ m | m a | m A B ].
       + (* case [U_expr] *)
-        admit.
+        use show_return_leq_partial.
+        * apply hinhpr, derive_U.
+        * cbn. 
+          apply iscompsetquotpr.
+          use typeeq_for_some_rep; apply hinhpr.
+          exists (context_as_context_representative _).
+          apply derive_tyeq_refl.
+          apply derive_U.
       + (* case [El_expr] *)
         admit.
       + (* case [Pi_expr] *)
@@ -436,7 +456,20 @@ Section Trivial_Interpretation.
     - (* rename_tm *)
       destruct e as [ m i | m A B b | m A B g a ].
       + (* case [var_expr] *)
-        admit.
+        cbn.
+        apply show_assume_leq_partial.
+        intros e_Γi_T; cbn in e_Γi_T.
+        use show_return_leq_partial.
+        * cbn.
+          assert (isd_Γi_T : ∥ [! Γ |- Γ i === T !] ∥).
+          { refine (setquotprpathsandR _ _ _ e_Γi_T
+                                       (context_as_context_representative Γ)). }
+          refine (hinhfun3 _ (context_derivable Γ) isd_T isd_Γi_T);
+            intros d_Γ d_T d_Γi_T.
+          apply (derive_tm_conv Γ (Γ i));
+            try apply derive_var; try apply derive_flat_cxt_from_strat;
+            auto.
+        * cbn. apply pathsinv0, tm_transportf_tm_expr_as_term_gen.
       + (* case [lam_expr] *)
         admit.
       + (* case [app_expr] *)
