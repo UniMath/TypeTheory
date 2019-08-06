@@ -357,11 +357,22 @@ Section Trivial_Interpretation.
         * use derive_dB_next_context_map; auto using derive_flat_cxt_from_strat.
   Defined.
 
+
+  Definition tm_expr_as_partial_term {n}
+      {Γ : wellformed_context_of_length n}
+      {A : ty_expr n} (isd_A : ∥ [! Γ |- A !] ∥)
+      (a : tm_expr n)
+    : partial (@tm syntactic_typecat _ (ty_expr_as_type Γ isd_A)).
+  Proof.
+    exists (∥ [! Γ |- a ::: A !] ∥).
+    apply tm_expr_as_term.
+  Defined.
+
   (* TODO: [tm_expr_as_partial_term] *)
 
   (** Each object of the syntactic category carries a “canonical environment”,
    with types/terms just the types/variables of the context. *)
-  Definition canonical_environment_over_wellformed_context
+  Definition canonical_environment
       {n} (Γ : wellformed_context_of_length n)
     : @environment syntactic_typecat (context_class Γ) n.
   Proof.
@@ -376,7 +387,7 @@ Section Trivial_Interpretation.
 
   (* TODO: triviality of the interpretation into the syntactic category:
 
-  Fixpoint trivial_interpretation_ty
+  Fixpoint trivial_int erpretation_ty
     (ΓΓ : syntactic_typecat) 
   with trivial_interpretation_tm
 
@@ -389,6 +400,48 @@ Section Trivial_Interpretation.
   - for any derivable judgement, its interpretation its “itself”? (by induction on derivations)?
 
   Probably go for the middle option — “if a type/term is interpretable in the canonical environmnent (and at some type), then it’s derivable, and its interpretation is itself”.   This can be phrased nicely in terms of [partial_leq] and [tm_/ty_expr_as_partial_type/_term], which may help organise the proof.
+
+  The following is therefore a first attempt, which may turn out not to be the best approach.
 *)
+  Fixpoint trivial_interpretation_ty
+      {n} (Γ : wellformed_context_of_length n)
+      (e : ty_expr n)
+      : leq_partial
+          (partial_interpretation_ty
+             SyntacticCategory_Structure.univ
+             SyntacticCategory_Structure.pi
+             (canonical_environment Γ) e)
+          (ty_expr_as_partial_type Γ e)
+  with trivial_interpretation_tm
+      {n} (Γ : wellformed_context_of_length n)
+      {T : ty_expr n} (d_T : ∥ [! Γ |- T !] ∥)
+      (e : tm_expr n)
+      : leq_partial
+          (partial_interpretation_tm
+             SyntacticCategory_Structure.univ
+             SyntacticCategory_Structure.pi
+             (canonical_environment Γ)
+             (ty_expr_as_type Γ d_T)
+             e)
+          (tm_expr_as_partial_term d_T e).
+  Proof.
+    - (* rename_ty *)
+      destruct e as [ m | m a | m A B ].
+      + (* case [U_expr] *)
+        admit.
+      + (* case [El_expr] *)
+        admit.
+      + (* case [Pi_expr] *)
+        admit.
+    - (* rename_tm *)
+      destruct e as [ m i | m A B b | m A B g a ].
+      + (* case [var_expr] *)
+        admit.
+      + (* case [lam_expr] *)
+        admit.
+      + (* case [app_expr] *)
+        admit.
+  Admitted. (* [trivial_interpretation_ty], […tm]: substantial proof required here *)
+
   
 End Trivial_Interpretation.
