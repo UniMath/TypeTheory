@@ -44,7 +44,7 @@ Section Universe_Structure.
       + simpl.
         admit.
     - admit.
-  Admitted.
+  Admitted. (* [deptype_struct_syntactic_typecat]: reasonably self-contained, probably needs a little more infrastructure on syntactic cat *)
 
   Local Definition univ :
     universe_struct syntactic_typecat
@@ -56,20 +56,20 @@ Section Pi_Structure.
 
   Local Definition pi_form_struct_syntactic_typecat :
     pi_form_struct syntactic_typecat.
-  Admitted.
+  Admitted. (* [pi_form_struct_syntactic_typecat]: reasonably self-contained, probably needs a little more infrastructure on syntactic cat *)
 
   Local Definition pi_intro_struct_syntactic_typecat : 
     pi_intro_struct _ pi_form_struct_syntactic_typecat.
-  Admitted.
+  Admitted. (* [pi_intro_struct_syntactic_typecat]: depends on [pi_form_…], thereafter reasonably self-contained *)
 
   Local Definition pi_app_struct_syntactic_typecat : 
     pi_app_struct _ pi_form_struct_syntactic_typecat.
-  Admitted.
+  Admitted. (* [pi_app_struct_syntactic_typecat]: depends on [pi_form_…], thereafter reasonably self-contained *)
 
   Local Definition pi_comp_struct_syntactic_typecat :
     pi_comp_struct syntactic_typecat pi_intro_struct_syntactic_typecat
                                      pi_app_struct_syntactic_typecat.
-  Admitted.
+  Admitted. (* [pi_comp_struct_syntactic_typecat]: depends on [pi_intro_…] and [pi_app_…], thereafter reasonably self-contained *)
   
   Local Definition pi : pi_struct syntactic_typecat
     := (pi_form_struct_syntactic_typecat,,

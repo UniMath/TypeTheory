@@ -291,6 +291,7 @@ Section Functoriality.
 Time End Functoriality.
 
 Section Trivial_Interpretation.
+(** Main section goal: The interpretation of well-typed syntax into the syntactic category agrees with the canonical maps into the quotient.  *)
 
   (** Each object of the syntactic category carries a “canonical environment”,
    with types/terms just the types/variables of the context. *)
@@ -383,7 +384,7 @@ Section Trivial_Interpretation.
         admit.
       + (* case [app_expr] *)
         admit.
-  Admitted. (* [trivial_interpretation_ty], […tm]: substantial proof required here *)
+  Admitted. (* [trivial_interpretation_ty], […tm]: major proof required; depends on complection of logical structure on syntactic category  *)
 
   
 End Trivial_Interpretation.

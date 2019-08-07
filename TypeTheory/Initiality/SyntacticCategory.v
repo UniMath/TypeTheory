@@ -1093,7 +1093,7 @@ Section Split_Typecat.
     apply derive_tmeq_refl.
     admit. (* TODO: local, a typing lemma *)
     (* NOTE: actually probably go back a few lines and fix from there *)
-  Admitted.
+  Admitted. (* [SyntacticCategory.dpr_q]: hopefully fairly local *)
 
   Local Definition reind_pb 
       {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
@@ -1113,7 +1113,7 @@ Section Split_Typecat.
       now apply isapropdirprod; apply (homset_property syntactic_category).
     - intros hh' [Hgg Hhh].
       admit.
-  Admitted.
+  Admitted. (* [SyntacticCategory.reind_pb]: hopefully fairly local *)
 
   Definition syntactic_typecat_structure : typecat_structure syntactic_category.
   Proof.
@@ -1162,7 +1162,7 @@ Section Split_Typecat.
         exact (subst_derivation [! Γ |- _ !] hA hf).
       + simpl.
         admit. (* This should be provable once we know how to do the above admit *)
-  Admitted.
+  Admitted. (* [is_split_syntactic_typecat_structure]: seems a bit harder than one might expect. *)
   
   Definition syntactic_typecat : split_typecat
   := ((syntactic_category,, syntactic_typecat_structure),,

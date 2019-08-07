@@ -118,7 +118,7 @@ Section Existence.
   (* should be able to put this together component-by-component,
      as the corresponding components of the syntactic typecat are
      defined, using the total interpretation. *) 
-  Admitted.
+  Admitted. (* [interpretation_map]: probably lengthy, but essentially self-contained *)
 
   Lemma interpretation_map_preserves_universe
       (C : contextual_cat) (U : universe_struct C) (Π : pi_struct C)
@@ -127,7 +127,7 @@ Section Existence.
         U
         (interpretation_map C U Π).
   Proof.
-  Admitted.
+  Admitted. (* [interpretation_map_preserves_universe]: depends on [interpretation_map], otherwise hopefully fairly self-contained. *)
 
   Lemma interpretation_map_preserves_pi
       (C : contextual_cat) (U : universe_struct C) (Π : pi_struct C)
@@ -136,7 +136,7 @@ Section Existence.
         Π
         (interpretation_map C U Π).
   Proof.
-  Admitted.
+  Admitted. (* [interpretation_map_preserves_pi]: depends on [interpretation_map], otherwise hopefully fairly self-contained. *)
 
   Lemma interpretation_map_natural
       {C : contextual_cat} {U : universe_struct C} {Π : pi_struct C}
@@ -147,7 +147,7 @@ Section Existence.
     : interpretation_map C' U' Π'
     = compose_typecat (interpretation_map C U Π) F.
   Proof.
-  Admitted. (* [interpretation_map_natural]: depends on at least [interpretation_map], [compose_typecat]. Sketch proof: after giving each component of the construction of [interpretation_map] above, show that that component is natural; then assemble it all here.  Should mostly be a formal repackaging of [fmap_interpretation], from [InterpretationLemmas]. *)
+  Admitted. (* [interpretation_map_natural]: proof_irrelevant; should follow from construction of [interpretation_map] together with  [fmap_interpretation]. Sketch proof: after giving each component of the construction of [interpretation_map] above, show that that component is natural; then assemble it all here. *)
 
   Lemma interpretation_map_id
     : interpretation_map
@@ -156,7 +156,7 @@ Section Existence.
         SyntacticCategory_Structure.pi
     = id_typecat syntactic_typecat.
   Proof.
-  Admitted. (* [intepretation_map_id]: proof-irrelevant; depends on [interpretation_map].  Proof sketch: go via a version of this statement in [InterpretationLemmas], something like “for any derivable judgement, its interpretation is just [setquotpr] of it”, which should be provable by an induction over raw syntax, or possibly derivations. *)
+  Admitted. (* [intepretation_map_id]: proof-irrelevant; should follow reasonably directly from [interpretation_map] together with [interpretation_trivial]. *)
 
 End Existence.
 
@@ -173,20 +173,12 @@ Section Uniqueness.
       (f_Π : preserves_pi_struct SyntacticCategory_Structure.pi Π f)
     : f = interpretation_map C U Π.
   Proof.
-  (* this should come from a couple of lemmas, to be proven not here but
-  upstream in [Interpretation], or perhaps a separate file
-  [interpretation_2] or something:
-
-  - functoriality of the partial interpretation under typecat maps:
-    [fmap_partial_interpretation_ty] and […tm] in [InterpretationLemmas].
-
-  - the total interpretation function into the syntactic category is the
-    same as the canonical quotient inclusion.  This should be a single
-    induction over derivations.
-
-  Then here, we can put these together to show that [f] is equal to the
-  interpretation map into [C].
-  *) 
-  Admitted.
+  (* Using [interpretation_map_natural] and [interpretation_map_id] above, together with [id_left] for the category of contextual cats:
+    interpretation_map C U Π
+    = compose (interpretation_map syntactic_typecat _ _) f 
+    = compose (identity syntactic_typecat f)
+    = f
+  *)
+  Admitted. (* [interpretation_unique]: should follow purely formally from [interpretation_map_natural] and [interpretation_map_id] above. *) 
 
 End Uniqueness.
