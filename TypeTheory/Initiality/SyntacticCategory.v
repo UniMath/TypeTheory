@@ -7,6 +7,7 @@ Require Import UniMath.CategoryTheory.All.
 Require Import UniMath.PAdics.lemmas. (* just for [setquotprpathsandR] *)
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.Partial.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.Initiality.SplitTypeCat_General.
 Require Import TypeTheory.Initiality.SplitTypeCat_Contextual.
@@ -1242,3 +1243,98 @@ Section Contextuality.
     := (syntactic_typecat,, syntactic_typecat_is_contextual).
 
 End Contextuality.
+
+(** Miscellaneous lemmas and constructions, e.g. the correspondence between terms in the syntactic sense and terms of the syntactic typecat in the type-category sense *)
+Section Misc.
+
+  Definition raw_context_as_partial_object {n}
+      (Γ : stratified_context_of_length n)
+    : partial (syntactic_category).
+  Proof.
+    exists ( ∥ [! |- Γ !] ∥ ).
+    exists n; apply setquotpr; exists Γ; assumption.
+  Defined.
+
+  Definition ty_expr_as_type
+      {n} (Γ : wellformed_context_of_length n)
+      {A : ty_expr n} (d_A : ∥ [! Γ |- A !] ∥)
+    : type_mod_eq Γ.
+  Proof.
+    apply setquotpr; exists A.
+    apply type_for_some_rep.
+    refine (hinhfun _ d_A); clear d_A; intros d_A.
+    exact (context_as_context_representative Γ,, d_A).
+  Defined.
+
+  Definition ty_expr_as_partial_type
+      {n} (Γ : wellformed_context_of_length n) (A : ty_expr n)
+    : partial (type_mod_eq Γ).
+  Proof.
+    exists (∥ [! Γ |- A !] ∥).
+    apply ty_expr_as_type.
+  Defined.
+
+  Definition tm_expr_as_term
+      {n} (Γ : wellformed_context_of_length n)
+      {A : ty_expr n} (isd_A : ∥ [! Γ |- A !] ∥)
+      {a : tm_expr n} (isd_a : ∥ [! Γ |- a ::: A !] ∥)
+    : @tm syntactic_typecat _ (ty_expr_as_type Γ isd_A).
+  Proof.
+    use tpair.
+    - (* morphism part *)
+      apply setquotpr.
+      exists (tm_as_raw_context_map a).
+      apply map_for_some_rep, hinhpr.
+      refine (context_as_context_representative _,,_).
+      use tpair.
+      { apply ext_representative. apply context_as_context_representative. }
+      refine (hinhfun2 _ (context_derivable Γ) (isd_a)); intros d_Γ d_a; cbn.
+      refine (derive_tm_as_raw_context_map _ _);
+        auto using derive_flat_cxt_from_strat.
+    - (* section property *)
+      Time apply iscompsetquotpr. simpl.
+      (* TODO: give version of
+       [mapeq_for_some_rep] that (a) incorporates [iscompsetquotpr],
+       and (b) already knows that the maps are well-typed. *)
+      refine (mapeq_for_some_rep _ _ _); apply hinhpr.
+      refine (context_as_context_representative _,,_).
+      refine (context_as_context_representative _,,_).
+      refine (hinhfun3 _ (context_derivable Γ) isd_A isd_a); intros d_Γ d_A d_a.
+      repeat split; simpl.
+      + use (@derive_comp _ (Γ;;A)%context).
+        * refine (derive_tm_as_raw_context_map _ _);
+            auto using derive_flat_cxt_from_strat.
+        * use derive_dB_next_context_map; auto using derive_flat_cxt_from_strat.
+      + use derive_idmap; auto using derive_flat_cxt_from_strat.
+      + apply derive_mapeq_refl.
+        use (@derive_comp _ (Γ;;A)%context).
+        * refine (derive_tm_as_raw_context_map _ _);
+            auto using derive_flat_cxt_from_strat.
+        * use derive_dB_next_context_map; auto using derive_flat_cxt_from_strat.
+  Defined.
+
+
+  Definition tm_expr_as_partial_term
+      {n} (Γ : wellformed_context_of_length n)
+      {A : ty_expr n} (isd_A : ∥ [! Γ |- A !] ∥)
+      (a : tm_expr n)
+    : partial (@tm syntactic_typecat _ (ty_expr_as_type Γ isd_A)).
+  Proof.
+    exists (∥ [! Γ |- a ::: A !] ∥).
+    apply tm_expr_as_term.
+  Defined.
+  
+  Lemma tm_transportf_tm_expr_as_term_gen
+      {n} (Γ : wellformed_context_of_length n)
+      {A : ty_expr n} (isd_A : ∥ [! Γ |- A !] ∥)
+      {A' : ty_expr n} (isd_A' : ∥ [! Γ |- A' !] ∥)
+      (e_A : ty_expr_as_type Γ isd_A = ty_expr_as_type Γ isd_A')
+      {a : tm_expr n} (isd_a : ∥ [! Γ |- a ::: A !] ∥)
+      (isd_a' : ∥ [! Γ |- a ::: A' !] ∥)
+    : @tm_transportf syntactic_typecat _ (ty_expr_as_type Γ isd_A) _
+        e_A (tm_expr_as_term Γ isd_A isd_a)
+      = tm_expr_as_term Γ isd_A' isd_a'.
+  Proof.
+  Admitted. (* [tm_transportf_tm_expr_as_term_gen]: hopefully not too hard *)
+
+End Misc.
