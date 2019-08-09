@@ -832,7 +832,7 @@ Lemma box_subst_comp_box_b_subst {I J} (f : J --> I) (φ : yon I --> FF)
 Proof.
 pathvia (transportf (λ x, x --> X) (maponpaths (box (J+)) (b_yon f φ))
                     (box_b_subst α J (# yon f · φ) (box_subst f φ · u))).
-{ apply (@transportf_transpose _ (λ x, x --> X)), pathsinv0.
+{ apply (@transportf_transpose_right _ (λ x, x --> X)), pathsinv0.
   etrans; [|apply idtoiso_precompose].
   rewrite pathsinv0inv0.
   apply (nat_trans_eq has_homsets_HSET); intro K; apply funextsec; intros ρ.

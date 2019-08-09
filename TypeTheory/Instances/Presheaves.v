@@ -355,7 +355,7 @@ Qed.
 Lemma subst_term_id {Γ : PreShv C} {A : Γ ⊢} (a : Γ ⊢ A) :
   subst_term 1 a = transportb TermIn (subst_type_id A) a.
 Proof.
-apply transportf_transpose, TermIn_eq.
+apply transportf_transpose_right, TermIn_eq.
 etrans; [use pr1_transportf|].
 apply funextsec; intro I; apply funextsec; intro ρ.
 rewrite !transportf_forall, transportf_TypeIn, pathsinv0inv0.
@@ -367,7 +367,7 @@ Lemma subst_term_comp {Γ Δ Θ : PreShv C} (σ1 : Θ --> Δ) (σ2 : Δ --> Γ) 
   subst_term (σ1 · σ2) a =
   transportb (λ x, Θ ⊢ x) (subst_type_comp σ1 σ2 A) (subst_term σ1 (subst_term σ2 a)).
 Proof.
-apply transportf_transpose, TermIn_eq.
+apply transportf_transpose_right, TermIn_eq.
 etrans; [use pr1_transportf|].
 apply funextsec; intro I; apply funextsec; intro ρ.
 rewrite !transportf_forall, transportf_TypeIn, pathsinv0inv0.
@@ -470,7 +470,7 @@ etrans; [apply (eqtohomot (eqtohomot
                           (maponpaths pr1 (@transportf_total2 _ B _ _ _ P _)) I) ρ)|].
 unfold B; simpl.
 rewrite !transportf_forall.
-apply pathsinv0, (@transportf_transpose _ (λ x : Θ ⊢, pr1 ((pr1 x) (make_ob I ρ))) _ _ P).
+apply pathsinv0, (@transportf_transpose_right _ (λ x : Θ ⊢, pr1 ((pr1 x) (make_ob I ρ))) _ _ P).
 unfold transportb, P; rewrite pathsinv0inv0.
 etrans; [apply (transportf_TypeIn I ρ _ _ (subst_type_comp σ2 σ1 A) _)|].
 now rewrite base_paths_subst_type_comp, toforallpaths_funextsec, idpath_transportf.
