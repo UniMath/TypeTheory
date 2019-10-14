@@ -59,19 +59,19 @@ Section CwF_Cat_Equiv.
     exact (pp ,, r).
   Defined.
   
-  Definition isweq_cwf_to_cwf'_structure : isweq cwf_to_cwf'_structure.
+  Definition isweq_cwf'_to_cwf_structure : isweq cwf'_to_cwf_structure.
   Proof.
-    apply (isweq_iso cwf_to_cwf'_structure cwf'_to_cwf_structure).
+    apply (isweq_iso cwf'_to_cwf_structure cwf_to_cwf'_structure).
     - intros x. apply idpath.
     - intros x. apply idpath.
   Defined.
   
-  Definition weq_cwf_cwf'_structure
-    : cwf_structure C ≃ cwf'_structure C.
+  Definition weq_cwf'_cwf_structure
+    : cwf'_structure C ≃ cwf_structure C.
   Proof.
     use tpair.
-    - apply cwf_to_cwf'_structure.
-    - apply isweq_cwf_to_cwf'_structure.
+    - apply cwf'_to_cwf_structure.
+    - apply isweq_cwf'_to_cwf_structure.
   Defined.
 
   (* Morphisms of CwF' structures *)
@@ -81,10 +81,19 @@ Section CwF_Cat_Equiv.
 
   Section mor.
     
-    Context (X Y : cwf_structure C).
+    Context (X' Y' : cwf'_structure C).
 
-    Definition X' := cwf_to_cwf'_structure X.
-    Definition Y' := cwf_to_cwf'_structure Y.
+    Local Definition X := cwf'_to_cwf_structure X'.
+    Local Definition Y := cwf'_to_cwf_structure Y'.
+
+    Definition cwf'_to_cwf_structure_mor
+      : cwf'_structure_mor X' Y' → cwf_structure_mor X Y.
+    Proof.
+      intros [[F_TY p_ax1] [F_TM [ax2 ax3]]].
+      set (p   := λ Γ A, pr1 (p_ax1 Γ A)).
+      set (ax1 := λ Γ A, pr2 (p_ax1 Γ A)).
+      exact ((F_TM ,, F_TY ,, p) ,, (ax1 ,, ax2 ,, ax3)).
+    Defined.
 
     Definition cwf_to_cwf'_structure_mor
       : cwf_structure_mor X Y → cwf'_structure_mor X' Y'.
@@ -96,105 +105,87 @@ Section CwF_Cat_Equiv.
       exact (ext ,, tfm).
     Defined.
 
-    Definition cwf'_to_cwf_structure_mor
-      : cwf'_structure_mor X' Y' → cwf_structure_mor X Y.
+    Definition isweq_cwf'_to_cwf_structure_mor : isweq cwf'_to_cwf_structure_mor.
     Proof.
-      intros [[F_TY p_ax1] [F_TM [ax2 ax3]]].
-      set (p   := λ Γ A, pr1 (p_ax1 Γ A)).
-      set (ax1 := λ Γ A, pr2 (p_ax1 Γ A)).
-      exact ((F_TM ,, F_TY ,, p) ,, (ax1 ,, ax2 ,, ax3)).
+      apply (isweq_iso cwf'_to_cwf_structure_mor
+                       cwf_to_cwf'_structure_mor).
+      - intros x. apply idpath.
+      - intros x. apply idpath.
     Defined.
 
-    Definition isweq_cwf_to_cwf'_structure_mor : isweq cwf_to_cwf'_structure_mor.
+    Definition weq_cwf'_to_cwf_structure_mor
+        : cwf'_structure_mor X' Y' ≃ cwf_structure_mor X Y.
     Proof.
-        apply (isweq_iso cwf_to_cwf'_structure_mor cwf'_to_cwf_structure_mor).
-        - intros x. apply idpath.
-        - intros x. apply idpath.
-    Defined.
-
-    Definition weq_cwf_cwf'_structure_mor
-        : cwf_structure_mor X Y ≃ cwf'_structure_mor X' Y'.
-    Proof.
-        use tpair.
-        - apply cwf_to_cwf'_structure_mor.
-        - apply isweq_cwf_to_cwf'_structure_mor.
+      use tpair.
+      - apply cwf'_to_cwf_structure_mor.
+      - apply isweq_cwf'_to_cwf_structure_mor.
     Defined.
 
   End mor.
 
-  Definition cwf_to_cwf'_functor_data
-    : functor_data (@cwf_structure_cat C) (term_fun_structure_precat C).
+  (* CwF' to CwF functor *)
+
+  Definition cwf'_to_cwf_functor_data
+    : functor_data (term_fun_structure_precat C) (@cwf_structure_cat C).
   Proof.
     use make_functor_data.
-    - apply cwf_to_cwf'_structure.
-    - apply cwf_to_cwf'_structure_mor.
+    - apply cwf'_to_cwf_structure.
+    - apply cwf'_to_cwf_structure_mor.
   Defined.
 
-  Definition cwf_to_cwf'_functor_idax
-    : functor_idax cwf_to_cwf'_functor_data.
+  Definition cwf'_to_cwf_functor_idax
+    : functor_idax cwf'_to_cwf_functor_data.
   Proof.
     intros c. 
     use total2_paths_f.
-    + apply idpath.                 (* F_TY p ax1 *)
-    + use term_fun_mor_eq.
-      intros Γ A.
-      apply idpath.
-
-      (* alternative proof *)
-      (*
-      use total2_paths_f.
-      * apply idpath.               (* F_TM *)
+    + apply idpath.
+    + use total2_paths_f.
+      * apply idpath.
       * use total2_paths_f.
-        -- apply idpath.                   (* ax2 *)
-        -- apply impred_isaprop. intros Γ. (* ax3 *)
+        -- apply idpath.                 
+        -- apply impred_isaprop. intros Γ.
            apply impred_isaprop. intros A.
            apply setproperty.
-      *)
   Defined.
 
-  Definition cwf_to_cwf'_functor_compax
-    : functor_compax cwf_to_cwf'_functor_data.
+  Definition cwf'_to_cwf_functor_compax
+    : functor_compax cwf'_to_cwf_functor_data.
   Proof.
     intros a b c.
     intros f g.
 
     use total2_paths_f.
-    + use total2_paths_f.
-      * apply idpath.                (* F_Ty *)
-      * apply funextsec. intros Γ.
-        apply funextsec. intros A.
-        use total2_paths_f.
-        -- apply idpath.             (* p *)
-        -- apply homset_property.    (* ax1 *)
-    + use term_fun_mor_eq.
-      intros Γ A.
-      (* STUCK HERE for now *)
-
-      use total2_paths_f.
-      * use total2_paths_f.
-        -- apply funextsec. intros Γ.
-           cbn. apply idpath.
-        Check nat_trans_comp.
-        Check (pr11 f).
-        Check (isaset_nat_trans _ (TM a : functor _ _) (TM c : functor _ _)).
-        Print cwf_structure_mor_typing_axiom.
-        Print cwf_structure_mor_data.
-        apply isaproptotal2.
-        -- unfold isPredicate.
-           intros x.
-           
-        Search paths.
-        apply isaset_nat_trans.
+    + apply idpath.
+    + apply dirprod_paths.
+      - apply impred_isaprop. intros Γ.
+        apply impred_isaprop. intros A.
+        apply homset_property.
+      - apply dirprod_paths.
+        * apply homset_property.
+        * apply impred_isaprop. intros Γ.
+          apply impred_isaprop. intros A.
+          apply setproperty.
   Defined.
 
-  Definition cwf_to_cwf'_is_functor
-    : is_functor cwf_to_cwf'_functor_data
-    := (cwf_to_cwf'_functor_idax ,, cwf_to_cwf'_functor_compax).
+  Definition cwf'_to_cwf_is_functor
+    : is_functor cwf'_to_cwf_functor_data
+    := (cwf'_to_cwf_functor_idax ,, cwf'_to_cwf_functor_compax).
   
-  Definition cwf_to_cwf'_functor
-    : functor (@cwf_structure_precategory_data C) (term_fun_structure_precat C).
+  Definition cwf'_to_cwf_functor
+    : functor (term_fun_structure_precat C)
+              (@cwf_structure_precategory_data C).
   Proof.
-    use (make_functor cwf_to_cwf'_functor_data).
+    use (make_functor cwf'_to_cwf_functor_data).
+    apply cwf'_to_cwf_is_functor.
+  Defined.
+
+  Definition cwf'_to_cwf_is_catiso : is_catiso cwf'_to_cwf_functor.
+  Proof.
+    use tpair.
+    - unfold fully_faithful.
+      intros X Y.
+      apply isweq_cwf'_to_cwf_structure_mor.
+    - apply isweq_cwf'_to_cwf_structure.
   Defined.
 
 End CwF_Cat_Equiv.
