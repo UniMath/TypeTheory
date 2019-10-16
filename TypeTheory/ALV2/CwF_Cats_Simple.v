@@ -121,6 +121,23 @@ Section CwF_structure_cat.
     : cwf_structure_mor_data X X'
     := pr1 mor.
   
+  (* Prove that two morphisms of CwF structures are equal
+     given their constituent parts are equal pairwise. *)
+  Definition cwf_structure_mor_eq (X X' : cwf_structure C)
+             (f g : cwf_structure_mor X X')
+             (* equality of TM components *)
+             (e_TM : cwf_structure_mor_TM f = cwf_structure_mor_TM g)
+             (* equality of TY components *)
+             (e_TY : cwf_structure_mor_TY f = cwf_structure_mor_TY g)
+    : f = g.
+  Proof.
+    use total2_paths_f.
+    - use dirprod_paths.
+      + apply e_TM.
+      + apply e_TY.
+    - apply isaprop_is_cwf_structure_mor.
+  Defined.
+
   (* # Yo ϕ part of CwF morphism:
      a morphism in C moving context from one CwF to another. *)
   Definition cwf_structure_mor_Yo_ϕ
@@ -144,25 +161,54 @@ Section CwF_structure_cat.
     apply assoc.
   Defined.
 
-  (* ϕ part of CwF morphism:
-     a morphism in C moving context from one CwF to another. *)
-  Definition cwf_structure_mor_ϕ
+  Definition cwf_structure_mor_ϕ_data
              {X X' : cwf_structure C}
              (f : cwf_structure_mor X X')
-             (Γ : C^op) (A : (TY X : functor _ _) Γ : hSet)
-    : (Γ ◂ A --> Γ ◂ ((cwf_structure_mor_TY f : nat_trans _ _) _ A)).
+    : UU
+    := ∏ (Γ : C^op) (A : (TY X : functor _ _) Γ : hSet),
+       (Γ ◂ A --> Γ ◂ ((cwf_structure_mor_TY f : nat_trans _ _) _ A)).
+
+  Definition has_cwf_structure_mor_weakening_axiom
+             {X X' : cwf_structure C}
+             (mor : cwf_structure_mor X X')
+             (ϕ : cwf_structure_mor_ϕ_data mor)
+    : UU
+    := ∏ (Γ : C) (A : (TY X : functor _ _) Γ : hSet),
+       ϕ Γ A ;; π ((cwf_structure_mor_TY mor : nat_trans _ _) _ A)
+       = π A.
+
+  Definition has_cwf_structure_mor_term_axiom
+             {X X' : cwf_structure C}
+             (mor : cwf_structure_mor X X')
+             (ϕ : cwf_structure_mor_ϕ_data mor)
+    : UU
+    := ∏ (Γ : C) (A : (TY X : functor _ _) Γ : hSet),
+       ((cwf_structure_mor_TM mor : nat_trans _ _) _ (te A))
+       = # (TM X' : functor _ _) (ϕ Γ A) (te _). 
+
+  Definition cwf_structure_mor_ϕ 
+             {X X' : cwf_structure C}
+             (mor : cwf_structure_mor X X')
+    : UU
+    := ∑ (ϕ : cwf_structure_mor_ϕ_data mor),
+       has_cwf_structure_mor_weakening_axiom mor ϕ
+         × has_cwf_structure_mor_term_axiom mor ϕ.
+
+  Definition cwf_structure_mor_ϕ_data_of
+             {X X' : cwf_structure C}
+             (f : cwf_structure_mor X X')
+    : cwf_structure_mor_ϕ_data f.
   Proof.
+    intros Γ A.
     apply (yoneda_fully_faithful _ (homset_property _)).
     apply cwf_structure_mor_Yo_ϕ.
   Defined.
 
-  Definition cwf_structure_mor_weakening_axiom
+  Definition cwf_structure_mor_weakening_axiom_of
              {X X' : cwf_structure C}
              (mor : cwf_structure_mor X X')
-    : ∏ (Γ : C) (A : (TY X : functor _ _) Γ : hSet),
-      cwf_structure_mor_ϕ mor Γ A
-        ;; π ((cwf_structure_mor_TY mor : nat_trans _ _) _ A)
-      = π A.
+    : has_cwf_structure_mor_weakening_axiom
+        mor (cwf_structure_mor_ϕ_data_of mor).
   Proof.
     intros Γ A.
     apply (invmaponpathsweq (# Yo ,, yoneda_fully_faithful _ _ _ _)).
@@ -180,12 +226,11 @@ Section CwF_structure_cat.
     apply P.
   Defined.
 
-  Definition cwf_structure_mor_term_axiom
-             (X X' : cwf_structure C)
+  Definition cwf_structure_mor_term_axiom_of
+             {X X' : cwf_structure C}
              (mor : cwf_structure_mor X X')
-    : ∏ (Γ : C) (A : (TY X : functor _ _) Γ : hSet),
-      ((cwf_structure_mor_TM mor : nat_trans _ _) _ (te A))
-      = # (TM X' : functor _ _) (cwf_structure_mor_ϕ mor Γ A) (te _). 
+    : has_cwf_structure_mor_term_axiom
+        mor (cwf_structure_mor_ϕ_data_of mor).
   Proof.
     intros Γ A.
     apply (invmaponpathsweq (@yy _ (homset_property C) _ _)).
@@ -202,6 +247,107 @@ Section CwF_structure_cat.
                 (# Yo (π A))
                 (yy (te A) ;; cwf_structure_mor_TM mor)).
     apply P.
+  Defined.
+
+  Definition cwf_structure_mor_ϕ_of
+             {X X' : cwf_structure C}
+             (f : cwf_structure_mor X X')
+    : cwf_structure_mor_ϕ f
+    := (cwf_structure_mor_ϕ_data_of f,,
+        cwf_structure_mor_weakening_axiom_of f,,
+        cwf_structure_mor_term_axiom_of f).
+
+  Definition iscontr_cwf_structure_mor_ϕ
+             {X X' : cwf_structure C}
+             (mor : cwf_structure_mor X X')
+    : iscontr (cwf_structure_mor_ϕ mor).
+  Proof.
+    exists (cwf_structure_mor_ϕ_of mor).
+    intros ϕ.
+    use total2_paths_f.
+    - apply funextsec. intros Γ.
+      apply funextsec. intros A.
+      apply (invmaponpathsweq (# Yo ,, yoneda_fully_faithful _ _ _ _)).
+      set (A' := (cwf_structure_mor_TY mor : nat_trans _ _) _ A).
+      set (X'_isPullback := pr2 (pr2 (pr2 X' Γ A'))).
+      set (P := PullbackArrowUnique
+                  _ _ _ _ _
+                  X'_isPullback
+                  _
+                  (# Yo (π A))
+                  (yy (te A) ;; cwf_structure_mor_TM mor)
+          ).
+
+      assert ( # Yo (π A) ;; yy A' =
+               yy (te A) ;; cwf_structure_mor_TM mor ;; pr1 X')
+        as Hcomm.
+      {
+        etrans. apply maponpaths, pathsinv0, yy_comp_nat_trans.
+        etrans. apply assoc.
+        set (te_commutes := pr2 (pr1 (pr2 (pr2 X Γ A))) : _ = _).
+        set (X'_commutes := cwf_square_comm te_commutes).
+        etrans. apply maponpaths_2, X'_commutes.
+        etrans. apply assoc'.
+        etrans. apply maponpaths, pathsinv0, (pr2 mor).
+        apply assoc.
+      }
+      
+      etrans. apply (P Hcomm).
+      + etrans. apply pathsinv0, functor_comp.
+        apply maponpaths.
+        apply (pr1 (pr2 ϕ)).
+      + etrans. apply pathsinv0, yy_natural.
+        etrans. apply maponpaths, pathsinv0, (pr2 (pr2 ϕ)).
+        apply pathsinv0, yy_comp_nat_trans.
+      + apply pathsinv0, P.
+        * etrans. apply pathsinv0, functor_comp.
+          apply maponpaths.
+          apply (cwf_structure_mor_weakening_axiom_of mor).
+        * etrans. apply pathsinv0, yy_natural.
+          etrans. apply maponpaths, pathsinv0, (cwf_structure_mor_term_axiom_of mor).
+          apply pathsinv0, yy_comp_nat_trans.
+
+    - apply dirprod_paths.
+      + apply funextsec. intros Γ.
+        apply funextsec. intros A.
+        apply homset_property.
+      + apply funextsec. intros Γ.
+        apply funextsec. intros A.
+        apply setproperty.
+  Defined.
+
+  Definition cwf_structure_mor_with_ϕ (X X' : cwf_structure C)
+    : UU
+    := ∑ (mor : cwf_structure_mor X X'), cwf_structure_mor_ϕ mor.
+
+  Coercion cwf_structure_mor_with_ϕ_to_mor
+           (X X' : cwf_structure C)
+           (mor : cwf_structure_mor_with_ϕ X X')
+    : cwf_structure_mor X X'
+    := pr1 mor.
+
+  Definition weq_cwf_strucure_mor_with_ϕ
+             {X X' : cwf_structure C}
+    : cwf_structure_mor_with_ϕ X X' ≃ cwf_structure_mor X X'.
+  Proof.
+    apply weqpr1.
+    intros mor.
+    apply iscontr_cwf_structure_mor_ϕ.
+  Defined.
+
+  Definition cwf_structure_mor_with_ϕ_eq
+             {X X' : cwf_structure C}
+             (f g : cwf_structure_mor_with_ϕ X X')
+             (e_TM : cwf_structure_mor_TM f = cwf_structure_mor_TM g)
+             (e_TY : cwf_structure_mor_TY f = cwf_structure_mor_TY g)
+    : f = g.
+  Proof.
+    use total2_paths_f.
+    - use cwf_structure_mor_eq.
+      + apply e_TM.
+      + apply e_TY.
+    - apply proofirrelevancecontr.
+      apply iscontr_cwf_structure_mor_ϕ.
   Defined.
 
   Definition make_cwf_structure_mor
@@ -250,23 +396,6 @@ Section CwF_structure_cat.
         etrans. apply (assoc F_TM).
         etrans. apply maponpaths_2, ax.
         apply (assoc' (pr1 X)).
-  Defined.
-
-  (* Prove that two morphisms of CwF structures are equal
-     given their constituent parts are equal pairwise. *)
-  Definition cwf_structure_mor_eq (X X' : cwf_structure C)
-             (f g : cwf_structure_mor X X')
-             (* equality of TM components *)
-             (e_TM : cwf_structure_mor_TM f = cwf_structure_mor_TM g)
-             (* equality of TY components *)
-             (e_TY : cwf_structure_mor_TY f = cwf_structure_mor_TY g)
-    : f = g.
-  Proof.
-    use total2_paths_f.
-    - use dirprod_paths.
-      + apply e_TM.
-      + apply e_TY.
-    - apply isaprop_is_cwf_structure_mor.
   Defined.
 
   (* Axioms for CwF structure morphisms:
