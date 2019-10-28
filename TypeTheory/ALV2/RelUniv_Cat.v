@@ -22,11 +22,12 @@ Require Import TypeTheory.ALV1.RelativeUniverses.
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
-Section RelUniv_Cat.
+Section RelUniv.
 
   Context (C D : category).
-
   Context (J : functor C D).
+
+Section RelUniv_Cat.
 
   Local Definition Ũ (u : relative_universe J) := source (pr1 u).
   Local Definition U  (u : relative_universe J) := target (pr1 u).
@@ -71,6 +72,14 @@ Section RelUniv_Cat.
     : UU
     := F_Ũ mor ;; pr1 u2 = pr1 u1 ;; F_U mor.
 
+  Definition isaprop_is_relative_universe_mor
+             {u1 u2 : relative_universe J}
+             (mor : relative_universe_mor_data u1 u2)
+    : isaprop (is_relative_universe_mor mor).
+  Proof.
+    apply homset_property.
+  Defined.
+
   Definition relative_universe_mor
              (u1 u2 : relative_universe J)
     : UU
@@ -82,80 +91,6 @@ Section RelUniv_Cat.
            (mor : relative_universe_mor u1 u2)
     : relative_universe_mor_data u1 u2
     := pr1 mor.
-
-  Definition relative_universe_mor_J_F_Xf
-             {u1 u2 : relative_universe J}
-             (mor : relative_universe_mor u1 u2)
-    : ∏ (X : C) (f : J X --> U u1),
-      J (Xf u1 X f) --> J (Xf u2 X (f ;; F_U mor)).
-  Proof.
-    intros X f.
-    apply (u_isPullback u2 X (f ;; F_U mor)
-                        _ (# J (π u1 X f)) (Q u1 X f ;; F_Ũ mor)).
-    etrans. apply assoc.
-    etrans. apply maponpaths_2, (u_commutes u1 X f).
-    etrans. apply assoc'.
-    apply pathsinv0.
-    etrans. apply assoc'.
-    apply maponpaths.
-    apply (pr2 mor).
-  Defined.
-
-  Definition relative_universe_mor_F_Xf
-             {u1 u2 : relative_universe J}
-             (mor : relative_universe_mor u1 u2)
-             (ff_J : fully_faithful J)
-    : ∏ (X : C) (f : J X --> U u1),
-      Xf u1 X f --> Xf u2 X (f ;; F_U mor).
-  Proof.
-    intros X f.
-    apply ff_J.
-    apply relative_universe_mor_J_F_Xf.
-  Defined.
-
-  Definition relative_universe_mor_axiom_F_Xf_π
-             (u1 u2 : relative_universe J)
-             (mor : relative_universe_mor u1 u2)
-             (ff_J : fully_faithful J)
-    : ∏ (X : C) (f : J X --> U u1),
-      relative_universe_mor_F_Xf mor ff_J X f ;; π u2 X (F_U mor ∘ f)
-      = π u1 X f.
-  Proof.
-    intros X f.
-    apply (invmaponpathsweq (# J ,, ff_J _ _)).
-    etrans. apply functor_comp.
-    etrans. apply (maponpaths (λ k, k ;; _)
-                              (homotweqinvweq (# J ,, ff_J _ _) _)).
-    simpl.
-    set (u2_Pullback
-         := make_Pullback
-              _ _ _ _ _ _
-              (u_isPullback u2 X (f ;; F_U mor))).
-    apply (PullbackArrow_PullbackPr1 u2_Pullback).
-  Defined.
-
-  Definition relative_universe_mor_axiom_F_Xf_Q
-             (u1 u2 : relative_universe J)
-             (mor : relative_universe_mor u1 u2)
-    : ∏ (X : C) (f : J X --> U u1),
-      relative_universe_mor_J_F_Xf mor X f ;; Q u2 X (F_U mor ∘ f)
-      = Q u1 X f ;; F_Ũ mor.
-  Proof.
-    intros X f.
-    set (u2_Pullback
-         := make_Pullback
-              _ _ _ _ _ _
-              (u_isPullback u2 X (f ;; F_U mor))).
-    apply (PullbackArrow_PullbackPr2 u2_Pullback).
-  Defined.
-
-  Definition isaprop_is_relative_universe_mor
-             {u1 u2 : relative_universe J}
-             (mor : relative_universe_mor_data u1 u2)
-    : isaprop (is_relative_universe_mor mor).
-  Proof.
-    apply homset_property.
-  Defined.
 
   Definition relative_universe_mor_eq
              (u1 u2 : relative_universe J)
@@ -170,7 +105,7 @@ Section RelUniv_Cat.
       + apply e_U.
     - apply isaprop_is_relative_universe_mor.
   Defined.
-  
+
   Definition relative_universe_mor_id
              (u : relative_universe J)
     : relative_universe_mor u u.
@@ -254,6 +189,458 @@ Section RelUniv_Cat.
     := ( reluniv_precat ,, reluniv_has_homsets ).
 
 End RelUniv_Cat.
+
+Section RelUniv_ϕ_Cat.
+
+  Definition reluniv_mor_ϕ_data
+             {u1 u2 : relative_universe J}
+             (mor : relative_universe_mor u1 u2)
+             (X : C) (f : J X --> U u1)
+    : UU
+    := Xf u1 X f --> Xf u2 X (f ;; F_U mor).
+  
+  Definition has_reluniv_mor_axiom_ϕ_π
+             {u1 u2 : relative_universe J}
+             (mor : relative_universe_mor u1 u2)
+             (X : C) (f : J X --> U u1)
+             (ϕ : reluniv_mor_ϕ_data mor X f)
+    : UU
+    := ϕ ;; π u2 X (F_U mor ∘ f) = π u1 X f.
+  
+  Definition has_reluniv_mor_axiom_ϕ_Q
+             {u1 u2 : relative_universe J}
+             (mor : relative_universe_mor u1 u2)
+             (X : C) (f : J X --> U u1)
+             (ϕ : reluniv_mor_ϕ_data mor X f)
+    : UU
+    := # J ϕ ;; Q u2 X (F_U mor ∘ f) = Q u1 X f ;; F_Ũ mor.
+
+  Definition reluniv_mor_ϕ
+             {u1 u2 : relative_universe J}
+             (mor : relative_universe_mor u1 u2)
+             (X : C) (f : J X --> U u1)
+    : UU
+    := ∑ (ϕ : reluniv_mor_ϕ_data mor X f),
+       has_reluniv_mor_axiom_ϕ_π mor X f ϕ ×
+         has_reluniv_mor_axiom_ϕ_Q mor X f ϕ.
+
+  Definition reluniv_mor_J_ϕ_data_of
+             {u1 u2 : relative_universe J}
+             (mor : relative_universe_mor u1 u2)
+    : ∏ (X : C) (f : J X --> U u1),
+      J (Xf u1 X f) --> J (Xf u2 X (f ;; F_U mor)).
+  Proof.
+    intros X f.
+    apply (u_isPullback u2 X (f ;; F_U mor)
+                        _ (# J (π u1 X f)) (Q u1 X f ;; F_Ũ mor)).
+    etrans. apply assoc.
+    etrans. apply maponpaths_2, (u_commutes u1 X f).
+    etrans. apply assoc'.
+    apply pathsinv0.
+    etrans. apply assoc'.
+    apply maponpaths.
+    apply (pr2 mor).
+  Defined.
+
+  Definition reluniv_mor_ϕ_data_of
+             (ff_J : fully_faithful J)
+             {u1 u2 : relative_universe J}
+             (mor : relative_universe_mor u1 u2)
+    : ∏ (X : C) (f : J X --> U u1),
+      reluniv_mor_ϕ_data mor X f.
+  Proof.
+    intros X f.
+    apply ff_J.
+    apply reluniv_mor_J_ϕ_data_of.
+  Defined.
+
+  Definition reluniv_mor_axiom_ϕ_π
+             (ff_J : fully_faithful J)
+             {u1 u2 : relative_universe J}
+             (mor : relative_universe_mor u1 u2)
+    : ∏ (X : C) (f : J X --> U u1),
+      has_reluniv_mor_axiom_ϕ_π mor X f
+        (reluniv_mor_ϕ_data_of ff_J mor X f).
+  Proof.
+    intros X f.
+    apply (invmaponpathsweq (# J ,, ff_J _ _)).
+    etrans. apply functor_comp.
+    etrans. apply maponpaths_2, (homotweqinvweq (# J ,, ff_J _ _) _).
+    simpl.
+    set (u2_Pullback
+         := make_Pullback
+              _ _ _ _ _ _
+              (u_isPullback u2 X (f ;; F_U mor))).
+    apply (PullbackArrow_PullbackPr1 u2_Pullback).
+  Defined.
+
+  Definition reluniv_mor_axiom_ϕ_Q
+             (ff_J : fully_faithful J)
+             {u1 u2 : relative_universe J}
+             (mor : relative_universe_mor u1 u2)
+    : ∏ (X : C) (f : J X --> U u1),
+      has_reluniv_mor_axiom_ϕ_Q mor X f
+        (reluniv_mor_ϕ_data_of ff_J mor X f).
+  Proof.
+    intros X f.
+    set (u2_Pullback
+         := make_Pullback
+              _ _ _ _ _ _
+              (u_isPullback u2 X (f ;; F_U mor))).
+    etrans. apply maponpaths_2, (homotweqinvweq (# J ,, ff_J _ _) _).
+    apply (PullbackArrow_PullbackPr2 u2_Pullback).
+  Defined.
+
+  Definition reluniv_mor_ϕ_of
+             (ff_J : fully_faithful J)
+             {u1 u2 : relative_universe J}
+             (mor : relative_universe_mor u1 u2)
+    : ∏ (X : C) (f : J X --> U u1),
+      reluniv_mor_ϕ mor X f.
+  Proof.
+    intros X f.
+    exists (reluniv_mor_ϕ_data_of ff_J mor X f).
+    use make_dirprod.
+    - apply reluniv_mor_axiom_ϕ_π.
+    - apply reluniv_mor_axiom_ϕ_Q.
+  Defined.
+
+  Definition isaprop_reluniv_mor_ϕ
+             (f_J : faithful J)
+             {u1 u2 : relative_universe J}
+             (mor : relative_universe_mor u1 u2)
+             (X : C) (f : J X --> U u1)
+    : isaprop (reluniv_mor_ϕ mor X f).
+  Proof.
+    apply invproofirrelevance.
+    intros ϕ ϕ'.
+    use total2_paths_f.
+    + apply (invmaponpathsincl (# J) (f_J _ _)).
+      set (P := PullbackArrowUnique
+               _ _ _ _ _
+               (u_isPullback u2 X (f ;; F_U mor))
+               _ (# J (π u1 X f)) (Q u1 X f ;; F_Ũ mor)
+            ).
+      assert (# J (π u1 X f) ;; (f ;; F_U mor) =
+              Q u1 X f ;; F_Ũ mor ;; pr1 u2) as Hcomm.
+      {
+        etrans. apply assoc.
+        etrans. apply maponpaths_2, (u_commutes u1 X f).
+        etrans. apply assoc'.
+        etrans. apply maponpaths, pathsinv0, (pr2 mor).
+        apply assoc.
+      }
+      etrans. apply (P Hcomm).
+      * etrans. apply pathsinv0, functor_comp.
+        apply maponpaths, (pr1 (pr2 ϕ)).
+      * apply (pr2 (pr2 ϕ)).
+      * apply pathsinv0, P.
+        -- etrans. apply pathsinv0, functor_comp.
+          apply maponpaths, (pr1 (pr2 ϕ')).
+        -- apply (pr2 (pr2 ϕ')).
+    + apply dirprod_paths.
+      * apply homset_property.
+      * apply homset_property.
+  Defined.
+
+  Definition iscontr_reluniv_mor_ϕ
+             (ff_J : fully_faithful J)
+             {u1 u2 : relative_universe J}
+             (mor : relative_universe_mor u1 u2)
+             (X : C) (f : J X --> U u1)
+    : iscontr (reluniv_mor_ϕ mor X f).
+  Proof.
+    apply iscontraprop1.
+    apply isaprop_reluniv_mor_ϕ.
+    - apply fully_faithful_implies_full_and_faithful, ff_J.
+    - apply reluniv_mor_ϕ_of, ff_J.
+  Defined.
+
+  Definition reluniv_mor_with_ϕ
+             (u1 u2 : relative_universe J)
+    : UU
+    := ∑ (mor : relative_universe_mor u1 u2),
+       ∏ (X : C) (f : J X --> U u1), reluniv_mor_ϕ mor X f.
+
+  Lemma reluniv_ϕ_π_eq_π
+        {C' : category}
+        {X : C'} {F : Type} {P : F → C'}
+        (f g : F)
+        (π : ∏ (k : F), P k --> X)
+        (ϕ : ∏ (k : F) (fk : f = k), P f --> P k)
+        (ϕ_f : ϕ f (idpath f) = identity _)
+    : ∏ (fg : f = g), ϕ g fg ;; π g = π f.
+  Proof.
+    intros gf.
+    use (paths_rect _ _ (λ k fk, ϕ k fk ;; π k = π f) _ _ gf). simpl.
+    etrans. apply maponpaths_2, ϕ_f.
+    apply id_left.
+  Defined.
+
+  Definition reluniv_mor_with_ϕ_id
+             (u : relative_universe J)
+    : reluniv_mor_with_ϕ u u.
+  Proof.
+    use tpair.
+    - apply relative_universe_mor_id.
+    - intros X f.
+      use tpair.
+      + apply idtoiso.
+        apply maponpaths, pathsinv0, id_right.
+      + use make_dirprod.
+        * apply (reluniv_ϕ_π_eq_π _ _ _ (λ _ fk, pr1 (idtoiso (maponpaths (Xf u X) fk)))).
+          apply idpath.
+        * unfold has_reluniv_mor_axiom_ϕ_Q.
+          apply pathsinv0. etrans. apply id_right. apply pathsinv0.
+          apply (reluniv_ϕ_π_eq_π _ _ _ (λ _ fk, # J (pr1 (idtoiso (maponpaths (Xf u X) fk))))).
+          apply functor_id.
+  Defined.
+
+  Definition reluniv_mor_with_ϕ_comp
+             (a b c : relative_universe J)
+             (g : reluniv_mor_with_ϕ a b)
+             (h : reluniv_mor_with_ϕ b c)
+    : reluniv_mor_with_ϕ a c.
+  Proof.
+    use tpair.
+    - apply (relative_universe_mor_comp _ _ _ (pr1 g) (pr1 h)).
+    - intros X f.
+      use tpair.
+      + unfold reluniv_mor_ϕ_data.
+        set (ϕ1 := pr1 (pr2 g X f)).
+        set (ϕ2 := pr1 (pr2 h X (f ;; F_U (pr1 g)))).
+        eapply compose. apply (ϕ1 ;; ϕ2).
+        apply idtoiso.
+        apply maponpaths, assoc'.
+      + use make_dirprod.
+        * set (ϕ_π1 := pr1 (pr2 (pr2 g X f))).
+          set (ϕ_π2 := pr1 (pr2 (pr2 h X (f ;; F_U (pr1 g))))).
+          etrans. apply assoc'.
+          etrans. apply maponpaths.
+          apply (reluniv_ϕ_π_eq_π _ _ _ (λ _ fk, pr1 (idtoiso (maponpaths (Xf _ X) fk)))).
+          apply idpath.
+          etrans. apply assoc'.
+          etrans. apply maponpaths, ϕ_π2.
+          apply ϕ_π1.
+        * set (ϕ_Q1 := pr2 (pr2 (pr2 g X f))).
+          set (ϕ_Q2 := pr2 (pr2 (pr2 h X (f ;; F_U (pr1 g))))).
+          unfold has_reluniv_mor_axiom_ϕ_Q in *.
+          etrans. apply maponpaths_2, functor_comp.
+          etrans. apply maponpaths_2, maponpaths_2, functor_comp.
+          etrans. apply assoc'.
+          etrans. apply maponpaths.
+          apply (reluniv_ϕ_π_eq_π _ _ _ (λ _ fk, # J (pr1 (idtoiso (maponpaths (Xf _ X) fk))))).
+          apply functor_id.
+          etrans. apply assoc'.
+          etrans. apply maponpaths, ϕ_Q2.
+          etrans. apply assoc.
+          etrans. apply maponpaths_2, ϕ_Q1.
+          apply assoc'.
+  Defined.
+
+  Definition reluniv_mor_with_ϕ_eq_faithful
+             (u1 u2 : relative_universe J)
+             (g h : reluniv_mor_with_ϕ u1 u2)
+             (e_Ũ : F_Ũ (pr1 g) = F_Ũ (pr1 h))
+             (e_U : F_U (pr1 g) = F_U (pr1 h))
+             (f_J : faithful J)
+    : g = h.
+  Proof.
+    use total2_paths_f.
+    - use relative_universe_mor_eq.
+      + apply e_Ũ.
+      + apply e_U.
+    - apply proofirrelevance.
+      apply impred_isaprop. intros X.
+      apply impred_isaprop. intros f.
+      apply isaprop_reluniv_mor_ϕ.
+      apply f_J.
+  Defined.
+
+  Definition reluniv_with_ϕ_Xf_compat
+             {u1 u2 : relative_universe J}
+             {g h : relative_universe_mor u1 u2}
+             (e_U : F_U g = F_U h)
+    : ∏ (X : C) (f : J X --> U u1),
+      Xf u2 X (f ;; F_U g) --> Xf u2 X (f ;; F_U h).
+  Proof.
+    intros X f.
+    apply idtoiso, maponpaths, maponpaths.
+    apply e_U.
+  Defined.
+
+  Definition reluniv_mor_with_ϕ_eq
+             (u1 u2 : relative_universe J)
+             (g h : reluniv_mor_with_ϕ u1 u2)
+             (e_Ũ : F_Ũ (pr1 g) = F_Ũ (pr1 h))
+             (e_U : F_U (pr1 g) = F_U (pr1 h))
+             (e_ϕ : ∏ (X : C) (f : J X --> U u1),
+                    pr1 (pr2 g X f) ;; reluniv_with_ϕ_Xf_compat e_U X f
+                    = pr1 (pr2 h X f))
+    : g = h.
+  Proof.
+    use total2_paths_f.
+    - use relative_universe_mor_eq.
+      + apply e_Ũ.
+      + apply e_U.
+    - etrans. use transportf_forall. apply funextsec. intros X.
+      etrans. use transportf_forall. apply funextsec. intros f.
+      use total2_paths_f.
+      + etrans.
+        
+        set (A := relative_universe_mor u1 u2).
+        set (B := λ (a : A), reluniv_mor_ϕ_data a X f).
+        set (P := λ (a : A) (b : B a),
+                  has_reluniv_mor_axiom_ϕ_π a X f b
+                    × has_reluniv_mor_axiom_ϕ_Q a X f b).
+        apply (pr1_transportf _ _ P).
+
+        etrans. unfold reluniv_mor_ϕ_data.
+        apply (@functtransportf
+                 _ _
+                 (λ (m : relative_universe_mor u1 u2), Xf u2 X (f ;; F_U m))
+                 (λ (c : C), C ⟦ Xf u1 X f, c ⟧)
+              ).
+
+        etrans. apply pathsinv0, idtoiso_postcompose.
+        
+        apply pathsinv0.
+        etrans. apply pathsinv0, e_ϕ.
+        apply maponpaths.
+
+        unfold reluniv_with_ϕ_Xf_compat.
+        apply pathsinv0.
+        etrans. apply maponpaths, maponpaths.
+        apply pathsinv0.
+        apply (@maponpathscomp
+               _ _ _ _ _
+               (λ (m : relative_universe_mor u1 u2), f ;; F_U m)
+               (Xf u2 X)
+            ).
+        apply maponpaths, maponpaths, maponpaths.
+        etrans. apply pathsinv0.
+        apply (@maponpathscomp
+                 _ _ _ _ _
+                 (λ (m : relative_universe_mor u1 u2), F_U m)
+              (compose f)).
+        apply maponpaths.
+        apply homset_property.
+      + apply dirprod_paths.
+        * apply homset_property.
+        * apply homset_property.
+  Defined.
+
+  Definition reluniv_with_ϕ_ob_mor : precategory_ob_mor
+    := make_precategory_ob_mor
+         (relative_universe J) reluniv_mor_with_ϕ.
+
+  Definition reluniv_with_ϕ_precategory_data : precategory_data.
+  Proof.
+    apply (make_precategory_data reluniv_with_ϕ_ob_mor).
+    - apply reluniv_mor_with_ϕ_id.
+    - apply reluniv_mor_with_ϕ_comp.
+  Defined.
+
+  Definition reluniv_ϕ_idtoiso_pre_post
+             (u1 u2 : relative_universe J)
+             (mor : relative_universe_mor u1 u2)
+             (ϕ : ∏ (X : C) (f : J X --> U u1), reluniv_mor_ϕ mor X f)
+             (X : C)
+             (f g : J X --> U u1)
+             (e_fg : f = g)
+             (e_fg' : f ;; F_U mor = g ;; F_U mor)
+    : idtoiso (! maponpaths (Xf u1 X) e_fg)
+              ;; pr1 (ϕ X f)
+              ;; idtoiso (maponpaths (Xf u2 X) e_fg')
+      = pr1 (ϕ X g).
+  Proof.
+    assert (e_e : e_fg' = maponpaths (postcompose (F_U mor)) e_fg). { apply homset_property. }
+    rewrite e_e. (* FIXME: is this ok? *)
+    use (paths_rect
+           _ _
+           (λ k e_fk,
+            idtoiso (! maponpaths (Xf u1 X) e_fk)
+              ;; pr1 (ϕ X f)
+              ;; idtoiso (maponpaths (Xf u2 X) (maponpaths (postcompose (F_U mor)) e_fk))
+            = pr1 (ϕ X k)) _ _ e_fg).
+    simpl.
+    etrans. apply id_right.
+    apply id_left.
+  Defined.
+
+  Definition reluniv_with_ϕ_precategory_axioms
+    : is_precategory reluniv_with_ϕ_precategory_data.
+  Proof.
+    use make_is_precategory_one_assoc.
+    - intros u1 u2 mor.
+      use reluniv_mor_with_ϕ_eq.
+      + apply id_left.
+      + apply id_left.
+      + intros X f. cbn.
+        unfold reluniv_with_ϕ_Xf_compat.
+        etrans. apply assoc'.
+        etrans. apply maponpaths, idtoiso_concat_pr.
+        etrans. apply maponpaths_2, maponpaths_2.
+        apply maponpaths, maponpaths, maponpathsinv0.
+        etrans. apply maponpaths, maponpaths, maponpaths.
+        apply pathsinv0, maponpathscomp0.
+        apply reluniv_ϕ_idtoiso_pre_post.
+    - intros u1 u2 mor.
+      use reluniv_mor_with_ϕ_eq.
+      + apply id_right.
+      + apply id_right.
+      + intros X f. cbn.
+        etrans. apply assoc'.
+        etrans. apply maponpaths, idtoiso_concat_pr.
+        etrans. apply assoc'.
+        etrans. apply maponpaths, idtoiso_concat_pr.
+        
+        apply pathsinv0. etrans. apply pathsinv0, id_right.
+        apply maponpaths.
+        apply idtoiso_eq_idpath.
+
+        etrans. apply pathsinv0, maponpaths, maponpathscomp0.
+        etrans. apply pathsinv0, maponpathscomp0.
+        apply pathsinv0.
+        etrans. apply pathsinv0. apply PartA.maponpaths_idpath.
+        apply maponpaths.
+        apply homset_property.
+    - intros a b c d g h k.
+      use reluniv_mor_with_ϕ_eq.
+      + apply assoc.
+      + apply assoc.
+      + intros X f. cbn.
+        etrans. apply assoc'.
+        etrans. apply assoc'.
+        apply pathsinv0.
+        etrans. apply assoc'.
+        etrans. apply assoc'.
+        etrans. apply assoc'.
+        apply maponpaths.
+
+        apply pathsinv0.
+        etrans. apply assoc'.
+        etrans. apply assoc'.
+        apply maponpaths.
+
+        etrans. apply maponpaths, maponpaths, idtoiso_concat_pr.
+        etrans. apply maponpaths, idtoiso_concat_pr.
+
+        etrans. apply maponpaths.
+        etrans. apply pathsinv0.
+        Check @idtoiso_eq_idpath.
+        (* STUCK *)
+
+  Abort.
+
+  (*
+  Definition cwf_structure_precategory_axioms
+    : is_precategory cwf_structure_precategory_data.
+   *)
+
+End RelUniv_ϕ_Cat.
+
+End RelUniv.
 
 (** * Functors of relative universe categories *)
 
