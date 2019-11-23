@@ -610,6 +610,15 @@ Section RelUniv_ϕ_Cat.
       + apply assoc.
       + apply assoc.
       + intros X f. cbn.
+
+        (* Oversimplified version of the equation:
+
+           g f ; ( h (f;g) ; k ((f;g);h) ; idtoiso ) ; idtoiso ; compat
+           =
+           g f ; h (f;g) ; idtoiso ; k (f;(g;h)) ; idtoiso
+        *)
+
+        (* Step 1: get rid of (g h) *)
         etrans. apply assoc'.
         etrans. apply assoc'.
         apply pathsinv0.
@@ -618,25 +627,115 @@ Section RelUniv_ϕ_Cat.
         etrans. apply assoc'.
         apply maponpaths.
 
+        (* Oversimplified version of the equation:
+
+           h (f;g) ; k (f;g;h) ; idtoiso ; idtoiso ; compat
+           =
+           h (f;g) ; idtoiso ; (k (f;(g;h)) ; idtoiso)
+        *)
+
+        (* Step 2: get rid of h (f;g) *)
         apply pathsinv0.
         etrans. apply assoc'.
         etrans. apply assoc'.
         apply maponpaths.
 
-        etrans. apply maponpaths, maponpaths, idtoiso_concat_pr.
+        (* Oversimplified version of the equation:
+
+           k (f;g;h) ; idtoiso ; idtoiso ; compat
+           =
+           idtoiso ; (k (f;(g;h)) ; idtoiso)
+        *)
+
+        (* Step 3: change k (f;(g;h)) to k (f;g;h) *)
+        apply pathsinv0.
+        etrans. apply maponpaths, maponpaths_2, pathsinv0.
+        apply (reluniv_ϕ_idtoiso_pre_post
+                 _ _ _ _ X _ _
+                 (assoc' _ _ _)
+                 (maponpaths (λ k, k ;; _) (assoc' _ _ _))).
+
+        (* Oversimplified version of the equation:
+
+           idtoiso ; (idtoiso ; k (f;g;h) ; idtoiso ; idtoiso)
+           =
+           k (f;g;h) ; idtoiso ; idtoiso ; compat
+        *)
+        
+        (* Step 4: get rid of idtoiso on the left of k *)
+        etrans. apply maponpaths, assoc'.
+        etrans. apply maponpaths, assoc'.
+        etrans. apply assoc.
+        etrans. apply maponpaths_2, idtoiso_concat_pr.
+        etrans. apply maponpaths_2, pathsinv0, idtoiso_eq_idpath.
+        apply pathsinv0r.
+        etrans. apply id_left.
+        
+        (* Oversimplified version of the equation:
+
+           k (f;g;h) ; (idtoiso ; idtoiso)
+           =
+           k (f;g;h) ; idtoiso ; idtoiso ; compat
+        *)
+        
+        (* Step 5: get rid of k *)
+        apply maponpaths.
+        
+        (* Oversimplified version of the equation:
+
+           idtoiso ; idtoiso
+           =
+           idtoiso ; idtoiso ; compat
+        *)
+        
+        (* Step 6: reduce equality of idtoiso to equality of paths *)
+        etrans. apply idtoiso_concat_pr.
+        apply pathsinv0.
         etrans. apply maponpaths, idtoiso_concat_pr.
+        etrans. apply idtoiso_concat_pr.
+        apply maponpaths, maponpaths.
 
-        etrans. apply maponpaths.
-        etrans. apply pathsinv0.
-        Check @idtoiso_eq_idpath.
-        (* STUCK *)
+        (* Step 7: factor out Xf d X *)
+        etrans. apply pathsinv0, maponpaths, maponpathscomp0.
+        etrans. apply pathsinv0, maponpathscomp0.
+        apply pathsinv0.
+        etrans. apply pathsinv0, maponpathscomp0.
+        apply maponpaths.
 
-  Abort.
+        (* Step 8: complete the proof *)
+        apply homset_property.
+  Defined.
 
-  (*
-  Definition cwf_structure_precategory_axioms
-    : is_precategory cwf_structure_precategory_data.
-   *)
+  Definition reluniv_with_ϕ_precat : precategory
+    := ( reluniv_with_ϕ_precategory_data ,, reluniv_with_ϕ_precategory_axioms ).
+
+  Definition isaset_reluniv_mor_with_ϕ
+             (u1 u2 : relative_universe J)
+    : isaset (reluniv_mor_with_ϕ u1 u2).
+  Proof.
+    apply isaset_total2.
+    - apply isaset_relative_universe_mor.
+    - intros mor.
+      apply impred_isaset. intros X.
+      apply impred_isaset. intros f.
+      apply isaset_total2.
+      + apply homset_property.
+      + intros ϕ.
+        apply isasetaprop.
+        apply isapropdirprod.
+        * apply homset_property.
+        * apply homset_property.
+  Defined.
+
+  Definition reluniv_with_ϕ_has_homsets : has_homsets reluniv_with_ϕ_precat.
+  Proof.
+    unfold has_homsets.
+    intros a b.
+    apply isaset_reluniv_mor_with_ϕ.
+  Defined.
+
+  Definition reluniv_with_ϕ_cat : category
+    := ( reluniv_with_ϕ_precat ,, reluniv_with_ϕ_has_homsets ).
 
 End RelUniv_ϕ_Cat.
 
