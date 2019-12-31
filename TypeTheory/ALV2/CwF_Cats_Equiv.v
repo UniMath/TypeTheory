@@ -28,7 +28,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
 
 Set Automatic Introduction.
 
-Section CwF_Cat_Equiv.
+Section CwF_Cats_Equiv.
 
   Context (C : category).
 
@@ -137,4 +137,4 @@ Section CwF_Cat_Equiv.
     exists cwf_structure_to_term_fun_structure_functor_data.
   Defined.
 
-End CwF_Cat_Equiv.
+End CwF_Cats_Equiv.
