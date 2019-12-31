@@ -1,13 +1,31 @@
 (**
-  [TypeTheory.ALV1.CwF_Cats]
+  [TypeTheory.ALV2.CwF_Cats]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
 
 (**
-Contents:
+This module defines a category of CwF structures.
+Objects come from [cwf_structure].
 
-- 
+Morphisms are defined similarly to [obj_ext_mor] and [term_fun_mor]:
+- a pair of natural transformations for Tm and Ty presheaves;
+- a component (called ϕ) that transports extended context (Γ ◂ A) and
+- coherence axioms for ϕ.
+
+The only difference from [obj_ext_mor] and [term_fun_mor]
+is how components are packaged in both objects and morphisms.
+
+It turns out though that ϕ (together with axioms)
+is completely determined by the pullback in CwF structure.
+So there exists a simpler (yet equivalent) formulation.
+See TypeTheory.ALV2.CwF_Cats_Simple for the alternative definition
+and TypeTheory.ALV2.CwF_Cats_Simple_Iso for the proof of isomorphism
+of the corresponding categories.
+
+Main definition here is
+
+- [cwf_structure_cat] - category of CwF structures (for a fixed category C).
 *)
 
 Require Import UniMath.Foundations.Sets.

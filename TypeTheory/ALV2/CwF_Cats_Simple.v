@@ -1,13 +1,25 @@
 (**
-  [TypeTheory.ALV1.CwF_Cats]
+  [TypeTheory.ALV2.CwF_Cats_Simple]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
 
 (**
-Contents:
+This module defines a category of CwF structures.
+Objects come from [cwf_structure].
 
-- 
+Morphisms are defined simply as a pair of natural transformations
+for Tm and Ty components of CwF structure.
+
+The main difference from definition in TypeTheory.ALV2.CwF_Cats
+is that here we do not have a ϕ component (and corresponding axioms)
+as it is completely derived from CwF pullback and the simple morphism.
+
+Main definitions are
+
+- [cwf_structure_cat] - category of CwF structures (for a fixed category C).
+- [iscontr_cwf_structure_mor_ϕ] — a proof that there is a unique ϕ for every morphism;
+- [weq_cwf_structure_mor_with_ϕ] — an equivalence of [cwf_structure_mor] and [cwf_structure_mor_with_ϕ];
 *)
 
 Require Import UniMath.Foundations.Sets.
@@ -326,7 +338,7 @@ Section CwF_structure_cat.
     : cwf_structure_mor X X'
     := pr1 mor.
 
-  Definition weq_cwf_strucure_mor_with_ϕ
+  Definition weq_cwf_structure_mor_with_ϕ
              {X X' : cwf_structure C}
     : cwf_structure_mor_with_ϕ X X' ≃ cwf_structure_mor X X'.
   Proof.

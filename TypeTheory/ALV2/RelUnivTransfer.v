@@ -1,11 +1,21 @@
 (**
+  [TypeTheory.ALV2.RelUnivTransfer]
 
+  Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
 
 (**
-Contents:
+Transfer constructions from [TypeTheory.ALV1.RelativeUniverses] lifted to functors.
 
-- 
+Current observation: for simple category of relative J-universe structures
+transfer constructions are lifted "trivially" and the resulting functor
+has all the properties of S functor. This might become a little more complicated
+for the more general case of "full" category of relative J-universe structures
+(where morphisms have explicit ϕ component).
+
+TODO:
+- [x] one transfer construction for "simple" (naive) category of J-universe structures
+- [ ] transfer constructions for "full" category of J-universe structures
 *)
 
 Require Import UniMath.Foundations.All.

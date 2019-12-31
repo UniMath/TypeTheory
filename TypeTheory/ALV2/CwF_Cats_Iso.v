@@ -5,10 +5,19 @@
 *)
 
 (**
-Contents:
+This module defines an isomorphism of categories for slightly
+different definitions of CwF structures.
+Since the difference is merely how components of objects and morphisms
+are "packed" the proof boils down to a simple repackaging.
 
-- 
+See [weq_cwf'_cwf_structure] for the "repackaging" of objects
+and [weq_cwf'_to_cwf_structure_mor] for morphisms.
+
+Main definitions are
+
+- [cwf'_to_cwf_functor], [cwf'_to_cwf_is_catiso] — isomorphism of categories of [cwf_structure] and [cwf'_structure] (composed of [obj_ext_structure] and [term_fun_structure])
 *)
+
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.

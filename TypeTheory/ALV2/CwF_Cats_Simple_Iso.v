@@ -1,13 +1,18 @@
 (**
-  [TypeTheory.ALV1.CwF_Cats]
+  [TypeTheory.ALV2.CwF_Cats_Simple_Iso]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
 
 (**
-Contents:
+This module establishes an isomorphism of categories of
+CwF structures with slightly different definition of morphisms.
+Specifically, [CwF_Cats_Simple.weq_cwf_strucure_mor_with_ϕ] is
+at the core of this isomorpshim.
 
-- 
+Main definitions here are
+
+- [cwf_to_cwfS_functor] and [cwf_to_cwfS_is_catiso] — isomorphism of "regular" and "simple" categories of CwF structure.
 *)
 
 Require Import UniMath.Foundations.All.
@@ -22,7 +27,7 @@ Require Import UniMath.CategoryTheory.catiso.
 
 Set Automatic Introduction.
 
-Section CwF_Cat_Equiv.
+Section CwF_Cats_Simple_Iso.
 
   Context (C : category).
 
@@ -138,4 +143,4 @@ Section CwF_Cat_Equiv.
     - apply (pr2 (idweq _)).
   Defined.
 
-End CwF_Cat_Equiv.
+End CwF_Cats_Simple_Iso.

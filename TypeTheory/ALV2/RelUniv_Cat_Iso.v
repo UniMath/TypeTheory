@@ -1,11 +1,19 @@
 (**
+  [TypeTheory.ALV2.RelUniv_Cat_Iso]
 
+  Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
 
 (**
-Contents:
+This module establishes an an isomorphism of
+categories of "simple" and "full" categories of relative J-universe structures.
+The isomorphism follows from the fact that ϕ component is completely determined
+by the remaining parts of a morphisms when J is fully faithful.
 
-- 
+Main definitions:
+
+- [reluniv_functor] and [reluniv_cat_iso].
+
 *)
 
 Require Import UniMath.Foundations.All.

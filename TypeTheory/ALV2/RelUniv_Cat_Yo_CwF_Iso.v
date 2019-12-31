@@ -1,13 +1,18 @@
 (**
-  [TypeTheory.ALV1.CwF_Cats]
+  [TypeTheory.ALV2.RelUniv_Cat_Yo_CwF_Iso]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
 
 (**
-Contents:
+An isomorphism between a (simple) category of CwF structures and
+(simple) category of relative universe structures over the Yoneda embedding functor.
 
-- 
+The proof is "too easy" since all the components are arranged in the same order.
+
+Main definitions:
+- [cwf_to_reluniv_functor] and [cwf_to_reluniv_is_catiso].
+
 *)
 
 Require Import UniMath.Foundations.All.

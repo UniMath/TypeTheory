@@ -5,9 +5,24 @@
 *)
 
 (** 
-Main definitions:
+This module defines two categories of relative J-universe structures:
+- [reluniv_cat] — with "simple" (or naive) morphisms (simple commutative squares);
+- [reluniv_with_ϕ_cat] — with "full" morphisms (with explicit ϕ component and corresponding axioms).
 
-  TODO: list!
+ϕ component is completely determined by the remaining parts of a morphisms when J is fully faithful.
+This result is reflected in [reluniv_mor_ϕ_of] and futher developed into an isomorphism of
+categories in [TypeTheory.ALV2.RelUniv_Cat_Iso].
+
+An isomorphism between a (simple) category of CwF structures and
+(simple) category of relative universe structures over the Yoneda embedding functor
+is also demonstrated in [TypeTheory.ALV2.RelUniv_Cat_Yo_CwF_Iso].
+
+Other important definitions:
+- [iscontr_reluniv_mor_ϕ] — proof that ϕ component is contractible when J is fully faithful;
+- [isaprop_reluniv_mor_ϕ] — proof that ϕ component is proposition when J is faithful.
+
+TODO: document/update Comm_Squares and Functor_Squares sections.
+
 *)
 
 Require Import UniMath.Foundations.Sets.
