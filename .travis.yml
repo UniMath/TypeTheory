@@ -16,11 +16,10 @@ before_script:
   - pushd ..        
   - git clone --no-checkout https://github.com/UniMath/UniMath
   - cd UniMath
-  - git checkout 2dadfb61f5ef0d9805cf0eb6b80ef2beb26472d5
+  - git checkout master
   - git show
   - make PACKAGES="Foundations MoreFoundations Combinatorics Algebra NumberSystems CategoryTheory Topology Ktheory PAdics" install
   - export PATH=$PATH:$PWD/sub/coq/bin/
   - popd
 script:
   - make 
-
