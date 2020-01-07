@@ -1,6 +1,6 @@
 language:       generic
 sudo:           required
-dist:           xenial
+dist:           bionic
 git:
   submodules:   false
 
@@ -13,12 +13,13 @@ install:
   - eval $(opam config env)
   - opam install lablgtk camlp5 num --yes --verbose
 before_script:
-  - WPATH=$PWD
-  - cd ..        
-  - git clone https://github.com/UniMath/UniMath
-  - cd UniMath && git show && make PACKAGES="Foundations MoreFoundations Combinatorics Algebra NumberSystems CategoryTheory Topology Ktheory PAdics" install
+  - pushd ..        
+  - git clone --no-checkout https://github.com/UniMath/UniMath
+  - cd UniMath
+  - git checkout master
+  - git show
+  - make PACKAGES="Foundations MoreFoundations Combinatorics Algebra NumberSystems CategoryTheory Topology Ktheory PAdics" install
   - export PATH=$PATH:$PWD/sub/coq/bin/
-  - cd $WPATH
+  - popd
 script:
   - make 
-
