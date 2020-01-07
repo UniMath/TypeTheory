@@ -7,7 +7,7 @@
 (**
 This module establishes an isomorphism of categories of
 CwF structures with slightly different definition of morphisms.
-Specifically, [CwF_Cats_Simple.weq_cwf_strucure_mor_with_ϕ] is
+Specifically, [CwF_Cats_Simple.weq_cwf_structure_mor_with_ϕ] is
 at the core of this isomorpshim.
 
 Main definitions here are
@@ -86,7 +86,7 @@ Section CwF_Cats_Simple_Iso.
     Proof.
       eapply weqcomp.
       apply weq_cwf_cwfS_structure_mor_with_ϕ.
-      apply CwF_Cats_Simple.weq_cwf_strucure_mor_with_ϕ.
+      apply CwF_Cats_Simple.weq_cwf_structure_mor_with_ϕ.
     Defined.
 
   End mor.
