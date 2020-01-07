@@ -1,5 +1,7 @@
+/.coq_makefile_output.conf
+/.coqdeps.d
 *.backup
-.coq_makefile_input
+/.coq_makefile_input
 build/CoqMakefile.make
 
 ## Core latex/pdflatex auxiliary files:

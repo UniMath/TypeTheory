@@ -199,8 +199,10 @@ Proof.
       (fun Γ Y => forall A, rep1_fiber_axioms A (pr2 (pr1 (Y A))) (pr2 (Y A)))).
   apply weqonsecfibers; intro Γ.
   eapply weqcomp.
-    use (@weqtotaltoforall _ _
-      (fun A ΓAπt => rep1_fiber_axioms A (pr2 (pr1 ΓAπt)) (pr2 ΓAπt))).
+  { exact (weqtotaltoforall
+           _
+           (fun A ΓAπt => @rep1_fiber_axioms pp Γ _ (pr1 (pr1 ΓAπt)) 
+                                             (pr2 (pr1 ΓAπt)) (pr2 ΓAπt))). }
   apply weqonsecfibers; intro A.
   unfold cwf_fiber_representation.
   (* reassociation:

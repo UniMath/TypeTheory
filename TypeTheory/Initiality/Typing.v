@@ -60,7 +60,7 @@ Section Judgements.
 Other judgements, such as well-formed contexts and context maps, will be “auxiliary” judgements defined in terms of these afterwards.
 
 The inductive definition of derivability involves only the primitive judgements. *)
-  Inductive judgement
+  Polymorphic Inductive judgement
   :=
     | ty_judgement (Γ : context) (A : ty_expr Γ)
     | tyeq_judgement (Γ : context) (A A' : ty_expr Γ)
