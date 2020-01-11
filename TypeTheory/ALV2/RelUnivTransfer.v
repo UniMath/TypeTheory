@@ -161,6 +161,50 @@ Section RelUniv_Transfer.
            * that would also be a commutative square *)
     Abort.
 
+    Definition reluniv_is_functor_with_ess_split_is_faithful
+               (S_sf : split_full S)
+               (R_es : split_ess_surj R)
+               (S_faithful : faithful S)
+      : faithful (reluniv_functor_with_ess_split S_sf R_es).
+    Proof.
+      set (F := reluniv_functor_with_ess_split S_sf R_es).
+      unfold faithful, isincl, isofhlevelf.
+      intros u1 u2 Fg.
+      intros [g e_Fg] [g' e_Fg'].
+      use tpair.
+      - use total2_paths_f.
+        + use relative_universe_mor_eq.
+          * set (Sk := RelUniv_Cat.F_Ũ _ _ _ (pr1 Fg)).
+            set (k := RelUniv_Cat.F_Ũ _ _ _ (pr1 g)).
+            set (k' := RelUniv_Cat.F_Ũ _ _ _ (pr1 g')).
+            set (e_Sk 
+                := maponpaths (λ mor, RelUniv_Cat.F_Ũ _ _ _ (pr1 mor)) e_Fg
+                : # S k = Sk).
+            set (e_Sk'
+                := maponpaths (λ mor, RelUniv_Cat.F_Ũ _ _ _ (pr1 mor)) e_Fg'
+                : # S k' = Sk).
+            set (H := S_faithful _ _ _ (_ ,, e_Sk) (_ ,, e_Sk')).
+            set (e_kk' := maponpaths pr1 (pr1 H)).
+            exact e_kk'.
+          * set (Sk := RelUniv_Cat.F_U _ _ _ (pr1 Fg)).
+            set (k := RelUniv_Cat.F_U _ _ _ (pr1 g)).
+            set (k' := RelUniv_Cat.F_U _ _ _ (pr1 g')).
+            set (e_Sk 
+                := maponpaths (λ mor, RelUniv_Cat.F_U _ _ _ (pr1 mor)) e_Fg
+                : # S k = Sk).
+            set (e_Sk'
+                := maponpaths (λ mor, RelUniv_Cat.F_U _ _ _ (pr1 mor)) e_Fg'
+                : # S k' = Sk).
+            set (H := S_faithful _ _ _ (_ ,, e_Sk) (_ ,, e_Sk')).
+            set (e_kk' := maponpaths pr1 (pr1 H)).
+            exact e_kk'.
+        + apply homset_property.
+      - intros t.
+        apply isaset_hfiber.
+        + apply homset_property.
+        + apply homset_property.
+    Defined.
+
   End RelUniv_Transfer_with_ess_split.
 
   Section RelUniv_Transfer_with_ess_surj.
