@@ -361,3 +361,39 @@ Section RelUniv_Transfer.
   End RelUniv_Transfer_with_ess_surj.
 
 End RelUniv_Transfer.
+
+Section RelUniv_Yo_Rezk.
+
+  Context (C : category).
+  Let RC : univalent_category := Rezk_completion C (homset_property _).
+
+  Definition transfer_of_RelUnivYoneda_functor
+  : functor (reluniv_cat C _ Yo) (reluniv_cat RC _ Yo).
+  Proof.
+    set (R := Rezk_eta C (homset_property _)).
+    set (R_ff := Rezk_eta_fully_faithful C (homset_property _)).
+    set (R_es := Rezk_eta_essentially_surjective C (homset_property _)).
+    set (S := Transport_along_Equivs.ext R R_ff R_es).
+    set (S_pb := Transport_along_Equivs.preserves_pullbacks_ext R R_ff R_es).
+    set (α := Transport_along_Equivs.fi R R_ff R_es).
+    use (reluniv_functor_with_ess_surj
+           _ _ _ _ Yo Yo
+           R S
+           α
+           (pr2 α)
+           (yoneda_fully_faithful _ _)
+           S_pb
+           (pr2 RC)
+           (right_adj_equiv_is_full _ _)
+           R_es
+        ).
+  Defined.
+
+  Definition transfer_of_RelUnivYoneda_functor_is_faithful
+    : faithful transfer_of_RelUnivYoneda_functor.
+  Proof.
+    use (reluniv_functor_with_ess_surj_is_faithful _ _ _ _ Yo Yo).
+    (* TODO *)
+  Abort.
+
+End RelUniv_Yo_Rezk.
