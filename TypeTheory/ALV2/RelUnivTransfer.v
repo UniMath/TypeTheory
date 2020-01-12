@@ -24,6 +24,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.RelativeUniverses.
+Require Import TypeTheory.ALV1.Transport_along_Equivs.
 Require Import TypeTheory.ALV2.RelUniv_Cat.
 Require Import UniMath.CategoryTheory.catiso.
 
@@ -141,7 +142,7 @@ Section RelUniv_Transfer.
         apply (reluniv_is_functor_with_ess_split S_sf R_es).
     Defined.
 
-    Definition reluniv_is_functor_with_ess_split_is_split_full
+    Definition reluniv_functor_with_ess_split_is_split_full
                (S_sf : split_full S)
                (R_es : split_ess_surj R)
       : split_full (reluniv_functor_with_ess_split S_sf R_es).
@@ -155,13 +156,16 @@ Section RelUniv_Transfer.
         + exact (pr1 fe' , pr1 ge').
         + unfold is_relative_universe_mor.
           simpl.
+          
+          Check (pr2 mor).
+          Print is_relative_universe_mor.
           (* STUCK: IMPOSSIBLE TO PROVE? *)
           (* I think the problem is that we are not guaranteed
            * that we can find a preimage for all commutative squares
            * that would also be a commutative square *)
     Abort.
 
-    Definition reluniv_is_functor_with_ess_split_is_faithful
+    Definition reluniv_functor_with_ess_split_is_faithful
                (S_sf : split_full S)
                (R_es : split_ess_surj R)
                (S_faithful : faithful S)
@@ -296,7 +300,7 @@ Section RelUniv_Transfer.
         apply (reluniv_is_functor_with_ess_surj C'_univ S_f R_es).
     Defined.
 
-    Definition reluniv_is_functor_with_ess_surj_is_full
+    Definition reluniv_functor_with_ess_surj_is_full
                (C'_univ : is_univalent C')
                (S_f : full S)
                (R_es : essentially_surjective R)
@@ -306,8 +310,53 @@ Section RelUniv_Transfer.
       (* STUCK: IMPOSSIBLE TO PROVE? *)
       (* I think this will also be impossible
        * for similar reasons as in the proof of
-       * [reluniv_is_functor_with_ess_split_is_split_full] *)
+       * [reluniv_functor_with_ess_split_is_split_full] *)
     Abort.
+
+    Definition reluniv_functor_with_ess_surj_is_faithful
+               (C'_univ : is_univalent C')
+               (S_f : full S)
+               (R_es : essentially_surjective R)
+               (S_faithful : faithful S)
+      : faithful (reluniv_functor_with_ess_surj C'_univ S_f R_es).
+    Proof.
+      set (F := reluniv_functor_with_ess_surj C'_univ S_f R_es).
+      unfold faithful, isincl, isofhlevelf.
+      intros u1 u2 Fg.
+      intros [g e_Fg] [g' e_Fg'].
+      use tpair.
+      - use total2_paths_f.
+        + use relative_universe_mor_eq.
+          * set (Sk := RelUniv_Cat.F_Ũ _ _ _ (pr1 Fg)).
+            set (k := RelUniv_Cat.F_Ũ _ _ _ (pr1 g)).
+            set (k' := RelUniv_Cat.F_Ũ _ _ _ (pr1 g')).
+            set (e_Sk 
+                := maponpaths (λ mor, RelUniv_Cat.F_Ũ _ _ _ (pr1 mor)) e_Fg
+                : # S k = Sk).
+            set (e_Sk'
+                := maponpaths (λ mor, RelUniv_Cat.F_Ũ _ _ _ (pr1 mor)) e_Fg'
+                : # S k' = Sk).
+            set (H := S_faithful _ _ _ (_ ,, e_Sk) (_ ,, e_Sk')).
+            set (e_kk' := maponpaths pr1 (pr1 H)).
+            exact e_kk'.
+          * set (Sk := RelUniv_Cat.F_U _ _ _ (pr1 Fg)).
+            set (k := RelUniv_Cat.F_U _ _ _ (pr1 g)).
+            set (k' := RelUniv_Cat.F_U _ _ _ (pr1 g')).
+            set (e_Sk 
+                := maponpaths (λ mor, RelUniv_Cat.F_U _ _ _ (pr1 mor)) e_Fg
+                : # S k = Sk).
+            set (e_Sk'
+                := maponpaths (λ mor, RelUniv_Cat.F_U _ _ _ (pr1 mor)) e_Fg'
+                : # S k' = Sk).
+            set (H := S_faithful _ _ _ (_ ,, e_Sk) (_ ,, e_Sk')).
+            set (e_kk' := maponpaths pr1 (pr1 H)).
+            exact e_kk'.
+        + apply homset_property.
+      - intros t.
+        apply isaset_hfiber.
+        + apply homset_property.
+        + apply homset_property.
+    Defined.
 
   End RelUniv_Transfer_with_ess_surj.
 
