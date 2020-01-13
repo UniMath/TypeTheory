@@ -393,7 +393,7 @@ Section RelUniv_Yo_Rezk.
     : faithful transfer_of_RelUnivYoneda_functor.
   Proof.
     use (reluniv_functor_with_ess_surj_is_faithful _ _ _ _ Yo Yo).
-    (* TODO *)
-  Abort.
+    use right_adj_equiv_is_ff.
+  Defined.
 
 End RelUniv_Yo_Rezk.
