@@ -288,4 +288,21 @@ Section RelUniv_Functor.
     apply isweq_weak_from_reluniv_mor.
   Defined.
 
+  Definition weak_from_reluniv_functor_is_full
+    : full weak_from_reluniv_functor.
+  Proof.
+    intros u1 u2.
+    apply issurjectiveweq.
+    apply isweq_weak_from_reluniv_mor.
+  Defined.
+
+  Definition weak_from_reluniv_functor_ff
+    : fully_faithful weak_from_reluniv_functor.
+  Proof.
+    apply full_and_faithful_implies_fully_faithful.
+    use make_dirprod.
+    - apply weak_from_reluniv_functor_is_full.
+    - apply weak_from_reluniv_functor_is_faithful.
+  Defined.
+
 End RelUniv_Functor.
