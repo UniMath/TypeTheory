@@ -336,20 +336,142 @@ Section RelUniv_Transfer.
 
 End RelUniv_Transfer.
 
+Section WeakRelUniv_Transfer.
+
+  (*       J
+      C  -----> D
+      |         |
+    R |         | S
+      |         |
+      v         v
+      C' -----> D'
+           J'
+   *)
+  Context (C D C' D' : category).
+  Context (J  : functor C D).
+  Context (J' : functor C' D').
+  Context (R : functor C C').
+  Context (S : functor D D').
+
+  (* the square of functors above commutes
+   * up to natural isomorphism *)
+  Context (α : [C, D'] ⟦ J ∙ S, R ∙ J' ⟧).
+  Context (α_is_iso : is_iso α).
+
+  (* J and J' are fully faithful *)
+  Context (ff_J : fully_faithful J).
+  Context (ff_J' : fully_faithful J').
+
+  (* D and D' are univalent *)
+  Context (Dcat : is_univalent D).
+  Context (D'cat : is_univalent D').
+
+  (* S preserves pullbacks *)
+  Context (S_pb : maps_pb_squares_to_pb_squares _ _ S).
+
+  (* S is an equivalence *)
+  Context (T : functor D' D).
+  Context (η : iso (C := [D, D, pr2 D]) (functor_identity D) (S ∙ T)).
+  Context (ε : iso (C := [D', D', pr2 D']) (T ∙ S) (functor_identity D')).
+  Context (S_ff : fully_faithful S).
+
+  (* R is essentially surjective and full *)
+  Context (R_es : essentially_surjective R).
+  Context (R_full : full R).
+
+  Local Definition S_full : full S.
+  Proof.
+    apply fully_faithful_implies_full_and_faithful, S_ff.
+  Defined.
+
+  Let weq_weak_reluniv
+    := weq_weak_relative_universe_transfer
+         _ _ _ _ _
+         α_is_iso S_pb R_es S_full
+         R_full Dcat D'cat T η ε S_ff.
+
+  Definition weq_weak_reluniv_mor_J_to_J'
+             (u1 u2 : weak_relative_universe J)
+    : weak_reluniv_cat J  ⟦ u1, u2 ⟧
+    ≃ weak_reluniv_cat J' ⟦ weq_weak_reluniv u1, weq_weak_reluniv u2 ⟧.
+  Proof.
+    set (S_weq := weq_from_fully_faithful S_ff).
+    use weqtotal2.
+    - use weqdirprodf.
+      + apply S_weq.
+      + apply S_weq.
+    - intros mor.
+      eapply weqcomp.
+      apply (maponpaths (S_weq _ _) ,, isweqmaponpaths _ _ _).
+      apply eqweqmap.
+      unfold is_gen_reluniv_mor; simpl.
+      etrans. apply maponpaths, functor_comp.
+      etrans. apply maponpaths_2, functor_comp.
+      apply idpath.
+  Defined.
+
+  Definition weak_reluniv_functor_data
+    : functor_data (weak_reluniv_cat J) (weak_reluniv_cat J').
+  Proof.
+    use make_functor_data.
+    - apply weq_weak_reluniv.
+    - apply weq_weak_reluniv_mor_J_to_J'.
+  Defined.
+
+  Definition weak_reluniv_functor_idax
+    : functor_idax weak_reluniv_functor_data.
+  Proof.
+    intros u.
+    use gen_reluniv_mor_eq.
+    - etrans. apply functor_id. apply idpath.
+    - etrans. apply functor_id. apply idpath.
+  Defined.
+
+  Definition weak_reluniv_functor_compax
+    : functor_compax weak_reluniv_functor_data.
+  Proof.
+    intros a b c f g.
+    use gen_reluniv_mor_eq.
+    - etrans. apply functor_comp. apply idpath.
+    - etrans. apply functor_comp. apply idpath.
+  Defined.
+
+  Definition weak_reluniv_is_functor
+    : is_functor weak_reluniv_functor_data
+    := (weak_reluniv_functor_idax ,, weak_reluniv_functor_compax).
+
+  Definition weak_reluniv_functor
+    : functor (weak_reluniv_cat J) (weak_reluniv_cat J')
+    := make_functor
+         weak_reluniv_functor_data
+         weak_reluniv_is_functor.
+
+  Definition weak_reluniv_functor_is_catiso
+    : is_catiso weak_reluniv_functor.
+  Proof.
+    use tpair.
+    - intros u1 u2.
+      apply weq_weak_reluniv_mor_J_to_J'.
+    - apply weq_weak_relative_universe_transfer.
+  Defined.
+
+End WeakRelUniv_Transfer.
+
 Section RelUniv_Yo_Rezk.
 
   Context (C : category).
   Let RC : univalent_category := Rezk_completion C (homset_property _).
 
+  Let R := Rezk_eta C (homset_property _).
+  Let R_ff := Rezk_eta_fully_faithful C (homset_property _).
+  Let R_es := Rezk_eta_essentially_surjective C (homset_property _).
+  Let S := Transport_along_Equivs.ext R R_ff R_es.
+  Let S_pb := Transport_along_Equivs.preserves_pullbacks_ext R R_ff R_es.
+  Let α := Transport_along_Equivs.fi R R_ff R_es.
+
   Definition transfer_of_RelUnivYoneda_functor
     : functor (@reluniv_cat C _ Yo) (@reluniv_cat RC _ Yo).
   Proof.
-    set (R := Rezk_eta C (homset_property _)).
-    set (R_ff := Rezk_eta_fully_faithful C (homset_property _)).
-    set (R_es := Rezk_eta_essentially_surjective C (homset_property _)).
-    set (S := Transport_along_Equivs.ext R R_ff R_es).
-    set (S_pb := Transport_along_Equivs.preserves_pullbacks_ext R R_ff R_es).
-    set (α := Transport_along_Equivs.fi R R_ff R_es).
     use (reluniv_functor_with_ess_surj
            _ _ _ _ Yo Yo
            R S
@@ -368,6 +490,34 @@ Section RelUniv_Yo_Rezk.
   Proof.
     use (reluniv_functor_with_ess_surj_ff _ _ _ _ Yo Yo).
     use right_adj_equiv_is_ff.
+  Defined.
+
+  Let T := Transport_along_Equivs.Fop_precomp R.
+
+  Definition transfer_of_WeakRelUnivYoneda_functor
+    : functor (@weak_reluniv_cat C _ Yo) (@weak_reluniv_cat RC _ Yo).
+  Proof.
+    use (weak_reluniv_functor
+           _ _ _ _ Yo Yo
+           R S
+           α
+           (pr2 α)
+           (is_univalent_preShv _)
+           (is_univalent_preShv _)
+           S_pb
+           T
+        ).
+    - apply epsinv.
+    - apply etainv.
+    - apply right_adj_equiv_is_ff.
+    - apply R_es.
+    - apply fully_faithful_implies_full_and_faithful, R_ff.
+  Defined.
+
+  Definition transfer_of_WeakRelUnivYoneda_functor_is_catiso
+    : is_catiso transfer_of_WeakRelUnivYoneda_functor.
+  Proof.
+    apply weak_reluniv_functor_is_catiso.
   Defined.
 
 End RelUniv_Yo_Rezk.
