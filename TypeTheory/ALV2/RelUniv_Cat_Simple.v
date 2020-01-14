@@ -34,6 +34,8 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.RelativeUniverses.
 
+Require Import UniMath.CategoryTheory.catiso.
+
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
@@ -303,6 +305,15 @@ Section RelUniv_Functor.
     use make_dirprod.
     - apply weak_from_reluniv_functor_is_full.
     - apply weak_from_reluniv_functor_is_faithful.
+  Defined.
+
+  Definition weak_from_reluniv_functor_is_catiso
+             (Ccat : is_univalent C) (J_ff : fully_faithful J)
+    : is_catiso weak_from_reluniv_functor.
+  Proof.
+    use make_dirprod.
+    - apply weak_from_reluniv_functor_ff.
+    - apply (weqproperty (weq_relative_universe_weak_relative_universe _ Ccat J_ff)).
   Defined.
 
 End RelUniv_Functor.
