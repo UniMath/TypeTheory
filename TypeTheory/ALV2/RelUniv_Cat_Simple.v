@@ -197,3 +197,95 @@ End RelUniv_Cat_Simple.
       := gen_reluniv_cat is_universe_relative_to.
 
 End RelUniv.
+
+Section RelUniv_Functor.
+
+  Context {C D : category}.
+  Context (J : functor C D).
+
+  Check is_universe_relative_to.
+  Check is_universe_transfer.
+  Locate "∥".
+  Search ishinh.
+  Check hinhpr.
+
+  Check weak_from_relative_universe.
+
+  Definition weak_from_reluniv_mor
+             (u1 u2 : relative_universe J)
+    : gen_reluniv_mor J rel_universe_structure u1 u2
+      → gen_reluniv_mor J is_universe_relative_to
+                        (weak_from_relative_universe _ u1)
+                        (weak_from_relative_universe _ u2).
+  Proof.
+    intros mor.
+    set (f := pr1 (pr1 mor)).
+    set (g := pr2 (pr1 mor)).
+    set (is_mor := pr2 mor).
+    apply ((f ,, g) ,, is_mor).
+  Defined.
+
+  Definition reluniv_from_weak_mor
+             (u1 u2 : relative_universe J)
+    : gen_reluniv_mor J is_universe_relative_to
+                      (weak_from_relative_universe _ u1)
+                      (weak_from_relative_universe _ u2)
+      → gen_reluniv_mor J rel_universe_structure u1 u2.
+  Proof.
+    intros mor.
+    set (f := pr1 (pr1 mor)).
+    set (g := pr2 (pr1 mor)).
+    set (is_mor := pr2 mor).
+    apply ((f ,, g) ,, is_mor).
+  Defined.
+
+  Definition isweq_weak_from_reluniv_mor
+             (u1 u2 : relative_universe J)
+    : isweq (weak_from_reluniv_mor u1 u2).
+  Proof.
+    use isweq_iso.
+    - apply reluniv_from_weak_mor.
+    - intros x. apply idpath.
+    - intros x. apply idpath.
+  Defined.
+
+  Definition weak_from_reluniv_functor_data
+    : functor_data (reluniv_cat J) (weak_reluniv_cat J).
+  Proof.
+    use make_functor_data.
+    - apply weak_from_relative_universe.
+    - apply weak_from_reluniv_mor.
+  Defined.
+
+  Definition weak_from_reluniv_functor_idax
+    : functor_idax weak_from_reluniv_functor_data.
+  Proof.
+    intros u.
+    apply idpath.
+  Defined.
+
+  Definition weak_from_reluniv_functor_compax
+    : functor_compax weak_from_reluniv_functor_data.
+  Proof.
+    intros a b c f g.
+    apply idpath.
+  Defined.
+
+  Definition weak_from_reluniv_is_functor
+    : is_functor weak_from_reluniv_functor_data
+    := (weak_from_reluniv_functor_idax ,, weak_from_reluniv_functor_compax).
+  
+  Definition weak_from_reluniv_functor
+    : functor (reluniv_cat J) (weak_reluniv_cat J)
+    := make_functor weak_from_reluniv_functor_data
+                    weak_from_reluniv_is_functor.
+
+  Definition weak_from_reluniv_functor_is_faithful
+    : faithful weak_from_reluniv_functor.
+  Proof.
+    intros u1 u2.
+    apply isinclweq.
+    apply isweq_weak_from_reluniv_mor.
+  Defined.
+
+End RelUniv_Functor.
