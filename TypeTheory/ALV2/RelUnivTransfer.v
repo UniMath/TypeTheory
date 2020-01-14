@@ -83,11 +83,56 @@ Section RelUniv_Transfer.
         - use make_dirprod.
           + exact (# S F_Ũ).
           + exact (# S F_U).
-        - etrans. apply pathsinv0, functor_comp.
-          apply pathsinv0. etrans. apply pathsinv0, functor_comp.
-          apply maponpaths, pathsinv0.
-          apply (pr2 mor).
+        - (* NOTE: we use eqweqmap to match [weq_reluniv_mor_J_to_J'_with_ess_split] *)
+          use (eqweqmap _ (maponpaths (# S) (pr2 mor))).
+          etrans. apply maponpaths, functor_comp.
+          etrans. apply maponpaths_2, functor_comp.
+          apply idpath.
     Defined.
+
+    Definition weq_reluniv_mor_J_to_J'_with_ess_split
+                (S_faithful : faithful S)
+                (S_sf : split_full S)
+                (R_es : split_ess_surj R)
+                (u1 u2 : relative_universe J)
+        : relative_universe_mor _ u1 u2
+        ≃ relative_universe_mor _
+            (transfer_of_rel_univ_with_ess_split
+            _ u1 _ _ _ _ α_is_iso S_pb R_es S_sf)
+            (transfer_of_rel_univ_with_ess_split
+            _ u2 _ _ _ _ α_is_iso S_pb R_es S_sf).
+    Proof.
+      set (S_ff := full_and_faithful_implies_fully_faithful _ _ _
+                     (full_from_split_full _ S_sf , S_faithful)).
+      set (S_weq := weq_from_fully_faithful S_ff).
+      use weqtotal2.
+      - use weqdirprodf.
+        + apply S_weq.
+        + apply S_weq.
+      - intros mor.
+        eapply weqcomp.
+        apply (maponpaths (S_weq _ _) ,, isweqmaponpaths _ _ _).
+        apply eqweqmap.
+        unfold is_gen_reluniv_mor; simpl.
+        etrans. apply maponpaths, functor_comp.
+        etrans. apply maponpaths_2, functor_comp.
+        apply idpath.
+    Defined.
+
+    Goal ∏
+         (S_faithful : faithful S)
+         (S_sf : split_full S)
+         (R_es : split_ess_surj R)
+         (u1 u2 : relative_universe J),
+    reluniv_mor_J_to_J'_with_ess_split S_sf R_es u1 u2
+    =
+    weq_reluniv_mor_J_to_J'_with_ess_split S_faithful S_sf R_es u1 u2.
+    Proof.
+      intros a b c d e.
+      unfold reluniv_mor_J_to_J'_with_ess_split, weq_reluniv_mor_J_to_J'_with_ess_split.
+      simpl. cbn.
+      apply idpath.
+    Qed.
 
     Definition reluniv_functor_data_with_ess_split
                 (S_sf : split_full S)
@@ -142,71 +187,40 @@ Section RelUniv_Transfer.
         apply (reluniv_is_functor_with_ess_split S_sf R_es).
     Defined.
 
-    Definition reluniv_functor_with_ess_split_is_split_full
+    Definition reluniv_functor_with_ess_split_is_full
+               (S_faithful : faithful S)
                (S_sf : split_full S)
                (R_es : split_ess_surj R)
-      : split_full (reluniv_functor_with_ess_split S_sf R_es).
+      : full (reluniv_functor_with_ess_split S_sf R_es).
     Proof.
-      intros u1 u2 mor.
-      use tpair.
-      - unfold split_full in S_sf.
-        set (fe' := S_sf _ _ (pr11 mor)).
-        set (ge' := S_sf _ _ (pr21 mor)).
-        use tpair.
-        + exact (pr1 fe' , pr1 ge').
-        + unfold is_gen_reluniv_mor.
-          simpl.
-          
-          Check (pr2 mor).
-          Print is_gen_reluniv_mor.
-          (* STUCK: IMPOSSIBLE TO PROVE? *)
-          (* I think the problem is that we are not guaranteed
-           * that we can find a preimage for all commutative squares
-           * that would also be a commutative square *)
-    Abort.
+      intros u1 u2.
+      apply issurjectiveweq.
+      use (weqproperty (weq_reluniv_mor_J_to_J'_with_ess_split _ _ _ _ _)).
+      apply S_faithful.
+    Defined.
 
     Definition reluniv_functor_with_ess_split_is_faithful
+               (S_faithful : faithful S)
                (S_sf : split_full S)
                (R_es : split_ess_surj R)
-               (S_faithful : faithful S)
       : faithful (reluniv_functor_with_ess_split S_sf R_es).
     Proof.
-      set (F := reluniv_functor_with_ess_split S_sf R_es).
-      unfold faithful, isincl, isofhlevelf.
-      intros u1 u2 Fg.
-      intros [g e_Fg] [g' e_Fg'].
-      use tpair.
-      - use total2_paths_f.
-        + use gen_reluniv_mor_eq.
-          * set (Sk := RelUniv_Cat.F_Ũ _ (pr1 Fg)).
-            set (k := RelUniv_Cat.F_Ũ _ (pr1 g)).
-            set (k' := RelUniv_Cat.F_Ũ _ (pr1 g')).
-            set (e_Sk 
-                := maponpaths (λ mor, RelUniv_Cat.F_Ũ _ (pr1 mor)) e_Fg
-                : # S k = Sk).
-            set (e_Sk'
-                := maponpaths (λ mor, RelUniv_Cat.F_Ũ _ (pr1 mor)) e_Fg'
-                : # S k' = Sk).
-            set (H := S_faithful _ _ _ (_ ,, e_Sk) (_ ,, e_Sk')).
-            set (e_kk' := maponpaths pr1 (pr1 H)).
-            exact e_kk'.
-          * set (Sk := RelUniv_Cat.F_U _ (pr1 Fg)).
-            set (k := RelUniv_Cat.F_U _ (pr1 g)).
-            set (k' := RelUniv_Cat.F_U _ (pr1 g')).
-            set (e_Sk 
-                := maponpaths (λ mor, RelUniv_Cat.F_U _ (pr1 mor)) e_Fg
-                : # S k = Sk).
-            set (e_Sk'
-                := maponpaths (λ mor, RelUniv_Cat.F_U _ (pr1 mor)) e_Fg'
-                : # S k' = Sk).
-            set (H := S_faithful _ _ _ (_ ,, e_Sk) (_ ,, e_Sk')).
-            set (e_kk' := maponpaths pr1 (pr1 H)).
-            exact e_kk'.
-        + apply homset_property.
-      - intros t.
-        apply isaset_hfiber.
-        + apply homset_property.
-        + apply homset_property.
+      intros u1 u2.
+      apply isinclweq.
+      use (weqproperty (weq_reluniv_mor_J_to_J'_with_ess_split _ _ _ _ _)).
+      apply S_faithful.
+    Defined.
+
+    Definition reluniv_functor_with_ess_split_ff
+               (S_faithful : faithful S)
+               (S_sf : split_full S)
+               (R_es : split_ess_surj R)
+      : fully_faithful (reluniv_functor_with_ess_split S_sf R_es).
+    Proof.
+      apply full_and_faithful_implies_fully_faithful.
+      use make_dirprod.
+      - apply reluniv_functor_with_ess_split_is_full, S_faithful.
+      - apply reluniv_functor_with_ess_split_is_faithful, S_faithful.
     Defined.
 
   End RelUniv_Transfer_with_ess_split.
