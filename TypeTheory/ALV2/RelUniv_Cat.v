@@ -33,19 +33,41 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.RelativeUniverses.
+Require Import TypeTheory.ALV2.RelUniv_Cat_Simple.
 
 Local Set Automatic Introduction.
 (* only needed since imports globally unset it *)
 
 Section RelUniv.
 
-  Context (C D : category).
+  Context {C D : category}.
   Context (J : functor C D).
 
-Section RelUniv_Cat.
+Section RelUniv_ϕ_Cat.
 
   Local Definition Ũ (u : relative_universe J) := source (pr1 u).
-  Local Definition U  (u : relative_universe J) := target (pr1 u).
+  Local Definition U (u : relative_universe J) := target (pr1 u).
+
+  Definition relative_universe_mor_data := gen_reluniv_mor_data J rel_universe_structure.
+  Definition relative_universe_mor := gen_reluniv_mor J rel_universe_structure.
+
+  Coercion reluniv_mor_to_data
+           (u1 u2 : relative_universe J)
+           (mor : relative_universe_mor u1 u2)
+    : relative_universe_mor_data u1 u2
+    := pr1 mor.
+
+  Local Definition F_Ũ
+        {u1 u2 : relative_universe J}
+        (mor : relative_universe_mor_data u1 u2)
+    : Ũ u1 --> Ũ u2
+    := pr1 mor.
+  Local Definition F_U
+        {u1 u2 : relative_universe J}
+        (mor : relative_universe_mor_data u1 u2)
+    : U u1 --> U u2
+    := pr2 mor.
+
   Local Definition Xf (u : relative_universe J)
         (X : C) (f : J X --> U u) : C
     := pr1 (pr1 (pr2 u X f)).
@@ -64,148 +86,6 @@ Section RelUniv_Cat.
     : isPullback f (pr1 u) (# J (fp (pr1 (pr2 u X f))))
                  (fq (pr1 (pr2 u X f))) (pr1 (pr2 (pr2 u X f)))
     := pr2 (pr2 (pr2 u X f)).
-
-  Definition relative_universe_mor_data
-             (u1 u2 : relative_universe J)
-    : UU
-    := (Ũ u1 --> Ũ u2) × (U u1 --> U u2).
-
-  Local Definition F_Ũ
-        {u1 u2 : relative_universe J}
-        (mor : relative_universe_mor_data u1 u2)
-    : Ũ u1 --> Ũ u2
-    := pr1 mor.
-  Local Definition F_U
-        {u1 u2 : relative_universe J}
-        (mor : relative_universe_mor_data u1 u2)
-    : U u1 --> U u2
-    := pr2 mor.
-
-  Definition is_relative_universe_mor
-             {u1 u2 : relative_universe J}
-             (mor : relative_universe_mor_data u1 u2)
-    : UU
-    := F_Ũ mor ;; pr1 u2 = pr1 u1 ;; F_U mor.
-
-  Definition isaprop_is_relative_universe_mor
-             {u1 u2 : relative_universe J}
-             (mor : relative_universe_mor_data u1 u2)
-    : isaprop (is_relative_universe_mor mor).
-  Proof.
-    apply homset_property.
-  Defined.
-
-  Definition relative_universe_mor
-             (u1 u2 : relative_universe J)
-    : UU
-    := ∑ (mor : relative_universe_mor_data u1 u2),
-       is_relative_universe_mor mor.
-
-  Coercion relative_universe_mor_to_data
-           (u1 u2 : relative_universe J)
-           (mor : relative_universe_mor u1 u2)
-    : relative_universe_mor_data u1 u2
-    := pr1 mor.
-
-  Definition relative_universe_mor_eq
-             (u1 u2 : relative_universe J)
-             (g h : relative_universe_mor u1 u2)
-             (e_Ũ : F_Ũ g = F_Ũ h)
-             (e_U : F_U g = F_U h)
-    : g = h.
-  Proof.
-    use total2_paths_f.
-    - use dirprod_paths.
-      + apply e_Ũ.
-      + apply e_U.
-    - apply isaprop_is_relative_universe_mor.
-  Defined.
-
-  Definition relative_universe_mor_id
-             (u : relative_universe J)
-    : relative_universe_mor u u.
-  Proof.
-    use tpair.
-    - exists (identity _).
-      apply identity.
-    - unfold is_relative_universe_mor. simpl.
-      etrans. apply id_left.
-      apply pathsinv0, id_right.
-  Defined.
-
-  Definition relative_universe_mor_comp
-             (a b c : relative_universe J)
-             (g : relative_universe_mor a b)
-             (h : relative_universe_mor b c)
-    : relative_universe_mor a c.
-  Proof.
-    use tpair.
-    - exists (F_Ũ g ;; F_Ũ h).
-      exact (F_U g ;; F_U h).
-    - unfold is_relative_universe_mor. simpl.
-      etrans. apply assoc'.
-      etrans. apply maponpaths, (pr2 h).
-      etrans. apply assoc.
-      etrans. apply maponpaths_2, (pr2 g).
-      apply assoc'.
-  Defined.
-
-  Definition reluniv_precat_ob_mor : precategory_ob_mor
-    := (relative_universe J ,, relative_universe_mor).
-
-  Definition reluniv_precat_id_comp
-    : precategory_id_comp reluniv_precat_ob_mor
-    := (relative_universe_mor_id ,, relative_universe_mor_comp).
-
-  Definition reluniv_precat_data : precategory_data
-    := (reluniv_precat_ob_mor ,, reluniv_precat_id_comp).
-
-  Definition reluniv_is_precategory : is_precategory reluniv_precat_data.
-  Proof.
-    use make_is_precategory_one_assoc.
-    - intros a b g.
-      use relative_universe_mor_eq.
-      * apply id_left.
-      * apply id_left.
-    - intros a b g.
-      use relative_universe_mor_eq.
-      * apply id_right.
-      * apply id_right.
-    - intros a b c d g h k.
-      use relative_universe_mor_eq.
-      * apply assoc.
-      * apply assoc.
-  Defined.
-
-  Definition reluniv_precat : precategory
-    := ( reluniv_precat_data ,, reluniv_is_precategory ).
-
-  Definition isaset_relative_universe_mor
-             (u1 u2 : relative_universe J)
-    : isaset (relative_universe_mor u1 u2).
-  Proof.
-    apply isaset_total2.
-    - apply isaset_dirprod.
-      + apply homset_property.
-      + apply homset_property.
-    - intros mor.
-      apply isasetaprop.
-      apply isaprop_is_relative_universe_mor.
-  Defined.
-
-  Definition reluniv_has_homsets : has_homsets reluniv_precat.
-  Proof.
-    unfold has_homsets.
-    intros a b.
-    apply isaset_relative_universe_mor.
-  Defined.
-
-  Definition reluniv_cat : category
-    := ( reluniv_precat ,, reluniv_has_homsets ).
-
-End RelUniv_Cat.
-
-Section RelUniv_ϕ_Cat.
 
   Definition reluniv_mor_ϕ_data
              {u1 u2 : relative_universe J}
@@ -397,7 +277,7 @@ Section RelUniv_ϕ_Cat.
     : reluniv_mor_with_ϕ u u.
   Proof.
     use tpair.
-    - apply relative_universe_mor_id.
+    - apply gen_reluniv_mor_id.
     - intros X f.
       use tpair.
       + apply idtoiso.
@@ -418,7 +298,7 @@ Section RelUniv_ϕ_Cat.
     : reluniv_mor_with_ϕ a c.
   Proof.
     use tpair.
-    - apply (relative_universe_mor_comp _ _ _ (pr1 g) (pr1 h)).
+    - apply (gen_reluniv_mor_comp _ _ _ _ _ (pr1 g) (pr1 h)).
     - intros X f.
       use tpair.
       + unfold reluniv_mor_ϕ_data.
@@ -462,7 +342,7 @@ Section RelUniv_ϕ_Cat.
     : g = h.
   Proof.
     use total2_paths_f.
-    - use relative_universe_mor_eq.
+    - use gen_reluniv_mor_eq.
       + apply e_Ũ.
       + apply e_U.
     - apply proofirrelevance.
@@ -495,7 +375,7 @@ Section RelUniv_ϕ_Cat.
     : g = h.
   Proof.
     use total2_paths_f.
-    - use relative_universe_mor_eq.
+    - use gen_reluniv_mor_eq.
       + apply e_Ũ.
       + apply e_U.
     - etrans. use transportf_forall. apply funextsec. intros X.
@@ -729,7 +609,7 @@ Section RelUniv_ϕ_Cat.
     : isaset (reluniv_mor_with_ϕ u1 u2).
   Proof.
     apply isaset_total2.
-    - apply isaset_relative_universe_mor.
+    - apply isaset_gen_reluniv_mor.
     - intros mor.
       apply impred_isaset. intros X.
       apply impred_isaset. intros f.

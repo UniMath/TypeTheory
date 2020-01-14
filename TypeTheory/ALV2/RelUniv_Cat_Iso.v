@@ -22,28 +22,29 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.RelativeUniverses.
+Require Import TypeTheory.ALV2.RelUniv_Cat_Simple.
 Require Import TypeTheory.ALV2.RelUniv_Cat.
 Require Import UniMath.CategoryTheory.catiso.
 
 Set Automatic Introduction.
 
-Section Cat_Equiv.
+Section Cat_Iso.
 
-  Context (C D : category).
+  Context {C D : category}.
   Context (J : functor C D).
   Context (ff_J : fully_faithful J).
 
   Definition reluniv_mor_to_reluniv_mor_with_ϕ
              (u1 u2 : relative_universe J)
-    : relative_universe_mor _ _ _ u1 u2 → reluniv_mor_with_ϕ _ _ _ u1 u2.
+    : relative_universe_mor _ u1 u2 → reluniv_mor_with_ϕ _ u1 u2.
   Proof.
     intros mor.
-    exact (mor ,, reluniv_mor_ϕ_of _ _ _ ff_J mor).
+    exact (mor ,, reluniv_mor_ϕ_of _ ff_J mor).
   Defined.
 
   Definition reluniv_mor_with_ϕ_to_reluniv_mor
              (u1 u2 : relative_universe J)
-    : reluniv_mor_with_ϕ _ _ _ u1 u2 → relative_universe_mor _ _ _ u1 u2
+    : reluniv_mor_with_ϕ _ u1 u2 → relative_universe_mor _ u1 u2
     := pr1.
 
   Definition isweq_reluniv_mor_to_reluniv_mor_with_ϕ
@@ -61,7 +62,7 @@ Section Cat_Equiv.
 
   Definition weq_reluniv_mor
              (u1 u2 : relative_universe J)
-    : relative_universe_mor _ _ _ u1 u2 ≃ reluniv_mor_with_ϕ _ _ _ u1 u2
+    : relative_universe_mor _ u1 u2 ≃ reluniv_mor_with_ϕ _ u1 u2
     := (_ ,, isweq_reluniv_mor_to_reluniv_mor_with_ϕ u1 u2).
 
   Definition reluniv_functor_data
@@ -100,8 +101,8 @@ Section Cat_Equiv.
     := (reluniv_functor_idax ,, reluniv_functor_compax).
   
   Definition reluniv_functor
-    : functor (@reluniv_precat_data C _ J)
-              (@reluniv_with_ϕ_precategory_data C _ J).
+    : functor (reluniv_cat J)
+              (reluniv_with_ϕ_cat J).
   Proof.
     use (make_functor reluniv_functor_data).
     apply reluniv_is_functor.
@@ -116,4 +117,4 @@ Section Cat_Equiv.
     - apply (pr2 (idweq _)).
   Defined.
 
-End Cat_Equiv.
+End Cat_Iso.

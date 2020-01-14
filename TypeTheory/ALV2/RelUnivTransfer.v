@@ -25,6 +25,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.RelativeUniverses.
 Require Import TypeTheory.ALV1.Transport_along_Equivs.
+Require Import TypeTheory.ALV2.RelUniv_Cat_Simple.
 Require Import TypeTheory.ALV2.RelUniv_Cat.
 Require Import UniMath.CategoryTheory.catiso.
 
@@ -65,8 +66,8 @@ Section RelUniv_Transfer.
                 (S_sf : split_full S)
                 (R_es : split_ess_surj R)
                 (u1 u2 : relative_universe J)
-                (mor : relative_universe_mor _ _ _ u1 u2)
-        : relative_universe_mor _ _ _
+                (mor : relative_universe_mor _ u1 u2)
+        : relative_universe_mor _
             (transfer_of_rel_univ_with_ess_split
             _ u1 _ _ _ _ α_is_iso S_pb R_es S_sf)
             (transfer_of_rel_univ_with_ess_split
@@ -80,20 +81,19 @@ Section RelUniv_Transfer.
         set (F_U := pr21 mor).
         use tpair.
         - use make_dirprod.
-        + exact (# S F_Ũ).
-        + exact (# S F_U).
-        - unfold is_relative_universe_mor. simpl.
-        etrans. apply pathsinv0, functor_comp.
-        apply pathsinv0. etrans. apply pathsinv0, functor_comp.
-        apply maponpaths, pathsinv0.
-        apply (pr2 mor).
+          + exact (# S F_Ũ).
+          + exact (# S F_U).
+        - etrans. apply pathsinv0, functor_comp.
+          apply pathsinv0. etrans. apply pathsinv0, functor_comp.
+          apply maponpaths, pathsinv0.
+          apply (pr2 mor).
     Defined.
 
     Definition reluniv_functor_data_with_ess_split
                 (S_sf : split_full S)
                 (R_es : split_ess_surj R)
-        : functor_data (@reluniv_cat _ _ J)
-                    (@reluniv_cat _ _ J').
+        : functor_data (reluniv_cat J)
+                    (reluniv_cat J').
     Proof.
         use make_functor_data.
         - intros u.
@@ -110,7 +110,7 @@ Section RelUniv_Transfer.
         : functor_idax (reluniv_functor_data_with_ess_split S_sf R_es).
     Proof.
         intros u.
-        use relative_universe_mor_eq.
+        use gen_reluniv_mor_eq.
         - etrans. apply functor_id. apply idpath.
         - etrans. apply functor_id. apply idpath.
     Defined.
@@ -121,7 +121,7 @@ Section RelUniv_Transfer.
         : functor_compax (reluniv_functor_data_with_ess_split S_sf R_es).
     Proof.
         intros a b c f g.
-        use relative_universe_mor_eq.
+        use gen_reluniv_mor_eq.
         - etrans. apply functor_comp. apply idpath.
         - etrans. apply functor_comp. apply idpath.
     Defined.
@@ -154,11 +154,11 @@ Section RelUniv_Transfer.
         set (ge' := S_sf _ _ (pr21 mor)).
         use tpair.
         + exact (pr1 fe' , pr1 ge').
-        + unfold is_relative_universe_mor.
+        + unfold is_gen_reluniv_mor.
           simpl.
           
           Check (pr2 mor).
-          Print is_relative_universe_mor.
+          Print is_gen_reluniv_mor.
           (* STUCK: IMPOSSIBLE TO PROVE? *)
           (* I think the problem is that we are not guaranteed
            * that we can find a preimage for all commutative squares
@@ -177,27 +177,27 @@ Section RelUniv_Transfer.
       intros [g e_Fg] [g' e_Fg'].
       use tpair.
       - use total2_paths_f.
-        + use relative_universe_mor_eq.
-          * set (Sk := RelUniv_Cat.F_Ũ _ _ _ (pr1 Fg)).
-            set (k := RelUniv_Cat.F_Ũ _ _ _ (pr1 g)).
-            set (k' := RelUniv_Cat.F_Ũ _ _ _ (pr1 g')).
+        + use gen_reluniv_mor_eq.
+          * set (Sk := RelUniv_Cat.F_Ũ _ (pr1 Fg)).
+            set (k := RelUniv_Cat.F_Ũ _ (pr1 g)).
+            set (k' := RelUniv_Cat.F_Ũ _ (pr1 g')).
             set (e_Sk 
-                := maponpaths (λ mor, RelUniv_Cat.F_Ũ _ _ _ (pr1 mor)) e_Fg
+                := maponpaths (λ mor, RelUniv_Cat.F_Ũ _ (pr1 mor)) e_Fg
                 : # S k = Sk).
             set (e_Sk'
-                := maponpaths (λ mor, RelUniv_Cat.F_Ũ _ _ _ (pr1 mor)) e_Fg'
+                := maponpaths (λ mor, RelUniv_Cat.F_Ũ _ (pr1 mor)) e_Fg'
                 : # S k' = Sk).
             set (H := S_faithful _ _ _ (_ ,, e_Sk) (_ ,, e_Sk')).
             set (e_kk' := maponpaths pr1 (pr1 H)).
             exact e_kk'.
-          * set (Sk := RelUniv_Cat.F_U _ _ _ (pr1 Fg)).
-            set (k := RelUniv_Cat.F_U _ _ _ (pr1 g)).
-            set (k' := RelUniv_Cat.F_U _ _ _ (pr1 g')).
+          * set (Sk := RelUniv_Cat.F_U _ (pr1 Fg)).
+            set (k := RelUniv_Cat.F_U _ (pr1 g)).
+            set (k' := RelUniv_Cat.F_U _ (pr1 g')).
             set (e_Sk 
-                := maponpaths (λ mor, RelUniv_Cat.F_U _ _ _ (pr1 mor)) e_Fg
+                := maponpaths (λ mor, RelUniv_Cat.F_U _ (pr1 mor)) e_Fg
                 : # S k = Sk).
             set (e_Sk'
-                := maponpaths (λ mor, RelUniv_Cat.F_U _ _ _ (pr1 mor)) e_Fg'
+                := maponpaths (λ mor, RelUniv_Cat.F_U _ (pr1 mor)) e_Fg'
                 : # S k' = Sk).
             set (H := S_faithful _ _ _ (_ ,, e_Sk) (_ ,, e_Sk')).
             set (e_kk' := maponpaths pr1 (pr1 H)).
@@ -218,8 +218,8 @@ Section RelUniv_Transfer.
                 (S_f : full S)
                 (R_es : essentially_surjective R)
                 (u1 u2 : relative_universe J)
-                (mor : relative_universe_mor _ _ _ u1 u2)
-        : relative_universe_mor _ _ _
+                (mor : relative_universe_mor _ u1 u2)
+        : relative_universe_mor _
             (transfer_of_rel_univ_with_ess_surj
             _ u1 _ _ _ _ α_is_iso S_pb R_es C'_univ ff_J' S_f)
             (transfer_of_rel_univ_with_ess_surj
@@ -235,7 +235,7 @@ Section RelUniv_Transfer.
         - use make_dirprod.
         + exact (# S F_Ũ).
         + exact (# S F_U).
-        - unfold is_relative_universe_mor. simpl.
+        - unfold is_gen_reluniv_mor. simpl.
         etrans. apply pathsinv0, functor_comp.
         apply pathsinv0. etrans. apply pathsinv0, functor_comp.
         apply maponpaths, pathsinv0.
@@ -265,7 +265,7 @@ Section RelUniv_Transfer.
         : functor_idax (reluniv_functor_data_with_ess_surj C'_univ S_f R_es).
     Proof.
         intros u.
-        use relative_universe_mor_eq.
+        use gen_reluniv_mor_eq.
         - etrans. apply functor_id. apply idpath.
         - etrans. apply functor_id. apply idpath.
     Defined.
@@ -277,7 +277,7 @@ Section RelUniv_Transfer.
         : functor_compax (reluniv_functor_data_with_ess_surj C'_univ S_f R_es).
     Proof.
         intros a b c f g.
-        use relative_universe_mor_eq.
+        use gen_reluniv_mor_eq.
         - etrans. apply functor_comp. apply idpath.
         - etrans. apply functor_comp. apply idpath.
     Defined.
@@ -326,27 +326,27 @@ Section RelUniv_Transfer.
       intros [g e_Fg] [g' e_Fg'].
       use tpair.
       - use total2_paths_f.
-        + use relative_universe_mor_eq.
-          * set (Sk := RelUniv_Cat.F_Ũ _ _ _ (pr1 Fg)).
-            set (k := RelUniv_Cat.F_Ũ _ _ _ (pr1 g)).
-            set (k' := RelUniv_Cat.F_Ũ _ _ _ (pr1 g')).
+        + use gen_reluniv_mor_eq.
+          * set (Sk := RelUniv_Cat.F_Ũ _ (pr1 Fg)).
+            set (k := RelUniv_Cat.F_Ũ _ (pr1 g)).
+            set (k' := RelUniv_Cat.F_Ũ _ (pr1 g')).
             set (e_Sk 
-                := maponpaths (λ mor, RelUniv_Cat.F_Ũ _ _ _ (pr1 mor)) e_Fg
+                := maponpaths (λ mor, RelUniv_Cat.F_Ũ _ (pr1 mor)) e_Fg
                 : # S k = Sk).
             set (e_Sk'
-                := maponpaths (λ mor, RelUniv_Cat.F_Ũ _ _ _ (pr1 mor)) e_Fg'
+                := maponpaths (λ mor, RelUniv_Cat.F_Ũ _ (pr1 mor)) e_Fg'
                 : # S k' = Sk).
             set (H := S_faithful _ _ _ (_ ,, e_Sk) (_ ,, e_Sk')).
             set (e_kk' := maponpaths pr1 (pr1 H)).
             exact e_kk'.
-          * set (Sk := RelUniv_Cat.F_U _ _ _ (pr1 Fg)).
-            set (k := RelUniv_Cat.F_U _ _ _ (pr1 g)).
-            set (k' := RelUniv_Cat.F_U _ _ _ (pr1 g')).
+          * set (Sk := RelUniv_Cat.F_U _ (pr1 Fg)).
+            set (k := RelUniv_Cat.F_U _ (pr1 g)).
+            set (k' := RelUniv_Cat.F_U _ (pr1 g')).
             set (e_Sk 
-                := maponpaths (λ mor, RelUniv_Cat.F_U _ _ _ (pr1 mor)) e_Fg
+                := maponpaths (λ mor, RelUniv_Cat.F_U _ (pr1 mor)) e_Fg
                 : # S k = Sk).
             set (e_Sk'
-                := maponpaths (λ mor, RelUniv_Cat.F_U _ _ _ (pr1 mor)) e_Fg'
+                := maponpaths (λ mor, RelUniv_Cat.F_U _ (pr1 mor)) e_Fg'
                 : # S k' = Sk).
             set (H := S_faithful _ _ _ (_ ,, e_Sk) (_ ,, e_Sk')).
             set (e_kk' := maponpaths pr1 (pr1 H)).
@@ -368,7 +368,7 @@ Section RelUniv_Yo_Rezk.
   Let RC : univalent_category := Rezk_completion C (homset_property _).
 
   Definition transfer_of_RelUnivYoneda_functor
-  : functor (reluniv_cat C _ Yo) (reluniv_cat RC _ Yo).
+  : functor (@reluniv_cat C _ Yo) (@reluniv_cat RC _ Yo).
   Proof.
     set (R := Rezk_eta C (homset_property _)).
     set (R_ff := Rezk_eta_fully_faithful C (homset_property _)).

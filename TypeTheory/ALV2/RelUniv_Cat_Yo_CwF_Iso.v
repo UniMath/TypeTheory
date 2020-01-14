@@ -23,6 +23,7 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.CwF_def.
 Require Import TypeTheory.ALV1.RelativeUniverses.
 Require Import TypeTheory.ALV2.CwF_Cats_Simple.
+Require Import TypeTheory.ALV2.RelUniv_Cat_Simple.
 Require Import TypeTheory.ALV2.RelUniv_Cat.
 Require Import UniMath.CategoryTheory.catiso.
 
@@ -35,7 +36,7 @@ Section Cat_Equiv.
   Definition weq_cwf_reluniv_mor
              (X Y : cwf_structure C)
     : cwf_structure_mor X Y ≃
-        relative_universe_mor _ _ _
+        relative_universe_mor _
         (weq_cwf_structure_RelUnivYo _ X)
         (weq_cwf_structure_RelUnivYo _ Y)
       := idweq _.
@@ -76,8 +77,8 @@ Section Cat_Equiv.
     := (cwf_to_reluniv_functor_idax ,, cwf_to_reluniv_functor_compax).
   
   Definition cwf_to_reluniv_functor
-    : functor (@cwf_structure_precategory_data C)
-              (@reluniv_precat_data C _ Yo).
+    : functor (@cwf_structure_cat C)
+              (@reluniv_cat C _ Yo).
   Proof.
     use (make_functor cwf_to_reluniv_functor_data).
     apply cwf_to_reluniv_is_functor.
