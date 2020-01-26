@@ -370,7 +370,7 @@ Section RelUniv_Functor.
     - apply AC.
   Defined.
 
-  Definition weak_from_reluniv_functor_is_surj
+  Definition weak_from_reluniv_functor_issurjective
              (AC : AxiomOfChoice.AxiomOfChoice)
              (obC_isaset : isaset C)
     : issurjective weak_from_reluniv_functor.
