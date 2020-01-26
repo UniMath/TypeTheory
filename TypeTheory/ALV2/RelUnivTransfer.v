@@ -455,6 +455,90 @@ Section WeakRelUniv_Transfer.
     - apply weq_weak_relative_universe_transfer.
   Defined.
 
+  Local Definition relu_J_to_relu_J'
+        (C'_univ : is_univalent C')
+    : functor (reluniv_cat J) (reluniv_cat J')
+    := reluniv_functor_with_ess_surj
+         _ _ _ _ _ _ _ _ _ α_is_iso
+         S_pb C'_univ ff_J' S_full R_es.
+
+  Definition weak_relu_Rezk_square_commutes_on_mor
+        (C'_univ : is_univalent C')
+        (u1 u2 : reluniv_cat J)
+        (mor : reluniv_cat J ⟦ u1, u2 ⟧)
+    : pr21 (relu_J_to_relu_J' C'_univ ∙ weak_from_reluniv_functor J') u1 u2 mor
+    = pr21 (weak_from_reluniv_functor J ∙ weak_reluniv_functor) u1 u2 mor.
+  Proof.
+    use gen_reluniv_mor_eq.
+    - apply idpath.
+    - apply idpath.
+  Defined.
+
+  Definition weak_relu_Rezk_square_commutes
+        (C'_univ : is_univalent C')
+    : relu_J_to_relu_J' C'_univ ∙ weak_from_reluniv_functor J'
+      = weak_from_reluniv_functor J ∙ weak_reluniv_functor.
+  Proof.
+    set (e := weak_relu_comm_square
+                J J' R S α α_is_iso S_pb R_es
+                C'_univ ff_J' S_full R_full
+                Dcat D'cat T η ε S_ff).
+    use total2_paths_f.
+    - use total2_paths_f.
+      + apply funextsec. use e. 
+      + etrans. use transportf_forall. apply funextsec. intros u1.
+        etrans. use transportf_forall. apply funextsec. intros u2.
+        etrans. use transportf_forall. apply funextsec. intros mor.
+
+        (* STUCK HERE *)
+        (* This should be straightforward,
+           but for some reason I fail to see the proof
+           Below are some of my attempts.
+        *)
+        
+        Search (transportf (λ (x : ?A), ?B x) ?e ?p = ?q).
+        use gen_reluniv_mor_eq.
+        * unfold F_Ũ, weak_from_reluniv_mor, reluniv_mor_J_to_J'_with_ess_surj. simpl.
+          
+        Search transportf.
+        set (A := reluniv_cat J → weak_reluniv_cat J').
+        set (B := λ (x : A), gen_reluniv_mor_data J' is_universe_relative_to (x u1) (x u2)).
+        apply (transportf_set B).
+        set (f := λ (x : reluniv_cat J → weak_reluniv_cat J'),
+                  _).
+        set (e' :=
+                (funextsec
+                (λ _ : reluniv_cat J, weak_reluniv_cat J')
+                (pr11 (relu_J_to_relu_J' C'_univ ∙ weak_from_reluniv_functor J'))
+                (pr11 (weak_from_reluniv_functor J ∙ weak_reluniv_functor)) e)).
+        apply (transport_section f e').
+        use gen_reluniv_mor_eq.
+        * 
+          set (P := λ (x : A) (mor : B x), is_gen_reluniv_mor J' is_universe_relative_to mor).
+
+
+          etrans.
+          set (xs := (((pr21 (relu_J_to_relu_J' C'_univ ∙ weak_from_reluniv_functor J')) u1 u2 mor) : ∑ (b : B _), P _ b)).
+          Locate "⟦".
+          unfold precategory_morphisms.
+          simpl.
+          unfold gen_reluniv_mor.
+          unfold F_Ũ.
+          
+          apply (pr1_transportf A B P _ _ e' xs).
+
+          Search transportf.
+          apply idpath.
+        use total2_paths_f.
+        * use total2_paths_f.
+          -- simpl. unfold weak_from_reluniv_mor. simpl. apply idpath.
+    apply funextsec2. intro.
+    simpl. unfold weak_from_relative_universe, transfer_of_rel_univ_with_ess_surj, weak_relative_universe_transfer. . apply idpath.
+    unfold relu_J_to_relu_J', weak_from_reluniv_functor, weak_reluniv_functor.
+    unfold functor_composite.
+    simpl.
+  Qed.
+
 End WeakRelUniv_Transfer.
 
 Section RelUniv_Yo_Rezk.
