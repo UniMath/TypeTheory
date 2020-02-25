@@ -668,6 +668,17 @@ Section Context_Maps.
     intros; repeat split; auto.
   Qed.
 
+  Lemma mapeq_from_path
+      {ΓΓ ΔΔ : context_mod_eq} (f g : map ΓΓ ΔΔ)
+    : (forall i, f i = g i)
+    -> mapeq ΓΓ ΔΔ f g.
+  Proof.
+    intros e_fg Γ Δ.
+    refine (hinhfun _ (map_derivable f Γ Δ)); intros d_f.
+    intros i; rewrite <- (e_fg i).
+    apply derive_tmeq_refl, d_f.
+  Qed.
+
 End Context_Maps.
 
 Section Context_Map_Operations.
@@ -961,40 +972,6 @@ Section Split_Typecat.
       exact @reind.
   Defined.
 
-  (* TODO: upstream the following few items *)
-  Definition dB_next_context_map (n:nat)
-    : raw_context_map (S n) n
-  := fun i => var_expr (dB_next i).
-
-  (* TODO: upstream *)
-  Definition rename_as_subst_ty {m n : nat} (f : m -> n) (e : ty_expr m)
-    : rename_ty f e = subst_ty (var_expr ∘ f)%functions e.
-  Proof.
-    (* TODO: perhaps [subst_idmap_ty] should be derived from this, rather than vice versa? *)
-    eapply pathscomp0. { apply maponpaths, pathsinv0, subst_idmap_ty. }
-    use rename_subst_ty.
-  Defined.
-
-  (* TODO: upstream *)
-  Definition rename_as_subst_tm {m n : nat} (f : m -> n) (e : tm_expr m)
-    : rename_tm f e = subst_tm (var_expr ∘ f)%functions e.
-  Proof.
-    eapply pathscomp0. { apply maponpaths, pathsinv0, subst_idmap_tm. }
-    use rename_subst_tm.
-  Defined.
-
-  (* TODO: upstream *)
-  Definition derive_dB_next_context_map {Γ} {A}
-      (d_Γ : [! |f- Γ !]) (d_A : [! Γ |- A !])
-    : [! |- dB_next_context_map Γ ::: Γ;;A ---> Γ !].
-  Proof.
-    intros i.
-    eapply transportb.
-    { apply maponpaths_2, pathsinv0, rename_as_subst_ty. }
-    refine (derive_var (_;;_) (dB_next i) _).
-    refine (derive_flat_extend_context _ _ (dB_next i)); assumption.
-  Defined.
-  Opaque derive_dB_next_context_map.
 
   Local Definition dpr (ΓΓ : context_mod_eq) (AA : type_mod_eq ΓΓ)
     : map_mod_eq (ext ΓΓ AA) ΓΓ.
@@ -1085,15 +1062,15 @@ Section Split_Typecat.
     - intros f g e_fg. exact (qmor_eq AA e_fg).
   Defined.
 
+  (* TODO: upstream! *)
+  Arguments comp_raw_context {_ _ _} _ _ _/.
+
   Local Definition dpr_q
       {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
       {ΓΓ' : context_mod_eq} (ff : map_mod_eq ΓΓ' ΓΓ)
     : compose (qmor AA ff) (dpr _ AA) = compose (dpr _ (reind AA ff)) ff.
   Proof.
-    revert AA; use setquotunivprop'. { intros; apply isasetsetquot. } intros A.
     revert ff; use setquotunivprop'. { intros; apply isasetsetquot. } intros f.
-    apply (take_context_representative ΓΓ); [apply isasetsetquot|]; intros Γ.
-    apply (take_context_representative ΓΓ'); [apply isasetsetquot|]; intros Γ'.
     simpl. (* TODO: see if [abstract] in [dpr], or factoring the hard part out,
             makes this quicker? *)
     unfold qmor, setquot_to_dependent_subquotient; simpl.
@@ -1101,12 +1078,9 @@ Section Split_Typecat.
     unfold compose; simpl.
     unfold setquotfun2', setquotuniv2', setquotuniv; simpl. (* Agh! Can’t we have a version that computes more easily?? *)
     apply iscompsetquotpr.
-    use mapeq_for_some_rep; apply hinhpr; simpl.
-    use tpair. { apply ext_representative, Γ'. }
-    exists Γ; apply hinhpr.
-    simpl.
-    admit. (* TODO: local, a give in [TypingLemmas] *)
-  Admitted. (* [SyntacticCategory.dpr_q]: hopefully fairly local *)
+    use mapeq_from_path. intros i; simpl.
+    apply rename_as_subst_tm.
+  Qed.
 
   Local Definition reind_pb 
       {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)

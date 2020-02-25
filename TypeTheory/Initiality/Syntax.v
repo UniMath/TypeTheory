@@ -207,8 +207,13 @@ Section Substitution.
 
   (** Some auxiliary functions for common special cases *)
 
+  Definition dB_next_context_map (n:nat)
+    : raw_context_map (S n) n
+  := fun i => var_expr (dB_next i).
+
   (** Substituting just the “top” variable, as in the typing rule for [app],
-   or the conclusion of beta-reduction. *)
+   or the conclusion of beta-reduction; also used when viewing a term as a
+   section of the projection, as in CwA semantics. *)
   Definition tm_as_raw_context_map {n} (a : tm_expr n)
     : raw_context_map n (S n)
   := add_to_raw_context_map (idmap_raw_context _) a.
