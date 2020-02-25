@@ -627,9 +627,9 @@ Section Context_Maps.
       auto using derive_flat_cxt_from_strat, derive_flat_cxteq_sym.
     use (derive_map_conv_cxteq_cod _ d_Δ');
       auto using derive_flat_cxt_from_strat, derive_flat_cxteq_sym.
-  Defined.
+  Qed.
 
-  Lemma mapeq_for_some_rep
+  Lemma raw_mapeq_for_some_rep
       {ΓΓ ΔΔ : context_mod_eq} (f g : raw_context_map ΓΓ ΔΔ)
       
     : (∃ (Γ:context_representative ΓΓ) (Δ:context_representative ΔΔ),
@@ -652,7 +652,21 @@ Section Context_Maps.
          (derive_map_conv_cxteq_cod d_Γ' d_Δ').
     use (derive_mapeq_conv_cxteq_cod _ d_Δ');
       auto using derive_flat_cxt_from_strat, derive_flat_cxteq_sym.
-  Defined.
+  Qed.
+
+  Lemma mapeq_for_some_rep
+      {ΓΓ ΔΔ : context_mod_eq} (f g : map ΓΓ ΔΔ)
+    : (∃ (Γ:context_representative ΓΓ) (Δ:context_representative ΔΔ),
+        ∥ [! |- f === g ::: Γ ---> Δ !] ∥)
+    -> ∀ (Γ:context_representative ΓΓ) (Δ:context_representative ΔΔ),
+        ∥ [! |- f === g ::: Γ ---> Δ !] ∥.
+  Proof.
+    intros H. apply raw_mapeq_for_some_rep.
+    refine (hinhfun _ H); clear H.
+    intros [Γ [Δ H]]. exists Γ, Δ.
+    refine (hinhfun3 _ (map_derivable f Γ Δ) (map_derivable g Γ Δ) H); clear H.
+    intros; repeat split; auto.
+  Qed.
 
 End Context_Maps.
 
@@ -1032,7 +1046,7 @@ Section Split_Typecat.
     : mapeq (ext ΓΓ' (reind AA (setquotpr _ g))) (ext ΓΓ AA)
             (qmor_raw AA f) (qmor_raw AA g).
   Proof.
-    refine (mapeq_for_some_rep _ _ _).
+    refine (raw_mapeq_for_some_rep _ _ _).
     apply (take_context_representative ΓΓ). { apply propproperty. } intros Γ.
     apply (take_context_representative ΓΓ'). { apply propproperty. } intros Γ'.
     revert AA. use setquotunivprop'. { intros; apply propproperty. } intros A.
@@ -1078,21 +1092,20 @@ Section Split_Typecat.
   Proof.
     revert AA; use setquotunivprop'. { intros; apply isasetsetquot. } intros A.
     revert ff; use setquotunivprop'. { intros; apply isasetsetquot. } intros f.
+    apply (take_context_representative ΓΓ); [apply isasetsetquot|]; intros Γ.
+    apply (take_context_representative ΓΓ'); [apply isasetsetquot|]; intros Γ'.
     simpl. (* TODO: see if [abstract] in [dpr], or factoring the hard part out,
             makes this quicker? *)
     unfold qmor, setquot_to_dependent_subquotient; simpl.
     unfold dpr; simpl.
     unfold compose; simpl.
-    unfold setquotfun2'; unfold setquotuniv2'; unfold setquotuniv; simpl. (* Agh! Can’t we have a version that computes more easily?? *)
+    unfold setquotfun2', setquotuniv2', setquotuniv; simpl. (* Agh! Can’t we have a version that computes more easily?? *)
     apply iscompsetquotpr.
-    simpl. intros ΓA' Γ.
-    apply hinhpr.
-    (* TODO: abstract this to a lemma about them in [TypingLemmas] *)
-    intro i; unfold comp_raw_context; cbn.
-    rewrite rename_as_subst_tm.
-    apply derive_tmeq_refl.
-    admit. (* TODO: local, a typing lemma *)
-    (* NOTE: actually probably go back a few lines and fix from there *)
+    use mapeq_for_some_rep; apply hinhpr; simpl.
+    use tpair. { apply ext_representative, Γ'. }
+    exists Γ; apply hinhpr.
+    simpl.
+    admit. (* TODO: local, a give in [TypingLemmas] *)
   Admitted. (* [SyntacticCategory.dpr_q]: hopefully fairly local *)
 
   Local Definition reind_pb 
@@ -1292,11 +1305,9 @@ Section Misc.
       refine (derive_tm_as_raw_context_map _ _);
         auto using derive_flat_cxt_from_strat.
     - (* section property *)
-      Time apply iscompsetquotpr. simpl.
-      (* TODO: give version of
-       [mapeq_for_some_rep] that (a) incorporates [iscompsetquotpr],
-       and (b) already knows that the maps are well-typed. *)
-      refine (mapeq_for_some_rep _ _ _); apply hinhpr.
+      Time apply iscompsetquotpr; simpl.
+      (* TODO: adapt [mapeq_for_some_rep] sto incorporate [iscompsetquotpr]? *)
+      refine (raw_mapeq_for_some_rep _ _ _); apply hinhpr.
       refine (context_as_context_representative _,,_).
       refine (context_as_context_representative _,,_).
       refine (hinhfun3 _ (context_derivable Γ) isd_A isd_a); intros d_Γ d_A d_a.
@@ -1312,7 +1323,6 @@ Section Misc.
             auto using derive_flat_cxt_from_strat.
         * use derive_dB_next_context_map; auto using derive_flat_cxt_from_strat.
   Defined.
-
 
   Definition tm_expr_as_partial_term
       {n} (Γ : wellformed_context_of_length n)
