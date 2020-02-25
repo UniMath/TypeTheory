@@ -1082,6 +1082,63 @@ Section Split_Typecat.
     apply rename_as_subst_tm.
   Qed.
 
+  Local Definition reind_pb_raw 
+      {ΓΓ ΓΓ' ΔΔ: context_mod_eq}
+      (g : raw_context_map ΔΔ ΓΓ') (h : raw_context_map ΔΔ (S ΓΓ))
+    : raw_context_map ΔΔ (S ΓΓ').
+  Proof.
+    exact (add_to_raw_context_map g (h dB_top)).
+  Defined.
+
+  Arguments reind_pb_raw {_ _ _} _ _ _/.
+
+  Local Definition reind_pb_derivable
+      {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
+      {ΓΓ' : context_mod_eq} (f : map ΓΓ' ΓΓ)
+      {ΔΔ: context_mod_eq}
+      (g : map ΔΔ ΓΓ') (h : map ΔΔ (ext ΓΓ AA))
+      (H_e : mapeq ΔΔ ΓΓ (comp_raw_context g f)
+                     (comp_raw_context h (dB_next_context_map _)))
+    : ∀ (Δ : context_representative ΔΔ)
+        (Γ'A : context_representative (ext ΓΓ' (reind AA (setquotpr _ f)))),
+       ∥ [! |- reind_pb_raw g h ::: Δ ---> Γ'A !] ∥.
+  Proof.
+    apply (take_context_representative ΓΓ). { apply propproperty. } intros Γ.
+    apply (take_context_representative ΓΓ'). { apply propproperty. } intros Γ'.
+    apply (take_context_representative ΔΔ). { apply propproperty. } intros Δ.
+    revert AA h H_e. use setquotunivprop'.
+    { intros; repeat (apply impred_isaprop; intros); apply propproperty. }
+    intros A h H_e.
+    apply map_for_some_rep, hinhpr.
+    exists Δ; simpl.
+    exists (ext_representative Γ' _); simpl.
+    refine (hinhpr _ ⊛ Γ ⊛ Γ' ⊛ Δ ⊛ (A Γ)
+                     ⊛ (map_derivable f Γ' Γ) ⊛ (map_derivable g Δ Γ')
+                     ⊛ (map_derivable h Δ (ext_representative Γ A))
+                     ⊛ (H_e Δ Γ)).
+    clear H_e; intros d_Γ d_Γ' d_Δ d_A d_f d_g d_h H_eq.
+    (* TODO: abstract the following and upstream to [TypingLemmas] *)
+    refine (derive_extend_context_map d_g _); simpl.
+    assert (d_dpr_h
+         : [! |- comp_raw_context h (dB_next_context_map Γ) ::: Δ ---> Γ !]).
+    { refine (derive_comp d_h _). 
+      use derive_dB_next_context_map; auto using derive_flat_cxt_from_strat. }
+    assert (d_g_f : [! |- comp_raw_context g f ::: Δ ---> Γ !]).
+    { exact (derive_comp d_g d_f). }
+    refine (derive_tm_conv _ _ _ _ _ _ _ (d_h dB_top)); simpl;
+      change ((Γ;; A) dB_top) with (rename_ty dB_next A).
+    - rewrite subst_rename_ty.
+      refine (subst_derivation [! _ |- _ !] d_A d_dpr_h).
+    - rewrite subst_subst_ty.
+      refine (subst_derivation [! _ |- _ !] d_A d_g_f).
+    - rewrite subst_rename_ty, subst_subst_ty.
+      apply derive_tyeq_sym.
+      refine (substeq_derivation [! Γ |- A !] _ _ _ _ _);
+          auto using derive_flat_cxt_from_strat.
+  Qed.
+
+  (* TODO: [reind_pb_eq], analogous to [qmor_eq] *)
+
   Local Definition reind_pb 
       {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
       {ΓΓ' : context_mod_eq} (ff : map_mod_eq ΓΓ' ΓΓ)
@@ -1092,12 +1149,11 @@ Section Split_Typecat.
     use make_isPullback; simpl.
     intros ΓΓ'' gg hh Heq.
     use unique_exists; simpl.
+    3: { intros. apply isapropdirprod; apply isasetsetquot. }
     - admit.
-    - split.
+    - split. (* hopefully straightforward with [mapeq_from_path]. *)
       + admit.
       + admit.
-    - intros hh'.
-      now apply isapropdirprod; apply (homset_property syntactic_category).
     - intros hh' [Hgg Hhh].
       admit.
   Admitted. (* [SyntacticCategory.reind_pb]: hopefully fairly local *)
