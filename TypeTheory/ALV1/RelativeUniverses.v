@@ -984,7 +984,7 @@ Section Weak_RelU_Comm_Square.
       apply impred. intros c'.
       apply impred. intros d'.
       apply isapropishinh.
-  Qed.
+  Defined.
 
 End Weak_RelU_Comm_Square.
 
