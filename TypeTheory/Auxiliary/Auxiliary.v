@@ -1740,6 +1740,14 @@ Proof.
     apply id_right.
 Defined.
 
+Axiom arrow_category_isos_to_iso
+  : ∏ (C : category)
+      (abf cdg : arrow_category C),
+  (∑ (hk : iso (pr1 (pr1 abf)) (pr1 (pr1 cdg))
+                 × iso (pr2 (pr1 cdg)) (pr2 (pr1 abf))),
+     pr2 abf = pr1 hk ;; pr2 cdg ;; pr2 hk)
+    → iso abf cdg.
+
 Definition arrow_category_isotoid {C : category}
            (C_univ : is_univalent C)
            (ff gg : arrow_category C)
@@ -1801,56 +1809,186 @@ Abort.
    https://github.com/UniMath/UniMath/blob/afaba56e5002bba801abbfabdb43fb63dab977f8/UniMath/CategoryTheory/slicecat.v#L373-L380
  *)
 
+Definition transportf_dirprod_path' {C : category}
+           {a b c d : C}
+           (e : (a, b) = (c, d))
+           (f : C ⟦ a, b ⟧)
+  : transportf (λ x : C × C, C ⟦ dirprod_pr1 x, dirprod_pr2 x ⟧) e f
+    = idtoiso (! pr1 (WeakEquivalences.pathsdirprodweq e)) ;; f ;; idtoiso (dirprod_pr2 (WeakEquivalences.pathsdirprodweq e)).
+Proof.
+  set (e1 := pr1 (WeakEquivalences.pathsdirprodweq e)).
+  set (e2 := dirprod_pr2 (WeakEquivalences.pathsdirprodweq e)).
+  use (paths_rect (C × C) (a, b) (λ xy exy, transportf (λ uv : C × C, C ⟦ pr1 uv, dirprod_pr2 uv ⟧) exy f = idtoiso (! pr1 (WeakEquivalences.pathsdirprodweq exy)) ;; f ;; idtoiso (dirprod_pr2 (WeakEquivalences.pathsdirprodweq exy))) _ _ e).
+  simpl.
+  etrans.
+  apply (@idpath_transportf _ (λ xy : C × C, C ⟦ pr1 xy, dirprod_pr2 xy ⟧ ) (a, b)).
+  apply pathsinv0.
+  etrans. apply assoc'.
+  etrans. apply id_left.
+  apply id_right.
+Defined.
+
+Definition arrow_category_ids {C : category}
+           (abf cdg : arrow_category C)
+  : UU
+  := ∑ (hk : (pr1 (pr1 abf) = pr1 (pr1 cdg))
+               × (dirprod_pr2 (pr1 abf) = dirprod_pr2 (pr1 cdg))),
+    pr2 abf ;; idtoiso (dirprod_pr2 hk) = idtoiso (pr1 hk) ;; pr2 cdg.
+
 Definition arrow_category_id_to_ids {C : category}
            {abf cdg : arrow_category C}
-  : abf = cdg
-            ≃
-    ∑ (hk : (pr1 (pr1 abf) = pr1 (pr1 cdg))
-                  × (pr2 (pr1 abf) = pr2 (pr1 cdg))),
-    idtoiso (! pr1 hk) ;; pr2 abf ;; idtoiso (dirprod_pr2 hk) = pr2 cdg.
+  : (abf = cdg) ≃ arrow_category_ids abf cdg.
 Proof.
-  eapply weqcomp.
-  apply total2_paths_equiv.
-  Locate "╝". unfold PathPair.
-  Search weq.
-  eapply weqcomp.
-  use (@PartA.weqtotal2 _ _ _ _ WeakEquivalences.pathsdirprodweq).
-  apply (λ hk, (idtoiso (! pr1 hk);; pr2 abf;; idtoiso (dirprod_pr2 hk) = pr2 cdg)).
-  intros p.
-  apply eqweqmap.
-  etrans.
-  apply transportf_dirprod_path.
-
-  simpl.
-    (λ hk, idtoiso (! pr1 hk) ;; pr2 abf ;; idtoiso (dirprod_pr2 hk) = pr2 cdg.
-
-  intros abf_cdg_iso.
-  set (e1 := iso_inv_after_iso abf_cdg_iso).
-  set (e2 := iso_after_iso_inv abf_cdg_iso).
-  use tpair.
-  + use make_dirprod.
-    * use make_iso.
-      -- apply (pr1 (pr1 (pr1 abf_cdg_iso))).
-      -- use is_iso_from_is_z_iso.
-         exists (pr1 (pr1 (inv_from_iso abf_cdg_iso))).
-         use make_dirprod.
-         ++ apply (maponpaths (λ x, pr1 (pr1 x)) e1).
-         ++ apply (maponpaths (λ x, pr1 (pr1 x)) e2).
-    * use make_iso.
-      -- apply (dirprod_pr2 (pr1 (inv_from_iso abf_cdg_iso))).
-      -- use is_iso_from_is_z_iso.
-         exists (dirprod_pr2 (pr1 (pr1 abf_cdg_iso))).
-         use make_dirprod.
-         ++ apply (maponpaths (λ x, dirprod_pr2 (pr1 x)) e2).
-         ++ apply (maponpaths (λ x, dirprod_pr2 (pr1 x)) e1).
-  + simpl.
-    apply pathsinv0.
+  eapply weqcomp. apply total2_paths_equiv.
+  use (PartA.weqtotal2 WeakEquivalences.pathsdirprodweq).
+  intros e.
+  eapply weqcomp. apply invweq.
+  apply (weqpathscomp0l _ (transportf_dirprod_path' _ _)).
+  use weqimplimpl.
+  - intros p.
+    etrans. apply pathsinv0, id_left.
     etrans. apply maponpaths_2, pathsinv0.
-    apply (pr2 (pr1 abf_cdg_iso)).
+    apply (iso_inv_after_iso (idtoiso (pr1 (WeakEquivalences.pathsdirprodweq e)))).
     etrans. apply assoc'.
-    etrans. apply maponpaths.
-    apply (maponpaths (λ x, dirprod_pr2 (pr1 x)) e1).
-    apply id_right.
+    apply maponpaths.
+    etrans. apply maponpaths_2, pathsinv0.
+    apply (maponpaths pr1 (idtoiso_inv _ _ _ _)).
+    etrans. apply assoc.
+    apply p.
+  - intros p.
+    apply pathsinv0.
+    etrans. apply pathsinv0, id_left.
+    etrans. apply maponpaths_2, pathsinv0.
+    apply (iso_after_iso_inv (idtoiso (pr1 (WeakEquivalences.pathsdirprodweq e)))).
+    etrans. apply assoc'.
+    etrans. apply maponpaths_2, pathsinv0.
+    apply (maponpaths pr1 (idtoiso_inv _ _ _ _)).
+    apply pathsinv0.
+    etrans. apply assoc'.
+    apply maponpaths.
+    apply p.
+  - apply homset_property.
+  - apply homset_property.
+Defined.
+
+Definition arrow_category_is_iso {C : category}
+           {abf cdg : arrow_category C}
+           (a_to_c : C ⟦ pr1 (pr1 abf), pr1 (pr1 cdg) ⟧)
+           (b_to_d : C ⟦ dirprod_pr2 (pr1 abf), dirprod_pr2 (pr1 cdg) ⟧)
+  : UU
+  := is_iso b_to_d ×
+     is_iso a_to_c ×
+     (pr2 abf ;; b_to_d = a_to_c ;; pr2 cdg).
+
+Definition isaprop_arrow_category_is_iso {C : category}
+           {abf cdg : arrow_category C}
+           (a_to_c : C ⟦ pr1 (pr1 abf), pr1 (pr1 cdg) ⟧)
+           (b_to_d : C ⟦ dirprod_pr2 (pr1 abf), dirprod_pr2 (pr1 cdg) ⟧)
+  : isaprop (arrow_category_is_iso a_to_c b_to_d).
+Proof.
+  use isapropdirprod.
+  - apply isaprop_is_iso.
+  - use isapropdirprod.
+    + apply isaprop_is_iso.
+    + apply homset_property.
+Defined.
+
+Definition arrow_category_is_iso_to_is_iso {C : category}
+           {abf cdg : arrow_category C}
+           (a_to_c : C ⟦ pr1 (pr1 abf), pr1 (pr1 cdg) ⟧)
+           (b_to_d : C ⟦ dirprod_pr2 (pr1 abf), dirprod_pr2 (pr1 cdg) ⟧)
+  : arrow_category_is_iso a_to_c b_to_d
+    → ∑ (p : pr2 abf ;; b_to_d = a_to_c ;; pr2 cdg)
+    , is_iso (((a_to_c, b_to_d),,p) : arrow_category C ⟦ abf, cdg ⟧).
+Proof.
+  intros h.
+  set (is_iso_a_to_c := pr1 (dirprod_pr2 h)).
+  set (is_iso_b_to_d := pr1 h).
+  set (iso_a_to_c := (a_to_c,,is_iso_a_to_c)).
+  set (iso_b_to_d := (b_to_d,,is_iso_b_to_d)).
+  set (comm_square := dirprod_pr2 (dirprod_pr2 h)).
+  use tpair.
+  - apply comm_square.
+  - use is_iso_from_is_z_iso.
+    unfold is_z_isomorphism.
+    use tpair.
+    + use tpair.
+      * use make_dirprod.
+        -- apply (inv_from_iso iso_a_to_c).
+        -- apply (inv_from_iso iso_b_to_d).
+      * simpl.
+        apply pathsinv0.
+        etrans. apply pathsinv0, id_right.
+        etrans. apply maponpaths, pathsinv0, (iso_inv_after_iso iso_b_to_d).
+        etrans. apply assoc'.
+        etrans. apply maponpaths, assoc.
+        etrans. apply maponpaths, maponpaths_2, comm_square.
+        etrans. apply assoc.
+        etrans. apply maponpaths_2, assoc.
+        etrans. apply maponpaths_2, maponpaths_2, iso_after_iso_inv.
+        etrans. apply maponpaths_2, id_left.
+        apply idpath.
+    + use make_dirprod.
+      * use total2_paths_f.
+        -- use dirprod_paths.
+           ++ apply (iso_inv_after_iso iso_a_to_c).
+           ++ apply (iso_inv_after_iso iso_b_to_d).
+        -- apply homset_property.
+      * use total2_paths_f.
+        -- use dirprod_paths.
+           ++ apply (iso_after_iso_inv iso_a_to_c).
+           ++ apply (iso_after_iso_inv iso_b_to_d).
+        -- apply homset_property.
+Defined.
+
+Definition is_iso_to_arrow_category_is_iso {C : category}
+           {abf cdg : arrow_category C}
+           (a_to_c : C ⟦ pr1 (pr1 abf), pr1 (pr1 cdg) ⟧)
+           (b_to_d : C ⟦ dirprod_pr2 (pr1 abf), dirprod_pr2 (pr1 cdg) ⟧)
+  : (∑ (p : pr2 abf ;; b_to_d = a_to_c ;; pr2 cdg)
+    , is_iso (((a_to_c, b_to_d),,p) : arrow_category C ⟦ abf, cdg ⟧))
+    → arrow_category_is_iso a_to_c b_to_d.
+Proof.
+  intros hp.
+  set (abf_to_cdg := ((a_to_c, b_to_d),,pr1 hp) : arrow_category C ⟦ _ , _ ⟧).
+  set (h := pr2 hp : is_iso abf_to_cdg).
+  set (c_to_a := pr1 (pr1 (inv_from_iso (abf_to_cdg,,h)))).
+  set (d_to_b := dirprod_pr2 (pr1 (inv_from_iso (abf_to_cdg,,h)))).
+
+  use make_dirprod.
+  - use is_iso_from_is_z_iso.
+    use tpair.
+    + apply d_to_b.
+    + use make_dirprod.
+      * apply (maponpaths (λ k, dirprod_pr2 (pr1 k)) (iso_inv_after_iso (abf_to_cdg,,h))).
+      * apply (maponpaths (λ k, dirprod_pr2 (pr1 k)) (iso_after_iso_inv (_,,h))).
+  - use make_dirprod.
+    + use is_iso_from_is_z_iso.
+      use tpair.
+      * apply c_to_a.
+      * use make_dirprod.
+        -- apply (maponpaths (λ k, pr1 (pr1 k)) (iso_inv_after_iso (_,,h))).
+        -- apply (maponpaths (λ k, pr1 (pr1 k)) (iso_after_iso_inv (_,,h))).
+    + apply (pr2 abf_to_cdg).
+Defined.
+
+Definition arrow_category_weq_is_iso {C : category}
+           {abf cdg : arrow_category C}
+           (a_to_c : C ⟦ pr1 (pr1 abf), pr1 (pr1 cdg) ⟧)
+           (b_to_d : C ⟦ dirprod_pr2 (pr1 abf), dirprod_pr2 (pr1 cdg) ⟧)
+  : arrow_category_is_iso a_to_c b_to_d
+                          ≃
+    ∑ (p : pr2 abf ;; b_to_d = a_to_c ;; pr2 cdg)
+    , is_iso (((a_to_c, b_to_d),,p) : arrow_category C ⟦ abf, cdg ⟧).
+Proof.
+  use weq_iso.
+  - apply arrow_category_is_iso_to_is_iso.
+  - apply is_iso_to_arrow_category_is_iso.
+  - intros h. apply isaprop_arrow_category_is_iso.
+  - intros h.
+    use total2_paths_f.
+    + apply homset_property.
+    + apply isaprop_is_iso.
 Defined.
 
 Definition arrow_category_id_weq_iso {C : category}
@@ -1858,73 +1996,72 @@ Definition arrow_category_id_weq_iso {C : category}
            (abf cdg : arrow_category C)
   : (abf = cdg) ≃ iso abf cdg.
 Proof.
+  eapply weqcomp.
+  apply arrow_category_id_to_ids.
+
   set (a := pr1 (pr1 abf)).
   set (b := dirprod_pr2 (pr1 abf)).
   set (f := pr2 abf).
-
   set (c := pr1 (pr1 cdg)).
   set (d := dirprod_pr2 (pr1 cdg)).
   set (g := pr2 cdg).
 
   assert (weq1 :
-            weq (abf = cdg)
-                (total2 (λ p : (a, b) = (c, d),
-                               (transportf _ p (pr2 abf) = pr2 cdg)))).
-  apply total2_paths_equiv.
+  (∑ hk : a = c × b = d,
+    pr2 abf;; idtoiso (dirprod_pr2 hk) = idtoiso (pr1 hk) ;; pr2 cdg)
+    ≃
+  (∑ hk : iso a c × iso b d,
+   pr2 abf;; dirprod_pr2 hk = pr1 hk ;; pr2 cdg)).
+  eapply weqcomp. apply weqtotal2asstor.
+  apply invweq.
+  eapply weqcomp. apply weqtotal2asstor.
+  apply invweq.
+  use PartA.weqtotal2.
+  - apply (make_weq _ (pr1 C_univ a c)).
+  - intros id_ac.
+    use PartA.weqtotal2.
+    + apply (make_weq _ (pr1 C_univ b d)).
+    + intros id_bd. apply idweq.
 
-  assert (weq2 :
-            weq (total2 (λ e12 : (a, b) = (c, d),
-                               (transportf _ p (pr2 abf) = pr2 cdg)))
-                (total2 (λ e12 : (a, b) = (c, d),
-                               idtoiso (! maponpaths pr1 p) ;; f ;; idtoiso (maponpaths dirprod_pr2 p) = g))).
-  apply weqfibtototal; intros p.
-  rewrite idtoiso_postcompose.
-  rewrite idtoiso_precompose.
-  apply idweq.
-  eapply weqinvweq.
-  eapply weqcomp.
-  Search iso.
-  
-  apply idtoiso.
-  Search weq.
-  Check idtoiso.
-  intros ff_gg_iso.
-  set (a_iso := pr1 (pr1 (arrow_category_iso_to_isos ff_gg_iso))).
-  set (b_iso := dirprod_pr2 (pr1 (arrow_category_iso_to_isos ff_gg_iso))).
-  set (f_iso := pr2 (arrow_category_iso_to_isos ff_gg_iso)).
-  use total2_paths_f.
-  * use dirprod_paths.
-    -- use isotoid. apply C_univ. apply a_iso.
-    -- apply pathsinv0. use isotoid. apply C_univ. use b_iso.
-  * etrans. apply transportf_dirprod_path.
-
-    etrans. apply maponpaths.
-    apply (maponpaths pr1 (idtoiso_inv _ _ _ _)).
-    etrans. apply maponpaths, maponpaths, maponpaths.
-    apply idtoiso_isotoid.
-
-    etrans. apply assoc'.
-    etrans. apply maponpaths_2.
-    apply (maponpaths pr1 (idtoiso_inv _ _ _ _)).
-    etrans. apply maponpaths_2, maponpaths, maponpaths.
-    apply idtoiso_isotoid.
-
-    etrans. apply maponpaths, maponpaths_2.
-    apply f_iso.
-
-    etrans. apply maponpaths, assoc'.
-    etrans. apply maponpaths, maponpaths.
-    apply iso_inv_after_iso.
-
-    etrans. apply assoc.
-    etrans. apply maponpaths_2, assoc.
-    etrans. apply maponpaths_2, maponpaths_2.
-    apply iso_after_iso_inv.
-
-    etrans. apply maponpaths_2.
-    apply id_left.
-    apply id_right.
+  - eapply weqcomp. apply weq1.
+    eapply weqcomp. apply weqtotal2asstor.
+    eapply weqcomp. apply weqtotal2asstor.
+    apply invweq.
+    eapply weqcomp. apply weqtotal2asstor.
+    eapply weqcomp. apply weqtotal2asstor.
+    use PartA.weqtotal2.
+    + apply idweq.
+    + intros a_to_c.
+      apply invweq.
+      eapply weqcomp. apply WeakEquivalences.weqtotal2comm.
+      eapply weqcomp. apply weqtotal2asstor.
+      use PartA.weqtotal2.
+      * apply idweq.
+      * intros b_to_d. simpl.
+        apply arrow_category_weq_is_iso.
 Defined. 
 
+Definition arrow_category_is_univalent {C : category}
+           (C_univ : is_univalent C)
+  : is_univalent (arrow_category C).
+Proof.
+  use make_is_univalent.
+  - intros a b.
+    use isweq_iso.
+    + apply (invweq (arrow_category_id_weq_iso C_univ _ _)).
+    + intros p. simpl.
+      Search weq.
+    
+    use isweqhomot.
+    + apply arrow_category_id_weq_iso.
+      apply C_univ.
+    + intros p. apply eq_iso.
+      use total2_paths_f.
+      * use dirprod_paths.
+        -- apply idpath.
+    use isweq_iso.
+    + apply (invweq (arrow_category_id_weq_iso C_univ a b)).
+    + intros p. simpl.
+Defined.
 
 End Unorganised.
