@@ -2046,22 +2046,19 @@ Definition arrow_category_is_univalent {C : category}
   : is_univalent (arrow_category C).
 Proof.
   use make_is_univalent.
-  - intros a b.
-    use isweq_iso.
-    + apply (invweq (arrow_category_id_weq_iso C_univ _ _)).
-    + intros p. simpl.
-      Search weq.
-    
+  - intros abf cdg.
     use isweqhomot.
     + apply arrow_category_id_weq_iso.
       apply C_univ.
-    + intros p. apply eq_iso.
+    + intros p. induction p.
+      apply eq_iso. 
       use total2_paths_f.
       * use dirprod_paths.
         -- apply idpath.
-    use isweq_iso.
-    + apply (invweq (arrow_category_id_weq_iso C_univ a b)).
-    + intros p. simpl.
+        -- apply idpath.
+      * apply homset_property.
+    + apply (pr2 (arrow_category_id_weq_iso C_univ _ _)).
+  - apply homset_property.
 Defined.
 
 End Unorganised.
