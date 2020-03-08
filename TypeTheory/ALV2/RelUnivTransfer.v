@@ -525,6 +525,18 @@ Section WeakRelUniv_Transfer.
     - apply weak_relu_Rezk_square_nat_trans_is_nat_iso.
   Defined.
 
+  Definition weak_relu_Rezk_square_commutes_strictly
+             (C'_univ : is_univalent C')
+    : (relu_J_to_relu_J' C'_univ ∙ weak_from_reluniv_functor J')
+        = (weak_from_reluniv_functor J ∙ weak_reluniv_functor).
+  Proof.
+    use (isotoid _ (is_univalent_functor_category _ _ _)).
+    apply weak_reluniv_cat_is_univalent.
+    apply D'cat.
+    apply nat_iso_to_iso.
+    apply weak_relu_Rezk_square_commutes.
+  Defined.
+
 End WeakRelUniv_Transfer.
 
 Section RelUniv_Yo_Rezk.
