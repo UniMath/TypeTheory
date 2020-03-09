@@ -711,6 +711,30 @@ Section WeakRelUniv_Transfer.
     apply weak_relu_square_commutes.
   Defined.
 
+  Definition reluniv_functor_with_ess_surj_issurjective
+             (C'_univ : is_univalent C')
+             (AC : AxiomOfChoice.AxiomOfChoice)
+             (obC_isaset : isaset C)
+    : issurjective (reluniv_functor_with_ess_surj
+                      _ _ _ _ J J'
+                      R S α α_is_iso
+                      S_pb C'_univ ff_J' S_full R_es
+                   ).
+  Proof.
+    set (W := (weak_from_reluniv_functor J'
+            ,, weak_from_reluniv_functor_is_catiso J' C'_univ ff_J')
+        : catiso _ _).
+    use (Core.issurjective_postcomp_with_weq _ (catiso_ob_weq W)).
+    use (transportf (λ F, issurjective (pr11 F))
+                    (! weak_relu_square_commutes_strictly C'_univ)).
+    use issurjcomp.
+    - apply weak_from_reluniv_functor_issurjective.
+      apply AC.
+      apply obC_isaset.
+    - apply issurjectiveweq.
+      apply (catiso_ob_weq (_,,weak_reluniv_functor_is_catiso)).
+  Defined.
+
 End WeakRelUniv_Transfer.
 
 Section RelUniv_Yo_Rezk.
