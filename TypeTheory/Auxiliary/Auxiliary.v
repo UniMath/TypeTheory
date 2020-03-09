@@ -2041,6 +2041,21 @@ Proof.
         apply arrow_category_weq_is_iso.
 Defined. 
 
+Definition arrow_category_mor_eq {C : category}
+           {abf cdg : arrow_category C}
+           (f g : arrow_category C ⟦ abf, cdg ⟧)
+  : pr1 (pr1 f) = pr1 (pr1 g)
+    → dirprod_pr2 (pr1 f) = dirprod_pr2 (pr1 g)
+    → f = g.
+Proof.
+  intros p1 p2.
+  use total2_paths_f.
+  - use dirprod_paths.
+    + apply p1.
+    + apply p2.
+  - apply homset_property.
+Defined.
+
 Definition arrow_category_is_univalent {C : category}
            (C_univ : is_univalent C)
   : is_univalent (arrow_category C).
@@ -2052,11 +2067,9 @@ Proof.
       apply C_univ.
     + intros p. induction p.
       apply eq_iso. 
-      use total2_paths_f.
-      * use dirprod_paths.
-        -- apply idpath.
-        -- apply idpath.
-      * apply homset_property.
+      apply arrow_category_mor_eq.
+      * apply idpath.
+      * apply idpath.
     + apply (pr2 (arrow_category_id_weq_iso C_univ _ _)).
   - apply homset_property.
 Defined.
