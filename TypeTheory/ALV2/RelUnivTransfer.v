@@ -373,15 +373,19 @@ Section WeakRelUniv_Transfer.
   Context (T : functor D' D).
   Context (η : iso (C := [D, D, pr2 D]) (functor_identity D) (S ∙ T)).
   Context (ε : iso (C := [D', D', pr2 D']) (T ∙ S) (functor_identity D')).
-  Context (S_ff : fully_faithful S).
+  Context (S_full : full S).
+  Context (S_faithful : faithful S).
 
   (* R is essentially surjective and full *)
   Context (R_es : essentially_surjective R).
   Context (R_full : full R).
 
-  Local Definition S_full : full S.
+  Local Definition S_ff : fully_faithful S.
   Proof.
-    apply fully_faithful_implies_full_and_faithful, S_ff.
+    use full_and_faithful_implies_fully_faithful.
+    use make_dirprod.
+    - apply S_full.
+    - apply S_faithful.
   Defined.
 
   Let weq_weak_reluniv
@@ -462,7 +466,7 @@ Section WeakRelUniv_Transfer.
          _ _ _ _ _ _ _ _ _ α_is_iso
          S_pb C'_univ ff_J' S_full R_es.
 
-  Definition weak_relu_Rezk_square_commutes_on_mor
+  Definition weak_relu_square_commutes_on_mor
         (C'_univ : is_univalent C')
         (u1 u2 : reluniv_cat J)
         (mor : reluniv_cat J ⟦ u1, u2 ⟧)
@@ -474,7 +478,7 @@ Section WeakRelUniv_Transfer.
     - apply idpath.
   Defined.
 
-  Definition weak_relu_Rezk_square_nat_trans
+  Definition weak_relu_square_nat_trans
         (C'_univ : is_univalent C')
     : nat_trans
         (relu_J_to_relu_J' C'_univ ∙ weak_from_reluniv_functor J')
@@ -500,9 +504,9 @@ Section WeakRelUniv_Transfer.
         apply pathsinv0, id_left.
   Defined.
 
-  Definition weak_relu_Rezk_square_nat_trans_is_nat_iso
+  Definition weak_relu_square_nat_trans_is_nat_iso
         (C'_univ : is_univalent C')
-    : is_nat_iso (weak_relu_Rezk_square_nat_trans C'_univ).
+    : is_nat_iso (weak_relu_square_nat_trans C'_univ).
   Proof.
     intros u1 wu1.
     use isweq_iso.
@@ -514,18 +518,18 @@ Section WeakRelUniv_Transfer.
       use id_left. (* FIXME: works, but slow for some reason *)
   Defined.
     
-  Definition weak_relu_Rezk_square_commutes
+  Definition weak_relu_square_commutes
         (C'_univ : is_univalent C')
     : nat_iso
         (relu_J_to_relu_J' C'_univ ∙ weak_from_reluniv_functor J')
         (weak_from_reluniv_functor J ∙ weak_reluniv_functor).
   Proof.
     use tpair.
-    - apply weak_relu_Rezk_square_nat_trans.
-    - apply weak_relu_Rezk_square_nat_trans_is_nat_iso.
+    - apply weak_relu_square_nat_trans.
+    - apply weak_relu_square_nat_trans_is_nat_iso.
   Defined.
 
-  Definition weak_relu_Rezk_square_commutes_strictly
+  Definition weak_relu_square_commutes_strictly
              (C'_univ : is_univalent C')
     : (relu_J_to_relu_J' C'_univ ∙ weak_from_reluniv_functor J')
         = (weak_from_reluniv_functor J ∙ weak_reluniv_functor).
@@ -533,8 +537,8 @@ Section WeakRelUniv_Transfer.
     use (isotoid _ (is_univalent_functor_category _ _ _)).
     apply weak_reluniv_cat_is_univalent.
     apply D'cat.
-    apply nat_iso_to_iso.
-    apply weak_relu_Rezk_square_commutes.
+    use nat_iso_to_iso.
+    apply weak_relu_square_commutes.
   Defined.
 
 End WeakRelUniv_Transfer.
@@ -550,6 +554,11 @@ Section RelUniv_Yo_Rezk.
   Let S := Transport_along_Equivs.ext R R_ff R_es.
   Let S_pb := Transport_along_Equivs.preserves_pullbacks_ext R R_ff R_es.
   Let α := Transport_along_Equivs.fi R R_ff R_es.
+
+  Local Definition R_full : full R.
+  Proof.
+    apply fully_faithful_implies_full_and_faithful, R_ff.
+  Defined.
 
   Definition transfer_of_RelUnivYoneda_functor
     : functor (@reluniv_cat C _ Yo) (@reluniv_cat RC _ Yo).
@@ -591,15 +600,24 @@ Section RelUniv_Yo_Rezk.
         ).
     - apply epsinv.
     - apply etainv.
-    - apply right_adj_equiv_is_ff.
+    - apply right_adj_equiv_is_full.
+    - apply fully_faithful_implies_full_and_faithful.
+      apply right_adj_equiv_is_ff.
     - apply R_es.
-    - apply fully_faithful_implies_full_and_faithful, R_ff.
+    - apply R_full.
   Defined.
 
   Definition transfer_of_WeakRelUnivYoneda_functor_is_catiso
     : is_catiso transfer_of_WeakRelUnivYoneda_functor.
   Proof.
     apply weak_reluniv_functor_is_catiso.
+  Defined.
+
+  Definition WeakRelUnivYoneda_functor_square_commutes_strictly
+    : (transfer_of_RelUnivYoneda_functor ∙ weak_from_reluniv_functor _)
+        = (weak_from_reluniv_functor _ ∙ transfer_of_WeakRelUnivYoneda_functor).
+  Proof.
+    apply weak_relu_square_commutes_strictly.
   Defined.
 
 End RelUniv_Yo_Rezk.
