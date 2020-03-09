@@ -213,6 +213,21 @@ Section Substitution.
         eauto using pathscomp0, maponpaths_2, weaken_comp. 
   Defined.
 
+  Definition rename_as_subst_ty {m n : nat} (f : m -> n) (e : ty_expr m)
+    : rename_ty f e = subst_ty (var_expr ∘ f)%functions e.
+  Proof.
+    (* TODO: perhaps [subst_idmap_ty] should be derived from this, rather than vice versa? *)
+    eapply pathscomp0. { apply maponpaths, pathsinv0, subst_idmap_ty. }
+    use rename_subst_ty.
+  Defined.
+
+  Definition rename_as_subst_tm {m n : nat} (f : m -> n) (e : tm_expr m)
+    : rename_tm f e = subst_tm (var_expr ∘ f)%functions e.
+  Proof.
+    eapply pathscomp0. { apply maponpaths, pathsinv0, subst_idmap_tm. }
+    use rename_subst_tm.
+  Defined.
+
 End Substitution.
 
 (** The lemmas which will become the axioms of the category of raw contexts.

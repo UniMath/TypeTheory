@@ -1181,4 +1181,16 @@ Section Split_Typecat_Laws.
   Defined.
   Opaque derive_weaken_raw_context_mapeq.
 
+  Definition derive_dB_next_context_map {Γ} {A}
+      (d_Γ : [! |f- Γ !]) (d_A : [! Γ |- A !])
+    : [! |- dB_next_context_map Γ ::: Γ;;A ---> Γ !].
+  Proof.
+    intros i.
+    eapply transportb.
+    { apply maponpaths_2, pathsinv0, rename_as_subst_ty. }
+    refine (derive_var (_;;_) (dB_next i) _).
+    refine (derive_flat_extend_context _ _ (dB_next i)); assumption.
+  Defined.
+  Opaque derive_dB_next_context_map.
+
 End Split_Typecat_Laws.

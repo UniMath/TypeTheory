@@ -1,8 +1,3 @@
-/.coq_makefile_output.conf
-/.coqdeps.d
-*.backup
-/.coq_makefile_input
-build/CoqMakefile.make
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
@@ -118,10 +113,18 @@ sympy-plots-for-*.tex/
 *.glob
 *.v.d
 *.vo
+*.vok
+*.vos
 Makefile*.coq
 coq/.coq_makefile_input
 coq/.coq_makefile_output
 coq/build/CoqMakefile.make
+/.coq_makefile_output.conf
+/.coqdeps.d
+*.backup
+/.coq_makefile_input
+/..coq_makefile_output.d
+build/CoqMakefile.make
 
 # for Coq generated documentation
 html/*
