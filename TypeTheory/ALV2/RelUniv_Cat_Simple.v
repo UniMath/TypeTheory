@@ -21,8 +21,6 @@ Other important definitions:
 - [iscontr_reluniv_mor_ϕ] — proof that ϕ component is contractible when J is fully faithful;
 - [isaprop_reluniv_mor_ϕ] — proof that ϕ component is proposition when J is faithful.
 
-TODO: document/update Comm_Squares and Functor_Squares sections.
-
 *)
 
 Require Import UniMath.Foundations.Sets.
@@ -30,6 +28,8 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Subcategory.Core.
+Require Import UniMath.CategoryTheory.Subcategory.Full.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.RelativeUniverses.
@@ -198,20 +198,130 @@ End RelUniv_Cat_Simple.
     Definition weak_reluniv_cat : category
       := gen_reluniv_cat is_universe_relative_to.
 
+
+Section WeakRelUniv_is_univalent.
+
+    Definition is_weak_reluniv_ob
+      : arrow_category D → hProp.
+    Proof.
+      intros abf.
+      set (a := pr1 (pr1 abf)).
+      set (b := dirprod_pr2 (pr1 abf)).
+      set (f := pr2 abf).
+      use tpair.
+      - apply (is_universe_relative_to J f).
+      - apply impred. intros x.
+        apply impred. intros y.
+        apply isapropishinh.
+    Defined.
+
+    Definition weak_reluniv_subcat : category
+      := subcategory _ (full_sub_precategory is_weak_reluniv_ob).
+
+    Definition weak_reluniv_cat_subcat_weq_ob
+      : ob weak_reluniv_cat ≃ ob weak_reluniv_subcat.
+    Proof.
+      use weq_iso.
+      - intros u.
+        set (b := pr1 (pr1 (pr1 u))).
+        set (a := dirprod_pr2 (pr1 (pr1 u))).
+        set (f := pr2 (pr1 u)).
+        set (comm := pr2 u).
+        apply (((a,b),,f),,comm).
+      - intros ff.
+        set (a := pr1 (pr1 (pr1 ff))).
+        set (b := dirprod_pr2 (pr1 (pr1 ff))).
+        set (f := pr2 (pr1 ff)).
+        set (comm := pr2 ff).
+        apply (((b,a),,f),,comm).
+      - intros u. apply idpath.
+      - intros u. apply idpath.
+    Defined.
+
+    Definition weak_reluniv_cat_subcat_weq_mor
+               (u1 u2 : weak_reluniv_cat)
+      : weak_reluniv_cat ⟦ u1, u2 ⟧
+          ≃ weak_reluniv_subcat
+            ⟦ weak_reluniv_cat_subcat_weq_ob u1,
+              weak_reluniv_cat_subcat_weq_ob u2 ⟧.
+    Proof.
+      use weq_iso.
+      - intros mor.
+        set (b_to_d := pr1 (pr1 mor)).
+        set (a_to_c := dirprod_pr2 (pr1 mor)).
+        set (comm_square := pr2 mor).
+        use (tpair _ _ tt).
+        use tpair.
+        + apply (make_dirprod b_to_d a_to_c).
+        + apply pathsinv0, comm_square.
+      - intros mor.
+        set (b_to_d := pr1 (pr1 (pr1 mor))).
+        set (a_to_c := dirprod_pr2 (pr1 (pr1 mor))).
+        set (comm_square := pr2 (pr1 mor)).
+        use tpair.
+        + use make_dirprod.
+            * apply b_to_d.
+            * apply a_to_c.
+        + apply pathsinv0, comm_square.
+      - intros mor.
+        use gen_reluniv_mor_eq.
+        + apply idpath.
+        + apply idpath.
+      - intros mor.
+        use total2_paths_f.
+        + use arrow_category_mor_eq.
+          * apply idpath.
+          * apply idpath.
+        + apply isapropunit.
+    Defined.
+
+    Definition weak_reluniv_cat_to_full_subcat
+      : catiso weak_reluniv_cat weak_reluniv_subcat.
+    Proof.
+      use tpair.
+      - use make_functor.
+        + use make_functor_data.
+          * apply weak_reluniv_cat_subcat_weq_ob.
+          * apply weak_reluniv_cat_subcat_weq_mor.
+        + use tpair.
+          * intros u.
+            use dirprod_paths.
+            -- use arrow_category_mor_eq.
+               ++ apply idpath.
+               ++ apply idpath.
+            -- apply isapropunit.
+          * intros a b c f g.
+            use dirprod_paths.
+            -- use arrow_category_mor_eq.
+               ++ apply idpath.
+               ++ apply idpath.
+            -- apply isapropunit.
+      - use make_dirprod.
+        + intros a b.
+          apply (pr2 (weak_reluniv_cat_subcat_weq_mor a b)).
+        + apply weak_reluniv_cat_subcat_weq_ob.
+    Defined.
+
+    Definition weak_reluniv_cat_is_univalent
+               (D_univ : is_univalent D)
+      : is_univalent weak_reluniv_cat.
+    Proof.
+      use (catiso_univalent _ _ weak_reluniv_cat_to_full_subcat).
+      apply (is_univalent_full_subcat
+               (arrow_category D)
+               is_weak_reluniv_ob
+               (arrow_category_is_univalent D_univ)
+            ).
+    Defined.
+
+End WeakRelUniv_is_univalent.
+
 End RelUniv.
 
 Section RelUniv_Functor.
 
   Context {C D : category}.
   Context (J : functor C D).
-
-  Check is_universe_relative_to.
-  Check is_universe_transfer.
-  Locate "∥".
-  Search ishinh.
-  Check hinhpr.
-
-  Check weak_from_relative_universe.
 
   Definition weak_from_reluniv_mor
              (u1 u2 : relative_universe J)
