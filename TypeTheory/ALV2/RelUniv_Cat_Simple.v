@@ -21,8 +21,6 @@ Other important definitions:
 - [iscontr_reluniv_mor_ϕ] — proof that ϕ component is contractible when J is fully faithful;
 - [isaprop_reluniv_mor_ϕ] — proof that ϕ component is proposition when J is faithful.
 
-TODO: document/update Comm_Squares and Functor_Squares sections.
-
 *)
 
 Require Import UniMath.Foundations.Sets.
@@ -319,14 +317,6 @@ End RelUniv_Cat_Simple.
           * intros u. apply idpath.
     Defined.
 
-    Definition catiso_univalent (C' : precategory) (D' : category)
-      : catiso D' C' → is_univalent C' → is_univalent D'.
-    Proof.
-      intros i C'_univ.
-      rewrite (catiso_to_precategory_path (homset_property _) i).
-      assumption.
-    Defined.
-      
     Definition weak_reluniv_cat_is_univalent
                (D_univ : is_univalent D)
       : is_univalent weak_reluniv_cat.

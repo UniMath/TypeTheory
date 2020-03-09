@@ -21,6 +21,8 @@ Require Export UniMath.CategoryTheory.categories.HSET.Core.
 Require Export UniMath.CategoryTheory.categories.HSET.Limits.
 Require Export UniMath.CategoryTheory.categories.HSET.Univalence.
 Require Export UniMath.CategoryTheory.ArrowCategory.
+Require Export UniMath.CategoryTheory.catiso.
+Require Export UniMath.CategoryTheory.CategoryEquality.
 
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 (* Require Import TypeTheory.Auxiliary.UnicodeNotations. *)
@@ -1945,6 +1947,15 @@ Proof.
       * apply idpath.
     + apply (pr2 (arrow_category_id_weq_iso C_univ _ _)).
   - apply homset_property.
+Defined.
+
+Definition catiso_univalent (C : category) (D : precategory)
+  : catiso D C → is_univalent C → is_univalent D.
+Proof.
+  intros i C_univ.
+  set (D_eq_C := invweq (catiso_is_path_precat _ _ (homset_property _)) i).
+  use (transportb _ D_eq_C).
+  apply C_univ.
 Defined.
 
 End Unorganised.
