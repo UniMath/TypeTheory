@@ -1682,134 +1682,7 @@ Proof.
   apply maponpaths, maponpaths, idtoiso_isotoid.
 Qed.
 
-Definition transportf_dirprod_path {C : category}
-           (a b c d : C)
-           (e1 : a = c)
-           (e2 : b = d)
-           (f : C ⟦ a, b ⟧)
-  : transportf
-      (λ x : C × C, C ⟦ dirprod_pr1 x, dirprod_pr2 x ⟧)
-      (@dirprod_paths _ _ (a, b) (c, d) e1 e2) f
-    = idtoiso (!e1) ;; f ;; idtoiso e2.
-Proof.
-  use (paths_rect C a (λ x ex, transportf (λ xy : C × C, C ⟦ pr1 xy, pr2 xy ⟧) (@dirprod_paths _ _ (a, b) (x, d) ex e2) f = idtoiso (!ex) ;; f ;; idtoiso e2) _ _ e1).
-  simpl.
-  use (paths_rect C b (λ x ex, transportf (λ xy : C × C, C ⟦ pr1 xy, pr2 xy ⟧) (@dirprod_paths _ _ (a, b) (a, x) (idpath a) ex) f = identity a ;; f ;; idtoiso ex) _ _ e2).
-  simpl.
-  etrans.
-  apply (@idpath_transportf (C × C) (λ xy : C × C, C ⟦ pr1 xy, pr2 xy ⟧ ) (a, b) f).
-  apply pathsinv0.
-  etrans. apply assoc'.
-  etrans. apply id_left.
-  apply id_right.
-Defined.
-
-Definition arrow_category_iso_to_isos {C : category}
-           {abf cdg : arrow_category C}
-  : iso abf cdg →
-        ∑ (hk : iso (pr1 (pr1 abf)) (pr1 (pr1 cdg))
-                    × iso (pr2 (pr1 cdg)) (pr2 (pr1 abf))),
-    pr2 abf = pr1 hk ;; pr2 cdg ;; pr2 hk.
-Proof.
-  intros abf_cdg_iso.
-  set (e1 := iso_inv_after_iso abf_cdg_iso).
-  set (e2 := iso_after_iso_inv abf_cdg_iso).
-  use tpair.
-  + use make_dirprod.
-    * use make_iso.
-      -- apply (pr1 (pr1 (pr1 abf_cdg_iso))).
-      -- use is_iso_from_is_z_iso.
-         exists (pr1 (pr1 (inv_from_iso abf_cdg_iso))).
-         use make_dirprod.
-         ++ apply (maponpaths (λ x, pr1 (pr1 x)) e1).
-         ++ apply (maponpaths (λ x, pr1 (pr1 x)) e2).
-    * use make_iso.
-      -- apply (dirprod_pr2 (pr1 (inv_from_iso abf_cdg_iso))).
-      -- use is_iso_from_is_z_iso.
-         exists (dirprod_pr2 (pr1 (pr1 abf_cdg_iso))).
-         use make_dirprod.
-         ++ apply (maponpaths (λ x, dirprod_pr2 (pr1 x)) e2).
-         ++ apply (maponpaths (λ x, dirprod_pr2 (pr1 x)) e1).
-  + simpl.
-    apply pathsinv0.
-    etrans. apply maponpaths_2, pathsinv0.
-    apply (pr2 (pr1 abf_cdg_iso)).
-    etrans. apply assoc'.
-    etrans. apply maponpaths.
-    apply (maponpaths (λ x, dirprod_pr2 (pr1 x)) e1).
-    apply id_right.
-Defined.
-
-Axiom arrow_category_isos_to_iso
-  : ∏ (C : category)
-      (abf cdg : arrow_category C),
-  (∑ (hk : iso (pr1 (pr1 abf)) (pr1 (pr1 cdg))
-                 × iso (pr2 (pr1 cdg)) (pr2 (pr1 abf))),
-     pr2 abf = pr1 hk ;; pr2 cdg ;; pr2 hk)
-    → iso abf cdg.
-
-Definition arrow_category_isotoid {C : category}
-           (C_univ : is_univalent C)
-           (ff gg : arrow_category C)
-  : iso ff gg → ff = gg.
-Proof.
-  intros ff_gg_iso.
-  set (a_iso := pr1 (pr1 (arrow_category_iso_to_isos ff_gg_iso))).
-  set (b_iso := dirprod_pr2 (pr1 (arrow_category_iso_to_isos ff_gg_iso))).
-  set (f_iso := pr2 (arrow_category_iso_to_isos ff_gg_iso)).
-  use total2_paths_f.
-  * use dirprod_paths.
-    -- use isotoid. apply C_univ. apply a_iso.
-    -- apply pathsinv0. use isotoid. apply C_univ. use b_iso.
-  * etrans. apply transportf_dirprod_path.
-
-    etrans. apply maponpaths.
-    apply (maponpaths pr1 (idtoiso_inv _ _ _ _)).
-    etrans. apply maponpaths, maponpaths, maponpaths.
-    apply idtoiso_isotoid.
-
-    etrans. apply assoc'.
-    etrans. apply maponpaths_2.
-    apply (maponpaths pr1 (idtoiso_inv _ _ _ _)).
-    etrans. apply maponpaths_2, maponpaths, maponpaths.
-    apply idtoiso_isotoid.
-
-    etrans. apply maponpaths, maponpaths_2.
-    apply f_iso.
-
-    etrans. apply maponpaths, assoc'.
-    etrans. apply maponpaths, maponpaths.
-    apply iso_inv_after_iso.
-
-    etrans. apply assoc.
-    etrans. apply maponpaths_2, assoc.
-    etrans. apply maponpaths_2, maponpaths_2.
-    apply iso_after_iso_inv.
-
-    etrans. apply maponpaths_2.
-    apply id_left.
-    apply id_right.
-Defined. 
-
-Definition is_univalent_arrow_category {C : category}
-           (C_univ : is_univalent C)
-  : is_univalent (arrow_category C).
-Proof.
-  use make_is_univalent.
-  - intros ff gg.
-    use isweq_iso.
-    + apply arrow_category_isotoid. apply C_univ.
-    + intros e.
-      simpl.
-      Search total2_paths_f.
-      (* STUCK: no idea how to proceed *)
-Abort.
-
-(* BELOW: alternative route, inspired by a proof for slicecat
-   https://github.com/UniMath/UniMath/blob/afaba56e5002bba801abbfabdb43fb63dab977f8/UniMath/CategoryTheory/slicecat.v#L373-L380
- *)
-
-Definition transportf_dirprod_path' {C : category}
+Lemma transportf_dirprod_path' {C : category}
            {a b c d : C}
            (e : (a, b) = (c, d))
            (f : C ⟦ a, b ⟧)
@@ -1835,7 +1708,7 @@ Definition arrow_category_ids {C : category}
                × (dirprod_pr2 (pr1 abf) = dirprod_pr2 (pr1 cdg))),
     pr2 abf ;; idtoiso (dirprod_pr2 hk) = idtoiso (pr1 hk) ;; pr2 cdg.
 
-Definition arrow_category_id_to_ids {C : category}
+Lemma arrow_category_id_to_ids {C : category}
            {abf cdg : arrow_category C}
   : (abf = cdg) ≃ arrow_category_ids abf cdg.
 Proof.
@@ -1880,7 +1753,7 @@ Definition arrow_category_is_iso {C : category}
      is_iso a_to_c ×
      (pr2 abf ;; b_to_d = a_to_c ;; pr2 cdg).
 
-Definition isaprop_arrow_category_is_iso {C : category}
+Lemma isaprop_arrow_category_is_iso {C : category}
            {abf cdg : arrow_category C}
            (a_to_c : C ⟦ pr1 (pr1 abf), pr1 (pr1 cdg) ⟧)
            (b_to_d : C ⟦ dirprod_pr2 (pr1 abf), dirprod_pr2 (pr1 cdg) ⟧)
