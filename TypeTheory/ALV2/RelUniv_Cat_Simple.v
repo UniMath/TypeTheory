@@ -198,6 +198,9 @@ End RelUniv_Cat_Simple.
     Definition weak_reluniv_cat : category
       := gen_reluniv_cat is_universe_relative_to.
 
+
+Section WeakRelUniv_is_univalent.
+
     Definition is_weak_reluniv_ob
       : arrow_category D → hProp.
     Proof.
@@ -212,77 +215,74 @@ End RelUniv_Cat_Simple.
         apply isapropishinh.
     Defined.
 
-    Definition weak_reluniv_to_arrow
-      : weak_reluniv_cat → arrow_category D.
+    Definition weak_reluniv_subcat : category
+      := subcategory _ (full_sub_precategory is_weak_reluniv_ob).
+
+    Definition weak_reluniv_cat_subcat_weq_ob
+      : ob weak_reluniv_cat ≃ ob weak_reluniv_subcat.
     Proof.
-      intros u.
-      set (b := pr1 (pr1 (pr1 u))).
-      set (a := dirprod_pr2 (pr1 (pr1 u))).
-      set (f := pr2 (pr1 u)).
-      apply ((a,b),,f).
+      use weq_iso.
+      - intros u.
+        set (b := pr1 (pr1 (pr1 u))).
+        set (a := dirprod_pr2 (pr1 (pr1 u))).
+        set (f := pr2 (pr1 u)).
+        set (comm := pr2 u).
+        apply (((a,b),,f),,comm).
+      - intros ff.
+        set (a := pr1 (pr1 (pr1 ff))).
+        set (b := dirprod_pr2 (pr1 (pr1 ff))).
+        set (f := pr2 (pr1 ff)).
+        set (comm := pr2 ff).
+        apply (((b,a),,f),,comm).
+      - intros u. apply idpath.
+      - intros u. apply idpath.
     Defined.
 
-    Definition arrow_to_weak_reluniv
-      : (∑ f : arrow_category D, is_weak_reluniv_ob f) → weak_reluniv_cat.
-    Proof.
-      intros ff.
-      set (a := pr1 (pr1 (pr1 ff))).
-      set (b := dirprod_pr2 (pr1 (pr1 ff))).
-      set (f := pr2 (pr1 ff)).
-      set (comm := pr2 ff).
-      apply (((b,a),,f),,comm).
-    Defined.
-
-    Definition weak_reluniv_mor_to_arrow
+    Definition weak_reluniv_cat_subcat_weq_mor
                (u1 u2 : weak_reluniv_cat)
       : weak_reluniv_cat ⟦ u1, u2 ⟧
-        → arrow_category D ⟦ weak_reluniv_to_arrow u1
-                             , weak_reluniv_to_arrow u2 ⟧.
+          ≃ weak_reluniv_subcat
+            ⟦ weak_reluniv_cat_subcat_weq_ob u1,
+              weak_reluniv_cat_subcat_weq_ob u2 ⟧.
     Proof.
-      intros mor.
-      set (b_to_d := pr1 (pr1 mor)).
-      set (a_to_c := dirprod_pr2 (pr1 mor)).
-      set (comm_square := pr2 mor).
-      use tpair.
-      - use make_dirprod.
-        + apply b_to_d.
-        + apply a_to_c.
-      - apply pathsinv0, comm_square.
-    Defined.
-
-    Definition arrow_to_weak_reluniv_mor
-               (u1 u2 : weak_reluniv_cat)
-      : arrow_category D ⟦ weak_reluniv_to_arrow u1
-                           , weak_reluniv_to_arrow u2 ⟧
-        → weak_reluniv_cat ⟦ u1, u2 ⟧.
-    Proof.
-      intros mor.
-      set (b_to_d := pr1 (pr1 mor)).
-      set (a_to_c := dirprod_pr2 (pr1 mor)).
-      set (comm_square := pr2 mor).
-      use tpair.
-      - use make_dirprod.
-        + apply b_to_d.
-        + apply a_to_c.
-      - apply pathsinv0, comm_square.
+      use weq_iso.
+      - intros mor.
+        set (b_to_d := pr1 (pr1 mor)).
+        set (a_to_c := dirprod_pr2 (pr1 mor)).
+        set (comm_square := pr2 mor).
+        use (tpair _ _ tt).
+        use tpair.
+        + apply (make_dirprod b_to_d a_to_c).
+        + apply pathsinv0, comm_square.
+      - intros mor.
+        set (b_to_d := pr1 (pr1 (pr1 mor))).
+        set (a_to_c := dirprod_pr2 (pr1 (pr1 mor))).
+        set (comm_square := pr2 (pr1 mor)).
+        use tpair.
+        + use make_dirprod.
+            * apply b_to_d.
+            * apply a_to_c.
+        + apply pathsinv0, comm_square.
+      - intros mor.
+        use gen_reluniv_mor_eq.
+        + apply idpath.
+        + apply idpath.
+      - intros mor.
+        use total2_paths_f.
+        + use arrow_category_mor_eq.
+          * apply idpath.
+          * apply idpath.
+        + apply isapropunit.
     Defined.
 
     Definition weak_reluniv_cat_to_full_subcat
-      : catiso weak_reluniv_cat
-               (carrier_of_sub_precategory
-                  _ (full_sub_precategory is_weak_reluniv_ob)).
+      : catiso weak_reluniv_cat weak_reluniv_subcat.
     Proof.
       use tpair.
       - use make_functor.
         + use make_functor_data.
-          * intros u.
-            use tpair.
-            -- apply (weak_reluniv_to_arrow u).
-            -- apply (pr2 u).
-          * intros u1 u2 mor.
-            use tpair.
-            -- apply (weak_reluniv_mor_to_arrow _ _ mor).
-            -- apply tt.
+          * apply weak_reluniv_cat_subcat_weq_ob.
+          * apply weak_reluniv_cat_subcat_weq_mor.
         + use tpair.
           * intros u.
             use dirprod_paths.
@@ -298,23 +298,8 @@ End RelUniv_Cat_Simple.
             -- apply isapropunit.
       - use make_dirprod.
         + intros a b.
-          use isweq_iso.
-          * intros mor.
-            apply (arrow_to_weak_reluniv_mor a b (pr1 mor)).
-          * intros mor.
-            use gen_reluniv_mor_eq.
-            -- apply idpath.
-            -- apply idpath.
-          * intros mor.
-            use total2_paths_f.
-            -- use arrow_category_mor_eq.
-               ++ apply idpath.
-               ++ apply idpath.
-            -- apply isapropunit.
-        + use isweq_iso.
-          * apply arrow_to_weak_reluniv.
-          * intros u. apply idpath.
-          * intros u. apply idpath.
+          apply (pr2 (weak_reluniv_cat_subcat_weq_mor a b)).
+        + apply weak_reluniv_cat_subcat_weq_ob.
     Defined.
 
     Definition weak_reluniv_cat_is_univalent
@@ -328,6 +313,8 @@ End RelUniv_Cat_Simple.
                (arrow_category_is_univalent D_univ)
             ).
     Defined.
+
+End WeakRelUniv_is_univalent.
 
 End RelUniv.
 
