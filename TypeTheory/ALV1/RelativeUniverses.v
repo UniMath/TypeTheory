@@ -970,6 +970,25 @@ Definition weq_weak_relative_universe_transfer
 : weak_relative_universe J ≃ weak_relative_universe J'
 := make_weq _ (isweq_weak_relative_universe_transfer R_full isD isD' T eta eps S_ff).
 
+Section Weak_RelU_Comm_Square.
+
+  Definition weak_relu_comm_square
+  : ∏ (u : relative_universe J),
+    weak_from_relative_universe J' (transfer_of_rel_univ_with_ess_surj _ u _ _ _ _ is_iso_α S_pb R_es C'_sat J'_ff S_full)
+    = weak_relative_universe_transfer (weak_from_relative_universe J u).
+  Proof.
+    intros u.
+    use total2_paths_f.
+    - apply idpath.
+    - apply proofirrelevance.
+      apply impred. intros c'.
+      apply impred. intros d'.
+      apply isapropishinh.
+  Defined.
+
+End Weak_RelU_Comm_Square.
+
+
 End Is_universe_relative_to_Transfer.
 
 
