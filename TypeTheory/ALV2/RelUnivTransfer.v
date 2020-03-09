@@ -609,6 +609,26 @@ Section RelUniv_Yo_Rezk.
 
   Let T := Transport_along_Equivs.Fop_precomp R.
 
+  Definition transfer_of_RelUnivYoneda_functor_issurjective
+             (AC : AxiomOfChoice.AxiomOfChoice)
+             (obC_isaset : isaset C)
+    : issurjective transfer_of_RelUnivYoneda_functor.
+  Proof.
+    use (reluniv_functor_with_ess_surj_issurjective
+           _ _ _ _ Yo Yo
+           _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+           AC obC_isaset
+        ).
+    - apply is_univalent_preShv.
+    - apply is_univalent_preShv.
+    - apply T.
+    - apply epsinv.
+    - apply etainv.
+    - apply fully_faithful_implies_full_and_faithful.
+      apply right_adj_equiv_is_ff.
+    - apply R_full.
+  Defined.
+
   Definition transfer_of_WeakRelUnivYoneda_functor
     : functor (@weak_reluniv_cat C _ Yo) (@weak_reluniv_cat RC _ Yo).
   Proof.
