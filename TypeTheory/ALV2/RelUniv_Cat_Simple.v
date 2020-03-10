@@ -57,12 +57,12 @@ Section RelUniv_Cat_Simple.
     : UU
     := (Ũ u1 --> Ũ u2) × (U u1 --> U u2).
 
-  Local Definition F_Ũ
+  Definition F_Ũ
         {u1 u2 : gen_reluniv J}
         (mor : gen_reluniv_mor_data u1 u2)
     : Ũ u1 --> Ũ u2
     := pr1 mor.
-  Local Definition F_U
+  Definition F_U
         {u1 u2 : gen_reluniv J}
         (mor : gen_reluniv_mor_data u1 u2)
     : U u1 --> U u2
@@ -424,6 +424,80 @@ Section RelUniv_Functor.
     use make_dirprod.
     - apply weak_from_reluniv_functor_ff.
     - apply (weqproperty (weq_relative_universe_weak_relative_universe _ Ccat J_ff)).
+  Defined.
+
+  Definition weak_reluniv_isaset
+             (obD_isaset : isaset (ob D))
+    : isaset (weak_reluniv_cat J).
+  Proof.
+    use isaset_total2.
+    - use isaset_total2.
+      + use isaset_dirprod.
+        * apply obD_isaset.
+        * apply obD_isaset.
+      + intros d. apply homset_property.
+    - intros mor.
+      apply isasetaprop.
+      apply impred. intros c.
+      apply impred. intros d.
+      apply isapropishinh.
+  Qed.
+
+  (* Lemma 3.8.2 from the HoTT book *)
+  Definition ishinh_impred
+             {X : hSet} {P : X → UU}
+             (AC : AxiomOfChoice.AxiomOfChoice)
+    : (∏ (x : X), ∥ P x ∥) → ∥ ∏ (x : X), P x ∥.
+  Proof.
+    apply (AC X P).
+  Defined.
+
+  (* A version of ishinh_impred for 2 arguments and types *)
+  Definition ishinh_impred2_UU
+             {X : UU} {Y : X → UU} {P : ∏ (x : X), Y x → UU}
+             (X_isaset : isaset X)
+             (Y_isaset : ∏ (x : X), isaset (Y x))
+             (AC : AxiomOfChoice.AxiomOfChoice)
+    : (∏ (x : X) (y : Y x), ∥ P x y ∥) → ∥ ∏ (x : X) (y : Y x), P x y ∥.
+  Proof.
+    intros f.
+    set (X' := make_hSet _ X_isaset).
+    set (Y' := λ (x : X), make_hSet _ (Y_isaset x)).
+    apply (AC _ _ (λ (x : X'), AC _ _ (λ (y : Y' x), f x y))).
+  Defined.
+
+  Definition to_ishinh_rel_universe_structure
+             (AC : AxiomOfChoice.AxiomOfChoice)
+             (obC_isaset : isaset C)
+             {u1 u2 : D}
+             {mor : D ⟦ u1, u2 ⟧}
+    : is_universe_relative_to J mor → ∥ rel_universe_structure J mor ∥.
+  Proof.
+    use ishinh_impred2_UU.
+    - apply obC_isaset.
+    - intros c.
+      apply homset_property.
+    - apply AC.
+  Defined.
+
+  Definition weak_from_reluniv_functor_issurjective
+             (AC : AxiomOfChoice.AxiomOfChoice)
+             (obC_isaset : isaset C)
+    : issurjective weak_from_reluniv_functor.
+  Proof.
+    intros u.
+    use (@hinhfun (rel_universe_structure J (pr1 u))).
+    - intros rs.
+      use tpair.
+      + use tpair.
+        * apply (pr1 u).
+        * apply rs.
+      + use total2_paths_f.
+        * apply idpath.
+        * apply funextsec. intros X.
+          apply funextsec. intros Y.
+          apply isapropishinh.
+    - apply (to_ishinh_rel_universe_structure AC obC_isaset (pr2 u)).
   Defined.
 
 End RelUniv_Functor.

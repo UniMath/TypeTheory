@@ -331,7 +331,7 @@ Section RelUniv_Transfer.
       - apply reluniv_functor_with_ess_surj_is_full, S_faithful.
       - apply reluniv_functor_with_ess_surj_is_faithful, S_faithful.
     Defined.
-        
+
   End RelUniv_Transfer_with_ess_surj.
 
 End RelUniv_Transfer.
@@ -541,6 +541,30 @@ Section WeakRelUniv_Transfer.
     apply weak_relu_square_commutes.
   Defined.
 
+  Definition reluniv_functor_with_ess_surj_issurjective
+             (C'_univ : is_univalent C')
+             (AC : AxiomOfChoice.AxiomOfChoice)
+             (obC_isaset : isaset C)
+    : issurjective (reluniv_functor_with_ess_surj
+                      _ _ _ _ J J'
+                      R S α α_is_iso
+                      S_pb C'_univ ff_J' S_full R_es
+                   ).
+  Proof.
+    set (W := (weak_from_reluniv_functor J'
+            ,, weak_from_reluniv_functor_is_catiso J' C'_univ ff_J')
+        : catiso _ _).
+    use (Core.issurjective_postcomp_with_weq _ (catiso_ob_weq W)).
+    use (transportf (λ F, issurjective (pr11 F))
+                    (! weak_relu_square_commutes_strictly C'_univ)).
+    use issurjcomp.
+    - apply weak_from_reluniv_functor_issurjective.
+      apply AC.
+      apply obC_isaset.
+    - apply issurjectiveweq.
+      apply (catiso_ob_weq (_,,weak_reluniv_functor_is_catiso)).
+  Defined.
+
 End WeakRelUniv_Transfer.
 
 Section RelUniv_Yo_Rezk.
@@ -584,6 +608,26 @@ Section RelUniv_Yo_Rezk.
   Defined.
 
   Let T := Transport_along_Equivs.Fop_precomp R.
+
+  Definition transfer_of_RelUnivYoneda_functor_issurjective
+             (AC : AxiomOfChoice.AxiomOfChoice)
+             (obC_isaset : isaset C)
+    : issurjective transfer_of_RelUnivYoneda_functor.
+  Proof.
+    use (reluniv_functor_with_ess_surj_issurjective
+           _ _ _ _ Yo Yo
+           _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+           AC obC_isaset
+        ).
+    - apply is_univalent_preShv.
+    - apply is_univalent_preShv.
+    - apply T.
+    - apply epsinv.
+    - apply etainv.
+    - apply fully_faithful_implies_full_and_faithful.
+      apply right_adj_equiv_is_ff.
+    - apply R_full.
+  Defined.
 
   Definition transfer_of_WeakRelUnivYoneda_functor
     : functor (@weak_reluniv_cat C _ Yo) (@weak_reluniv_cat RC _ Yo).
