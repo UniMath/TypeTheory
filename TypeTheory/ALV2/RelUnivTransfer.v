@@ -592,6 +592,41 @@ Section RelUniv_Transfer.
       induction e. apply idpath.
     Defined.
 
+    Definition reluniv_functor_with_ess_surj_after_inv
+               (u' : reluniv_cat J')
+      : iso u'
+            (reluniv_functor_with_ess_surj (inv_reluniv_with_ess_surj u')).
+    Proof.
+      set (εx := Constructions.pointwise_iso_from_nat_iso ε).
+      set (εx' := Constructions.pointwise_iso_from_nat_iso
+                   (iso_inv_from_iso ε)).
+      use z_iso_to_iso.
+      use make_z_iso.
+      - use tpair.
+        + use make_dirprod.
+          * cbn. apply (εx' (pr211 u')).
+          * cbn. apply (εx' (pr111 u')).
+        + unfold is_gen_reluniv_mor.
+          etrans. apply pathsinv0.
+          apply (nat_trans_ax (pr1 (iso_inv_from_iso ε))).
+          apply idpath.
+      - use tpair.
+        + use make_dirprod.
+          * cbn. apply (εx (pr211 u')).
+          * cbn. apply (εx (pr111 u')).
+        + unfold is_gen_reluniv_mor.
+          etrans. apply pathsinv0.
+          apply (nat_trans_ax (pr1 ε)).
+          apply idpath.
+      - use make_dirprod.
+        + use gen_reluniv_mor_eq.
+          * apply (maponpaths (λ k, pr1 k _) (iso_after_iso_inv ε)).
+          * apply (maponpaths (λ k, pr1 k _) (iso_after_iso_inv ε)).
+        + use gen_reluniv_mor_eq.
+          * apply (maponpaths (λ k, pr1 k _) (iso_inv_after_iso ε)).
+          * apply (maponpaths (λ k, pr1 k _) (iso_inv_after_iso ε)).
+    Defined.
+
     Definition reluniv_functor_with_ess_surj_issurjective
       : issurjective reluniv_functor_with_ess_surj.
     Proof.
@@ -599,7 +634,8 @@ Section RelUniv_Transfer.
       use hinhpr.
       use tpair.
       - apply (inv_reluniv_with_ess_surj u').
-      - use (invmaponpathsweq (weqtotal2asstor _ _)).
+      - use isotoid.
+        use (invmaponpathsweq (weqtotal2asstor _ _)).
         use total2_paths_f.
         + apply (maponpaths pr1 (inv_reluniv_with_ess_surj_preserves_mor_total u')).
         + use total2_paths_f.
