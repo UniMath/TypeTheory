@@ -195,9 +195,9 @@ End RelUniv_Cat_Simple.
     Definition reluniv_cat : category
       := gen_reluniv_cat rel_universe_structure.
 
+
     Definition weak_reluniv_cat : category
       := gen_reluniv_cat is_universe_relative_to.
-
 
 Section WeakRelUniv_is_univalent.
 
@@ -424,6 +424,23 @@ Section RelUniv_Functor.
     use make_dirprod.
     - apply weak_from_reluniv_functor_ff.
     - apply (weqproperty (weq_relative_universe_weak_relative_universe _ Ccat J_ff)).
+  Defined.
+
+  Definition weak_from_reluniv_functor_catiso
+             (Ccat : is_univalent C) (J_ff : fully_faithful J)
+    : catiso (reluniv_cat J) (weak_reluniv_cat J)
+    := (weak_from_reluniv_functor
+          ,, weak_from_reluniv_functor_is_catiso Ccat J_ff).
+  
+  Definition reluniv_cat_is_univalent
+             (Ccat : is_univalent C) (J_ff : fully_faithful J)
+             (Dcat : is_univalent D)
+    : is_univalent (reluniv_cat J).
+  Proof.
+    use (catiso_univalent
+           _ _ (weak_from_reluniv_functor_catiso Ccat J_ff)).
+    apply weak_reluniv_cat_is_univalent.
+    apply Dcat.
   Defined.
 
   Definition weak_reluniv_isaset
