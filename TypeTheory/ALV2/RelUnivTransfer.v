@@ -335,8 +335,7 @@ Section RelUniv_Transfer.
     Defined.
 
   Section SURJECTIVE.
-    Context (D_univ : is_univalent D)
-            (R_ses : split_ess_surj R)
+    Context (R_ses : split_ess_surj R)
             (D'_univ : is_univalent D')
             (invS : functor D' D)
             (eta : iso (C:=[D, D, pr2 D]) (functor_identity D) (S ∙ invS))
@@ -547,10 +546,6 @@ Section RelUniv_Transfer.
 
   End Helpers.
 
-    Axiom STUCK : ∏ X : UU, X.
-
-    Search paths.
-
     Definition inv_reluniv_with_ess_surj
       : reluniv_cat J' → reluniv_cat J.
     Proof.
@@ -567,32 +562,7 @@ Section RelUniv_Transfer.
         * apply pb_commutes_and_is_pullback.
     Defined.
 
-    Definition inv_reluniv_with_ess_surj_preserves_mor_total
-               (u' : reluniv_cat J')
-      : pr1 (reluniv_functor_with_ess_surj (inv_reluniv_with_ess_surj u'))
-        = pr1 u'.
-    Proof.
-      set (S_weq_on_mor_total
-           := isweq_left_adj_equivalence_on_mor_total
-                S D_univ D'_univ AE
-              : isweq (functor_on_mor_total S)).
-      apply (homotweqinvweq
-               (functor_on_mor_total S,,S_weq_on_mor_total)).
-    Defined.
-
-    Search (∑ (e : ?a = ?a'), _).
-    Search total2_paths_f.
-
-    Definition maponpaths_pr2_total2_paths_f
-               (A : Type) (B : A → Type)
-               (ab ab' : ∑ a : A, B a)
-               (e : ab = ab')
-      : transportf _ (maponpaths pr1 e) (pr2 ab) = pr2 ab'.
-    Proof.
-      induction e. apply idpath.
-    Defined.
-
-    Definition reluniv_functor_with_ess_surj_after_inv
+    Definition reluniv_functor_with_ess_surj_after_inv_iso
                (u' : reluniv_cat J')
       : iso u'
             (reluniv_functor_with_ess_surj (inv_reluniv_with_ess_surj u')).
@@ -627,6 +597,18 @@ Section RelUniv_Transfer.
           * apply (maponpaths (λ k, pr1 k _) (iso_inv_after_iso ε)).
     Defined.
 
+    Definition reluniv_functor_with_ess_surj_after_inv_id
+               (u' : reluniv_cat J')
+      : u' = reluniv_functor_with_ess_surj (inv_reluniv_with_ess_surj u').
+    Proof.
+      use isotoid.
+      - use reluniv_cat_is_univalent.
+        + apply C'_univ.
+        + apply ff_J'.
+        + apply D'_univ.
+      - apply reluniv_functor_with_ess_surj_after_inv_iso.
+    Defined.
+
     Definition reluniv_functor_with_ess_surj_issurjective
       : issurjective reluniv_functor_with_ess_surj.
     Proof.
@@ -634,44 +616,7 @@ Section RelUniv_Transfer.
       use hinhpr.
       use tpair.
       - apply (inv_reluniv_with_ess_surj u').
-      - use isotoid.
-        use (invmaponpathsweq (weqtotal2asstor _ _)).
-        use total2_paths_f.
-        + apply (maponpaths pr1 (inv_reluniv_with_ess_surj_preserves_mor_total u')).
-        + use total2_paths_f.
-          * etrans. use (pr1_transportf (D' × D')).
-            use maponpaths_pr2_total2_paths_f.
-          * etrans. refine (transportf_forall _ _ _).
-            apply funextsec. intros X'.
-            etrans. refine (transportf_forall _ _ _).
-            apply funextsec. intros f'.
-            use total2_paths_f.
-            -- use total2_paths_f.
-               ++ etrans. apply maponpaths. use pr1_transportf.
-                  etrans. use (pr1_transportf (D' ⟦ _, _ ⟧)).
-                  use isotoid. apply C'_univ.
-                  (* we know that Xf' = R (invR Xf'')
-                   * where Xf'' = R(invR X).(_ ;; # S (# invS f) ;; _)
-                   * and invR is the inverse on objects given
-                   * by R being (split) essentially surjective
-                   * However for some reason (because of transportf?)
-                   * pr2 (R_ses _) does not apply :(
-                   *)
-                  apply STUCK. (* Xf' *)
-               ++ use dirprod_paths.
-                  ** (* This one will probably the hardest to prove formally
-                      * since it is in C' and is constructed
-                      * by going between categories a lot.
-                      *)
-                    apply STUCK. (* pp' *)
-                  ** (* This one should be fairly easy since
-                      * it is only mapped with S and invS
-                      * with some isos prepended to it in both maps
-                      *)
-                    apply STUCK. (* Q' *)
-            -- use dirprod_paths.
-               ++ apply homset_property.
-               ++ apply isaprop_isPullback.
+      - apply pathsinv0, reluniv_functor_with_ess_surj_after_inv_id.
     Defined.
 
   End SURJECTIVE.
@@ -885,30 +830,6 @@ Section WeakRelUniv_Transfer.
     apply weak_relu_square_commutes.
   Defined.
 
-  Definition reluniv_functor_with_ess_surj_issurjective
-             (C'_univ : is_univalent C')
-             (AC : AxiomOfChoice.AxiomOfChoice)
-             (obC_isaset : isaset C)
-    : issurjective (reluniv_functor_with_ess_surj
-                      _ _ _ _ J J'
-                      R S α α_is_iso
-                      S_pb C'_univ ff_J' S_full R_es
-                   ).
-  Proof.
-    set (W := (weak_from_reluniv_functor J'
-            ,, weak_from_reluniv_functor_is_catiso J' C'_univ ff_J')
-        : catiso _ _).
-    use (Core.issurjective_postcomp_with_weq _ (catiso_ob_weq W)).
-    use (transportf (λ F, issurjective (pr11 F))
-                    (! weak_relu_square_commutes_strictly C'_univ)).
-    use issurjcomp.
-    - apply weak_from_reluniv_functor_issurjective.
-      apply AC.
-      apply obC_isaset.
-    - apply issurjectiveweq.
-      apply (catiso_ob_weq (_,,weak_reluniv_functor_is_catiso)).
-  Defined.
-
 End WeakRelUniv_Transfer.
 
 Section RelUniv_Yo_Rezk.
@@ -961,7 +882,6 @@ Section RelUniv_Yo_Rezk.
     use (reluniv_functor_with_ess_surj_issurjective
            _ _ _ _ Yo Yo
            _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-           AC obC_isaset
         ).
     - apply is_univalent_preShv.
     - apply is_univalent_preShv.
