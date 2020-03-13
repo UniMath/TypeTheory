@@ -28,8 +28,10 @@ Require Import TypeTheory.ALV1.Transport_along_Equivs.
 Require Import TypeTheory.ALV2.RelUniv_Cat_Simple.
 Require Import TypeTheory.ALV2.RelUniv_Cat.
 Require Import UniMath.CategoryTheory.catiso.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 
 Set Automatic Introduction.
+Set Nested Proofs Allowed.
 
 Section RelUniv_Transfer.
 
@@ -331,6 +333,312 @@ Section RelUniv_Transfer.
       - apply reluniv_functor_with_ess_surj_is_full, S_faithful.
       - apply reluniv_functor_with_ess_surj_is_faithful, S_faithful.
     Defined.
+
+  Section SURJECTIVE.
+    Context (D_univ : is_univalent D)
+            (R_ses : split_ess_surj R)
+            (D'_univ : is_univalent D')
+            (invS : functor D' D)
+            (eta : iso (C:=[D, D, pr2 D]) (functor_identity D) (S ∙ invS))
+            (eps : iso (C:=[D', D', pr2 D']) (invS ∙ S) (functor_identity D'))
+            (S_ff : fully_faithful S).
+
+    Let E := ((S,, (invS,, (pr1 eta, pr1 eps)))
+                ,, ((λ d,  (pr2 (Constructions.pointwise_iso_from_nat_iso eta d )))
+                    , (λ d', (pr2 (Constructions.pointwise_iso_from_nat_iso eps d')))))
+            : equivalence_of_precats D D'.
+
+    Let AE := adjointificiation E.
+    Let η' := pr1 (pr121 AE) : nat_trans (functor_identity _) (S ∙ invS).
+    Let ε' := pr2 (pr121 AE) : nat_trans (invS ∙ S) (functor_identity _).
+    Let η := functor_iso_from_pointwise_iso
+                _ _ _ _ _ η' (pr12 (adjointificiation E))
+            : iso (C:=[D, D, pr2 D]) (functor_identity D) (S ∙ invS).
+    Let ε := functor_iso_from_pointwise_iso
+                _ _ _ _ _ ε' (pr22 (adjointificiation E))
+            : iso (C:=[D', D', pr2 D']) (invS ∙ S) (functor_identity D').
+
+    Let ηx := Constructions.pointwise_iso_from_nat_iso (iso_inv_from_iso η).
+    Let αx := Constructions.pointwise_iso_from_nat_iso (α,,α_is_iso).
+
+  Section Helpers.
+
+    Context (u' : reluniv_cat J').
+
+    Let p' := pr1  u' : mor_total D'.
+    Let Ũ' := pr21 p' : D'.
+    Let U' := pr11 p' : D'.
+    Let pf' := pr2 p' : D' ⟦ Ũ', U' ⟧.
+
+    Let U := invS U'.
+    Let Ũ := invS Ũ'.
+    Let pf := # invS pf'.
+    Local Definition p := functor_on_mor_total invS p' : mor_total D.
+
+    Context (X : C) (f : D ⟦ J X, U ⟧).
+
+    Let X' := R X : C'.
+    Let f' := inv_from_iso (αx X) ;; # S f ;; pr11 ε U'
+              : D' ⟦ J' X' , U' ⟧.
+    Let pb' := pr2 u' X' f' : fpullback J' p' f'.
+    Let Xf' := pr11 pb'.
+
+    Local Definition Xf := pr1 (R_ses Xf') : C.
+    Let RXf_Xf'_iso := pr2 (R_ses Xf') : iso (R Xf) Xf'.
+
+    Let pp' := pr121 pb' : C' ⟦ Xf', X' ⟧.
+    Local Definition pp : C ⟦ Xf, X ⟧.
+    Proof.
+      use (invweq (weq_from_fully_faithful ff_J _ _)).
+      use (pr11 η _ ;; _ ;; pr1 (inv_from_iso η) _).
+      use (# invS _).
+      apply (pr1 α Xf ;; # J' (RXf_Xf'_iso ;; pp') ;; inv_from_iso (αx X)).
+    Defined.
+
+    Let Q' := pr221 pb' : D' ⟦ J' Xf', Ũ' ⟧.
+    Local Definition Q
+      := pr11 η _ ;; # invS (pr1 α Xf ;; # J' RXf_Xf'_iso ;; Q')
+         : D ⟦ J Xf, invS Ũ' ⟧.
+
+    Let pb'_commutes := pr12 pb' : # J' pp' ;; f' = Q' ;; p'.
+    Let pb'_isPullback := pr22 pb'.
+
+    Local Definition pb_commutes_and_is_pullback
+      : commutes_and_is_pullback f p (# J pp) Q.
+    Proof.
+      Check @commutes_and_is_pullback_transfer_iso.
+      use (@commutes_and_is_pullback_transfer_iso
+               _ _ _ _ _
+               _ _ _ _
+               _ _ _ (J Xf)
+               f p (# J pp) Q
+               _ _ _ _
+               _ _ _ _
+               (functor_on_square _ _ invS pb'_commutes)
+            ).
+      - apply identity_iso.
+      - eapply iso_comp.
+        apply functor_on_iso, iso_inv_from_iso, αx.
+        apply ηx.
+      - apply identity_iso.
+      - eapply iso_comp. apply functor_on_iso, functor_on_iso.
+        apply iso_inv_from_iso, RXf_Xf'_iso.
+        eapply iso_comp. apply functor_on_iso, iso_inv_from_iso, αx.
+        apply ηx.
+      - unfold f', iso_comp.
+
+        etrans. apply id_right.
+        etrans. apply functor_comp.
+        etrans. apply maponpaths_2, functor_comp.
+        etrans. apply assoc'.
+        apply pathsinv0.
+        etrans. apply assoc'.
+        apply maponpaths.
+
+        etrans. apply pathsinv0.
+        apply (nat_trans_ax (inv_from_iso η)).
+        apply maponpaths.
+
+        apply pathsinv0.
+        etrans. apply pathsinv0, id_left.
+        etrans. apply maponpaths_2, pathsinv0.
+        apply (maponpaths (λ k, pr1 k (invS U'))
+                          (iso_after_iso_inv η)).
+
+        etrans. apply assoc'.
+        etrans. apply maponpaths.
+        set (AE_tr2 := pr2 (pr221 AE) U'
+                       : pr11 η (invS U') ;; # invS (pr11 ε U')
+                         = identity _).
+        apply AE_tr2.
+        apply id_right.
+
+      - etrans. apply id_right.
+        apply pathsinv0, id_left.
+
+      - apply pathsinv0.
+        etrans. apply maponpaths.
+        apply (homotweqinvweq (weq_from_fully_faithful ff_J _ _)). (*  *)
+
+        etrans. apply maponpaths, assoc'.
+        etrans. apply maponpaths, maponpaths, maponpaths_2.
+        apply (functor_comp invS).
+        etrans. apply maponpaths, maponpaths, assoc'.
+        etrans. apply assoc.
+        etrans. apply assoc.
+        apply maponpaths_2.
+
+        unfold iso_comp, functor_on_iso. simpl.
+        etrans. apply maponpaths_2, maponpaths_2, maponpaths, maponpaths.
+        apply id_right.
+        etrans. apply maponpaths_2, assoc'.
+        etrans. apply maponpaths_2, maponpaths, assoc'.
+        etrans. apply maponpaths_2, maponpaths, maponpaths.
+        apply iso_after_iso_inv.
+
+        etrans. apply maponpaths_2, maponpaths, id_right.
+        etrans. apply maponpaths, functor_comp.
+        etrans. apply assoc.
+        etrans. apply maponpaths_2, assoc'.
+        etrans. apply maponpaths_2, maponpaths.
+        apply pathsinv0, functor_comp.
+        etrans. apply maponpaths_2, maponpaths, maponpaths.
+        apply iso_after_iso_inv.
+
+        etrans. apply maponpaths_2, pathsinv0, functor_comp.
+        etrans. apply pathsinv0, functor_comp.
+        apply maponpaths.
+
+        etrans. apply maponpaths_2, id_right.
+        etrans. apply pathsinv0, functor_comp.
+        apply maponpaths.
+        
+        etrans. apply assoc.
+        etrans. apply maponpaths_2, iso_after_iso_inv.
+        apply id_left.
+
+      - etrans. apply id_right.
+        apply pathsinv0.
+
+        unfold Q, iso_comp, functor_on_iso. simpl.
+
+        etrans. apply maponpaths_2, maponpaths, maponpaths.
+        apply id_right.
+
+        etrans. apply assoc.
+        etrans. apply maponpaths_2, assoc'.
+        etrans. apply maponpaths_2, maponpaths, assoc'.
+        etrans. apply maponpaths_2, maponpaths, maponpaths.
+        apply iso_after_iso_inv.
+
+        etrans. apply maponpaths_2, maponpaths.
+        apply id_right.
+
+        etrans. apply maponpaths, functor_comp.
+        etrans. apply assoc.
+        etrans. apply maponpaths_2, assoc'.
+        etrans. apply maponpaths_2, maponpaths, maponpaths, functor_comp.
+        etrans. apply maponpaths_2, maponpaths, assoc.
+        etrans. apply maponpaths_2, maponpaths, maponpaths_2.
+        apply pathsinv0, functor_comp.
+        etrans. apply maponpaths_2, maponpaths, maponpaths_2.
+        apply maponpaths, iso_after_iso_inv.
+
+        etrans. apply maponpaths_2, maponpaths.
+        apply pathsinv0, functor_comp.
+        etrans. apply maponpaths_2, maponpaths.
+        apply maponpaths, id_left.
+
+        etrans. apply maponpaths_2, pathsinv0, functor_comp.
+        etrans. apply pathsinv0, functor_comp.
+        apply maponpaths.
+
+        etrans. apply maponpaths_2, pathsinv0, functor_comp.
+        etrans. apply maponpaths_2, maponpaths, iso_after_iso_inv.
+        etrans. apply maponpaths_2, functor_id.
+        apply id_left.
+
+     - use (isPullback_image_square _ _ invS).
+       + apply homset_property.
+       + apply (right_adj_equiv_is_ff _ _ S AE).
+       + apply (right_adj_equiv_is_ess_sur _ _ S AE).
+       + apply pb'_isPullback.
+    Defined.
+
+  End Helpers.
+
+    Axiom STUCK : ∏ X : UU, X.
+
+    Search paths.
+
+    Definition inv_reluniv_with_ess_surj
+      : reluniv_cat J' → reluniv_cat J.
+    Proof.
+      intros u'.
+      use tpair.
+      + apply (p u').
+      + intros X f.
+        use tpair.
+        * use tpair.
+          -- apply (Xf u' X f).
+          -- use make_dirprod.
+             ++ apply pp.
+             ++ apply Q.
+        * apply pb_commutes_and_is_pullback.
+    Defined.
+
+    Definition inv_reluniv_with_ess_surj_preserves_mor_total
+               (u' : reluniv_cat J')
+      : pr1 (reluniv_functor_with_ess_surj (inv_reluniv_with_ess_surj u'))
+        = pr1 u'.
+    Proof.
+      set (S_weq_on_mor_total
+           := isweq_left_adj_equivalence_on_mor_total
+                S D_univ D'_univ AE
+              : isweq (functor_on_mor_total S)).
+      apply (homotweqinvweq
+               (functor_on_mor_total S,,S_weq_on_mor_total)).
+    Defined.
+
+    Search (∑ (e : ?a = ?a'), _).
+    Search total2_paths_f.
+
+    Definition maponpaths_pr2_total2_paths_f
+               (A : Type) (B : A → Type)
+               (ab ab' : ∑ a : A, B a)
+               (e : ab = ab')
+      : transportf _ (maponpaths pr1 e) (pr2 ab) = pr2 ab'.
+    Proof.
+      induction e. apply idpath.
+    Defined.
+
+    Definition reluniv_functor_with_ess_surj_issurjective
+      : issurjective reluniv_functor_with_ess_surj.
+    Proof.
+      intros u'.
+      use hinhpr.
+      use tpair.
+      - apply (inv_reluniv_with_ess_surj u').
+      - use (invmaponpathsweq (weqtotal2asstor _ _)).
+        use total2_paths_f.
+        + apply (maponpaths pr1 (inv_reluniv_with_ess_surj_preserves_mor_total u')).
+        + use total2_paths_f.
+          * etrans. use (pr1_transportf (D' × D')).
+            use maponpaths_pr2_total2_paths_f.
+          * etrans. refine (transportf_forall _ _ _).
+            apply funextsec. intros X'.
+            etrans. refine (transportf_forall _ _ _).
+            apply funextsec. intros f'.
+            use total2_paths_f.
+            -- use total2_paths_f.
+               ++ etrans. apply maponpaths. use pr1_transportf.
+                  etrans. use (pr1_transportf (D' ⟦ _, _ ⟧)).
+                  use isotoid. apply C'_univ.
+                  (* we know that Xf' = R (invR Xf'')
+                   * where Xf'' = R(invR X).(_ ;; # S (# invS f) ;; _)
+                   * and invR is the inverse on objects given
+                   * by R being (split) essentially surjective
+                   * However for some reason (because of transportf?)
+                   * pr2 (R_ses _) does not apply :(
+                   *)
+                  apply STUCK. (* Xf' *)
+               ++ use dirprod_paths.
+                  ** (* This one will probably the hardest to prove formally
+                      * since it is in C' and is constructed
+                      * by going between categories a lot.
+                      *)
+                    apply STUCK. (* pp' *)
+                  ** (* This one should be fairly easy since
+                      * it is only mapped with S and invS
+                      * with some isos prepended to it in both maps
+                      *)
+                    apply STUCK. (* Q' *)
+            -- use dirprod_paths.
+               ++ apply homset_property.
+               ++ apply isaprop_isPullback.
+    Defined.
+
+  End SURJECTIVE.
 
   End RelUniv_Transfer_with_ess_surj.
 
