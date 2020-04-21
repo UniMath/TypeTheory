@@ -31,7 +31,6 @@ Require Import UniMath.CategoryTheory.catiso.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 
 Set Automatic Introduction.
-Set Nested Proofs Allowed.
 
 Section RelUniv_Transfer.
 
