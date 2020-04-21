@@ -823,7 +823,7 @@ Section RelUniv_Yo_Rezk.
     : (transfer_of_RelUnivYoneda_functor ∙ weak_from_reluniv_functor _)
         = (weak_from_reluniv_functor _ ∙ transfer_of_WeakRelUnivYoneda_functor).
   Proof.
-    apply weak_relu_square_commutes_strictly.
+    apply weak_relu_square_commutes_identity.
   Defined.
 
 End RelUniv_Yo_Rezk.
