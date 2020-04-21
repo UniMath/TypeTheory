@@ -819,7 +819,7 @@ Section RelUniv_Yo_Rezk.
     apply weak_reluniv_functor_is_catiso.
   Defined.
 
-  Definition WeakRelUnivYoneda_functor_square_commutes_strictly
+  Definition WeakRelUnivYoneda_functor_square_commutes_identity
     : (transfer_of_RelUnivYoneda_functor ∙ weak_from_reluniv_functor _)
         = (weak_from_reluniv_functor _ ∙ transfer_of_WeakRelUnivYoneda_functor).
   Proof.
