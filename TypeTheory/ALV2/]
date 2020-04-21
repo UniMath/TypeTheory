@@ -718,7 +718,7 @@ Section WeakRelUniv_Transfer.
         : catiso _ _).
     use (Core.issurjective_postcomp_with_weq _ (catiso_ob_weq W)).
     use (transportf (λ F, issurjective (pr11 F))
-                    (! weak_relu_square_commutes_strictly C'_univ)).
+                    (! weak_relu_square_commutes_identity C'_univ)).
     use issurjcomp.
     - apply weak_from_reluniv_functor_issurjective.
       apply AC.
