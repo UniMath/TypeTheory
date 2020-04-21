@@ -691,7 +691,7 @@ Section WeakRelUniv_Transfer.
     - apply weak_relu_square_nat_trans_is_nat_iso.
   Defined.
 
-  Definition weak_relu_square_commutes_strictly
+  Definition weak_relu_square_commutes_identity
              (C'_univ : is_univalent C')
     : (relu_J_to_relu_J' C'_univ ∙ weak_from_reluniv_functor J')
         = (weak_from_reluniv_functor J ∙ weak_reluniv_functor).
