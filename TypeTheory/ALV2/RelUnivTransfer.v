@@ -816,7 +816,7 @@ Section WeakRelUniv_Transfer.
     - apply weak_relu_square_nat_trans_is_nat_iso.
   Defined.
 
-  Definition weak_relu_square_commutes_strictly
+  Definition weak_relu_square_commutes_identity
              (C'_univ : is_univalent C')
     : (relu_J_to_relu_J' C'_univ ∙ weak_from_reluniv_functor J')
         = (weak_from_reluniv_functor J ∙ weak_reluniv_functor).
@@ -843,7 +843,7 @@ Section WeakRelUniv_Transfer.
          : catiso _ _).		
      use (Core.issurjective_postcomp_with_weq _ (catiso_ob_weq W)).		
      use (transportf (λ F, issurjective (pr11 F))		
-                     (! weak_relu_square_commutes_strictly C'_univ)).		
+                     (! weak_relu_square_commutes_identity C'_univ)).		
      use issurjcomp.		
      - apply weak_from_reluniv_functor_issurjective.		
        apply AC.		
@@ -945,11 +945,11 @@ Section RelUniv_Yo_Rezk.
     apply weak_reluniv_functor_is_catiso.
   Defined.
 
-  Definition WeakRelUnivYoneda_functor_square_commutes_strictly
+  Definition WeakRelUnivYoneda_functor_square_commutes_identity
     : (transfer_of_RelUnivYoneda_functor ∙ weak_from_reluniv_functor _)
         = (weak_from_reluniv_functor _ ∙ transfer_of_WeakRelUnivYoneda_functor).
   Proof.
-    apply weak_relu_square_commutes_strictly.
+    apply weak_relu_square_commutes_identity.
   Defined.
 
 End RelUniv_Yo_Rezk.
