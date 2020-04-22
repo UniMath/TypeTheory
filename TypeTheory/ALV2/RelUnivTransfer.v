@@ -404,7 +404,6 @@ Section RelUniv_Transfer.
     Local Definition pb_commutes_and_is_pullback
       : commutes_and_is_pullback f p (# J pp) Q.
     Proof.
-      Check @commutes_and_is_pullback_transfer_iso.
       use (@commutes_and_is_pullback_transfer_iso
                _ _ _ _ _
                _ _ _ _
