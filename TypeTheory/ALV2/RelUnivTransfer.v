@@ -28,7 +28,6 @@ Require Import TypeTheory.ALV1.Transport_along_Equivs.
 Require Import TypeTheory.ALV2.RelUniv_Cat_Simple.
 Require Import TypeTheory.ALV2.RelUniv_Cat.
 Require Import UniMath.CategoryTheory.catiso.
-Require Import UniMath.CategoryTheory.Equivalences.Core.
 
 Set Automatic Introduction.
 
