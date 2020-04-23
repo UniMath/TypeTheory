@@ -17,6 +17,7 @@ Require Import TypeTheory.ALV1.TypeCat.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
 
 Set Automatic Introduction.
@@ -58,12 +59,12 @@ Section TypeCat_to_ComprehensionCat.
         split.
         + intros Γ A; cbn in *.
         use tpair.
-        * apply identity.
-        * etrans. apply id_left. apply pathsinv0, id_right.
+          * apply identity.
+          * cbn. etrans. apply id_left. apply pathsinv0, id_right.
         + intros ? ? ? ? ? ? ? ? ff gg; cbn in *.
         use tpair.
-        * apply (pr1 ff ;; pr1 gg).
-        * simpl.
+          * apply (pr1 ff ;; pr1 gg).
+          * simpl.
             etrans. apply assoc'.
             etrans. apply maponpaths, (pr2 gg).
             etrans. apply assoc.
@@ -152,6 +153,50 @@ Section TypeCat_to_ComprehensionCat.
         * apply dpr_q_typecat.
       + apply pullback_is_cartesian.
         apply (isPullback_swap (reind_pb_typecat A f)).
+    Defined.
+
+
+    Definition typecat_disp_functor_data
+    : disp_functor_data (functor_identity C) typecat_disp (disp_codomain C).
+    Proof.
+    use tpair.
+    - intros Γ A. exists (Γ ◂ A). apply dpr_typecat.
+    - intros Γ' Γ A' A f ff. apply ff.
+    Defined.
+
+    Definition typecat_disp_functor_axioms
+    : disp_functor_axioms typecat_disp_functor_data.
+    Proof.
+    use make_dirprod.
+    - intros Γ A. cbn.
+        apply maponpaths.
+        apply homset_property.
+    - intros Γ Δ Γ' A B A' f g ff gg.
+        apply maponpaths.
+        use total2_paths_f.
+        + apply idpath.
+        + apply homset_property.
+    Defined.
+
+    Definition typecat_disp_functor
+    : disp_functor (functor_identity C) typecat_disp (disp_codomain C)
+    := (typecat_disp_functor_data ,, typecat_disp_functor_axioms).
+
+    Definition typecat_disp_functor_ff
+      : disp_functor_ff typecat_disp_functor.
+    Proof.
+      unfold disp_functor_ff.
+      intros Γ Γ' A A' f.
+      use isweq_iso.
+      - apply idfun.
+      - intros ff.
+        use total2_paths_f.
+        + apply idpath.
+        + apply homset_property.
+      - intros ff.
+        use total2_paths_f.
+        + apply idpath.
+        + apply homset_property.
     Defined.
 
   End TypeCat_induced_DisplayedCategory_over_C.
