@@ -140,7 +140,7 @@ Section TypeCat_to_ComprehensionCat.
         + split.
           * exact (maponpaths pr1 (pr2 H)).
           * exact (pr1 H).
-    Qed.
+    Defined.
 
     Lemma is_fibration_typecat_disp : cleaving typecat_disp.
     Proof.
@@ -154,7 +154,6 @@ Section TypeCat_to_ComprehensionCat.
       + apply pullback_is_cartesian.
         apply (isPullback_swap (reind_pb_typecat A f)).
     Defined.
-
 
     Definition typecat_disp_functor_data
     : disp_functor_data (functor_identity C) typecat_disp (disp_codomain C).
@@ -199,6 +198,50 @@ Section TypeCat_to_ComprehensionCat.
         + apply homset_property.
     Defined.
 
+    Definition typecat_disp_functor_is_cartesian
+      : is_cartesian_disp_functor typecat_disp_functor.
+    Proof.
+      use cartesian_functor_from_fibration.
+      intros Γ Γ' f A.
+      apply hinhpr.
+      exists (is_fibration_typecat_disp _ _ f A).
+
+      intros Δ g k hh.
+      use iscontrweqf.
+      3: {
+        use (reind_pb_typecat A f (pr1 k)).
+        - apply (pr2 k ;; g).
+        - apply (pr1 hh).
+        - etrans. apply assoc'. apply (! pr2 hh).
+        }
+
+      eapply weqcomp.
+      2: apply weqtotal2asstol.
+      apply weq_subtypes_iff.
+      - intro. apply isapropdirprod; apply homset_property.
+      - intro. apply (isofhleveltotal2 1). 
+        + apply homset_property.
+        + intros. apply homsets_disp.
+      - intros gg; split; intros H.
+        + exists (pr1 H).
+          apply subtypePath.
+          intro; apply homset_property.
+          exact (pr2 H).
+        + split.
+          * exact (pr1 H).
+          * exact (maponpaths pr1 (pr2 H)).
+    Defined.
+
   End TypeCat_induced_DisplayedCategory_over_C.
+
+  Definition typecat_to_comprehension_cat_structure
+    : typecat_structure C → comprehension_cat_structure C.
+  Proof.
+    intros TC.
+    exists (typecat_disp TC).
+    exists (is_fibration_typecat_disp _).
+    exists (typecat_disp_functor _).
+    apply typecat_disp_functor_is_cartesian.
+  Defined.
 
 End TypeCat_to_ComprehensionCat.
