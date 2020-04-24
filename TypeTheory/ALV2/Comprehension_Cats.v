@@ -245,3 +245,15 @@ Section TypeCat_to_ComprehensionCat.
   Defined.
 
 End TypeCat_to_ComprehensionCat.
+
+(* TODO: move upstream *)
+Definition comprehension_cat := ∑ (C : category), (comprehension_cat_structure C).
+
+Definition typecat_to_comprehension_cat
+  : typecat → comprehension_cat.
+Proof.
+  intros TC.
+  exists (pr1 TC).
+  apply (typecat_to_comprehension_cat_structure _ (pr2 TC)).
+Defined.
+
