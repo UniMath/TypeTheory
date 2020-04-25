@@ -155,7 +155,7 @@ Section TypeCat_to_ComprehensionCat.
           * exact (pr1 H).
     Defined.
 
-    Lemma is_fibration_typecat_disp : cleaving typecat_disp.
+    Lemma cleaving_typecat_disp : cleaving typecat_disp.
     Proof.
       intros Γ Γ' f A.
       unfold cartesian_lift.
@@ -434,11 +434,9 @@ Section TypeCat_to_ComprehensionCat.
     Definition typecat_disp_functor_is_cartesian
       : is_cartesian_disp_functor typecat_disp_functor.
     Proof.
-      use cartesian_functor_from_fibration.
+      use cartesian_functor_from_cleaving.
+      { apply cleaving_typecat_disp. }
       intros Γ Γ' f A.
-      apply hinhpr.
-      exists (is_fibration_typecat_disp _ _ f A).
-
       intros Δ g k hh.
       use iscontrweqf.
       3: {
@@ -472,7 +470,7 @@ Section TypeCat_to_ComprehensionCat.
   Proof.
     intros TC.
     exists (typecat_disp TC).
-    exists (is_fibration_typecat_disp _).
+    exists (cleaving_typecat_disp _).
     exists (typecat_disp_functor _).
     apply typecat_disp_functor_is_cartesian.
   Defined.
