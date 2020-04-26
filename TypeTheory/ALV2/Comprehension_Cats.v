@@ -185,9 +185,20 @@ Section TypeCat_Disp.
 
     Definition typecat_iso_triangle
                {Γ : C} (A B : TC Γ)
-      := ∑ (i : z_iso (Γ ◂ A) (Γ ◂ B)),
-         i ;; π B = π A
-                      × inv_from_z_iso i ;; π A = π B.
+      := ∑ (i : iso (Γ ◂ A) (Γ ◂ B)),
+         i ;; π B = π A.
+
+    Definition typecat_iso_triangle_swap
+               {Γ : C} {A B : TC Γ}
+      : typecat_iso_triangle A B → typecat_iso_triangle B A.
+    Proof.
+      intros tr.
+      exists (iso_inv_from_iso (pr1 tr)).
+      etrans. apply maponpaths, pathsinv0, (pr2 tr).
+      etrans. apply assoc.
+      etrans. apply maponpaths_2, iso_after_iso_inv.
+      apply id_left.
+    Defined.
 
     Definition typecat_idtoiso_triangle
                {Γ : C} (A B : TC Γ)
@@ -195,10 +206,8 @@ Section TypeCat_Disp.
     Proof.
       intros p. induction p.
       use tpair.
-      - apply identity_z_iso.
-      - use make_dirprod. 
-        + apply id_left.
-        + apply id_left.
+      - apply identity_iso.
+      - apply id_left.
     Defined.
 
     Definition typecat_is_triangle_to_idtoiso_fiber_disp
@@ -207,11 +216,14 @@ Section TypeCat_Disp.
     Proof.
       intros tr.
       set (i        := pr1 (pr1 tr) : C ⟦ Γ ◂ A, Γ ◂ B ⟧ ).
-      set (inv_i    := pr1 (pr2 (pr1 tr)) : C ⟦ Γ ◂ B, Γ ◂ A ⟧).
-      set (i_inv_i  := dirprod_pr1 (pr2 (pr2 (pr1 tr))) : i ;; inv_i = identity _).
-      set (inv_i_i  := dirprod_pr2 (pr2 (pr2 (pr1 tr))) : inv_i ;; i = identity _).
-      set (iB_A     := pr1 (pr2 tr) : i ;; π B = π A).
-      set (inv_iA_B := dirprod_pr2 (pr2 tr) : inv_i ;; π A = π B).
+      set (iB_A     := pr2 tr : i ;; π B = π A).
+
+      set (tr' := typecat_iso_triangle_swap tr).
+      set (inv_i    := pr1 (pr1 tr') : C ⟦ Γ ◂ B, Γ ◂ A ⟧).
+      set (inv_iA_B := pr2 tr' : inv_i ;; π A = π B).
+
+      set (i_inv_i  := iso_inv_after_iso (pr1 tr) : i ;; inv_i = identity _).
+      set (inv_i_i  := iso_after_iso_inv (pr1 tr) : inv_i ;; i = identity _).
 
       repeat use tpair.
       - exact i.
@@ -247,17 +259,18 @@ Section TypeCat_Disp.
 
       repeat use tpair.
       - exact i.
-      - exact inv_i.
-      - etrans. apply i_inv_i.
-        etrans.
-        use (pr1_transportb (λ _ (_ : C ⟦ Γ ◂ A, Γ ◂ A ⟧), _)).
-        simpl. apply (maponpaths (λ f, f _) (transportb_const _ _)).
-      - etrans. apply inv_i_i.
-        etrans.
-        use (pr1_transportb (λ _ (_ : C ⟦ Γ ◂ B, Γ ◂ B ⟧), _)).
-        simpl. apply (maponpaths (λ f, f _) (transportb_const _ _)).
+      - apply is_iso_from_is_z_iso.
+        repeat use tpair.
+        + apply inv_i.
+        + etrans. apply i_inv_i.
+          etrans.
+          use (pr1_transportb (λ _ (_ : C ⟦ Γ ◂ A, Γ ◂ A ⟧), _)).
+          simpl. apply (maponpaths (λ f, f _) (transportb_const _ _)).
+        + etrans. apply inv_i_i.
+          etrans.
+          use (pr1_transportb (λ _ (_ : C ⟦ Γ ◂ B, Γ ◂ B ⟧), _)).
+          simpl. apply (maponpaths (λ f, f _) (transportb_const _ _)).
       - etrans. apply iB_A. apply id_right.
-      - etrans. apply inv_iA_B. apply id_right.
     Defined.
 
     Definition typecat_is_triangle_idtoiso_fiber_disp_isweq
@@ -267,98 +280,20 @@ Section TypeCat_Disp.
       use isweq_iso.
       - apply idtoiso_fiber_disp_to_typecat_is_triangle.
       - intros tr.
-        repeat use total2_paths_f.
-        + apply idpath.
-        + apply idpath.
-        + apply homset_property.
-        + apply homset_property.
-        + apply homset_property.
+        use total2_paths_f.
+        + apply eq_iso, idpath.
         + apply homset_property.
       - intros tr.
-        etrans.
+        apply eq_iso_disp.
         use total2_paths_f.
-        + use total2_paths_f.
-          * apply idpath.
-          * apply homset_property.
-        + use total2_paths_f.
-          (* STUCK here: idpath does not work :( *)
-    (*
-     * apply idpath.
-     * apply homset_property.
-            + apply idpath.
-            + apply homset_property.
-            + apply (@homsets_disp _ typecat_disp).
-            + apply (@homsets_disp _ typecat_disp).
-        Defined.
-     *)
-    Abort.
+        + apply idpath.
+        + apply homset_property.
+    Defined.
 
     Definition typecat_is_triangle_idtoiso_fiber_disp_weq
                {Γ : C} (A B : TC Γ)
-      : typecat_iso_triangle A B ≃ @iso_disp C (typecat_disp TC) _ _ (identity_iso Γ) A B.
-    Proof.
-      (* ((i,, is_z_iso i) ,, (iB_A , inv_iA_B)) *)
-      (* ((i,, iB_A) ,, ((inv_i,, inv_iA_B) ,, (_ , _))) *)
-      eapply weqcomp. apply weqtotal2asstor.
-      eapply weqcomp. 2: apply weqtotal2asstol.
-      apply (weqtotal2 (idweq _)).
-
-      intros i.
-      (* (is_z_iso i ,, (iB_A , inv_iA_B)) *)
-      (* (iB_A ,, ((inv_i,, inv_iA_B) ,, (_ , _))) *)
-      eapply weqcomp. simpl. apply WeakEquivalences.weqtotal2comm.
-      use weqtotal2.
-      - simpl. apply weqpathscomp0r, pathsinv0, id_right.
-      - intros ?.
-        (* ((inv_i,, _) ,, inv_iA_B) *)
-        (* ((inv_i,, inv_iA_B) ,, (_ , _)) *)
-        eapply weqcomp. apply weqtotal2asstor.
-        eapply weqcomp. 2: apply weqtotal2asstol.
-        apply (weqtotal2 (idweq _)).
-
-        intros inv_i. unfold inv_from_z_iso. simpl.
-        eapply weqcomp. apply weqdirprodcomm.
-        use weqtotal2.
-        + simpl. apply weqpathscomp0r, pathsinv0, id_right.
-        + intros ?. simpl.
-          use weq_iso.
-          * intros i_is_inv.
-            set (i_inv_i := dirprod_pr1 i_is_inv).
-            set (inv_i_i := dirprod_pr2 i_is_inv).
-            use make_dirprod.
-            -- use total2_paths_f.
-               2: apply homset_property.
-               etrans. apply inv_i_i.
-               apply pathsinv0.
-               etrans. apply (pr1_transportb (λ _ (_ : C ⟦ Γ ◂ B, Γ ◂ B ⟧), _)).
-               apply (maponpaths (λ f, f _) (transportb_const _ _)).
-            -- use total2_paths_f.
-               2: apply homset_property.
-               etrans. apply i_inv_i.
-               apply pathsinv0.
-               etrans. apply (pr1_transportb (λ _ (_ : C ⟦ Γ ◂ A, Γ ◂ A ⟧), _)).
-               apply (maponpaths (λ f, f _) (transportb_const _ _)).
-          * intros i_is_inv.
-            set (inv_i_i := maponpaths pr1 (dirprod_pr1 i_is_inv)).
-            set (i_inv_i := maponpaths pr1 (dirprod_pr2 i_is_inv)).
-            use make_dirprod.
-            -- etrans. apply i_inv_i.
-               etrans.
-               use (pr1_transportb (λ _ (_ : C ⟦ Γ ◂ A, Γ ◂ A ⟧), _)).
-               simpl. apply (maponpaths (λ f, f _) (transportb_const _ _)).
-            -- etrans. apply inv_i_i.
-               etrans.
-               use (pr1_transportb (λ _ (_ : C ⟦ Γ ◂ B, Γ ◂ B ⟧), _)).
-               simpl. apply (maponpaths (λ f, f _) (transportb_const _ _)).
-          * intros e.
-            use PartA.dirprod_paths.
-            -- apply homset_property.
-            -- apply homset_property.
-          * intros e.
-            use PartA.dirprod_paths.
-            -- apply (@homsets_disp _ (typecat_disp TC)).
-            -- apply (@homsets_disp _ (typecat_disp TC)).
-    Defined.
+      : typecat_iso_triangle A B ≃ @iso_disp C (typecat_disp TC) _ _ (identity_iso Γ) A B
+    := (_,, typecat_is_triangle_idtoiso_fiber_disp_isweq A B).
 
     Definition typecat_disp_is_disp_univalent
                (w' : ∏ (Γ : C) (A B : TC Γ), isweq (typecat_idtoiso_triangle A B))
@@ -370,8 +305,7 @@ Section TypeCat_Disp.
       set (g := (typecat_idtoiso_triangle A B,, w' _ A B)).
       use weqhomot.
       - apply (weqcomp g f).
-      - intros e.
-        induction e.
+      - intros p. induction p.
         use total2_paths_f.
         + use total2_paths_f.
           * apply idpath.
