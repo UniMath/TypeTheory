@@ -5,7 +5,22 @@
 *)
 
 (**
-TODO
+This module defines a comprehension category induced by a (non-split) type category.
+
+Main definition is
+
+- [typecat_to_comprehension_cat] - comprehension category induced by a type category;
+
+Important parts are:
+
+- [typecat_disp] - displayed category induced by a type category (or rather by its object extension substructure);
+- [typecat_disp_is_disp_univalent] - induced displayed category is univalent when [typecat_idtoiso_triangle] is an equivalence;
+- [cleaving_typecat_disp] - induced displayed category is a fibration;
+
+- [typecat_disp_functor] - a comprehension functor induced by a type category;
+- [typecat_disp_functor_ff] - induced displayed functor is fully faithful;
+- [typecat_disp_functor_is_cartesian] - induced displayed functor is cartesian.
+
 *)
 
 Require Import UniMath.MoreFoundations.PartA.
