@@ -8,7 +8,6 @@
 TODO
 *)
 
-Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
@@ -19,8 +18,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
-
-Set Automatic Introduction.
 
 Section Auxiliary.
 
