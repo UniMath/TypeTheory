@@ -483,6 +483,136 @@ Section TypeCat_Disp_Functor.
 
 End TypeCat_Disp_Functor.
 
+(* TODO: move upstream *)
+Definition comprehension_cat := ∑ (C : category), (comprehension_cat_structure C).
+
+Section ComprehensionCat_TypeCat.
+  Context {C : category}.
+  Context (CC : comprehension_cat_structure C).
+
+  Let D := pr1 CC : disp_cat C.
+  Let cleaving_D   := pr1 (pr2 CC) : cleaving D.
+  Let comprehension_functor
+    := pr1 (pr2 (pr2 CC))
+       : disp_functor _ D (disp_codomain C).
+  Let comprehension_functor_is_cartesian
+    := pr2 (pr2 (pr2 CC))
+       : is_cartesian_disp_functor comprehension_functor.
+
+  Definition ty_from_comprehension_cat : C → UU
+    := ob_disp D.
+
+  Definition ext_from_comprehension_cat
+             (Γ : C) (A : ty_from_comprehension_cat Γ)
+    : C
+    := pr1 (comprehension_functor Γ A).
+
+  Definition reind_from_comprehension_cat
+             (Γ : C) (A : ty_from_comprehension_cat Γ)
+             (Γ' : C) (f : Γ' --> Γ)
+    : ty_from_comprehension_cat Γ'
+    := pr1 (cleaving_D Γ Γ' f A).
+
+  Definition typecat1_from_comprehension_cat
+    : typecat_structure1 C.
+  Proof.
+    repeat use tpair.
+    - exact ty_from_comprehension_cat.
+    - exact ext_from_comprehension_cat.
+    - exact reind_from_comprehension_cat.
+  Defined.
+
+  Definition dpr_from_comprehension_cat
+             (Γ : C) (A : ty_from_comprehension_cat Γ)
+    : ext_from_comprehension_cat Γ A --> Γ
+    := pr2 (comprehension_functor Γ A).
+  
+  Definition typecat_obj_ext_structure_from_comprehension_cat
+    : typecat_obj_ext_structure C
+    := (typecat1_from_comprehension_cat ,, dpr_from_comprehension_cat).
+
+  Definition q_square_from_comprehension_cat
+             (Γ : C) (A : ty_from_comprehension_cat Γ)
+             (Γ' : C) (f : Γ' --> Γ)
+    : comprehension_functor Γ' (reind_from_comprehension_cat _ A _ f)
+                            -->[ f ] comprehension_functor Γ A
+    := disp_functor_on_morphisms comprehension_functor
+                                 (pr1 (pr2 (cleaving_D Γ Γ' f A))).
+
+  Definition q_square_from_comprehension_cat_is_cartesian
+             (Γ : C) (A : ty_from_comprehension_cat Γ)
+             (Γ' : C) (f : Γ' --> Γ)
+    : is_cartesian (q_square_from_comprehension_cat _ A _ f).
+  Proof.
+    apply comprehension_functor_is_cartesian.
+    apply cartesian_lift_is_cartesian.
+  Defined.
+  
+  Definition q_from_comprehension_cat
+             (Γ : C) (A : ty_from_comprehension_cat Γ)
+             (Γ' : C) (f : Γ' --> Γ)
+    : ext_from_comprehension_cat
+        Γ' (reind_from_comprehension_cat Γ A Γ' f)
+        --> ext_from_comprehension_cat Γ A
+    := pr1 (q_square_from_comprehension_cat _ A _ f).
+
+  Definition dpr_q_from_comprehension_cat
+             (Γ : C) (A : ty_from_comprehension_cat Γ)
+             (Γ' : C) (f : Γ' --> Γ)
+    : q_from_comprehension_cat _ A _ f ;; dpr_from_comprehension_cat _ A
+      = dpr_from_comprehension_cat _ (reind_from_comprehension_cat _ A _ f) ;; f
+    := pr2 (q_square_from_comprehension_cat _ A _ f).
+
+  Definition pullback_from_comprehension_cat
+             (Γ : C) (A : ty_from_comprehension_cat Γ)
+             (Γ' : C) (f : Γ' --> Γ)
+    : isPullback _ _ _ _ (!dpr_q_from_comprehension_cat _ A _ f).
+  Proof.
+    intros Δ g k H.
+    eapply iscontrweqf.
+    2: {
+      use (q_square_from_comprehension_cat_is_cartesian _ A _ f).
+      - exact Γ'.
+      - exact (identity _).
+      - apply (Δ,, g).
+      - use tpair.
+        + apply k.
+        + etrans. apply pathsinv0, H.
+          apply pathsinv0, maponpaths, id_left.
+    }
+    apply invweq.
+    eapply weqcomp.
+    2: apply weqtotal2asstol.
+    apply weq_subtypes_iff.
+    - intro. apply isapropdirprod; apply homset_property.
+    - intro. apply (isofhleveltotal2 1). 
+      + apply homset_property.
+      + intros. apply homsets_disp.
+    - intros gg; split; intros H'.
+      + use tpair.
+        * etrans. apply (pr1 H').
+          apply pathsinv0, id_right.
+        * apply subtypePath.
+          intro; apply homset_property.
+          exact (pr2 H').
+      + split.
+        * etrans. apply (pr1 H'). apply id_right.
+        * etrans. apply (maponpaths pr1 (pr2 H')). apply idpath.
+  Defined.
+
+  Definition typecat_structure_from_comprehension_cat
+    : typecat_structure C.
+  Proof.
+    exists typecat1_from_comprehension_cat.
+    repeat use tpair.
+    - exact dpr_from_comprehension_cat.
+    - exact q_from_comprehension_cat.
+    - exact dpr_q_from_comprehension_cat.
+    - exact pullback_from_comprehension_cat.
+  Defined.
+                 
+End ComprehensionCat_TypeCat.
+
 Section TypeCat_ComprehensionCat.
 
   Definition typecat_to_comprehension_cat_structure
@@ -496,15 +626,20 @@ Section TypeCat_ComprehensionCat.
     apply typecat_disp_functor_is_cartesian.
   Defined.
 
-  (* TODO: move upstream *)
-  Definition comprehension_cat := ∑ (C : category), (comprehension_cat_structure C).
-
   Definition typecat_to_comprehension_cat
     : typecat → comprehension_cat.
   Proof.
     intros TC.
     exists (pr1 TC).
     apply (typecat_to_comprehension_cat_structure (pr2 TC)).
+  Defined.
+
+  Definition typecat_from_comprehension_cat
+    : comprehension_cat → typecat.
+  Proof.
+    intros CC.
+    exists (pr1 CC).
+    apply (typecat_structure_from_comprehension_cat (pr2 CC)).
   Defined.
 
 End TypeCat_ComprehensionCat.
