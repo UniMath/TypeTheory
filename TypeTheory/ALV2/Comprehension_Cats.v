@@ -383,10 +383,14 @@ Section TypeCat_to_ComprehensionCat.
       use weqhomot.
       - apply (weqcomp g f).
       - intros e.
-        repeat use total2_paths_f.
-        + simpl. cbn.  (* STUCK HERE *)
-          (* apply idpath. *)
-    Abort.
+        induction e.
+        use total2_paths_f.
+        + use total2_paths_f.
+          * apply idpath.
+          * apply homset_property.
+        + apply proofirrelevance.
+          apply isaprop_is_iso_disp.
+    Defined.
 
     Definition typecat_disp_functor_data
     : disp_functor_data (functor_identity C) typecat_disp (disp_codomain C).
