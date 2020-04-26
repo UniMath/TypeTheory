@@ -11,4 +11,4 @@ RelUniv_Cat.v
 RelUniv_Cat_Iso.v
 RelUniv_Cat_Yo_CwF_Iso.v
 RelUnivTransfer.v
-Comprehension_Cats.v
+TypeCat_ComprehensionCat.v
