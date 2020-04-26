@@ -37,19 +37,6 @@ Proof.
   intros ?. apply weqdirprodcomm.
 Defined.
 
-Definition is_iso_is_z_isomorphism_weq
-           {C : category} {A B : C}
-           (f : A --> B)
-  : is_iso f ≃ is_z_isomorphism f.
-Proof.
-  use weq_iso.
-  - apply is_z_iso_from_is_iso.
-  - apply is_iso_from_is_z_iso.
-  - intros f_is_iso. apply isaprop_is_iso.
-  - intros f_is_z_iso. apply isaprop_is_z_isomorphism.
-    apply homset_property.
-Defined.
-  
 Section TypeCat_to_ComprehensionCat.
 
   Context (C : category).
@@ -286,7 +273,7 @@ Section TypeCat_to_ComprehensionCat.
         + apply homset_property.
         + apply homset_property.
       - intros tr.
-        etrans. Search paths.
+        etrans.
         use total2_paths_f.
         + use total2_paths_f.
           * apply idpath.
@@ -379,7 +366,6 @@ Section TypeCat_to_ComprehensionCat.
       intros Γ A B.
       set (f := typecat_is_triangle_idtoiso_fiber_disp_weq A B).
       set (g := (typecat_idtoiso_triangle A B,, w' _ A B)).
-      Search isweq.
       use weqhomot.
       - apply (weqcomp g f).
       - intros e.
