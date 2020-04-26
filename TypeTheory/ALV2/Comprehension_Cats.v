@@ -80,6 +80,56 @@ End TypeCat_ObjExt.
 
 Local Notation "'π' A" := (dpr_typecat_obj_ext A) (at level 5).
 
+Section TypeCat_Comp_Ext_Compare.
+
+  Context {C : precategory}.
+  Context (TC : typecat_obj_ext_structure C).
+
+  Definition typecat_comp_ext_compare
+             {Γ : C} {A B : TC Γ}
+    : (A = B) → Γ ◂ A --> Γ ◂ B.
+  Proof.
+    intros p. induction p.
+    apply identity.
+  Defined.
+
+  Definition typecat_idtoiso_dpr
+             {Γ : C} {A B : TC Γ}
+             (p : A = B)
+    : idtoiso (maponpaths (λ B, Γ ◂ B) p) ;; π B = π A.
+  Proof.
+    induction p. apply id_left.
+  Defined.
+
+  Definition typecat_iso_triangle
+             {Γ : C} (A B : TC Γ)
+    := ∑ (i : iso (Γ ◂ A) (Γ ◂ B)),
+       i ;; π B = π A.
+
+  Definition typecat_iso_triangle_swap
+             {Γ : C} {A B : TC Γ}
+    : typecat_iso_triangle A B → typecat_iso_triangle B A.
+  Proof.
+    intros tr.
+    exists (iso_inv_from_iso (pr1 tr)).
+    etrans. apply maponpaths, pathsinv0, (pr2 tr).
+    etrans. apply assoc.
+    etrans. apply maponpaths_2, iso_after_iso_inv.
+    apply id_left.
+  Defined.
+
+  Definition typecat_idtoiso_triangle
+             {Γ : C} (A B : TC Γ)
+    : (A = B) → typecat_iso_triangle A B.
+  Proof.
+    intros p. induction p.
+    use tpair.
+    - apply identity_iso.
+    - apply id_left.
+  Defined.
+
+End TypeCat_Comp_Ext_Compare.
+
 Section TypeCat_Disp.
 
   (* Type category (or rather its object extension part)
@@ -167,58 +217,15 @@ Section TypeCat_Disp.
     Context {C : category}.
     Context (TC : typecat_obj_ext_structure C).
 
-    Definition typecat_comp_ext_compare
-               {Γ : C} {A B : TC Γ}
-      : (A = B) → Γ ◂ A --> Γ ◂ B.
-    Proof.
-      intros p. induction p.
-      apply identity.
-    Defined.
-
-    Definition typecat_idtoiso_dpr
-               {Γ : C} {A B : TC Γ}
-               (p : A = B)
-      : idtoiso (maponpaths (λ B, Γ ◂ B) p) ;; π B = π A.
-    Proof.
-      induction p. apply id_left.
-    Defined.
-
-    Definition typecat_iso_triangle
-               {Γ : C} (A B : TC Γ)
-      := ∑ (i : iso (Γ ◂ A) (Γ ◂ B)),
-         i ;; π B = π A.
-
-    Definition typecat_iso_triangle_swap
-               {Γ : C} {A B : TC Γ}
-      : typecat_iso_triangle A B → typecat_iso_triangle B A.
-    Proof.
-      intros tr.
-      exists (iso_inv_from_iso (pr1 tr)).
-      etrans. apply maponpaths, pathsinv0, (pr2 tr).
-      etrans. apply assoc.
-      etrans. apply maponpaths_2, iso_after_iso_inv.
-      apply id_left.
-    Defined.
-
-    Definition typecat_idtoiso_triangle
-               {Γ : C} (A B : TC Γ)
-      : (A = B) → typecat_iso_triangle A B.
-    Proof.
-      intros p. induction p.
-      use tpair.
-      - apply identity_iso.
-      - apply id_left.
-    Defined.
-
     Definition typecat_is_triangle_to_idtoiso_fiber_disp
                {Γ : C} (A B : TC Γ)
-      : typecat_iso_triangle A B → @iso_disp C (typecat_disp TC) _ _ (identity_iso Γ) A B.
+      : typecat_iso_triangle _ A B → @iso_disp C (typecat_disp TC) _ _ (identity_iso Γ) A B.
     Proof.
       intros tr.
       set (i        := pr1 (pr1 tr) : C ⟦ Γ ◂ A, Γ ◂ B ⟧ ).
       set (iB_A     := pr2 tr : i ;; π B = π A).
 
-      set (tr' := typecat_iso_triangle_swap tr).
+      set (tr' := typecat_iso_triangle_swap TC tr).
       set (inv_i    := pr1 (pr1 tr') : C ⟦ Γ ◂ B, Γ ◂ A ⟧).
       set (inv_iA_B := pr2 tr' : inv_i ;; π A = π B).
 
@@ -246,7 +253,7 @@ Section TypeCat_Disp.
 
     Definition idtoiso_fiber_disp_to_typecat_is_triangle
                {Γ : C} (A B : TC Γ)
-      : @iso_disp C (typecat_disp TC) _ _ (identity_iso Γ) A B → typecat_iso_triangle A B.
+      : @iso_disp C (typecat_disp TC) _ _ (identity_iso Γ) A B → typecat_iso_triangle _ A B.
     Proof.
       intros tr.
       set (i        := pr1 (pr1 tr) : C ⟦ Γ ◂ A, Γ ◂ B ⟧ ).
@@ -292,17 +299,17 @@ Section TypeCat_Disp.
 
     Definition typecat_is_triangle_idtoiso_fiber_disp_weq
                {Γ : C} (A B : TC Γ)
-      : typecat_iso_triangle A B ≃ @iso_disp C (typecat_disp TC) _ _ (identity_iso Γ) A B
+      : typecat_iso_triangle _ A B ≃ @iso_disp C (typecat_disp TC) _ _ (identity_iso Γ) A B
     := (_,, typecat_is_triangle_idtoiso_fiber_disp_isweq A B).
 
     Definition typecat_disp_is_disp_univalent
-               (w' : ∏ (Γ : C) (A B : TC Γ), isweq (typecat_idtoiso_triangle A B))
+               (w' : ∏ (Γ : C) (A B : TC Γ), isweq (typecat_idtoiso_triangle _ A B))
       : is_univalent_disp (typecat_disp TC).
     Proof.
       apply is_univalent_disp_from_fibers.
       intros Γ A B.
       set (f := typecat_is_triangle_idtoiso_fiber_disp_weq A B).
-      set (g := (typecat_idtoiso_triangle A B,, w' _ A B)).
+      set (g := (typecat_idtoiso_triangle _ A B,, w' _ A B)).
       use weqhomot.
       - apply (weqcomp g f).
       - intros p. induction p.
