@@ -102,18 +102,10 @@ Section TypeCat_Comp_Ext_Compare.
 
   Definition typecat_comp_ext_compare
              {Γ : C} {A B : TC Γ}
-    : (A = B) → Γ ◂ A --> Γ ◂ B.
+    : (A = B) → iso (Γ ◂ A) (Γ ◂ B).
   Proof.
     intros p. induction p.
-    apply identity.
-  Defined.
-
-  Definition typecat_idtoiso_dpr
-             {Γ : C} {A B : TC Γ}
-             (p : A = B)
-    : idtoiso (maponpaths (λ B, Γ ◂ B) p) ;; π B = π A.
-  Proof.
-    induction p. apply id_left.
+    apply identity_iso.
   Defined.
 
   Definition typecat_iso_triangle
@@ -139,7 +131,7 @@ Section TypeCat_Comp_Ext_Compare.
   Proof.
     intros p. induction p.
     use tpair.
-    - apply identity_iso.
+    - apply typecat_comp_ext_compare, (idpath _).
     - apply id_left.
   Defined.
 
@@ -220,7 +212,7 @@ Section TypeCat_Disp.
       apply (isofhleveltotal2 2).
       + apply homset_property.
       + intro. apply isasetaprop. apply homset_property.
-  Defined.
+  Qed.
 
   Definition typecat_disp
              {C : category} (TC : typecat_obj_ext_structure C)
@@ -336,17 +328,32 @@ Section TypeCat_Disp.
           apply isaprop_is_iso_disp.
     Defined.
 
+    Definition typecat_disp_is_disp_univalent_implies_typecat_idtoiso_triangle_isweq
+               (D_is_univalent : is_univalent_disp (typecat_disp TC))
+      : ∏ (Γ : C) (A B : TC Γ), isweq (typecat_idtoiso_triangle _ A B).
+    Proof.
+      intros Γ A B.
+      set (f := typecat_is_triangle_idtoiso_fiber_disp_weq A B).
+      set (g := (idtoiso_fiber_disp ,, is_univalent_in_fibers_from_univalent_disp _ D_is_univalent _ A B)).
+      use weqhomot.
+      - apply (weqcomp g (invweq f)).
+      - intros p. induction p.
+        use total2_paths_f.
+        + apply eq_iso, idpath.
+        + apply homset_property.
+    Defined.
+
   End TypeCat_Disp_is_univalent.
 
   Section TypeCat_Disp_Cleaving.
 
     Context {C : category}.
-    Context (TC : typecat_structure C).
 
     (* NOTE: copied with slight modifications from https://github.com/UniMath/TypeTheory/blob/ad54ca1dad822e9c71acf35c27d0a39983269462/TypeTheory/Displayed_Cats/DisplayedCatFromCwDM.v#L114-L143 *)
     Definition pullback_is_cartesian
+               (TC : typecat_obj_ext_structure C)
                {Γ Γ' : C} {f : Γ' --> Γ}
-               {A  : typecat_disp TC Γ} {A' : typecat_disp TC Γ'} (ff : A' -->[f] A)
+               {A : typecat_disp TC Γ} {A' : typecat_disp TC Γ'} (ff : A' -->[f] A)
       : (isPullback _ _ _ _ (pr2 ff)) -> is_cartesian ff.
     Proof.
       intros Hpb Δ g B hh.
@@ -355,7 +362,7 @@ Section TypeCat_Disp.
         use Hpb.
         + exact (Δ ◂ B).
         + exact (pr1 hh).
-        + simpl in B. refine (dpr_typecat B ;; g).
+        + simpl in B. refine (π B ;; g).
         + etrans. apply (pr2 hh). apply assoc.
       }
       eapply weqcomp.
@@ -375,7 +382,9 @@ Section TypeCat_Disp.
           * exact (pr1 H).
     Defined.
 
-    Lemma cleaving_typecat_disp : cleaving (typecat_disp TC).
+    Lemma cleaving_typecat_disp
+          (TC : typecat_structure C)
+      : cleaving (typecat_disp TC).
     Proof.
       intros Γ Γ' f A.
       unfold cartesian_lift.
