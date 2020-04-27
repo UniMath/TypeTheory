@@ -486,6 +486,9 @@ End TypeCat_Disp_Functor.
 (* TODO: move upstream *)
 Definition comprehension_cat := ∑ (C : category), (comprehension_cat_structure C).
 
+Coercion category_of_comprehension_cat (C : comprehension_cat) := pr1 C.
+Coercion structure_of_comprehension_cat (C : comprehension_cat) := pr2 C.
+
 Section ComprehensionCat_TypeCat.
   Context {C : category}.
   Context (CC : comprehension_cat_structure C).
@@ -641,5 +644,36 @@ Section TypeCat_ComprehensionCat.
     exists (pr1 CC).
     apply (typecat_structure_from_comprehension_cat (pr2 CC)).
   Defined.
+    
+  Definition fully_faithful_comprehension_cat_structure
+             {C : category} (CC : comprehension_cat_structure C)
+    := disp_functor_ff (pr1 (pr2 (pr2 CC))).
+
+  Definition typecat_comprehension_cat_structure_weq
+             {C : category}
+    : typecat_structure C ≃ ∑ CC : comprehension_cat_structure C, fully_faithful_comprehension_cat_structure CC.
+  Proof.
+    use weq_iso.
+    - intros TC.
+      exact (typecat_to_comprehension_cat_structure TC ,, typecat_disp_functor_ff TC).
+    - intros CC. apply (typecat_structure_from_comprehension_cat (pr1 CC)).
+    - intros TC.
+      repeat use total2_paths_f.
+      + apply idpath.
+      + apply idpath.
+      + apply idpath.
+      + apply idpath.
+      + apply idpath.
+      + apply idpath.
+      + apply funextsec. intros Γ.
+        apply funextsec. intros A.
+        apply funextsec. intros Γ'.
+        apply funextsec. intros f.
+        apply isaprop_isPullback.
+    - intros ff_CC.
+      repeat use total2_paths_f.
+      + apply idpath.
+      + (* STUCK: need to think, this might be impossible *) (* apply idpath. *)
+  Abort.
 
 End TypeCat_ComprehensionCat.
