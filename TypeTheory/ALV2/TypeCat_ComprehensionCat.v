@@ -110,6 +110,8 @@ Section Auxiliary.
     exact (_ ,, functor_axioms_d).
   Defined.
 
+  Coercion disp_functor_of_disp_ff_functor : disp_ff_functor_to >-> disp_functor.
+
   Definition disp_ff_functor_is_ff
              {C : category} {D' : disp_cat C}
              (D : disp_ff_functor_to D')
@@ -740,235 +742,31 @@ Section TypeCat_ComprehensionCat.
   Print cleaving.
   Check cartesian_lift.
 
+  Definition typecat_obj_ext_structure_disp_ff_functor_to_codomain_weq
+             (C : category)
+    : typecat_obj_ext_structure C ≃ disp_ff_functor_to (disp_codomain C).
+  Proof.
+    (* TODO *)
+  Abort.
+
   Definition ff_comprehension_cat_structure (C : category) : UU
-    := ∑ (obd : C → UU)
-         (functor_on_obd : ∏ (Γ : C), obd Γ → disp_codomain C Γ)
-         (cleaving_on_obd : ∏ (Γ Γ' : C) (f : Γ' --> Γ) (A : obd Γ),
-                            ∑ (A' : obd Γ')
-                              (ff : functor_on_obd _ A' -->[f] functor_on_obd _ A),
-                            is_cartesian ff)
-       , unit.
+    := ∑ (F : disp_ff_functor_to (disp_codomain C)),
+       cleaving (source_disp_cat_of_disp_ff_functor F)
+       × is_cartesian_disp_functor F. 
 
-  Definition ff_comprehension_cat_structure_has_morphisms (C : category)
-             (ff_CC : ff_comprehension_cat_structure C)
-    : UU
-    := ∑ (mord : ∏ (Γ Γ' : C), (pr1 ff_CC Γ) → (pr1 ff_CC Γ') → (Γ --> Γ') → UU)
-         (id_comp_d : disp_cat_id_comp C (_ ,, mord))
-         (axioms_d : disp_cat_axioms C (_,, id_comp_d))
-         (functor_mord :
-            ∏ x y (xx : ((_,,axioms_d) : disp_cat C) x) (yy : pr1 ff_CC y) (f : x --> y),
-            (xx -->[f] yy) -> (pr1 (pr2 ff_CC) _ xx -->[ f ] pr1 (pr2 ff_CC) _ yy))
-         (functor_axioms_d : @disp_functor_axioms
-                               C C (functor_identity _)
-                               (_,,axioms_d) (disp_codomain C)
-                               (pr1 (pr2 ff_CC) ,, functor_mord))
-         (ff : disp_functor_ff ((_ ,, functor_axioms_d)
-                                : disp_functor (functor_identity C)
-                                               (_ ,, axioms_d) (disp_codomain C)))
-       , unit.
-
-  Definition isaprop_ff_comprehension_cat_structure_has_morphisms {C : category}
-             (ff_CC : ff_comprehension_cat_structure C)
-    : isaprop (ff_comprehension_cat_structure_has_morphisms C ff_CC).
+  Definition typecat_ff_comprehension_cat_structure_weq (C : category)
+    : typecat_structure C ≃ ff_comprehension_cat_structure C.
   Proof.
-    intros X Y.
-    use tpair.
-    - use total2_paths_f.
-      + 
-  Defined.
+    (* TODO *)
+  Abort.
 
-  Definition ff_comprehension_cat_structure_disp_cat {C : category}
-    : ff_comprehension_cat_structure C → disp_cat C.
+  Definition ff_comprehension_cat : UU
+    := ∑ (C : category), ff_comprehension_cat_structure C.
+
+  Definition typecat_ff_comprehension_cat_weq (C : category)
+    : typecat ≃ ff_comprehension_cat.
   Proof.
-    intros ff_CC.
-    set (obd := pr1 ff_CC).
-    set (functor_on_obd := pr1 (pr2 ff_CC)).
-    set (cleaving_on_obd := pr1 (pr2 (pr2 ff_CC))).
-    use tpair.
-    - use tpair.
-      + exists obd.
-        intros Γ Δ A B f.
-        exact (functor_on_obd _ A -->[f] functor_on_obd _ B).
-      + use tpair.
-        * intros Γ A.
-          apply id_disp.
-        * intros Γ Γ' Γ'' A A' A'' f g.
-          apply comp_disp.
-    - repeat use make_dirprod.
-      + intros ? ? ? ? ? ?. apply id_left_disp.
-      + intros ? ? ? ? ? ?. apply id_right_disp.
-      + intros ? ? ? ? ? ? ? ? ? ? ? ? ? ?. apply assoc_disp.
-      + intros ? ? ? ? ? ?. apply homsets_disp.
-  Defined.
-
-  Definition ff_comprehension_cat_structure_disp_functor {C : category}
-             (ff_CC : ff_comprehension_cat_structure C)
-    : disp_functor (functor_identity _)
-                   (ff_comprehension_cat_structure_disp_cat ff_CC)
-                   (disp_codomain C).
-  Proof.
-    set (obd := pr1 ff_CC).
-    set (functor_on_obd := pr1 (pr2 ff_CC)).
-    set (cleaving_on_obd := pr1 (pr2 (pr2 ff_CC))).
-    repeat use tpair.
-    - exact functor_on_obd.
-    - intros ? ? ? ? ?. apply idfun.
-    - intros ? ?. apply idpath.
-    - intros ? ? ? ? ? ? ? ? ? ?. apply idpath.
-  Defined.
-
-  Definition ff_comprehension_cat_structure_disp_functor_is_ff {C : category}
-             (ff_CC : ff_comprehension_cat_structure C)
-    : disp_functor_ff (ff_comprehension_cat_structure_disp_functor ff_CC).
-  Proof.
-    set (obd := pr1 ff_CC).
-    set (functor_on_obd := pr1 (pr2 ff_CC)).
-    set (cleaving_on_obd := pr1 (pr2 (pr2 ff_CC))).
-    unfold disp_functor_ff.
-    intros Γ Γ' A A' f.
-    use isweq_iso.
-    - apply idfun.
-    - intros k. apply idpath.
-    - intros k. apply idpath.
-  Defined.
-
-  Definition ff_comprehension_cat_structure_cleaving {C : category}
-             (ff_CC : ff_comprehension_cat_structure C)
-    : cleaving (ff_comprehension_cat_structure_disp_cat ff_CC).
-  Proof.
-    intros Γ Γ' f A.
-    set (obd := pr1 ff_CC).
-    set (functor_on_obd := pr1 (pr2 ff_CC)).
-    set (cleaving_on_obd := pr1 (pr2 (pr2 ff_CC))).
-    set (ff := cleaving_on_obd Γ Γ' f A).
-    use tpair.
-    - apply (pr1 ff).
-    - use tpair.
-      + apply (pr1 (pr2 ff)).
-      + intros Δ g B k.
-        use iscontrweqf.
-        3: {
-          use (pr2 (pr2 ff)).
-          - exact Δ.
-          - exact g.
-          - exact (functor_on_obd Δ B).
-          - exact k.
-        }
-        apply idweq.
-  Defined.
-
-  Definition ff_comprehension_cat_structure_disp_functor_is_cartesian {C : category}
-             (ff_CC : ff_comprehension_cat_structure C)
-    : is_cartesian_disp_functor (ff_comprehension_cat_structure_disp_functor ff_CC).
-  Proof.
-    use cartesian_functor_from_cleaving.
-    - apply (ff_comprehension_cat_structure_cleaving ff_CC).
-    - intros Γ Γ' f A.
-      set (cleaving_on_obd := pr1 (pr2 (pr2 ff_CC))).
-      set (ff := cleaving_on_obd Γ Γ' f A).
-      apply (pr2 (pr2 ff)).
-  Defined.
-
-  Definition ff_comprehension_cat_structure_to_comprehension_cat_structure
-             {C : category}
-    : ff_comprehension_cat_structure C
-      → ∑ (CC : comprehension_cat_structure C),
-      fully_faithful_comprehension_cat_structure CC.
-  Proof.
-    intros ff_CC.
-    use tpair.
-    - use tpair.
-      + apply (ff_comprehension_cat_structure_disp_cat ff_CC).
-      + use tpair.
-        * apply (ff_comprehension_cat_structure_cleaving ff_CC).
-        * use tpair.
-          -- apply (ff_comprehension_cat_structure_disp_functor ff_CC).
-          -- apply (ff_comprehension_cat_structure_disp_functor_is_cartesian ff_CC).
-    - apply (ff_comprehension_cat_structure_disp_functor_is_ff ff_CC).
-  Defined.
-
-  Definition ff_comprehension_cat_structure_from_comprehension_cat_structure
-             {C : category}
-    : (∑ (CC : comprehension_cat_structure C),
-       fully_faithful_comprehension_cat_structure CC)
-        → ff_comprehension_cat_structure C.
-  Proof.
-    intros CC.
-    use tpair.
-    - apply (ob_disp (pr1 (pr1 CC))).
-    - use tpair.
-      + intros Γ A. apply (disp_functor_on_objects (pr1 (pr2 (pr2 (pr1 CC)))) A).
-      + use tpair.
-        * intros Γ Γ' f A.
-          set (ff := pr1 (pr2 (pr1 CC)) Γ Γ' f A).
-          exists (pr1 ff).
-          use tpair.
-          -- use (disp_functor_on_morphisms (pr1 (pr2 (pr2 (pr1 CC))))).
-             apply (pr1 (pr2 ff)).
-          -- use (pr2 (pr2 (pr2 (pr1 CC)))).
-             apply (pr2 (pr2 ff)).
-        * apply tt.
-  Defined.
-
-
-  Definition ff_comprehension_cat_structure_weq (C : category)
-    : ff_comprehension_cat_structure C
-      ≃ ∑ (CC : comprehension_cat_structure C),
-      fully_faithful_comprehension_cat_structure CC.
-  Proof.
-    Search weq.
-    use weq_iso.
-    - apply ff_comprehension_cat_structure_to_comprehension_cat_structure.
-    - apply ff_comprehension_cat_structure_from_comprehension_cat_structure.
-    - intros ff_CC.
-      repeat use total2_paths_f.
-      + apply idpath.
-      + apply idpath.
-      + apply funextsec. intros ?.
-        apply funextsec. intros ?.
-        apply funextsec. intros ?.
-        apply funextsec. intros ?.
-        use total2_paths_f.
-        * apply idpath.
-        * use total2_paths_f.
-          -- apply idpath.
-          -- apply isaprop_is_cartesian.
-      + apply isapropunit.
-    - intros CC.
-      repeat use total2_paths_f.
-      + apply idpath.
-      + apply idpath.
-  Defined.
-
-  Definition ff_comprehension_cat_structure_weq
-             {C : category}
-    : ∑ CC : comprehension_cat_structure C, fully_faithful_comprehension_cat_structure CC.
-
-  Definition typecat_comprehension_cat_structure_weq
-             {C : category}
-    : typecat_structure C ≃ ∑ CC : comprehension_cat_structure C, fully_faithful_comprehension_cat_structure CC.
-  Proof.
-    use weq_iso.
-    - intros TC.
-      exact (typecat_to_comprehension_cat_structure TC ,, typecat_disp_functor_ff TC).
-    - intros CC. apply (typecat_structure_from_comprehension_cat (pr1 CC)).
-    - intros TC.
-      repeat use total2_paths_f.
-      + apply idpath.
-      + apply idpath.
-      + apply idpath.
-      + apply idpath.
-      + apply idpath.
-      + apply idpath.
-      + apply funextsec. intros Γ.
-        apply funextsec. intros A.
-        apply funextsec. intros Γ'.
-        apply funextsec. intros f.
-        apply isaprop_isPullback.
-    - intros ff_CC.
-      repeat use total2_paths_f.
-      + apply idpath.
-      + (* STUCK: need to think, this might be impossible *) (* apply idpath. *)
+    (* TODO *)
   Abort.
 
 End TypeCat_ComprehensionCat.
