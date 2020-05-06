@@ -90,6 +90,20 @@ Section Auxiliary.
       apply weqtotal2asstor.
   Defined.
 
+  (* TODO: move upstream? *)
+  Lemma iscontr_total2
+        {X : UU} {P : X → UU}
+    : iscontr X → (∏ x : X, iscontr (P x)) → iscontr (∑ (x : X), P x).
+  Proof.
+    intros X_contr P_contr.
+    use tpair.
+    - exists (pr1 X_contr). apply P_contr.
+    - intros xp.
+      use total2_paths_f.
+      + apply X_contr.
+      + apply P_contr.
+  Defined.
+
   Definition disp_ff_functor_to_on_objects
              {C : category}
              (D' : disp_cat C)
@@ -271,6 +285,61 @@ Section Auxiliary.
       + intros p. apply mor_isaset.
       + intros p. apply (@homsets_disp _ D').
     - apply iscontrcoconustot.
+  Defined.
+
+  Definition disp_ff_functor_source_mor_isaset
+             {C : category} {D' : disp_cat C}
+             (D : disp_ff_functor_to_on_objects D')
+             (mor_weq : disp_ff_functor_on_morphisms_pos D)
+    : ∏ Γ Γ' f (A : pr1 D Γ) (A' : pr1 D Γ'), isaset (pr1 (mor_weq _ _ A A' f)).
+  Proof.
+    intros Γ Γ' f A A'.
+    set (w := pr2 (mor_weq Γ Γ' A A' f)).
+    use (isofhlevelweqf 2 (invweq w)).
+    apply (@homsets_disp _ D').
+  Defined.
+
+  Definition disp_ff_functor_source_mor_isaset_iscontr
+             {C : category} {D' : disp_cat C}
+             (D : disp_ff_functor_to_on_objects D')
+             (mor_weq : disp_ff_functor_on_morphisms_pos D)
+    : iscontr (∏ Γ Γ' f (A : pr1 D Γ) (A' : pr1 D Γ'), isaset (pr1 (mor_weq _ _ A A' f))).
+  Proof.
+    apply iscontraprop1.
+    - apply impred_isaprop. intros Γ.
+      apply impred_isaprop. intros Γ'.
+      apply impred_isaprop. intros A.
+      apply impred_isaprop. intros A'.
+      apply impred_isaprop. intros f.
+      apply isapropisaset.
+    - apply disp_ff_functor_source_mor_isaset.
+  Defined.
+
+  Definition disp_ff_functor_on_morphisms_idcomp_pos
+             {C : category} {D' : disp_cat C}
+             (D : disp_ff_functor_to_on_objects D')
+    : UU
+    := ∑ (mor_weq : disp_ff_functor_on_morphisms_pos D)
+         (mor_isaset : ∏ Γ Γ' f (A : pr1 D Γ) (A' : pr1 D Γ'), isaset (pr1 (mor_weq _ _ A A' f)))
+         (mor_id : disp_ff_functor_on_morphisms_id_pos D mor_weq)
+       , disp_ff_functor_on_morphisms_comp_pos D mor_weq.
+
+  Definition disp_ff_functor_on_morphisms_idcomp_pos_iscontr
+             {C : category} {D' : disp_cat C}
+             (D : disp_ff_functor_to_on_objects D')
+    : iscontr (disp_ff_functor_on_morphisms_idcomp_pos D).
+  Proof.
+    apply iscontr_total2.
+    - apply disp_ff_functor_on_morphisms_pos_iscontr.
+    - intros mor_weq. apply iscontr_total2.
+      + apply disp_ff_functor_source_mor_isaset_iscontr.
+      + intros mor_isaset.
+        apply iscontr_total2.
+        * apply disp_ff_functor_on_morphisms_id_pos_iscontr.
+          apply mor_isaset.
+        * intros ?.
+          apply disp_ff_functor_on_morphisms_comp_pos_iscontr.
+          apply mor_isaset.
   Defined.
 
   (* Types for parts of a fully faithful functor that rely on morphisms *)
