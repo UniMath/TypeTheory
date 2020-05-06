@@ -111,8 +111,6 @@ Section Auxiliary.
     := ∑ (obd : C → UU)
        , ∏ (Γ : C), obd Γ → D' Γ.
 
-  Check weqtotaltoforall.
-
   Definition disp_ff_functor_on_morphisms_sop
              {C : category} {D' : disp_cat C}
              (D : disp_ff_functor_to_on_objects D')
@@ -340,6 +338,70 @@ Section Auxiliary.
         * intros ?.
           apply disp_ff_functor_on_morphisms_comp_pos_iscontr.
           apply mor_isaset.
+  Defined.
+
+  Definition disp_ff_functor_on_morphisms_idcomp_sop
+             {C : category} {D' : disp_cat C}
+             (D : disp_ff_functor_to_on_objects D')
+    := ∑ (mor_disp : ∏ {x y : C}, (x --> y) -> pr1 D x -> pr1 D y -> UU)
+         (id_disp' : ∏ {x : C} (xx : pr1 D x), mor_disp (identity x) xx xx)
+         (comp_disp' : ∏ {x y z : C} {f : x --> y} {g : y --> z}
+                        {xx : pr1 D x} {yy : pr1 D y} {zz : pr1 D z},
+                      mor_disp f xx yy -> mor_disp g yy zz -> mor_disp (f ;; g) xx zz)
+         (homsets_disp : ∏ {x y} {f : x --> y} {xx} {yy}, isaset (mor_disp f xx yy))
+         (Fmor : ∏ x y (xx : pr1 D x) (yy : pr1 D y) (f : x --> y),
+                 (mor_disp f xx yy) -> (pr2 D _ xx -->[ f ] pr2 D _ yy))
+         (Fid : ∏ x (xx : pr1 D x),
+                Fmor _ _ _ _ _ (id_disp' xx) = transportb _ (functor_id (functor_identity C) x) (id_disp (pr2 D _ xx)))
+         (Fcomp :  ∏ x y z (xx : pr1 D x) yy zz (f : x --> y) (g : y --> z)
+                     (ff : mor_disp f xx yy) (gg : mor_disp g yy zz),
+                   Fmor _ _ _ _ _ (comp_disp' ff gg)
+                   = transportb _ (functor_comp (functor_identity _) f g) (comp_disp (Fmor _ _ _ _ _ ff) (Fmor _ _ _ _ _ gg)))
+       , ∏ x y (xx : pr1 D x) (yy : pr1 D y) (f : x --> y),
+       isweq (fun ff : mor_disp f xx yy => Fmor _ _ _ _ _ ff).
+
+  Definition disp_ff_functor_on_morphisms_idcomp_sop_pos_weq
+             {C : category} {D' : disp_cat C}
+             (D : disp_ff_functor_to_on_objects D')
+    : disp_ff_functor_on_morphisms_idcomp_sop D ≃ disp_ff_functor_on_morphisms_idcomp_pos D.
+  Proof.
+    use weq_iso.
+
+    - intros sop.
+      set (mor_disp := pr1 sop).
+      set (id_disp' := pr1 (pr2 sop)).
+      set (comp_disp' := pr1 (pr2 (pr2 sop))).
+      set (homsets_disp' := pr1 (pr2 (pr2 (pr2 sop)))).
+      set (Fmor := pr1 (pr2 (pr2 (pr2 (pr2 sop))))).
+      set (Fid := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 sop)))))).
+      set (Fcomp := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 sop))))))).
+      set (Fff := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 sop))))))).
+
+      exists (λ x y xx yy f, mor_disp x y f xx yy ,, Fmor x y xx yy f,, Fff x y xx yy f).
+      exists homsets_disp'.
+      exists (λ x xx, (id_disp' x xx ,, Fid x xx)).
+      exact (λ x y z xx yy zz f g ff gg, (comp_disp' x y z f g xx yy zz ff gg ,, Fcomp x y z xx yy zz f g ff gg)).
+
+    - intros pos.
+      set (mor_disp := λ x y f xx yy, pr1 (pr1 pos x y xx yy f)).
+      set (Fmor := λ x y xx yy f, pr1 (pr2 (pr1 pos x y xx yy f))).
+      set (Fff := λ x y xx yy f, pr2 (pr2 (pr1 pos x y xx yy f))).
+      set (homsets_disp' := pr1 (pr2 pos)).
+      set (id_disp' := λ x xx, pr1 (pr1 (pr2 (pr2 pos)) x xx)).
+      set (Fid := λ x xx, pr2 (pr1 (pr2 (pr2 pos)) x xx)).
+      set (comp_disp' := λ x y z f g xx yy zz ff gg, pr1 (pr2 (pr2 (pr2 pos)) x y z xx yy zz f g ff gg)).
+      set (Fcomp := λ x y z xx yy zz f g ff gg, pr2 (pr2 (pr2 (pr2 pos)) x y z xx yy zz f g ff gg)).
+
+      exists mor_disp.
+      exists id_disp'.
+      exists comp_disp'.
+      exists homsets_disp'.
+      exists Fmor.
+      exists Fid.
+      exists Fcomp.
+      exact Fff.
+    - intros ?. apply idpath.
+    - intros ?. apply idpath.
   Defined.
 
   (* Types for parts of a fully faithful functor that rely on morphisms *)
@@ -1023,11 +1085,6 @@ Section TypeCat_ComprehensionCat.
   Definition fully_faithful_comprehension_cat_structure
              {C : category} (CC : comprehension_cat_structure C)
     := disp_functor_ff (pr1 (pr2 (pr2 CC))).
-
-  Print disp_cat_ob_mor.
-
-  Print cleaving.
-  Check cartesian_lift.
 
   Definition typecat_obj_ext_structure_disp_ff_functor_to_codomain_weq
              (C : category)
