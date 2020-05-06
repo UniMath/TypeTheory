@@ -69,143 +69,222 @@ Section Auxiliary.
     := ∑ (obd : C → UU)
        , ∏ (Γ : C), obd Γ → D' Γ.
 
-  Definition disp_ff_functor_to_on_morphisms'
-             {C : category} {D' : disp_cat C} 
-             (D : disp_ff_functor_to_on_objects D')
-             (mord : ∏ (Γ Γ' : C), (pr1 D Γ) → (pr1 D Γ') → (Γ --> Γ') → UU)
-    : UU
-    := ∑ (id_comp_d : disp_cat_id_comp C (_ ,, mord))
-         (axioms_d : disp_cat_axioms C (_,, id_comp_d))
-         (functor_mord :
-            ∏ x y (xx : ((_,,axioms_d) : disp_cat C) x) (yy : pr1 D y) (f : x --> y),
-            (xx -->[f] yy) -> (pr2 D _ xx -->[ f ] pr2 D _ yy))
-         (functor_axioms_d : @disp_functor_axioms
-                               C C (functor_identity _)
-                               (_,,axioms_d) D'
-                               (pr2 D ,, functor_mord))
-       , disp_functor_ff ((_ ,, functor_axioms_d)
-                          : disp_functor (functor_identity C)
-                                         (_ ,, axioms_d) D').
+  Check weqtotaltoforall.
 
-  Definition disp_ff_functor_to_on_morphisms
-             {C : category} {D' : disp_cat C} 
+  Lemma weqtotaltoforall3 {X : UU}
+        (P1 : X → UU)
+        (P2 : ∏ x : X, P1 x → UU)
+        (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
+    : (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)), ∏ x : X, P3 x (p1 x) (p2 x))
+        ≃ (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1), P3 x p1 p2).
+  Proof.
+    eapply weqcomp.
+    apply (weqtotal2asstol
+             (λ p1, ∏ x : X, P2 x (p1 x))
+             (λ p12, ∏ x : X, P3 x (pr1 p12 x) (pr2 p12 x))
+          ).
+    eapply weqcomp.
+    use weqtotal2. 3: apply weqtotaltoforall.
+    - exact (λ p12, ∏ x : X, P3 x (pr1 (p12 x)) (pr2 (p12 x))).
+    - intros x. apply idweq.
+
+    - eapply weqcomp.
+      apply (weqtotaltoforall
+               (λ x : X, ∑ y : P1 x, P2 x y)
+               (λ (x : X) p12, P3 x (pr1 p12) (pr2 p12))
+            ).
+      apply weqonsecfibers.
+      intros x.
+      apply weqtotal2asstor.
+  Defined.
+
+  Definition disp_ff_functor_on_morphisms_sop
+             {C : category} {D' : disp_cat C}
              (D : disp_ff_functor_to_on_objects D')
     : UU
-    := ∑ (mord : ∏ (Γ Γ' : C), (pr1 D Γ) → (pr1 D Γ') → (Γ --> Γ') → UU)
-       , disp_ff_functor_to_on_morphisms' D mord.
+    := ∑ (mord : ∏ Γ Γ', (pr1 D Γ) → (pr1 D Γ') → (Γ --> Γ') → UU)
+         (functor_mord : ∏ Γ Γ' (A : pr1 D Γ) (A' : pr1 D Γ') (f : Γ --> Γ')
+                         , (mord _ _ A A' f) -> (pr2 D _ A -->[ f ] pr2 D _ A'))
+       , ∏ Γ Γ' (A : pr1 D Γ) (A' : pr1 D Γ') (f : Γ --> Γ')
+       , isweq (functor_mord Γ Γ' A A' f).
+
+  Definition disp_ff_functor_on_morphisms_pos
+             {C : category} {D' : disp_cat C}
+             (D : disp_ff_functor_to_on_objects D')
+    : UU
+    := ∏ Γ Γ' (A : pr1 D Γ) (A' : pr1 D Γ') (f : Γ --> Γ'),
+      ∑ (mord : UU), mord ≃ (pr2 D _ A -->[ f ] pr2 D _ A').
+
+  Definition disp_ff_functor_on_morphisms_sop_pos_weq
+             {C : category} {D' : disp_cat C}
+             (D : disp_ff_functor_to_on_objects D')
+    : disp_ff_functor_on_morphisms_sop D ≃ disp_ff_functor_on_morphisms_pos D.
+  Proof.
+    eapply weqcomp.
+    apply (weqtotaltoforall3
+             (λ Γ, ∏ Γ', (pr1 D Γ) → (pr1 D Γ') → (Γ --> Γ') → UU)
+             (λ Γ mord, ∏ Γ' (A : pr1 D Γ) (A' : pr1 D Γ') (f : Γ --> Γ')
+              , (mord _ A A' f) -> (pr2 D _ A -->[ f ] pr2 D _ A'))
+             (λ Γ mord functor_mord, 
+              ∏ Γ' (A : pr1 D Γ) (A' : pr1 D Γ') (f : Γ --> Γ')
+              , isweq (functor_mord Γ' A A' f))).
+    apply weqonsecfibers. intros Γ.
+
+    eapply weqcomp.
+    apply (weqtotaltoforall3
+             (λ Γ', (pr1 D Γ) → (pr1 D Γ') → (Γ --> Γ') → UU)
+             (λ Γ' mord, ∏ (A : pr1 D Γ) (A' : pr1 D Γ') (f : Γ --> Γ')
+              , (mord A A' f) -> (pr2 D _ A -->[ f ] pr2 D _ A'))
+             (λ Γ' mord functor_mord, 
+              ∏ (A : pr1 D Γ) (A' : pr1 D Γ') (f : Γ --> Γ')
+              , isweq (functor_mord A A' f))).
+    apply weqonsecfibers. intros Γ'.
+
+    eapply weqcomp.
+    apply (weqtotaltoforall3
+             (λ A, (pr1 D Γ') → (Γ --> Γ') → UU)
+             (λ A mord, ∏ (A' : pr1 D Γ') (f : Γ --> Γ')
+              , (mord A' f) -> (pr2 D _ A -->[ f ] pr2 D _ A'))
+             (λ A mord functor_mord, 
+              ∏ (A' : pr1 D Γ') (f : Γ --> Γ')
+              , isweq (functor_mord A' f))).
+    apply weqonsecfibers. intros A.
+
+    eapply weqcomp.
+    apply (weqtotaltoforall3
+             (λ A', (Γ --> Γ') → UU)
+             (λ A' mord, ∏ (f : Γ --> Γ')
+              , (mord f) -> (pr2 D _ A -->[ f ] pr2 D _ A'))
+             (λ A' mord functor_mord, 
+              ∏ (f : Γ --> Γ')
+              , isweq (functor_mord f))).
+    apply weqonsecfibers. intros A'.
+
+    eapply weqcomp.
+    apply (weqtotaltoforall3
+             (λ f, UU)
+             (λ f mord, mord -> (pr2 D _ A -->[ f ] pr2 D _ A'))
+             (λ f mord functor_mord, isweq functor_mord)).
+    apply idweq.
+  Defined.
+
+  Definition disp_ff_functor_on_morphisms_pos_iscontr
+             {C : category} {D' : disp_cat C}
+             (D : disp_ff_functor_to_on_objects D')
+    : iscontr (disp_ff_functor_on_morphisms_pos D).
+  Proof.
+    apply impred_iscontr. intros Γ.
+    apply impred_iscontr. intros Γ'.
+    apply impred_iscontr. intros A.
+    apply impred_iscontr. intros A'.
+    apply impred_iscontr. intros f.
+    use (@iscontrweqf (∑ mord : UU, mord = pr2 D Γ A -->[f] pr2 D Γ' A')).
+    - use (weqtotal2 (idweq _)). intros mord. apply univalenceweq.
+    - apply iscontrcoconustot.
+  Defined.
+
+  Definition disp_ff_functor_on_morphisms_pos_isaprop
+             {C : category} {D' : disp_cat C}
+             (D : disp_ff_functor_to_on_objects D')
+    : isaprop (disp_ff_functor_on_morphisms_pos D).
+  Proof.
+    apply isapropifcontr, disp_ff_functor_on_morphisms_pos_iscontr.
+  Defined.
+
+  (* Types for parts of a fully faithful functor that rely on morphisms *)
+  Section disp_ff_functor_to_on_morphisms.
+
+    Context {C : category} {D' : disp_cat C}.
+    Context (D : disp_ff_functor_to_on_objects D').
+
+    Definition disp_ff_functor_source_mor : UU
+      := ∏ (Γ Γ' : C), (pr1 D Γ) → (pr1 D Γ') → (Γ --> Γ') → UU.
+
+    Definition disp_ff_functor_source_id_comp
+               (mord : disp_ff_functor_source_mor) : UU
+      := disp_cat_id_comp C (pr1 D,, mord).
+
+    Definition disp_ff_functor_source_axioms
+               (mord : disp_ff_functor_source_mor)
+               (id_comp_d : disp_ff_functor_source_id_comp mord)
+      : UU
+      := disp_cat_axioms C ((pr1 D ,, mord) ,, id_comp_d).
+
+    Definition disp_ff_functor_on_morphisms
+               (mord : disp_ff_functor_source_mor)
+      : UU
+      := ∏ x y (xx : pr1 D x) (yy : pr1 D y) (f : x --> y)
+         , (mord _ _ xx yy f) -> (pr2 D _ xx -->[ f ] pr2 D _ yy).
+          
+    Definition disp_ff_functor_axioms
+               (mord : disp_ff_functor_source_mor)
+               (id_comp_d : disp_ff_functor_source_id_comp mord)
+               (axioms_d : disp_ff_functor_source_axioms mord id_comp_d)
+               (functor_mord : disp_ff_functor_on_morphisms mord)
+      : UU
+      := @disp_functor_axioms
+           C C (functor_identity _)
+           (((pr1 D ,, mord) ,, id_comp_d) ,, axioms_d) D'
+           (pr2 D ,, functor_mord).
+               
+    Definition disp_ff_functor_ff
+               (mord : disp_ff_functor_source_mor)
+               (functor_mord : disp_ff_functor_on_morphisms mord)
+      : UU
+      := ∏ Γ Γ' (A : pr1 D Γ) (A' : pr1 D Γ') (f : Γ --> Γ')
+         , isweq (functor_mord Γ Γ' A A' f).
+
+    Definition disp_ff_functor_to_on_morphisms'
+               (mord : disp_ff_functor_source_mor)
+      : UU
+      := ∑ (id_comp_d : disp_ff_functor_source_id_comp mord)
+           (axioms_d : disp_ff_functor_source_axioms mord id_comp_d)
+           (functor_mord : disp_ff_functor_on_morphisms mord)
+           (functor_axioms_d : disp_ff_functor_axioms mord id_comp_d axioms_d functor_mord)
+         , disp_ff_functor_ff mord functor_mord.
+
+    Definition disp_ff_functor_to_on_morphisms
+      : UU
+      := ∑ (mord : disp_ff_functor_source_mor)
+         , disp_ff_functor_to_on_morphisms' mord.
+
+  End disp_ff_functor_to_on_morphisms.
 
   Definition disp_ff_functor_to
              {C : category} (D' : disp_cat C)
     : UU
     := ∑ (D : disp_ff_functor_to_on_objects D'), disp_ff_functor_to_on_morphisms D.
 
-  Definition source_disp_cat_of_disp_ff_functor
-             {C : category} {D' : disp_cat C}
-             (D : disp_ff_functor_to D')
-    : disp_cat C.
-  Proof.
-    set (axioms_d := pr1 (pr2 (pr2 (pr2 D)))).
-    exact (_ ,, axioms_d).
-  Defined.
+  (* Accessors for parts of a fully faithful functor that rely on morphisms *)
+  Section disp_ff_functor_accessors.
 
-  Definition disp_functor_of_disp_ff_functor
-             {C : category} {D' : disp_cat C}
-             (D : disp_ff_functor_to D')
-    : disp_functor (functor_identity _) (source_disp_cat_of_disp_ff_functor D) D'.
-  Proof.
-    set (functor_axioms_d := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))).
-    exact (_ ,, functor_axioms_d).
-  Defined.
+    Definition source_disp_cat_of_disp_ff_functor
+                {C : category} {D' : disp_cat C}
+                (D : disp_ff_functor_to D')
+        : disp_cat C.
+    Proof.
+        set (axioms_d := pr1 (pr2 (pr2 (pr2 D)))).
+        exact (((pr1 (pr1 D),, _),, _) ,, axioms_d).
+    Defined.
 
-  Coercion disp_functor_of_disp_ff_functor : disp_ff_functor_to >-> disp_functor.
+    Definition disp_functor_of_disp_ff_functor
+                {C : category} {D' : disp_cat C}
+                (D : disp_ff_functor_to D')
+        : disp_functor (functor_identity _) (source_disp_cat_of_disp_ff_functor D) D'.
+    Proof.
+        set (functor_axioms_d := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))).
+        exact ((pr2 (pr1 D) ,, _) ,, functor_axioms_d).
+    Defined.
 
-  Definition disp_ff_functor_is_ff
-             {C : category} {D' : disp_cat C}
-             (D : disp_ff_functor_to D')
-    : disp_functor_ff (disp_functor_of_disp_ff_functor D)
-    := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))).
+    Coercion disp_functor_of_disp_ff_functor : disp_ff_functor_to >-> disp_functor.
 
-  Definition disp_ff_functor_mor_eq
-             {C : category} {D' : disp_cat C}
-             (D : disp_ff_functor_to_on_objects D')
-             (m1 m2 : ∏ (Γ Γ' : C), (pr1 D Γ) → (pr1 D Γ') → (Γ --> Γ') → UU)
-             (e_mor : m1 = m2)
-             (X : disp_ff_functor_to_on_morphisms' D m1)
-             (Y : disp_ff_functor_to_on_morphisms' D m2)
-    : transportf _ e_mor X = Y.
-  Proof.
-    induction e_mor.
-    etrans. apply idpath_transportf.
-    use total2_paths_f.
-    - use dirprod_paths.
-      + apply funextsec. intros Γ.
-        apply funextsec. intros A.
+    Definition disp_ff_functor_is_ff
+                {C : category} {D' : disp_cat C}
+                (D : disp_ff_functor_to D')
+        : disp_functor_ff (disp_functor_of_disp_ff_functor D)
+        := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))).
 
-        set (id_disp_X := pr1 (pr1 X) Γ A).
-        set (id_disp_Y := pr1 (pr1 Y) Γ A).
-
-        (* STUCK *)
-
-        (*
-        apply funextsec. intros Γ.
-        apply funextsec. intros A.
-        set (id_disp_1 := pr1 id_comp_d1).
-        set (id_disp_2 := pr1 id_comp_d2).
-        set (e1 := pr1 axioms_d1 Γ Γ _ A A (id_disp_2 Γ A)).
-        set (e2 := pr1 (dirprod_pr2 axioms_d2) Γ Γ _ A A (id_disp_1 Γ A)).
-        unfold id_disp, id_disp_1, id_disp_2 in *.
-        simpl in *.
-        Check (!e1 @ e2).
-         *)
-  Abort.
-             
-
-  Lemma isaprop_disp_source_functor_on_morphisms
-        {C : category} {D' : disp_cat C} 
-        (D : disp_ff_functor_to_on_objects D')
-    : isaprop (disp_ff_functor_to_on_morphisms D).
-  Proof.
-    intros X Y.
-    use tpair.
-    - use total2_paths_f.
-      + apply funextsec. intros Γ.
-        apply funextsec. intros Γ'.
-        apply funextsec. intros A.
-        apply funextsec. intros B.
-        apply funextsec. intros f.
-        set (wX := (_ ,, disp_ff_functor_is_ff (D,,X) Γ Γ' A B f)).
-        set (wY := (_ ,, disp_ff_functor_is_ff (D,,Y) Γ Γ' A B f)).
-        apply univalenceweq. (* FIXME: is this correct application? *)
-        apply (weqcomp wX (invweq wY)).
-      + use total2_paths_f.
-        * use dirprod_paths.
-          -- apply funextsec. intros Γ.
-             apply funextsec. intros A.
-
-             set (Fid_axiom_X := pr1 (pr2 (disp_functor_of_disp_ff_functor (D,,X))) Γ A).
-             set (Fid_axiom_Y := pr1 (pr2 (disp_functor_of_disp_ff_functor (D,,Y))) Γ A).
-
-             set (id_disp_X := pr1 (pr1 (pr2 X))).
-             set (id_disp_Y := pr1 (pr1 (pr2 Y))).
-
-             (*
-
-             Check (pr1 (pr1 (pr2 (pr2 X))) Γ Γ _ A A (id_disp_Y Γ A)).
-             set (Did_axiom_X := 
-
-             simpl in *.
-             Check Fid_axiom_Y.
-             Check Fid_axiom_X @ !Fid_axiom_Y.
-             Search weq.
-              *)
-             (* TODO: work in progress *)
-             (*
-             maponpaths (Fid_axiom_X @ !Fid_axiom_Y).
-             set (wX := (_ ,, disp_ff_functor_is_ff (D,,X) Γ Γ A A (identity _))).
-             set (wY := (_ ,, disp_ff_functor_is_ff (D,,Y) Γ Γ A A (identity _))).
-             apply univalenceweq.
-              *)
-  Abort.
+  End disp_ff_functor_accessors.
 
 End Auxiliary.
 
