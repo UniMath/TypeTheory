@@ -226,6 +226,53 @@ Section Auxiliary.
     - apply iscontrcoconustot.
   Defined.
 
+  Definition disp_ff_functor_on_morphisms_comp_pos
+             {C : category} {D' : disp_cat C}
+             (D : disp_ff_functor_to_on_objects D')
+             (mor_weq : disp_ff_functor_on_morphisms_pos D)
+    : UU
+    := ∏ (Γ Γ' Γ'' : C)
+         (A : pr1 D Γ) (A' : pr1 D Γ') (A'' : pr1 D Γ'')
+         (f : Γ --> Γ') (g : Γ' --> Γ'')
+         (ff : pr1 (mor_weq Γ Γ' A A' f))
+         (gg : pr1 (mor_weq Γ' Γ'' A' A'' g)),
+       ∑ (mor_comp : pr1 (mor_weq Γ Γ'' A A'' (f ;; g))),
+       pr2 (mor_weq Γ Γ'' A A'' (f ;; g)) mor_comp
+       = transportb _ (functor_comp (functor_identity C) f g)
+                    (comp_disp (pr2 (mor_weq _ _ _ _ _) ff) (pr2 (mor_weq _ _ _ _ _) gg)).
+
+  Definition disp_ff_functor_on_morphisms_comp_pos_iscontr
+             {C : category} {D' : disp_cat C}
+             (D : disp_ff_functor_to_on_objects D')
+             (mor_weq : disp_ff_functor_on_morphisms_pos D)
+             (mor_isaset : ∏ Γ Γ' f (A : pr1 D Γ) (A' : pr1 D Γ'), isaset (pr1 (mor_weq _ _ A A' f)))
+    : iscontr (disp_ff_functor_on_morphisms_comp_pos D mor_weq).
+  Proof.
+    apply impred_iscontr. intros Γ.
+    apply impred_iscontr. intros Γ'.
+    apply impred_iscontr. intros Γ''.
+    apply impred_iscontr. intros A.
+    apply impred_iscontr. intros A'.
+    apply impred_iscontr. intros A''.
+    apply impred_iscontr. intros f.
+    apply impred_iscontr. intros g.
+    apply impred_iscontr. intros ff.
+    apply impred_iscontr. intros gg.
+    set (mord := pr1 (mor_weq Γ Γ'' A A'' (f ;; g))).
+    set (mord_weq := pr2 (mor_weq Γ Γ'' A A'' (f ;; g))).
+    use (@iscontrweqf (∑ mor_comp : mord,
+       mor_comp
+       = invweq mord_weq (transportb _ (functor_comp (functor_identity C) f g)
+                    (comp_disp (pr2 (mor_weq _ _ _ _ _) ff) (pr2 (mor_weq _ _ _ _ _) gg))))).
+    - use (weqtotal2 (idweq _)). intros mor_id. simpl.
+      use weq_iso.
+      + intros p. apply (maponpaths mord_weq p @ homotweqinvweq mord_weq _).
+      + intros p. apply (! homotinvweqweq mord_weq _ @ maponpaths (invmap mord_weq) p).
+      + intros p. apply mor_isaset.
+      + intros p. apply (@homsets_disp _ D').
+    - apply iscontrcoconustot.
+  Defined.
+
   (* Types for parts of a fully faithful functor that rely on morphisms *)
   Section disp_ff_functor_to_on_morphisms.
 
