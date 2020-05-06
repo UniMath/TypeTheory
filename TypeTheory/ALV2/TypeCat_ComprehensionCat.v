@@ -69,12 +69,12 @@ Section Auxiliary.
     := ∑ (obd : C → UU)
        , ∏ (Γ : C), obd Γ → D' Γ.
 
-  Definition disp_ff_functor_to_on_morphisms
+  Definition disp_ff_functor_to_on_morphisms'
              {C : category} {D' : disp_cat C} 
              (D : disp_ff_functor_to_on_objects D')
+             (mord : ∏ (Γ Γ' : C), (pr1 D Γ) → (pr1 D Γ') → (Γ --> Γ') → UU)
     : UU
-    := ∑ (mord : ∏ (Γ Γ' : C), (pr1 D Γ) → (pr1 D Γ') → (Γ --> Γ') → UU)
-         (id_comp_d : disp_cat_id_comp C (_ ,, mord))
+    := ∑ (id_comp_d : disp_cat_id_comp C (_ ,, mord))
          (axioms_d : disp_cat_axioms C (_,, id_comp_d))
          (functor_mord :
             ∏ x y (xx : ((_,,axioms_d) : disp_cat C) x) (yy : pr1 D y) (f : x --> y),
@@ -86,6 +86,13 @@ Section Auxiliary.
        , disp_functor_ff ((_ ,, functor_axioms_d)
                           : disp_functor (functor_identity C)
                                          (_ ,, axioms_d) D').
+
+  Definition disp_ff_functor_to_on_morphisms
+             {C : category} {D' : disp_cat C} 
+             (D : disp_ff_functor_to_on_objects D')
+    : UU
+    := ∑ (mord : ∏ (Γ Γ' : C), (pr1 D Γ) → (pr1 D Γ') → (Γ --> Γ') → UU)
+       , disp_ff_functor_to_on_morphisms' D mord.
 
   Definition disp_ff_functor_to
              {C : category} (D' : disp_cat C)
@@ -118,6 +125,41 @@ Section Auxiliary.
     : disp_functor_ff (disp_functor_of_disp_ff_functor D)
     := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))).
 
+  Definition disp_ff_functor_mor_eq
+             {C : category} {D' : disp_cat C}
+             (D : disp_ff_functor_to_on_objects D')
+             (m1 m2 : ∏ (Γ Γ' : C), (pr1 D Γ) → (pr1 D Γ') → (Γ --> Γ') → UU)
+             (e_mor : m1 = m2)
+             (X : disp_ff_functor_to_on_morphisms' D m1)
+             (Y : disp_ff_functor_to_on_morphisms' D m2)
+    : transportf _ e_mor X = Y.
+  Proof.
+    induction e_mor.
+    etrans. apply idpath_transportf.
+    use total2_paths_f.
+    - use dirprod_paths.
+      + apply funextsec. intros Γ.
+        apply funextsec. intros A.
+
+        set (id_disp_X := pr1 (pr1 X) Γ A).
+        set (id_disp_Y := pr1 (pr1 Y) Γ A).
+
+        (* STUCK *)
+
+        (*
+        apply funextsec. intros Γ.
+        apply funextsec. intros A.
+        set (id_disp_1 := pr1 id_comp_d1).
+        set (id_disp_2 := pr1 id_comp_d2).
+        set (e1 := pr1 axioms_d1 Γ Γ _ A A (id_disp_2 Γ A)).
+        set (e2 := pr1 (dirprod_pr2 axioms_d2) Γ Γ _ A A (id_disp_1 Γ A)).
+        unfold id_disp, id_disp_1, id_disp_2 in *.
+        simpl in *.
+        Check (!e1 @ e2).
+         *)
+  Abort.
+             
+
   Lemma isaprop_disp_source_functor_on_morphisms
         {C : category} {D' : disp_cat C} 
         (D : disp_ff_functor_to_on_objects D')
@@ -139,8 +181,23 @@ Section Auxiliary.
         * use dirprod_paths.
           -- apply funextsec. intros Γ.
              apply funextsec. intros A.
+
              set (Fid_axiom_X := pr1 (pr2 (disp_functor_of_disp_ff_functor (D,,X))) Γ A).
              set (Fid_axiom_Y := pr1 (pr2 (disp_functor_of_disp_ff_functor (D,,Y))) Γ A).
+
+             set (id_disp_X := pr1 (pr1 (pr2 X))).
+             set (id_disp_Y := pr1 (pr1 (pr2 Y))).
+
+             (*
+
+             Check (pr1 (pr1 (pr2 (pr2 X))) Γ Γ _ A A (id_disp_Y Γ A)).
+             set (Did_axiom_X := 
+
+             simpl in *.
+             Check Fid_axiom_Y.
+             Check Fid_axiom_X @ !Fid_axiom_Y.
+             Search weq.
+              *)
              (* TODO: work in progress *)
              (*
              maponpaths (Fid_axiom_X @ !Fid_axiom_Y).
