@@ -62,15 +62,7 @@ Section Auxiliary.
     apply idpath.
   Defined.
 
-  Definition disp_ff_functor_to_on_objects
-             {C : category}
-             (D' : disp_cat C)
-    : UU
-    := ∑ (obd : C → UU)
-       , ∏ (Γ : C), obd Γ → D' Γ.
-
-  Check weqtotaltoforall.
-
+  (* TODO: move upstream? *)
   Lemma weqtotaltoforall3 {X : UU}
         (P1 : X → UU)
         (P2 : ∏ x : X, P1 x → UU)
@@ -97,6 +89,15 @@ Section Auxiliary.
       intros x.
       apply weqtotal2asstor.
   Defined.
+
+  Definition disp_ff_functor_to_on_objects
+             {C : category}
+             (D' : disp_cat C)
+    : UU
+    := ∑ (obd : C → UU)
+       , ∏ (Γ : C), obd Γ → D' Γ.
+
+  Check weqtotaltoforall.
 
   Definition disp_ff_functor_on_morphisms_sop
              {C : category} {D' : disp_cat C}
@@ -189,6 +190,40 @@ Section Auxiliary.
     : isaprop (disp_ff_functor_on_morphisms_pos D).
   Proof.
     apply isapropifcontr, disp_ff_functor_on_morphisms_pos_iscontr.
+  Defined.
+
+  Definition disp_ff_functor_on_morphisms_id_pos
+             {C : category} {D' : disp_cat C}
+             (D : disp_ff_functor_to_on_objects D')
+             (mor_weq : disp_ff_functor_on_morphisms_pos D)
+    : UU
+    := ∏ (Γ : C) (A : pr1 D Γ),
+       ∑ (mor_id : pr1 (mor_weq Γ Γ A A (identity Γ))),
+       pr1 (pr2 (mor_weq Γ Γ A A (identity Γ))) mor_id
+       = transportb (mor_disp (pr2 D Γ A) (pr2 D Γ A))
+                    (functor_id (functor_identity C) Γ) (id_disp (pr2 D Γ A)).
+
+  Definition disp_ff_functor_on_morphisms_id_pos_iscontr
+             {C : category} {D' : disp_cat C}
+             (D : disp_ff_functor_to_on_objects D')
+             (mor_weq : disp_ff_functor_on_morphisms_pos D)
+             (mor_isaset : ∏ Γ Γ' f (A : pr1 D Γ) (A' : pr1 D Γ'), isaset (pr1 (mor_weq _ _ A A' f)))
+    : iscontr (disp_ff_functor_on_morphisms_id_pos D mor_weq).
+  Proof.
+    apply impred_iscontr. intros Γ.
+    apply impred_iscontr. intros A.
+    set (mord := pr1 (mor_weq Γ Γ A A (identity Γ))).
+    set (mord_weq := pr2 (mor_weq Γ Γ A A (identity Γ))).
+    use (@iscontrweqf (∑ mor_id : mord, mor_id = invweq mord_weq
+                                    (transportb (mor_disp (pr2 D Γ A) (pr2 D Γ A))
+                                                (functor_id (functor_identity C) Γ) (id_disp (pr2 D Γ A))))).
+    - use (weqtotal2 (idweq _)). intros mor_id. simpl.
+      use weq_iso.
+      + intros p. apply (maponpaths mord_weq p @ homotweqinvweq mord_weq _).
+      + intros p. apply (! homotinvweqweq mord_weq _ @ maponpaths (invmap mord_weq) p).
+      + intros p. apply mor_isaset.
+      + intros p. apply (@homsets_disp _ D').
+    - apply iscontrcoconustot.
   Defined.
 
   (* Types for parts of a fully faithful functor that rely on morphisms *)
