@@ -343,22 +343,22 @@ Section Auxiliary.
   Definition disp_ff_functor_on_morphisms_idcomp_sop
              {C : category} {D' : disp_cat C}
              (D : disp_ff_functor_to_on_objects D')
-    := ∑ (mor_disp : ∏ {x y : C}, (x --> y) -> pr1 D x -> pr1 D y -> UU)
-         (id_disp' : ∏ {x : C} (xx : pr1 D x), mor_disp (identity x) xx xx)
+    := ∑ (mor_disp : ∏ {x y : C}, pr1 D x -> pr1 D y -> (x --> y) -> UU)
+         (id_disp' : ∏ {x : C} (xx : pr1 D x), mor_disp xx xx (identity x))
          (comp_disp' : ∏ {x y z : C} {f : x --> y} {g : y --> z}
                         {xx : pr1 D x} {yy : pr1 D y} {zz : pr1 D z},
-                      mor_disp f xx yy -> mor_disp g yy zz -> mor_disp (f ;; g) xx zz)
-         (homsets_disp : ∏ {x y} {f : x --> y} {xx} {yy}, isaset (mor_disp f xx yy))
+                      mor_disp xx yy f -> mor_disp yy zz g -> mor_disp xx zz (f ;; g))
+         (homsets_disp : ∏ {x y} {f : x --> y} {xx} {yy}, isaset (mor_disp xx yy f))
          (Fmor : ∏ x y (xx : pr1 D x) (yy : pr1 D y) (f : x --> y),
-                 (mor_disp f xx yy) -> (pr2 D _ xx -->[ f ] pr2 D _ yy))
+                 (mor_disp xx yy f) -> (pr2 D _ xx -->[ f ] pr2 D _ yy))
          (Fid : ∏ x (xx : pr1 D x),
                 Fmor _ _ _ _ _ (id_disp' xx) = transportb _ (functor_id (functor_identity C) x) (id_disp (pr2 D _ xx)))
          (Fcomp :  ∏ x y z (xx : pr1 D x) yy zz (f : x --> y) (g : y --> z)
-                     (ff : mor_disp f xx yy) (gg : mor_disp g yy zz),
+                     (ff : mor_disp xx yy f) (gg : mor_disp yy zz g),
                    Fmor _ _ _ _ _ (comp_disp' ff gg)
                    = transportb _ (functor_comp (functor_identity _) f g) (comp_disp (Fmor _ _ _ _ _ ff) (Fmor _ _ _ _ _ gg)))
        , ∏ x y (xx : pr1 D x) (yy : pr1 D y) (f : x --> y),
-       isweq (fun ff : mor_disp f xx yy => Fmor _ _ _ _ _ ff).
+       isweq (fun ff : mor_disp xx yy f => Fmor _ _ _ _ _ ff).
 
   Definition disp_ff_functor_on_morphisms_idcomp_sop_pos_weq
              {C : category} {D' : disp_cat C}
@@ -377,13 +377,13 @@ Section Auxiliary.
       set (Fcomp := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 sop))))))).
       set (Fff := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 sop))))))).
 
-      exists (λ x y xx yy f, mor_disp x y f xx yy ,, Fmor x y xx yy f,, Fff x y xx yy f).
+      exists (λ x y xx yy f, mor_disp x y xx yy f ,, Fmor x y xx yy f,, Fff x y xx yy f).
       exists homsets_disp'.
       exists (λ x xx, (id_disp' x xx ,, Fid x xx)).
       exact (λ x y z xx yy zz f g ff gg, (comp_disp' x y z f g xx yy zz ff gg ,, Fcomp x y z xx yy zz f g ff gg)).
 
     - intros pos.
-      set (mor_disp := λ x y f xx yy, pr1 (pr1 pos x y xx yy f)).
+      set (mor_disp := λ x y xx yy f, pr1 (pr1 pos x y xx yy f)).
       set (Fmor := λ x y xx yy f, pr1 (pr2 (pr1 pos x y xx yy f))).
       set (Fff := λ x y xx yy f, pr2 (pr2 (pr1 pos x y xx yy f))).
       set (homsets_disp' := pr1 (pr2 pos)).
@@ -403,6 +403,139 @@ Section Auxiliary.
     - intros ?. apply idpath.
     - intros ?. apply idpath.
   Defined.
+
+  Definition source_disp_cat_data_of_disp_ff_functor_on_morphisms_idcomp_sop
+             {C : category} {D' : disp_cat C}
+             (D : disp_ff_functor_to_on_objects D')
+    : disp_ff_functor_on_morphisms_idcomp_sop D → disp_cat_data C.
+  Proof.
+    intros sop.
+    set (mor_disp := pr1 sop).
+    set (id_disp' := pr1 (pr2 sop)).
+    set (comp_disp' := pr1 (pr2 (pr2 sop))).
+
+    use tpair.
+    - exists (pr1 D). apply mor_disp.
+    - exact (id_disp' , comp_disp').
+  Defined.
+
+  Definition disp_ff_functor_sop
+             {C : category} {D' : disp_cat C}
+             (D : disp_ff_functor_to_on_objects D')
+    : UU
+    := ∑ (mor_idcomp : disp_ff_functor_on_morphisms_idcomp_sop D),
+      disp_cat_axioms _ (source_disp_cat_data_of_disp_ff_functor_on_morphisms_idcomp_sop
+                           D mor_idcomp).
+        
+  Lemma idpath_transportb
+        {X : UU} (P : X → UU)
+        (x : X) (p : P x)
+    : transportb P (idpath x) p = p.
+  Proof.
+    apply idpath.
+  Defined.
+
+  Lemma homot_invweq_transportb_weq
+        (Z : UU)
+        (z z' : Z)
+        (X Y : Z → UU)
+        (e : z = z')
+        (w : ∏ z : Z, X z ≃ Y z)
+        (x : X z')
+    : invmap (w z) (transportb Y e (w z' x)) = transportb X e x.
+  Proof.
+    induction e.
+    etrans. apply maponpaths, idpath_transportb.
+    apply homotinvweqweq.
+  Defined.
+
+  Definition disp_ff_functor_sop_iscontr
+             {C : category} {D' : disp_cat C}
+             (D : disp_ff_functor_to_on_objects D')
+    : iscontr (disp_ff_functor_sop D).
+  Proof.
+    apply iscontr_total2.
+    - apply (iscontrweqb (disp_ff_functor_on_morphisms_idcomp_sop_pos_weq _)).
+      apply disp_ff_functor_on_morphisms_idcomp_pos_iscontr.
+    - intros sop.
+      apply iscontr_total2.
+
+      + apply impred_iscontr. intros Γ.
+        apply impred_iscontr. intros Γ'.
+        apply impred_iscontr. intros f.
+        apply impred_iscontr. intros A.
+        apply impred_iscontr. intros A'.
+        apply impred_iscontr. intros ff.
+        apply iscontraprop1. apply (pr1 (pr2 (pr2 (pr2 sop)))).
+        set (id_disp' := pr1 (pr2 sop)).
+        set (comp_disp' := pr1 (pr2 (pr2 sop))).
+        set (Fmor := pr1 (pr2 (pr2 (pr2 (pr2 sop))))).
+        set (Fid := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 sop)))))).
+        set (Fcomp := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 sop))))))).
+        set (Fff := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 sop))))))).
+        set (w := λ g, (Fmor _ _ A A' g,, Fff _ _ _ _ _)).
+        etrans. apply pathsinv0. apply (homotinvweqweq (w _)).
+        etrans. apply maponpaths. apply Fcomp.
+        etrans. apply maponpaths, maponpaths, maponpaths_2. apply Fid.
+        etrans. apply maponpaths, maponpaths. apply id_left_disp.
+        etrans. apply maponpaths. apply transport_b_b. simpl.
+        apply homot_invweq_transportb_weq.
+        
+      + intros ?.
+        apply iscontr_total2.
+
+        * apply impred_iscontr. intros Γ.
+          apply impred_iscontr. intros Γ'.
+          apply impred_iscontr. intros f.
+          apply impred_iscontr. intros A.
+          apply impred_iscontr. intros A'.
+          apply impred_iscontr. intros ff.
+          apply iscontraprop1. apply (pr1 (pr2 (pr2 (pr2 sop)))).
+          set (id_disp' := pr1 (pr2 sop)).
+          set (comp_disp' := pr1 (pr2 (pr2 sop))).
+          set (Fmor := pr1 (pr2 (pr2 (pr2 (pr2 sop))))).
+          set (Fid := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 sop)))))).
+          set (Fcomp := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 sop))))))).
+          set (Fff := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 sop))))))).
+          set (w := λ g, (Fmor _ _ A A' g,, Fff _ _ _ _ _)).
+          etrans. apply pathsinv0. apply (homotinvweqweq (w _)).
+          etrans. apply maponpaths. apply Fcomp.
+          etrans. apply maponpaths, maponpaths, maponpaths. apply Fid.
+          etrans. apply maponpaths, maponpaths. apply id_right_disp.
+          etrans. apply maponpaths. apply transport_b_b. simpl.
+          apply homot_invweq_transportb_weq.
+
+        * intros ?. apply iscontr_total2.
+
+          -- apply impred_iscontr. intros Γ.
+             apply impred_iscontr. intros Γ'.
+             apply impred_iscontr. intros Γ''.
+             apply impred_iscontr. intros Γ'''.
+             apply impred_iscontr. intros f.
+             apply impred_iscontr. intros g.
+             apply impred_iscontr. intros h.
+             apply impred_iscontr. intros A.
+             apply impred_iscontr. intros A'.
+             apply impred_iscontr. intros A''.
+             apply impred_iscontr. intros A'''.
+             apply impred_iscontr. intros ff.
+             apply impred_iscontr. intros gg.
+             apply impred_iscontr. intros hh.
+             apply iscontraprop1. apply (pr1 (pr2 (pr2 (pr2 sop)))).
+             set (id_disp' := pr1 (pr2 sop)).
+             set (comp_disp' := pr1 (pr2 (pr2 sop))).
+             set (Fmor := pr1 (pr2 (pr2 (pr2 (pr2 sop))))).
+             set (Fid := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 sop)))))).
+             set (Fcomp := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 sop))))))).
+             set (Fff := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 sop))))))).
+             set (w := λ g, (Fmor _ _ A A''' g,, Fff _ _ _ _ _)).
+             etrans. apply pathsinv0. apply (homotinvweqweq (w _)).
+             etrans. apply maponpaths. apply Fcomp.
+             etrans. apply maponpaths, maponpaths, maponpaths. apply Fcomp.
+             etrans. apply maponpaths, maponpaths. apply assoc_disp.
+             etrans. apply maponpaths. apply transport_b_b. simpl.
+             (* WORK IN PROGRESS *)
+  Abort.
 
   (* Types for parts of a fully faithful functor that rely on morphisms *)
   Section disp_ff_functor_to_on_morphisms.
