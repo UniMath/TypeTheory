@@ -558,6 +558,50 @@ Section Auxiliary.
     := ∑ (D : disp_ff_functor_to_on_objects D'),
        disp_ff_functor_mor_sop D.
 
+  Definition source_disp_cat_of_disp_ff_functor_sop
+             {C : category} {D' : disp_cat C}
+             (Fsop : disp_ff_functor_sop D')
+    : disp_cat C.
+  Proof.
+    set (sop := pr1 (pr2 Fsop)).
+
+    set (ob_disp := pr1 (pr1 Fsop)).
+    set (axioms_d := pr2 (pr2 Fsop)).
+
+    set (mor_disp := pr1 sop).
+    set (id_disp' := pr1 (pr2 sop)).
+    set (comp_disp' := pr1 (pr2 (pr2 sop))).
+
+    exact (((ob_disp ,, mor_disp) ,, (id_disp' , comp_disp')) ,, axioms_d).
+  Defined.
+
+  Definition disp_functor_of_disp_ff_functor_sop
+             {C : category} {D' : disp_cat C}
+             (Fsop : disp_ff_functor_sop D')
+    : disp_functor (functor_identity C) (source_disp_cat_of_disp_ff_functor_sop Fsop) D'.
+  Proof.
+    set (sop := pr1 (pr2 Fsop)).
+
+    set (Fob := pr2 (pr1 Fsop)).
+    set (Fmor := pr1 (pr2 (pr2 (pr2 (pr2 sop))))).
+    set (Fid := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 sop)))))).
+    set (Fcomp := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 sop))))))).
+
+    exact ((Fob,,Fmor),,(Fid,Fcomp)).
+  Defined.
+
+  Coercion disp_functor_of_disp_ff_functor_sop : disp_ff_functor_sop >-> disp_functor.
+
+  Definition disp_functor_of_disp_ff_functor_sop_is_ff
+             {C : category} {D' : disp_cat C}
+             (Fsop : disp_ff_functor_sop D')
+    : disp_functor_ff (disp_functor_of_disp_ff_functor_sop Fsop).
+  Proof.
+    set (sop := pr1 (pr2 Fsop)).
+    set (Fff := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 sop))))))).
+    exact Fff.
+  Defined.
+
   Definition disp_ff_functor_sop_eq
              {C : category} (D' : disp_cat C)
              (X Y : disp_ff_functor_sop D')
@@ -578,24 +622,9 @@ Section Auxiliary.
     use weq_iso.
 
     - intros Fsop.
-      set (sop := pr1 (pr2 Fsop)).
-
-      set (ob_disp := pr1 (pr1 Fsop)).
-      set (Fob := pr2 (pr1 Fsop)).
-      set (axioms_d := pr2 (pr2 Fsop)).
-
-      set (mor_disp := pr1 sop).
-      set (id_disp' := pr1 (pr2 sop)).
-      set (comp_disp' := pr1 (pr2 (pr2 sop))).
-      set (homsets_disp' := pr1 (pr2 (pr2 (pr2 sop)))).
-      set (Fmor := pr1 (pr2 (pr2 (pr2 (pr2 sop))))).
-      set (Fid := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 sop)))))).
-      set (Fcomp := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 sop))))))).
-      set (Fff := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 sop))))))).
-
-      exists (((ob_disp ,, mor_disp) ,, (id_disp' , comp_disp')) ,, axioms_d).
-      exists ((Fob,,Fmor),,(Fid,Fcomp)).
-      exact Fff.
+      exists (source_disp_cat_of_disp_ff_functor_sop Fsop).
+      exists (disp_functor_of_disp_ff_functor_sop Fsop).
+      apply disp_functor_of_disp_ff_functor_sop_is_ff.
 
     - intros F.
       
@@ -620,100 +649,14 @@ Section Auxiliary.
     - intros ?. apply idpath.
   Defined.
 
-  (* Types for parts of a fully faithful functor that rely on morphisms *)
-  Section disp_ff_functor_to_on_morphisms.
-
-    Context {C : category} {D' : disp_cat C}.
-    Context (D : disp_ff_functor_to_on_objects D').
-
-    Definition disp_ff_functor_source_mor : UU
-      := ∏ (Γ Γ' : C), (pr1 D Γ) → (pr1 D Γ') → (Γ --> Γ') → UU.
-
-    Definition disp_ff_functor_source_id_comp
-               (mord : disp_ff_functor_source_mor) : UU
-      := disp_cat_id_comp C (pr1 D,, mord).
-
-    Definition disp_ff_functor_source_axioms
-               (mord : disp_ff_functor_source_mor)
-               (id_comp_d : disp_ff_functor_source_id_comp mord)
-      : UU
-      := disp_cat_axioms C ((pr1 D ,, mord) ,, id_comp_d).
-
-    Definition disp_ff_functor_on_morphisms
-               (mord : disp_ff_functor_source_mor)
-      : UU
-      := ∏ x y (xx : pr1 D x) (yy : pr1 D y) (f : x --> y)
-         , (mord _ _ xx yy f) -> (pr2 D _ xx -->[ f ] pr2 D _ yy).
-          
-    Definition disp_ff_functor_axioms
-               (mord : disp_ff_functor_source_mor)
-               (id_comp_d : disp_ff_functor_source_id_comp mord)
-               (axioms_d : disp_ff_functor_source_axioms mord id_comp_d)
-               (functor_mord : disp_ff_functor_on_morphisms mord)
-      : UU
-      := @disp_functor_axioms
-           C C (functor_identity _)
-           (((pr1 D ,, mord) ,, id_comp_d) ,, axioms_d) D'
-           (pr2 D ,, functor_mord).
-               
-    Definition disp_ff_functor_ff
-               (mord : disp_ff_functor_source_mor)
-               (functor_mord : disp_ff_functor_on_morphisms mord)
-      : UU
-      := ∏ Γ Γ' (A : pr1 D Γ) (A' : pr1 D Γ') (f : Γ --> Γ')
-         , isweq (functor_mord Γ Γ' A A' f).
-
-    Definition disp_ff_functor_to_on_morphisms'
-               (mord : disp_ff_functor_source_mor)
-      : UU
-      := ∑ (id_comp_d : disp_ff_functor_source_id_comp mord)
-           (axioms_d : disp_ff_functor_source_axioms mord id_comp_d)
-           (functor_mord : disp_ff_functor_on_morphisms mord)
-           (functor_axioms_d : disp_ff_functor_axioms mord id_comp_d axioms_d functor_mord)
-         , disp_ff_functor_ff mord functor_mord.
-
-    Definition disp_ff_functor_to_on_morphisms
-      : UU
-      := ∑ (mord : disp_ff_functor_source_mor)
-         , disp_ff_functor_to_on_morphisms' mord.
-
-  End disp_ff_functor_to_on_morphisms.
-
-  Definition disp_ff_functor_to
-             {C : category} (D' : disp_cat C)
-    : UU
-    := ∑ (D : disp_ff_functor_to_on_objects D'), disp_ff_functor_to_on_morphisms D.
-
-  (* Accessors for parts of a fully faithful functor that rely on morphisms *)
-  Section disp_ff_functor_accessors.
-
-    Definition source_disp_cat_of_disp_ff_functor
-                {C : category} {D' : disp_cat C}
-                (D : disp_ff_functor_to D')
-        : disp_cat C.
-    Proof.
-        set (axioms_d := pr1 (pr2 (pr2 (pr2 D)))).
-        exact (((pr1 (pr1 D),, _),, _) ,, axioms_d).
-    Defined.
-
-    Definition disp_functor_of_disp_ff_functor
-                {C : category} {D' : disp_cat C}
-                (D : disp_ff_functor_to D')
-        : disp_functor (functor_identity _) (source_disp_cat_of_disp_ff_functor D) D'.
-    Proof.
-        set (functor_axioms_d := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))).
-        exact ((pr2 (pr1 D) ,, _) ,, functor_axioms_d).
-    Defined.
-
-    Coercion disp_functor_of_disp_ff_functor : disp_ff_functor_to >-> disp_functor.
-
-    Definition disp_ff_functor_is_ff
-                {C : category} {D' : disp_cat C}
-                (D : disp_ff_functor_to D')
-        : disp_functor_ff (disp_functor_of_disp_ff_functor D)
-        := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))).
-
-  End disp_ff_functor_accessors.
+  Definition disp_ff_functor_sop_disp_ff_functor_to_on_objects_weq
+             {C : category} {D' : disp_cat C}
+    : disp_ff_functor_to_on_objects D' ≃ disp_ff_functor_sop D'.
+  Proof.
+    apply invweq, weqpr1.
+    intros D.
+    apply disp_ff_functor_mor_sop_iscontr.
+  Defined.
 
 End Auxiliary.
 
@@ -1304,14 +1247,25 @@ Section TypeCat_ComprehensionCat.
 
   Definition typecat_obj_ext_structure_disp_ff_functor_to_codomain_weq
              (C : category)
-    : typecat_obj_ext_structure C ≃ disp_ff_functor_to (disp_codomain C).
+    : typecat_obj_ext_structure C ≃ disp_ff_functor_to_on_objects (disp_codomain C).
   Proof.
-    (* TODO *)
+    use weq_iso.
+    - intros tc.
+      exists (pr1 (pr1 tc)).
+      intros Γ A.
+      exists (Γ ◂ A).
+      apply (pr2 tc).
+    - intros F.
+      use tpair.
+      + exists (pr1 F).
+        use tpair.
+        * intros Γ A.
+          exact (pr1 (pr2 F Γ A)).
   Abort.
 
   Definition ff_comprehension_cat_structure (C : category) : UU
-    := ∑ (F : disp_ff_functor_to (disp_codomain C)),
-       cleaving (source_disp_cat_of_disp_ff_functor F)
+    := ∑ (F : disp_ff_functor_sop (disp_codomain C)),
+       cleaving (source_disp_cat_of_disp_ff_functor_sop F)
        × is_cartesian_disp_functor F. 
 
   Definition typecat_ff_comprehension_cat_structure_weq (C : category)
