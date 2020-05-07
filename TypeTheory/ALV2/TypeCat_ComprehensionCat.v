@@ -1290,6 +1290,39 @@ Section TypeCat_ComprehensionCat.
     apply disp_ff_functor_sop_disp_functor_ff_weq.
   Defined.
 
+  Definition typecat_structure' (C : category) : UU
+    := ∑ (TC : typecat_obj_ext_structure C)
+         (reind : ∏ Γ (A : TC Γ) Γ' (f : Γ' --> Γ), TC Γ')
+         (q : ∏ Γ (A : TC Γ) Γ' (f : Γ' --> Γ), (obj_ext_typecat Γ' (reind _ A _ f)) --> obj_ext_typecat Γ A )
+         (dpr_q : ∏ Γ (A : TC Γ) Γ' (f : Γ' --> Γ), 
+                  (q _ A _ f) ;; (dpr_typecat_obj_ext A) = (dpr_typecat_obj_ext (reind _ A _ f)) ;; f),
+       ∏ Γ (A : TC Γ) Γ' (f : Γ' --> Γ),
+       isPullback _ _ _ _ (!dpr_q _ A _ f).
+
+  Definition typecat_structure_typecat_structure'_weq
+             (C : category)
+    : typecat_structure C ≃ typecat_structure' C.
+  Proof.
+    eapply weqcomp. apply weqtotal2asstor.
+    apply invweq.
+    eapply weqcomp. apply weqtotal2asstor.
+    apply (weqtotal2 (idweq _)). intros Ty.
+
+    eapply weqcomp. apply weqtotal2asstor.
+    apply invweq. eapply weqcomp. apply weqtotal2asstor.
+    apply (weqtotal2 (idweq _)). intros ext.
+
+    eapply weqcomp. unfold typecat_structure2. simpl.
+    apply (@WeakEquivalences.weqtotal2comm
+             _ _
+             (λ reind dpr,
+              ∑ (q : ∏ Γ (A : Ty Γ) Γ' (f : Γ' --> Γ), (ext Γ' (reind _ A _ f)) --> ext Γ A )
+                (dpr_q : ∏ Γ (A : Ty Γ) Γ' (f : Γ' --> Γ), 
+                         (q _ A _ f) ;; (dpr _ A) = (dpr _ (reind _ A _ f)) ;; f),
+              _)).
+    apply idweq.
+  Defined.
+
   Definition ff_comprehension_cat_structure (C : category) : UU
     := ∑ (F : disp_ff_functor_sop (disp_codomain C)),
        cleaving (source_disp_cat_of_disp_ff_functor_sop F)
