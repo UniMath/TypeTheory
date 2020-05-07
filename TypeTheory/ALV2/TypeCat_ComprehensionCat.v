@@ -1278,6 +1278,18 @@ Section TypeCat_ComprehensionCat.
     - intros ?. apply idpath.
   Defined.
 
+  Definition typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq
+             (C : category)
+    : typecat_obj_ext_structure C ≃
+      ∑ (D : disp_cat C)
+      (F : disp_functor (functor_identity _) D (disp_codomain C))
+      , disp_functor_ff F.
+  Proof.
+    eapply weqcomp. apply typecat_obj_ext_structure_disp_ff_functor_to_codomain_weq.
+    eapply weqcomp. apply disp_ff_functor_sop_disp_ff_functor_to_on_objects_weq.
+    apply disp_ff_functor_sop_disp_functor_ff_weq.
+  Defined.
+
   Definition ff_comprehension_cat_structure (C : category) : UU
     := ∑ (F : disp_ff_functor_sop (disp_codomain C)),
        cleaving (source_disp_cat_of_disp_ff_functor_sop F)
