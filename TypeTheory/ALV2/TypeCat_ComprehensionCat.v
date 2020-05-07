@@ -449,6 +449,19 @@ Section Auxiliary.
     apply homotinvweqweq.
   Defined.
 
+  Lemma homot_invweq_transportb
+        (Z : UU)
+        (z z' : Z)
+        (X Y : Z → UU)
+        (e : z = z')
+        (w : ∏ z : Z, X z ≃ Y z)
+        (y : Y z')
+    : invmap (w z) (transportb Y e y) = transportb X e (invmap (w z') y).
+  Proof.
+    induction e.
+    apply idpath.
+  Defined.
+
   Definition disp_ff_functor_sop_iscontr
              {C : category} {D' : disp_cat C}
              (D : disp_ff_functor_to_on_objects D')
@@ -529,13 +542,26 @@ Section Auxiliary.
              set (Fcomp := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 sop))))))).
              set (Fff := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 sop))))))).
              set (w := λ g, (Fmor _ _ A A''' g,, Fff _ _ _ _ _)).
-             etrans. apply pathsinv0. apply (homotinvweqweq (w _)).
+             etrans. apply pathsinv0. apply (homotinvweqweq (w (f ;; (g ;; h)))).
              etrans. apply maponpaths. apply Fcomp.
              etrans. apply maponpaths, maponpaths, maponpaths. apply Fcomp.
              etrans. apply maponpaths, maponpaths. apply assoc_disp.
-             etrans. apply maponpaths. apply transport_b_b. simpl.
+             etrans. apply maponpaths. apply transport_b_b.
              (* WORK IN PROGRESS *)
-  Abort.
+             etrans. apply maponpaths, maponpaths, maponpaths_2, pathsinv0, Fcomp.
+             etrans. apply maponpaths, maponpaths, pathsinv0, Fcomp.
+             apply homot_invweq_transportb_weq.
+          -- intros ?.
+             set (homsets_disp' := pr1 (pr2 (pr2 (pr2 sop)))).
+             apply iscontraprop1.
+             ++ apply impred_isaprop. intros Γ.
+                apply impred_isaprop. intros Γ'.
+                apply impred_isaprop. intros f.
+                apply impred_isaprop. intros A.
+                apply impred_isaprop. intros A'.
+                apply isapropisaset.
+             ++ apply homsets_disp'.
+  Defined.
 
   (* Types for parts of a fully faithful functor that rely on morphisms *)
   Section disp_ff_functor_to_on_morphisms.
