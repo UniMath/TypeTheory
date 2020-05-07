@@ -1,4 +1,4 @@
-(**
+(*
   [TypeTheory.ALV2.TypeCat_ComprehensionCat]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
@@ -670,21 +670,28 @@ Section TypeCat_ObjExt.
    *   - projection morphism [dpr_typecat_obj_ext]: Γ ◂ A --> Γ.
    *)
   Definition typecat_obj_ext_structure (C : precategory) 
-    := ∑ TC : typecat_structure1 C,
-              ∏ Γ (A : TC Γ), Γ ◂ A --> Γ.
+    := ∑ (Ty : C → UU)
+         (ext : ∏ (Γ : C), Ty Γ → C)
+       (* dpr : *), ∏ Γ (A : Ty Γ), ext Γ A --> Γ.
 
-  Definition typecat1_from_typecat_obj_ext (C : precategory)
-             (TC : typecat_obj_ext_structure C) 
-    : typecat_structure1 _  := pr1 TC.
-  Coercion typecat1_from_typecat_obj_ext : typecat_obj_ext_structure >-> typecat_structure1.
+  Definition Ty_obj_ext (C : precategory)
+             (TC : typecat_obj_ext_structure C)
+    : C → UU
+    := pr1 TC.
+
+  Coercion Ty_obj_ext : typecat_obj_ext_structure >-> Funclass.
+
+  Definition obj_ext_typecat {C : precategory} {TC : typecat_obj_ext_structure C} 
+             (Γ : C) (A : TC Γ) : C
+    := pr1 (pr2 TC) Γ A.
 
   Definition dpr_typecat_obj_ext {C : precategory}
-             {TC : typecat_obj_ext_structure C} {Γ} (A : TC Γ)
-    : (Γ ◂ A) --> Γ
-    := pr2 TC Γ A.
+             {TC : typecat_obj_ext_structure C} {Γ} (A : pr1 TC Γ)
+    : obj_ext_typecat Γ A --> Γ
+    := pr2 (pr2 TC) Γ A.
   
   Definition typecat_obj_ext_from_typecat (C : precategory) (TC : typecat_structure C) 
-    : typecat_obj_ext_structure _  := (pr1 TC ,, @dpr_typecat _ TC).
+    : typecat_obj_ext_structure _  := (_ ,, _ ,, @dpr_typecat _ TC).
   Coercion typecat_obj_ext_from_typecat : typecat_structure >-> typecat_obj_ext_structure.
 
 End TypeCat_ObjExt.
@@ -698,7 +705,7 @@ Section TypeCat_Comp_Ext_Compare.
 
   Definition typecat_comp_ext_compare
              {Γ : C} {A B : TC Γ}
-    : (A = B) → Γ ◂ A --> Γ ◂ B.
+    : (A = B) → obj_ext_typecat Γ A --> obj_ext_typecat Γ B.
   Proof.
     intros p. induction p.
     apply identity.
@@ -707,14 +714,14 @@ Section TypeCat_Comp_Ext_Compare.
   Definition typecat_idtoiso_dpr
              {Γ : C} {A B : TC Γ}
              (p : A = B)
-    : idtoiso (maponpaths (λ B, Γ ◂ B) p) ;; π B = π A.
+    : idtoiso (maponpaths (λ B, obj_ext_typecat Γ B) p) ;; π B = π A.
   Proof.
     induction p. apply id_left.
   Defined.
 
   Definition typecat_iso_triangle
              {Γ : C} (A B : TC Γ)
-    := ∑ (i : iso (Γ ◂ A) (Γ ◂ B)),
+    := ∑ (i : iso (obj_ext_typecat Γ A) (obj_ext_typecat Γ B)),
        i ;; π B = π A.
 
   Definition typecat_iso_triangle_swap
@@ -756,7 +763,7 @@ Section TypeCat_Disp.
     use tpair.
     - apply TC.
     - intros Γ' Γ A' A f.
-      exact (∑ ff : Γ' ◂ A' --> Γ ◂ A,
+      exact (∑ ff : obj_ext_typecat Γ' A' --> obj_ext_typecat Γ A,
                     ff ;; π A = π A' ;; f).
   Defined.
 
@@ -833,11 +840,11 @@ Section TypeCat_Disp.
       : typecat_iso_triangle _ A B → @iso_disp C (typecat_disp TC) _ _ (identity_iso Γ) A B.
     Proof.
       intros tr.
-      set (i        := pr1 (pr1 tr) : C ⟦ Γ ◂ A, Γ ◂ B ⟧ ).
+      set (i        := pr1 (pr1 tr) : C ⟦ obj_ext_typecat Γ A, obj_ext_typecat Γ B ⟧ ).
       set (iB_A     := pr2 tr : i ;; π B = π A).
 
       set (tr' := typecat_iso_triangle_swap TC tr).
-      set (inv_i    := pr1 (pr1 tr') : C ⟦ Γ ◂ B, Γ ◂ A ⟧).
+      set (inv_i    := pr1 (pr1 tr') : C ⟦ obj_ext_typecat Γ B, obj_ext_typecat Γ A ⟧).
       set (inv_iA_B := pr2 tr' : inv_i ;; π A = π B).
 
       set (i_inv_i  := iso_inv_after_iso (pr1 tr) : i ;; inv_i = identity _).
@@ -852,13 +859,13 @@ Section TypeCat_Disp.
         2: apply homset_property.
         etrans. apply inv_i_i.
         apply pathsinv0.
-        etrans. apply (pr1_transportb (λ _ (_ : C ⟦ Γ ◂ B, Γ ◂ B ⟧), _)).
+        etrans. apply (pr1_transportb (λ _ (_ : C ⟦ obj_ext_typecat Γ B, obj_ext_typecat Γ B ⟧), _)).
         apply (maponpaths (λ f, f _) (transportb_const _ _)).
       - use total2_paths_f.
         2: apply homset_property.
         etrans. apply i_inv_i.
         apply pathsinv0.
-        etrans. apply (pr1_transportb (λ _ (_ : C ⟦ Γ ◂ A, Γ ◂ A ⟧), _)).
+        etrans. apply (pr1_transportb (λ _ (_ : C ⟦ obj_ext_typecat Γ A, obj_ext_typecat Γ A ⟧), _)).
         apply (maponpaths (λ f, f _) (transportb_const _ _)).
     Defined.
 
@@ -867,9 +874,9 @@ Section TypeCat_Disp.
       : @iso_disp C (typecat_disp TC) _ _ (identity_iso Γ) A B → typecat_iso_triangle _ A B.
     Proof.
       intros tr.
-      set (i        := pr1 (pr1 tr) : C ⟦ Γ ◂ A, Γ ◂ B ⟧ ).
+      set (i        := pr1 (pr1 tr) : C ⟦ obj_ext_typecat Γ A, obj_ext_typecat Γ B ⟧ ).
       set (iB_A     := pr2 (pr1 tr) : i ;; π B = π A ;; identity _).
-      set (inv_i    := pr1 (pr1 (pr2 tr)) : C ⟦ Γ ◂ B, Γ ◂ A ⟧).
+      set (inv_i    := pr1 (pr1 (pr2 tr)) : C ⟦ obj_ext_typecat Γ B, obj_ext_typecat Γ A ⟧).
       set (inv_iA_B := pr2 (pr1 (pr2 tr))
                        : inv_i ;; π A = π B ;; identity _).
       set (inv_i_i  := maponpaths pr1 (pr1 (pr2 (pr2 tr))) : _).
@@ -882,11 +889,11 @@ Section TypeCat_Disp.
         + apply inv_i.
         + etrans. apply i_inv_i.
           etrans.
-          use (pr1_transportb (λ _ (_ : C ⟦ Γ ◂ A, Γ ◂ A ⟧), _)).
+          use (pr1_transportb (λ _ (_ : C ⟦ obj_ext_typecat Γ A, obj_ext_typecat Γ A ⟧), _)).
           simpl. apply (maponpaths (λ f, f _) (transportb_const _ _)).
         + etrans. apply inv_i_i.
           etrans.
-          use (pr1_transportb (λ _ (_ : C ⟦ Γ ◂ B, Γ ◂ B ⟧), _)).
+          use (pr1_transportb (λ _ (_ : C ⟦ obj_ext_typecat Γ B, obj_ext_typecat Γ B ⟧), _)).
           simpl. apply (maponpaths (λ f, f _) (transportb_const _ _)).
       - etrans. apply iB_A. apply id_right.
     Defined.
@@ -998,7 +1005,7 @@ Section TypeCat_Disp_Functor.
         (typecat_disp TC) (disp_codomain C).
   Proof.
     use tpair.
-    - intros Γ A. exists (Γ ◂ A). apply dpr_typecat_obj_ext.
+    - intros Γ A. exists (obj_ext_typecat Γ A). apply dpr_typecat_obj_ext.
     - intros Γ' Γ A' A f ff. apply ff.
   Defined.
 
@@ -1127,8 +1134,13 @@ Section ComprehensionCat_TypeCat.
     := pr2 (comprehension_functor Γ A).
   
   Definition typecat_obj_ext_structure_from_comprehension_cat
-    : typecat_obj_ext_structure C
-    := (typecat1_from_comprehension_cat ,, dpr_from_comprehension_cat).
+    : typecat_obj_ext_structure C.
+  Proof.
+    repeat use tpair.
+    - exact ty_from_comprehension_cat.
+    - exact ext_from_comprehension_cat.
+    - exact dpr_from_comprehension_cat.
+  Defined.
 
   Definition q_square_from_comprehension_cat
              (Γ : C) (A : ty_from_comprehension_cat Γ)
@@ -1251,17 +1263,20 @@ Section TypeCat_ComprehensionCat.
   Proof.
     use weq_iso.
     - intros tc.
-      exists (pr1 (pr1 tc)).
+      exists (pr1 tc).
       intros Γ A.
-      exists (Γ ◂ A).
+      exists (obj_ext_typecat Γ A).
       apply (pr2 tc).
     - intros F.
+      exists (pr1 F).
       use tpair.
-      + exists (pr1 F).
-        use tpair.
-        * intros Γ A.
-          exact (pr1 (pr2 F Γ A)).
-  Abort.
+      + intros Γ A.
+        exact (pr1 (pr2 F Γ A)).
+      + intros Γ A.
+        exact (pr2 (pr2 F Γ A)).
+    - intros ?. apply idpath.
+    - intros ?. apply idpath.
+  Defined.
 
   Definition ff_comprehension_cat_structure (C : category) : UU
     := ∑ (F : disp_ff_functor_sop (disp_codomain C)),
