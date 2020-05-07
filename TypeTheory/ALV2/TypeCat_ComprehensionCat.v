@@ -104,6 +104,30 @@ Section Auxiliary.
       + apply P_contr.
   Defined.
 
+  (* TODO: move upstream? *)
+  Lemma idpath_transportb
+        {X : UU} (P : X → UU)
+        (x : X) (p : P x)
+    : transportb P (idpath x) p = p.
+  Proof.
+    apply idpath.
+  Defined.
+
+  (* TODO: move upstream? *)
+  Lemma homot_invweq_transportb_weq
+        (Z : UU)
+        (z z' : Z)
+        (X Y : Z → UU)
+        (e : z = z')
+        (w : ∏ z : Z, X z ≃ Y z)
+        (x : X z')
+    : invmap (w z) (transportb Y e (w z' x)) = transportb X e x.
+  Proof.
+    induction e.
+    etrans. apply maponpaths, idpath_transportb.
+    apply homotinvweqweq.
+  Defined.
+
   Definition disp_ff_functor_to_on_objects
              {C : category}
              (D' : disp_cat C)
@@ -419,7 +443,7 @@ Section Auxiliary.
     - exact (id_disp' , comp_disp').
   Defined.
 
-  Definition disp_ff_functor_sop
+  Definition disp_ff_functor_mor_sop
              {C : category} {D' : disp_cat C}
              (D : disp_ff_functor_to_on_objects D')
     : UU
@@ -427,45 +451,10 @@ Section Auxiliary.
       disp_cat_axioms _ (source_disp_cat_data_of_disp_ff_functor_on_morphisms_idcomp_sop
                            D mor_idcomp).
         
-  Lemma idpath_transportb
-        {X : UU} (P : X → UU)
-        (x : X) (p : P x)
-    : transportb P (idpath x) p = p.
-  Proof.
-    apply idpath.
-  Defined.
-
-  Lemma homot_invweq_transportb_weq
-        (Z : UU)
-        (z z' : Z)
-        (X Y : Z → UU)
-        (e : z = z')
-        (w : ∏ z : Z, X z ≃ Y z)
-        (x : X z')
-    : invmap (w z) (transportb Y e (w z' x)) = transportb X e x.
-  Proof.
-    induction e.
-    etrans. apply maponpaths, idpath_transportb.
-    apply homotinvweqweq.
-  Defined.
-
-  Lemma homot_invweq_transportb
-        (Z : UU)
-        (z z' : Z)
-        (X Y : Z → UU)
-        (e : z = z')
-        (w : ∏ z : Z, X z ≃ Y z)
-        (y : Y z')
-    : invmap (w z) (transportb Y e y) = transportb X e (invmap (w z') y).
-  Proof.
-    induction e.
-    apply idpath.
-  Defined.
-
-  Definition disp_ff_functor_sop_iscontr
+  Definition disp_ff_functor_mor_sop_iscontr
              {C : category} {D' : disp_cat C}
              (D : disp_ff_functor_to_on_objects D')
-    : iscontr (disp_ff_functor_sop D).
+    : iscontr (disp_ff_functor_mor_sop D).
   Proof.
     apply iscontr_total2.
     - apply (iscontrweqb (disp_ff_functor_on_morphisms_idcomp_sop_pos_weq _)).
@@ -561,6 +550,74 @@ Section Auxiliary.
                 apply impred_isaprop. intros A'.
                 apply isapropisaset.
              ++ apply homsets_disp'.
+  Defined.
+
+  Definition disp_ff_functor_sop
+             {C : category} (D' : disp_cat C)
+    : UU
+    := ∑ (D : disp_ff_functor_to_on_objects D'),
+       disp_ff_functor_mor_sop D.
+
+  Definition disp_ff_functor_sop_eq
+             {C : category} (D' : disp_cat C)
+             (X Y : disp_ff_functor_sop D')
+             (e : pr1 X = pr1 Y)
+    : X = Y.
+  Proof.
+    use total2_paths_f.
+    - apply e.
+    - apply isapropifcontr.
+      apply disp_ff_functor_mor_sop_iscontr.
+  Defined.
+             
+  Definition disp_ff_functor_sop_disp_functor_ff_weq
+             {C : category} {D' : disp_cat C}
+    : disp_ff_functor_sop D' ≃
+      ∑ (D : disp_cat C) (F : disp_functor (functor_identity _) D D'), disp_functor_ff F.
+  Proof.
+    use weq_iso.
+
+    - intros Fsop.
+      set (sop := pr1 (pr2 Fsop)).
+
+      set (ob_disp := pr1 (pr1 Fsop)).
+      set (Fob := pr2 (pr1 Fsop)).
+      set (axioms_d := pr2 (pr2 Fsop)).
+
+      set (mor_disp := pr1 sop).
+      set (id_disp' := pr1 (pr2 sop)).
+      set (comp_disp' := pr1 (pr2 (pr2 sop))).
+      set (homsets_disp' := pr1 (pr2 (pr2 (pr2 sop)))).
+      set (Fmor := pr1 (pr2 (pr2 (pr2 (pr2 sop))))).
+      set (Fid := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 sop)))))).
+      set (Fcomp := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 sop))))))).
+      set (Fff := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 sop))))))).
+
+      exists (((ob_disp ,, mor_disp) ,, (id_disp' , comp_disp')) ,, axioms_d).
+      exists ((Fob,,Fmor),,(Fid,Fcomp)).
+      exact Fff.
+
+    - intros F.
+      
+      set (ob_disp := pr1 (pr1 (pr1 (pr1 F)))).
+      set (mor_disp := pr2 (pr1 (pr1 (pr1 F)))).
+      set (id_disp' := pr1 (pr2 (pr1 (pr1 F)))).
+      set (comp_disp' := pr2 (pr2 (pr1 (pr1 F)))).
+      set (axioms_d := pr2 (pr1 F)).
+      set (homsets_disp' := pr2 (pr2 (pr2 axioms_d))).
+
+      set (Fob := pr1 (pr1 (pr1 (pr2 F)))).
+      set (Fmor := pr2 (pr1 (pr1 (pr2 F)))).
+      set (Fid := pr1 (pr2 (pr1 (pr2 F)))).
+      set (Fcomp := pr2 (pr2 (pr1 (pr2 F)))).
+      set (Fff := pr2 (pr2 F)).
+
+      exists (ob_disp ,, Fob).
+      exists (mor_disp ,, id_disp' ,, comp_disp' ,, homsets_disp' ,, Fmor ,, Fid ,, Fcomp ,, Fff).
+      exact axioms_d.
+
+    - intros ?. apply disp_ff_functor_sop_eq. apply idpath.
+    - intros ?. apply idpath.
   Defined.
 
   (* Types for parts of a fully faithful functor that rely on morphisms *)
