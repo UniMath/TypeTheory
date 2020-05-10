@@ -42,31 +42,55 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Section Auxiliary.
 
   (* TODO: move upstream? *)
+  Lemma weqforalltototal3 {X : UU}
+        (P1 : X → UU)
+        (P2 : ∏ x : X, P1 x → UU)
+        (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
+    : (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1), P3 x p1 p2)
+    ≃ (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)), ∏ x : X, P3 x (p1 x) (p2 x)).
+  Proof.
+    eapply weqcomp. apply weqforalltototal.
+    apply (weqtotal2 (idweq _)). intros ?.
+    apply weqforalltototal.
+  Defined.
+
+  (* TODO: move upstream? *)
   Lemma weqtotaltoforall3 {X : UU}
         (P1 : X → UU)
         (P2 : ∏ x : X, P1 x → UU)
         (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
     : (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)), ∏ x : X, P3 x (p1 x) (p2 x))
-        ≃ (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1), P3 x p1 p2).
+    ≃ (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1), P3 x p1 p2).
   Proof.
-    eapply weqcomp.
-    apply (weqtotal2asstol
-             (λ p1, ∏ x : X, P2 x (p1 x))
-             (λ p12, ∏ x : X, P3 x (pr1 p12 x) (pr2 p12 x))
-          ).
-    eapply weqcomp.
-    use weqtotal2. 3: apply weqtotaltoforall.
-    - exact (λ p12, ∏ x : X, P3 x (pr1 (p12 x)) (pr2 (p12 x))).
-    - intros x. apply idweq.
+    apply invweq, weqforalltototal3.
+  Defined.
 
-    - eapply weqcomp.
-      apply (weqtotaltoforall
-               (λ x : X, ∑ y : P1 x, P2 x y)
-               (λ (x : X) p12, P3 x (pr1 p12) (pr2 p12))
-            ).
-      apply weqonsecfibers.
-      intros x.
-      apply weqtotal2asstor.
+  (* TODO: move upstream? *)
+  Lemma weqforalltototal4 {X : UU}
+        (P1 : X → UU)
+        (P2 : ∏ x : X, P1 x → UU)
+        (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
+        (P4 : ∏ (x : X) (y : P1 x) (z : P2 x y), P3 x y z → UU)
+    : (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1) (p3 : P3 x p1 p2), P4 x p1 p2 p3)
+    ≃ (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)) (p3 : ∏ x : X, P3 x (p1 x) (p2 x)), ∏ x : X, P4 x (p1 x) (p2 x) (p3 x)).
+  Proof.
+    eapply weqcomp. apply weqforalltototal.
+    apply (weqtotal2 (idweq _)). intros ?.
+    eapply weqcomp. apply weqforalltototal.
+    apply (weqtotal2 (idweq _)). intros ?.
+    apply weqforalltototal.
+  Defined.
+
+  (* TODO: move upstream? *)
+  Lemma weqtotaltoforall4 {X : UU}
+        (P1 : X → UU)
+        (P2 : ∏ x : X, P1 x → UU)
+        (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
+        (P4 : ∏ (x : X) (y : P1 x) (z : P2 x y), P3 x y z → UU)
+    : (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)) (p3 : ∏ x : X, P3 x (p1 x) (p2 x)), ∏ x : X, P4 x (p1 x) (p2 x) (p3 x))
+        ≃ (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1) (p3 : P3 x p1 p2), P4 x p1 p2 p3).
+  Proof.
+    apply invweq, weqforalltototal4.
   Defined.
 
   (* TODO: move upstream? *)
