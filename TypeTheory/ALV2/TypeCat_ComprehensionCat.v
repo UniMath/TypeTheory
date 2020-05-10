@@ -77,6 +77,23 @@ Section Auxiliary.
     - apply idpath.
   Defined.
 
+  (* TODO: move upstream? *)
+  Definition weqprodtoforall
+             {X : UU}
+             (P Q : X → UU)
+    : ((∏ x : X, P x) × (∏ x : X, Q x)) ≃ ∏ x : X, P x × Q x.
+  Proof.
+    use weqtotaltoforall.
+  Defined.
+  
+  (* TODO: move upstream? *)
+  Definition weqforalltoprod
+             {X : UU}
+             (P Q : X → UU)
+    : (∏ x : X, P x × Q x) ≃ ((∏ x : X, P x) × (∏ x : X, Q x)).
+  Proof.
+    apply invweq, weqprodtoforall.
+  Defined.
 End Auxiliary.
 
 Section TypeCat_ObjExt.
@@ -827,52 +844,105 @@ Section TypeCat_ComprehensionCat.
               , disp_functor_ff F),
        cleaving (pr1 F) × is_cartesian_disp_functor (pr1 (pr2 F)). 
 
-  Definition ololo1 {C : category} (TC : typecat_obj_ext_structure C)
-    : (∏ Γ Γ' (f : Γ' --> Γ) (A : TC Γ), TC Γ') ≃
-      ∏ Γ Γ' (f : Γ' --> Γ) (A : pr1 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq _ TC) Γ), pr1 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq _ TC) Γ'
-    := idweq _.
-
-  Definition ololo2 {C : category} (TC : typecat_obj_ext_structure C)
-             (reind : ∏ Γ Γ' (f : Γ' --> Γ) (A : TC Γ), TC Γ')
-    : (∏ Γ Γ' (f : Γ' --> Γ) (A : TC Γ),
-       ∑ (ff : obj_ext_typecat Γ' (reind _ _ f A) --> obj_ext_typecat Γ A),
-       ff ;; dpr_typecat_obj_ext A = dpr_typecat_obj_ext (reind _ _ f A) ;; f
-      ) ≃
-      ∏ Γ Γ' (f : Γ' --> Γ) (A : pr1 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq _ TC) Γ), (ololo1 _ reind _ _ f A) -->[f] A.
+  Lemma cartesian_functor_from_fibration_weq
+        {C C' : category} {F : functor C C'}
+        {D : disp_cat C} {D' : disp_cat C'} {FF : disp_functor F D D'}
+        (cleaving_D : cleaving D)
+    : (∏ (c c' : C) (f : c' --> c) (d : D c),
+       is_cartesian (#FF (cleaving_D c c' f d)))
+        ≃ is_cartesian_disp_functor FF.
   Proof.
-    apply weqonsecfibers. intros Γ.
-    apply weqonsecfibers. intros Γ'.
-    apply weqonsecfibers. intros f.
-    apply weqonsecfibers. intros A.
-
-    set (FF := typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq _ TC).
-    set (F := pr1 (pr2 FF)).
-    set (F_ff := pr2 (pr2 FF)).
-    set (w := (_ ,, F_ff _ _ (reind _ _ f A) A f) : weq _ _).
-
-    apply invweq.
-    apply w.
+    use weqimplimpl.
+    - intros is_cartesian_image_of_cleaving.
+      apply cartesian_functor_from_fibration.
+      intros c c' f d.
+      apply hinhpr.
+      exists (cleaving_D c c' f d).
+      apply is_cartesian_image_of_cleaving.
+    - intros FF_is_cartesian.
+      intros c c' f d.
+      apply FF_is_cartesian.
+      apply cartesian_lift_is_cartesian.
+    - apply impred_isaprop. intros c.
+      apply impred_isaprop. intros c'.
+      apply impred_isaprop. intros f.
+      apply impred_isaprop. intros d.
+      apply isaprop_is_cartesian.
+    - apply impred_isaprop. intros c.
+      apply impred_isaprop. intros c'.
+      apply impred_isaprop. intros f.
+      apply impred_isaprop. intros d.
+      apply impred_isaprop. intros d'.
+      apply impred_isaprop. intros ff.
+      apply impred_isaprop. intros ff_is_cartesian.
+      apply isaprop_is_cartesian.
   Defined.
 
   Definition typecat_structure2''_cleaving_weq
              {C : category} (TC : typecat_obj_ext_structure C)
-    : typecat_structure2'' TC ≃
-        cleaving (pr1 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq _ TC)).
+    : typecat_structure2'' TC
+    ≃ ( cleaving (pr1 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq _ TC))
+      × is_cartesian_disp_functor (pr1 (pr2 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq _ TC)))).
   Proof.
-    (* Step 1: introduces context  *)
+    (* Step 0: relax is_cartesian_disp_functor property *)
+    eapply weqcomp.
+    2: apply (weqtotal2 (idweq _) cartesian_functor_from_fibration_weq).
+    
+    (* Step 1: introduces context (while exchanging ∏ and × on the right) *)
+    apply invweq. unfold cleaving.
+    eapply weqcomp.
+    apply (weqtotaltoforall
+             (λ c, ∏ (c' : C) (f : C ⟦ c', c ⟧)
+                    (d : pr1 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq C TC) c),
+              cartesian_lift d f)
+             (λ c x, ∏ (c' : C) (f : C ⟦ c', c ⟧)
+                     (d : pr1 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq C TC) c),
+              is_cartesian
+                (# (pr1 (pr2 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq C TC)))
+                   (x c' f d)))).
     apply weqonsecfibers. intros Γ.
-    eapply weqcomp. apply weqforall_comm.
+    eapply weqcomp.
+    apply (weqtotaltoforall
+             (λ c', ∏ (f : C ⟦ c', Γ ⟧)
+                    (d : pr1 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq C TC) Γ),
+              cartesian_lift d f)
+             (λ c' x, ∏ (f : C ⟦ c', Γ ⟧)
+                     (d : pr1 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq C TC) Γ),
+              is_cartesian
+                (# (pr1 (pr2 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq C TC)))
+                   (x f d)))).
+    eapply weqcomp. 2: apply weqforall_comm.
     apply weqonsecfibers. intros Γ'.
-    eapply weqcomp. apply weqforall_comm.
+    eapply weqcomp.
+    apply (weqtotaltoforall
+             (λ (f : C ⟦ Γ', Γ ⟧), ∏ (d : pr1 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq C TC) Γ),
+              cartesian_lift d f)
+             (λ (f : C ⟦ Γ', Γ ⟧) x,
+              ∏ (d : pr1 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq C TC) Γ),
+              is_cartesian
+                (# (pr1 (pr2 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq C TC)))
+                   (x d)))).
+    eapply weqcomp. 2: apply weqforall_comm.
     apply weqonsecfibers. intros f.
+    eapply weqcomp.
+    apply (weqtotaltoforall
+             (λ (d : pr1 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq C TC) Γ),
+              cartesian_lift d f)
+             (λ (d : pr1 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq C TC) Γ) x,
+              is_cartesian
+                (# (pr1 (pr2 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq C TC)))
+                   x))).
     apply weqonsecfibers. intros A.
 
     (* Step 2: object part of cartesian lift is trivial *)
+    apply invweq.
+    eapply weqcomp. 2: apply weqtotal2asstol.
     apply (weqtotal2 (idweq _)). intros A'.
 
     (* Step 3: morphism part of cartesian lift
      * is available through equivalence of morphisms *)
-    eapply weqcomp. 
+    eapply weqcomp. 2: apply weqtotal2asstol.
+    eapply weqcomp.
     apply (weqtotal2asstol
              (λ q, (q ;; π A)%mor = (π A' ;; f)%mor)
              (λ qq, isPullback _ _ _ _ (! pr2 qq))
@@ -885,112 +955,156 @@ Section TypeCat_ComprehensionCat.
     (* Step 4: equivalence of pullback and cleaving *)
     apply weqimplimpl.
     3: apply isaprop_isPullback.
-    3: apply isaprop_is_cartesian.
+    3: {
+      use isofhleveltotal2.
+      - apply isaprop_is_cartesian.
+      - intros ?. apply isaprop_is_cartesian.
+    }
 
     - intros pb.
-      intros Δ g B ggff.
-      set (w' := (_ ,, pr2 (pr2 FF) _ _ B A (g ;; f)) : weq _ _).
-      eapply iscontrweqf.
-      2: {
-        use pb.
-        - exact (obj_ext_typecat Δ B).
-        - exact (dpr_typecat_obj_ext B ;; g).
-        - exact (pr1 (w' ggff)).
-        - etrans. apply assoc'.
-          apply pathsinv0, (pr2 (w' ggff)).
+      use tpair.
+      + intros Δ g B ggff.
+        set (w' := (_ ,, pr2 (pr2 FF) _ _ B A (g ;; f)) : weq _ _).
+        eapply iscontrweqf.
+        2: {
+          use pb.
+          - exact (obj_ext_typecat Δ B).
+          - exact (dpr_typecat_obj_ext B ;; g).
+          - exact (pr1 (w' ggff)).
+          - etrans. apply assoc'.
+            apply pathsinv0, (pr2 (w' ggff)).
         }
 
-      apply invweq.
+        apply invweq.
 
-      eapply weqcomp.
-      set (wBA' := (_ ,, pr2 (pr2 FF) _ _ B A' g) : weq _ _).
-      use (weqtotal2 wBA').
-      + apply (λ wgg, comp_disp wgg qq = w' ggff).
-      + intros gg. 
-        apply weqimplimpl.
-        * intros H.
-          apply pathsinv0.
-          etrans. apply (! maponpaths w' H).
-          etrans. apply (disp_functor_comp (pr1 (pr2 FF)) gg (invweq w qq)).
-          etrans. apply maponpaths, maponpaths, (homotweqinvweq w).
-          apply idpath.
-        * intros H.
-          etrans. apply (! homotinvweqweq w' _).
-          etrans. apply maponpaths.
-          apply (disp_functor_comp (pr1 (pr2 FF)) gg (invweq w qq)).
-          etrans. apply maponpaths, maponpaths, maponpaths.
-          apply (homotweqinvweq w).
-          etrans. apply (maponpaths (invweq w') H).
-          apply homotinvweqweq.
-        * apply homsets_disp.
-        * apply homsets_disp.
+        eapply weqcomp.
+        set (wBA' := (_ ,, pr2 (pr2 FF) _ _ B A' g) : weq _ _).
+        use (weqtotal2 wBA').
+        * apply (λ wgg, comp_disp wgg qq = w' ggff).
+        * intros gg. 
+          apply weqimplimpl.
+          -- intros H.
+             apply pathsinv0.
+             etrans. apply (! maponpaths w' H).
+             etrans. apply (disp_functor_comp (pr1 (pr2 FF)) gg (invweq w qq)).
+             etrans. apply maponpaths, maponpaths, (homotweqinvweq w).
+             apply idpath.
+          -- intros H.
+             etrans. apply (! homotinvweqweq w' _).
+             etrans. apply maponpaths.
+             apply (disp_functor_comp (pr1 (pr2 FF)) gg (invweq w qq)).
+             etrans. apply maponpaths, maponpaths, maponpaths.
+             apply (homotweqinvweq w).
+             etrans. apply (maponpaths (invweq w') H).
+             apply homotinvweqweq.
+          -- apply homsets_disp.
+          -- apply homsets_disp.
 
-      + apply invweq.
+        * apply invweq.
+          eapply weqcomp.
+          2: apply weqtotal2asstol.
+          apply weq_subtypes_iff.
+          -- intro. apply isapropdirprod; apply homset_property.
+          -- intro. apply (isofhleveltotal2 1). 
+             ++ apply homset_property.
+             ++ intros. apply homsets_disp.
+          -- intros gg; split; intros H.
+             ++ exists (pr1 H).
+                apply subtypePath.
+                intro; apply homset_property.
+                exact (pr2 H).
+             ++ split.
+                ** exact (pr1 H).
+                ** exact (maponpaths pr1 (pr2 H)).
+
+      + intros Δ g k hh.
+        use iscontrweqf.
+        3: {
+          use pb.
+          - exact (pr1 k).
+          - exact (pr2 k ;; g).
+          - exact (pr1 hh).
+          - etrans. apply assoc'.
+            apply pathsinv0, (pr2 hh).
+        }
+          
         eapply weqcomp.
         2: apply weqtotal2asstol.
         apply weq_subtypes_iff.
-        * intro. apply isapropdirprod; apply homset_property.
-        * intro. apply (isofhleveltotal2 1). 
-          -- apply homset_property.
-          -- intros. apply homsets_disp.
-        * intros gg; split; intros H.
-          -- exists (pr1 H).
-             apply subtypePath.
-             intro; apply homset_property.
-             exact (pr2 H).
-          -- split.
-             ++ exact (pr1 H).
-             ++ exact (maponpaths pr1 (pr2 H)).
+        -- intro. apply isapropdirprod; apply homset_property.
+        -- intro. apply (isofhleveltotal2 1). 
+           ++ apply homset_property.
+           ++ intros. apply homsets_disp.
+        -- intros gg; split; intros H.
+           ++ exists (pr1 H).
+              apply subtypePath.
+              intro; apply homset_property.
+              exact (maponpaths (λ qqq, gg ;; pr1 qqq) (homotweqinvweq w qq) @ pr2 H).
+           ++ split.
+              ** exact (pr1 H).
+              ** exact (maponpaths (λ qqq, gg ;; pr1 qqq) (! homotweqinvweq w qq) @ (maponpaths pr1 (pr2 H))).
 
     - intros Hcart.
       intros Δ g k H.
       eapply iscontrweqf.
       2: {
-        use Hcart.
-        (* WORK IN PROGRESS *)
-  Abort.
+        use (pr2 Hcart).
+        - exact Γ'.
+        - exact (identity _).
+        - exact (Δ,,g).
+        - exists k. etrans. apply pathsinv0, H.
+          apply maponpaths.
+          apply pathsinv0, id_left.
+      }
+
+      apply invweq.
+      eapply weqcomp.
+      2: apply weqtotal2asstol.
+      apply weq_subtypes_iff.
+      + intro. apply isapropdirprod; apply homset_property.
+      + intro. apply (isofhleveltotal2 1). 
+        * apply homset_property.
+        * intros. apply homsets_disp.
+    + intros gg; split; intros H'.
+      * use tpair.
+        -- etrans. apply (pr1 H').
+          apply pathsinv0, id_right.
+        -- apply subtypePath.
+          intro; apply homset_property.
+          exact (maponpaths (λ qqq, gg ;; pr1 qqq) (homotweqinvweq w qq) @ pr2 H').
+      * split.
+        -- etrans. apply (pr1 H'). apply id_right.
+        -- etrans.
+           apply (maponpaths (λ qqq, gg ;; pr1 qqq) (! homotweqinvweq w qq) @ (maponpaths pr1 (pr2 H'))).
+           apply idpath.
+  Defined.
   
-  Definition ololo3 {C : category} (TC : typecat_obj_ext_structure C)
-             (reind : ∏ Γ Γ' (f : Γ' --> Γ) (A : TC Γ), TC Γ')
-             (ff_comm : ∏ Γ Γ' f A,
-                        ∑ (ff : obj_ext_typecat Γ' (reind _ _ f A) --> obj_ext_typecat Γ A),
-                        ff ;; dpr_typecat_obj_ext A = dpr_typecat_obj_ext (reind _ _ f A) ;; f)
-    : (∏ Γ Γ' (f : Γ' --> Γ) (A : TC Γ),
-       @is_cartesian _ (disp_codomain C) _ _ f _ _ (ff_comm Γ Γ' f A))
-        ≃ ∏ Γ Γ' f A, _.
-
-  Abort.
-  Definition typecat_structure2'_cleaving_weq
-             {C : category} (TC : typecat_obj_ext_structure C)
-    : typecat_structure2' TC ≃
-        (cleaving (pr1 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq _ TC))
-        × is_cartesian_disp_functor (pr1 (pr2 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq _ TC)))).
-  Proof.
-    
-  Abort.
-
-  Definition typecat_structure'_ff_comprehension_cat_structure_weq
+  Definition typecat_structure''_ff_comprehension_cat_structure_weq
              (C : category)
-    : typecat_structure' C ≃ ff_comprehension_cat_structure C.
+    : typecat_structure'' C ≃ ff_comprehension_cat_structure C.
   Proof.
     use weqtotal2.
     - apply typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq.
-    - intros TC. simpl.
-  Abort.
+    - intros TC.
+      apply typecat_structure2''_cleaving_weq.
+  Defined.
 
   Definition typecat_ff_comprehension_cat_structure_weq (C : category)
     : typecat_structure C ≃ ff_comprehension_cat_structure C.
   Proof.
-    (* TODO *)
-  Abort.
+    eapply weqcomp. apply typecat_structure_typecat_structure'_weq.
+    eapply weqcomp. apply typecat_structure'_typecat_structure''_weq.
+    apply typecat_structure''_ff_comprehension_cat_structure_weq.
+  Defined.
 
   Definition ff_comprehension_cat : UU
     := ∑ (C : category), ff_comprehension_cat_structure C.
 
-  Definition typecat_ff_comprehension_cat_weq (C : category)
+  Definition typecat_ff_comprehension_cat_weq
     : typecat ≃ ff_comprehension_cat.
   Proof.
-    (* TODO *)
-  Abort.
+    use weqtotal2. apply idweq. intros C.
+    apply typecat_ff_comprehension_cat_structure_weq.
+  Defined.
 
 End TypeCat_ComprehensionCat.
