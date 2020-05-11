@@ -683,86 +683,9 @@ Section FullyFaithfulDispFunctor.
     : disp_functor_ff F
     := pr2 (pr2 (ff_disp_functor_weq F)).
 
-  Section FullDispSubcategory.
-
-    Definition target_disp_cat_ob_mor
-               {C : category} {D' : disp_cat C}
-               (F : ff_disp_functor D')
-      : disp_cat_ob_mor C.
-    Proof.
-      exists (λ (c : C), pr1 F c).
-      set (Fob := pr2 F).
-      intros c c' a b f.
-      exact (Fob _ a -->[f] Fob _ b).
-    Defined.
-
-    Definition target_disp_cat_id_comp
-               {C : category} {D' : disp_cat C}
-               (F : ff_disp_functor D')
-      : disp_cat_id_comp C (target_disp_cat_ob_mor F).
-    Proof.
-      use make_dirprod.
-      - intros c a. apply id_disp.
-      - intros a b c f g Da Db Dc. apply comp_disp.
-    Defined.
-
-    Definition target_disp_cat_data
-               {C : category} {D' : disp_cat C}
-               (F : ff_disp_functor D')
-      : disp_cat_data C
-      := (_ ,, target_disp_cat_id_comp F).
-
-    Definition target_disp_cat_axioms
-               {C : category} {D' : disp_cat C}
-               (F : ff_disp_functor D')
-      : disp_cat_axioms C (target_disp_cat_data F).
-    Proof.
-      repeat use make_dirprod.
-      - intros c c' f a a' ff. apply id_left_disp.
-      - intros c c' f a a' ff. apply id_right_disp.
-      - intros ? ? ? ? ? ? ? ? ? ? ? ? ? ?. apply assoc_disp.
-      - intros ? ? ? ? ?. apply homsets_disp.
-    Defined.
-               
-    Definition target_disp_cat
-               {C : category} {D' : disp_cat C}
-               (F : ff_disp_functor D')
-      : disp_cat C
-      := (_ ,, target_disp_cat_axioms F).
-
-    Definition target_disp_inclusion_functor_data
-               {C : category} {D' : disp_cat C}
-               (F : ff_disp_functor D')
-      : disp_functor_data (functor_identity C) (target_disp_cat F) D'.
-    Proof.
-      exists (pr2 F).
-      intros c c' a a' f. apply idfun.
-    Defined.
-
-    Definition target_disp_inclusion_functor_axioms
-               {C : category} {D' : disp_cat C}
-               (F : ff_disp_functor D')
-      : disp_functor_axioms (target_disp_inclusion_functor_data F).
-    Proof.
-      repeat use make_dirprod.
-      - intros c a. apply idpath.
-      - intros ? ? ? ? ? ? ? ? ? ?. apply idpath.
-    Defined.
-
-    Definition target_disp_inclusion_functor
-               {C : category} {D' : disp_cat C}
-               (F : ff_disp_functor D')
-      : disp_functor (functor_identity C) (target_disp_cat F) D'
-      := (_ ,, target_disp_inclusion_functor_axioms F).
-
-    Definition target_disp_inclusion_functor_is_ff
-               {C : category} {D' : disp_cat C}
-               (F : ff_disp_functor D')
-      : disp_functor_ff (target_disp_inclusion_functor F).
-    Proof.
-      intros ? ? ? ? ?. apply (weqproperty (idweq _)).
-    Defined.
-
+  (* TODO: move upstream? *)
+  Section DispCatIso.
+      
     (* TODO: move upstream? *)
     Definition is_disp_catiso
                {C : category} {D D' : disp_cat C}
@@ -780,24 +703,6 @@ Section FullyFaithfulDispFunctor.
       : disp_functor _ D D' := pr1 F.
 
     Coercion disp_functor_from_disp_catiso : disp_catiso >-> disp_functor.
-
-    Definition target_disp_cat_source_disp_cat_catiso
-               {C : category} {D' : disp_cat C}
-               (F : ff_disp_functor D')
-      : disp_catiso (source_disp_cat_from_ff_disp_functor F) (target_disp_cat F).
-    Proof.
-      use tpair.
-      - use tpair.
-        + use tpair.
-          * intros c. apply idfun.
-          * intros c c' a b f. apply (disp_functor_on_morphisms F).
-        + use make_dirprod.
-          * intros ? ?. apply (disp_functor_id F).
-          * intros ? ? ? ? ? ? ? ? ?. apply (disp_functor_comp F).
-      - use make_dirprod.
-        + apply (disp_functor_from_ff_disp_functor_is_ff F).
-        + intros c. apply (weqproperty (idweq _)).
-    Defined.
 
     Definition disp_cat_path_precat
                {C : category}
@@ -1071,6 +976,115 @@ Section FullyFaithfulDispFunctor.
             ∘ disp_cat_path_to_disp_cat_eq_1 D D'
             ∘ disp_cat_path_precat D D')%weq.
 
-  End FullDispSubcategory.
+  End DispCatIso.
+
+  Section TargetFullDispSubcategory.
+
+    Definition target_disp_subcat_ob_mor
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : disp_cat_ob_mor C.
+    Proof.
+      exists (λ (c : C), pr1 F c).
+      set (Fob := pr2 F).
+      intros c c' a b f.
+      exact (Fob _ a -->[f] Fob _ b).
+    Defined.
+
+    Definition target_disp_subcat_id_comp
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : disp_cat_id_comp C (target_disp_subcat_ob_mor F).
+    Proof.
+      use make_dirprod.
+      - intros c a. apply id_disp.
+      - intros a b c f g Da Db Dc. apply comp_disp.
+    Defined.
+
+    Definition target_disp_subcat_data
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : disp_cat_data C
+      := (_ ,, target_disp_subcat_id_comp F).
+
+    Definition target_disp_subcat_axioms
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : disp_cat_axioms C (target_disp_subcat_data F).
+    Proof.
+      repeat use make_dirprod.
+      - intros c c' f a a' ff. apply id_left_disp.
+      - intros c c' f a a' ff. apply id_right_disp.
+      - intros ? ? ? ? ? ? ? ? ? ? ? ? ? ?. apply assoc_disp.
+      - intros ? ? ? ? ?. apply homsets_disp.
+    Defined.
+               
+    Definition target_disp_subcat
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : disp_cat C
+      := (_ ,, target_disp_subcat_axioms F).
+
+    Definition target_disp_inclusion_functor_data
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : disp_functor_data (functor_identity C) (target_disp_subcat F) D'.
+    Proof.
+      exists (pr2 F).
+      intros c c' a a' f. apply idfun.
+    Defined.
+
+    Definition target_disp_inclusion_functor_axioms
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : disp_functor_axioms (target_disp_inclusion_functor_data F).
+    Proof.
+      repeat use make_dirprod.
+      - intros c a. apply idpath.
+      - intros ? ? ? ? ? ? ? ? ? ?. apply idpath.
+    Defined.
+
+    Definition target_disp_inclusion_functor
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : disp_functor (functor_identity C) (target_disp_subcat F) D'
+      := (_ ,, target_disp_inclusion_functor_axioms F).
+
+    Definition target_disp_inclusion_functor_is_ff
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : disp_functor_ff (target_disp_inclusion_functor F).
+    Proof.
+      intros ? ? ? ? ?. apply (weqproperty (idweq _)).
+    Defined.
+
+    Definition source_disp_cat_target_disp_subcat_catiso
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : disp_catiso (source_disp_cat_from_ff_disp_functor F) (target_disp_subcat F).
+    Proof.
+      use tpair.
+      - use tpair.
+        + use tpair.
+          * intros c. apply idfun.
+          * intros c c' a b f. apply (disp_functor_on_morphisms F).
+        + use make_dirprod.
+          * intros ? ?. apply (disp_functor_id F).
+          * intros ? ? ? ? ? ? ? ? ?. apply (disp_functor_comp F).
+      - use make_dirprod.
+        + apply (disp_functor_from_ff_disp_functor_is_ff F).
+        + intros c. apply (weqproperty (idweq _)).
+    Defined.
+
+    Definition source_disp_cat_is_target_disp_subcat
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : source_disp_cat_from_ff_disp_functor F = target_disp_subcat F.
+    Proof.
+      apply disp_catiso_is_path_disp_cat.
+      apply source_disp_cat_target_disp_subcat_catiso.
+    Defined.
+
+  Section TargetFullDispSubcategory.
 
 End FullyFaithfulDispFunctor.
