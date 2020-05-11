@@ -683,4 +683,394 @@ Section FullyFaithfulDispFunctor.
     : disp_functor_ff F
     := pr2 (pr2 (ff_disp_functor_weq F)).
 
+  Section FullDispSubcategory.
+
+    Definition target_disp_cat_ob_mor
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : disp_cat_ob_mor C.
+    Proof.
+      exists (λ (c : C), pr1 F c).
+      set (Fob := pr2 F).
+      intros c c' a b f.
+      exact (Fob _ a -->[f] Fob _ b).
+    Defined.
+
+    Definition target_disp_cat_id_comp
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : disp_cat_id_comp C (target_disp_cat_ob_mor F).
+    Proof.
+      use make_dirprod.
+      - intros c a. apply id_disp.
+      - intros a b c f g Da Db Dc. apply comp_disp.
+    Defined.
+
+    Definition target_disp_cat_data
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : disp_cat_data C
+      := (_ ,, target_disp_cat_id_comp F).
+
+    Definition target_disp_cat_axioms
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : disp_cat_axioms C (target_disp_cat_data F).
+    Proof.
+      repeat use make_dirprod.
+      - intros c c' f a a' ff. apply id_left_disp.
+      - intros c c' f a a' ff. apply id_right_disp.
+      - intros ? ? ? ? ? ? ? ? ? ? ? ? ? ?. apply assoc_disp.
+      - intros ? ? ? ? ?. apply homsets_disp.
+    Defined.
+               
+    Definition target_disp_cat
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : disp_cat C
+      := (_ ,, target_disp_cat_axioms F).
+
+    Definition target_disp_inclusion_functor_data
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : disp_functor_data (functor_identity C) (target_disp_cat F) D'.
+    Proof.
+      exists (pr2 F).
+      intros c c' a a' f. apply idfun.
+    Defined.
+
+    Definition target_disp_inclusion_functor_axioms
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : disp_functor_axioms (target_disp_inclusion_functor_data F).
+    Proof.
+      repeat use make_dirprod.
+      - intros c a. apply idpath.
+      - intros ? ? ? ? ? ? ? ? ? ?. apply idpath.
+    Defined.
+
+    Definition target_disp_inclusion_functor
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : disp_functor (functor_identity C) (target_disp_cat F) D'
+      := (_ ,, target_disp_inclusion_functor_axioms F).
+
+    Definition target_disp_inclusion_functor_is_ff
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : disp_functor_ff (target_disp_inclusion_functor F).
+    Proof.
+      intros ? ? ? ? ?. apply (weqproperty (idweq _)).
+    Defined.
+
+    (* TODO: move upstream? *)
+    Definition is_disp_catiso
+               {C : category} {D D' : disp_cat C}
+               (F : disp_functor (functor_identity C) D D')
+      := disp_functor_ff F × (∏ c, isweq (F c)).
+
+    (* TODO: move upstream? *)
+    Definition disp_catiso
+               {C : category} (D D' : disp_cat C)
+      := ∑ (F : disp_functor _ D D'), is_disp_catiso F.
+
+    Definition disp_functor_from_disp_catiso
+               {C : category} (D D' : disp_cat C)
+               (F : disp_catiso D D')
+      : disp_functor _ D D' := pr1 F.
+
+    Coercion disp_functor_from_disp_catiso : disp_catiso >-> disp_functor.
+
+    Definition target_disp_cat_source_disp_cat_catiso
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : disp_catiso (source_disp_cat_from_ff_disp_functor F) (target_disp_cat F).
+    Proof.
+      use tpair.
+      - use tpair.
+        + use tpair.
+          * intros c. apply idfun.
+          * intros c c' a b f. apply (disp_functor_on_morphisms F).
+        + use make_dirprod.
+          * intros ? ?. apply (disp_functor_id F).
+          * intros ? ? ? ? ? ? ? ? ?. apply (disp_functor_comp F).
+      - use make_dirprod.
+        + apply (disp_functor_from_ff_disp_functor_is_ff F).
+        + intros c. apply (weqproperty (idweq _)).
+    Defined.
+
+    Definition disp_cat_path_precat
+               {C : category}
+               (D D' : disp_cat C)
+      : D = D' ≃ disp_cat_data_from_disp_precat D = D'.
+    Proof.
+      apply path_sigma_hprop, isaprop_disp_cat_axioms.
+    Defined.
+
+    Definition data_disp_cat_eq_1
+               {C : category}
+               (D D' : disp_cat_data C)
+               (Fo : ob_disp D = ob_disp D')
+      : UU
+      := transportf (λ z, ∏ (c c' : C), z c → z c' → (c --> c') → UU) Fo (pr2 (pr1 D)) = pr2 (pr1 D').
+
+    Definition disp_cat_eq_1
+               {C : category}
+               (D D' : disp_cat_data C)
+      : UU
+      := ∑ (F : ∑ (Fo : ob_disp D = ob_disp D'), data_disp_cat_eq_1 D D' Fo),
+         (pr1 (transportf (λ x, disp_cat_id_comp C x)
+                          (total2_paths_f (pr1 F) (pr2 F))
+                          (pr2 D))
+          = pr1 (pr2 D'))
+           ×
+           pr2 (transportf (λ x, disp_cat_id_comp C x)
+                           (total2_paths_f (pr1 F) (pr2 F))
+                           (pr2 D))
+         =
+         pr2(pr2 D').
+
+    Definition disp_cat_path_to_disp_cat_eq_1
+               {C : category}
+               (D D' : disp_cat_data C)
+      : D = D' ≃ disp_cat_eq_1 D D'.
+    Proof.
+      eapply weqcomp. use total2_paths_equiv.
+      use weqbandf.
+      - apply total2_paths_equiv.
+      - intros p. cbn.
+        induction D as [D HD].
+        induction D' as [D' HD'].
+        cbn in *.
+        induction p ; cbn ; unfold idfun.
+        refine (_ ∘ total2_paths_equiv _ _ _)%weq.
+        use weqfibtototal.
+        intros p.
+        cbn.
+        rewrite transportf_const.
+        exact (idweq _).
+    Defined.
+
+    (** Step 3 *)
+    Definition data_disp_cat_eq_2
+               {C : category}
+               (D D' : disp_cat_data C)
+               (Fo : ob_disp D = ob_disp D')
+      : UU
+      := ∏ (c c' : C) (a : ob_disp D c) (a' : ob_disp D c') (f : c --> c'),
+         @mor_disp _ D _ _ a a' f
+         = @mor_disp _ D' _ _
+                     (eqweqmap (maponpaths (λ x, x c) Fo) a)
+                     (eqweqmap (maponpaths (λ x, x c') Fo) a') f.
+
+    Definition disp_cat_eq_2
+               {C : category}
+               (D D' : disp_cat_data C)
+      : UU
+      := ∑ (F : ∑ (Fo : ob_disp D = ob_disp D'), data_disp_cat_eq_2 D D' Fo),
+         (∏ (c : C) (a : D c),
+          eqweqmap (pr2 F c c a a (identity _)) (id_disp a)
+          = id_disp (eqweqmap (maponpaths (λ x, x c) (pr1 F)) a))
+           ×
+           (∏ (a b c : C) (Da : D a) (Db : D b) (Dc : D c)
+              (f : C⟦a,b⟧) (g : C⟦b,c⟧) (ff : Da -->[f] Db) (gg : Db -->[g] Dc),
+            eqweqmap (pr2 F a c Da Dc (f · g)) (comp_disp ff gg)
+            =
+            comp_disp (eqweqmap (pr2 F a b Da Db f) ff) (eqweqmap (pr2 F b c Db Dc g) gg)).
+
+    Definition data_disp_cat_eq_1_to_2
+               {C : category}
+               (D D' : disp_cat_data C)
+               (Fo : (ob_disp D) = ob_disp D')
+      : data_disp_cat_eq_1 D D' Fo ≃ data_disp_cat_eq_2 D D' Fo.
+    Proof.
+      induction D as [D HD].
+      induction D as [DO DM].
+      induction D' as [D' HD'].
+      induction D' as [D'O D'M].
+      cbn in *.
+      induction Fo.
+      unfold data_cat_eq_1, data_cat_eq_2.
+      cbn.
+      refine (_ ∘ weqtoforallpaths _ _ _)%weq.
+      use weqonsecfibers. intros ?.
+      eapply weqcomp. apply (weqtoforallpaths _ _ _)%weq.
+      use weqonsecfibers. intros ?.
+      eapply weqcomp. apply (weqtoforallpaths _ _ _)%weq.
+      use weqonsecfibers. intros ?.
+      eapply weqcomp. apply (weqtoforallpaths _ _ _)%weq.
+      use weqonsecfibers. intros ?.
+      eapply weqcomp. apply (weqtoforallpaths _ _ _)%weq.
+      use weqonsecfibers. intros ?.
+      apply idweq.
+    Defined.
+
+    Definition disp_cat_eq_1_to_disp_cat_eq_2
+               {C : category}
+               (D D' : disp_cat_data C)
+               (DS : ∏ (c c' : C) (f : c --> c') (x : D c) (y : D c'),
+                     isaset (@mor_disp _ D _ _ x y f))
+      : disp_cat_eq_1 D D' ≃ disp_cat_eq_2 D D'.
+    Proof.
+      use weqbandf.
+      - use weqfibtototal.
+        intro p.
+        exact (data_disp_cat_eq_1_to_2 D D' p).
+      - intros p.
+        induction D as [D HD].
+        induction D as [DO DM].
+        induction HD as [DI DD].
+        induction D' as [D' HD'].
+        induction D' as [D'O D'M].
+        induction HD' as [D'I D'C].
+        induction p as [p1 p2] ; cbn in *.
+        unfold data_disp_cat_eq_1 in p2.
+        induction p1 ; cbn in *.
+        induction p2 ; cbn ; unfold idfun.
+        use weqdirprodf.
+        + use weqimplimpl.
+          * intros f a.
+            induction f.
+            reflexivity.
+          * intros f.
+            apply funextsec. intro z.
+            apply funextsec. intro a.
+            apply f.
+          * intro.
+            apply impred_isaset. intro.
+            apply impred_isaset. intro.
+            apply DS.
+          * apply impred. intro.
+            apply impred. intro.
+            apply DS.
+        + use weqimplimpl.
+          * intros p.
+            induction p.
+            reflexivity.
+          * intros p.
+            apply funextsec ; intro a.
+            apply funextsec ; intro b.
+            apply funextsec ; intro c.
+            apply funextsec ; intro f.
+            apply funextsec ; intro g.
+            apply funextsec ; intro Da.
+            apply funextsec ; intro Db.
+            apply funextsec ; intro Dc.
+            apply funextsec ; intro ff.
+            apply funextsec ; intro gg.
+            specialize (p a b c Da Db Dc f g ff gg).
+            induction p.
+            reflexivity.
+          * repeat (apply impred_isaset ; intro).
+            apply DS.
+          * repeat (apply impred ; intro).
+            apply DS.
+    Defined.
+
+    (** Step 4 *)
+    Definition disp_cat_equiv
+               {C : category}
+               (D D' : disp_cat_data C)
+      : UU
+      := ∑ (F : ∑ (Fo : ∏ (c : C), D c ≃ D' c),
+                ∏ (c c' : C) (a : D c) (a' : D c') (f : c --> c'),
+                (a -->[f] a') ≃ (Fo c a -->[f] Fo c' a')),
+         (∏ (c : C) (a : D c),
+          (pr2 F c c a a (identity _)) (id_disp a) = id_disp (pr1 F c a))
+           ×
+           (∏ (a b c : C) (Da : D a) (Db : D b) (Dc : D c)
+              (f : C⟦a,b⟧) (g : C⟦b,c⟧) (ff : Da -->[f] Db) (gg : Db -->[g] Dc),
+            (pr2 F a c Da Dc (f · g)) (comp_disp ff gg)
+            =
+            comp_disp ((pr2 F a b Da Db f) ff) ((pr2 F b c Db Dc g) gg)).
+
+    Definition weq_disp_cat_eq_disp_cat_equiv
+               {C : category}
+               (D D' : disp_cat_data C)
+      : disp_cat_eq_2 D D' ≃ disp_cat_equiv D D'.
+    Proof.
+      use weqbandf.
+      - use weqbandf.
+        + eapply weqcomp. apply invweq, weqfunextsec.
+          apply weqonsecfibers. intro.
+          apply univalence.
+        + intros p.
+          unfold data_cat_eq_2.
+          use weqonsecfibers. intros x.
+          use weqonsecfibers. intros y.
+          use weqonsecfibers. intros ?.
+          use weqonsecfibers. intros ?.
+          use weqonsecfibers. intros ?.
+          apply univalence.
+      - intros q.
+        apply idweq.
+    Defined.
+
+    (** Step 5 *)
+    Definition disp_cat_equiv_to_disp_catiso
+               {C : category}
+               (D D' : disp_cat C)
+      : disp_cat_equiv D D' → disp_catiso D D'.
+    Proof.
+      intros F.
+      use tpair.
+      - use tpair.
+        + use tpair.
+          * exact (pr1(pr1 F)).
+          * exact (pr2(pr1 F)).
+        + split.
+          * exact (pr1(pr2 F)).
+          * exact (pr2(pr2 F)).
+      - split.
+        + intros a b.
+          apply (pr2(pr1 F)).
+        + apply (pr1(pr1 F)).
+    Defined.
+
+    Definition disp_catiso_to_disp_cat_equiv
+               {C : category}
+               (D D' : disp_cat C)
+      : disp_catiso D D' → disp_cat_equiv D D'.
+    Proof.
+      intros F.
+      use tpair.
+      - use tpair.
+        + intros c.
+          use make_weq.
+          * exact (@disp_functor_on_objects _ _ _ _ _ F c).
+          * apply F.
+        + intros c c' a b f.
+          use make_weq.
+          * exact (@disp_functor_on_morphisms _ _ _ _ _ F c c' a b f).
+          * apply F.
+      - split.
+        + intros c a. apply (disp_functor_id F).
+        + intros ? ? ? ? ? ? ? ? ? ?. apply (disp_functor_comp F).
+    Defined.
+
+    Definition disp_cat_equiv_to_disp_catiso_weq
+               {C : category}
+               (D D' : disp_cat C)
+      : disp_cat_equiv D D' ≃ disp_catiso D D'.
+    Proof.
+      refine (disp_cat_equiv_to_disp_catiso D D' ,, _).
+      use isweq_iso.
+      - exact (disp_catiso_to_disp_cat_equiv D D').
+      - reflexivity.
+      - reflexivity.
+    Defined.
+
+    (** All in all, we get *)
+    Definition disp_catiso_is_path_disp_cat
+               {C : category}
+               (D D' : disp_cat C)
+      : D = D' ≃ disp_catiso D D'
+      := ((disp_cat_equiv_to_disp_catiso_weq D D')
+            ∘ weq_disp_cat_eq_disp_cat_equiv D D'
+            ∘ disp_cat_eq_1_to_disp_cat_eq_2 D D' (@homsets_disp _ D)
+            ∘ disp_cat_path_to_disp_cat_eq_1 D D'
+            ∘ disp_cat_path_precat D D')%weq.
+
+  End FullDispSubcategory.
+
 End FullyFaithfulDispFunctor.
