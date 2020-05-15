@@ -736,7 +736,7 @@ Section TypeCat_ComprehensionCat.
     : typecat_obj_ext_structure C ≃ ff_disp_functor_explicit (disp_codomain C).
   Proof.
     eapply weqcomp. apply typecat_obj_ext_structure_disp_ff_functor_to_codomain_weq.
-    apply ff_disp_functor_weq.
+    apply ff_disp_functor_weq2.
   Defined.
 
   Definition typecat_structure2' {C : category}
@@ -948,8 +948,7 @@ Section TypeCat_ComprehensionCat.
              (λ qq, isPullback _ _ _ _ (! pr2 qq))
           ).
     set (FF := typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq _ TC).
-    set (w := (_ ,, pr2 (pr2 FF) _ _ A' A f) : weq _ _).
-    use (weqtotal2 (invweq w)).
+    use (weqtotal2 (idweq _)).
     intros qq.
 
     (* Step 4: equivalence of pullback and cleaving *)
@@ -964,58 +963,31 @@ Section TypeCat_ComprehensionCat.
     - intros pb.
       use tpair.
       + intros Δ g B ggff.
-        set (w' := (_ ,, pr2 (pr2 FF) _ _ B A (g ;; f)) : weq _ _).
         eapply iscontrweqf.
         2: {
           use pb.
           - exact (obj_ext_typecat Δ B).
           - exact (dpr_typecat_obj_ext B ;; g).
-          - exact (pr1 (w' ggff)).
+          - exact (pr1 ggff).
           - etrans. apply assoc'.
-            apply pathsinv0, (pr2 (w' ggff)).
+            apply pathsinv0, (pr2 ggff).
         }
 
-        apply invweq.
-
         eapply weqcomp.
-        set (wBA' := (_ ,, pr2 (pr2 FF) _ _ B A' g) : weq _ _).
-        use (weqtotal2 wBA').
-        * apply (λ wgg, comp_disp wgg qq = w' ggff).
-        * intros gg. 
-          apply weqimplimpl.
-          -- intros H.
-             apply pathsinv0.
-             etrans. apply (! maponpaths w' H).
-             etrans. apply (disp_functor_comp (pr1 (pr2 FF)) gg (invweq w qq)).
-             etrans. apply maponpaths, maponpaths, (homotweqinvweq w).
-             apply idpath.
-          -- intros H.
-             etrans. apply (! homotinvweqweq w' _).
-             etrans. apply maponpaths.
-             apply (disp_functor_comp (pr1 (pr2 FF)) gg (invweq w qq)).
-             etrans. apply maponpaths, maponpaths, maponpaths.
-             apply (homotweqinvweq w).
-             etrans. apply (maponpaths (invweq w') H).
-             apply homotinvweqweq.
-          -- apply homsets_disp.
-          -- apply homsets_disp.
-
-        * apply invweq.
-          eapply weqcomp.
-          2: apply weqtotal2asstol.
-          apply weq_subtypes_iff.
-          -- intro. apply isapropdirprod; apply homset_property.
-          -- intro. apply (isofhleveltotal2 1). 
-             ++ apply homset_property.
-             ++ intros. apply homsets_disp.
-          -- intros gg; split; intros H.
-             ++ exists (pr1 H).
-                apply subtypePath.
-                intro; apply homset_property.
-                exact (pr2 H).
-             ++ split.
-                ** exact (pr1 H).
-                ** exact (maponpaths pr1 (pr2 H)).
+        2: apply weqtotal2asstol.
+        apply weq_subtypes_iff.
+        -- intro. apply isapropdirprod; apply homset_property.
+        -- intro. apply (isofhleveltotal2 1). 
+           ++ apply homset_property.
+           ++ intros. apply homsets_disp.
+        -- intros gg; split; intros H.
+           ++ exists (pr1 H).
+              apply subtypePath.
+              intro; apply homset_property.
+              exact (pr2 H).
+           ++ split.
+              ** exact (pr1 H).
+              ** exact (maponpaths pr1 (pr2 H)).
 
       + intros Δ g k hh.
         use iscontrweqf.
@@ -1039,10 +1011,10 @@ Section TypeCat_ComprehensionCat.
            ++ exists (pr1 H).
               apply subtypePath.
               intro; apply homset_property.
-              exact (maponpaths (λ qqq, gg ;; pr1 qqq) (homotweqinvweq w qq) @ pr2 H).
+              exact (pr2 H).
            ++ split.
               ** exact (pr1 H).
-              ** exact (maponpaths (λ qqq, gg ;; pr1 qqq) (! homotweqinvweq w qq) @ (maponpaths pr1 (pr2 H))).
+              ** exact (maponpaths pr1 (pr2 H)).
 
     - intros Hcart.
       intros Δ g k H.
@@ -1071,11 +1043,11 @@ Section TypeCat_ComprehensionCat.
           apply pathsinv0, id_right.
         -- apply subtypePath.
           intro; apply homset_property.
-          exact (maponpaths (λ qqq, gg ;; pr1 qqq) (homotweqinvweq w qq) @ pr2 H').
+          exact (pr2 H').
       * split.
         -- etrans. apply (pr1 H'). apply id_right.
         -- etrans.
-           apply (maponpaths (λ qqq, gg ;; pr1 qqq) (! homotweqinvweq w qq) @ (maponpaths pr1 (pr2 H'))).
+           apply (maponpaths pr1 (pr2 H')).
            apply idpath.
   Defined.
   
