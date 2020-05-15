@@ -527,7 +527,7 @@ Section FullyFaithfulDispFunctor.
                   apply impred_isaprop. intros A'.
                   apply isapropisaset.
                ++ apply homsets_disp'.
-    Defined.
+    Qed.
 
   End FullyFaithfulFunctorOnMorphisms.
 
@@ -603,6 +603,14 @@ Section FullyFaithfulDispFunctor.
                {C : category} (D' : disp_cat C)
       : UU
       := ∑ (D : disp_cat C) (F : disp_functor (functor_identity _) D D'), disp_functor_ff F.
+
+    Definition disp_functor_from_ff_disp_functor_explicit
+               {C : category} (D' : disp_cat C)
+               (F : ff_disp_functor_explicit D')
+      : disp_functor _ _ D' := pr1 (pr2 F).
+
+    Coercion disp_functor_from_ff_disp_functor_explicit
+      : ff_disp_functor_explicit >-> disp_functor.
     
     Definition ff_disp_functor_with_morphisms_weq
                {C : category} {D' : disp_cat C}
@@ -1058,6 +1066,12 @@ Section FullyFaithfulDispFunctor.
       intros ? ? ? ? ?. apply (weqproperty (idweq _)).
     Defined.
 
+    Definition target_disp_inclusion_functor_explicit
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : ff_disp_functor_explicit D'
+      := (_ ,, _ ,, target_disp_inclusion_functor_is_ff F).
+
     Definition source_disp_cat_target_disp_subcat_catiso
                {C : category} {D' : disp_cat C}
                (F : ff_disp_functor D')
@@ -1085,6 +1099,55 @@ Section FullyFaithfulDispFunctor.
       apply source_disp_cat_target_disp_subcat_catiso.
     Defined.
 
-  Section TargetFullDispSubcategory.
+    Definition ff_disp_functor_is_target_disp_inclusion_functor
+               {C : category} {D' : disp_cat C}
+               (F : ff_disp_functor D')
+      : ff_disp_functor_weq F = target_disp_inclusion_functor_explicit F.
+    Proof.
+      apply (invmaponpathsweq (invweq ff_disp_functor_weq)).
+      use total2_paths_f.
+      - apply idpath.
+      - apply funextsec. intros c.
+        apply funextsec. intros d.
+        apply idpath.
+    Defined.
+
+    Definition ff_disp_functor_explicit_eq
+               {C : category} {D' : disp_cat C}
+               (F G : ff_disp_functor_explicit D')
+               (eq_ob : ∏ (c : C), pr1 F c = pr1 G c)
+               (eq_Fob : ∏ (c : C) (d : pr1 G c),
+                         F c (transportb (λ x, x) (eq_ob c) d) = G c d)
+      : F = G.
+    Proof.
+      apply (invmaponpathsweq (invweq ff_disp_functor_weq)).
+      set (w := weqtotaltoforall (λ c, UU) (λ c d, d → D' c) : ff_disp_functor D' ≃ _).
+      apply (invmaponpathsweq w).
+      apply funextsec. intros c. 
+      use total2_paths_f.
+      - apply eq_ob.
+      - apply funextsec. intros d.
+        etrans. apply (maponpaths (λ k, k d) (transportf_forall_var _ (λ x, x) _ _ _ _ _)).
+        apply eq_Fob.
+    Defined.
+
+    Definition ff_disp_functor_weq2
+               {C : category} {D' : disp_cat C}
+      : ff_disp_functor D' ≃ ff_disp_functor_explicit D'.
+    Proof.
+      use weq_iso.
+      - apply target_disp_inclusion_functor_explicit.
+      - intros F.
+        set (ob_disp := pr1 (pr1 (pr1 (pr1 F)))).
+        set (Fob := pr1 (pr1 (pr1 (pr2 F)))).
+        exact (ob_disp ,, Fob).
+      - intros ?. apply idpath.
+      - intros ?.
+        use ff_disp_functor_explicit_eq.
+        + intros c. apply idpath.
+        + intros c. intros d. apply idpath.
+    Defined.
+
+  End TargetFullDispSubcategory.
 
 End FullyFaithfulDispFunctor.
