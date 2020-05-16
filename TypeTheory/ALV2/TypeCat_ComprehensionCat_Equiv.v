@@ -188,6 +188,37 @@ Section TypeCat_ComprehensionCat_Equiv.
        cleaving (pr1 F) × is_cartesian_disp_functor (pr1 (pr2 F)). 
 
   (* TODO: move upstream? *)
+  Definition isaprop_is_cartesian_image_of_cleaving
+        {C C' : category} {F : functor C C'}
+        {D : disp_cat C} {D' : disp_cat C'} {FF : disp_functor F D D'}
+        (cleaving_D : cleaving D)
+    : isaprop (∏ (c c' : C) (f : c' --> c) (d : D c),
+               is_cartesian (#FF (cleaving_D c c' f d))).
+  Proof.
+    apply impred_isaprop. intros c.
+    apply impred_isaprop. intros c'.
+    apply impred_isaprop. intros f.
+    apply impred_isaprop. intros d.
+    apply isaprop_is_cartesian.
+  Qed.
+
+  (* TODO: move upstream? *)
+  Definition isaprop_is_cartesian_disp_functor
+        {C C' : category} {F : functor C C'}
+        {D : disp_cat C} {D' : disp_cat C'} {FF : disp_functor F D D'}
+    : isaprop (is_cartesian_disp_functor FF).
+  Proof.
+    apply impred_isaprop. intros c.
+    apply impred_isaprop. intros c'.
+    apply impred_isaprop. intros f.
+    apply impred_isaprop. intros d.
+    apply impred_isaprop. intros d'.
+    apply impred_isaprop. intros ff.
+    apply impred_isaprop. intros ff_is_cartesian.
+    apply isaprop_is_cartesian.
+  Qed.
+
+  (* TODO: move upstream? *)
   Lemma cartesian_functor_from_fibration_weq
         {C C' : category} {F : functor C C'}
         {D : disp_cat C} {D' : disp_cat C'} {FF : disp_functor F D D'}
@@ -207,19 +238,8 @@ Section TypeCat_ComprehensionCat_Equiv.
       intros c c' f d.
       apply FF_is_cartesian.
       apply cartesian_lift_is_cartesian.
-    - apply impred_isaprop. intros c.
-      apply impred_isaprop. intros c'.
-      apply impred_isaprop. intros f.
-      apply impred_isaprop. intros d.
-      apply isaprop_is_cartesian.
-    - apply impred_isaprop. intros c.
-      apply impred_isaprop. intros c'.
-      apply impred_isaprop. intros f.
-      apply impred_isaprop. intros d.
-      apply impred_isaprop. intros d'.
-      apply impred_isaprop. intros ff.
-      apply impred_isaprop. intros ff_is_cartesian.
-      apply isaprop_is_cartesian.
+    - apply isaprop_is_cartesian_image_of_cleaving.
+    - apply isaprop_is_cartesian_disp_functor.
   Defined.
 
   (* TODO: generalize to any functor into codomain? *)
