@@ -14,6 +14,21 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
 
+Section Auxiliary.
+
+  (* TODO: move upstream? *)
+  Definition pr1_transportb
+             {A : UU} {B : A → UU} (P : ∏ a : A, B a → UU) {a a' : A}
+             (e : a = a') (xs : ∑ b : B a', P a' b)
+    : pr1 (transportb (λ x : A, ∑ b : B x, P x b) e xs) =
+      transportb (λ x : A, B x) e (pr1 xs).
+  Proof.
+    induction e.
+    apply idpath.
+  Defined.
+
+End Auxiliary.
+
 Section A.
 
   Context {C : category}.
@@ -26,18 +41,21 @@ Section A.
         : disp_cat_ob_mor C.
     Proof.
         exists TC.
-        intros Γ Γ' A A'.
-        exact (@mor_disp _ (disp_codomain C) _ _
-                        (Γ ◂ A ,, dpr_typecat A)
-                        (Γ' ◂ A' ,, dpr_typecat A')).
+        intros Γ Γ' A A' f.
+        exact (A' {{f}} = A).
     Defined.
 
     Definition disp_cat_id_comp_from_split_typecat_structure
         : disp_cat_id_comp C disp_cat_ob_mor_from_split_typecat_structure.
     Proof.
         use make_dirprod.
-        - intros Γ A. apply id_disp.
-        - intros Γ Γ' Γ'' f g A A' A'' ff gg. apply (comp_disp (D:=disp_codomain C) ff gg).
+        - intros Γ A. apply (pr1 (pr1 (dirprod_pr2 (pr2 TC)))).
+        - intros Γ Γ' Γ'' f g A A' A'' ff gg. 
+          simpl.
+          set (reind_comp := pr1 (dirprod_pr2 (dirprod_pr2 (pr2 TC)))).
+          etrans. apply reind_comp.
+          etrans. apply (maponpaths (λ B, B {{f}}) gg).
+          apply ff.
     Defined.
 
     Definition disp_cat_data_from_split_typecat_structure
@@ -48,10 +66,10 @@ Section A.
         : disp_cat_axioms C disp_cat_data_from_split_typecat_structure.
     Proof.
         repeat use make_dirprod.
-        - intros. apply id_left_disp.
-        - intros. apply id_right_disp.
-        - intros. apply assoc_disp.
-        - intros. apply homsets_disp.
+        - intros. apply (pr1 (pr2 TC)).
+        - intros. apply (pr1 (pr2 TC)).
+        - intros. apply (pr1 (pr2 TC)).
+        - intros. apply isasetaprop. apply (pr1 (pr2 TC)).
     Defined.
 
     Definition disp_precat_from_split_typecat_structure
@@ -68,233 +86,68 @@ Section A.
       use make_dirprod. 2: apply (pr1 (pr2 TC)).
       intros Γ Γ' f A.
       use tpair.
-      - exists (A {{f}}).
-        use tpair.
-        + apply q_typecat. 
-        + apply dpr_q_typecat.
+      - exists (A {{f}}). apply idpath.
       - intros X.
-        set (A' := pr1 X).
-        set (q' := pr1 (pr2 X)).
-        set (dpr_q' := pr2 (pr2 X)).
-        simpl in *.
-
-        
-
-      use iscontrweqf.
-      3: {
-        use (reind_pb_typecat A f).
-        - exact (Γ' ◂ A {{f}}).
-        - exact (dpr_typecat (A {{f}})).
-        - apply q_typecat.
-        - apply pathsinv0, dpr_q_typecat.
-      }
-
-      use weq_iso.
-      - intros X.
-        set (hk := pr1 X).
-        set (hk_dpr := pr1 (pr2 X)).
-        set (hk_q := dirprod_pr2 (pr2 X)).
-        exists (A {{f}}).
+        use total2_paths_f.
+        + apply (! pr2 X).
+        + apply (pr1 (pr2 TC)).
+    Defined.
+    
+    Definition disp_functor_data_from_split_typecat_structure
+      : disp_functor_data (functor_identity C)
+                          disp_cat_from_split_typecat_structure
+                          (disp_codomain C).
+    Proof.
+      use tpair.
+      - intros Γ A.
+        exists (Γ ◂ A).
+        apply (dpr_typecat A).
+      - intros Γ Γ' A A' f ff.
         use tpair.
-        + apply hk.
-
-      eapply weqcomp. apply weqtotal2asstor.
+        + set (k := inv_from_iso (idtoiso (maponpaths (λ B, Γ ◂ B) ff))).
+          eapply compose. apply k. apply q_typecat.
+        + induction ff. simpl.
+          etrans. apply assoc'.
+          etrans. apply maponpaths, dpr_q_typecat.
+          apply id_left.
     Defined.
 
-  End DispCat_from_SplitTypeCat.
-  
-End A.
-
-
-
-Section T.
-
-  Context {C : category}.
-
-  Definition preShv_ob
-             (Ty : preShv C)
-    : ∏ (Γ : C), hSet
-    := (Ty : functor _ _).
-
-  Definition preShv_mor
-             (Ty : preShv C)
-             {Γ Γ' : C}
-    : ∏ (f : Γ' --> Γ), preShv_ob Ty Γ → preShv_ob Ty Γ'
-    := # (Ty : functor _ _).
-
-  Definition preShv_mor_identity
-             (Ty : preShv C)
-             (Γ : C)
-    : preShv_mor Ty (identity Γ) = idfun _.
-  Proof.
-    apply (functor_id Ty).
-  Defined.
-
-  Locate "∘".
-
-  Definition preShv_mor_comp
-             (Ty : preShv C)
-             {Γ Γ' Γ'' : C}
-             (f' : Γ'' --> Γ') (f : Γ' --> Γ)
-    : preShv_mor Ty (f' ;; f) = (preShv_mor Ty f' ∘ preShv_mor Ty f)%functions.
-  Proof.
-    apply (functor_comp Ty).
-  Defined.
-
-  Definition preShv_reind_identity
-             (Ty : preShv C)
-             (Γ : C) (A : preShv_ob Ty Γ)
-    : preShv_mor Ty (identity Γ) A = A.
-  Proof.
-    apply (maponpaths (λ f, f A) (preShv_mor_identity Ty Γ)).
-  Defined.
-  
-  Definition preShv_reind_comp
-             (Ty : preShv C)
-             {Γ Γ' Γ'' : C}
-             (f' : Γ'' --> Γ') (f : Γ' --> Γ)
-             (A : preShv_ob Ty Γ)
-    : preShv_mor Ty (f' ;; f) A = preShv_mor Ty f' (preShv_mor Ty f A).
-  Proof.
-    apply (maponpaths (λ f, f A) (preShv_mor_comp Ty f' f)).
-  Defined.
-
-  Definition split_typecat_over_preShv
-             (Ty : preShv C)
-    : UU
-    := ∑ (ext : ∏ (Γ : C), preShv_ob Ty Γ → C)
-         (dpr : ∏ (Γ : C) (A : preShv_ob Ty Γ), ext Γ A --> Γ)
-         (q : ∏ (Γ : C) (A : preShv_ob Ty Γ) (Γ' : C) (f : Γ' --> Γ),
-              ext Γ' (preShv_mor Ty f A) --> ext Γ A)
-         (qdpr : ∏ (Γ : C) (A : preShv_ob Ty Γ) (Γ' : C) (f : Γ' --> Γ),
-              q _ A _ f ;; dpr _ A = dpr _ (preShv_mor Ty f A) ;; f)
-         (q_pullback : ∏ (Γ : C) (A : preShv_ob Ty Γ) (Γ' : C) (f : Γ' --> Γ),
-                       isPullback _ _ _ _ (! qdpr _ A _ f)),
-       (∏ (Γ : C) (A : preShv_ob Ty Γ),
-        q _ A _ (identity Γ) =
-        idtoiso (maponpaths (ext Γ) (preShv_reind_identity _ _ _)))
-         ×
-         (∏ (Γ Γ' Γ'' : C) (f' : Γ'' --> Γ') (f : Γ' --> Γ) (A : preShv_ob Ty Γ),
-          q _ A _ (f' ;; f) =
-          idtoiso (maponpaths (ext Γ'') (preShv_reind_comp _ _ _ _) )
-          ;; q _ (preShv_mor Ty f A) _ f'
-          ;; q _ A _ f).
-
-  Definition split_typecat_structure'
-    := ∑ (Ty : preShv C), split_typecat_over_preShv Ty.
-
-
-  Definition split_typecat_structure_from_split_typecat_structure'
-    : split_typecat_structure' → split_typecat_structure C.
-  Proof.
-    intros S.
-    set (TY := pr1 S : functor _ _).
-
-    set (Ty := λ (Γ : C), pr1 (functor_on_objects TY Γ)).
-    set (ext := pr1 (pr2 S)).
-    set (dpr := pr1 (pr2 (pr2 S))).
-    set (reind := λ (Γ : C) (A : Ty Γ) (Γ' : C) (f : Γ' --> Γ), preShv_mor TY f A).
-    set (q := pr1 (pr2 (pr2 (pr2 S)))).
-    set (dpr_q := pr1 (pr2 (pr2 (pr2 (pr2 S))))).
-    set (pb_q := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 S)))))).
-    set (Ty_isaset := λ (Γ : C), pr2 (functor_on_objects TY Γ)).
-
-    set (q_id := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 S))))))).
-    set (q_comp := dirprod_pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 S))))))).
-
-    use tpair.
-    - exact ((Ty ,, ext ,, reind) ,, dpr ,, q ,, dpr_q ,, pb_q).
-    - use make_dirprod.
-      + exact Ty_isaset.
-      + use make_dirprod.
-        * exists (preShv_reind_identity TY).
-          exact q_id.
-        * exists (λ Γ A Γ' f Γ'' g, preShv_reind_comp TY g f A).
-          exact (λ Γ A Γ' f Γ'' g, q_comp Γ Γ' Γ'' g f A).
-  Defined.
-  
-  Definition split_typecat_structure'_from_split_typecat_structure
-    : split_typecat_structure C → split_typecat_structure'.
-  Proof.
-    intros S.
-
-    set (Ty := pr1 (pr1 (pr1 S))).
-    set (ext := pr1 (pr2 (pr1 (pr1 S)))).
-    set (reind := λ (Γ Γ' : C) (f : Γ' --> Γ) (A : Ty Γ), pr2 (pr2 (pr1 (pr1 S))) Γ A Γ' f).
-    set (dpr := pr1 (pr2 (pr1 S))).
-    set (q := pr1 (pr2 (pr2 (pr1 S)))).
-    set (dpr_q := pr1 (pr2 (pr2 (pr2 (pr1 S))))).
-    set (pb_q := pr2 (pr2 (pr2 (pr2 (pr1 S))))).
-
-    set (Ty_isaset := pr1 (pr2 S)).
-    set (reind_id := pr1 (pr1 (pr2 (pr2 S)))).
-    set (q_id := pr2 (pr1 (pr2 (pr2 S)))).
-    set (reind_comp := pr1 (pr2 (pr2 (pr2 S)))).
-    set (q_comp := pr2 (pr2 (pr2 (pr2 S)))).
-
-    set (Ty_ob := λ (Γ : C), (Ty Γ ,, Ty_isaset Γ)).
-
-    use tpair.
-    - use make_functor.
-      + exact (Ty_ob ,, reind).
-      + use tpair.
-        * intros Γ. apply funextsec. intros A. apply reind_id.
-        * intros Γ Γ' Γ'' f g. apply funextsec. intros A. apply reind_comp.
-    - exists ext.
-      exists dpr.
-      exists q.
-      exists dpr_q.
-      exists pb_q.
+    Definition disp_functor_axioms_from_split_typecat_structure
+      : disp_functor_axioms disp_functor_data_from_split_typecat_structure.
+    Proof.
       use make_dirprod.
-      + intros Γ A. etrans. apply q_id.
-        apply maponpaths, maponpaths, maponpaths.
-        apply pathsinv0. etrans.
-        unfold preShv_reind_identity, preShv_mor_identity, functor_id.
-        simpl.
-        apply (Univalence.maponpaths_funextsec
-                 (reind _ _ (identity _))
-                 (identity (Ty_ob Γ : HSET_univalent_category))).
-        apply idpath.
-      + intros Γ Γ' Γ'' g f A. etrans. apply q_comp.
-        apply maponpaths_2, maponpaths_2.
-        apply maponpaths, maponpaths, maponpaths.
-        apply pathsinv0. etrans.
-        unfold preShv_reind_comp, preShv_mor_comp, functor_comp.
-        simpl.
-        apply (@Univalence.maponpaths_funextsec
-                 (Ty Γ) (λ _, Ty Γ'')
-                 (reind _ _ (g;; f)%mor)
-                 (reind _ _ g ∘ reind _ _ f)%functions
-              ).
-        apply idpath.
-  Defined.
+      - intros Γ A.
+        use total2_paths_f.
+        + simpl.
+          etrans. apply maponpaths, (pr2 (pr1 (pr2 (pr2 TC)))).
+          apply iso_after_iso_inv.
+        + apply homset_property.
+      - intros Γ Γ' Γ'' A A' A'' f g ff gg.
+        use total2_paths_f.
+        + simpl.
+          induction ff.
+          induction gg.
+          etrans. apply maponpaths_2, maponpaths, maponpaths, maponpaths.
+          apply pathscomp0rid.
+          etrans. apply maponpaths, (pr2 (dirprod_pr2 (pr2 (pr2 TC)))).
+          etrans. apply maponpaths, assoc'.
+          etrans. apply assoc.
+          etrans. apply maponpaths_2, iso_after_iso_inv.
+          etrans. apply id_left.
 
-  Definition split_typecat_structure'_weq
-    : split_typecat_structure' ≃ split_typecat_structure C.
-  Proof.
-    eapply weqcomp. apply weqtotal2asstor.
-    eapply weqcomp. apply weqtotal2asstor.
-    eapply weqcomp. 2: apply weqtotal2asstol.
-    eapply weqcomp. 2: apply weqtotal2asstol.
-    apply (weqtotal2 (idweq _)).
-    unfold split_typecat_structure.
-  Defined.
+          apply pathsinv0.
+          etrans. apply maponpaths_2, id_left.
+          etrans. apply maponpaths, id_left.
+          apply idpath.
+        + apply homset_property.
+    Defined.
 
-  Definition split_typecat_structure'_weq
-    : split_typecat_structure' ≃ split_typecat_structure C.
-  Proof.
-    use weq_iso.
-    - apply split_typecat_structure_from_split_typecat_structure'.
-    - apply split_typecat_structure'_from_split_typecat_structure.
-    - intros S.
-      use total2_paths_f.
-      + use total2_paths_f.
-        * apply idpath.
-        * apply isaprop_is_functor. apply homset_property.          
-      + use total2_paths_f.
-        * etrans. use pr1_transportf.
-          cbn.
-  Defined.
+    Definition disp_functor_from_split_typecat_structure
+      : disp_functor (functor_identity C)
+                     disp_cat_from_split_typecat_structure
+                     (disp_codomain C)
+      := (_,, disp_functor_axioms_from_split_typecat_structure).
 
-End T.
-  
+  End DispCat_from_SplitTypeCat.
+
+End A.
