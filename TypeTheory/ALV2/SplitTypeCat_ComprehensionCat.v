@@ -29,13 +29,22 @@ Section Auxiliary.
 
 End Auxiliary.
 
+Definition discrete_comprehension_cat_structure (C : category) : UU
+  := ∑ (D : disp_cat C)
+       (is_discrete_fibration_D : is_discrete_fibration D)
+       (FF : disp_functor (functor_identity _) D (disp_codomain C)), 
+     is_cartesian_disp_functor FF.
+
+Definition discrete_comprehension_cat : UU
+  := ∑ (C : category), discrete_comprehension_cat_structure C.
+
 Section A.
 
-  Context {C : category}.
+  Section DiscreteComprehensionCat_from_SplitTypeCat.
 
-  Context (TC : split_typecat_structure C).
+    Context {C : category}.
 
-  Section DispCat_from_SplitTypeCat.
+    Context (TC : split_typecat_structure C).
 
     Definition disp_cat_ob_mor_from_split_typecat_structure
         : disp_cat_ob_mor C.
@@ -92,6 +101,10 @@ Section A.
         + apply (! pr2 X).
         + apply (pr1 (pr2 TC)).
     Defined.
+
+    Definition discrete_fibration_from_split_typecat_structure
+      : discrete_fibration C
+      := (_ ,, is_discrete_fibration_disp_cat_from_split_typecat_structure).
     
     Definition disp_functor_data_from_split_typecat_structure
       : disp_functor_data (functor_identity C)
@@ -148,6 +161,56 @@ Section A.
                      (disp_codomain C)
       := (_,, disp_functor_axioms_from_split_typecat_structure).
 
-  End DispCat_from_SplitTypeCat.
+    Definition disp_functor_from_split_typecat_structure_is_cartesian
+      : is_cartesian_disp_functor disp_functor_from_split_typecat_structure.
+    Proof.
+      intros Γ Γ' f A A' ff ff_is_cartesian.
+      intros Δ g k k_comm.
+      use iscontrweqf.
+      3: {
+        use (reind_pb_typecat A f).
+        - exact (pr1 k).
+        - exact (pr2 k ;; g).
+        - exact (pr1 k_comm).
+        - etrans. apply assoc'. apply (! pr2 k_comm).
+      }
+
+      induction ff.
+
+      eapply weqcomp.
+      2: apply weqtotal2asstol.
+      apply weq_subtypes_iff.
+      -- intro. apply isapropdirprod; apply homset_property.
+      -- intro. apply (isofhleveltotal2 1). 
+         ++ apply homset_property.
+         ++ intros. apply homsets_disp.
+      -- intros gg; split; intros H.
+         ++ exists (pr1 H).
+            apply subtypePath.
+            intro; apply homset_property.
+            simpl. etrans. apply maponpaths, id_left.
+            exact (pr2 H).
+         ++ split.
+            ** exact (pr1 H).
+            ** etrans. 2: apply (maponpaths pr1 (pr2 H)).
+               simpl. apply maponpaths.
+               apply pathsinv0, id_left.
+    Defined.
+
+    Definition discrete_comprehension_cat_structure_from_split_typecat_structure
+      : discrete_comprehension_cat_structure C
+      := ( _ ,, is_discrete_fibration_disp_cat_from_split_typecat_structure ,,
+             _ ,, disp_functor_from_split_typecat_structure_is_cartesian).
+
+  End DiscreteComprehensionCat_from_SplitTypeCat.
+
+  Definition discrete_comprehension_cat_from_split_typecat
+    : split_typecat → discrete_comprehension_cat.
+  Proof.
+    intros STC.
+    exists (pr1 (pr1 STC)).
+    apply discrete_comprehension_cat_structure_from_split_typecat_structure.
+    apply (pr2 (pr1 STC) ,, pr2 STC).
+  Defined.
 
 End A.
