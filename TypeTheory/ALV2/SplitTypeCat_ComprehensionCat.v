@@ -27,6 +27,31 @@ Section Auxiliary.
     apply idpath.
   Defined.
 
+  (* TODO: move upstream? *)
+  Lemma isPullback_swap
+        {C : precategory}
+        {a b c d : C} {f : b --> a} {g : c --> a}
+        {p1 : d --> b} {p2 : d --> c} {H : p1 · f = p2 · g}
+        (pb : isPullback f g p1 p2 H)
+  : isPullback _ _ _ _ (! H).
+  Proof.
+    use make_isPullback.
+    intros e h k H'.
+    use (iscontrweqf _ (pb e k h (! H'))).
+    use (weqtotal2 (idweq _)).
+    intros ?. apply weqdirprodcomm.
+  Defined.
+
+  (* TODO: move upstream? *)
+  Definition unique_lift_is_cartesian
+             {C : category}
+             {D : discrete_fibration C} {c c'}
+             (f : c' --> c) (d : D c)
+    : is_cartesian (pr2 (pr1 (unique_lift f d))).
+  Proof.
+    apply (pr2 (pr2 (fibration_from_discrete_fibration _ D _ _ f d))).
+  Defined.
+
 End Auxiliary.
 
 Definition discrete_comprehension_cat_structure (C : category) : UU
@@ -203,6 +228,81 @@ Section A.
              _ ,, disp_functor_from_split_typecat_structure_is_cartesian).
 
   End DiscreteComprehensionCat_from_SplitTypeCat.
+
+  Section SplitTypeCat_from_DiscreteComprehensionCat.
+
+    Context {C : category}.
+
+    Context (DC : discrete_comprehension_cat_structure C).
+
+    Let D := pr1 DC : disp_cat C.
+    Let is_discrete_fibration_D := pr1 (pr2 DC) : is_discrete_fibration D.
+    Let FF := pr1 (pr2 (pr2 DC)) : disp_functor (functor_identity C) D (disp_codomain C).
+    Let is_cartesian_FF := pr2 (pr2 (pr2 DC)) : is_cartesian_disp_functor FF.
+
+    Definition typecat_structure1_from_discrete_comprehension_cat_structure
+      : typecat_structure1 C.
+    Proof.
+      exists D.
+      use make_dirprod.
+      - intros Γ A. exact (pr1 (disp_functor_on_objects FF A)).
+      - intros Γ A Γ' f. 
+        exact (pr1 (pr1 (pr1 is_discrete_fibration_D Γ Γ' f A))).
+    Defined.
+
+    Definition typecat_structure2_from_discrete_comprehension_cat_structure
+      : typecat_structure2 typecat_structure1_from_discrete_comprehension_cat_structure.
+    Proof.
+      unfold typecat_structure2.
+      repeat use tpair.
+      - intros Γ A. exact (pr2 (disp_functor_on_objects FF A)).
+      - intros Γ A Γ' f.
+        set (k := pr2 (pr1 (pr1 is_discrete_fibration_D Γ Γ' f A))
+                  : A {{f}} -->[f] A).
+        apply (pr1 (disp_functor_on_morphisms FF k)).
+      - intros Γ A Γ' f. simpl.
+        set (k := pr2 (pr1 (pr1 is_discrete_fibration_D Γ Γ' f A))
+                  : A {{f}} -->[f] A).
+        apply (pr2 (disp_functor_on_morphisms FF k)).
+      - simpl. intros Γ A Γ' f.
+        apply isPullback_swap.
+        use cartesian_isPullback_in_cod_disp.
+        apply is_cartesian_FF.
+        apply (unique_lift_is_cartesian (D := (_ ,, is_discrete_fibration_D)) f A).
+    Defined.
+
+    Definition typecat_structure_from_discrete_comprehension_cat_structure
+      : typecat_structure C
+      := (_ ,, typecat_structure2_from_discrete_comprehension_cat_structure).
+
+    Definition is_split_typecat_from_discrete_comprehension_cat_structure
+      : is_split_typecat typecat_structure_from_discrete_comprehension_cat_structure.
+    Proof.
+      repeat use make_dirprod.
+      - apply (pr2 is_discrete_fibration_D).
+      - use tpair.
+        + intros Γ A. 
+          set (p := pr2 (pr1 is_discrete_fibration_D Γ Γ (identity Γ) A)).
+          apply (maponpaths pr1 (! p (A ,, id_disp A))).
+        + intros Γ A.
+          etrans. unfold q_typecat. cbn.
+          (* WIP:
+             Current problem is dealing with the identification of
+             unique_lift (identity Γ) A   vs   id_disp A
+           *)
+          (*
+          set (p := pr2 (pr1 is_discrete_fibration_D Γ Γ (identity Γ) A)).
+          apply (maponpaths pr1 (! p (A ,, id_disp A))).
+          apply (maponpaths pr1 (disp_functor_id FF A)).
+          set (p := pr2 (pr1 is_discrete_fibration_D Γ Γ (identity Γ) A)).
+          set (x := disp_functor_id FF A).
+          cbn in x.
+          induction (p (A ,, id_disp A)).
+          simpl.
+          *)
+    Abort.
+
+  End SplitTypeCat_from_DiscreteComprehensionCat.
 
   Definition discrete_comprehension_cat_from_split_typecat
     : split_typecat → discrete_comprehension_cat.
