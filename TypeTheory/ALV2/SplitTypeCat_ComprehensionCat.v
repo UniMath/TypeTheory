@@ -53,6 +53,32 @@ Section Auxiliary.
   Defined.
 
   (* TODO: move upstream? *)
+  Definition unique_lift_explicit
+             {C : category}
+             {D : disp_cat C}
+             (is_discrete_fibration_D : is_discrete_fibration D) {c c'}
+             {d : D c} {f : c' --> c} (d' : D c') (ff : d' -->[f] d)
+    : ∃! (d' : D c'), d' -->[f] d.
+  Proof.
+    exists (d' ,, ff).
+    intros X.
+    etrans. apply (pr2 (pr1 is_discrete_fibration_D _ _ f d)).
+    apply pathsinv0, (pr2 (pr1 is_discrete_fibration_D _ _ f d)).
+  Defined.
+
+  (* TODO: move upstream? *)
+  Definition unique_lift_explicit_eq
+             {C : category}
+             {D : disp_cat C}
+             (is_discrete_fibration_D : is_discrete_fibration D) {c c'}
+             {d : D c} {f : c' --> c} (d' : D c') (ff : d' -->[f] d)
+    : pr1 is_discrete_fibration_D _ _ f d
+      = unique_lift_explicit is_discrete_fibration_D d' ff.
+  Proof.
+    apply isapropiscontr.
+  Defined.
+
+  (* TODO: move upstream? *)
   Definition unique_lift_identity
              {C : category}
              {D : disp_cat C}
@@ -60,11 +86,8 @@ Section Auxiliary.
              (d : D c)
     : ∃! (d' : D c), d' -->[identity c] d.
   Proof.
-    use tpair.
-    - exists d. apply id_disp.
-    - intros X.
-      etrans. apply (pr2 (pr1 is_discrete_fibration_D _ _ (identity c) d)).
-      apply pathsinv0, (pr2 (pr1 is_discrete_fibration_D _ _ (identity c) d)).
+    apply (unique_lift_explicit is_discrete_fibration_D d).
+    apply id_disp.
   Defined.
 
   (* TODO: move upstream? *)
@@ -95,12 +118,7 @@ Section Auxiliary.
     set (d'' := pr1 (pr1 d''gg)).
     set (gg := pr2 (pr1 d''gg)).
 
-    exists (d'',, (gg ;; ff)%mor_disp).
-
-    set (p := pr1 is_discrete_fibration_D _ _ (g ;; f) d).
-    intros X.
-    etrans. apply (pr2 p).
-    apply pathsinv0, (pr2 p).
+    use (unique_lift_explicit is_discrete_fibration_D d'' (gg ;; ff)%mor_disp).
   Defined.
 
   (* TODO: move upstream? *)
@@ -116,6 +134,98 @@ Section Auxiliary.
     apply isapropiscontr.
   Defined.
 
+  (* TODO: move upstream? *)
+  Definition discrete_fibration_mor
+             {C : category}
+             {D : disp_cat C}
+             (is_discrete_fibration_D : is_discrete_fibration D) {c c'}
+             (f : c' --> c) (d : D c) (d' : D c')
+    : (d' -->[f] d) = (pr1 (pr1 (pr1 is_discrete_fibration_D c c' f d)) = d').
+  Proof.
+    apply univalenceweq.
+    set (uf := pr1 is_discrete_fibration_D c c' f d).
+    use weq_iso.
+    - intros ff. apply (maponpaths pr1 (! pr2 uf (d' ,, ff))).
+    - intros p. apply (transportf _ p (pr2 (pr1 uf))).
+    - intros ff. simpl.
+      induction (! unique_lift_explicit_eq is_discrete_fibration_D d' ff
+                : unique_lift_explicit _ d' ff = uf).
+      simpl.
+      etrans. apply maponpaths_2, maponpaths, maponpaths.
+      apply pathsinv0r.
+      apply idpath.
+    - intros ?. apply (pr2 is_discrete_fibration_D).
+  Qed.
+
+  (* TODO: move upstream? *)
+  Definition isaprop_mor_disp_of_discrete_fibration
+             {C : category}
+             {D : disp_cat C}
+             (is_discrete_fibration_D : is_discrete_fibration D) {c c'}
+             (f : c' --> c) (d : D c) (d' : D c')
+    : isaprop (d' -->[f] d).
+  Proof.
+    induction (! discrete_fibration_mor is_discrete_fibration_D f d d').
+    apply (pr2 is_discrete_fibration_D).
+  Qed.
+
+  (* TODO: move upstream? *)
+  Definition isaprop_disp_id_comp_of_discrete_fibration
+             {C : category}
+             {D : disp_cat C}
+             (is_discrete_fibration_D : is_discrete_fibration D)
+    : isaprop (disp_cat_id_comp C D).
+  Proof.
+    use isapropdirprod.
+    - apply impred_isaprop. intros ?.
+      apply impred_isaprop. intros ?.
+      apply isaprop_mor_disp_of_discrete_fibration.
+      apply is_discrete_fibration_D.
+    - apply impred_isaprop. intros ?.
+      apply impred_isaprop. intros ?.
+      apply impred_isaprop. intros ?.
+      apply impred_isaprop. intros ?.
+      apply impred_isaprop. intros ?.
+      apply impred_isaprop. intros ?.
+      apply impred_isaprop. intros ?.
+      apply impred_isaprop. intros ?.
+      apply impred_isaprop. intros ?.
+      apply impred_isaprop. intros ?.
+      apply isaprop_mor_disp_of_discrete_fibration.
+      apply is_discrete_fibration_D.
+  Qed.
+
+  (* TODO: move upstream? *)
+  Definition isaprop_is_discrete_fibration
+             {C : category}
+             (D : disp_cat C)
+    : isaprop (is_discrete_fibration D).
+  Proof.
+    use isapropdirprod.
+    - apply impred_isaprop. intros ?.
+      apply impred_isaprop. intros ?.
+      apply impred_isaprop. intros ?.
+      apply impred_isaprop. intros ?.
+      apply isapropiscontr.
+    - apply impred_isaprop. intros ?.
+      apply isapropisaset.
+  Qed.
+             
+  (* TODO: move upstream? *)
+  Definition isaprop_is_cartesian_disp_functor
+        {C C' : category} {F : functor C C'}
+        {D : disp_cat C} {D' : disp_cat C'} {FF : disp_functor F D D'}
+    : isaprop (is_cartesian_disp_functor FF).
+  Proof.
+    apply impred_isaprop. intros c.
+    apply impred_isaprop. intros c'.
+    apply impred_isaprop. intros f.
+    apply impred_isaprop. intros d.
+    apply impred_isaprop. intros d'.
+    apply impred_isaprop. intros ff.
+    apply impred_isaprop. intros ff_is_cartesian.
+    apply isaprop_is_cartesian.
+  Qed.
 End Auxiliary.
 
 Definition discrete_comprehension_cat_structure (C : category) : UU
@@ -391,6 +501,79 @@ Section A.
       := (_ ,, is_split_typecat_from_discrete_comprehension_cat_structure).
 
   End SplitTypeCat_from_DiscreteComprehensionCat.
+
+  Section SplitTypeCat_DiscreteComprehensionCat_Equiv.
+
+    Context {C : category}.
+
+    Definition split_typecat_structure_discrete_comprehension_cat_structure_weq
+      : split_typecat_structure C ≃ discrete_comprehension_cat_structure C.
+    Proof.
+      use weq_iso.
+      - apply discrete_comprehension_cat_structure_from_split_typecat_structure.
+      - apply split_typecat_structure_from_discrete_comprehension_cat_structure.
+      - intros TC.
+        use total2_paths_f.
+        + use total2_paths_f.
+          * apply idpath. (* typecat_structure1 *)
+          * repeat use total2_paths_f.
+            -- apply idpath. (* dpr *)
+            -- (* q *)
+               apply funextsec. intros ?.
+               apply funextsec. intros ?.
+               apply funextsec. intros ?.
+               apply funextsec. intros ?.
+               apply id_left.
+            -- apply funextsec. intros ?.
+               apply funextsec. intros ?.
+               apply funextsec. intros ?.
+               apply funextsec. intros ?.
+               apply homset_property.
+            -- apply funextsec. intros ?.
+               apply funextsec. intros ?.
+               apply funextsec. intros ?.
+               apply funextsec. intros ?.
+               apply isaprop_isPullback.
+        + apply isaprop_is_split_typecat.
+          apply homset_property.
+
+      - intros DC.
+        set (D := pr1 DC : disp_cat C).
+        set (is_discrete_fibration_D := pr1 (pr2 DC) : is_discrete_fibration D).
+        set (FF := pr1 (pr2 (pr2 DC))
+                   : disp_functor (functor_identity C) D (disp_codomain C)).
+
+        use total2_paths_f.
+        2: use dirprod_paths.
+        2: apply isaprop_is_discrete_fibration.
+        2: use total2_paths_f.
+        3: apply isaprop_is_cartesian_disp_functor.
+
+        use total2_paths_f.
+        2: apply isaprop_disp_cat_axioms.
+        use total2_paths_f.
+        2: apply (isaprop_disp_id_comp_of_discrete_fibration is_discrete_fibration_D).
+
+        + use total2_paths_f. 
+          * apply idpath.
+          * apply funextsec. intros ?.
+            apply funextsec. intros ?.
+            apply funextsec. intros ?.
+            apply funextsec. intros ?.
+            apply funextsec. intros ?.
+            apply pathsinv0.
+            apply (discrete_fibration_mor is_discrete_fibration_D).
+
+        + use total2_paths_f.
+          * use total2_paths_f.
+            -- apply funextsec. intros ?.
+               apply funextsec. intros ?.
+               use total2_paths_f.
+               ++ cbn.
+                 Check (pr1 (pr1 (pr1 (pr2 (pr2 DC)))) x x0).
+    Abort.
+
+  End SplitTypeCat_DiscreteComprehensionCat_Equiv.
 
   Definition discrete_comprehension_cat_from_split_typecat
     : split_typecat → discrete_comprehension_cat.
