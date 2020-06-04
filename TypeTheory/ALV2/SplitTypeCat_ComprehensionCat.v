@@ -289,6 +289,23 @@ Section A.
         : disp_cat C
         := disp_precat_from_split_typecat_structure.
 
+    Definition disp_cat_from_split_typecat_structure_is_univalent
+      : is_univalent_disp disp_cat_from_split_typecat_structure.
+    Proof.
+      apply is_univalent_disp_from_fibers.
+      intros Γ A A'.
+      use isweq_iso.
+      - intros i.
+        set (A'A := pr1 i : A' {{ identity _ }} = A).
+        set (reind_id := pr1 (pr1 (dirprod_pr2 (pr2 TC)))).
+        exact (! A'A @ reind_id Γ A').
+      - intros e. apply (pr1 (pr2 TC) Γ).
+      - intros i.
+        use total2_paths_f.
+        + apply (pr1 (pr2 TC) Γ).
+        + apply isaprop_is_iso_disp.
+    Defined.
+    
     Definition is_discrete_fibration_disp_cat_from_split_typecat_structure
       : is_discrete_fibration disp_cat_from_split_typecat_structure.
     Proof.
@@ -305,7 +322,7 @@ Section A.
     Definition discrete_fibration_from_split_typecat_structure
       : discrete_fibration C
       := (_ ,, is_discrete_fibration_disp_cat_from_split_typecat_structure).
-    
+
     Definition disp_functor_data_from_split_typecat_structure
       : disp_functor_data (functor_identity C)
                           disp_cat_from_split_typecat_structure
