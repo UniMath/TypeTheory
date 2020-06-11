@@ -135,14 +135,13 @@ Section Auxiliary.
   Defined.
 
   (* TODO: move upstream? *)
-  Definition discrete_fibration_mor
+  Definition discrete_fibration_mor_weq
              {C : category}
              {D : disp_cat C}
              (is_discrete_fibration_D : is_discrete_fibration D) {c c'}
              (f : c' --> c) (d : D c) (d' : D c')
-    : (d' -->[f] d) = (pr1 (pr1 (pr1 is_discrete_fibration_D c c' f d)) = d').
+    : (d' -->[f] d) ≃ (pr1 (pr1 (pr1 is_discrete_fibration_D c c' f d)) = d').
   Proof.
-    apply univalenceweq.
     set (uf := pr1 is_discrete_fibration_D c c' f d).
     use weq_iso.
     - intros ff. apply (maponpaths pr1 (! pr2 uf (d' ,, ff))).
@@ -155,7 +154,19 @@ Section Auxiliary.
       apply pathsinv0r.
       apply idpath.
     - intros ?. apply (pr2 is_discrete_fibration_D).
-  Qed.
+  Defined.
+
+  (* TODO: move upstream? *)
+  Definition discrete_fibration_mor
+             {C : category}
+             {D : disp_cat C}
+             (is_discrete_fibration_D : is_discrete_fibration D) {c c'}
+             (f : c' --> c) (d : D c) (d' : D c')
+    : (d' -->[f] d) = (pr1 (pr1 (pr1 is_discrete_fibration_D c c' f d)) = d').
+  Proof.
+    apply univalenceweq.
+    apply discrete_fibration_mor_weq.
+  Defined.
 
   (* TODO: move upstream? *)
   Definition isaprop_mor_disp_of_discrete_fibration
@@ -229,6 +240,23 @@ Section Auxiliary.
 
 End Auxiliary.
 
+Definition discrete_comprehension_cat_structure' (C : category) : UU
+  := ∑ (D_ob : C → UU)
+       (Fob : ∏ Γ : C, D_ob Γ → disp_codomain C Γ)
+       (D_mor : ∏ x y : C, D_ob x → D_ob y → C ⟦ x, y ⟧ → UU)
+       (Fmor : ∏ (Γ Γ' : C) (A : D_ob Γ) (A' : D_ob Γ') (f : C ⟦ Γ, Γ' ⟧),
+               D_mor _ _ A A' f → Fob Γ A -->[ f] Fob Γ' A')
+       (D_id_comp : disp_cat_id_comp C (D_ob ,, D_mor))
+       (D_axioms : disp_cat_axioms C (_ ,, D_id_comp))
+       (is_discrete_fibration_D : is_discrete_fibration (_ ,, D_axioms))
+       (FF_axioms : @disp_functor_axioms
+                      _ _ (functor_identity C)
+                      (_ ,, D_axioms) _
+                      (Fob,, Fmor)),
+     is_cartesian_disp_functor
+       ((_ ,, FF_axioms)
+        : disp_functor (functor_identity C) (_ ,, D_axioms) (disp_codomain C)).
+
 Definition discrete_comprehension_cat_structure (C : category) : UU
   := ∑ (D : disp_cat C)
        (is_discrete_fibration_D : is_discrete_fibration D)
@@ -237,6 +265,25 @@ Definition discrete_comprehension_cat_structure (C : category) : UU
 
 Definition discrete_comprehension_cat : UU
   := ∑ (C : category), discrete_comprehension_cat_structure C.
+
+Definition discrete_comprehension_cat_structure'_weq {C : category}
+  : discrete_comprehension_cat_structure' C ≃ discrete_comprehension_cat_structure C.
+Proof.
+  eapply weqcomp. 2: apply weqtotal2asstol.
+  eapply weqcomp. 2: apply weqtotal2asstol.
+  eapply weqcomp. 2: apply weqtotal2asstol.
+  apply (weqtotal2 (idweq _)). intros D_ob.
+  eapply weqcomp. apply WeakEquivalences.weqtotal2comm.
+  apply (weqtotal2 (idweq _)). intros D_mor.
+  eapply weqcomp. apply weqtotal2asstol'.
+  eapply weqcomp. apply WeakEquivalences.weqtotal2comm.
+  apply (weqtotal2 (idweq _)). intros D_id_comp.
+  eapply weqcomp. apply WeakEquivalences.weqtotal2comm.
+  apply (weqtotal2 (idweq _)). intros D_axioms.
+  eapply weqcomp. apply WeakEquivalences.weqtotal2comm.
+  apply (weqtotal2 (idweq _)). intros D_is_discrete_fibration.
+  apply weqtotal2asstol.
+Defined.
 
 Section A.
 
@@ -279,7 +326,7 @@ Section A.
         - intros. apply (pr1 (pr2 TC)).
         - intros. apply (pr1 (pr2 TC)).
         - intros. apply isasetaprop. apply (pr1 (pr2 TC)).
-    Defined.
+    Qed.
 
     Definition disp_precat_from_split_typecat_structure
         : disp_precat C
@@ -414,6 +461,35 @@ Section A.
 
   End DiscreteComprehensionCat_from_SplitTypeCat.
 
+  Section DiscreteComprehensionCat'_from_SplitTypeCat.
+
+    Context {C : category}.
+
+    Context (TC : split_typecat_structure C).
+
+    Definition discrete_comprehension_cat_structure'_from_split_typecat_structure
+      : discrete_comprehension_cat_structure' C.
+    Proof.
+      exists (disp_cat_ob_mor_from_split_typecat_structure TC).
+      use tpair. 2: use tpair. 3: use tpair. 4: use tpair. 5: use tpair. 6: use tpair.
+      7: use tpair.
+      - intros Γ A.
+        exists (Γ ◂ A).
+        apply (dpr_typecat A).
+      - apply (pr2 (disp_cat_ob_mor_from_split_typecat_structure TC)).
+      - intros Γ Γ' A A' f ff.
+        exact (transportf
+                 (λ AA, ((Γ ◂ AA,, dpr_typecat AA) : disp_codomain C Γ) -->[f] (Γ' ◂ A',, dpr_typecat A'))
+                 ff (q_typecat A' f ,, dpr_q_typecat A' f)).
+      - apply disp_cat_id_comp_from_split_typecat_structure.
+      - apply disp_cat_axioms_from_split_typecat_structure.
+      - apply is_discrete_fibration_disp_cat_from_split_typecat_structure.
+      - apply disp_functor_axioms_from_split_typecat_structure.
+      - apply disp_functor_from_split_typecat_structure_is_cartesian.
+    Defined.
+
+  End DiscreteComprehensionCat'_from_SplitTypeCat.
+
   Section SplitTypeCat_from_DiscreteComprehensionCat.
 
     Context {C : category}.
@@ -513,9 +589,75 @@ Section A.
 
   End SplitTypeCat_from_DiscreteComprehensionCat.
 
+  Section SplitTypeCat_from_DiscreteComprehensionCat'.
+
+    Context {C : category}.
+
+    Context (DC : discrete_comprehension_cat_structure' C).
+
+    Definition split_typecat_structure_from_discrete_comprehension_cat_structure'
+      : split_typecat_structure C.
+    Proof.
+      apply split_typecat_structure_from_discrete_comprehension_cat_structure.
+      apply discrete_comprehension_cat_structure'_weq.
+      apply DC.
+    Defined.
+
+  End SplitTypeCat_from_DiscreteComprehensionCat'.
+
   Section SplitTypeCat_DiscreteComprehensionCat_Equiv.
 
     Context {C : category}.
+
+    Definition split_typecat_structure_discrete_comprehension_cat_structure'_weq
+      : split_typecat_structure C ≃ discrete_comprehension_cat_structure' C.
+    Proof.
+      use weq_iso.
+      - apply discrete_comprehension_cat_structure'_from_split_typecat_structure.
+      - apply split_typecat_structure_from_discrete_comprehension_cat_structure'.
+      - intros TC.
+        use total2_paths_f.
+        + use total2_paths_f.
+          * apply idpath. (* typecat_structure1 *)
+          * repeat use total2_paths_f.
+            -- apply idpath. (* dpr *)
+            -- apply idpath. (* q *)
+            -- apply funextsec. intros ?.
+               apply funextsec. intros ?.
+               apply funextsec. intros ?.
+               apply funextsec. intros ?.
+               apply homset_property.
+            -- apply funextsec. intros ?.
+               apply funextsec. intros ?.
+               apply funextsec. intros ?.
+               apply funextsec. intros ?.
+               apply isaprop_isPullback.
+        + apply isaprop_is_split_typecat.
+          apply homset_property.
+
+      - intros DC.
+        use total2_paths_f. 2: use total2_paths_f. 3: use total2_paths_f. 4: use total2_paths_f.
+        + apply idpath.
+        + apply idpath.
+        + apply funextsec. intros ?.
+          apply funextsec. intros ?.
+          apply funextsec. intros ?.
+          apply funextsec. intros ?.
+          apply funextsec. intros ?.
+          apply pathsinv0.
+          apply (discrete_fibration_mor (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DC)))))))).
+        + apply funextsec; intros Γ.
+          apply funextsec; intros Γ'.
+          apply funextsec; intros A.
+          apply funextsec; intros A'.
+          apply funextsec; intros f.
+          apply funextsec; intros ff.
+          
+          
+          use total2_paths_f.
+          etrans. apply maponpaths.
+          apply pr1_transportf.
+    Defined.
 
     Lemma ololo
           (DC : discrete_comprehension_cat_structure C)
