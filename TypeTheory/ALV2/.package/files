@@ -13,3 +13,4 @@ RelUniv_Cat_Yo_CwF_Iso.v
 RelUnivTransfer.v
 TypeCat_ComprehensionCat.v
 FullyFaithfulDispFunctor.v
+DiscreteComprehensionCat.v
