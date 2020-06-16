@@ -83,28 +83,20 @@ Section Auxiliary.
 
 End Auxiliary.
 
-(* "Natural" definition of discrete comprehension cat structure *)
-Definition discrete_comprehension_cat_structure (C : category) : UU
-  := ∑ (D : disp_cat C)
-       (is_discrete_fibration_D : is_discrete_fibration D)
-       (FF : disp_functor (functor_identity _) D (disp_codomain C)), 
-     is_cartesian_disp_functor FF.
-
-Definition discrete_comprehension_cat : UU
-  := ∑ (C : category), discrete_comprehension_cat_structure C.
-
 Section MorWithUniqueLift.
 
   Context
     {C : category}
     (D_ob : C → UU)
-    (Fob : ∏ Γ : C, D_ob Γ → disp_codomain C Γ)
-    (D_lift_ob : ∏ {Γ Γ' : C}, C ⟦ Γ', Γ ⟧ → D_ob Γ → D_ob Γ')
-    (D_ob_isaset : ∏ Γ : C, isaset (D_ob Γ)).
+    (D_lift_ob : ∏ {Γ Γ' : C}, C ⟦ Γ', Γ ⟧ → D_ob Γ → D_ob Γ').
 
   Definition default_mor
     : ∏ (Γ Γ' : C), D_ob Γ → D_ob Γ' → C ⟦ Γ, Γ' ⟧ → UU
     := λ Γ Γ' A A' f, A = D_lift_ob _ _ f A'.
+
+  Context
+    (Fob : ∏ Γ : C, D_ob Γ → disp_codomain C Γ)
+    (D_ob_isaset : ∏ Γ : C, isaset (D_ob Γ)).
 
   Definition mor_with_unique_lift
     : UU
@@ -246,50 +238,165 @@ Section MorWithUniqueLift.
     apply mor_with_unique_lift'''_eq_default.
   Defined.
 
+  Definition mor_with_unique_lift_weq
+    : mor_with_unique_lift ≃ mor_with_unique_lift'''
+    := (mor_with_unique_lift'''_weq
+          ∘ mor_with_unique_lift''_weq
+          ∘ mor_with_unique_lift'_weq)%weq.
+
+  Definition mor_with_unique_lift_irrelevant
+             (P : (∏ {Γ Γ'}, D_ob Γ → D_ob Γ' → C ⟦ Γ, Γ' ⟧ → UU) → UU)
+             (D_mor : mor_with_unique_lift)
+    : P (pr1 D_mor) ≃ P default_mor.
+  Proof.
+    apply (mor_with_unique_lift'''_irrelevant _ (mor_with_unique_lift_weq D_mor)).
+  Defined.
+
+  Definition iscontr_mor_with_unique_lift
+    : iscontr mor_with_unique_lift.
+  Proof.
+    apply (iscontrweqf (invweq mor_with_unique_lift_weq)).
+    apply iscontr_mor_with_unique_lift'''.
+  Defined.
+
 End MorWithUniqueLift.
 
-(* A variation of [discrete_comprehension_cat_structure] with a convenient rearrangement of fields *)
-Definition discrete_comprehension_cat_structure1 (C : category) : UU
-  := ∑ (D_ob : C → UU)
-       (Fob : ∏ Γ : C, D_ob Γ → disp_codomain C Γ)
-       (D_lift_ob : ∏ {Γ Γ' : C}, C ⟦ Γ', Γ ⟧ → D_ob Γ → D_ob Γ')
-       (D_ob_isaset : ∏ Γ : C, isaset (D_ob Γ))
+Section DiscreteComprehensionCats.
 
-       (D_mor : ∏ {Γ Γ' : C}, D_ob Γ → D_ob Γ' → C ⟦ Γ, Γ' ⟧ → UU)
-       (D_homsets : ∏ {Γ Γ' : C} (f : C ⟦ Γ, Γ' ⟧) (A : D_ob Γ) (A' : D_ob Γ'),
-                    isaset (D_mor A A' f))
-       (D_unique_lift : ∏ (Γ Γ' : C) (f : C ⟦ Γ', Γ ⟧) (A : D_ob Γ),
-                        ∑ (ff : D_mor (D_lift_ob f A) A f),
-                        ∏ (gg : ∑ (B : D_ob Γ'), D_mor B A f),
-                        gg = (D_lift_ob f A ,, ff))
+  (* "Natural" definition of discrete comprehension cat structure *)
+  Definition discrete_comprehension_cat_structure (C : category) : UU
+    := ∑ (D : disp_cat C)
+         (is_discrete_fibration_D : is_discrete_fibration D)
+         (FF : disp_functor (functor_identity _) D (disp_codomain C)), 
+       is_cartesian_disp_functor FF.
 
-       (Fmor : ∏ (Γ Γ' : C) (A : D_ob Γ) (A' : D_ob Γ') (f : C ⟦ Γ, Γ' ⟧),
-               D_mor A A' f → Fob Γ A -->[ f] Fob Γ' A')
+  Definition discrete_comprehension_cat : UU
+    := ∑ (C : category), discrete_comprehension_cat_structure C.
 
-       (D_id_comp : disp_cat_id_comp C (D_ob ,, @D_mor))
-       
-       (D_id_left : ∏ (x y : C) (f : C ⟦ x, y ⟧)
-                      (xx : D x) (yy : pr1 D y) (ff : xx -->[ f] yy),
-                    (id_disp xx;; ff)%mor_disp = transportb (mor_disp xx yy) (id_left f) ff)
-       (D_id_right : ∏ (x y : C) (f : C ⟦ x, y ⟧)
-                       (xx : D x) (yy : pr1 D y) (ff : xx -->[ f] yy),
-                     (ff;; id_disp yy)%mor_disp = transportb (mor_disp xx yy) (id_right f) ff)
-       (D_assoc : ∏ (x y z w : C) (f : C ⟦ x, y ⟧) (g : C ⟦ y, z ⟧) (h : C ⟦ z, w ⟧) 
-                    (xx : D x) (yy : D y) (zz : D z) (ww : D w) (ff : xx -->[ f] yy) 
-                    (gg : yy -->[ g] zz) (hh : zz -->[ h] ww),
-                  (ff;; (gg;; hh))%mor_disp =
-                  transportb (mor_disp xx ww) (assoc f g h) (ff;; gg;; hh)%mor_disp)
+  (* Like [disp_cat_axioms] but without [homsets_disp} *)
+  Definition disp_cat_axioms' (C : precategory) (D : disp_cat_data C)
+    : UU
+    := (∏ x y (f : x --> y) (xx : D x) yy (ff : xx -->[f] yy),
+        (id_disp _ ;; ff)%mor_disp
+        = transportb _ (id_left _) ff)
+         × (∏ x y (f : x --> y) (xx : D x) yy (ff : xx -->[f] yy),
+            (ff ;; id_disp _)%mor_disp
+            = transportb _ (id_right _) ff)
+         × (∏ x y z w f g h (xx : D x) (yy : D y) (zz : D z) (ww : D w)
+              (ff : xx -->[f] yy) (gg : yy -->[g] zz) (hh : zz -->[h] ww),
+            (ff ;; (gg ;; hh))%mor_disp
+            = transportb _ (assoc _ _ _) ((ff ;; gg) ;; hh))%mor_disp.
 
-       (FF_axioms : @disp_functor_axioms
-                      _ _ (functor_identity C)
-                      (_ ,, D_axioms) _
-                      (Fob,, Fmor)),
+  Definition disp_cat_axioms'_weq {C : precategory} {D : disp_cat_data C}
+    : (disp_cat_axioms' C D × (∏ x y f (xx : D x) (yy : D y), isaset (xx -->[f] yy)))
+                       ≃ disp_cat_axioms _ D.
+  Proof.
+    eapply weqcomp. apply weqdirprodasstor.
+    apply (weqdirprodf (idweq _)).
+    apply weqdirprodasstor.
+  Defined.
 
-     is_cartesian_disp_functor
-       ((_ ,, FF_axioms)
-        : disp_functor (functor_identity C) (_ ,, D_axioms) (disp_codomain C)).
+  (* A variation of [discrete_comprehension_cat_structure] with a convenient rearrangement of fields *)
+  Definition discrete_comprehension_cat_structure1 (C : category) : UU
+    := ∑ (D_ob : C → UU)
+         (Fob : ∏ Γ : C, D_ob Γ → disp_codomain C Γ)
+         (D_lift_ob : ∏ {Γ Γ' : C}, C ⟦ Γ', Γ ⟧ → D_ob Γ → D_ob Γ')
+         (D_ob_isaset : ∏ Γ : C, isaset (D_ob Γ))
 
-Search iscontr.
+         (D_mor : ∏ {Γ Γ' : C}, D_ob Γ → D_ob Γ' → C ⟦ Γ, Γ' ⟧ → UU)
+         (D_homsets : ∏ {Γ Γ' : C} (f : C ⟦ Γ, Γ' ⟧) (A : D_ob Γ) (A' : D_ob Γ'),
+                      isaset (D_mor A A' f))
+         (D_unique_lift : ∏ (Γ Γ' : C) (f : C ⟦ Γ', Γ ⟧) (A : D_ob Γ),
+                          ∑ (ff : D_mor (D_lift_ob f A) A f),
+                          ∏ (gg : ∑ (B : D_ob Γ'), D_mor B A f),
+                          gg = (D_lift_ob f A ,, ff))
+
+         (Fmor : ∏ (Γ Γ' : C) (A : D_ob Γ) (A' : D_ob Γ') (f : C ⟦ Γ, Γ' ⟧),
+                 D_mor A A' f → Fob Γ A -->[ f] Fob Γ' A')
+
+         (D_id_comp : disp_cat_id_comp C (D_ob ,, @D_mor))
+         (D_axioms' : disp_cat_axioms' C (_ ,, D_id_comp))
+         (FF_axioms : @disp_functor_axioms
+                        _ _ (functor_identity C)
+                        (_ ,, disp_cat_axioms'_weq (D_axioms' , @D_homsets)) _
+                        (Fob,, Fmor)),
+
+       is_cartesian_disp_functor
+         ((_ ,, FF_axioms)
+          : disp_functor (functor_identity C) (_ ,, disp_cat_axioms'_weq (D_axioms', @D_homsets)) (disp_codomain C)).
+
+  Definition discrete_comprehension_cat_structure1_weq {C : category}
+    : discrete_comprehension_cat_structure C ≃ discrete_comprehension_cat_structure1 C.
+  Proof.
+    use weq_iso.
+    - intros DC.
+      set (D := pr1 DC).
+      set (is_discrete_fibration_D := pr1 (pr2 DC)).
+      set (FF := pr1 (pr2 (pr2 DC))).
+      set (is_cartesian_FF := pr2 (pr2 (pr2 DC))).
+      exists D.
+      exists FF.
+      exists (λ Γ Γ' f A', pr1 (pr1 (pr1 is_discrete_fibration_D Γ Γ' f A'))).
+      exists (pr2 is_discrete_fibration_D).
+      exists (pr2 (D : disp_cat_ob_mor C)).
+      exists (@homsets_disp C D).
+      use tpair.
+      + intros Γ Γ' f A.
+        set (uf := pr1 is_discrete_fibration_D Γ Γ' f A).
+        exists (pr2 (pr1 uf)).
+        exact (pr2 uf).
+      + exists (@disp_functor_on_morphisms _ _ _ _ _ FF).
+        exists (pr2 (pr1 D)).
+        exists (pr1 (invweq disp_cat_axioms'_weq (pr2 D))).
+        exists (pr2 FF).
+        exact is_cartesian_FF.
+
+    - intros DC.
+      set (D_ob := pr1 DC).
+      set (Fob := pr1 (pr2 DC)).
+      set (D_lift_ob := pr1 (pr2 (pr2 DC))).
+      set (D_ob_isaset := pr1 (pr2 (pr2 (pr2 DC)))).
+      set (D_mor := pr1 (pr2 (pr2 (pr2 (pr2 DC))))).
+      set (D_homsets := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 DC)))))).
+      set (D_unique_lift := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DC))))))).
+      set (F_mor := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DC)))))))).
+      set (D_id_comp := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DC))))))))).
+      set (D_axioms := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DC)))))))))).
+      set (FF_axioms := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DC))))))))))).
+      set (is_cartesian_FF := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DC))))))))))).
+
+      exists (_ ,, disp_cat_axioms'_weq (D_axioms , D_homsets)).
+      exists (λ Γ Γ' f A',
+              ((D_lift_ob _ _ f A' ,, pr1 (D_unique_lift _ _ f A'))
+                 ,, pr2 (D_unique_lift _ _ f A'))
+             , D_ob_isaset).
+      exists (_ ,, FF_axioms).
+      exact is_cartesian_FF.
+
+    - apply idpath.
+    - apply idpath.
+  Defined.
+
+  (* A variation of [discrete_comprehension_cat_structure] with a convenient rearrangement of fields *)
+  Definition discrete_comprehension_cat_structure_with_default_mor (C : category) : UU
+    := ∑ (D_ob : C → UU)
+         (Fob : ∏ Γ : C, D_ob Γ → disp_codomain C Γ)
+         (D_lift_ob : ∏ {Γ Γ' : C}, C ⟦ Γ', Γ ⟧ → D_ob Γ → D_ob Γ')
+         (D_ob_isaset : ∏ Γ : C, isaset (D_ob Γ))
+
+         (Fmor : ∏ (Γ Γ' : C) (A : D_ob Γ) (A' : D_ob Γ') (f : C ⟦ Γ, Γ' ⟧),
+                 default_mor D_ob (@D_lift_ob) _ _ A A' f → Fob Γ A -->[ f] Fob Γ' A')
+
+         (D_id_comp : disp_cat_id_comp C (D_ob ,, default_mor D_ob (@D_lift_ob)))
+         (D_axioms : disp_cat_axioms C (_ ,, D_id_comp))
+         (FF_axioms : @disp_functor_axioms
+                        _ _ (functor_identity C)
+                        (_ ,, D_axioms) _
+                        (Fob,, Fmor)),
+
+       is_cartesian_disp_functor
+         ((_ ,, FF_axioms)
+          : disp_functor (functor_identity C) (_ ,, D_axioms) (disp_codomain C)).
 
 Lemma l1
       {A : UU} {B : A → UU}
