@@ -7,12 +7,16 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.ALV2.FullyFaithfulDispFunctor.
+Require Import TypeTheory.ALV2.DiscreteComprehensionCat.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
+
+Search isPullback.
+Search isaprop.
 
 Section Auxiliary.
 
@@ -240,50 +244,164 @@ Section Auxiliary.
 
 End Auxiliary.
 
-Definition discrete_comprehension_cat_structure' (C : category) : UU
-  := ∑ (D_ob : C → UU)
-       (Fob : ∏ Γ : C, D_ob Γ → disp_codomain C Γ)
-       (D_mor : ∏ x y : C, D_ob x → D_ob y → C ⟦ x, y ⟧ → UU)
-       (Fmor : ∏ (Γ Γ' : C) (A : D_ob Γ) (A' : D_ob Γ') (f : C ⟦ Γ, Γ' ⟧),
-               D_mor _ _ A A' f → Fob Γ A -->[ f] Fob Γ' A')
-       (D_id_comp : disp_cat_id_comp C (D_ob ,, D_mor))
-       (D_axioms : disp_cat_axioms C (_ ,, D_id_comp))
-       (is_discrete_fibration_D : is_discrete_fibration (_ ,, D_axioms))
-       (FF_axioms : @disp_functor_axioms
-                      _ _ (functor_identity C)
-                      (_ ,, D_axioms) _
-                      (Fob,, Fmor)),
-     is_cartesian_disp_functor
-       ((_ ,, FF_axioms)
-        : disp_functor (functor_identity C) (_ ,, D_axioms) (disp_codomain C)).
+Section DiscreteComprehensionCatWithDefaultMor.
 
-Definition discrete_comprehension_cat_structure (C : category) : UU
-  := ∑ (D : disp_cat C)
-       (is_discrete_fibration_D : is_discrete_fibration D)
-       (FF : disp_functor (functor_identity _) D (disp_codomain C)), 
-     is_cartesian_disp_functor FF.
+  Section From_SplitTypeCat.
 
-Definition discrete_comprehension_cat : UU
-  := ∑ (C : category), discrete_comprehension_cat_structure C.
+    Context {C : category}.
+    Context (TC : split_typecat_structure C).
 
-Definition discrete_comprehension_cat_structure'_weq {C : category}
-  : discrete_comprehension_cat_structure' C ≃ discrete_comprehension_cat_structure C.
-Proof.
-  eapply weqcomp. 2: apply weqtotal2asstol.
-  eapply weqcomp. 2: apply weqtotal2asstol.
-  eapply weqcomp. 2: apply weqtotal2asstol.
-  apply (weqtotal2 (idweq _)). intros D_ob.
-  eapply weqcomp. apply WeakEquivalences.weqtotal2comm.
-  apply (weqtotal2 (idweq _)). intros D_mor.
-  eapply weqcomp. apply weqtotal2asstol'.
-  eapply weqcomp. apply WeakEquivalences.weqtotal2comm.
-  apply (weqtotal2 (idweq _)). intros D_id_comp.
-  eapply weqcomp. apply WeakEquivalences.weqtotal2comm.
-  apply (weqtotal2 (idweq _)). intros D_axioms.
-  eapply weqcomp. apply WeakEquivalences.weqtotal2comm.
-  apply (weqtotal2 (idweq _)). intros D_is_discrete_fibration.
-  apply weqtotal2asstol.
-Defined.
+    Let D_ob := TC : C → UU.
+    Let Fob := (λ Γ A, (Γ ◂ A ,, dpr_typecat A))
+               : ∏ (Γ : C), D_ob Γ → disp_codomain C Γ.
+    Let D_lift_ob := (λ Γ Γ' f A, reind_typecat A f)
+      : ∏ (Γ Γ' : C), C ⟦ Γ', Γ ⟧ → D_ob Γ → D_ob Γ'.
+    Let D_ob_isaset := pr1 (pr2 TC) : ∏ (Γ : C), isaset (D_ob Γ).
+
+    Let D_mor := default_mor D_ob D_lift_ob.
+
+    Let Fmor := (λ Γ Γ' A A' f ff,
+                 transportf
+                   (λ AA, ((Γ ◂ AA,, dpr_typecat AA) : disp_codomain C Γ)
+                            -->[f] (Γ' ◂ A',, dpr_typecat A'))
+                   ff (q_typecat A' f ,, dpr_q_typecat A' f))
+                : ∏ (Γ Γ' : C) (A : D_ob Γ) (A' : D_ob Γ') (f : C ⟦ Γ, Γ' ⟧),
+                  D_mor _ _ A A' f → Fob Γ A -->[ f] Fob Γ' A'.
+
+    Definition disp_cat_id_comp_from_split_typecat_structure_default_mor
+        : disp_cat_id_comp C (D_ob ,, D_mor).
+    Proof.
+        use make_dirprod.
+        - intros Γ A. apply (pr1 (pr1 (dirprod_pr2 (pr2 TC)))).
+        - intros Γ Γ' Γ'' f g A A' A'' ff gg. 
+          simpl.
+          set (reind_comp := pr1 (dirprod_pr2 (pr2 (pr2 TC)))).
+          unfold D_mor, default_mor in *.
+          simpl in *.
+          apply (reind_comp _ _ _ _ _ _
+                   @ maponpaths (λ B, B {{f}}) gg
+                   @ ff).
+    Defined.
+
+    Definition disp_cat_data_from_split_typecat_structure_default_mor
+        : disp_cat_data C
+        := (_ ,, disp_cat_id_comp_from_split_typecat_structure_default_mor).
+
+    Definition disp_cat_axioms'_from_split_typecat_structure_default_mor
+        : disp_cat_axioms' C disp_cat_data_from_split_typecat_structure_default_mor.
+    Proof.
+        repeat use make_dirprod.
+        - intros. apply (pr1 (pr2 TC)).
+        - intros. apply (pr1 (pr2 TC)).
+        - intros. apply (pr1 (pr2 TC)).
+    Qed.
+
+    Definition disp_cat_axioms_from_split_typecat_structure_default_mor
+        : disp_cat_axioms C disp_cat_data_from_split_typecat_structure_default_mor.
+    Proof.
+      apply disp_cat_axioms'_weq.
+      use make_dirprod.
+      - apply disp_cat_axioms'_from_split_typecat_structure_default_mor.
+      - apply default_mor_homsets.
+        apply D_ob_isaset.
+    Qed.
+
+    Definition disp_cat_from_split_typecat_structure_default_mor
+      : disp_cat C
+      := (_ ,, disp_cat_axioms_from_split_typecat_structure_default_mor).
+
+    Let FF := (Fob ,, Fmor)
+              : disp_functor_data
+                  (functor_identity C)
+                  disp_cat_from_split_typecat_structure_default_mor
+                  (disp_codomain C).
+
+    Definition disp_functor_axioms_from_split_typecat_structure_default_mor
+      : disp_functor_axioms FF.
+    Proof.
+      use make_dirprod.
+      - intros Γ A.
+        use total2_paths_f. 2: apply homset_property.
+        simpl. etrans. apply (pr1_transportf _ (λ AA, C ⟦ Γ ◂ AA, Γ ◂ A ⟧)).
+        cbn. etrans. apply maponpaths.
+        apply (pr2 (pr1 (dirprod_pr2 (pr2 TC))) Γ A).
+        induction (pr1 (pr1 (dirprod_pr2 (pr2 TC))) Γ A).
+        apply idpath.
+
+      - intros Γ Γ' Γ'' A A' A'' f g ff gg.
+        use total2_paths_f. 2: apply homset_property.
+        + simpl. etrans. apply (pr1_transportf _ (λ AA, C ⟦ Γ ◂ AA, Γ'' ◂ A'' ⟧)).
+          etrans. apply maponpaths, (pr2 (dirprod_pr2 (pr2 (pr2 TC)))).
+          induction ff, gg. simpl.
+          etrans. apply maponpaths_2, pathscomp0rid.
+          etrans. apply maponpaths, assoc'.
+          etrans. apply (functtransportf (λ b : pr1 TC Γ, Γ ◂ b)
+                                         ((λ x, C ⟦ x, Γ'' ◂ A'' ⟧))).
+          etrans. apply pathsinv0, idtoiso_precompose.
+          etrans. apply maponpaths_2, maponpaths, idtoiso_inv.
+          etrans. apply assoc.
+          etrans. apply maponpaths_2, iso_after_iso_inv.
+          apply id_left.
+    Qed.
+
+    Definition disp_functor_from_split_typecat_structure_default_mor
+      : disp_functor
+          (functor_identity C)
+          disp_cat_from_split_typecat_structure_default_mor
+          (disp_codomain C)
+      := (FF,, disp_functor_axioms_from_split_typecat_structure_default_mor).
+
+    Definition disp_functor_from_split_typecat_structure_is_cartesian_default_mor
+      : is_cartesian_disp_functor disp_functor_from_split_typecat_structure_default_mor.
+    Proof.
+      intros Γ Γ' f A A' ff ff_is_cartesian.
+      intros Δ g k k_comm.
+      use iscontrweqf.
+      3: {
+        use (reind_pb_typecat A f).
+        - exact (pr1 k).
+        - exact (pr2 k ;; g).
+        - exact (pr1 k_comm).
+        - etrans. apply assoc'. apply (! pr2 k_comm).
+      }
+
+      induction ff.
+
+      eapply weqcomp.
+      2: apply weqtotal2asstol.
+      apply weq_subtypes_iff.
+      -- intro. apply isapropdirprod; apply homset_property.
+      -- intro. apply (isofhleveltotal2 1). 
+         ++ apply homset_property.
+         ++ intros. apply homsets_disp.
+      -- intros gg; split; intros H.
+         ++ exists (pr1 H).
+            apply subtypePath.
+            intro; apply homset_property.
+            exact (pr2 H).
+         ++ split.
+            ** exact (pr1 H).
+            ** apply (maponpaths pr1 (pr2 H)).
+    Qed.
+
+    Definition discrete_comprehension_cat_structure_with_default_mor_from_typecat_structure
+      : discrete_comprehension_cat_structure_with_default_mor C.
+    Proof.
+      exists D_ob.
+      exists Fob.
+      exists D_lift_ob.
+      exists (pr1 (pr2 TC)).
+      unfold discrete_comprehension_cat_structure2.
+      exists Fmor.
+      exists disp_cat_id_comp_from_split_typecat_structure_default_mor.
+      exists disp_cat_axioms'_from_split_typecat_structure_default_mor.
+      exists disp_functor_axioms_from_split_typecat_structure_default_mor.
+      exact disp_functor_from_split_typecat_structure_is_cartesian_default_mor.
+    Defined.
+
+  End From_SplitTypeCat.
+
+End DiscreteComprehensionCatWithDefaultMor.
 
 Section A.
 
@@ -470,17 +588,18 @@ Section A.
     Definition discrete_comprehension_cat_structure'_from_split_typecat_structure
       : discrete_comprehension_cat_structure' C.
     Proof.
-      exists (disp_cat_ob_mor_from_split_typecat_structure TC).
+      exists TC.
       use tpair. 2: use tpair. 3: use tpair. 4: use tpair. 5: use tpair. 6: use tpair.
       7: use tpair.
       - intros Γ A.
         exists (Γ ◂ A).
         apply (dpr_typecat A).
-      - apply (pr2 (disp_cat_ob_mor_from_split_typecat_structure TC)).
-      - intros Γ Γ' A A' f ff.
+      - intros Γ Γ' A A' f. exact (A' {{f}} = A).
+      - intros Γ Γ' A A' f ff. simpl in *.
         exact (transportf
                  (λ AA, ((Γ ◂ AA,, dpr_typecat AA) : disp_codomain C Γ) -->[f] (Γ' ◂ A',, dpr_typecat A'))
                  ff (q_typecat A' f ,, dpr_q_typecat A' f)).
+
       - apply disp_cat_id_comp_from_split_typecat_structure.
       - apply disp_cat_axioms_from_split_typecat_structure.
       - apply is_discrete_fibration_disp_cat_from_split_typecat_structure.

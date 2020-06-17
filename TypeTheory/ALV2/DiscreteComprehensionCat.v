@@ -52,7 +52,7 @@ Section Auxiliary.
         (isaset_A : isaset A)
         (a : A)
     : ((∏ aa : A, isaset (B aa)) × ∑ (b : B a), ∏ (x : ∑ (aa : A), B aa), x = (a,, b))
-        ≃ (∏ aa, B aa ≃ (aa = a)).
+        ≃ (∏ aa, B aa ≃ (a = aa)).
   Proof.
     use weq_iso.
 
@@ -60,9 +60,9 @@ Section Auxiliary.
       set (b := pr1 (dirprod_pr2 f)).
       use weq_iso.
       * intros bb.
-        apply (maponpaths pr1 (pr2 (dirprod_pr2 f) (aa,, bb))).
+        apply (! maponpaths pr1 (pr2 (dirprod_pr2 f) (aa,, bb))).
       * intros p.
-        apply (transportb _ p b).
+        apply (transportf _ p b).
       * intros bb. simpl.
         apply (fiber_paths_from_total2_paths (aa,,bb) (a,,b)).
       * intros p. simpl. apply isaset_A.
@@ -80,7 +80,7 @@ Section Auxiliary.
       + exists b.
         intros ab.
         use total2_paths_f.
-        * apply (g (pr1 ab) (pr2 ab)).
+        * apply (! g (pr1 ab) (pr2 ab)).
         * set (f := pr1 (g a)).
           set (f_isweq := pr2 (g a)).
           apply (isapropinclb f (isinclweq _ _ f f_isweq)).
@@ -114,7 +114,7 @@ Section MorWithUniqueLift.
 
   Definition default_mor
     : ∏ (Γ Γ' : C), D_ob Γ → D_ob Γ' → C ⟦ Γ, Γ' ⟧ → UU
-    := λ Γ Γ' A A' f, A = D_lift_ob _ _ f A'.
+    := λ Γ Γ' A A' f, D_lift_ob _ _ f A' = A.
 
   Context
     (D_ob_isaset : ∏ Γ : C, isaset (D_ob Γ)).
@@ -149,7 +149,7 @@ Section MorWithUniqueLift.
     exists (idpath _).
     intros gg.
     use total2_paths_f.
-    - apply (pr2 gg).
+    - apply (! pr2 gg).
     - apply D_ob_isaset.
   Defined.
 
@@ -185,7 +185,7 @@ Section MorWithUniqueLift.
     : UU
     := ∏ {Γ Γ' : C} (f : C ⟦ Γ', Γ ⟧) (A : D_ob Γ),
        ∑ (D_mor : D_ob Γ' → UU),
-       ∏ (B : D_ob Γ'), D_mor B ≃ (B = D_lift_ob _ _ f A).
+       ∏ (B : D_ob Γ'), D_mor B ≃ (D_lift_ob _ _ f A = B).
 
   Definition mor_with_unique_lift''_weq
     : mor_with_unique_lift' ≃ mor_with_unique_lift''.
@@ -203,7 +203,7 @@ Section MorWithUniqueLift.
     : UU
     := ∑ (D_mor : ∏ {Γ Γ' : C}, D_ob Γ → D_ob Γ' → C ⟦ Γ, Γ' ⟧ → UU),
        ∏ {Γ Γ' : C} (A : D_ob Γ) (A' : D_ob Γ') (f : C ⟦ Γ, Γ' ⟧),
-       D_mor A A' f ≃ (A = D_lift_ob _ _ f A').
+       D_mor A A' f ≃ (D_lift_ob _ _ f A' = A).
 
   Definition mor_with_unique_lift'''_weq
     : mor_with_unique_lift'' ≃ mor_with_unique_lift'''.
