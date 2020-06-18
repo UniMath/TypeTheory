@@ -14,3 +14,4 @@ RelUnivTransfer.v
 TypeCat_ComprehensionCat.v
 FullyFaithfulDispFunctor.v
 DiscreteComprehensionCat.v
+SplitTypeCat_ComprehensionCat.v

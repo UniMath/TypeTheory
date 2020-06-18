@@ -642,7 +642,6 @@ Section A.
           apply (maponpaths pr1 (! p (A ,, id_disp A))).
 
         + intros Γ A. cbn.
-          Check (! pr2 (pr1 is_discrete_fibration_D Γ Γ (identity Γ) A) (A,, id_disp A)).
           induction (! unique_lift_id is_discrete_fibration_D A).
           etrans. apply maponpaths, (disp_functor_id FF A). simpl.
           apply pathsinv0.
@@ -891,153 +890,10 @@ Section A.
         + apply isaprop_discrete_comprehension_cat_structure2'_with_default_mor.
     Defined.
 
-    Lemma ololo
-          (DC : discrete_comprehension_cat_structure C)
-      : pr1 (discrete_comprehension_cat_structure_from_split_typecat_structure
-          (split_typecat_structure_from_discrete_comprehension_cat_structure DC))
-          = pr1 DC.
-    Proof.
-      set (D := pr1 DC).
-      set (is_discrete_fibration_D := pr1 (pr2 DC)).
-      use total2_paths_f. 2: apply isaprop_disp_cat_axioms.
-      use total2_paths_f.
-      2: apply isaprop_disp_id_comp_of_discrete_fibration; apply is_discrete_fibration_D.
-      use total2_paths_f.
-      - apply idpath.
-      - apply funextsec. intros ?.
-        apply funextsec. intros ?.
-        apply funextsec. intros ?.
-        apply funextsec. intros ?.
-        apply funextsec. intros ?.
-        apply pathsinv0.
-        apply discrete_fibration_mor.
-    Defined.
-
-    Check total2_paths2_comp1.
-
-    Definition helper_transportf_pr1
-               {A : UU} {B P : A → UU}
-               (a1 a2 : A)
-               (b1 : B a1) (b2 : B a2)
-               (p : a1 = a2)
-               (q : transportf _ p b1 = b2)
-               (z : P (pr1 (a1 ,, b1)))
-      : transportf (λ (x : ∑ (a : A), B a), P (pr1 x)) (two_arg_paths_f p q) z =
-        transportf (λ x : A, P x) p z.
-    Proof.
-      induction p, q. apply idpath.
-    Defined.
-
     Definition split_typecat_structure_discrete_comprehension_cat_structure_weq
-      : split_typecat_structure C ≃ discrete_comprehension_cat_structure C.
-    Proof.
-      use weq_iso.
-      - apply discrete_comprehension_cat_structure_from_split_typecat_structure.
-      - apply split_typecat_structure_from_discrete_comprehension_cat_structure.
-      - intros TC.
-        use total2_paths_f.
-        + use total2_paths_f.
-          * apply idpath. (* typecat_structure1 *)
-          * repeat use total2_paths_f.
-            -- apply idpath. (* dpr *)
-            -- apply idpath. (* q *)
-            -- apply funextsec. intros ?.
-               apply funextsec. intros ?.
-               apply funextsec. intros ?.
-               apply funextsec. intros ?.
-               apply homset_property.
-            -- apply funextsec. intros ?.
-               apply funextsec. intros ?.
-               apply funextsec. intros ?.
-               apply funextsec. intros ?.
-               apply isaprop_isPullback.
-        + apply isaprop_is_split_typecat.
-          apply homset_property.
-
-      - intros DC.
-        set (D := pr1 DC : disp_cat C).
-        set (is_discrete_fibration_D := pr1 (pr2 DC) : is_discrete_fibration D).
-        set (FF := pr1 (pr2 (pr2 DC))
-                   : disp_functor (functor_identity C) D (disp_codomain C)).
-
-        use total2_paths_f.
-        2: use dirprod_paths.
-        2: apply isaprop_is_discrete_fibration.
-        2: use total2_paths_f.
-        3: apply isaprop_is_cartesian_disp_functor.
-
-        + apply ololo. (* disp_cat *)
-          
-        +
-          etrans. apply maponpaths.
-          apply (pr2_transportf
-                   (B2 := λ x,
-                          ∑ (FF : disp_functor (functor_identity C) x (disp_codomain C)),
-                          is_cartesian_disp_functor FF)
-                ).
-          etrans.
-          apply (pr1_transportf
-                   _ (λ x, disp_functor (functor_identity C) x (disp_codomain C))
-                ).
-          simpl.
-
-          unfold disp_functor_from_split_typecat_structure.
-          use total2_paths_f. 2: apply isaprop_disp_functor_axioms.
-
-          etrans.
-          apply (pr1_transportf
-                   (disp_cat C)
-                   (λ x, disp_functor_data (functor_identity C) x (disp_codomain C))
-                ).
-
-          use total2_paths_f.
-          * etrans.
-            apply (pr1_transportf
-                     (disp_cat C)
-                     (λ x, ∏ c : C, x c → disp_codomain C c)).
-            apply funextsec. intros Γ.
-            etrans.
-            apply (!helper_A (λ c (x0 : disp_cat C), x0 c → ∑ y : C, C ⟦ y, c ⟧) _ _ _).
-            simpl. cbn.
-            etrans.
-            apply (transportf_forall_var2
-                     (disp_cat C)
-                     (λ y, y Γ)
-                     (λ _, ∑ y0 : C, C ⟦ y0, Γ ⟧)).
-            apply funextsec. intros A.
-
-            etrans. apply transportf_const.
-            apply maponpaths.
-            apply (transportb_transpose_left
-                     (P := λ y : disp_cat C, y Γ) (y := A) (e := ololo DC)).
-            apply pathsinv0.
-            etrans. apply (helper_transportf_pr1 (P := λ (x : disp_cat_data C), x Γ)).
-            etrans. apply (helper_transportf_pr1 (P := λ (x : disp_cat_ob_mor C), x Γ)).
-            etrans. apply (helper_transportf_pr1 (P := λ (x : C → UU), x Γ)).
-            apply (idpath_transportf (λ x : C → UU, x Γ)).
-          * 
-            apply funextsec; intros Γ.
-            apply funextsec; intros Γ'.
-            apply funextsec; intros A.
-            apply funextsec; intros A'.
-            apply funextsec; intros f.
-            apply funextsec; intros ff.
-
-            use total2_paths_f. 2: apply homset_property.
-            -- Check pr1 (pr2 (pr1 (pr1 (pr2 (pr2 DC)))) Γ Γ' A A' f ff).
-               induction (discrete_fibration_mor _ _ _ _ _).
-               etrans. apply maponpaths, pathsinv0.
-               apply (helper_A
-                        (T := C)
-                        (Y := ∏ (x5 : C), pr1 DC x5 → disp_codomain C x5)
-                        (λ x0 x, ∏ (y : C) (xx : pr1 DC x0) (yy : pr1 DC y) (f : C ⟦ x0, y ⟧), xx -->[f] yy → x x0 xx -->[f] x y yy)).
-               apply (!helper_A (λ x0 x, ∏ y xx yy f, xx -->[f] yy → x x0 xx -->[f] x y yy)).
-              etrans. apply maponpaths.
-               apply pathsinv0.
-               apply (pr1_transportf
-                        (∏ x : C, pr1 DC x → disp_codomain C (functor_identity C x))
-                     ).
-    Abort.
+      : split_typecat_structure C ≃ discrete_comprehension_cat_structure C
+      := (invweq discrete_comprehension_cat_structure_with_default_mor_weq
+         ∘ split_typecat_structure_discrete_comprehension_cat_structure_default_mor_weq)%weq.
 
   End SplitTypeCat_DiscreteComprehensionCat_Equiv.
 
