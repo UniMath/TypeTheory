@@ -17,6 +17,22 @@ Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
 Section Auxiliary.
 
   (* TODO: move upstream? *)
+  Definition isaprop_is_cartesian_disp_functor
+        {C C' : category} {F : functor C C'}
+        {D : disp_cat C} {D' : disp_cat C'} {FF : disp_functor F D D'}
+    : isaprop (is_cartesian_disp_functor FF).
+  Proof.
+    apply impred_isaprop. intros c.
+    apply impred_isaprop. intros c'.
+    apply impred_isaprop. intros f.
+    apply impred_isaprop. intros d.
+    apply impred_isaprop. intros d'.
+    apply impred_isaprop. intros ff.
+    apply impred_isaprop. intros ff_is_cartesian.
+    apply isaprop_is_cartesian.
+  Qed.
+
+  (* TODO: move upstream? *)
   Definition iscontr_irrelevant
              {A : UU} {P : A → UU}
              (iscontr_A : iscontr A)
@@ -118,6 +134,13 @@ Section MorWithUniqueLift.
 
   Context
     (D_ob_isaset : ∏ Γ : C, isaset (D_ob Γ)).
+
+  Definition isaprop_default_mor
+             {Γ Γ' : C} {A : D_ob Γ} {A' : D_ob Γ'} {f : Γ --> Γ'}
+    : isaprop (default_mor Γ Γ' A A' f).
+  Proof.
+    apply D_ob_isaset.
+  Defined.
 
   Definition default_mor_homsets
              (Γ Γ' : C) (f : C ⟦ Γ, Γ' ⟧) (A : D_ob Γ) (A' : D_ob Γ')
@@ -317,6 +340,16 @@ Section DiscreteComprehensionCats.
             (ff ;; (gg ;; hh))%mor_disp
             = transportb _ (assoc _ _ _) ((ff ;; gg) ;; hh))%mor_disp.
 
+  Definition isaprop_disp_cat_axioms' {C : precategory} {D : disp_cat_data C}
+             (D_homsets : ∏ x y f (xx : D x) (yy : D y), isaset (xx -->[f] yy))
+    : isaprop (disp_cat_axioms' C D).
+  Proof.
+    repeat apply isapropdirprod.
+    - repeat (apply impred_isaprop; intros ?). apply D_homsets.
+    - repeat (apply impred_isaprop; intros ?). apply D_homsets.
+    - repeat (apply impred_isaprop; intros ?). apply D_homsets.
+  Defined.
+
   Definition disp_cat_axioms'_weq {C : precategory} {D : disp_cat_data C}
     : (disp_cat_axioms' C D × (∏ x y f (xx : D x) (yy : D y), isaset (xx -->[f] yy)))
                        ≃ disp_cat_axioms _ D.
@@ -324,6 +357,47 @@ Section DiscreteComprehensionCats.
     eapply weqcomp. apply weqdirprodasstor.
     apply (weqdirprodf (idweq _)).
     apply weqdirprodasstor.
+  Defined.
+
+  Definition discrete_comprehension_cat_structure2' {C : category}
+             (D_ob : C → UU)
+             (Fob : ∏ Γ : C, D_ob Γ → disp_codomain C Γ)
+             (D_lift_ob : ∏ {Γ Γ' : C}, C ⟦ Γ', Γ ⟧ → D_ob Γ → D_ob Γ')
+             (D_ob_isaset : ∏ Γ : C, isaset (D_ob Γ))
+             (D_mor : mor_with_unique_lift D_ob (@D_lift_ob))
+             (Fmor : ∏ (Γ Γ' : C) (A : D_ob Γ) (A' : D_ob Γ') (f : C ⟦ Γ, Γ' ⟧),
+                     pr1 D_mor _ _ A A' f → Fob Γ A -->[ f] Fob Γ' A')
+    : UU 
+    := ∑ (D_id_comp : disp_cat_id_comp C (D_ob ,, pr1 D_mor))
+         (D_axioms' : disp_cat_axioms' C (_ ,, D_id_comp))
+         (FF_axioms : @disp_functor_axioms
+                        _ _ (functor_identity C)
+                        (_ ,, disp_cat_axioms'_weq (D_axioms' , pr1 (pr2 D_mor))) _
+                        (Fob,, Fmor)),
+
+       is_cartesian_disp_functor
+         ((_ ,, FF_axioms)
+          : disp_functor (functor_identity C) (_ ,, disp_cat_axioms'_weq (D_axioms', pr1 (pr2 D_mor))) (disp_codomain C)).
+
+  Definition isaprop_discrete_comprehension_cat_structure2'_with_default_mor {C : category}
+             (D_ob : C → UU)
+             (Fob : ∏ Γ : C, D_ob Γ → disp_codomain C Γ)
+             (D_lift_ob : ∏ {Γ Γ' : C}, C ⟦ Γ', Γ ⟧ → D_ob Γ → D_ob Γ')
+             (D_ob_isaset : ∏ Γ : C, isaset (D_ob Γ))
+             (Fmor : ∏ (Γ Γ' : C) (A : D_ob Γ) (A' : D_ob Γ') (f : C ⟦ Γ, Γ' ⟧),
+                     default_mor D_ob (@D_lift_ob) _ _ A A' f → Fob Γ A -->[ f] Fob Γ' A')
+    : isaprop (discrete_comprehension_cat_structure2' D_ob Fob (@D_lift_ob) D_ob_isaset (default_mor_with_unique_lift D_ob (@D_lift_ob) D_ob_isaset) Fmor).
+  Proof.
+    apply Propositions.isaproptotal2.
+    - intros D_id_comp. apply Propositions.isaproptotal2.
+      + intros D_axioms'. apply Propositions.isaproptotal2.
+        * intros F_axioms. apply isaprop_is_cartesian_disp_functor.
+        * intros. apply isaprop_disp_functor_axioms.
+      + intros. apply isaprop_disp_cat_axioms'.
+        apply (pr1 (pr2 (default_mor_with_unique_lift D_ob (@D_lift_ob) D_ob_isaset))).
+    - intros. use total2_paths_f.
+      + repeat (apply funextsec; intros ?). apply D_ob_isaset.
+      + repeat (apply funextsec; intros ?). apply D_ob_isaset.
   Defined.
   
   Definition discrete_comprehension_cat_structure2 {C : category}
@@ -334,18 +408,8 @@ Section DiscreteComprehensionCats.
              (D_mor : mor_with_unique_lift D_ob (@D_lift_ob))
     : UU 
     := ∑ (Fmor : ∏ (Γ Γ' : C) (A : D_ob Γ) (A' : D_ob Γ') (f : C ⟦ Γ, Γ' ⟧),
-                 pr1 D_mor _ _ A A' f → Fob Γ A -->[ f] Fob Γ' A')
-
-         (D_id_comp : disp_cat_id_comp C (D_ob ,, pr1 D_mor))
-         (D_axioms' : disp_cat_axioms' C (_ ,, D_id_comp))
-         (FF_axioms : @disp_functor_axioms
-                        _ _ (functor_identity C)
-                        (_ ,, disp_cat_axioms'_weq (D_axioms' , pr1 (pr2 D_mor))) _
-                        (Fob,, Fmor)),
-
-       is_cartesian_disp_functor
-         ((_ ,, FF_axioms)
-          : disp_functor (functor_identity C) (_ ,, disp_cat_axioms'_weq (D_axioms', pr1 (pr2 D_mor))) (disp_codomain C)).
+                 pr1 D_mor _ _ A A' f → Fob Γ A -->[ f] Fob Γ' A'),
+       discrete_comprehension_cat_structure2' D_ob Fob (@D_lift_ob) D_ob_isaset D_mor Fmor.
 
   (* A variation of [discrete_comprehension_cat_structure] with a convenient rearrangement of fields *)
   Definition discrete_comprehension_cat_structure1 (C : category) : UU

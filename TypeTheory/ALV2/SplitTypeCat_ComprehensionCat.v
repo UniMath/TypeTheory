@@ -833,27 +833,11 @@ Section A.
           apply idtoiso_precompose'.
     Defined.
 
-    Definition split_typecat_structure_from_discrete_comprehension_cat_structure
+    Definition split_typecat_structure_from_discrete_comprehension_cat_structure_default_mor
       : split_typecat_structure C
-      := (_ ,, is_split_typecat_from_discrete_comprehension_cat_structure).
+      := (_ ,, is_split_typecat_from_discrete_comprehension_cat_structure_default_mor).
 
   End From_DiscreteComprehensionCat_Default.
-
-  Section SplitTypeCat_from_DiscreteComprehensionCat_Default.
-
-    Context {C : category}.
-
-    Context (DC : discrete_comprehension_cat_structure_with_default_mor C).
-
-    Definition split_typecat_structure_from_discrete_comprehension_cat_structure_with_default_mor
-      : split_typecat_structure C.
-    Proof.
-      apply split_typecat_structure_from_discrete_comprehension_cat_structure.
-      apply discrete_comprehension_cat_structure_with_default_mor_weq.
-      apply DC.
-    Defined.
-
-  End SplitTypeCat_from_DiscreteComprehensionCat_Default.
 
   Section SplitTypeCat_DiscreteComprehensionCat_Equiv.
 
@@ -864,7 +848,7 @@ Section A.
     Proof.
       use weq_iso.
       - apply discrete_comprehension_cat_structure_with_default_mor_from_typecat_structure.
-      - apply split_typecat_structure_from_discrete_comprehension_cat_structure_with_default_mor.
+      - apply split_typecat_structure_from_discrete_comprehension_cat_structure_default_mor.
       - intros TC.
         use total2_paths_f.
         + use total2_paths_f.
@@ -886,7 +870,13 @@ Section A.
           apply homset_property.
 
       - intros DC.
-        use total2_paths_f. 2: use total2_paths_f. 3: use total2_paths_f. 4: use total2_paths_f.
+        use total2_paths_f.
+        2: use total2_paths_f.
+        3: use total2_paths_f.
+        4: use total2_paths_f.
+        5: use total2_paths_f.
+        + apply idpath.
+        + apply idpath.
         + apply idpath.
         + apply idpath.
         + apply funextsec. intros ?.
@@ -894,19 +884,11 @@ Section A.
           apply funextsec. intros ?.
           apply funextsec. intros ?.
           apply funextsec. intros ?.
-          apply pathsinv0.
-          apply (discrete_fibration_mor (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DC)))))))).
-        + apply funextsec; intros Γ.
-          apply funextsec; intros Γ'.
-          apply funextsec; intros A.
-          apply funextsec; intros A'.
-          apply funextsec; intros f.
-          apply funextsec; intros ff.
+          apply funextsec. intros ff.
+          induction ff.
+          apply idpath.
           
-          
-          use total2_paths_f.
-          etrans. apply maponpaths.
-          apply pr1_transportf.
+        + apply isaprop_discrete_comprehension_cat_structure2'_with_default_mor.
     Defined.
 
     Lemma ololo
