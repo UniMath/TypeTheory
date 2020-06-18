@@ -795,32 +795,42 @@ Section A.
           apply idtoiso_precompose'.
 
       - use tpair.
-        + intros Γ A Γ' f Γ'' g.
-
-          set (A'ff := pr1 is_discrete_fibration_D _ _ f A).
-          set (ff := pr2 (pr1 A'ff) : (A {{f}}) -->[f] A).
-          set (A''gg := pr1 is_discrete_fibration_D _ _ g (A {{f}})).
-          set (gg := pr2 (pr1 A''gg) : ((A {{f}}) {{g}}) -->[g] A {{f}}).
-
-          set (p := pr2 (pr1 is_discrete_fibration_D _ _ (g ;; f) A)).
-          apply (maponpaths pr1 (! p ((A {{f}}) {{g}} ,, (gg ;; ff)%mor_disp))).
-
         + intros Γ A Γ' f Γ'' g. cbn.
-          induction (! unique_lift_comp is_discrete_fibration_D f g A).
-          set (A'ff := pr1 (pr1 is_discrete_fibration_D _ _ f A)).
-          set (A' := pr1 A'ff).
-          set (ff := pr2 A'ff).
-          set (gg := pr2 (pr1 (pr1 is_discrete_fibration_D _ _ g A'))).
-          etrans. apply maponpaths, (disp_functor_comp FF gg ff).
-          simpl.
-          apply maponpaths_2.
-          etrans. apply pathsinv0, id_left.
-          apply maponpaths_2.
+          apply (@comp_disp _ D _ _ _ g f
+                            (D_lift_ob _ _ g (D_lift_ob _ _ f A))
+                            _
+                            A
+                            (idpath _)
+                            (idpath _)
+                ).
+        + intros Γ A Γ' f Γ'' g. cbn.
 
-          apply pathsinv0.
-          etrans. apply maponpaths, maponpaths, maponpaths, maponpaths, maponpaths.
-          apply pathsinv0r. simpl.
-          apply idpath.
+          set (H := @disp_functor_comp
+                      _ _ _ _ _ FF
+                      _ _ _ _ _ A
+                      g f (idpath _) (idpath _)
+                      ).
+          simpl in H.
+
+          etrans. apply maponpaths.
+          apply (asldkfjalsdkfj
+                   (@comp_disp _ D _ _ _ g f
+                               (D_lift_ob _ _ g (D_lift_ob _ _ f A))
+                               _
+                               A
+                               (idpath _)
+                               (idpath _)
+                   )).
+
+          etrans. apply maponpaths, maponpaths. apply (disp_functor_comp FF).
+
+          unfold mor_disp, disp_codomain. cbn.
+          etrans. apply (pr1_transportb (λ B ff, (ff;; pr2 (F_ob Γ A))%mor = (pr2 (F_ob Γ'' B);; (g;; f))%mor)). simpl.
+
+          etrans. apply (functtransportb (λ B, pr1 (F_ob Γ'' B)) (λ BB, C ⟦ BB, pr1 (F_ob Γ A) ⟧)).
+
+          etrans. 2: apply assoc.
+          apply idtoiso_precompose'.
     Defined.
 
     Definition split_typecat_structure_from_discrete_comprehension_cat_structure
