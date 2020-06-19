@@ -1,4 +1,26 @@
-(* TODO: module documentation *)
+(*
+  [TypeTheory.ALV2.DiscreteComprehensionCat]
+
+  Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
+*)
+
+(**
+This module defines discrete comprehension category in two forms:
+
+- [discrete_comprehension_cat_structure] and [discrete_comprehension_cat]
+  define the "usual" notion of discrete comprehension category, which
+  is based on a discrete fibration together with a cartesian displayed functor
+  into [disp_codomain];
+- [discrete_comprehension_cat_structure_with_default_mor] is a rephrasing
+  of that definition where the type family of morphisms is set to equations
+  about displayed objects in the discrete fibration.
+
+Main definition:
+
+- [discrete_comprehension_cat_structure_with_default_mor_weq] — equivalence of
+  the two definitions of discrete comprehension category structure.
+*)
+
 
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.Foundations.Sets.
