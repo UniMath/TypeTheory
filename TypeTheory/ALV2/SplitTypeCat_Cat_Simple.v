@@ -16,15 +16,33 @@ Section SplitTypeCat_Cat_Simple.
 
   Context (C : category).
 
+  Definition TY'
+    : split_typecat_structure C → preShv C.
+  Proof.
+    intros TC.
+    use tpair.
+    - use tpair.
+      + intros Γ.
+        exists (TC Γ).
+        apply (pr1 (pr2 TC)).
+      + intros Γ Γ' f A.
+        apply (reind_typecat A f).
+    - use make_dirprod.
+      + intros Γ. simpl. 
+        use funextsec; intros A.
+        apply (pr1 (pr1 (pr2 (pr2 TC)))).
+      + intros Γ Γ' Γ'' f g. simpl. 
+        use funextsec; intros A.
+        apply (pr1 (pr2 (pr2 (pr2 TC)))).
+  Defined.
+
   Definition SplitTy_ob_mor
     : precategory_ob_mor.
   Proof.
     use tpair.
-    - apply (split_typecat'_structure C).
-    - intros X Y. exact (TY X --> TY Y).
+    - apply (split_typecat_structure C).
+    - intros X Y. exact (TY' X --> TY' Y).
   Defined.
-
-  Print precategory_data .
 
   Definition SplitTy_id_comp
     : precategory_id_comp SplitTy_ob_mor.
