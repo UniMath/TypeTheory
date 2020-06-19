@@ -8,6 +8,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.TypeCat.
+Require Import TypeTheory.ALV1.TypeCat_Reassoc.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
@@ -34,6 +35,15 @@ Section SplitTypeCat_Cat_Simple.
       + intros Γ Γ' Γ'' f g. simpl. 
         use funextsec; intros A.
         apply (pr1 (pr2 (pr2 (pr2 TC)))).
+  Defined.
+
+  Definition TY'_TY_eq
+             (TC : split_typecat_structure C)
+    : TY' TC = TY (weq_standalone_to_regrouped TC).
+  Proof.
+    use total2_paths_f.
+    - apply idpath.
+    - apply isaprop_is_functor. apply homset_property.
   Defined.
 
   Definition SplitTy_ob_mor
@@ -79,3 +89,79 @@ Section SplitTypeCat_Cat_Simple.
     := (SplitTy_precat ,, SplitTy_precat_homsets).
   
 End SplitTypeCat_Cat_Simple.
+
+Section SplitTypeCat'_Cat_Simple.
+
+  Context (C : category).
+
+  Definition SplitTy'_ob_mor
+    : precategory_ob_mor.
+  Proof.
+    use tpair.
+    - apply (split_typecat'_structure C).
+    - intros X Y. exact (TY X --> TY Y).
+  Defined.
+
+  Definition SplitTy'_id_comp
+    : precategory_id_comp SplitTy'_ob_mor.
+  Proof.
+    use make_dirprod.
+    - intros X. apply identity.
+    - intros X Y Z. apply compose.
+  Defined.
+
+  Definition SplitTy'_precat_data
+    : precategory_data
+    := (SplitTy'_ob_mor ,, SplitTy'_id_comp).
+
+  Definition SplitTy'_precat_axioms
+    : is_precategory SplitTy'_precat_data.
+  Proof.
+    repeat use make_dirprod.
+    - intros; apply id_left.
+    - intros; apply id_right.
+    - intros; apply assoc.
+    - intros; apply assoc'.
+  Defined.
+
+  Definition SplitTy'_precat : precategory
+    := (_ ,, SplitTy'_precat_axioms).
+
+  Definition SplitTy'_precat_homsets : has_homsets SplitTy'_precat.
+  Proof.
+    unfold has_homsets.
+    intros. apply homset_property.
+  Defined.
+
+  Definition SplitTy'_cat : category
+    := (SplitTy'_precat ,, SplitTy'_precat_homsets).
+
+End SplitTypeCat'_Cat_Simple.
+
+Section SplitTy'_mor_with_ϕ.
+
+  
+
+End SplitTy'_mor_with_ϕ.
+
+Section SplitTy_SplitTy'_catiso.
+
+  Context (C : category).
+
+  Definition SplitTy_SplitTy'_catiso
+    : catiso (SplitTy_cat C) (SplitTy'_cat C).
+  Proof.
+    use tpair.
+    - use tpair.
+      + use tpair.
+        * apply weq_standalone_to_regrouped.
+        * intros X Y. apply (idweq _).
+      + use tpair.
+        * intros X. apply idpath.
+        * intros X Y Z f g. apply idpath.
+    - use tpair.
+      + intros X Y. apply idisweq.
+      + apply (pr2 weq_standalone_to_regrouped).
+  Defined.
+  
+End SplitTy_SplitTy'_catiso.
