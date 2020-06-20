@@ -24,6 +24,7 @@ NB: we follow the convention that _category_ does not include an assumption of s
 
 
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.CategoryTheory.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
@@ -39,13 +40,63 @@ Components of [X : obj_ext_structure C]:
 - [TY Γ : hSet]
 - [comp_ext X Γ A : C].  Notation: [Γ ◂ A]
 - [π A : Γ ◂ A -->  A ⟧ *)
+
+Section Obj_Ext_Structures_Disp_Cat.
+
+  Context (C : precategory).
+
+  Definition obj_ext_pt1_ob_mor : disp_cat_ob_mor (preShv C).
+  Proof.
+    use tpair.
+    - intros Ty.
+      exact (∏ (Γ:C) (A : (Ty : functor _ _) Γ : hSet), ∑ (ΓA : C), ΓA --> Γ).
+    - intros Ty Ty' ext_π ext'_π' F_TY.
+      exact (∏ (Γ:C) (A : (Ty : functor _ _) Γ : hSet),
+             ∑ φ : pr1 (ext_π Γ A) --> pr1 (ext'_π' Γ ((F_TY : nat_trans _ _) _ A)),
+                 φ ;; pr2 (ext'_π' _ _) = pr2 (ext_π _ _)).
+  Defined.
+
+  Definition obj_ext_pt1_id_comp : disp_cat_id_comp _ obj_ext_pt1_ob_mor.
+  Proof.
+    
+  Admitted.
+
+  Definition obj_ext_pt1_data : disp_cat_data (preShv C).
+  Proof.
+    use tpair.
+    - exact obj_ext_pt1_ob_mor.
+    - exact obj_ext_pt1_id_comp.
+  Defined.
+
+  Definition obj_ext_pt1_axioms : disp_cat_axioms _ obj_ext_pt1_data.
+  Proof.  
+  Admitted.
+
+  Definition obj_ext_pt1 : disp_cat (preShv C).
+  Proof.
+    use tpair.
+    - exact obj_ext_pt1_data.
+    - exact obj_ext_pt1_axioms.
+  Defined.
+
+End Obj_Ext_Structures_Disp_Cat.
+
 Section Obj_Ext_Structures.
 
 Context {C : precategory}.
 
-Definition obj_ext_structure : UU
+Definition obj_ext_structure_old : UU
   := ∑ Ty : preShv C,
         ∏ (Γ : C) (A : (Ty : functor _ _ ) Γ : hSet ), ∑ (ΓA : C), ΓA --> Γ.
+
+Definition obj_ext_structure : UU
+  := ob (total_category (obj_ext_pt1 C)).
+
+Definition obj_ext_structure_check
+  : obj_ext_structure = obj_ext_structure_old.
+Proof.
+  reflexivity.
+Qed.
 
 Definition TY (X : obj_ext_structure) : preShv _ := pr1 X.
 Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
