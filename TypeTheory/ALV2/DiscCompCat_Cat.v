@@ -69,10 +69,22 @@ Section Auxiliary.
              (b : disp_nat_trans (nat_trans_id _) R' R)
     : disp_nat_trans (nat_trans_id _) R'' R.
   Proof.
-    apply (transportf (λ (a : nat_trans _ _), disp_nat_trans a R'' R)
-                      nat_trans_id_id
-                      (disp_nat_trans_comp b' b)
-          ).
+    set (α := disp_nat_trans_comp b' b).
+    use tpair.
+    - intros Γ A.
+      apply (transportf _ (id_left (identity Γ))
+                        (α Γ A)).
+    - intros Γ Γ' f A A' ff.
+      set (H := disp_nat_trans_ax α ff).
+      cbn in *.
+      etrans. apply mor_disp_transportf_prewhisker.
+      etrans. apply maponpaths, H.
+      etrans. apply transport_f_b.
+      apply pathsinv0.
+      etrans. apply maponpaths, mor_disp_transportf_postwhisker.
+      etrans. apply transport_b_f.
+      apply maponpaths_2.
+      apply homset_property.
   Defined.
 
 End Auxiliary.
