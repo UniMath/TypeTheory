@@ -91,9 +91,6 @@ Section DiscCompCat_Cat_Simple.
   Defined.
 
   Local Definition TY := preshv_from_disc_comp_cat_structure.
-
-  Search disp_nat_trans.
-  Search nat_trans.
   
   Definition DiscCompCat_mor
              (X Y : discrete_comprehension_cat_structure C)
@@ -131,8 +128,24 @@ Section DiscCompCat_Cat_Simple.
         * apply idpath.
         * apply isaprop_disp_functor_axioms.
       + use total2_paths_f.
-        * repeat (apply funextsec; intros ?).
-          etrans. apply (pr1_transportf
+        * unfold disp_nat_trans.
+          etrans. apply (
+                      pr1_transportf
+                        (disp_functor (functor_identity C) (pr1 a) (pr1 b))
+                        (λ x, disp_nat_trans_data
+                                (nat_trans_id (functor_identity C)) 
+                                (pr1 (pr2 (pr2 a))) (disp_functor_composite x (pr1 (pr2 (pr2 b)))))
+                        (λ x b0, disp_nat_trans_axioms b0)
+                    ).
+          repeat (apply funextsec; intros ?).
+          use total2_paths_f.
+          cbn. apply idpath.
+          use total2_paths_f.
+          -- etrans. simpl.
+             Check pr1_transportf. unfold disp_nat_trans.
+          Check pr1 (pr2 f) x x0.
+          cbn.
+          etrans. apply pr1_transportf.
                            _ _
                            (λ x xx, _)
                          ).
