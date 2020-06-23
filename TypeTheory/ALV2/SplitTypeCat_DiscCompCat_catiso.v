@@ -14,17 +14,17 @@ Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.ALV1.TypeCat_Reassoc.
 Require Import TypeTheory.ALV2.SplitTypeCat_Cat_Simple.
-Require Import TypeTheory.ALV2.DiscCompCat_Cat.
+Require Import TypeTheory.ALV2.DiscCompCatDef_Cat.
 Require Import TypeTheory.ALV2.DiscreteComprehensionCat.
 Require Import TypeTheory.ALV2.SplitTypeCat_ComprehensionCat.
 
-Section SplitTypeCat_DiscCompCat_catiso.
+Section SplitTypeCat_DiscCompCatDef_catiso.
 
   Context (C : category).
 
   Definition SplitTy_DiscComp_weq
-    : SplitTy_cat C ≃ DiscCompCat_cat C
-    := split_typecat_structure_discrete_comprehension_cat_structure_weq.
+    : SplitTy_cat C ≃ DiscCompCatDef_cat C
+    := split_typecat_structure_discrete_comprehension_cat_structure_default_weq.
 
   Definition SplitTy_DiscComp_Ty_eq
              (X : SplitTy_cat C)
@@ -38,7 +38,7 @@ Section SplitTypeCat_DiscCompCat_catiso.
   Defined.
 
   Definition SplitTy_DiscComp_functor_data
-    : functor_data (SplitTy_cat C) (DiscCompCat_cat C).
+    : functor_data (SplitTy_cat C) (DiscCompCatDef_cat C).
   Proof.
     use tpair.
     - apply SplitTy_DiscComp_weq.
@@ -54,7 +54,7 @@ Section SplitTypeCat_DiscCompCat_catiso.
   Defined.
 
   Definition SplitTy_DiscComp_functor
-    : functor (SplitTy_cat C) (DiscCompCat_cat C)
+    : functor (SplitTy_cat C) (DiscCompCatDef_cat C)
     := (_ ,, SplitTy_DiscComp_functor_axioms).
 
   Definition SplitTy_DiscComp_functor_is_catiso
@@ -66,4 +66,4 @@ Section SplitTypeCat_DiscCompCat_catiso.
     - apply (pr2 SplitTy_DiscComp_weq).
   Defined.
   
-End SplitTypeCat_DiscCompCat_catiso.
+End SplitTypeCat_DiscCompCatDef_catiso.

@@ -118,7 +118,7 @@ Section SplitTypeCat_Cat_Simple.
       pr1 mor _ (A {{f}})
       = (pr1 mor _ A) {{f}}.
   Proof.
-    intros Γ A Γ' f.
+    intros Γ Γ' f A.
     apply F_TY_ax.
   Defined.
 
@@ -130,7 +130,7 @@ Section SplitTypeCat_Cat_Simple.
       iso (Γ' ◂ pr1 mor _ (A {{f}}))
           (Γ' ◂ (pr1 mor _ A) {{f}}).
   Proof.
-    intros Γ A Γ' f.
+    intros Γ Γ' f A.
     use reind_ext_compare.
     apply F_TY_reind_ext_eq.
     apply F_TY_ax.
@@ -151,7 +151,7 @@ Section SplitTypeCat_Cat_Simple.
              (mor : SplitTy_mor_data X Y)
              (F_TY_ax : SplitTy_mor_axiom_F_TY mor)
     : UU
-    := ∏ (Γ : C) (A : X Γ) (Γ' : C) (f : Γ' --> Γ),
+    := ∏ (Γ Γ' : C) (f : Γ' --> Γ) (A : X Γ),
        q_typecat A f ;; pr2 mor Γ A
        = pr2 mor Γ' (A {{f}}) ;; Δ _ _ _ F_TY_ax Γ A Γ' f ;; q_typecat _ f.
 
@@ -227,7 +227,7 @@ Section SplitTypeCat_Cat_Simple.
     - use tpair. 2: use make_dirprod.
       + intros Γ Γ' f A. apply idpath.
       + intros Γ A. apply id_left.
-      + intros Γ A Γ' f. simpl.
+      + intros Γ Γ' f A. simpl.
         etrans. apply id_right.
         etrans. 2: apply assoc.
         etrans. 2: apply pathsinv0, id_left.
@@ -255,8 +255,8 @@ Section SplitTypeCat_Cat_Simple.
         etrans. apply maponpaths.
         apply (pr1 (pr2 (pr2 gg))).
         apply (pr1 (pr2 (pr2 ff))).
-      + intros Γ A Γ' f. simpl.
-        set (ff_q := pr2 (pr2 (pr2 ff)) Γ A Γ' f).
+      + intros Γ Γ' f A. simpl.
+        set (ff_q := pr2 (pr2 (pr2 ff)) Γ Γ' f A).
         set (gg_q := pr2 (pr2 (pr2 gg))).
         etrans. apply assoc.
         etrans. apply maponpaths_2, ff_q.
