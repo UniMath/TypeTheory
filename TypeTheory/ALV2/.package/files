@@ -16,5 +16,6 @@ FullyFaithfulDispFunctor.v
 DiscreteComprehensionCat.v
 SplitTypeCat_ComprehensionCat.v
 SplitTypeCat_Cat_Simple.v
+DiscCompCatDef_Cat.v
 DiscCompCat_Cat.v
 SplitTypeCat_DiscCompCat_catiso.v
