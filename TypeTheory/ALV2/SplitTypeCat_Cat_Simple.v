@@ -49,8 +49,15 @@ Section SplitTypeCat_Cat_Simple.
   Definition SplitTy_mor_data
              (X Y : split_typecat_structure C)
     : UU
-    := ∑ (F_TY : TY' X --> TY' Y),
-       (* ϕ : *) ∏ (Γ : C) (A : X Γ), Γ ◂ A --> Γ ◂ ((F_TY : nat_trans _ _) _ A).
+    := ∑ (F_TY : ∏ (Γ : C), X Γ → Y Γ),
+       (* ϕ : *) ∏ (Γ : C) (A : X Γ), Γ ◂ A --> Γ ◂ (F_TY _ A).
+
+  Definition SplitTy_mor_axiom_F_TY
+             {X Y : split_typecat_structure C}
+             (mor : SplitTy_mor_data X Y)
+    : UU
+    := ∏ (Γ Γ' : C) (f : C ⟦ Γ', Γ ⟧) (A : X Γ),
+       pr1 mor _ (reind_typecat A f) = reind_typecat (pr1 mor _ A) f.
 
   Definition SplitTy_mor_axiom_dpr
              {X Y : split_typecat_structure C}
@@ -105,26 +112,28 @@ Section SplitTypeCat_Cat_Simple.
 
   Definition F_TY_reind_ext_eq
              (X Y : split_typecat_structure C)
-             (F_TY : TY' X --> TY' Y)
+             (mor : SplitTy_mor_data X Y)
+             (F_TY_ax : SplitTy_mor_axiom_F_TY mor)
     : ∏ (Γ : C) (A : X Γ) (Γ' : C) (f : Γ' --> Γ),
-      (F_TY : nat_trans _ _) _ (A {{f}})
-      = ((F_TY : nat_trans _ _) _ A) {{f}}.
+      pr1 mor _ (A {{f}})
+      = (pr1 mor _ A) {{f}}.
   Proof.
     intros Γ A Γ' f.
-    revert A; apply toforallpaths.
-    use (nat_trans_ax F_TY).
+    apply F_TY_ax.
   Defined.
 
   Definition F_TY_reind_ext_compare
              (X Y : split_typecat_structure C)
-             (F_TY : TY' X --> TY' Y)
+             (mor : SplitTy_mor_data X Y)
+             (F_TY_ax : SplitTy_mor_axiom_F_TY mor)
     : ∏ (Γ : C) (A : X Γ) (Γ' : C) (f : Γ' --> Γ),
-      iso (Γ' ◂ (F_TY : nat_trans _ _) _ (A {{f}}))
-          (Γ' ◂ ((F_TY : nat_trans _ _) _ A) {{f}}).
+      iso (Γ' ◂ pr1 mor _ (A {{f}}))
+          (Γ' ◂ (pr1 mor _ A) {{f}}).
   Proof.
     intros Γ A Γ' f.
     use reind_ext_compare.
     apply F_TY_reind_ext_eq.
+    apply F_TY_ax.
   Defined.
 
   Local Definition Δ := F_TY_reind_ext_compare.
@@ -132,7 +141,7 @@ Section SplitTypeCat_Cat_Simple.
   Lemma Δ_φ {X Y : split_typecat_structure C} (mor : SplitTy_mor_data X Y)
         {Γ : C} {A A' : (TY' X : functor _ _) Γ : hSet} (e : A = A')
     : reind_ext_compare e ;; pr2 mor Γ A'
-      = pr2 mor _ A ;; reind_ext_compare (maponpaths ((pr1 mor : nat_trans _ _) _) e).
+      = pr2 mor _ A ;; reind_ext_compare (maponpaths (pr1 mor _) e).
   Proof.
     destruct e; simpl. etrans. apply id_left. apply pathsinv0, id_right.
   Qed. 
@@ -140,25 +149,32 @@ Section SplitTypeCat_Cat_Simple.
   Definition SplitTy_mor_axiom_q
              {X Y : split_typecat_structure C}
              (mor : SplitTy_mor_data X Y)
+             (F_TY_ax : SplitTy_mor_axiom_F_TY mor)
     : UU
     := ∏ (Γ : C) (A : X Γ) (Γ' : C) (f : Γ' --> Γ),
        q_typecat A f ;; pr2 mor Γ A
-       = pr2 mor Γ' (A {{f}}) ;; Δ _ _ _ Γ A Γ' f ;; q_typecat _ f.
+       = pr2 mor Γ' (A {{f}}) ;; Δ _ _ _ F_TY_ax Γ A Γ' f ;; q_typecat _ f.
 
   Definition SplitTy_mor_axioms
              {X Y : split_typecat_structure C}
              (mor : SplitTy_mor_data X Y)
     : UU
-    := SplitTy_mor_axiom_dpr mor × SplitTy_mor_axiom_q mor.
+    := ∑ (F_TY_ax : SplitTy_mor_axiom_F_TY mor)
+         (dpr_ax : SplitTy_mor_axiom_dpr mor),
+       SplitTy_mor_axiom_q mor F_TY_ax.
 
   Definition isaprop_SplitTy_mor_axioms
              {X Y : split_typecat_structure C}
              (mor : SplitTy_mor_data X Y)
     : isaprop (SplitTy_mor_axioms mor).
   Proof.
-    apply isapropdirprod.
-    - repeat (apply impred_isaprop; intros ?). apply homset_property.
-    - repeat (apply impred_isaprop; intros ?). apply homset_property.
+    apply Propositions.isaproptotal2.
+    - intros ?. apply isapropdirprod.
+      + repeat (apply impred_isaprop; intros ?). apply homset_property.
+      + repeat (apply impred_isaprop; intros ?). apply homset_property.
+    - intros.
+      repeat (apply funextsec; intros ?).
+      apply (pr1 (pr2 Y)).
   Defined.
 
   Definition SplitTy_mor
@@ -169,8 +185,8 @@ Section SplitTypeCat_Cat_Simple.
 
   Lemma SplitTy_mor_eq {X Y} (mor1 mor2 : SplitTy_mor X Y)
         (e_TY : ∏ Γ (A : (TY' X : functor _ _) Γ : hSet),
-                (pr1 (pr1 mor1) : nat_trans _ _) _ A =
-                (pr1 (pr1 mor2) : nat_trans _ _) _ A)
+                pr1 (pr1 mor1) _ A =
+                pr1 (pr1 mor2) _ A)
         (e_ϕ : ∏ Γ (A : (TY' X : functor _ _) Γ : hSet),
                   pr2 (pr1 mor1) _ A ;; reind_ext_compare (e_TY _ _)
                   = pr2 (pr1 mor2) _ A)
@@ -178,8 +194,7 @@ Section SplitTypeCat_Cat_Simple.
   Proof.
     use total2_paths_f. 2: apply isaprop_SplitTy_mor_axioms.
     use total2_paths_f.
-    + apply nat_trans_eq. apply has_homsets_HSET.
-      intros Γ; apply funextsec; intros A.
+    + repeat (apply funextsec; intros ?).
       apply e_TY.
     + etrans. use transportf_forall.
       apply funextsec; intros Γ.
@@ -187,8 +202,7 @@ Section SplitTypeCat_Cat_Simple.
       apply funextsec; intros A.
       refine (_ @ e_ϕ Γ A).
       etrans. apply (functtransportf
-                       (X := preShv C ⟦ TY' X, TY' Y ⟧)
-                       (λ x, (x : nat_trans _ _) Γ A)
+                       (λ x, x Γ A)
                        (λ y, C ⟦ Γ ◂ A, Γ ◂ y ⟧)).
       etrans. apply (functtransportf
                        (λ x, Γ ◂ x)
@@ -207,17 +221,17 @@ Section SplitTypeCat_Cat_Simple.
     : SplitTy_mor X X.
   Proof.
     use tpair.
-    - exists (identity _).
-      intros Γ A. apply identity.
-    - use make_dirprod.
+    - use tpair.
+      + intros Γ. exact (idfun _).
+      + intros Γ A. apply identity.
+    - use tpair. 2: use make_dirprod.
+      + intros Γ Γ' f A. apply idpath.
       + intros Γ A. apply id_left.
       + intros Γ A Γ' f. simpl.
         etrans. apply id_right.
         etrans. 2: apply assoc.
         etrans. 2: apply pathsinv0, id_left.
         apply pathsinv0.
-        etrans. apply maponpaths_2.
-        apply (maponpaths pr1 (reind_ext_compare_id_general _)).
         apply id_left.
   Defined.
 
@@ -228,17 +242,22 @@ Section SplitTypeCat_Cat_Simple.
     : SplitTy_mor X Z.
   Proof.
     use tpair.
-    - exists (pr1 (pr1 ff) ;; pr1 (pr1 gg)).
-      intros Γ A. apply (pr2 (pr1 ff) _ _ ;; pr2 (pr1 gg) _ _).
-    - use make_dirprod.
+    - use tpair.
+      + intros Γ A. exact (pr1 (pr1 gg) _ (pr1 (pr1 ff) _ A)).
+      + intros Γ A. exact (pr2 (pr1 ff) _ _ ;; pr2 (pr1 gg) _ _).
+    - use tpair. 2: use make_dirprod.
+      + intros Γ Γ' f A. simpl.
+        etrans. apply maponpaths.
+        apply (pr1 (pr2 ff)).
+        apply (pr1 (pr2 gg)).
       + intros Γ A. simpl.
         etrans. apply assoc'.
         etrans. apply maponpaths.
-        apply (pr1 (pr2 gg)).
-        apply (pr1 (pr2 ff)).
+        apply (pr1 (pr2 (pr2 gg))).
+        apply (pr1 (pr2 (pr2 ff))).
       + intros Γ A Γ' f. simpl.
-        set (ff_q := pr2 (pr2 ff) Γ A Γ' f).
-        set (gg_q := pr2 (pr2 gg)).
+        set (ff_q := pr2 (pr2 (pr2 ff)) Γ A Γ' f).
+        set (gg_q := pr2 (pr2 (pr2 gg))).
         etrans. apply assoc.
         etrans. apply maponpaths_2, ff_q.
 
@@ -307,7 +326,8 @@ Section SplitTypeCat_Cat_Simple.
     intros X Y.
     apply isaset_total2. 2: intros ?; apply isasetaprop, isaprop_SplitTy_mor_axioms.
     - apply isaset_total2.
-      + apply homset_property.
+      + repeat (apply impred_isaset; intros ?).
+        apply (pr1 (pr2 Y)).
       + intros ?.
         repeat (apply impred_isaset; intros ?).
         apply homset_property.
