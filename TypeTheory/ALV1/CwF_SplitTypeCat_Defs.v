@@ -48,7 +48,7 @@ Section Obj_Ext_Structures_Disp_Cat.
   Local Notation "P [ Γ ]" := ((P : functor _ _) Γ : hSet) (at level 4).
   Local Notation "F [[ A ]]" := ((F : nat_trans _ _) _ A) (at level 4).
 
-  Definition obj_ext_pt1_ob_mor : disp_cat_ob_mor (preShv C).
+  Definition obj_ext_ob_mor : disp_cat_ob_mor (preShv C).
   Proof.
     use tpair.
     - intros Ty.
@@ -59,17 +59,17 @@ Section Obj_Ext_Structures_Disp_Cat.
                  φ ;; pr2 (ext'_π' _ _) = pr2 (ext_π _ _)).
   Defined.
 
-  Local Definition ext {Ty} (X : obj_ext_pt1_ob_mor Ty) Γ A : C
+  Local Definition ext {Ty} (X : obj_ext_ob_mor Ty) Γ A : C
     := pr1 (X Γ A).
 
-  Definition obj_ext_disp_π {Ty} (X : obj_ext_pt1_ob_mor Ty) {Γ} A : ext X Γ A --> Γ
+  Definition obj_ext_disp_π {Ty} (X : obj_ext_ob_mor Ty) {Γ} A : ext X Γ A --> Γ
     := pr2 (X Γ A).
 
   Local Notation π := obj_ext_disp_π.
 
   Definition obj_ext_mor_disp_φ
       {Ty Ty' : preShv C } {F : Ty --> Ty'}
-      {X : obj_ext_pt1_ob_mor Ty} {X'} (FF : X -->[F] X')
+      {X : obj_ext_ob_mor Ty} {X'} (FF : X -->[F] X')
       {Γ:C} (A : Ty[Γ])
     : ext X Γ A --> ext X' Γ F[[A]]
   := pr1 (FF _ _).
@@ -78,14 +78,14 @@ Section Obj_Ext_Structures_Disp_Cat.
 
   Definition obj_ext_mor_disp_ax
       {Ty Ty' : preShv C } (F : Ty --> Ty')
-      {X : obj_ext_pt1_ob_mor Ty} {X'} (FF : X -->[F] X')
+      {X : obj_ext_ob_mor Ty} {X'} (FF : X -->[F] X')
       {Γ:C} (A : Ty [ Γ ])
     : φ FF A ;; π X' _ = π X A
   := pr2 (FF _ _).
 
   Lemma obj_ext_mor_disp_eq
       {Ty Ty' : preShv C } (F : Ty --> Ty')
-      {X : obj_ext_pt1_ob_mor Ty} {X'} (FF GG : X -->[F] X')
+      {X : obj_ext_ob_mor Ty} {X'} (FF GG : X -->[F] X')
       (e : ∏  Γ (A : Ty[Γ]), φ FF A = φ GG A)
     : FF = GG.
   Proof.
@@ -95,7 +95,7 @@ Section Obj_Ext_Structures_Disp_Cat.
   Defined.
 
   Definition comp_ext_compare_internal
-      {Ty} {X : obj_ext_pt1_ob_mor Ty}
+      {Ty} {X : obj_ext_ob_mor Ty}
       {Γ : C} {A A' : Ty [Γ]} (e : A = A')
     : ext X Γ A --> ext X Γ A'
   := idtoiso (maponpaths _ e).
@@ -104,7 +104,7 @@ Section Obj_Ext_Structures_Disp_Cat.
 
   Lemma obj_ext_mor_disp_transportf
       {Ty Ty' : preShv C } (F F' : Ty --> Ty') (e_F : F = F')
-      {X : obj_ext_pt1_ob_mor Ty} {X'} (FF: X -->[F] X')
+      {X : obj_ext_ob_mor Ty} {X'} (FF: X -->[F] X')
       {Γ} {A : Ty[Γ]}
       (e_FA := maponpaths (fun (G:Ty-->Ty') => G[[A]]) e_F)
     : φ (transportf _ e_F FF) A = φ FF A ;; Δ e_FA.
@@ -125,7 +125,7 @@ Section Obj_Ext_Structures_Disp_Cat.
 
   Lemma obj_ext_mor_disp_transportf_gen
       {Ty Ty' : preShv C } {F F' : Ty --> Ty'} (e_F : F = F')
-      {X : obj_ext_pt1_ob_mor Ty} {X'} (FF: X -->[F] X')
+      {X : obj_ext_ob_mor Ty} {X'} (FF: X -->[F] X')
       {Γ} {A : Ty[Γ]} (e_FA : _)
     : φ (transportf _ e_F FF) A = φ FF A ;; Δ e_FA.
   Proof.
@@ -135,7 +135,7 @@ Section Obj_Ext_Structures_Disp_Cat.
 
   Lemma obj_ext_mor_disp_transportb_eq
       {Ty Ty' : preShv C } {F G : Ty --> Ty'} (e_F : F = G)
-      {X : obj_ext_pt1_ob_mor Ty} {X'} {FF : X -->[F] X'} {GG : X -->[G] X'}
+      {X : obj_ext_ob_mor Ty} {X'} {FF : X -->[F] X'} {GG : X -->[G] X'}
       (e : ∏ Γ (A : Ty[Γ]),
          φ FF A ;; Δ (maponpaths (λ (F:Ty-->Ty'), F[[A]]) e_F) = φ GG A)
     : FF = transportb _ e_F GG.
@@ -148,7 +148,7 @@ Section Obj_Ext_Structures_Disp_Cat.
 
   Lemma obj_ext_mor_disp_transportb_eq_gen
       {Ty Ty' : preShv C } {F G : Ty --> Ty'} (e_F : F = G)
-      {X : obj_ext_pt1_ob_mor Ty} {X'} {FF : X -->[F] X'} {GG : X -->[G] X'}
+      {X : obj_ext_ob_mor Ty} {X'} {FF : X -->[F] X'} {GG : X -->[G] X'}
       (e_FA : ∏ Γ (A : Ty[Γ]), F[[A]] = G[[A]])
       (e : ∏ Γ (A : Ty[Γ]),
          φ FF A ;; Δ (e_FA Γ A) = φ GG A)
@@ -161,7 +161,7 @@ Section Obj_Ext_Structures_Disp_Cat.
     apply maponpaths, maponpaths, setproperty.
   Qed.
 
-  Definition obj_ext_pt1_id_comp : disp_cat_id_comp _ obj_ext_pt1_ob_mor.
+  Definition obj_ext_id_comp : disp_cat_id_comp _ obj_ext_ob_mor.
   Proof.
     use tpair.
     - intros Ty X Γ A. exists (identity _). apply id_left.
@@ -173,14 +173,14 @@ Section Obj_Ext_Structures_Disp_Cat.
       apply obj_ext_mor_disp_ax.
   Defined.
 
-  Definition obj_ext_pt1_data : disp_cat_data (preShv C).
+  Definition obj_ext_data : disp_cat_data (preShv C).
   Proof.
     use tpair.
-    - exact obj_ext_pt1_ob_mor.
-    - exact obj_ext_pt1_id_comp.
+    - exact obj_ext_ob_mor.
+    - exact obj_ext_id_comp.
   Defined.
 
-  Definition obj_ext_pt1_axioms : disp_cat_axioms _ obj_ext_pt1_data.
+  Definition obj_ext_axioms : disp_cat_axioms _ obj_ext_data.
   Proof.
     repeat use tpair.
     - intros Ty Ty' F X X' FF. 
@@ -205,11 +205,11 @@ Section Obj_Ext_Structures_Disp_Cat.
       intros ?; apply isasetaprop, homset_property.
   Qed.
 
-  Definition obj_ext_pt1 : disp_cat (preShv C).
+  Definition obj_ext_disp : disp_cat (preShv C).
   Proof.
     use tpair.
-    - exact obj_ext_pt1_data.
-    - exact obj_ext_pt1_axioms.
+    - exact obj_ext_data.
+    - exact obj_ext_axioms.
   Defined.
 
 End Obj_Ext_Structures_Disp_Cat.
@@ -222,7 +222,7 @@ Section Obj_Ext_Structures.
 Context {C : category}.
 
 Definition obj_ext_structure : UU
-  := ob (total_category_ob_mor (obj_ext_pt1 C)).
+  := ob (total_category_ob_mor (obj_ext_data C)).
 
 (** Not intended for use, just for readability. *)
 Local Definition obj_ext_structure_explicit : UU
