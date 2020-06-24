@@ -152,7 +152,7 @@ Section DiscCompCat_mor.
     : F_ob_compare e ;; ϕ G Γ A' = ϕ G Γ A ;; F_ob_compare (maponpaths (F_TY G _) e).
   Proof.
     destruct e; simpl. etrans. apply id_left. apply pathsinv0, id_right.
-  Defined.
+  Qed.
 
   Definition F_TY_on_morphisms
              {X Y : discrete_comprehension_cat_structure1 C}
@@ -167,7 +167,7 @@ Section DiscCompCat_mor.
     etrans. apply pathsinv0, (F_TY_ax Γ' Γ f A').
     apply maponpaths.
     apply (mor_with_unique_lift_mor_weq _ _ (D_ob_isaset X) _ ff).
-  Defined.
+  Qed.
 
   Definition DiscCompCat_mor_axiom_ϕ_qq
              {X Y : discrete_comprehension_cat_structure1 C}

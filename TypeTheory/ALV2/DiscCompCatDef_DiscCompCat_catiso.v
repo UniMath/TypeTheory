@@ -36,8 +36,11 @@ Section SplitTypeCat_DiscCompCat_catiso.
     apply weqonsecfibers; intros Γ'.
     apply weqonsecfibers; intros f.
     apply weqonsecfibers; intros A.
-    use weq_iso.
+    use weqimplimpl.
     - intros p.
+      cbn.
+      lazy beta delta iota zeta.
+      cbv beta delta.
       etrans.
       apply (p (DiscCompCatDef_Cat.D_lift_ob (DiscCompCat_DiscCompCatDef_weq X) _ _ f A)
                (invweq (mor_with_unique_lift_mor_weq _ _ _ (pr1 (pr2 (pr2 (pr2 (pr2 X)))))) (idpath _))

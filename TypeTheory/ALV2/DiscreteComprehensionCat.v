@@ -162,14 +162,14 @@ Section MorWithUniqueLift.
     : isaprop (default_mor Γ Γ' A A' f).
   Proof.
     apply D_ob_isaset.
-  Defined.
+  Qed.
 
   Definition default_mor_homsets
              (Γ Γ' : C) (f : C ⟦ Γ, Γ' ⟧) (A : D_ob Γ) (A' : D_ob Γ')
     : isaset (default_mor _ _ A A' f).
   Proof.
     intros. apply isasetaprop. apply D_ob_isaset.
-  Defined.
+  Qed.
 
   Context
     (Fob : ∏ Γ : C, D_ob Γ → disp_codomain C Γ).
@@ -302,7 +302,7 @@ Section MorWithUniqueLift.
       apply funextsec; intros f.
       apply isapropweqtoprop.
       apply D_ob_isaset.
-  Defined.
+  Qed.
 
   Definition iscontr_mor_with_unique_lift'''
     : iscontr mor_with_unique_lift'''.
@@ -329,17 +329,19 @@ Section MorWithUniqueLift.
       exact (! maponpaths pr1 (pr2 uf (A ,, ff))).
     - intros p.
       exact (transportf (λ B, pr1 mor Γ Γ' B A' f) p (pr1 uf)).
-    - intros ff.
-      apply (transportf_pathsinv0' (λ B, pr1 mor Γ Γ' B A' f)).
-      apply pathsinv0.
-      apply (transportf_transpose_right
-               (P := λ B, pr1 mor Γ Γ' B A' f)
-             ).
-      apply (fiber_paths_from_total2_paths
-               (B := λ x, pr1 mor Γ Γ' x A' f)
-               (A ,, ff)
-               (D_lift_ob Γ' Γ f A' ,, pr1 uf)).
-    - intros p. apply D_ob_isaset.
+    - abstract (
+          intros ff;
+          apply (transportf_pathsinv0' (λ B, pr1 mor Γ Γ' B A' f));
+          apply pathsinv0;
+          apply (transportf_transpose_right
+                   (P := λ B, pr1 mor Γ Γ' B A' f)
+                );
+          apply (fiber_paths_from_total2_paths
+                   (B := λ x, pr1 mor Γ Γ' x A' f)
+                   (A ,, ff)
+                   (D_lift_ob Γ' Γ f A' ,, pr1 uf))
+        ).
+    - abstract (intros p; apply D_ob_isaset).
   Defined.
 
   Definition isaprop_mor_with_unique_lift_mor
@@ -351,7 +353,7 @@ Section MorWithUniqueLift.
     apply (isapropinclb (mor_with_unique_lift_mor_weq mor)).
     - apply isinclweq, (pr2 (mor_with_unique_lift_mor_weq mor)).
     - apply isaprop_default_mor.
-  Defined.
+  Qed.
 
   Definition iscontr_mor_with_unique_lift'
     : iscontr mor_with_unique_lift.
@@ -380,7 +382,7 @@ Section MorWithUniqueLift.
     use weq_iso.
     - intros p.
       
-  Defined.
+  Abort.
 
 End MorWithUniqueLift.
 
@@ -418,7 +420,7 @@ Section DiscreteComprehensionCats.
     - repeat (apply impred_isaprop; intros ?). apply D_homsets.
     - repeat (apply impred_isaprop; intros ?). apply D_homsets.
     - repeat (apply impred_isaprop; intros ?). apply D_homsets.
-  Defined.
+  Qed.
 
   Definition disp_cat_axioms'_weq {C : precategory} {D : disp_cat_data C}
     : (disp_cat_axioms' C D × (∏ x y f (xx : D x) (yy : D y), isaset (xx -->[f] yy)))
@@ -427,7 +429,7 @@ Section DiscreteComprehensionCats.
     eapply weqcomp. apply weqdirprodasstor.
     apply (weqdirprodf (idweq _)).
     apply weqdirprodasstor.
-  Defined.
+  Qed.
 
   Definition discrete_comprehension_cat_structure2' {C : category}
              (D_ob : C → UU)
@@ -468,7 +470,7 @@ Section DiscreteComprehensionCats.
     - intros. use total2_paths_f.
       + repeat (apply funextsec; intros ?). apply D_ob_isaset.
       + repeat (apply funextsec; intros ?). apply D_ob_isaset.
-  Defined.
+  Qed.
   
   Definition discrete_comprehension_cat_structure2 {C : category}
              (D_ob : C → UU)
