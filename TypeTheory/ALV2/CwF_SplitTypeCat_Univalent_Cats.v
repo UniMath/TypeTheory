@@ -22,7 +22,7 @@ Local Set Automatic Introduction.
 Section Auxiliary.
 
 Lemma transportf_term_fun_mor_TM {C : category}
-  {X X' : obj_ext_Precat C} {F F' : X --> X'} (e : F = F')
+  {X X' : obj_ext_cat C} {F F' : X --> X'} (e : F = F')
   {Y : term_fun_disp_cat C X} {Y'} (FY : Y -->[F] Y')
   : term_fun_mor_TM (transportf _ e FY) = term_fun_mor_TM FY.
 Proof.
@@ -44,7 +44,7 @@ Local Notation φ := obj_ext_mor_φ.
 
 Section Is_Univalent_Obj_Ext_1.
 
-Definition obj_ext_iso_alt (X X' : obj_ext_Precat C) : UU :=
+Definition obj_ext_iso_alt (X X' : obj_ext_cat C) : UU :=
   ∑ F_TY : iso (TY X) (TY X'),
         ∏ {Γ:C} {A' : Ty X' Γ},
          ∑ φ : iso (Γ ◂ ((inv_from_iso F_TY) : nat_trans _ _ ) _ A') (Γ ◂  A'),
@@ -56,7 +56,7 @@ Proof.
   apply (make_weq idtoiso (pr1 (univalent_category_is_univalent _) _ _ )).
 Defined.
 
-Definition weq_eq_obj_ext_iso_alt (X X' : obj_ext_Precat C) :
+Definition weq_eq_obj_ext_iso_alt (X X' : obj_ext_cat C) :
   (X = X') ≃ obj_ext_iso_alt X X'.
 Proof.
   eapply weqcomp. apply total2_paths_equiv.
@@ -99,7 +99,7 @@ Section Is_Univalent_Obj_Ext_2.
 
 (* TODO: move*)
 Definition obj_ext_to_preShv_functor_data
-  : functor_data (obj_ext_Precat C) (preShv C).
+  : functor_data (obj_ext_cat C) (preShv C).
 Proof.
   use tpair.
   apply pr1.
@@ -115,7 +115,7 @@ Qed.
 
 (* TODO: move; rename to [obj_ext_TY_functor]? *)
 Definition obj_ext_to_preShv_functor
-  : functor (obj_ext_Precat C) (preShv C)
+  : functor (obj_ext_cat C) (preShv C)
 := (_ ,, obj_ext_to_preShv_functor_axioms).
 
 
@@ -129,7 +129,7 @@ Proof.
   destruct e; cbn. apply idpath.
 Defined.
 
-Lemma obj_ext_mor_TY_eq {X X' : obj_ext_Precat C}
+Lemma obj_ext_mor_TY_eq {X X' : obj_ext_cat C}
   {F F' : X --> X'} (E : F = F')
   {Γ} (A : Ty X Γ)
 : (obj_ext_mor_TY F : nat_trans _ _) _ A
@@ -138,7 +138,7 @@ Proof.
   destruct E; apply idpath.
 Qed.
 
-Lemma obj_ext_mor_φ_eq {X X' : obj_ext_Precat C}
+Lemma obj_ext_mor_φ_eq {X X' : obj_ext_cat C}
   {F F' : X --> X'} (E : F = F')
   {Γ} (A : Ty X Γ)
 : φ F A ;; Δ (obj_ext_mor_TY_eq E A)
@@ -150,7 +150,7 @@ Proof.
 Qed.
 
 Definition iso_to_obj_ext_eq (H : is_univalent C)
-  {X X' : obj_ext_Precat C}
+  {X X' : obj_ext_cat C}
 : (iso X X') -> (X = X').
 Proof.
   intros F.
@@ -200,7 +200,7 @@ Proof.
 Defined.
 
 (* TODO: inline *)
-Lemma foo {X X' : obj_ext_Precat C} (e : X = X')
+Lemma foo {X X' : obj_ext_cat C} (e : X = X')
   {Γ} (A : Ty X Γ)
 : comp_ext X Γ A
   --> comp_ext X' Γ ((obj_ext_mor_TY (idtoiso e : X --> X') : nat_trans _ _) _ A).
@@ -234,7 +234,7 @@ Proof.
 Defined.
 
 (* TODO: name *)
-Lemma foo2 {X X' : obj_ext_Precat C} (e : X = X')
+Lemma foo2 {X X' : obj_ext_cat C} (e : X = X')
   {Γ} (A : Ty X Γ)
 : φ (idtoiso e : _ --> _) A = foo e A.
 Proof.
@@ -246,7 +246,7 @@ Proof.
 Qed.
 
 Theorem is_univalent_obj_ext (H : is_univalent C)
-  : is_univalent (obj_ext_Precat C).
+  : is_univalent (obj_ext_cat C).
 Proof.
   split. Focus 2. apply homset_property.
   apply (eq_equiv_from_retraction _ (@iso_to_obj_ext_eq H)). 
@@ -274,7 +274,7 @@ Section Is_Univalent_Families_Strucs.
 
 (* TODO: inline *) 
 Lemma isaprop_whatever
-  (x : obj_ext_Precat C)
+  (x : obj_ext_cat C)
   (d d' : (term_fun_disp_cat C) x)
   : isaprop (iso_disp (identity_iso x) d d').
 Proof.
@@ -284,7 +284,7 @@ Proof.
 Qed.
 
 Definition iso_disp_to_TM_eq
-  (X : obj_ext_Precat C)
+  (X : obj_ext_cat C)
   (Y Y' : (term_fun_disp_cat C) X)
   : iso_disp (identity_iso X) Y Y'
   -> TM (Y : term_fun_structure _ X) = TM (Y' : term_fun_structure _ X).
@@ -334,7 +334,7 @@ Proof.
 Qed.
 
 Definition iso_to_id__term_fun_disp_cat
-  {X : obj_ext_Precat C}
+  {X : obj_ext_cat C}
   (Y Y' : term_fun_disp_cat C X)
   : iso_disp (identity_iso _) Y Y' -> Y = Y'.
 Proof.
@@ -396,7 +396,7 @@ Proof.
 Qed. 
 
 Lemma isaprop_iso_disp_qq_morphism_structure 
-  (x : obj_ext_Precat C)
+  (x : obj_ext_cat C)
   (d d' : (qq_structure_disp_cat C) x)
   : isaprop (iso_disp (identity_iso x) d d').
 Proof.
@@ -407,7 +407,7 @@ Proof.
 Qed.
 
 Lemma qq_structure_eq 
-  (x : obj_ext_Precat C)
+  (x : obj_ext_cat C)
   (d d' : qq_morphism_structure x)
   (H : ∏ (Γ Γ' : C) (f : Γ' --> Γ) (A : (TY x : functor _ _ ) Γ : hSet), 
            qq d f A = qq d' f A)
@@ -426,7 +426,7 @@ Proof.
 Defined.
 
 Definition qq_structure_iso_disp_to_id
-  (x : obj_ext_Precat C)
+  (x : obj_ext_cat C)
   (d d' : (qq_structure_disp_cat C) x)
   : iso_disp (identity_iso x) d d' → d = d'.
 Proof.

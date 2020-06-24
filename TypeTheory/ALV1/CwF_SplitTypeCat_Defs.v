@@ -94,13 +94,13 @@ Section Obj_Ext_Structures_Disp_Cat.
     apply e.
   Defined.
 
-  Definition comp_ext_compare_internal
+  Definition comp_ext_compare_disp
       {Ty} {X : obj_ext_ob_mor Ty}
       {Γ : C} {A A' : Ty [Γ]} (e : A = A')
     : ext X Γ A --> ext X Γ A'
   := idtoiso (maponpaths _ e).
 
-  Local Notation Δ := comp_ext_compare_internal.
+  Local Notation Δ := comp_ext_compare_disp.
 
   Lemma obj_ext_mor_disp_transportf
       {Ty Ty' : preShv C } (F F' : Ty --> Ty') (e_F : F = F')
@@ -133,6 +133,34 @@ Section Obj_Ext_Structures_Disp_Cat.
     apply maponpaths, maponpaths, setproperty.
   Qed.
 
+  Lemma obj_ext_mor_disp_transportf_eq
+      {Ty Ty' : preShv C } {F G : Ty --> Ty'} (e_F : F = G)
+      {X : obj_ext_ob_mor Ty} {X'} {FF : X -->[F] X'} {GG : X -->[G] X'}
+      (e : ∏ Γ (A : Ty[Γ]),
+         φ FF A ;; Δ (maponpaths (λ (F:Ty-->Ty'), F[[A]]) e_F) = φ GG A)
+    : transportf _ e_F FF = GG.
+  Proof.
+    apply obj_ext_mor_disp_eq.
+    intros Γ A.
+    etrans. { apply obj_ext_mor_disp_transportf. }
+    apply e.
+  Qed.
+
+  Lemma obj_ext_mor_disp_transportf_eq_gen
+      {Ty Ty' : preShv C } {F G : Ty --> Ty'} (e_F : F = G)
+      {X : obj_ext_ob_mor Ty} {X'} {FF : X -->[F] X'} {GG : X -->[G] X'}
+      (e_FA : ∏ Γ (A : Ty[Γ]), F[[A]] = G[[A]])
+      (e : ∏ Γ (A : Ty[Γ]),
+         φ FF A ;; Δ (e_FA Γ A) = φ GG A)
+    : transportf _ e_F FF = GG.
+  Proof.
+    apply obj_ext_mor_disp_eq.
+    intros Γ A.
+    etrans. { apply obj_ext_mor_disp_transportf. }
+    etrans. 2: { apply e. }
+    apply maponpaths, maponpaths, setproperty.
+  Qed.
+
   Lemma obj_ext_mor_disp_transportb_eq
       {Ty Ty' : preShv C } {F G : Ty --> Ty'} (e_F : F = G)
       {X : obj_ext_ob_mor Ty} {X'} {FF : X -->[F] X'} {GG : X -->[G] X'}
@@ -140,10 +168,7 @@ Section Obj_Ext_Structures_Disp_Cat.
          φ FF A ;; Δ (maponpaths (λ (F:Ty-->Ty'), F[[A]]) e_F) = φ GG A)
     : FF = transportb _ e_F GG.
   Proof.
-    apply transportb_transpose_right, obj_ext_mor_disp_eq.
-    intros Γ A.
-    etrans. { apply obj_ext_mor_disp_transportf. }
-    apply e.
+    apply transportb_transpose_right, obj_ext_mor_disp_transportf_eq, e.
   Qed.
 
   Lemma obj_ext_mor_disp_transportb_eq_gen
@@ -154,11 +179,8 @@ Section Obj_Ext_Structures_Disp_Cat.
          φ FF A ;; Δ (e_FA Γ A) = φ GG A)
     : FF = transportb _ e_F GG.
   Proof.
-    apply transportb_transpose_right, obj_ext_mor_disp_eq.
-    intros Γ A.
-    etrans. { apply obj_ext_mor_disp_transportf. }
-    etrans. 2: { apply e. }
-    apply maponpaths, maponpaths, setproperty.
+    eapply transportb_transpose_right,
+      obj_ext_mor_disp_transportf_eq_gen, e.
   Qed.
 
   Definition obj_ext_id_comp : disp_cat_id_comp _ obj_ext_ob_mor.
@@ -214,7 +236,7 @@ Section Obj_Ext_Structures_Disp_Cat.
 
 End Obj_Ext_Structures_Disp_Cat.
 
-Arguments comp_ext_compare_internal {_ _ _ _ _ _} _.
+Arguments comp_ext_compare_disp {_ _ _ _ _ _} _.
 
 
 Section Obj_Ext_Structures.

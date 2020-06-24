@@ -125,7 +125,7 @@ We don’t yet have the infrastructure on displayed categories to put it togethe
  
 Section Unique_QQ_From_Term.
 
-Lemma qq_from_term_ob {X : obj_ext_precat} (Y : term_fun_disp_cat C X)
+Lemma qq_from_term_ob {X : obj_ext_cat C} (Y : term_fun_disp_cat C X)
   : ∑ (Z : qq_structure_disp_cat C X), strucs_compat_disp_cat (X ,, (Y ,, Z)).
 Proof.
   exists (qq_from_term Y).
@@ -143,7 +143,7 @@ Proof.
   exact (toforallpaths _ _ _ (functor_id (TM _) _) _). 
 Qed.
 
-Lemma qq_from_term_mor {X X' : obj_ext_precat} {F : X --> X'}
+Lemma qq_from_term_mor {X X' : obj_ext_cat C} {F : X --> X'}
   {Y : term_fun_disp_cat C X} {Y'} (FY : Y -->[F] Y')
   {Z : qq_structure_disp_cat C X} {Z'}
   (W : strucs_compat_disp_cat (X,,(Y,,Z)))
@@ -180,7 +180,7 @@ Proof.
     apply comp_ext_compare_te.
 Time Qed.
 
-Lemma qq_from_term_mor_unique {X X' : obj_ext_precat} {F : X --> X'}
+Lemma qq_from_term_mor_unique {X X' : obj_ext_cat C} {F : X --> X'}
   {Y : term_fun_disp_cat C X} {Y'} (FY : Y -->[F] Y')
   {Z : qq_structure_disp_cat C X} {Z'}
   (W : strucs_compat_disp_cat (X,,(Y,,Z)))
@@ -196,7 +196,7 @@ End Unique_QQ_From_Term.
 
 Section Unique_Term_From_QQ.
 
-Lemma term_from_qq_ob {X : obj_ext_precat} (Z : qq_structure_disp_cat C X)
+Lemma term_from_qq_ob {X : obj_ext_cat C} (Z : qq_structure_disp_cat C X)
   : ∑ (Y : term_fun_disp_cat C X), strucs_compat_disp_cat (X ,, (Y ,, Z)).
 Proof.
   exists (term_from_qq Z).
@@ -204,7 +204,7 @@ Proof.
 Defined.
 
 (** The next main goal is the following statement.  However, the construction of the morphism of term structures is rather large; so we factor the first component (the map of term presheaves) into several steps, going explicitly via the canonical term-structure constructed from sections [term_fun_from_qq], before returning to this in [term_from_qq_mor] below. *)
-Lemma term_from_qq_mor {X X' : obj_ext_precat} {F : X --> X'}
+Lemma term_from_qq_mor {X X' : obj_ext_cat C} {F : X --> X'}
   {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
   {Y : term_fun_disp_cat C X} {Y'}
   (W : strucs_compat_disp_cat (X,,(Y,,Z)))
@@ -220,7 +220,7 @@ Section Rename_me.
 
 (* TODO: naming conventions in this section clash rather with those of [ALV1.CwF_SplitTypeCat_Equivalence]. Consider! *)
 (* TODO: one would expect the type of this to be [nat_trans_data].  However, that name breaks HORRIBLY with general naming conventions: it is not the _type_ of the data (which is un-named for [nat_trans]), but is the _access function_ for that data!  Submit issue for this? *)  
-Lemma tm_from_qq_mor_data {X X' : obj_ext_precat} {F : X --> X'}
+Lemma tm_from_qq_mor_data {X X' : obj_ext_cat C} {F : X --> X'}
     {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
   : forall Γ : C, (tm_from_qq Z Γ) --> (tm_from_qq Z' Γ).
 Proof.
@@ -232,7 +232,7 @@ Proof.
   apply (pr2 (pr2 Ase)).
 Defined.
 
-Lemma tm_from_qq_mor_naturality {X X' : obj_ext_precat} {F : X --> X'}
+Lemma tm_from_qq_mor_naturality {X X' : obj_ext_cat C} {F : X --> X'}
     {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
   : is_nat_trans (tm_from_qq Z) (tm_from_qq Z') (tm_from_qq_mor_data FZ).
 Proof.
@@ -258,7 +258,7 @@ Proof.
       apply pathsinv0, assoc.
 Time Qed.
 
-Lemma tm_from_qq_mor_TM {X X' : obj_ext_precat} {F : X --> X'}
+Lemma tm_from_qq_mor_TM {X X' : obj_ext_cat C} {F : X --> X'}
     {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
   : nat_trans (tm_from_qq Z) (tm_from_qq Z').
 Proof.
@@ -266,7 +266,7 @@ Proof.
   apply tm_from_qq_mor_naturality.
 Defined.
 
-Lemma tm_from_qq_mor_pp {X X' : obj_ext_precat} {F : X --> X'}
+Lemma tm_from_qq_mor_pp {X X' : obj_ext_cat C} {F : X --> X'}
     {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
   : (tm_from_qq_mor_TM FZ : preShv C ⟦ _ , _ ⟧) ;; pp_from_qq Z'
   = pp_from_qq Z;; obj_ext_mor_TY F.
@@ -275,7 +275,7 @@ Proof.
   intros Γ. apply idpath.
 Qed.
 
-Lemma tm_from_qq_mor_te {X X' : obj_ext_precat} {F : X --> X'}
+Lemma tm_from_qq_mor_te {X X' : obj_ext_cat C} {F : X --> X'}
     {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
     {Γ} (A : Ty X Γ)
   : tm_from_qq_mor_TM FZ _ (te_from_qq Z A)
@@ -329,7 +329,7 @@ Time Qed.
 
 End Rename_me.
 
-Definition term_from_qq_mor_TM {X X' : obj_ext_precat} {F : X --> X'}
+Definition term_from_qq_mor_TM {X X' : obj_ext_cat C} {F : X --> X'}
     {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
     {Y : term_fun_disp_cat C X} {Y'}
     (W : strucs_compat_disp_cat (X,,(Y,,Z)))
@@ -342,7 +342,7 @@ Proof.
 Defined.
 (* TODO: better, construct these three parts as maps of qq-morphism structures, and put them together directly as that. *)
 
-Lemma term_from_qq_mor {X X' : obj_ext_precat} {F : X --> X'}
+Lemma term_from_qq_mor {X X' : obj_ext_cat C} {F : X --> X'}
   {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
   {Y : term_fun_disp_cat C X} {Y'}
   (W : strucs_compat_disp_cat (X,,(Y,,Z)))
@@ -369,7 +369,7 @@ Proof.
     cbn. apply maponpaths. apply (canonical_TM_to_given_te _ _ (_,,_)).
 Defined.
 
-Lemma term_from_qq_mor_unique {X X' : obj_ext_precat} {F : X --> X'}
+Lemma term_from_qq_mor_unique {X X' : obj_ext_cat C} {F : X --> X'}
   {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
   {Y : term_fun_disp_cat C X} {Y'}
   (W : strucs_compat_disp_cat (X,,(Y,,Z)))
@@ -617,7 +617,7 @@ End Strucs_Disp_Equiv.
 
 Section Strucs_Fiber_Equiv.
 
-Context (X : obj_ext_Precat C).
+Context (X : obj_ext_cat C).
 
 Definition term_struc_to_qq_struc_fiber_functor
   : functor
