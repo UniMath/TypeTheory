@@ -429,7 +429,7 @@ Section DiscreteComprehensionCats.
     eapply weqcomp. apply weqdirprodasstor.
     apply (weqdirprodf (idweq _)).
     apply weqdirprodasstor.
-  Qed.
+  Defined.
 
   Definition discrete_comprehension_cat_structure2' {C : category}
              (D_ob : C → UU)
