@@ -11,6 +11,9 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
+Require Import UniMath.CategoryTheory.slicecat.
+
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Cats.
 Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Equiv_Cats.
@@ -41,6 +44,92 @@ Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 
 Local Notation Δ := comp_ext_compare.
 Local Notation φ := obj_ext_mor_φ.
 
+
+Section Is_Univalent_Obj_Ext_Disp.
+
+  Context {C_univalent : is_univalent C}.
+
+  (* OUTLINE:
+  for object-extension structures X, X',
+  X = X'
+  <~> forall Γ A, (X Γ A = X' Γ A)    (by funext)
+  <~> forall Γ Α, (iso (slice ___))   (by [id_weq_iso_slicecat])
+  <~> iso (obj_ext) X X'              (by hand, in [slice_isos_to_obj_ext_iso])
+  *)
+
+  Lemma slice_map_to_obj_ext_map {TY : PreShv C} {X X' : obj_ext_disp C TY}
+    : (∏ Γ A, slice_precat C Γ (homset_property C) ⟦ X Γ A , X' Γ A ⟧)
+    -> X -->[identity_iso TY] X'.
+  Proof.
+    intros I Γ A.
+    exists (pr1 (I Γ A)).  
+    apply pathsinv0, (pr2 (I Γ A)).  
+  Defined.
+
+  Lemma is_iso_slice_isos_to_obj_ext_map {TY : PreShv C} {X X' : obj_ext_disp C TY}
+    (I : ∏ Γ A, @iso (slice_precat C Γ (homset_property C)) (X Γ A) (X' Γ A))
+    : is_iso_disp (identity_iso _) (slice_map_to_obj_ext_map (fun Γ A => I Γ A)).
+  Proof.
+    exists (slice_map_to_obj_ext_map (fun Γ A => inv_from_iso (I Γ A))).
+  Admitted.
+
+  Lemma slice_isos_to_obj_ext_iso {TY : PreShv C} (X X' : obj_ext_disp C TY)
+    : (∏ Γ A, @iso (slice_precat C Γ (homset_property C)) (X Γ A) (X' Γ A))
+    -> iso_disp (identity_iso TY) X X'.
+  Proof.
+    intros I.
+    exists (slice_map_to_obj_ext_map I).
+    apply is_iso_slice_isos_to_obj_ext_map.
+  Defined.
+
+  Lemma isweq_slice_isos_obj_ext_iso {TY : PreShv C} (X X' : obj_ext_disp C TY)
+    : isweq (slice_isos_to_obj_ext_iso X X').
+  Proof.
+    use gradth.
+  Admitted.
+
+  Lemma weq_slice_isos_obj_ext_iso {TY : PreShv C} (X X' : obj_ext_disp C TY)
+    : (∏ Γ A, @iso (slice_precat C Γ (homset_property C)) (X Γ A) (X' Γ A))
+    ≃ iso_disp (identity_iso TY) X X'.
+  Proof.
+    exists (slice_isos_to_obj_ext_iso _ _).
+    apply isweq_slice_isos_obj_ext_iso.
+  Defined.
+
+  Lemma is_univalent_mor_weq {TY : PreShv C} (X X' : obj_ext_disp C TY)
+    : X = X' ≃ iso_disp (identity_iso TY) X X'.
+  Proof.
+    apply (@weqcomp _ (forall Γ A, X Γ A = X' Γ A)).
+    { refine (weqcomp _ _). { apply weqtoforallpaths. } 
+      apply weqonsecfibers; intros Γ. 
+      apply weqtoforallpaths.
+    }
+    eapply weqcomp.
+    { apply weqonsecfibers; intros Γ.
+      apply weqonsecfibers; intros A.
+      use id_weq_iso_slicecat; auto.
+    }
+    apply weq_slice_isos_obj_ext_iso.
+  Defined.
+  
+  Lemma is_univalent_obj_ext_fibers : is_univalent_in_fibers (obj_ext_disp C).
+  Proof.
+    unfold is_univalent_in_fibers.
+    intros TY X X'.
+    apply weqhomot with (is_univalent_mor_weq _ _).
+    intros e; destruct e.
+    apply eq_iso_disp.
+    apply obj_ext_mor_disp_eq.
+    intros; apply idpath.
+  Qed.
+
+  Theorem is_univalent_obj_ext_disp : is_univalent_disp (obj_ext_disp C).
+  Proof.
+    apply is_univalent_disp_from_fibers,
+          is_univalent_obj_ext_fibers.
+  Defined.
+  
+End Is_Univalent_Obj_Ext_Disp.
 
 Section Is_Univalent_Obj_Ext_1.
 
