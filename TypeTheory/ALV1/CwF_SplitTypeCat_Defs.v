@@ -24,6 +24,7 @@ NB: we follow the convention that _category_ does not include an assumption of s
 
 
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.CategoryTheory.All. (* TODO: work out what’s actually needed and move into [CategoryTheoryImports]. *)
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
@@ -39,13 +40,222 @@ Components of [X : obj_ext_structure C]:
 - [TY Γ : hSet]
 - [comp_ext X Γ A : C].  Notation: [Γ ◂ A]
 - [π A : Γ ◂ A -->  A ⟧ *)
+
+Section Obj_Ext_Structures_Disp_Cat.
+
+  Context (C : category).
+
+  Local Notation "P [ Γ ]" := ((P : functor _ _) Γ : hSet) (at level 4).
+  Local Notation "F [[ A ]]" := ((F : nat_trans _ _) _ A) (at level 4).
+
+  Definition obj_ext_ob_mor : disp_cat_ob_mor (preShv C).
+  Proof.
+    use tpair.
+    - intros Ty.
+      exact (∏ (Γ:C) (A : Ty[Γ] : hSet), ∑ (ΓA : C), ΓA --> Γ).
+    - intros Ty Ty' ext_π ext'_π' F_TY.
+      exact (∏ (Γ:C) (A : Ty[Γ] : hSet),
+             ∑ φ : pr1 (ext_π Γ A) --> pr1 (ext'_π' Γ (F_TY[[A]])),
+                 φ ;; pr2 (ext'_π' _ _) = pr2 (ext_π _ _)).
+  Defined.
+
+  Local Definition ext {Ty} (X : obj_ext_ob_mor Ty) Γ A : C
+    := pr1 (X Γ A).
+
+  Definition obj_ext_disp_π {Ty} (X : obj_ext_ob_mor Ty) {Γ} A : ext X Γ A --> Γ
+    := pr2 (X Γ A).
+
+  Local Notation π := obj_ext_disp_π.
+
+  Definition obj_ext_mor_disp_φ
+      {Ty Ty' : preShv C } {F : Ty --> Ty'}
+      {X : obj_ext_ob_mor Ty} {X'} (FF : X -->[F] X')
+      {Γ:C} (A : Ty[Γ])
+    : ext X Γ A --> ext X' Γ F[[A]]
+  := pr1 (FF _ _).
+
+  Local Notation φ := obj_ext_mor_disp_φ.
+
+  Definition obj_ext_mor_disp_ax
+      {Ty Ty' : preShv C } (F : Ty --> Ty')
+      {X : obj_ext_ob_mor Ty} {X'} (FF : X -->[F] X')
+      {Γ:C} (A : Ty [ Γ ])
+    : φ FF A ;; π X' _ = π X A
+  := pr2 (FF _ _).
+
+  Lemma obj_ext_mor_disp_eq
+      {Ty Ty' : preShv C } (F : Ty --> Ty')
+      {X : obj_ext_ob_mor Ty} {X'} (FF GG : X -->[F] X')
+      (e : ∏  Γ (A : Ty[Γ]), φ FF A = φ GG A)
+    : FF = GG.
+  Proof.
+    apply funextsec; intros Γ; apply funextsec; intros A.
+    use total2_paths_f. 2: { apply homset_property. }
+    apply e.
+  Defined.
+
+  Definition comp_ext_compare_disp
+      {Ty} {X : obj_ext_ob_mor Ty}
+      {Γ : C} {A A' : Ty [Γ]} (e : A = A')
+    : ext X Γ A --> ext X Γ A'
+  := idtoiso (maponpaths _ e).
+
+  Local Notation Δ := comp_ext_compare_disp.
+
+  Lemma obj_ext_mor_disp_transportf
+      {Ty Ty' : preShv C } (F F' : Ty --> Ty') (e_F : F = F')
+      {X : obj_ext_ob_mor Ty} {X'} (FF: X -->[F] X')
+      {Γ} {A : Ty[Γ]}
+      (e_FA := maponpaths (fun (G:Ty-->Ty') => G[[A]]) e_F)
+    : φ (transportf _ e_F FF) A = φ FF A ;; Δ e_FA.
+  Proof.
+    etrans.
+    { unfold φ. apply maponpaths.
+      refine (toforallpaths _ _ _ _ _).
+      etrans.
+      { refine (toforallpaths _ _ _ _ _); refine (transportf_forall _ _ _). }
+      simpl. refine (transportf_forall _ _ _).
+    } 
+    etrans. { use (pr1_transportf (nat_trans _ _)). }
+    etrans. { use (@functtransportf (nat_trans _ _)). }
+    etrans. { apply @pathsinv0, idtoiso_postcompose. }
+    unfold Δ. apply maponpaths, maponpaths, maponpaths, pathsinv0.
+    apply (maponpathscomp (fun G => _) (fun A' => ext X' Γ A')).
+  Qed.
+
+  Lemma obj_ext_mor_disp_transportf_gen
+      {Ty Ty' : preShv C } {F F' : Ty --> Ty'} (e_F : F = F')
+      {X : obj_ext_ob_mor Ty} {X'} (FF: X -->[F] X')
+      {Γ} {A : Ty[Γ]} (e_FA : _)
+    : φ (transportf _ e_F FF) A = φ FF A ;; Δ e_FA.
+  Proof.
+    etrans. { apply obj_ext_mor_disp_transportf. }
+    apply maponpaths, maponpaths, setproperty.
+  Qed.
+
+  Lemma obj_ext_mor_disp_transportf_eq
+      {Ty Ty' : preShv C } {F G : Ty --> Ty'} (e_F : F = G)
+      {X : obj_ext_ob_mor Ty} {X'} {FF : X -->[F] X'} {GG : X -->[G] X'}
+      (e : ∏ Γ (A : Ty[Γ]),
+         φ FF A ;; Δ (maponpaths (λ (F:Ty-->Ty'), F[[A]]) e_F) = φ GG A)
+    : transportf _ e_F FF = GG.
+  Proof.
+    apply obj_ext_mor_disp_eq.
+    intros Γ A.
+    etrans. { apply obj_ext_mor_disp_transportf. }
+    apply e.
+  Qed.
+
+  Lemma obj_ext_mor_disp_transportf_eq_gen
+      {Ty Ty' : preShv C } {F G : Ty --> Ty'} (e_F : F = G)
+      {X : obj_ext_ob_mor Ty} {X'} {FF : X -->[F] X'} {GG : X -->[G] X'}
+      (e_FA : ∏ Γ (A : Ty[Γ]), F[[A]] = G[[A]])
+      (e : ∏ Γ (A : Ty[Γ]),
+         φ FF A ;; Δ (e_FA Γ A) = φ GG A)
+    : transportf _ e_F FF = GG.
+  Proof.
+    apply obj_ext_mor_disp_eq.
+    intros Γ A.
+    etrans. { apply obj_ext_mor_disp_transportf. }
+    etrans. 2: { apply e. }
+    apply maponpaths, maponpaths, setproperty.
+  Qed.
+
+  Lemma obj_ext_mor_disp_transportb_eq
+      {Ty Ty' : preShv C } {F G : Ty --> Ty'} (e_F : F = G)
+      {X : obj_ext_ob_mor Ty} {X'} {FF : X -->[F] X'} {GG : X -->[G] X'}
+      (e : ∏ Γ (A : Ty[Γ]),
+         φ FF A ;; Δ (maponpaths (λ (F:Ty-->Ty'), F[[A]]) e_F) = φ GG A)
+    : FF = transportb _ e_F GG.
+  Proof.
+    apply transportb_transpose_right, obj_ext_mor_disp_transportf_eq, e.
+  Qed.
+
+  Lemma obj_ext_mor_disp_transportb_eq_gen
+      {Ty Ty' : preShv C } {F G : Ty --> Ty'} (e_F : F = G)
+      {X : obj_ext_ob_mor Ty} {X'} {FF : X -->[F] X'} {GG : X -->[G] X'}
+      (e_FA : ∏ Γ (A : Ty[Γ]), F[[A]] = G[[A]])
+      (e : ∏ Γ (A : Ty[Γ]),
+         φ FF A ;; Δ (e_FA Γ A) = φ GG A)
+    : FF = transportb _ e_F GG.
+  Proof.
+    eapply transportb_transpose_right,
+      obj_ext_mor_disp_transportf_eq_gen, e.
+  Qed.
+
+  Definition obj_ext_id_comp : disp_cat_id_comp _ obj_ext_ob_mor.
+  Proof.
+    use tpair.
+    - intros Ty X Γ A. exists (identity _). apply id_left.
+    - intros Ty Ty' Ty'' F G X X' X'' FF GG.
+      intros Γ A.
+      exists ( φ FF A ;; φ GG _ ); cbn.
+      etrans. apply @pathsinv0, assoc. 
+      etrans. apply maponpaths, obj_ext_mor_disp_ax.
+      apply obj_ext_mor_disp_ax.
+  Defined.
+
+  Definition obj_ext_data : disp_cat_data (preShv C).
+  Proof.
+    use tpair.
+    - exact obj_ext_ob_mor.
+    - exact obj_ext_id_comp.
+  Defined.
+
+  Definition obj_ext_axioms : disp_cat_axioms _ obj_ext_data.
+  Proof.
+    repeat use tpair.
+    - intros Ty Ty' F X X' FF. 
+      use obj_ext_mor_disp_transportb_eq_gen. { intros; apply idpath. }
+      intros Γ A; cbn.
+      etrans. { apply id_right. }
+      apply id_left.
+    - intros Ty Ty' F X X' FF.
+      use obj_ext_mor_disp_transportb_eq_gen. { intros; apply idpath. }
+      intros Γ A; cbn.
+      etrans. { apply id_right. }
+      apply id_right.
+    - intros Ty0 Ty1 Ty2 Ty3 F G H
+             X0 X1 X2 X3 FF GG HH.
+      use obj_ext_mor_disp_transportb_eq_gen. { intros; apply idpath. }
+      intros Γ A; cbn.
+      etrans. { apply id_right. }
+      apply assoc.
+    - intros ? ? ? ? ?.
+      apply impred_isaset; intros ?; apply impred_isaset; intros ?.
+      apply isaset_total2. { apply homset_property. }
+      intros ?; apply isasetaprop, homset_property.
+  Qed.
+
+  Definition obj_ext_disp : disp_cat (preShv C).
+  Proof.
+    use tpair.
+    - exact obj_ext_data.
+    - exact obj_ext_axioms.
+  Defined.
+
+End Obj_Ext_Structures_Disp_Cat.
+
+Arguments comp_ext_compare_disp {_ _ _ _ _ _} _.
+
+
 Section Obj_Ext_Structures.
 
-Context {C : precategory}.
+Context {C : category}.
 
 Definition obj_ext_structure : UU
+  := ob (total_category_ob_mor (obj_ext_data C)).
+
+(** Not intended for use, just for readability. *)
+Local Definition obj_ext_structure_explicit : UU
   := ∑ Ty : preShv C,
         ∏ (Γ : C) (A : (Ty : functor _ _ ) Γ : hSet ), ∑ (ΓA : C), ΓA --> Γ.
+
+Local Definition obj_ext_structure_explicit_correct
+  : obj_ext_structure = obj_ext_structure_explicit.
+Proof.
+  reflexivity.
+Qed.
 
 Definition TY (X : obj_ext_structure) : preShv _ := pr1 X.
 Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).

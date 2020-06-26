@@ -14,7 +14,7 @@ The files of this package provide:
 
     Main definitions:
 
-    - `obj_ext_precat`
+    - `obj_ext_cat`
     - `term_fun_disp_cat`, `term_fun_structure_precat`
     - `qq_structure_disp_cat`, `qq_structure_precat`
 
