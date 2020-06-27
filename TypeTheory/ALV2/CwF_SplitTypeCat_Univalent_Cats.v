@@ -401,4 +401,18 @@ Defined.
 
 End Is_Univalent_Compat_Strucs.
 
+Section Is_Univalent_Total_Cats.
+
+Theorem is_univalent_cwf'_structure_precat
+  : is_univalent (cwf'_structure_precat C).
+Proof.
+Admitted.
+
+Theorem is_univalent_sty'_structure_precat
+  : is_univalent (sty'_structure_precat C).
+Proof.
+Admitted.
+
+End Is_Univalent_Total_Cats.
+
 End Fix_Context.

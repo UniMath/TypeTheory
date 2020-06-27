@@ -643,6 +643,15 @@ Defined.
 End Strucs_Fiber_Equiv.
 
 
+Section Strucs_Total_Equiv.
 
+Definition cwf'_struc_to_qq_struc_is_equiv
+  : equivalence_of_precats
+      (cwf'_structure_precat C)
+      (sty'_structure_precat C).
+Proof.
+Admitted.
+
+End Strucs_Total_Equiv.
 
 End Fix_Context.
