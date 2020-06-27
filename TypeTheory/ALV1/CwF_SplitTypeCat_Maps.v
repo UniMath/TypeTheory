@@ -236,7 +236,7 @@ Proof.
     + {
       apply PullbackArrowUnique; cbn.
       - rewrite <- assoc.
-        rewrite @comp_ext_compare_π.
+        etrans. { apply maponpaths, comp_ext_compare_π. }
         apply (PullbackArrow_PullbackPr1 (make_Pullback _ _ _ _ _ _ _)).
       - apply (MorphismsIntoPullbackEqual (qq_π_Pb Z _ _)).
         + etrans. Focus 2. apply assoc.
@@ -250,7 +250,7 @@ Proof.
           etrans. Focus 2. apply id_left.
           apply maponpaths_2.
           etrans. apply @pathsinv0, assoc.
-          rewrite @comp_ext_compare_π.
+          etrans. { apply maponpaths, comp_ext_compare_π. }
           apply (PullbackArrow_PullbackPr1 (make_Pullback _ _ _ _ _ _ _)).
         + repeat rewrite <- assoc.
           etrans. apply maponpaths. rewrite assoc.
@@ -665,8 +665,9 @@ Proof.
     + etrans. apply maponpaths. cbn. apply idpath. 
       rewrite <- functor_comp.
       etrans. eapply pathsinv0. use (functor_comp Yo).
-      apply maponpaths. rewrite (@comp_ext_compare_π _ X).
-      apply pathsinv0. apply id_right.
+      apply maponpaths.
+      etrans. { apply comp_ext_compare_π. }
+      apply pathsinv0, id_right.
     + etrans. apply maponpaths. cbn. apply idpath.
       apply comp_ext_compare_Q.
   - intros.
