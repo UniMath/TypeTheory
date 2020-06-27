@@ -51,14 +51,14 @@ Section Is_Univalent_Obj_Ext_Disp.
   Context {C_univalent : is_univalent C}.
 
   (* OUTLINE:
-  for object-extension structures X, X',
+  for ext_disp Cxt_dispct-extension structures X, X',
   X = X'
   <~> forall Γ A, (X Γ A = X' Γ A)    (by funext)
   <~> forall Γ Α, (iso (slice ___))   (by [id_weq_iso_slicecat])
   <~> iso (obj_ext) X X'              (by hand, in [slice_isos_to_obj_ext_iso])
   *)
 
-  Lemma slice_maps_to_obj_ext_map {TY : PreShv C} {X X' : obj_ext_disp C TY}
+  Lemma slice_maps_to_obj_ext_map {TY : PreShv C} {X X' : obj_ext_disp TY}
     : (∏ Γ A, slice_precat C Γ (homset_property C) ⟦ X Γ A , X' Γ A ⟧)
     -> X -->[identity_iso TY] X'.
   Proof.
@@ -67,7 +67,7 @@ Section Is_Univalent_Obj_Ext_Disp.
     apply pathsinv0, (pr2 (I Γ A)).  
   Defined.
 
-  Lemma is_iso_slice_isos_to_obj_ext_map {TY : PreShv C} {X X' : obj_ext_disp C TY}
+  Lemma is_iso_slice_isos_to_obj_ext_map {TY : PreShv C} {X X' : obj_ext_disp TY}
     (I : ∏ Γ A, @iso (slice_precat C Γ (homset_property C)) (X Γ A) (X' Γ A))
     : is_iso_disp (identity_iso _) (slice_maps_to_obj_ext_map (fun Γ A => I Γ A)).
   Proof.
@@ -85,7 +85,7 @@ Section Is_Univalent_Obj_Ext_Disp.
         exact (maponpaths pr1 (iso_inv_after_iso (I Γ A))).
   Qed.
 
-  Lemma slice_isos_to_obj_ext_iso {TY : PreShv C} (X X' : obj_ext_disp C TY)
+  Lemma slice_isos_to_obj_ext_iso {TY : PreShv C} (X X' : obj_ext_disp TY)
     : (∏ Γ A, @iso (slice_precat C Γ (homset_property C)) (X Γ A) (X' Γ A))
     -> iso_disp (identity_iso TY) X X'.
   Proof.
@@ -94,7 +94,7 @@ Section Is_Univalent_Obj_Ext_Disp.
     apply is_iso_slice_isos_to_obj_ext_map.
   Defined.
 
-  Lemma obj_ext_map_to_slice_maps {TY : PreShv C} {X X' : obj_ext_disp C TY}
+  Lemma obj_ext_map_to_slice_maps {TY : PreShv C} {X X' : obj_ext_disp TY}
     : X -->[identity_iso TY] X'
       -> (∏ Γ A, slice_precat C Γ (homset_property C) ⟦ X Γ A , X' Γ A ⟧).
   Proof.
@@ -103,7 +103,7 @@ Section Is_Univalent_Obj_Ext_Disp.
     apply pathsinv0, (pr2 (I Γ A)).
   Defined.
 
-  Lemma is_iso_obj_ext_iso_to_slice_maps {TY : PreShv C} {X X' : obj_ext_disp C TY}
+  Lemma is_iso_obj_ext_iso_to_slice_maps {TY : PreShv C} {X X' : obj_ext_disp TY}
     (I : iso_disp (identity_iso TY) X X')
     : forall Γ A, is_iso (obj_ext_map_to_slice_maps I Γ A).
   Proof.
@@ -112,20 +112,20 @@ Section Is_Univalent_Obj_Ext_Disp.
     split; apply subtypePath; cbn.
     1, 3: intro f; apply homset_property.
     - set (I_V := inv_mor_after_iso_disp I).
-      apply (maponpaths (fun f => obj_ext_mor_disp_φ _ f A)) in I_V.
+      apply (maponpaths (fun f => obj_ext_mor_disp_φ f A)) in I_V.
       etrans. { apply I_V. }
       etrans. { use obj_ext_mor_disp_transportb. }
       etrans. { apply id_left. }
       apply comp_ext_compare_disp_id_gen. 
     - set (V_I := iso_disp_after_inv_mor I).
-      apply (maponpaths (fun f => obj_ext_mor_disp_φ _ f A)) in V_I.
+      apply (maponpaths (fun f => obj_ext_mor_disp_φ f A)) in V_I.
       etrans. { apply V_I. }
       etrans. { use obj_ext_mor_disp_transportb. }
       etrans. { apply id_left. }
       apply comp_ext_compare_disp_id_gen. 
   Qed.
 
-  Lemma isweq_slice_isos_obj_ext_iso {TY : PreShv C} (X X' : obj_ext_disp C TY)
+  Lemma isweq_slice_isos_obj_ext_iso {TY : PreShv C} (X X' : obj_ext_disp TY)
     : isweq (slice_isos_to_obj_ext_iso X X').
   Proof.
     use gradth.
@@ -144,7 +144,7 @@ Section Is_Univalent_Obj_Ext_Disp.
       intros ? ?. apply idpath.
   Qed.
 
-  Lemma weq_slice_isos_obj_ext_iso {TY : PreShv C} (X X' : obj_ext_disp C TY)
+  Lemma weq_slice_isos_obj_ext_iso {TY : PreShv C} (X X' : obj_ext_disp TY)
     : (∏ Γ A, @iso (slice_precat C Γ (homset_property C)) (X Γ A) (X' Γ A))
     ≃ iso_disp (identity_iso TY) X X'.
   Proof.
@@ -152,7 +152,7 @@ Section Is_Univalent_Obj_Ext_Disp.
     apply isweq_slice_isos_obj_ext_iso.
   Defined.
 
-  Lemma is_univalent_mor_weq {TY : PreShv C} (X X' : obj_ext_disp C TY)
+  Lemma is_univalent_mor_weq {TY : PreShv C} (X X' : obj_ext_disp TY)
     : X = X' ≃ iso_disp (identity_iso TY) X X'.
   Proof.
     apply (@weqcomp _ (forall Γ A, X Γ A = X' Γ A)).
@@ -168,7 +168,7 @@ Section Is_Univalent_Obj_Ext_Disp.
     apply weq_slice_isos_obj_ext_iso.
   Defined.
   
-  Lemma is_univalent_obj_ext_fibers : is_univalent_in_fibers (obj_ext_disp C).
+  Lemma is_univalent_obj_ext_fibers : is_univalent_in_fibers (@obj_ext_disp C).
   Proof.
     unfold is_univalent_in_fibers.
     intros TY X X'.
@@ -179,7 +179,7 @@ Section Is_Univalent_Obj_Ext_Disp.
     intros; apply idpath.
   Qed.
 
-  Theorem is_univalent_obj_ext_disp : is_univalent_disp (obj_ext_disp C).
+  Theorem is_univalent_obj_ext_disp : is_univalent_disp (@obj_ext_disp C).
   Proof.
     apply is_univalent_disp_from_fibers,
           is_univalent_obj_ext_fibers.
@@ -188,17 +188,6 @@ Section Is_Univalent_Obj_Ext_Disp.
 End Is_Univalent_Obj_Ext_Disp.
 
 Section Is_Univalent_Families_Strucs.
-
-(* TODO: inline *) 
-Lemma isaprop_whatever
-  (x : obj_ext_cat C)
-  (d d' : (term_fun_disp_cat C) x)
-  : isaprop (iso_disp (identity_iso x) d d').
-Proof.
-  apply isofhleveltotal2.
-  - apply isaprop_term_fun_mor.
-  - intro. apply isaprop_is_iso_disp.
-Qed.
 
 Definition iso_disp_to_TM_eq
   (X : obj_ext_cat C)

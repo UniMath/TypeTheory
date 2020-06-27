@@ -39,12 +39,13 @@ Local Notation "'Tm'" := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 
 Local Notation Δ := comp_ext_compare.
 
 (** * category of object-extension structures *)
-
+(* TODO: consolidate this with the original displayed-category definition in [CwF_SplitTypeCat_Defs]. *)
+ 
 Section Obj_Ext_Cat.
 
   Context {C : category}.
 
-  Definition obj_ext_cat := total_category (obj_ext_disp C).
+  Definition obj_ext_cat := total_category (@obj_ext_disp C).
 
   Definition obj_ext_mor (X X' :obj_ext_structure C) : UU
     := (X : obj_ext_cat) --> (X' : obj_ext_cat).

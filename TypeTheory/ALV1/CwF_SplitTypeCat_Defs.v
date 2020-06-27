@@ -33,20 +33,23 @@ Set Automatic Introduction.
 
 (** * Object-extension structures 
 
-We start by fixing the common core of families structures and split type-category structures: an _object-extension structure_, a presheaf of “types” together with “extension” and “dependent projection” operations.
+We start by fixing the common core of families structures and split type-category structures: an _object-extension structure_, a presheaf of “types” together with “extension” and “dependent projection” operations, as in the following definition: *)
 
-Components of [X : obj_ext_structure C]:
+(* Not intended for use, illustrative only *)
+Local Definition obj_ext_structure_explicit (C : category) : UU
+  := ∑ Ty : preShv C,
+       ∏ (Γ : C) (A : (Ty : functor _ _ ) Γ : hSet ),
+         ∑ (ΓA : C), ΓA --> Γ.
 
-- [TY Γ : hSet]
-- [comp_ext X Γ A : C].  Notation: [Γ ◂ A]
-- [π A : Γ ◂ A -->  A ⟧ *)
+(** In order to facilitate working with the category of these structures later, we define them not directly, but as the objects of the total category of a displayed category over [preShv C]. *)
 
-Section Obj_Ext_Structures_Disp_Cat.
+(* TODO: consistentise with notations used in other files *)
+Local Notation "P [ Γ ]" := ((P : functor _ _) Γ : hSet) (at level 4).
+Local Notation "F [[ A ]]" := ((F : nat_trans _ _) _ A) (at level 4).
 
-  Context (C : category).
+Section Obj_Ext_Structures_Disp_Cat_Data.
 
-  Local Notation "P [ Γ ]" := ((P : functor _ _) Γ : hSet) (at level 4).
-  Local Notation "F [[ A ]]" := ((F : nat_trans _ _) _ A) (at level 4).
+  Context {C : category}.
 
   Definition obj_ext_ob_mor : disp_cat_ob_mor (preShv C).
   Proof.
@@ -58,6 +61,8 @@ Section Obj_Ext_Structures_Disp_Cat.
              ∑ φ : pr1 (ext_π Γ A) --> pr1 (ext'_π' Γ (F_TY[[A]])),
                  φ ;; pr2 (ext'_π' _ _) = pr2 (ext_π _ _)).
   Defined.
+
+  (* accessor functions: [ext], [obj_ext_disp_π], [obj_ext_disp_φ] *)
 
   Local Definition ext {Ty} (X : obj_ext_ob_mor Ty) Γ A : C
     := pr1 (X Γ A).
@@ -82,6 +87,36 @@ Section Obj_Ext_Structures_Disp_Cat.
       {Γ:C} (A : Ty [ Γ ])
     : φ FF A ;; π X' _ = π X A
   := pr2 (FF _ _).
+
+  Definition obj_ext_id_comp : disp_cat_id_comp _ obj_ext_ob_mor.
+  Proof.
+    use tpair.
+    - intros Ty X Γ A. exists (identity _). apply id_left.
+    - intros Ty Ty' Ty'' F G X X' X'' FF GG.
+      intros Γ A.
+      exists ( φ FF A ;; φ GG _ ); cbn.
+      etrans. apply @pathsinv0, assoc. 
+      etrans. apply maponpaths, obj_ext_mor_disp_ax.
+      apply obj_ext_mor_disp_ax.
+  Defined.
+
+  Definition obj_ext_data : disp_cat_data (preShv C).
+  Proof.
+    use tpair.
+    - exact obj_ext_ob_mor.
+    - exact obj_ext_id_comp.
+  Defined.
+
+End Obj_Ext_Structures_Disp_Cat_Data.
+
+(* repeating section notations for file *)
+Local Notation φ := obj_ext_mor_disp_φ.
+
+(** Before proving the displayed category axioms, we need some utility lemmas for reasoning with morphisms. *)
+
+Section Obj_Ext_Structures_Disp_Utility_Lemmas.
+
+  Context {C : category}.
 
   Lemma obj_ext_mor_disp_eq
       {Ty Ty' : preShv C } (F : Ty --> Ty')
@@ -218,26 +253,15 @@ Section Obj_Ext_Structures_Disp_Cat.
     refine (maponpaths Δ H).
   Qed.
 
-  Definition obj_ext_id_comp : disp_cat_id_comp _ obj_ext_ob_mor.
-  Proof.
-    use tpair.
-    - intros Ty X Γ A. exists (identity _). apply id_left.
-    - intros Ty Ty' Ty'' F G X X' X'' FF GG.
-      intros Γ A.
-      exists ( φ FF A ;; φ GG _ ); cbn.
-      etrans. apply @pathsinv0, assoc. 
-      etrans. apply maponpaths, obj_ext_mor_disp_ax.
-      apply obj_ext_mor_disp_ax.
-  Defined.
+End Obj_Ext_Structures_Disp_Utility_Lemmas.
 
-  Definition obj_ext_data : disp_cat_data (preShv C).
-  Proof.
-    use tpair.
-    - exact obj_ext_ob_mor.
-    - exact obj_ext_id_comp.
-  Defined.
+Arguments comp_ext_compare_disp {_ _ _ _ _ _} _.
 
-  Definition obj_ext_axioms : disp_cat_axioms _ obj_ext_data.
+Section Obj_Ext_Structures.
+
+  Context {C : category}.
+
+  Definition obj_ext_axioms : disp_cat_axioms _ (@obj_ext_data C).
   Proof.
     repeat use tpair.
     - intros Ty Ty' F X X' FF. 
@@ -269,25 +293,11 @@ Section Obj_Ext_Structures_Disp_Cat.
     - exact obj_ext_axioms.
   Defined.
 
-End Obj_Ext_Structures_Disp_Cat.
-
-Arguments comp_ext_compare_disp {_ _ _ _ _ _} _.
-
-
-Section Obj_Ext_Structures.
-
-Context {C : category}.
-
 Definition obj_ext_structure : UU
-  := ob (total_category_ob_mor (obj_ext_data C)).
-
-(** Not intended for use, just for readability. *)
-Local Definition obj_ext_structure_explicit : UU
-  := ∑ Ty : preShv C,
-        ∏ (Γ : C) (A : (Ty : functor _ _ ) Γ : hSet ), ∑ (ΓA : C), ΓA --> Γ.
+  := ob (total_category_ob_mor (@obj_ext_data C)).
 
 Local Definition obj_ext_structure_explicit_correct
-  : obj_ext_structure = obj_ext_structure_explicit.
+  : obj_ext_structure = obj_ext_structure_explicit C.
 Proof.
   reflexivity.
 Qed.
@@ -300,25 +310,35 @@ Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
 
 Definition π {X : obj_ext_structure} {Γ} A : Γ ◂ A --> Γ := pr2 (pr2 X _ A).
 
+End Obj_Ext_Structures.
+
+Arguments obj_ext_structure _ : clear implicits.
+
+Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
+Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
+
 (** ** Lemmas: extensions by equal types *)
 
 (* One frequently needs to deal with isomorphisms between context extensions [Γ ◂ A ≃ Γ ◂ A'] induced by type equalities [e : A = A']; so we collect lemmas for them, and notate them concisely as [Δ e]. *)
 
-Section Comp_Ext_Compare.
+(* TODO: consolidatate as far as possible with the displayed versions above *)
 
-Definition comp_ext_compare {X : obj_ext_structure}
+Section Comp_Ext_Compare.
+Context {C : category}.
+
+Definition comp_ext_compare {X : obj_ext_structure C}
     {Γ : C} {A A' : Ty X Γ} (e : A = A')
   : Γ ◂ A --> Γ ◂ A'
 := idtoiso (maponpaths (comp_ext X Γ) e).
 
-Lemma comp_ext_compare_id {X : obj_ext_structure}
+Lemma comp_ext_compare_id {X : obj_ext_structure C}
     {Γ : C} (A : Ty X Γ)
   : comp_ext_compare (idpath A) = identity (Γ ◂ A).
 Proof.
   apply idpath.
 Qed.
 
-Lemma comp_ext_compare_id_general {X : obj_ext_structure}
+Lemma comp_ext_compare_id_general {X : obj_ext_structure C}
     {Γ : C} {A : Ty X Γ} (e : A = A)
   : comp_ext_compare e = identity (Γ ◂ A).
 Proof.
@@ -327,7 +347,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma comp_ext_compare_comp {X : obj_ext_structure}
+Lemma comp_ext_compare_comp {X : obj_ext_structure C}
     {Γ : C} {A A' A'' : Ty X Γ} (e : A = A') (e' : A' = A'')
   : comp_ext_compare (e @ e') = comp_ext_compare e ;; comp_ext_compare e'.
 Proof.
@@ -338,21 +358,21 @@ Proof.
 Qed.
 
 (* TODO: any reason why comp_ext_compare is the morphism not just the iso?? *)
-Lemma comp_ext_compare_inv {X : obj_ext_structure}
+Lemma comp_ext_compare_inv {X : obj_ext_structure C}
     {Γ : C} {A A' : Ty X Γ : hSet} (e : A = A')
   : comp_ext_compare (!e) = inv_from_iso (idtoiso (maponpaths (comp_ext X Γ) e)).
 Proof.
   destruct e; apply idpath.
 Defined.
 
-Lemma comp_ext_compare_π {X : obj_ext_structure}
+Lemma comp_ext_compare_π {X : obj_ext_structure C}
     {Γ : C} {A A' : Ty X Γ} (e : A = A')
   : comp_ext_compare e ;; π A' = π A.
 Proof.
   destruct e; cbn. apply id_left.
 Qed.
 
-Lemma comp_ext_compare_comp_general {X : obj_ext_structure}
+Lemma comp_ext_compare_comp_general {X : obj_ext_structure C}
     {Γ : C} {A A' A'' : Ty X Γ} (e : A = A') (e' : A' = A'') (e'' : A = A'')
   : comp_ext_compare e'' = comp_ext_compare e ;; comp_ext_compare e'.
 Proof.
@@ -361,13 +381,6 @@ Proof.
 Qed.
 
 End Comp_Ext_Compare.
-
-End Obj_Ext_Structures.
-
-Arguments obj_ext_structure _ : clear implicits.
-
-Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
-Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
 
 (** The definitions of term structures and split type-category structures will all be relative to a fixed base category and object-extension structure. *)
 
