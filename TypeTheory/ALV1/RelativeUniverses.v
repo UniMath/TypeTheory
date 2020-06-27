@@ -20,8 +20,6 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
-Set Automatic Introduction.
-
 Local Notation "[ C , D ]" := (functor_category C D).
 
 (** * Relative universe structures *)

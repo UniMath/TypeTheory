@@ -11,9 +11,6 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
 
-Local Set Automatic Introduction.
-(* only needed since imports globally unset it *)
-
 Open Scope mor_scope.
 
 

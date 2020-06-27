@@ -31,9 +31,6 @@ Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.
 
-Local Set Automatic Introduction.
-(* only needed since imports globally unset it *)
-
 
 (** Some local notations, *)
 

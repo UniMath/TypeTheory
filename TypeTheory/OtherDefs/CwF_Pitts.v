@@ -23,8 +23,6 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Open Scope cat.
 Open Scope cat_deprecated.
 
-Set Automatic Introduction.
-
 (** * A "preview" of the definition *)
 
 Module Record_Preview.

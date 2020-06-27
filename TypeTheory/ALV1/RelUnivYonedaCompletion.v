@@ -12,8 +12,6 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.RelativeUniverses.
 Require Import TypeTheory.ALV1.Transport_along_Equivs.
 
-Set Automatic Introduction.
-
 (** * Instantiating the hypotheses of transfer of relative universes to Yoneda *)
 
 Local Notation "[ C , D ]" := (functor_category C D).

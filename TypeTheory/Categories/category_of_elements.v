@@ -13,9 +13,6 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
-Set Automatic Introduction.
-
-
 
 Section category_of_elements_covariant.
 

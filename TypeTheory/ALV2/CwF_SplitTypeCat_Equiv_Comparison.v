@@ -28,7 +28,6 @@ Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Cats.
 Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Univalent_Cats.
 Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Equiv_Cats.
 
-Local Set Automatic Introduction.
 
 Section Auxiliary.
 

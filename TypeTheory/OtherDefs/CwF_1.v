@@ -21,8 +21,6 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
 
-Set Automatic Introduction.
-
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 (** * A "preview" of the definition *)

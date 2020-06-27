@@ -25,9 +25,6 @@ Require Export UniMath.CategoryTheory.catiso.
 Require Export UniMath.CategoryTheory.CategoryEquality.
 
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
-(* Require Import TypeTheory.Auxiliary.UnicodeNotations. *)
-
-Set Automatic Introduction.
 
 Undelimit Scope transport.
 

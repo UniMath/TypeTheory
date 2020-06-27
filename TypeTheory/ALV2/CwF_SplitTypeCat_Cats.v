@@ -21,8 +21,6 @@ Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
-Local Set Automatic Introduction.
-(* only needed since imports globally unset it *)
 
 (* TODO: as ever, upstream to [Systems.Auxiliary], and look for in library. *)
 Section Auxiliary.

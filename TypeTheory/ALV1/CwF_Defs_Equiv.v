@@ -38,8 +38,6 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.CwF_def.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 
-Set Automatic Introduction.
-
 Section Fix_Category.
 
 Context {C : category}.

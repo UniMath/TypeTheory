@@ -38,8 +38,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
 
 
-Set Automatic Introduction.
-
 Section CwF_Cat_Equiv.
 
   Context (C : category).

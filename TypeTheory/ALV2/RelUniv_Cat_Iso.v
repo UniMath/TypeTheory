@@ -26,8 +26,6 @@ Require Import TypeTheory.ALV2.RelUniv_Cat_Simple.
 Require Import TypeTheory.ALV2.RelUniv_Cat.
 Require Import UniMath.CategoryTheory.catiso.
 
-Set Automatic Introduction.
-
 Section Cat_Iso.
 
   Context {C D : category}.

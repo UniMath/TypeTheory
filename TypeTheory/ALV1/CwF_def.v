@@ -22,8 +22,6 @@ Require Import TypeTheory.ALV1.RelativeUniverses.
 Require Import TypeTheory.ALV1.Transport_along_Equivs.
 Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
 
-Set Automatic Introduction.
-
 Section Auxiliary.
 
 (** * Preliminaries *)

@@ -17,8 +17,6 @@ Require Import UniMath.CategoryTheory.rezk_completion.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
-Set Automatic Introduction.
-
 Section Auxiliary.
 
 Lemma transportf_eqweqmap (A B : UU) (p : A = B) C (A' : A → C) (b : B) :

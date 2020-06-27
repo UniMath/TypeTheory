@@ -19,8 +19,6 @@ Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
 Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Cats.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence. (* TODO: needed for some natural transformations. *)
 
-Local Set Automatic Introduction.
-(* only needed since imports globally unset it *)
 
 (* TODO: globalise upstream? *)
 Notation "# F" := (disp_functor_on_morphisms F)

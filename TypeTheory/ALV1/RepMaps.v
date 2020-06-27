@@ -24,9 +24,6 @@ Require Import TypeTheory.ALV1.RelativeUniverses.
 Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
 Require Import TypeTheory.ALV1.Transport_along_Equivs.
 
-Set Automatic Introduction.
-
-
 (** * Definition of a representable map of presheaves
 
 A representable map of presheaves consists of 

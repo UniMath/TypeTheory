@@ -17,10 +17,6 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 
-
-Local Set Automatic Introduction.
-(* only needed since imports globally unset it *)
-
 Section Fix_Base_Category.
 
 Context {C : category} {X : obj_ext_structure C}.

@@ -20,8 +20,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
 Require Import TypeTheory.OtherDefs.DM.
 
-Local Set Automatic Introduction.
-(* only needed since imports globally unset it *)
 
 (** ** Displayed category induced by a display map category
 
