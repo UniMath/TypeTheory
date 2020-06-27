@@ -24,9 +24,6 @@ Require Import TypeTheory.ALV1.RelativeUniverses.
 Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
 Require Import TypeTheory.ALV1.Transport_along_Equivs.
 
-Set Automatic Introduction.
-
-
 (** * Definition of a representable map of presheaves
 
 A representable map of presheaves consists of 
@@ -127,8 +124,8 @@ Proof.
   unfold is_universe_relative_to.
   apply weqonsecfibers. intro Γ.
   eapply weqcomp.
-    Focus 2. eapply invweq.
-    refine (weqonsecbase _ _). apply yy.
+  2: { eapply invweq.
+    refine (weqonsecbase _ _). apply yy. }
   apply weqonsecfibers. intro A.
   apply weqimplimpl.
   - apply hinhfun. apply weq_cwf_fiber_representation_fpullback.

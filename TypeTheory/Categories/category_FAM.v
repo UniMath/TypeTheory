@@ -17,8 +17,6 @@ Require Import UniMath.CategoryTheory.rezk_completion.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
-Set Automatic Introduction.
-
 Section Auxiliary.
 
 Lemma transportf_eqweqmap (A B : UU) (p : A = B) C (A' : A → C) (b : B) :
@@ -168,7 +166,7 @@ Proof.
     destruct f as [f x].
     destruct g as [g y].
     simpl in *.
-    eapply weqcomp. Focus 2. apply weqtoforallpaths.
+    eapply weqcomp. 2: { apply weqtoforallpaths. }
     apply weqpathscomp0l.
     apply funextsec; intro t.
     apply (transportf_toforallpaths _ (λ a b, (A ₂) a --> (B ₂) b)).
@@ -385,30 +383,31 @@ Proof.
     exists inv. subst inv.
     split.
     
-    + eapply pathscomp0. Focus 2. apply fg2. symmetry.
+    + eapply pathscomp0. 2: { apply fg2. }
+      symmetry.
       eapply pathscomp0. apply (functtransportf (A ₂)).
       eapply pathscomp0. symmetry; apply idtoiso_postcompose.
       eapply pathscomp0. symmetry; apply assoc.
       apply maponpaths. eapply pathscomp0. apply idtoiso_postcompose.
       symmetry. apply functtransportf.
       
-    + eapply pathscomp0. Focus 2. apply gf2.
+    + eapply pathscomp0. 2: { apply gf2. }
       eapply pathscomp0. apply maponpaths_2.
         eapply pathscomp0. apply (functtransportf (A ₂)).
         symmetry; apply idtoiso_postcompose.
       symmetry. eapply pathscomp0. apply (functtransportf (B ₂)).
       eapply pathscomp0. symmetry; apply idtoiso_postcompose.
       eapply pathscomp0. symmetry; apply assoc.
-      eapply pathscomp0. Focus 2. apply assoc.
+      eapply pathscomp0. 2: { apply assoc. }
       apply maponpaths.
 
       assert (f2_natl : forall a1 a2 (p : a2 = a1),
                           f2 a2 ;; idtoiso (maponpaths (fun a => B ₂ (f1 a)) p)
                           = idtoiso (maponpaths (A ₂) p) ;; f2 a1).
         destruct p. eapply pathscomp0. apply id_right. sym. apply id_left.
-      eapply pathscomp0. Focus 2. apply f2_natl.
+      eapply pathscomp0. 2: { apply f2_natl. }
       apply maponpaths , maponpaths, maponpaths.
-      eapply pathscomp0. Focus 2. apply maponpathscomp.
+      eapply pathscomp0. 2: { apply maponpathscomp. }
       apply maponpaths. apply (pr2 B).
 Qed.
 
@@ -510,7 +509,7 @@ Proof.
   unshelve refine (total2_paths_f _ _).
   - apply funextsec; intros a.
     destruct A as [[A1 A2] A3].
-    eapply pathscomp0. Focus 2. exact (idpath (identity _)).
+    eapply pathscomp0. 2: { exact (idpath (identity _)). }
     exact (idpath _).
   - apply proofirrelevance.
     apply isofhleveltotal2.

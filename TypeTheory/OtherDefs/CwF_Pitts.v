@@ -23,8 +23,6 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Open Scope cat.
 Open Scope cat_deprecated.
 
-Set Automatic Introduction.
-
 (** * A "preview" of the definition *)
 
 Module Record_Preview.
@@ -519,8 +517,8 @@ Definition pre_cwf_law_2' Γ (A : C ⟨ Γ ⟩) Γ' (γ : Γ' --> Γ) (a : C ⟨
       (transportb _ (maponpaths (fun g => A{{g}}) (cwf_law_1 _ _ _ _ _ _))
         a). 
 Proof.
-  eapply pathscomp0. Focus 2.
-    apply maponpaths, maponpaths. exact (cwf_law_2 _ _ _ _ γ a).
+  eapply pathscomp0.
+  2: { apply maponpaths, maponpaths. exact (cwf_law_2 _ _ _ _ γ a). }
   apply pathsinv0.
   rew_trans_@.
   etrans. apply maponpaths, transportf_rtype_mapeq.
@@ -602,12 +600,12 @@ Definition dpr_q_pbpairing_commutes
   (hk := @pairing _ C Γ' (A{{f}}) X k (dpr_q_pbpairing_precwf_aux A f h k H))
 : (hk ;; q_precwf A f = h) × (hk ;; π (A{{f}}) = k).
 Proof.
-  split. Focus 2. apply cwf_law_1.
+  split. 2: { apply cwf_law_1. }
   unfold q_precwf.
-  etrans. Focus 2.
-    apply map_to_comp_as_pair_precwf.
   etrans.
-    apply cwf_law_3.
+  2: { apply map_to_comp_as_pair_precwf. }
+  etrans.
+  { apply cwf_law_3. }
   assert ((k ♯ (dpr_q_pbpairing_precwf_aux A f h k H)) ;; (π (A {{f}}) ;; f) 
           = h ;; π A) as e1.
     eapply pathscomp0. apply assoc.
@@ -676,7 +674,7 @@ Proof.
     apply maponpaths, (rterm_mapeq e2).
   eapply pathscomp0. apply transport_f_f.
   eapply pathscomp0.
-    Focus 2. symmetry. apply transportf_rtype_mapeq.
+  2: { symmetry. apply transportf_rtype_mapeq. }
   repeat apply term_typeeq_transport_lemma. 
   apply term_typeeq_transport_lemma_2.
   apply idpath.

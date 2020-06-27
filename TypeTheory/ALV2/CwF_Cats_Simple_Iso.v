@@ -25,7 +25,6 @@ Require Import TypeTheory.ALV2.CwF_Cats.
 Require TypeTheory.ALV2.CwF_Cats_Simple.
 Require Import UniMath.CategoryTheory.catiso.
 
-Set Automatic Introduction.
 
 Section CwF_Cats_Simple_Iso.
 

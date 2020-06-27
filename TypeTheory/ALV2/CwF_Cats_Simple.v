@@ -30,7 +30,6 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.CwF_def.
 
-Set Automatic Introduction.
 
 Section CwF_structure_cat.
   Context {C : category}.

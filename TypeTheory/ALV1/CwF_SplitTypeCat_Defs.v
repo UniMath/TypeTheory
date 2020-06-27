@@ -29,8 +29,6 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
-Set Automatic Introduction.
-
 (** * Object-extension structures 
 
 We start by fixing the common core of families structures and split type-category structures: an _object-extension structure_, a presheaf of “types” together with “extension” and “dependent projection” operations, as in the following definition: *)
@@ -434,7 +432,7 @@ Lemma term_fun_str_square_comm {Y : term_fun_structure_data}
   : #Yo (π A) ;; yy A = Q Y A ;; pp Y.
 Proof.
   apply pathsinv0.
-  etrans. Focus 2. apply yy_natural.
+  etrans. 2: { apply yy_natural. }
   etrans. apply yy_comp_nat_trans.
   apply maponpaths, e.
 Qed.

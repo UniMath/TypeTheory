@@ -20,8 +20,6 @@ Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.OtherDefs.CwF_Pitts.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
-Set Automatic Introduction.
-
 (* Locally override the notation [ γ ♯ a ], at a higher level,
   to get more informative bracketing when pairing meets composition. *) 
 Local Notation "γ ## a" := (pairing γ a) (at level 75).
@@ -104,13 +102,11 @@ Proof.
     exists (reindx_type_id C).
     intros Γ A. 
     unfold q_typecat; simpl. unfold q_precwf.
-    eapply pathscomp0. Focus 2. apply id_left.
-    eapply pathscomp0. Focus 2.
-      refine (maponpaths (fun q => q ;; _) _).
-      Unfocus.
-    eapply pathscomp0. Focus 2.
-      symmetry. apply pairing_transport.
-      Focus 2. apply cwf_law_4.
+    eapply pathscomp0. 2: { apply id_left. }
+    eapply pathscomp0.
+    2: refine (maponpaths (fun q => q ;; _) _).    
+    eapply pathscomp0. 2: { symmetry. apply pairing_transport. }
+    2: { apply cwf_law_4. }
     eapply pathscomp0.
     apply (pairing_mapeq _ _ (id_right _ )).
     apply maponpaths. simpl.
@@ -141,13 +137,12 @@ Proof.
     etrans.
     + refine (pairing_mapeq _ X' _ _ ).
       unfold X; clear X; unfold X'; clear X'.
-      etrans. Focus 2.  eapply pathsinv0.
-            apply maponpaths_2. apply cwf_law_3.
-      etrans. Focus 2. eapply pathsinv0.  apply assoc.
+      etrans. 2: { apply pathsinv0, maponpaths_2, cwf_law_3. }
+      etrans. 2: { apply pathsinv0, assoc. }
       etrans. apply assoc.
       apply maponpaths_2.
-      etrans. Focus 2. eapply pathsinv0. apply cwf_law_1.
-      etrans; [ | eapply pathsinv0; apply assoc ].
+      etrans. 2: { apply pathsinv0, cwf_law_1. }
+      etrans. 2: { apply pathsinv0, assoc. }
       apply maponpaths_2. sym. apply cwf_law_1.
     + apply maponpaths.
       match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
@@ -155,8 +150,7 @@ Proof.
       intros p p'.
       rew_trans_@.
       apply term_typeeq_transport_lemma.
-      etrans. Focus 2.
-      apply rterm_typeeq.
+      etrans. 2:{ apply rterm_typeeq. }
       match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
                        generalize e; generalize e' end.
       clear p p'.
@@ -175,7 +169,7 @@ Proof.
       apply term_typeeq_transport_lemma.
       match goal with |[ |- _ = transportf _ ?e _ ⟦ _ ⟧ ] => generalize e end.
       intro q.
-      etrans. Focus 2. apply rterm_typeeq.
+      etrans. 2: { apply rterm_typeeq. }
       rewrite  pre_cwf_law_2'.
       rewrite transport_f_f.
       unfold transportb.

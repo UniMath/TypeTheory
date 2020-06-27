@@ -17,10 +17,6 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 
-
-Local Set Automatic Introduction.
-(* only needed since imports globally unset it *)
-
 Section Fix_Base_Category.
 
 Context {C : category} {X : obj_ext_structure C}.
@@ -127,7 +123,8 @@ Proof.
       etrans. apply assoc.
       apply maponpaths_2, comp_ext_compare_π.
     etrans. apply assoc.
-    etrans. Focus 2. apply id_left. apply maponpaths_2.
+    etrans. 2: { apply id_left. }
+    apply maponpaths_2.
     exact (pr2 (term_to_section _)).
   - etrans. refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
     etrans. apply Q_comp_ext_compare.
@@ -239,15 +236,17 @@ Proof.
         etrans. { apply maponpaths, comp_ext_compare_π. }
         apply (PullbackArrow_PullbackPr1 (make_Pullback _ _ _ _ _ _ _)).
       - apply (MorphismsIntoPullbackEqual (qq_π_Pb Z _ _)).
-        + etrans. Focus 2. apply assoc.
-          etrans. Focus 2.
+        + etrans. 2: { apply assoc. }
+          etrans.
+          2: {
             apply maponpaths, @pathsinv0.
             apply (PullbackArrow_PullbackPr1 (make_Pullback _ _ _ _ _ _ _)).
-          etrans. Focus 2. apply @pathsinv0, id_right.
+          }
+          etrans. 2: { apply @pathsinv0, id_right. }
           etrans. apply @pathsinv0, assoc.
           etrans. eapply maponpaths, qq_π.
           etrans. apply assoc.
-          etrans. Focus 2. apply id_left.
+          etrans. 2: { apply id_left. }
           apply maponpaths_2.
           etrans. apply @pathsinv0, assoc.
           etrans. { apply maponpaths, comp_ext_compare_π. }
@@ -406,26 +405,26 @@ Proof.
         apply (PullbackArrow_PullbackPr1 (make_Pullback _ _ _ _ _ _ _)).
       * etrans. apply @pathsinv0, assoc.
         use (maponpaths _ _ @ _).
-            { use (qq Z _ _ ;; qq Z _ _). }
-          { etrans. Focus 2. {
+        { use (qq Z _ _ ;; qq Z _ _). }
+        -- etrans.
+          2: {
             eapply iso_inv_on_right.
-            etrans. Focus 2. apply @pathsinv0, assoc. 
-            apply qq_comp. } Unfocus.
+            etrans. 2: { apply @pathsinv0, assoc. }
+            apply qq_comp. }
           apply @pathsinv0, iso_inv_on_right.
           apply @pathsinv0.
           etrans. apply assoc.
           etrans. apply maponpaths_2, @pathsinv0, comp_ext_compare_comp.
           apply comp_ext_compare_qq_general.
-         apply (section_qq_π _ _ _ e). }
-        etrans. apply assoc.
-        etrans. { apply maponpaths_2,
+          apply (section_qq_π _ _ _ e).
+        -- etrans. { apply assoc. }
+          etrans. { apply maponpaths_2,
                   (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _)). }
-        etrans. apply @pathsinv0, assoc.
-        etrans.
-          apply maponpaths.
-          apply (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _)).
-        apply id_right.
-  - idtac. intros ft. apply subtypePath.
+          etrans. { apply @pathsinv0, assoc. }
+          etrans. 2: { apply id_right. }
+          apply maponpaths,
+                  (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _)).
+  - intros ft. apply subtypePath.
     { intro. apply isapropdirprod.
     + apply homset_property.
     + apply setproperty. }
@@ -441,8 +440,7 @@ Proof.
       apply @pathsinv0, iso_inv_on_right.
       use (_ @ !assoc _ _ _).
       apply qq_comp.
-    etrans. Focus 2. 
-      exact (comp_ext_compare_qq Z (!e1) _).
+    etrans. 2: { exact (comp_ext_compare_qq Z (!e1) _). }
     etrans. apply assoc.
     apply maponpaths_2.
     etrans. apply maponpaths, @pathsinv0, comp_ext_compare_inv.
@@ -473,7 +471,7 @@ Proof.
   (* TODO: use [tm_from_qq_eq'] here *)
   use tm_from_qq_eq; simpl.
   - etrans. apply (toforallpaths _ _ _ (!functor_comp (TY X) _ _ ) A).
-    etrans. Focus 2. apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ ) A).
+    etrans. 2: { apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ ) A). }
     apply maponpaths_2; cbn.
     apply @pathsinv0, qq_π.
   - apply PullbackArrowUnique.
