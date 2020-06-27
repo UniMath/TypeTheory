@@ -133,6 +133,29 @@ Section Obj_Ext_Structures_Disp_Cat.
     apply maponpaths, maponpaths, setproperty.
   Qed.
 
+  Lemma obj_ext_mor_disp_transportb
+      {Ty Ty' : preShv C } (F F' : Ty --> Ty') (e_F : F' = F)
+      {X : obj_ext_ob_mor Ty} {X'} (FF: X -->[F] X')
+      {Γ} {A : Ty[Γ]}
+      (e_FA := ! maponpaths (fun (G:Ty-->Ty') => G[[A]]) e_F)
+    : φ (transportb _ e_F FF) A = φ FF A ;; Δ e_FA.
+  Proof.
+    unfold transportb.
+    etrans. { apply obj_ext_mor_disp_transportf. }
+    apply maponpaths, maponpaths.
+    exact (maponpathsinv0 _ e_F).
+  Defined.
+
+  Lemma obj_ext_mor_disp_transportb_gen
+      {Ty Ty' : preShv C } {F F' : Ty --> Ty'} (e_F : F' = F)
+      {X : obj_ext_ob_mor Ty} {X'} (FF: X -->[F] X')
+      {Γ} {A : Ty[Γ]} (e_FA : _)
+    : φ (transportb _ e_F FF) A = φ FF A ;; Δ (! e_FA).
+  Proof.
+    etrans. { apply obj_ext_mor_disp_transportb. }
+    apply maponpaths, maponpaths, setproperty.
+  Qed.
+
   Lemma obj_ext_mor_disp_transportf_eq
       {Ty Ty' : preShv C } {F G : Ty --> Ty'} (e_F : F = G)
       {X : obj_ext_ob_mor Ty} {X'} {FF : X -->[F] X'} {GG : X -->[G] X'}
@@ -181,6 +204,18 @@ Section Obj_Ext_Structures_Disp_Cat.
   Proof.
     eapply transportb_transpose_right,
       obj_ext_mor_disp_transportf_eq_gen, e.
+  Qed.
+
+  (* TODO: upstream
+     TODO: try to unify lemmas about [comp_ext_compare], [comp_ext_compare_disp]
+   Hopefully just making [comp_ext_compare_disp] primary should easily unify them. *)
+  Lemma comp_ext_compare_disp_id_gen
+     {Ty : PreShv C} {X : obj_ext_ob_mor Ty}
+     {Γ : C} {A : Ty[Γ]} (e : A = A)
+    : Δ e = identity (ext X Γ A).
+  Proof.
+    assert (e = idpath _) as H. { apply setproperty. }
+    refine (maponpaths Δ H).
   Qed.
 
   Definition obj_ext_id_comp : disp_cat_id_comp _ obj_ext_ob_mor.

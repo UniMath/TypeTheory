@@ -4,7 +4,8 @@
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
 
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
@@ -57,7 +58,7 @@ Section Is_Univalent_Obj_Ext_Disp.
   <~> iso (obj_ext) X X'              (by hand, in [slice_isos_to_obj_ext_iso])
   *)
 
-  Lemma slice_map_to_obj_ext_map {TY : PreShv C} {X X' : obj_ext_disp C TY}
+  Lemma slice_maps_to_obj_ext_map {TY : PreShv C} {X X' : obj_ext_disp C TY}
     : (∏ Γ A, slice_precat C Γ (homset_property C) ⟦ X Γ A , X' Γ A ⟧)
     -> X -->[identity_iso TY] X'.
   Proof.
@@ -68,25 +69,80 @@ Section Is_Univalent_Obj_Ext_Disp.
 
   Lemma is_iso_slice_isos_to_obj_ext_map {TY : PreShv C} {X X' : obj_ext_disp C TY}
     (I : ∏ Γ A, @iso (slice_precat C Γ (homset_property C)) (X Γ A) (X' Γ A))
-    : is_iso_disp (identity_iso _) (slice_map_to_obj_ext_map (fun Γ A => I Γ A)).
+    : is_iso_disp (identity_iso _) (slice_maps_to_obj_ext_map (fun Γ A => I Γ A)).
   Proof.
-    exists (slice_map_to_obj_ext_map (fun Γ A => inv_from_iso (I Γ A))).
-  Admitted.
+    exists (slice_maps_to_obj_ext_map (fun Γ A => inv_from_iso (I Γ A))).
+    split.
+    - use obj_ext_mor_disp_transportb_eq_gen.
+      + cbn; intros; apply idpath.
+      + cbn; intros.
+        etrans. { apply id_right. } 
+        exact (maponpaths pr1 (iso_after_iso_inv (I Γ A))).
+    - use obj_ext_mor_disp_transportb_eq_gen.
+      + cbn; intros; apply idpath.
+      + cbn; intros.
+        etrans. { apply id_right. } 
+        exact (maponpaths pr1 (iso_inv_after_iso (I Γ A))).
+  Qed.
 
   Lemma slice_isos_to_obj_ext_iso {TY : PreShv C} (X X' : obj_ext_disp C TY)
     : (∏ Γ A, @iso (slice_precat C Γ (homset_property C)) (X Γ A) (X' Γ A))
     -> iso_disp (identity_iso TY) X X'.
   Proof.
     intros I.
-    exists (slice_map_to_obj_ext_map I).
+    exists (slice_maps_to_obj_ext_map I).
     apply is_iso_slice_isos_to_obj_ext_map.
   Defined.
+
+  Lemma obj_ext_map_to_slice_maps {TY : PreShv C} {X X' : obj_ext_disp C TY}
+    : X -->[identity_iso TY] X'
+      -> (∏ Γ A, slice_precat C Γ (homset_property C) ⟦ X Γ A , X' Γ A ⟧).
+  Proof.
+    intros I Γ A.
+    exists (pr1 (I Γ A)).  
+    apply pathsinv0, (pr2 (I Γ A)).
+  Defined.
+
+  Lemma is_iso_obj_ext_iso_to_slice_maps {TY : PreShv C} {X X' : obj_ext_disp C TY}
+    (I : iso_disp (identity_iso TY) X X')
+    : forall Γ A, is_iso (obj_ext_map_to_slice_maps I Γ A).
+  Proof.
+    intros Γ A. use is_iso_from_is_z_iso.
+    exists (obj_ext_map_to_slice_maps (inv_mor_disp_from_iso I) Γ A).
+    split; apply subtypePath; cbn.
+    1, 3: intro f; apply homset_property.
+    - set (I_V := inv_mor_after_iso_disp I).
+      apply (maponpaths (fun f => obj_ext_mor_disp_φ _ f A)) in I_V.
+      etrans. { apply I_V. }
+      etrans. { use obj_ext_mor_disp_transportb. }
+      etrans. { apply id_left. }
+      apply comp_ext_compare_disp_id_gen. 
+    - set (V_I := iso_disp_after_inv_mor I).
+      apply (maponpaths (fun f => obj_ext_mor_disp_φ _ f A)) in V_I.
+      etrans. { apply V_I. }
+      etrans. { use obj_ext_mor_disp_transportb. }
+      etrans. { apply id_left. }
+      apply comp_ext_compare_disp_id_gen. 
+  Qed.
 
   Lemma isweq_slice_isos_obj_ext_iso {TY : PreShv C} (X X' : obj_ext_disp C TY)
     : isweq (slice_isos_to_obj_ext_iso X X').
   Proof.
     use gradth.
-  Admitted.
+    - intros I Γ A; use tpair.
+      apply (obj_ext_map_to_slice_maps I). 
+      apply is_iso_obj_ext_iso_to_slice_maps.
+    - intros I.
+      apply funextsec; intros Γ.
+      apply funextsec; intros A.
+      apply eq_iso.
+      apply subtypePath. { intros ?; apply homset_property. }
+      apply idpath.
+    - intros I.
+      apply eq_iso_disp.
+      apply obj_ext_mor_disp_eq.
+      intros ? ?. apply idpath.
+  Qed.
 
   Lemma weq_slice_isos_obj_ext_iso {TY : PreShv C} (X X' : obj_ext_disp C TY)
     : (∏ Γ A, @iso (slice_precat C Γ (homset_property C)) (X Γ A) (X' Γ A))
