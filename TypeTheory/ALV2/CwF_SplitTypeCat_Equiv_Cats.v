@@ -8,12 +8,14 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
-
-Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
+Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences_bis.
+
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
 Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Cats.
@@ -646,11 +648,16 @@ End Strucs_Fiber_Equiv.
 Section Strucs_Total_Equiv.
 
 Definition cwf'_struc_to_qq_struc_is_equiv
-  : equivalence_of_precats
+  : adj_equiv
       (cwf'_structure_precat C)
       (sty'_structure_precat C).
 Proof.
-Admitted.
+  eapply compose_adj_equiv.
+  - eapply inv_adj_equiv, total_equiv_over_id.
+    apply compat_structures_pr1_equiv_over_id.
+  - eapply total_equiv_over_id.
+    apply compat_structures_pr2_equiv_over_id.
+Defined.
 
 End Strucs_Total_Equiv.
 
