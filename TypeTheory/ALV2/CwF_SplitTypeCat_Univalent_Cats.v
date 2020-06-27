@@ -116,13 +116,13 @@ Section Is_Univalent_Obj_Ext_Disp.
       etrans. { apply I_V. }
       etrans. { use obj_ext_mor_disp_transportb. }
       etrans. { apply id_left. }
-      apply comp_ext_compare_disp_id_gen. 
+      apply comp_ext_compare_id_general. 
     - set (V_I := iso_disp_after_inv_mor I).
       apply (maponpaths (fun f => obj_ext_mor_disp_φ f A)) in V_I.
       etrans. { apply V_I. }
       etrans. { use obj_ext_mor_disp_transportb. }
       etrans. { apply id_left. }
-      apply comp_ext_compare_disp_id_gen. 
+      apply comp_ext_compare_id_general. 
   Qed.
 
   Lemma isweq_slice_isos_obj_ext_iso {TY : PreShv C} (X X' : obj_ext_disp TY)

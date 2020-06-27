@@ -84,7 +84,7 @@ Section Obj_Ext_Cat.
   Lemma obj_ext_mor_eq {X X'} (F F' : obj_ext_mor X X')
     (e_TY : ∏ Γ (A : Ty X Γ), F [ A ] = F' [ A ])
     (e_comp : ∏ Γ (A : Ty X Γ),
-      φ F A ;; @Δ _ _ _ _ _ (e_TY _ _)
+      φ F A ;; Δ (e_TY _ _)
       = φ F' A)
   : F = F'.
   Proof.
@@ -104,7 +104,7 @@ Section Obj_Ext_Cat.
     (e_TY : ∏ Γ (A : Ty X Γ), F [ A ] = F' [ A ])
     (e_comp_gen : ∏ (e_TY : ∏ Γ (A : Ty X Γ), F [ A ] = F' [ A ]),
       ∏ Γ (A : Ty X Γ),
-      φ F A ;; @Δ _ _ _ _ _ (e_TY _ _)
+      φ F A ;; Δ (e_TY _ _)
       = φ F' A)
   : F = F'.
   Proof.
