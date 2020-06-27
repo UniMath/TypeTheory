@@ -8,8 +8,8 @@
 Main definitions:
 
 - [obj_ext_precat]
-- [term_fun_disp_cat], [term_fun_structure_precat]
-- [qq_structure_disp_cat], [qq_structure_precat]
+- [term_fun_disp_cat], [cwf'_structure_precat]
+- [qq_structure_disp_cat], [sty'_structure_precat]
 *)
 
 Require Import UniMath.Foundations.Sets.
@@ -115,8 +115,8 @@ Arguments obj_ext_cat _ : clear implicits.
 
 Local Notation φ := obj_ext_mor_φ.
 
-(** * category of term structures *)
-Section Term_Fun_Structure_Precat.
+(** * Category of CwF’ structures, via displayed cat of term structures *)
+Section CwF_Structure_Precat.
 
 Context {C : category}.
 
@@ -286,16 +286,16 @@ Qed.
 Definition term_fun_disp_cat : disp_cat (obj_ext_cat C)
   := (_ ,, term_fun_axioms).
 
-Definition term_fun_structure_precat : precategory
+Definition cwf'_structure_precat : precategory
   := total_category term_fun_disp_cat.
 
-End Term_Fun_Structure_Precat.
+End CwF_Structure_Precat.
 
 Arguments term_fun_disp_cat _ : clear implicits.
-Arguments term_fun_structure_precat _ : clear implicits.
+Arguments cwf'_structure_precat _ : clear implicits.
 
-(** * category of _q_-morphism-structures *)
-Section qq_Structure_Precat.
+(** * Category of split type-cat structures, via displayed cat of _q_-morphism-structures *)
+Section STy_Structure_Precat.
 
 Context {C : category}.
 
@@ -361,11 +361,11 @@ Qed.
 Definition qq_structure_disp_cat : disp_cat (obj_ext_cat C)
   := (_ ,, qq_structure_axioms).
 
-Definition qq_structure_precat : precategory
+Definition sty'_structure_precat : precategory
   := total_category (qq_structure_disp_cat).
 
-End qq_Structure_Precat.
+End STy_Structure_Precat.
 
 Arguments qq_structure_disp_cat _ : clear implicits.
-Arguments qq_structure_precat _ : clear implicits.
+Arguments sty'_structure_precat _ : clear implicits.
 

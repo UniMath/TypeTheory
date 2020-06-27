@@ -102,13 +102,13 @@ Definition compat_structures_precat
   := total_category (strucs_compat_disp_cat).
 
 Definition compat_structures_pr1_functor
-  : functor compat_structures_precat (term_fun_structure_precat C)
+  : functor compat_structures_precat (cwf'_structure_precat C)
 := functor_composite
      (pr1_category _)
      (total_functor (dirprodpr1_disp_functor _ _)).
 
 Definition compat_structures_pr2_functor
-  : functor compat_structures_precat (qq_structure_precat C)
+  : functor compat_structures_precat (sty'_structure_precat C)
 := functor_composite
      (pr1_category _)
      (total_functor (dirprodpr2_disp_functor _ _)).
@@ -117,7 +117,7 @@ End Compatible_Disp_Cat.
 
 (** * Lemmas towards an equivalence *)
 
-(** In the following two sections, we prove lemmas which should amount to the fact that the two projections from [compat_structures_disp_cat C] to [term_fun_disp_cat C] and [qq_structure_precat C] are each equivalences (of displayed categories).
+(** In the following two sections, we prove lemmas which should amount to the fact that the two projections from [compat_structures_disp_cat C] to [cwf'_precat C] and [sty'_structure_precat C] are each equivalences (of displayed categories).
 
 We don’t yet have the infrastructure on displayed categories to put it together as that fact; for now we put it together just as equivalences of _total_ precategories. *)
  
