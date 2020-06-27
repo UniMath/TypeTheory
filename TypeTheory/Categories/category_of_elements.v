@@ -124,7 +124,7 @@ Proof.
   intro H.
   set (T:= maponpaths (inv_from_iso f) H).
   apply pathsinv0.
-  etrans. Focus 2. apply T.
+  etrans. 2: { apply T. }
   apply pathsinv0.
   set (HT:= iso_inv_after_iso f).
   set (HT':= toforallpaths _ _ _ HT).

@@ -51,7 +51,7 @@ Proof.
   unfold canonical_TM_to_given_data; cbn.
   etrans. apply maponpaths, (pr2 Y).
   etrans. apply (toforallpaths _ _ _ (!functor_comp (TM Y) _ _ ) _).
-  etrans. Focus 2. apply (toforallpaths _ _ _ (functor_comp (TM Y) _ _ ) _).
+  etrans. 2: { apply (toforallpaths _ _ _ (functor_comp (TM Y) _ _ ) _). }
   apply maponpaths_2. 
   apply (@PullbackArrow_PullbackPr2 C _ _ _ _ _ (make_Pullback _ _ _ _ _ _ _)).
 Qed.
@@ -184,7 +184,8 @@ Qed.
 Lemma given_TM_to_canonical_te {Γ:C} A
   : (given_TM_to_canonical : nat_trans _ _) (Γ ◂ A) (te Y A) = (te_from_qq Z A).
 Proof.
-  etrans. Focus 2. exact (toforallpaths _ _ _ (canonical_to_given_to_canonical _) _).
+  etrans.
+  2: { exact (toforallpaths _ _ _ (canonical_to_given_to_canonical _) _). }
   cbn. apply maponpaths, @pathsinv0, canonical_TM_to_given_te.
 Qed.
 
@@ -312,14 +313,16 @@ Proof.
   simpl in XR.
   specialize (XR (fun YZ => iscompatible_term_qq (pr1 YZ) (pr2 YZ))).
   apply XR.
-  eapply weqcomp. Focus 2.
-  unfold T2. unfold compatible_term_structure.
-  set (XR := @weqtotal2asstor).
-  specialize (XR (qq_morphism_structure X)).
-  specialize (XR (fun _ => term_fun_structure C X)).
-  simpl in XR.
-  specialize (XR (fun YZ => iscompatible_term_qq (pr2 YZ) (pr1 YZ))).
-  apply XR.
+  eapply weqcomp.
+  2: {
+    unfold T2, compatible_term_structure.
+    set (XR := @weqtotal2asstor).
+    specialize (XR (qq_morphism_structure X)).
+    specialize (XR (fun _ => term_fun_structure C X)).
+    simpl in XR.
+    specialize (XR (fun YZ => iscompatible_term_qq (pr2 YZ) (pr1 YZ))).
+    apply XR.
+  }
   use weqbandf.
   - apply weqdirprodcomm.
   - intros. simpl.

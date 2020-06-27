@@ -95,7 +95,7 @@ Lemma cwf_square_comm {Γ} {A}
   : #Yo π ;; yy A = yy t ;; pp.
 Proof.
   apply pathsinv0.
-  etrans. Focus 2. apply yy_natural.
+  etrans. 2: { apply yy_natural. }
   etrans. apply yy_comp_nat_trans.
   apply maponpaths, e.
 Qed.
@@ -311,14 +311,14 @@ Proof.
     -> ((ΓA,π),(v,(e,p)))
     -> ((ΓA,π),((v,e),p))
   *)
-  eapply weqcomp. Focus 2.
-    refine (weqfp _ _).
-    apply weqtotal2asstor'.
-  eapply weqcomp. Focus 2.
-    eapply weqtotal2asstol.
-    eapply weqcomp. Focus 2.
-    refine (weqfibtototal _ _ _).
+  eapply weqcomp.
+  2: { refine (weqfp _ _). apply weqtotal2asstor'. }
+  eapply weqcomp.
+  2: { eapply weqtotal2asstol. }
+  eapply weqcomp.
+  2: { refine (weqfibtototal _ _ _).
     intro. apply weqtotal2asstor'.
+  }
   (* convert the term argument under [yy] *)
   apply weqfibtototal. intros [ΓA π]; simpl.
   use weqbandf.
@@ -345,8 +345,9 @@ Proof.
   apply weqonsecfibers. intro Γ.
   (* convert the type argument under [yy] *) 
   eapply weqcomp.
-    Focus 2. eapply invweq.
+  2: { eapply invweq.
     refine (weqonsecbase _ _). apply yy.
+  }
   apply weqonsecfibers. intro A.
   apply  weq_cwf_fiber_representation_fpullback.
 Defined.
@@ -481,7 +482,7 @@ Lemma Morphism_of_presheaves_transfer_recover : Tm_iso ;; pp = pp'_eta ;; Ty_iso
 Proof.
   assert (XR := nat_trans_ax (counit_from_left_adjoint Fopequiv) _ _ pp).
   apply pathsinv0.
-  etrans.  Focus 2. apply XR.
+  etrans. 2: { apply XR. }
   clear XR.
   set (TT := #(right_adjoint Fopequiv) pp).
   set (TTT := #ηη TT).
@@ -580,7 +581,7 @@ Lemma RC_morphism_of_presheaves_recover : RC_Tm_iso ;; pp = RC_pp'_eta ;; RC_Ty_
 Proof.
   assert (XR := nat_trans_ax (counit_from_left_adjoint RCequiv) _ _ pp).
   apply pathsinv0.
-  etrans.  Focus 2. apply XR.
+  etrans.  2: { apply XR. }
   clear XR.
   set (TT := #(right_adjoint RCequiv) pp).
   set (TTT := #ηη TT).

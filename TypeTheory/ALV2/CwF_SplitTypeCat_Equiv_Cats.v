@@ -284,25 +284,25 @@ Proof.
   use tm_from_qq_eq_reindex.
   - cbn.
   (* Putting these equalities under [abstract] shaves a couple of seconds off the overall Qed time, but makes the proof script rather less readable. *) 
-    etrans. Focus 2. exact (toforallpaths _ _ _ (functor_comp (TY _) _ _) _).
-    etrans. Focus 2. cbn. apply maponpaths_2, @pathsinv0, obj_ext_mor_ax.
+    etrans. 2: { exact (toforallpaths _ _ _ (functor_comp (TY _) _ _) _). }
+    etrans. 2: { cbn. apply maponpaths_2, @pathsinv0, obj_ext_mor_ax. }
     exact (toforallpaths _ _ _ (nat_trans_ax (obj_ext_mor_TY F) _ _ _) _).
-  - etrans. Focus 2. apply @pathsinv0, 
-        (postCompWithPullbackArrow _ _ _ (make_Pullback _ _ _ _ _ _ _)).
+  - etrans. 2: { apply @pathsinv0, 
+        (postCompWithPullbackArrow _ _ _ (make_Pullback _ _ _ _ _ _ _)). }
     apply PullbackArrowUnique.
     + cbn.
       etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, qq_π.
       etrans. apply assoc.
-      etrans. Focus 2. apply @pathsinv0, id_right.
-      etrans. Focus 2. apply id_left.
+      etrans. 2: { apply @pathsinv0, id_right. }
+      etrans. 2: { apply id_left. }
       apply maponpaths_2.
       etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, comp_ext_compare_π.
       etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, obj_ext_mor_ax.
       apply (PullbackArrow_PullbackPr1 (make_Pullback _ _ _ _ _ _ _)).
-    + etrans. Focus 2. apply @pathsinv0, id_right.
+    + etrans. 2: { apply @pathsinv0, id_right. }
       etrans. cbn. apply maponpaths_2, maponpaths_2, maponpaths.
         etrans. apply comp_ext_compare_comp.
         apply maponpaths_2, comp_ext_compare_comp.

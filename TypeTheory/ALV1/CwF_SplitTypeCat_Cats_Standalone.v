@@ -114,7 +114,7 @@ Proof.
   apply (pullback_HSET_elements_unique Pb); clear Pb.
   - unfold yoneda_morphisms_data; cbn.
     etrans. use (pr2 (term_to_section t')). apply pathsinv0.
-    etrans. Focus 2. refine (pr2 (term_to_section t)).
+    etrans. 2: { refine (pr2 (term_to_section t)). }
     etrans. apply @pathsinv0, assoc.
     apply maponpaths.
     apply comp_ext_compare_π.

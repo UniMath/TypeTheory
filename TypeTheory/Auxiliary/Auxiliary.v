@@ -143,7 +143,7 @@ Proof.
     apply (base_paths _ _ H1).
   } 
   set (XR := fiber_paths X0). cbn in XR.
-  etrans. Focus 2. apply XR.
+  etrans. 2: { apply XR. }
   apply pathsinv0. 
   etrans. apply maponpaths_2. apply (isasetX _ _ _ (idpath x)).
   apply idpath_transportf.
@@ -227,10 +227,10 @@ Lemma transportf_comp_lemma (X : UU) (B : X -> UU) {A A' A'': X} (e : A = A'') (
   -> transportf _ e x = transportf _ e' x'.
 Proof.
   intro H.
-  eapply pathscomp0. Focus 2.
-    apply maponpaths. exact H.
-  eapply pathscomp0. Focus 2.
-    symmetry. apply transport_f_f.
+  eapply pathscomp0.
+  2: { apply maponpaths. exact H. }
+  eapply pathscomp0.
+  2: { symmetry. apply transport_f_f. }
   apply (maponpaths (fun p => transportf _ p x)).
   apply pathsinv0.
   eapply pathscomp0.
@@ -625,13 +625,14 @@ Proof.
        intermediate_path ((f1 ;; ηinv _ ) ;; (η _ ;; f2) ;; f3) end.
     + repeat rewrite <- assoc. apply maponpaths.
       repeat rewrite assoc.
-      etrans. Focus 2. do 2 apply maponpaths_2. eapply pathsinv0, iso_after_iso_inv.
+      etrans.
+      2: { do 2 apply maponpaths_2. eapply pathsinv0, iso_after_iso_inv. }
       rewrite id_left. apply idpath.
     + assert (XR := nat_trans_ax η). simpl in XR. rewrite <- XR. clear XR.
       repeat rewrite <- assoc.
       etrans. do 3 apply maponpaths. apply  triangle_id_right_ad. rewrite id_right.
       rewrite assoc.
-      etrans. Focus 2. apply id_left.
+      etrans. 2: { apply id_left. }
       apply maponpaths_2.
       etrans. apply maponpaths_2. apply functor_on_inv_from_iso.
       assert (XR := triangle_id_right_ad (pr2 (pr1 GG))).
@@ -1193,8 +1194,8 @@ Proof.
       intro; apply isapropdirprod; apply homset_property.
     cbn.
     apply (post_comp_with_iso_is_inj _ _ _ (iso_inv_from_iso i_d) (pr2 _)).
-    eapply @pathscomp0. Focus 2.
-      rewrite <- assoc. cbn. rewrite iso_inv_after_iso. eapply pathsinv0, id_right.
+    eapply @pathscomp0.
+    2: { rewrite <- assoc. cbn. rewrite iso_inv_after_iso. eapply pathsinv0, id_right. }
     apply PullbackArrowUnique; cbn.
     + apply (post_comp_with_iso_is_inj _ _ _ i_b (pr2 _)).
       repeat rewrite <- assoc.
@@ -1578,7 +1579,7 @@ Section Pullback_Unique_Up_To_Iso.
     unshelve refine (map_into_Pb H' pb' _ _ _  ).
     - exact (f ;; h).
     - exact g.
-    - eapply pathscomp0. Focus 2. apply H.
+    - eapply pathscomp0. 2: { apply H. }
       eapply pathscomp0. apply (!assoc _ _ _ ).
       apply maponpaths. apply T.
   Defined.
