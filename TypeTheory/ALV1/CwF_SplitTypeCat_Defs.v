@@ -35,7 +35,7 @@ Set Automatic Introduction.
 
 We start by fixing the common core of families structures and split type-category structures: an _object-extension structure_, a presheaf of “types” together with “extension” and “dependent projection” operations, as in the following definition: *)
 
-(* Not intended for use, illustrative only *)
+(* Not intended for external use; provided just for readability. *)
 Local Definition obj_ext_structure_explicit (C : category) : UU
   := ∑ Ty : preShv C,
        ∏ (Γ : C) (A : (Ty : functor _ _ ) Γ : hSet ),
@@ -126,25 +126,31 @@ Section Obj_Ext_Structures_Disp_Utility_Lemmas.
 
   Context {C : category}.
 
+  Definition comp_ext_compare_iso
+      {Ty} {X : obj_ext_ob_mor Ty}
+      {Γ : C} {A A' : Ty [Γ]} (e : A = A')
+    : iso (comp_ext_disp X Γ A) (comp_ext_disp X Γ A')
+  := idtoiso (maponpaths _ e).
+
   Definition comp_ext_compare
       {Ty} {X : obj_ext_ob_mor Ty}
       {Γ : C} {A A' : Ty [Γ]} (e : A = A')
     : comp_ext_disp X Γ A --> comp_ext_disp X Γ A'
-  := idtoiso (maponpaths _ e).
+  := comp_ext_compare_iso e.
 
   Local Notation Δ := comp_ext_compare.
 
   Lemma comp_ext_compare_id 
-     {TTy : PreShv C} {X : obj_ext_ob_mor TTy}
-     {Γ : C} {A : TTy[Γ]}
+     {Ty : PreShv C} {X : obj_ext_ob_mor Ty}
+     {Γ : C} {A : Ty[Γ]}
     : Δ (idpath A) = identity (comp_ext_disp X Γ A).
   Proof.
     apply idpath.
   Qed.
 
   Lemma comp_ext_compare_id_general
-     {TTy : PreShv C} {X : obj_ext_ob_mor TTy}
-     {Γ : C} {A : TTy[Γ]} (e : A = A)
+     {Ty : PreShv C} {X : obj_ext_ob_mor Ty}
+     {Γ : C} {A : Ty[Γ]} (e : A = A)
     : Δ e = identity (comp_ext_disp X Γ A).
   Proof.
       assert (e = idpath _) as H. { apply setproperty. }
@@ -152,37 +158,35 @@ Section Obj_Ext_Structures_Disp_Utility_Lemmas.
   Qed.
   
   Lemma comp_ext_compare_comp
-     {TTy : PreShv C} {X : obj_ext_ob_mor TTy}
-     {Γ : C} {A A' A'' : TTy [Γ]} (e : A = A') (e' : A' = A'')
+     {Ty : PreShv C} {X : obj_ext_ob_mor Ty}
+     {Γ : C} {A A' A'' : Ty [Γ]} (e : A = A') (e' : A' = A'')
     : @comp_ext_compare _ X _ _ _ (e @ e') = Δ e ;; Δ e'.
   Proof.
     apply pathsinv0.
     etrans. { apply idtoiso_concat_pr. }
-    unfold comp_ext_compare.
-    apply maponpaths, maponpaths, pathsinv0, maponpathscomp0. 
+    apply (maponpaths pr1), (maponpaths idtoiso), pathsinv0, maponpathscomp0.
   Qed.
   
   Lemma comp_ext_compare_comp_general
-     {TTy : PreShv C} {X : obj_ext_ob_mor TTy}
-     {Γ : C} {A A' A'' : TTy [Γ]} (e : A = A') (e' : A' = A'') (e'' : A = A'')
+     {Ty : PreShv C} {X : obj_ext_ob_mor Ty}
+     {Γ : C} {A A' A'' : Ty [Γ]} (e : A = A') (e' : A' = A'') (e'' : A = A'')
     : @comp_ext_compare _ X _ _ _ e'' = Δ e ;; Δ e'.
   Proof.
     refine (_ @ comp_ext_compare_comp _ _).
     apply maponpaths, setproperty.
   Qed.
   
-  (* TODO: any reason why comp_ext_compare is the morphism not just the iso?? *)
   Lemma comp_ext_compare_inv
-      {TTy : PreShv C} {X : obj_ext_ob_mor TTy}
-      {Γ : C} {A A' : TTy [Γ]} (e : A = A')
-    : Δ (!e) = inv_from_iso (idtoiso (maponpaths (comp_ext_disp X Γ) e)).
+      {Ty : PreShv C} {X : obj_ext_ob_mor Ty}
+      {Γ : C} {A A' : Ty [Γ]} (e : A = A')
+    : Δ (!e) = inv_from_iso (@comp_ext_compare_iso _ X _ _ _ e).
   Proof.
     destruct e; apply idpath.
   Defined.
   
   Lemma comp_ext_compare_π
-      {TTy : PreShv C} {X : obj_ext_ob_mor TTy}
-      {Γ : C} {A A' : TTy [Γ]} (e : A = A')
+      {Ty : PreShv C} {X : obj_ext_ob_mor Ty}
+      {Γ : C} {A A' : Ty [Γ]} (e : A = A')
     : Δ e ;; obj_ext_disp_π X A' = obj_ext_disp_π X A.
   Proof.
     destruct e; apply id_left.
@@ -216,7 +220,7 @@ Section Obj_Ext_Structures_Disp_Utility_Lemmas.
     etrans. { use (pr1_transportf (nat_trans _ _)). }
     etrans. { use (@functtransportf (nat_trans _ _)). }
     etrans. { apply @pathsinv0, idtoiso_postcompose. }
-    unfold Δ. apply maponpaths, maponpaths, maponpaths, pathsinv0.
+    apply maponpaths, (maponpaths pr1), (maponpaths idtoiso), pathsinv0.
     apply (maponpathscomp (fun G => _) (fun A' => comp_ext_disp X' Γ A')).
   Qed.
 

@@ -379,7 +379,7 @@ Proof.
   - apply weqonsecfibers; intro Γ.
     apply weqonsecfibers; intro A.
     apply weqpathscomp0r.
-    apply (maponpaths morphism_from_iso), maponpaths, maponpaths.
+    apply (maponpaths morphism_from_iso), (maponpaths idtoiso), maponpaths.
     apply (pr2 (pr1 (pr1 (pr1 X)))). (* the hset assumption on ty *)
   - apply weqonsecfibers; intro Γ.
     eapply weqcomp. apply weq_exchange_args.
@@ -395,7 +395,7 @@ Proof.
     apply weqonsecfibers; intro A.
     apply weqpathscomp0r.
     apply maponpaths_2, maponpaths_2.
-    apply (maponpaths morphism_from_iso), maponpaths, maponpaths.
+    apply (maponpaths morphism_from_iso), (maponpaths idtoiso), maponpaths.
     apply (pr2 (pr1 (pr1 (pr1 X)))). (* the hset assumption on ty *)
 Defined.
 
