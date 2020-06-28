@@ -34,6 +34,14 @@ Require Import UniMath.CategoryTheory.All.
   - add access function for triangle identities of adjunction?
     e.g. coercion [adjunction_property : adjunction -> forms_adjunction]
     and access functions [triangle_1], [triangle_2] from there?
+
+
+  Unrelated:
+
+  - improve stuff on nat isos?  Move from current location to a more core one, and give good access functions, e.g. use it in lemmase like [functor_iso_from_pointwise_iso]?
+  - consolidated things with a “has_homsets” argument to have a “category” argument instead
+
+  Rename “transportb_transpose_right”.
 *)
 
 Definition adj_equiv_from_adjunction
@@ -76,10 +84,46 @@ Proof.
   apply adj_equivalence_of_precats_inv.
 Defined.
 
-
+Definition nat_trans_from_nat_iso
+    {C D : category} {F G : functor C D} (α : nat_iso F G)
+  : nat_trans F G
+:= pr1 α.
+Coercion nat_trans_from_nat_iso : nat_iso >-> nat_trans.
 
 
 (** The total equivalence of a displayed equivalence *)
+
+Definition total_functor_comp
+    {C D E : category} {F : functor C D} {G : functor D E} 
+    {CC} {DD} {EE} (FF : disp_functor F CC DD) (GG : disp_functor G DD EE)
+  : nat_iso
+      (total_functor (disp_functor_composite FF GG))
+      (functor_composite (total_functor FF) (total_functor GG)).
+Proof.
+  use functor_iso_from_pointwise_iso.
+  - use tpair.
+    + intros c. apply identity.
+    + intros c c' f.
+      etrans. { apply id_right. }
+      apply pathsinv0, id_left.
+  - intros a. apply identity_is_iso.
+Defined.
+
+Definition total_functor_id
+    {C : category}
+    {CC : disp_cat C}
+  : nat_iso
+      (total_functor (disp_functor_identity CC))
+      (functor_identity _).
+Proof.
+  use functor_iso_from_pointwise_iso.
+  - use tpair.
+    + intros c. apply identity.
+    + intros c c' f.
+      etrans. { apply id_right. }
+      apply pathsinv0, id_left.
+  - intros a. apply identity_is_iso.
+Defined.
 
 Definition total_nat_trans
     {C D : category} {F G : functor C D} {α : nat_trans F G}
@@ -104,14 +148,30 @@ Proof.
   exists (total_functor (left_adj_over_id FG)).
   exists (total_functor (right_adj_over_id FG)).
   split.
+  (* Note we can’t exactly use [total_nat_trans (unit_over_id FG)] etc here,
+  since the total of the composite functor isn’t judgementally the same as
+  the composite of the total funcotrs; it has the same data but different
+  proofs of the axioms.
+
+  So we destruct the [total_nat_trans] and reconstitute it.
+
+  An alternate approach here is to compose [total_nat_trans] with the
+  natural isomorphisms [total_functor_id], [total_functor_comp]. However,
+  that has the effect of composing each component with identities on both
+  sides, making it harder to work with afterwards. *)
   - set (η := total_nat_trans (unit_over_id FG)).
-    refine (nat_trans_comp _ _ _ _ (nat_trans_comp _ _ _ η _)).
-    + admit. (* TODO: nat iso [total_functor_identity] *)
-    + admit. (* TODO: nat iso [total_functor_composite] *)
+    use tpair. { intros c; exact (η c). }
+    intros c c' f; apply nat_trans_ax.
   - set (ε := total_nat_trans (counit_over_id FG)).
-    refine (nat_trans_comp _ _ _ _ (nat_trans_comp _ _ _ ε _)).
-    + admit. (* TODO: nat iso [total_functor_identity] *)
-    + admit. (* TODO: nat iso [total_functor_composite] *)
+    use tpair. { intros c; exact (ε c). }
+    intros c c' f; apply nat_trans_ax.
+Defined.
+
+Definition total_forms_adjunction_over_id
+    {C} {CC DD : disp_cat C}
+    (FG : disp_adjunction_id CC DD)
+  : form_adjunction' (total_adjunction_data_over_id FG).
+Proof.
 Admitted.
 
 Definition total_adjunction_over_id
@@ -120,8 +180,8 @@ Definition total_adjunction_over_id
   : adjunction (total_category CC) (total_category DD).
 Proof.
   exists (total_adjunction_data_over_id FG).
-  admit.
-Admitted.
+  apply total_forms_adjunction_over_id.
+Defined.
 
 Definition total_equiv_over_id
     {C} {CC DD : disp_cat C}
@@ -130,6 +190,10 @@ Definition total_equiv_over_id
 Proof.
   use adj_equiv_from_adjunction.
   - exact (total_adjunction_over_id (adjunction_of_equiv_over_id E)).
-  - admit.
-  - admit.
-Admitted.
+  - intros c. simpl.
+    use is_iso_total. { apply identity_is_iso. }
+    apply is_iso_unit_over_id, axioms_of_equiv_over_id.
+  - intros c. simpl.
+    use is_iso_total. { apply identity_is_iso. }
+    apply is_iso_counit_over_id, axioms_of_equiv_over_id.
+Defined.
