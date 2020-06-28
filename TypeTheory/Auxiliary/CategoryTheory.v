@@ -1,50 +1,9 @@
-(** Some constructions on equivalences not yet provided by the UniMath category theory library *)
+(** Some constructions on equivalences (normal and displayed) not yet provided by the UniMath category theory library
+
+TODO: upstream this to UniMath, and possibly propose improvements there as in the notes below. *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.All.
-
-(* Draft proposal for naming change in [UniMath]:
-  The most confusing point is having
-  [adj_equivalence_of_precats] for the property of (or structure on) a functor,
-  while
-  [equivalence_of_precats] is the sigma-type of this over functors.
-
-  Suggestion:
-  - [equivalence] changes to [equiv] throughout (this seems unambiguous?)
-
-  - [adj_equivalence_of_precats]
-    changes to either
-    [is_adj_equiv] or [adj_equiv_structure]
-    (possible also [_of_precats], but this seems reasonably implicit since it’s on a functor) 
-  - [equivalence_of_precats]
-    changes to [adj_equiv_of_precats]
-  - lemmas about them are renamed as consistently as possible, following these.
-
-  - consolidate with the material from [DisplayedCats.Equivalences_bis], including its adj_equiv.
-
-  - projection from an equivalence to its functor is made a coercion?
-  - in particular, the confusion about variance for adjoints should be resolved if possible!
-  - coercions should respect the fact that equivalences have a primary direction, as do individual adjoints, but “adjunctions” don’t.
-
-  - equivalences should have clear access functions to all components
-
-  Displayed:
-  - rename [disp_adjunction_id] -> [disp_adjunction_over_id]
-
-  - add access function for triangle identities of adjunction?
-    e.g. coercion [adjunction_property : adjunction -> forms_adjunction]
-    and access functions [triangle_1], [triangle_2] from there?
-
-
-  Unrelated:
-
-  - improve stuff on nat isos?  Move from current location to a more core one, and give good access functions, e.g. use it in lemmase like [functor_iso_from_pointwise_iso]?
-  - consolidated things with a “has_homsets” argument to have a “category” argument instead
-
-  - Rename “transportb_transpose_right”.
-
-  - make first arguments of [nat_trans_comp] implicit
-*)
 
 Definition adj_equiv_from_adjunction
     {C D : precategory}
@@ -203,3 +162,47 @@ Proof.
     use is_iso_total. { apply identity_is_iso. }
     apply is_iso_counit_over_id, axioms_of_equiv_over_id.
 Defined.
+
+(* Notes towards some possible improvements in UniMath’s treatment of adjunctions, equivalences (and a few other unrelated things in the library):
+
+  One really confusing point is having
+  [adj_equivalence_of_precats] for the property of (or structure on) a functor,
+  while
+  [equivalence_of_precats] is the sigma-type of this over functors.
+
+  Suggestion:
+  - [equivalence] changes to [equiv] throughout (this seems unambiguous?)
+
+  - [adj_equivalence_of_precats]
+    changes to either
+    [is_adj_equiv] or [adj_equiv_structure]
+    (possible also [_of_precats], but this seems reasonably implicit since it’s on a functor) 
+  - [equivalence_of_precats]
+    changes to [adj_equiv_of_precats]
+  - lemmas about them are renamed as consistently as possible, following these.
+
+  - consolidate with the material from [DisplayedCats.Equivalences_bis], including its adj_equiv.
+
+  - projection from an equivalence to its functor is made a coercion?
+  - in particular, the confusion about variance for adjoints should be resolved if possible!
+  - coercions should respect the fact that equivalences have a primary direction, as do individual adjoints, but “adjunctions” don’t.
+
+  - equivalences should have clear access functions to all components
+
+  Displayed:
+  - rename [disp_adjunction_id] -> [disp_adjunction_over_id]
+
+  - add access function for triangle identities of adjunction?
+    e.g. coercion [adjunction_property : adjunction -> forms_adjunction]
+    and access functions [triangle_1], [triangle_2] from there?
+
+
+  Unrelated:
+
+  - improve stuff on nat isos?  Move from current location to a more core one, and give good access functions, e.g. use it in lemmase like [functor_iso_from_pointwise_iso]?
+  - consolidated things with a “has_homsets” argument to have a “category” argument instead
+
+  - Rename “transportb_transpose_right”.
+
+  - make first arguments of [nat_trans_comp] implicit
+*)
