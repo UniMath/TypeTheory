@@ -41,7 +41,9 @@ Require Import UniMath.CategoryTheory.All.
   - improve stuff on nat isos?  Move from current location to a more core one, and give good access functions, e.g. use it in lemmase like [functor_iso_from_pointwise_iso]?
   - consolidated things with a “has_homsets” argument to have a “category” argument instead
 
-  Rename “transportb_transpose_right”.
+  - Rename “transportb_transpose_right”.
+
+  - make first arguments of [nat_trans_comp] implicit
 *)
 
 Definition adj_equiv_from_adjunction
@@ -134,12 +136,9 @@ Proof.
   use tpair.
   { intros c; exists (α (pr1 c)). apply αα. }
   intros c c' f.
-  use @total2_paths_f; cbn.
-  { apply nat_trans_ax. }
-  apply transportf_transpose_left, disp_nat_trans_ax.
+  eapply total2_paths_b. apply disp_nat_trans_ax.
 Defined.
 
-(* TODO: make first arguments of [nat_trans_comp] implicit *)
 Definition total_adjunction_data_over_id
     {C} {CC DD : disp_cat C}
     (FG : disp_adjunction_id_data CC DD)
@@ -148,7 +147,13 @@ Proof.
   exists (total_functor (left_adj_over_id FG)).
   exists (total_functor (right_adj_over_id FG)).
   split.
-  (* Note we can’t exactly use [total_nat_trans (unit_over_id FG)] etc here,
+  - set (η := total_nat_trans (unit_over_id FG)).
+    use tpair. { intros c; exact (η c). }
+    intros c c' f; apply nat_trans_ax.
+  - set (ε := total_nat_trans (counit_over_id FG)).
+    use tpair. { intros c; exact (ε c). }
+    intros c c' f; apply nat_trans_ax.
+  (* Note we can’t exactly use [total_nat_trans (unit_over_id FG)] etc above,
   since the total of the composite functor isn’t judgementally the same as
   the composite of the total funcotrs; it has the same data but different
   proofs of the axioms.
@@ -159,12 +164,6 @@ Proof.
   natural isomorphisms [total_functor_id], [total_functor_comp]. However,
   that has the effect of composing each component with identities on both
   sides, making it harder to work with afterwards. *)
-  - set (η := total_nat_trans (unit_over_id FG)).
-    use tpair. { intros c; exact (η c). }
-    intros c c' f; apply nat_trans_ax.
-  - set (ε := total_nat_trans (counit_over_id FG)).
-    use tpair. { intros c; exact (ε c). }
-    intros c c' f; apply nat_trans_ax.
 Defined.
 
 Definition total_forms_adjunction_over_id
@@ -172,7 +171,14 @@ Definition total_forms_adjunction_over_id
     (FG : disp_adjunction_id CC DD)
   : form_adjunction' (total_adjunction_data_over_id FG).
 Proof.
-Admitted.
+  split.
+  - intros c; cbn.
+    eapply total2_paths_b.
+    apply triangle_1_over_id.
+  - intros c; cbn.
+    eapply total2_paths_b.
+    apply triangle_2_over_id.
+Qed.
 
 Definition total_adjunction_over_id
     {C} {CC DD : disp_cat C}
