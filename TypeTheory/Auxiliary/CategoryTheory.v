@@ -106,23 +106,8 @@ Proof.
   exists (total_functor (left_adj_over_id FG)).
   exists (total_functor (right_adj_over_id FG)).
   split.
-  - set (η := total_nat_trans (unit_over_id FG)).
-    use tpair. { intros c; exact (η c). }
-    intros c c' f; apply nat_trans_ax.
-  - set (ε := total_nat_trans (counit_over_id FG)).
-    use tpair. { intros c; exact (ε c). }
-    intros c c' f; apply nat_trans_ax.
-  (* Note we can’t exactly use [total_nat_trans (unit_over_id FG)] etc above,
-  since the total of the composite functor isn’t judgementally the same as
-  the composite of the total funcotrs; it has the same data but different
-  proofs of the axioms.
-
-  So we destruct the [total_nat_trans] and reconstitute it.
-
-  An alternate approach here is to compose [total_nat_trans] with the
-  natural isomorphisms [total_functor_id], [total_functor_comp]. However,
-  that has the effect of composing each component with identities on both
-  sides, making it harder to work with afterwards. *)
+  - exact (total_nat_trans (unit_over_id FG)).
+  - exact (total_nat_trans (counit_over_id FG)).
 Defined.
 
 Definition total_forms_adjunction_over_id
