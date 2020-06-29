@@ -182,6 +182,13 @@ Section Is_Univalent_Obj_Ext_Disp.
           is_univalent_obj_ext_fibers.
   Defined.
   
+  Theorem is_univalent_obj_ext : is_univalent (obj_ext_cat C).
+  Proof.
+    apply is_univalent_total_category.
+    - apply is_univalent_functor_category.
+    - apply is_univalent_obj_ext_disp.
+  Defined.
+
 End Is_Univalent_Obj_Ext_Disp.
 
 Section Is_Univalent_Families_Strucs.
@@ -400,5 +407,27 @@ Proof.
 Defined.
 
 End Is_Univalent_Compat_Strucs.
+
+Section Is_Univalent_Total_Cats.
+
+  Context (C_univ : is_univalent C).
+
+  Theorem is_univalent_cwf'_structure_precat
+    : is_univalent (cwf'_structure_precat C).
+  Proof.
+    apply is_univalent_total_category.
+    - apply @is_univalent_obj_ext; auto.
+    - apply is_univalent_term_fun_structure.
+  Defined.
+  
+  Theorem is_univalent_sty'_structure_precat
+    : is_univalent (sty'_structure_precat C).
+  Proof.
+    apply is_univalent_total_category.
+    - apply @is_univalent_obj_ext; auto.
+    - apply is_univalent_qq_morphism.
+  Defined.
+
+End Is_Univalent_Total_Cats.
 
 End Fix_Context.

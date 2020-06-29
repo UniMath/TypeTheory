@@ -8,12 +8,14 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
-
-Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
+Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences_bis.
+
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
 Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Cats.
@@ -97,18 +99,17 @@ Definition compat_structures_pr2_disp_functor
 := disp_functor_id_composite
      (sigmapr1_disp_functor _) (dirprodpr2_disp_functor _ _).
 
-(* TODO: once the equivalence has been redone at the displayed level, the following are probably redundant/obsolete and should be removed. *)
 Definition compat_structures_precat
   := total_category (strucs_compat_disp_cat).
 
 Definition compat_structures_pr1_functor
-  : functor compat_structures_precat (term_fun_structure_precat C)
+  : functor compat_structures_precat (cwf'_structure_precat C)
 := functor_composite
      (pr1_category _)
      (total_functor (dirprodpr1_disp_functor _ _)).
 
 Definition compat_structures_pr2_functor
-  : functor compat_structures_precat (qq_structure_precat C)
+  : functor compat_structures_precat (sty'_structure_precat C)
 := functor_composite
      (pr1_category _)
      (total_functor (dirprodpr2_disp_functor _ _)).
@@ -117,7 +118,7 @@ End Compatible_Disp_Cat.
 
 (** * Lemmas towards an equivalence *)
 
-(** In the following two sections, we prove lemmas which should amount to the fact that the two projections from [compat_structures_disp_cat C] to [term_fun_disp_cat C] and [qq_structure_precat C] are each equivalences (of displayed categories).
+(** In the following two sections, we prove lemmas which should amount to the fact that the two projections from [compat_structures_disp_cat C] to [cwf'_precat C] and [sty'_structure_precat C] are each equivalences (of displayed categories).
 
 We don’t yet have the infrastructure on displayed categories to put it together as that fact; for now we put it together just as equivalences of _total_ precategories. *)
  
@@ -643,6 +644,20 @@ Defined.
 End Strucs_Fiber_Equiv.
 
 
+Section Strucs_Total_Equiv.
 
+Definition cwf'_struc_to_sty'_struc_is_equiv
+  : adj_equiv
+      (cwf'_structure_precat C)
+      (sty'_structure_precat C).
+Proof.
+  eapply compose_adj_equiv.
+  - eapply inv_adj_equiv, total_equiv_over_id.
+    apply compat_structures_pr1_equiv_over_id.
+  - eapply total_equiv_over_id.
+    apply compat_structures_pr2_equiv_over_id.
+Defined.
+
+End Strucs_Total_Equiv.
 
 End Fix_Context.

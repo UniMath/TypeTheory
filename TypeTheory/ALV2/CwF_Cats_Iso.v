@@ -133,7 +133,7 @@ Section CwF_Cat_Equiv.
   (* CwF' to CwF functor *)
 
   Definition cwf'_to_cwf_functor_data
-    : functor_data (term_fun_structure_precat C) (@cwf_structure_cat C).
+    : functor_data (cwf'_structure_precat C) (@cwf_structure_cat C).
   Proof.
     use make_functor_data.
     - apply cwf'_to_cwf_structure.
@@ -179,7 +179,7 @@ Section CwF_Cat_Equiv.
     := (cwf'_to_cwf_functor_idax ,, cwf'_to_cwf_functor_compax).
   
   Definition cwf'_to_cwf_functor
-    : functor (term_fun_structure_precat C)
+    : functor (cwf'_structure_precat C)
               (@cwf_structure_precategory_data C).
   Proof.
     use (make_functor cwf'_to_cwf_functor_data).
