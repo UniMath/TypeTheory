@@ -10,13 +10,13 @@ The files of this package provide:
 
 - [CwF_SplitTypeCat_Cats.v](CwF_SplitTypeCat_Cats.v)
 
-  - Definition of displayed categories of term structures and *q*-morphism structures
+  - Definition of displayed categories of term structures and *q*-morphism structures; and of CwF’s and split type-categories, as defined via these.
 
     Main definitions:
 
     - `obj_ext_cat`
-    - `term_fun_disp_cat`, `term_fun_structure_precat`
-    - `qq_structure_disp_cat`, `qq_structure_precat`
+    - `term_fun_disp_cat`, `cwf'n_structure_precat`
+    - `qq_structure_disp_cat`, `sty'_structure_precat`
 
 - [CwF_SplitTypeCat_Equiv_Cats.v](CwF_SplitTypeCat_Equiv_Cats.v)
 

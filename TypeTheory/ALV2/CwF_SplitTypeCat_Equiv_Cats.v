@@ -99,7 +99,6 @@ Definition compat_structures_pr2_disp_functor
 := disp_functor_id_composite
      (sigmapr1_disp_functor _) (dirprodpr2_disp_functor _ _).
 
-(* TODO: once the equivalence has been redone at the displayed level, the following are probably redundant/obsolete and should be removed. *)
 Definition compat_structures_precat
   := total_category (strucs_compat_disp_cat).
 
@@ -647,7 +646,7 @@ End Strucs_Fiber_Equiv.
 
 Section Strucs_Total_Equiv.
 
-Definition cwf'_struc_to_qq_struc_is_equiv
+Definition cwf'_struc_to_sty'_struc_is_equiv
   : adj_equiv
       (cwf'_structure_precat C)
       (sty'_structure_precat C).
