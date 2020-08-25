@@ -325,9 +325,10 @@ Section Trivial_Interpretation.
   Probably go for the middle option — “if a type/term is interpretable in the canonical environmnent (and at some type), then it’s derivable, and its interpretation is itself”.   This can be phrased nicely in terms of [partial_leq] and [tm_/ty_expr_as_partial_type/_term], which may help organise the proof.
 
   The following is therefore a first attempt, which may turn out not to be the best approach.
-*)
+   *)
+(* TODO: arguments [n], [T] should be made implicit again, once [https://github.com/coq/coq/issues/12895] is fixed. *)
   Fixpoint trivial_interpretation_ty
-      {n} (Γ : wellformed_context_of_length n)
+      (n : nat) (Γ : wellformed_context_of_length n)
       (e : ty_expr n)
       : leq_partial
           (partial_interpretation_ty
@@ -336,8 +337,8 @@ Section Trivial_Interpretation.
              (canonical_environment Γ) e)
           (ty_expr_as_partial_type Γ e)
   with trivial_interpretation_tm
-      {n} (Γ : wellformed_context_of_length n)
-      {T : ty_expr n} (isd_T : ∥ [! Γ |- T !] ∥)
+      (n : nat) (Γ : wellformed_context_of_length n)
+      (T : ty_expr n) (isd_T : ∥ [! Γ |- T !] ∥)
       (e : tm_expr n)
       : leq_partial
           (partial_interpretation_tm
