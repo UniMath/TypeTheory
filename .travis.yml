@@ -7,11 +7,18 @@ git:
 before_install: 
   - sudo apt-get update -qq
 install:
-  - sudo add-apt-repository -y ppa:avsm
-  - sudo apt-get install -y ocaml opam aspcud time libgtk2.0-dev libgtksourceview2.0-dev emacs
-  - opam init --yes --no-setup
-  - eval $(opam config env)
-  - opam install lablgtk camlp5 num --yes --verbose
+    # install a needed perl module
+      #  first install an installer
+      -  sudo cpan App::cpanminus
+      #  then install the module
+      -  sudo cpanm String::ShellQuote
+    # install Ubuntu packages
+      - sudo add-apt-repository --yes ppa:avsm
+      - sudo apt-get install --yes --quiet ocaml opam aspcud time libgtk2.0-dev libgtksourceview2.0-dev emacs
+    # set up opam
+      - opam init --yes --no-setup
+      - eval $(opam config env)
+      - opam install lablgtk camlp5 num --yes
 before_script:
   - pushd ..        
   - git clone --no-checkout https://github.com/UniMath/UniMath
