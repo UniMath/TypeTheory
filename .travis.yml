@@ -11,7 +11,7 @@ install:
       #  first install an installer
       -  sudo PERL_MM_USE_DEFAULT=1 cpan App::cpanminus
       #  then install the module
-      -  sudo PERL_MM_USE_DEFAULT=1 cpanm String::ShellQuote
+      -  sudo PERL_MM_USE_DEFAULT=1 cpanm String::ShellQuote IPC::System::Simple
     # install Ubuntu packages
       - sudo add-apt-repository --yes ppa:avsm
       - sudo apt-get install --yes --quiet ocaml opam aspcud time libgtk2.0-dev libgtksourceview2.0-dev emacs
