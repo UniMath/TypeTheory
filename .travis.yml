@@ -9,9 +9,9 @@ before_install:
 install:
     # install a needed perl module
       #  first install an installer
-      -  sudo cpan App::cpanminus
+      -  PERL_MM_USE_DEFAULT=1 sudo cpan App::cpanminus
       #  then install the module
-      -  sudo cpanm String::ShellQuote
+      -  PERL_MM_USE_DEFAULT=1 sudo cpanm String::ShellQuote
     # install Ubuntu packages
       - sudo add-apt-repository --yes ppa:avsm
       - sudo apt-get install --yes --quiet ocaml opam aspcud time libgtk2.0-dev libgtksourceview2.0-dev emacs
