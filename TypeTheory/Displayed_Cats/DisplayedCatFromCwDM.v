@@ -20,8 +20,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
 Require Import TypeTheory.OtherDefs.DM.
 
-Local Set Automatic Introduction.
-(* only needed since imports globally unset it *)
 
 (** ** Displayed category induced by a display map category
 
@@ -118,15 +116,15 @@ Definition pullback_is_cartesian
 Proof.
   intros Hpb Δ g q hh.
   eapply iscontrweqf.
-  Focus 2. { 
+  2: { 
     use Hpb.
     + exact (ob_from_DM_over q).
     + exact (pr1 hh).
     + simpl in q. refine (q ;; g).
     + etrans. apply (pr2 hh). apply assoc.
-  } Unfocus.
+  }
   eapply weqcomp.
-  Focus 2. apply weqtotal2asstol.
+  2: { apply weqtotal2asstol. }
   apply weq_subtypes_iff.
   - intro. apply isapropdirprod; apply homset_property.
   - intro. apply (isofhleveltotal2 1). 

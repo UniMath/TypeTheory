@@ -29,8 +29,6 @@ Require Import TypeTheory.ALV2.RelUniv_Cat_Simple.
 Require Import TypeTheory.ALV2.RelUniv_Cat.
 Require Import UniMath.CategoryTheory.catiso.
 
-Set Automatic Introduction.
-
 Section RelUniv_Transfer.
 
   (*       J

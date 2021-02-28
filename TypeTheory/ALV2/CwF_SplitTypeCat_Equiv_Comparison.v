@@ -28,7 +28,6 @@ Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Cats.
 Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Univalent_Cats.
 Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Equiv_Cats.
 
-Local Set Automatic Introduction.
 
 Section Auxiliary.
 
@@ -48,7 +47,7 @@ Context {C : category}.
 (** * Equivalence of types of term-structures and _q_-morphism structures, constructed categorically *)
 Section Equiv_of_Types_from_Cats.
 
-Definition term_struc_to_qq_struc_equiv_types (X : obj_ext_Precat C)
+Definition term_struc_to_qq_struc_equiv_types (X : obj_ext_cat C)
   : term_fun_structure C X ≃ qq_morphism_structure X.
 Proof.
   use (weq_on_objects_from_adj_equiv_of_cats _ _ _ _ _ 
@@ -64,7 +63,7 @@ End Equiv_of_Types_from_Cats.
 (** ** Comparison with the non-categorically constructed equivalence. *)
 Section Compare_Equivs_of_Types.
 
-Context (X : obj_ext_Precat C).
+Context (X : obj_ext_cat C).
  
 Theorem compare_term_qq_equivs
   : term_struc_to_qq_struc_equiv_types X = weq_term_qq X.

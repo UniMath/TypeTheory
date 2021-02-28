@@ -36,8 +36,6 @@ Require Import TypeTheory.ALV1.RelativeUniverses.
 
 Require Import UniMath.CategoryTheory.catiso.
 
-Local Set Automatic Introduction.
-(* only needed since imports globally unset it *)
 
 Section RelUniv.
 

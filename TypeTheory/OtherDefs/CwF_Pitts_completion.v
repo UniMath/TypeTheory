@@ -18,8 +18,6 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.OtherDefs.CwF_Pitts.
 Require Import TypeTheory.Categories.category_of_elements.
 
-Set Automatic Introduction.
-
 Arguments iso: clear implicits.
 
 (** How to get a functor from RC(C) to D when having one from C to D **)

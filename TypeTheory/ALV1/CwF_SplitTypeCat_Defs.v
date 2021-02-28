@@ -24,98 +24,346 @@ NB: we follow the convention that _category_ does not include an assumption of s
 
 
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.CategoryTheory.All. (* TODO: work out what’s actually needed and move into [CategoryTheoryImports]. *)
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
-Set Automatic Introduction.
-
 (** * Object-extension structures 
 
-We start by fixing the common core of families structures and split type-category structures: an _object-extension structure_, a presheaf of “types” together with “extension” and “dependent projection” operations.
+We start by fixing the common core of families structures and split type-category structures: an _object-extension structure_, a presheaf of “types” together with “extension” and “dependent projection” operations, as in the following definition: *)
 
-Components of [X : obj_ext_structure C]:
+(* Not intended for external use; provided just for readability. *)
+Local Definition obj_ext_structure_explicit (C : category) : UU
+  := ∑ Ty : preShv C,
+       ∏ (Γ : C) (A : (Ty : functor _ _ ) Γ : hSet ),
+         ∑ (ΓA : C), ΓA --> Γ.
 
-- [TY Γ : hSet]
-- [comp_ext X Γ A : C].  Notation: [Γ ◂ A]
-- [π A : Γ ◂ A -->  A ⟧ *)
+(** In order to facilitate working with the category of these structures later, we define them not directly, but as the objects of the total category of a displayed category over [preShv C]. *)
+
+(* TODO: consistentise with notations used in other files *)
+Local Notation "P [ Γ ]" := ((P : functor _ _) Γ : hSet) (at level 4).
+Local Notation "F [[ A ]]" := ((F : nat_trans _ _) _ A) (at level 4).
+
+Section Obj_Ext_Structures_Disp_Cat_Data.
+
+  Context {C : category}.
+
+  Definition obj_ext_ob_mor : disp_cat_ob_mor (preShv C).
+  Proof.
+    use tpair.
+    - intros Ty.
+      exact (∏ (Γ:C) (A : Ty[Γ] : hSet), ∑ (ΓA : C), ΓA --> Γ).
+    - intros Ty Ty' ext_π ext'_π' F_TY.
+      exact (∏ (Γ:C) (A : Ty[Γ] : hSet),
+             ∑ φ : pr1 (ext_π Γ A) --> pr1 (ext'_π' Γ (F_TY[[A]])),
+                 φ ;; pr2 (ext'_π' _ _) = pr2 (ext_π _ _)).
+  Defined.
+
+  (* accessor functions: [comp_ext_disp], [obj_ext_disp_π], [obj_ext_disp_φ] *)
+
+  Definition comp_ext_disp {Ty} (X : obj_ext_ob_mor Ty) Γ A : C
+  := pr1 (X Γ A).
+
+  Definition obj_ext_disp_π {Ty} (X : obj_ext_ob_mor Ty) {Γ} A
+    : comp_ext_disp X Γ A --> Γ
+  := pr2 (X Γ A).
+
+  Local Notation π := obj_ext_disp_π.
+
+  Definition obj_ext_mor_disp_φ
+      {Ty Ty' : preShv C } {F : Ty --> Ty'}
+      {X : obj_ext_ob_mor Ty} {X'} (FF : X -->[F] X')
+      {Γ:C} (A : Ty[Γ])
+    : comp_ext_disp X Γ A --> comp_ext_disp X' Γ F[[A]]
+  := pr1 (FF _ _).
+
+  Local Notation φ := obj_ext_mor_disp_φ.
+
+  Definition obj_ext_mor_disp_ax
+      {Ty Ty' : preShv C } (F : Ty --> Ty')
+      {X : obj_ext_ob_mor Ty} {X'} (FF : X -->[F] X')
+      {Γ:C} (A : Ty [ Γ ])
+    : φ FF A ;; π X' _ = π X A
+  := pr2 (FF _ _).
+
+  Definition obj_ext_id_comp : disp_cat_id_comp _ obj_ext_ob_mor.
+  Proof.
+    use tpair.
+    - intros Ty X Γ A. exists (identity _). apply id_left.
+    - intros Ty Ty' Ty'' F G X X' X'' FF GG.
+      intros Γ A.
+      exists ( φ FF A ;; φ GG _ ); cbn.
+      etrans. apply @pathsinv0, assoc. 
+      etrans. apply maponpaths, obj_ext_mor_disp_ax.
+      apply obj_ext_mor_disp_ax.
+  Defined.
+
+  Definition obj_ext_data : disp_cat_data (preShv C).
+  Proof.
+    use tpair.
+    - exact obj_ext_ob_mor.
+    - exact obj_ext_id_comp.
+  Defined.
+
+End Obj_Ext_Structures_Disp_Cat_Data.
+
+(* repeating section notations for file *)
+Local Notation φ := obj_ext_mor_disp_φ.
+
+(** Before proving the displayed category axioms, we need some utility lemmas for reasoning with morphisms.
+
+These fall into two main groups:
+
+- [comp_ext_compare] and lemmas. One frequently needs to deal with isomorphisms between context extensions [Γ ◂ A ≃ Γ ◂ A'] induced by type equalities [e : A = A']; so we collect lemmas for them, and notate as [comp_ext_compare e], or concisely just [Δ e]. 
+
+- equality/transport lemmas for displayed morphisms of object-extension structures, over equalities of natrual transformations. 
+*)
+
+Section Obj_Ext_Structures_Disp_Utility_Lemmas.
+
+  Context {C : category}.
+
+  Definition comp_ext_compare_iso
+      {Ty} {X : obj_ext_ob_mor Ty}
+      {Γ : C} {A A' : Ty [Γ]} (e : A = A')
+    : iso (comp_ext_disp X Γ A) (comp_ext_disp X Γ A')
+  := idtoiso (maponpaths _ e).
+
+  Definition comp_ext_compare
+      {Ty} {X : obj_ext_ob_mor Ty}
+      {Γ : C} {A A' : Ty [Γ]} (e : A = A')
+    : comp_ext_disp X Γ A --> comp_ext_disp X Γ A'
+  := comp_ext_compare_iso e.
+
+  Local Notation Δ := comp_ext_compare.
+
+  Lemma comp_ext_compare_id 
+     {Ty : PreShv C} {X : obj_ext_ob_mor Ty}
+     {Γ : C} {A : Ty[Γ]}
+    : Δ (idpath A) = identity (comp_ext_disp X Γ A).
+  Proof.
+    apply idpath.
+  Qed.
+
+  Lemma comp_ext_compare_id_general
+     {Ty : PreShv C} {X : obj_ext_ob_mor Ty}
+     {Γ : C} {A : Ty[Γ]} (e : A = A)
+    : Δ e = identity (comp_ext_disp X Γ A).
+  Proof.
+      assert (e = idpath _) as H. { apply setproperty. }
+      refine (maponpaths Δ H).
+  Qed.
+  
+  Lemma comp_ext_compare_comp
+     {Ty : PreShv C} {X : obj_ext_ob_mor Ty}
+     {Γ : C} {A A' A'' : Ty [Γ]} (e : A = A') (e' : A' = A'')
+    : @comp_ext_compare _ X _ _ _ (e @ e') = Δ e ;; Δ e'.
+  Proof.
+    apply pathsinv0.
+    etrans. { apply idtoiso_concat_pr. }
+    apply (maponpaths pr1), (maponpaths idtoiso), pathsinv0, maponpathscomp0.
+  Qed.
+  
+  Lemma comp_ext_compare_comp_general
+     {Ty : PreShv C} {X : obj_ext_ob_mor Ty}
+     {Γ : C} {A A' A'' : Ty [Γ]} (e : A = A') (e' : A' = A'') (e'' : A = A'')
+    : @comp_ext_compare _ X _ _ _ e'' = Δ e ;; Δ e'.
+  Proof.
+    refine (_ @ comp_ext_compare_comp _ _).
+    apply maponpaths, setproperty.
+  Qed.
+  
+  Lemma comp_ext_compare_inv
+      {Ty : PreShv C} {X : obj_ext_ob_mor Ty}
+      {Γ : C} {A A' : Ty [Γ]} (e : A = A')
+    : Δ (!e) = inv_from_iso (@comp_ext_compare_iso _ X _ _ _ e).
+  Proof.
+    destruct e; apply idpath.
+  Defined.
+  
+  Lemma comp_ext_compare_π
+      {Ty : PreShv C} {X : obj_ext_ob_mor Ty}
+      {Γ : C} {A A' : Ty [Γ]} (e : A = A')
+    : Δ e ;; obj_ext_disp_π X A' = obj_ext_disp_π X A.
+  Proof.
+    destruct e; apply id_left.
+  Qed.
+  
+  Lemma obj_ext_mor_disp_eq
+      {Ty Ty' : preShv C } (F : Ty --> Ty')
+      {X : obj_ext_ob_mor Ty} {X'} (FF GG : X -->[F] X')
+      (e : ∏  Γ (A : Ty[Γ]), φ FF A = φ GG A)
+    : FF = GG.
+  Proof.
+    apply funextsec; intros Γ; apply funextsec; intros A.
+    use total2_paths_f. 2: { apply homset_property. }
+    apply e.
+  Defined.
+
+  Lemma obj_ext_mor_disp_transportf
+      {Ty Ty' : preShv C } (F F' : Ty --> Ty') (e_F : F = F')
+      {X : obj_ext_ob_mor Ty} {X'} (FF: X -->[F] X')
+      {Γ} {A : Ty[Γ]}
+      (e_FA := maponpaths (fun (G:Ty-->Ty') => G[[A]]) e_F)
+    : φ (transportf _ e_F FF) A = φ FF A ;; Δ e_FA.
+  Proof.
+    etrans.
+    { unfold φ. apply maponpaths.
+      refine (toforallpaths _ _ _ _ _).
+      etrans.
+      { refine (toforallpaths _ _ _ _ _); refine (transportf_forall _ _ _). }
+      simpl. refine (transportf_forall _ _ _).
+    } 
+    etrans. { use (pr1_transportf (nat_trans _ _)). }
+    etrans. { use (@functtransportf (nat_trans _ _)). }
+    etrans. { apply @pathsinv0, idtoiso_postcompose. }
+    apply maponpaths, (maponpaths pr1), (maponpaths idtoiso), pathsinv0.
+    apply (maponpathscomp (fun G => _) (fun A' => comp_ext_disp X' Γ A')).
+  Qed.
+
+  Lemma obj_ext_mor_disp_transportf_gen
+      {Ty Ty' : preShv C } {F F' : Ty --> Ty'} (e_F : F = F')
+      {X : obj_ext_ob_mor Ty} {X'} (FF: X -->[F] X')
+      {Γ} {A : Ty[Γ]} (e_FA : _)
+    : φ (transportf _ e_F FF) A = φ FF A ;; Δ e_FA.
+  Proof.
+    etrans. { apply obj_ext_mor_disp_transportf. }
+    apply maponpaths, maponpaths, setproperty.
+  Qed.
+
+  Lemma obj_ext_mor_disp_transportb
+      {Ty Ty' : preShv C } (F F' : Ty --> Ty') (e_F : F' = F)
+      {X : obj_ext_ob_mor Ty} {X'} (FF: X -->[F] X')
+      {Γ} {A : Ty[Γ]}
+      (e_FA := ! maponpaths (fun (G:Ty-->Ty') => G[[A]]) e_F)
+    : φ (transportb _ e_F FF) A = φ FF A ;; Δ e_FA.
+  Proof.
+    unfold transportb.
+    etrans. { apply obj_ext_mor_disp_transportf. }
+    apply maponpaths, maponpaths.
+    exact (maponpathsinv0 _ e_F).
+  Defined.
+
+  Lemma obj_ext_mor_disp_transportb_gen
+      {Ty Ty' : preShv C } {F F' : Ty --> Ty'} (e_F : F' = F)
+      {X : obj_ext_ob_mor Ty} {X'} (FF: X -->[F] X')
+      {Γ} {A : Ty[Γ]} (e_FA : _)
+    : φ (transportb _ e_F FF) A = φ FF A ;; Δ (! e_FA).
+  Proof.
+    etrans. { apply obj_ext_mor_disp_transportb. }
+    apply maponpaths, maponpaths, setproperty.
+  Qed.
+
+  Lemma obj_ext_mor_disp_transportf_eq
+      {Ty Ty' : preShv C } {F G : Ty --> Ty'} (e_F : F = G)
+      {X : obj_ext_ob_mor Ty} {X'} {FF : X -->[F] X'} {GG : X -->[G] X'}
+      (e : ∏ Γ (A : Ty[Γ]),
+         φ FF A ;; Δ (maponpaths (λ (F:Ty-->Ty'), F[[A]]) e_F) = φ GG A)
+    : transportf _ e_F FF = GG.
+  Proof.
+    apply obj_ext_mor_disp_eq.
+    intros Γ A.
+    etrans. { apply obj_ext_mor_disp_transportf. }
+    apply e.
+  Qed.
+
+  Lemma obj_ext_mor_disp_transportf_eq_gen
+      {Ty Ty' : preShv C } {F G : Ty --> Ty'} (e_F : F = G)
+      {X : obj_ext_ob_mor Ty} {X'} {FF : X -->[F] X'} {GG : X -->[G] X'}
+      (e_FA : ∏ Γ (A : Ty[Γ]), F[[A]] = G[[A]])
+      (e : ∏ Γ (A : Ty[Γ]),
+         φ FF A ;; Δ (e_FA Γ A) = φ GG A)
+    : transportf _ e_F FF = GG.
+  Proof.
+    apply obj_ext_mor_disp_eq.
+    intros Γ A.
+    etrans. { apply obj_ext_mor_disp_transportf. }
+    etrans. 2: { apply e. }
+    apply maponpaths, maponpaths, setproperty.
+  Qed.
+
+  Lemma obj_ext_mor_disp_transportb_eq
+      {Ty Ty' : preShv C } {F G : Ty --> Ty'} (e_F : F = G)
+      {X : obj_ext_ob_mor Ty} {X'} {FF : X -->[F] X'} {GG : X -->[G] X'}
+      (e : ∏ Γ (A : Ty[Γ]),
+         φ FF A ;; Δ (maponpaths (λ (F:Ty-->Ty'), F[[A]]) e_F) = φ GG A)
+    : FF = transportb _ e_F GG.
+  Proof.
+    apply transportb_transpose_right, obj_ext_mor_disp_transportf_eq, e.
+  Qed.
+
+  Lemma obj_ext_mor_disp_transportb_eq_gen
+      {Ty Ty' : preShv C } {F G : Ty --> Ty'} (e_F : F = G)
+      {X : obj_ext_ob_mor Ty} {X'} {FF : X -->[F] X'} {GG : X -->[G] X'}
+      (e_FA : ∏ Γ (A : Ty[Γ]), F[[A]] = G[[A]])
+      (e : ∏ Γ (A : Ty[Γ]),
+         φ FF A ;; Δ (e_FA Γ A) = φ GG A)
+    : FF = transportb _ e_F GG.
+  Proof.
+    eapply transportb_transpose_right,
+      obj_ext_mor_disp_transportf_eq_gen, e.
+  Qed.
+
+End Obj_Ext_Structures_Disp_Utility_Lemmas.
+
+Arguments comp_ext_compare {_ _ _ _ _ _} _.
+Local Notation Δ := comp_ext_compare.
+
 Section Obj_Ext_Structures.
 
-Context {C : precategory}.
+  Context {C : category}.
 
-Definition obj_ext_structure : UU
-  := ∑ Ty : preShv C,
-        ∏ (Γ : C) (A : (Ty : functor _ _ ) Γ : hSet ), ∑ (ΓA : C), ΓA --> Γ.
+  Definition obj_ext_axioms : disp_cat_axioms _ (@obj_ext_data C).
+  Proof.
+    repeat use tpair.
+    - intros Ty Ty' F X X' FF. 
+      use obj_ext_mor_disp_transportb_eq_gen. { intros; apply idpath. }
+      intros Γ A; cbn.
+      etrans. { apply id_right. }
+      apply id_left.
+    - intros Ty Ty' F X X' FF.
+      use obj_ext_mor_disp_transportb_eq_gen. { intros; apply idpath. }
+      intros Γ A; cbn.
+      etrans. { apply id_right. }
+      apply id_right.
+    - intros Ty0 Ty1 Ty2 Ty3 F G H
+             X0 X1 X2 X3 FF GG HH.
+      use obj_ext_mor_disp_transportb_eq_gen. { intros; apply idpath. }
+      intros Γ A; cbn.
+      etrans. { apply id_right. }
+      apply assoc.
+    - intros ? ? ? ? ?.
+      apply impred_isaset; intros ?; apply impred_isaset; intros ?.
+      apply isaset_total2. { apply homset_property. }
+      intros ?; apply isasetaprop, homset_property.
+  Qed.
 
-Definition TY (X : obj_ext_structure) : preShv _ := pr1 X.
-Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
+  Definition obj_ext_disp : disp_cat (preShv C).
+  Proof.
+    use tpair.
+    - exact obj_ext_data.
+    - exact obj_ext_axioms.
+  Defined.
 
-Definition comp_ext (X : obj_ext_structure) Γ A : C := pr1 (pr2 X Γ A).
-Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
+  Definition obj_ext_structure : UU
+  := ob (total_category_ob_mor (@obj_ext_data C)).
 
-Definition π {X : obj_ext_structure} {Γ} A : Γ ◂ A --> Γ := pr2 (pr2 X _ A).
+  Local Definition obj_ext_structure_explicit_correct
+    : obj_ext_structure = obj_ext_structure_explicit C.
+  Proof.
+    reflexivity.
+  Qed.
 
-(** ** Lemmas: extensions by equal types *)
-
-(* One frequently needs to deal with isomorphisms between context extensions [Γ ◂ A ≃ Γ ◂ A'] induced by type equalities [e : A = A']; so we collect lemmas for them, and notate them concisely as [Δ e]. *)
-
-Section Comp_Ext_Compare.
-
-Definition comp_ext_compare {X : obj_ext_structure}
-    {Γ : C} {A A' : Ty X Γ} (e : A = A')
-  : Γ ◂ A --> Γ ◂ A'
-:= idtoiso (maponpaths (comp_ext X Γ) e).
-
-Lemma comp_ext_compare_id {X : obj_ext_structure}
-    {Γ : C} (A : Ty X Γ)
-  : comp_ext_compare (idpath A) = identity (Γ ◂ A).
-Proof.
-  apply idpath.
-Qed.
-
-Lemma comp_ext_compare_id_general {X : obj_ext_structure}
-    {Γ : C} {A : Ty X Γ} (e : A = A)
-  : comp_ext_compare e = identity (Γ ◂ A).
-Proof.
-  apply @pathscomp0 with (comp_ext_compare (idpath _)).
-  apply maponpaths, setproperty.
-  apply idpath.
-Qed.
-
-Lemma comp_ext_compare_comp {X : obj_ext_structure}
-    {Γ : C} {A A' A'' : Ty X Γ} (e : A = A') (e' : A' = A'')
-  : comp_ext_compare (e @ e') = comp_ext_compare e ;; comp_ext_compare e'.
-Proof.
-  apply pathsinv0.
-  etrans. apply idtoiso_concat_pr. 
-  unfold comp_ext_compare. apply maponpaths, maponpaths.
-  apply pathsinv0, maponpathscomp0. 
-Qed.
-
-(* TODO: any reason why comp_ext_compare is the morphism not just the iso?? *)
-Lemma comp_ext_compare_inv {X : obj_ext_structure}
-    {Γ : C} {A A' : Ty X Γ : hSet} (e : A = A')
-  : comp_ext_compare (!e) = inv_from_iso (idtoiso (maponpaths (comp_ext X Γ) e)).
-Proof.
-  destruct e; apply idpath.
-Defined.
-
-Lemma comp_ext_compare_π {X : obj_ext_structure}
-    {Γ : C} {A A' : Ty X Γ} (e : A = A')
-  : comp_ext_compare e ;; π A' = π A.
-Proof.
-  destruct e; cbn. apply id_left.
-Qed.
-
-Lemma comp_ext_compare_comp_general {X : obj_ext_structure}
-    {Γ : C} {A A' A'' : Ty X Γ} (e : A = A') (e' : A' = A'') (e'' : A = A'')
-  : comp_ext_compare e'' = comp_ext_compare e ;; comp_ext_compare e'.
-Proof.
-  refine (_ @ comp_ext_compare_comp _ _).
-  apply maponpaths, setproperty.
-Qed.
-
-End Comp_Ext_Compare.
+  Definition TY (X : obj_ext_structure) : preShv _ := pr1 X.
+  Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
+  
+  Definition comp_ext (X : obj_ext_structure) Γ A : C := comp_ext_disp (pr2 X) Γ A.
+  Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
+  
+  Definition π {X : obj_ext_structure} {Γ} A
+    : Γ ◂ A --> Γ
+  := obj_ext_disp_π (pr2 X) A.
 
 End Obj_Ext_Structures.
 
@@ -169,7 +417,7 @@ Definition Q Y {Γ:C} (A:Ty X Γ) : Yo (Γ ◂ A) --> TM Y
   := yy (te Y A).
 
 Lemma comp_ext_compare_Q Y Γ (A A' : Ty X Γ) (e : A = A') : 
-  #Yo (comp_ext_compare e) ;; Q Y A' = Q Y A . 
+  #Yo (Δ e) ;; Q Y A' = Q Y A . 
 Proof.
   induction e. 
   etrans. apply maponpaths_2, functor_id.
@@ -184,7 +432,7 @@ Lemma term_fun_str_square_comm {Y : term_fun_structure_data}
   : #Yo (π A) ;; yy A = Q Y A ;; pp Y.
 Proof.
   apply pathsinv0.
-  etrans. Focus 2. apply yy_natural.
+  etrans. 2: { apply yy_natural. }
   etrans. apply yy_comp_nat_trans.
   apply maponpaths, e.
 Qed.
@@ -268,7 +516,7 @@ Qed.
 
 Lemma Q_comp_ext_compare {Y : term_fun_structure}
     {Γ Γ':C} {A A' : Ty X Γ} (e : A = A') (t : Γ' --> Γ ◂ A)
-  : (Q Y A' : nat_trans _ _) _ (t ;; comp_ext_compare e)
+  : (Q Y A' : nat_trans _ _) _ (t ;; Δ e)
   = (Q Y A : nat_trans _ _) _ t.
 Proof.
   destruct e. apply maponpaths, id_right.
@@ -330,7 +578,7 @@ Qed.
 
 Lemma comp_ext_compare_qq (Z : qq_morphism_data)
   {Γ Γ'} {f f' : C ⟦Γ', Γ⟧} (e : f = f') (A : Ty X Γ) 
-  : comp_ext_compare (maponpaths (λ k : C⟦Γ', Γ⟧, A [k]) e) ;; qq Z f' A
+  : Δ (maponpaths (λ k : C⟦Γ', Γ⟧, A [k]) e) ;; qq Z f' A
   = qq Z f A.
 Proof.
   induction e.
@@ -340,7 +588,7 @@ Qed.
 Lemma comp_ext_compare_qq_general (Z : qq_morphism_data)
   {Γ Γ' : C} {f f' : Γ' --> Γ} (e : f = f')
   {A : Ty X Γ} (eA : A[f] = A[f']) 
-  : comp_ext_compare eA ;; qq Z f' A
+  : Δ eA ;; qq Z f' A
   = qq Z f A.
 Proof.
   use (_ @ comp_ext_compare_qq _ e A).
@@ -351,11 +599,11 @@ Definition qq_morphism_axioms (Z : qq_morphism_data) : UU
   := 
     (∏ Γ A,
     qq Z (identity Γ) A
-    = comp_ext_compare (toforallpaths _ _ _ (functor_id (TY X) _ ) _ ))
+    = Δ (toforallpaths _ _ _ (functor_id (TY X) _ ) _ ))
   ×
     (∏ Γ Γ' Γ'' (f : C⟦Γ', Γ⟧) (g : C ⟦Γ'', Γ'⟧) (A : (TY X:functor _ _ ) Γ : hSet),
     qq Z (g ;; f) A
-    = comp_ext_compare
+    = Δ
            (toforallpaths _ _ _ (functor_comp (TY X) _ _) A)
       ;; qq Z g (A [f]) 
       ;; qq Z f A).
@@ -372,14 +620,14 @@ Coercion qq_morphism_data_from_structure :
 Definition qq_id (Z : qq_morphism_structure)
     {Γ} (A : Ty X Γ)
   : qq Z (identity Γ) A
-  = comp_ext_compare (toforallpaths _ _ _ (functor_id (TY X) _ ) _ )
+  = Δ (toforallpaths _ _ _ (functor_id (TY X) _ ) _ )
 := pr1 (pr2 Z) _ _.
 
 Definition qq_comp (Z : qq_morphism_structure)
     {Γ Γ' Γ'' : C}
     (f : C ⟦ Γ', Γ ⟧) (g : C ⟦ Γ'', Γ' ⟧) (A : Ty X Γ)
   : qq Z (g ;; f) A
-  = comp_ext_compare (toforallpaths _ _ _ (functor_comp (TY X) _ _) A)
+  = Δ (toforallpaths _ _ _ (functor_comp (TY X) _ _) A)
     ;; qq Z g (A [f]) ;; qq Z f A
 := pr2 (pr2 Z) _ _ _ _ _ _.
 
@@ -400,7 +648,7 @@ Lemma qq_comp_general (Z : qq_morphism_structure)
   (p : A [g ;; f]
        = # (TY X : functor _ _) g (# (TY X : functor _ _) f A)) 
 : qq Z (g ;; f) A
-  = comp_ext_compare p ;; qq Z g (A [f]) ;; qq Z f A.
+  = Δ p ;; qq Z g (A [f]) ;; qq Z f A.
 Proof.
   eapply pathscomp0. apply qq_comp.
   repeat apply (maponpaths (fun h => h ;; _)).

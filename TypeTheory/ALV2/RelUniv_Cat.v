@@ -35,8 +35,6 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.RelativeUniverses.
 Require Import TypeTheory.ALV2.RelUniv_Cat_Simple.
 
-Local Set Automatic Introduction.
-(* only needed since imports globally unset it *)
 
 Section RelUniv.
 

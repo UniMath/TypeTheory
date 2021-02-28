@@ -6,11 +6,11 @@
 
 (**
 
-This file defines the categories of term-structures and _q_-morphism structures over a fixed object-extension structure, and proves that they are equivalent.
+This file defines the categories of term-structures and _q_-morphism structures over a fixed object-extension structure, and proves that they are univalent and equivalent.
 
 For the more interesting case where the object-extension structure is also allowed to vary, see [CwF_Split_TypeCat_Cats], where this more general category is constructed, using the formalism of displayed categories.
 
-In general, this file should be deprectated, and the displayed version should be used for all further development.  This standalone version is included just to give the equivalence in a form independent of the development of displayed categories.
+In general, this file should be deprecated, and the displayed version should be used for all further development.  This standalone version is included just to give the equivalence in a form independent of the development of displayed categories.
 
 
 Main definitions:
@@ -30,9 +30,6 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.
-
-Local Set Automatic Introduction.
-(* only needed since imports globally unset it *)
 
 
 (** Some local notations, *)
@@ -117,7 +114,7 @@ Proof.
   apply (pullback_HSET_elements_unique Pb); clear Pb.
   - unfold yoneda_morphisms_data; cbn.
     etrans. use (pr2 (term_to_section t')). apply pathsinv0.
-    etrans. Focus 2. refine (pr2 (term_to_section t)).
+    etrans. 2: { refine (pr2 (term_to_section t)). }
     etrans. apply @pathsinv0, assoc.
     apply maponpaths.
     apply comp_ext_compare_π.

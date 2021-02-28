@@ -8,19 +8,19 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
-
-Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
+Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences_bis.
+
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
 Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Cats.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence. (* TODO: needed for some natural transformations. *)
 
-Local Set Automatic Introduction.
-(* only needed since imports globally unset it *)
 
 (* TODO: globalise upstream? *)
 Notation "# F" := (disp_functor_on_morphisms F)
@@ -99,18 +99,17 @@ Definition compat_structures_pr2_disp_functor
 := disp_functor_id_composite
      (sigmapr1_disp_functor _) (dirprodpr2_disp_functor _ _).
 
-(* TODO: once the equivalence has been redone at the displayed level, the following are probably redundant/obsolete and should be removed. *)
 Definition compat_structures_precat
   := total_category (strucs_compat_disp_cat).
 
 Definition compat_structures_pr1_functor
-  : functor compat_structures_precat (term_fun_structure_precat C)
+  : functor compat_structures_precat (cwf'_structure_precat C)
 := functor_composite
      (pr1_category _)
      (total_functor (dirprodpr1_disp_functor _ _)).
 
 Definition compat_structures_pr2_functor
-  : functor compat_structures_precat (qq_structure_precat C)
+  : functor compat_structures_precat (sty'_structure_precat C)
 := functor_composite
      (pr1_category _)
      (total_functor (dirprodpr2_disp_functor _ _)).
@@ -119,13 +118,13 @@ End Compatible_Disp_Cat.
 
 (** * Lemmas towards an equivalence *)
 
-(** In the following two sections, we prove lemmas which should amount to the fact that the two projections from [compat_structures_disp_cat C] to [term_fun_disp_cat C] and [qq_structure_precat C] are each equivalences (of displayed categories).
+(** In the following two sections, we prove lemmas which should amount to the fact that the two projections from [compat_structures_disp_cat C] to [cwf'_precat C] and [sty'_structure_precat C] are each equivalences (of displayed categories).
 
 We don’t yet have the infrastructure on displayed categories to put it together as that fact; for now we put it together just as equivalences of _total_ precategories. *)
  
 Section Unique_QQ_From_Term.
 
-Lemma qq_from_term_ob {X : obj_ext_precat} (Y : term_fun_disp_cat C X)
+Lemma qq_from_term_ob {X : obj_ext_cat C} (Y : term_fun_disp_cat C X)
   : ∑ (Z : qq_structure_disp_cat C X), strucs_compat_disp_cat (X ,, (Y ,, Z)).
 Proof.
   exists (qq_from_term Y).
@@ -143,7 +142,7 @@ Proof.
   exact (toforallpaths _ _ _ (functor_id (TM _) _) _). 
 Qed.
 
-Lemma qq_from_term_mor {X X' : obj_ext_precat} {F : X --> X'}
+Lemma qq_from_term_mor {X X' : obj_ext_cat C} {F : X --> X'}
   {Y : term_fun_disp_cat C X} {Y'} (FY : Y -->[F] Y')
   {Z : qq_structure_disp_cat C X} {Z'}
   (W : strucs_compat_disp_cat (X,,(Y,,Z)))
@@ -180,7 +179,7 @@ Proof.
     apply comp_ext_compare_te.
 Time Qed.
 
-Lemma qq_from_term_mor_unique {X X' : obj_ext_precat} {F : X --> X'}
+Lemma qq_from_term_mor_unique {X X' : obj_ext_cat C} {F : X --> X'}
   {Y : term_fun_disp_cat C X} {Y'} (FY : Y -->[F] Y')
   {Z : qq_structure_disp_cat C X} {Z'}
   (W : strucs_compat_disp_cat (X,,(Y,,Z)))
@@ -196,7 +195,7 @@ End Unique_QQ_From_Term.
 
 Section Unique_Term_From_QQ.
 
-Lemma term_from_qq_ob {X : obj_ext_precat} (Z : qq_structure_disp_cat C X)
+Lemma term_from_qq_ob {X : obj_ext_cat C} (Z : qq_structure_disp_cat C X)
   : ∑ (Y : term_fun_disp_cat C X), strucs_compat_disp_cat (X ,, (Y ,, Z)).
 Proof.
   exists (term_from_qq Z).
@@ -204,7 +203,7 @@ Proof.
 Defined.
 
 (** The next main goal is the following statement.  However, the construction of the morphism of term structures is rather large; so we factor the first component (the map of term presheaves) into several steps, going explicitly via the canonical term-structure constructed from sections [term_fun_from_qq], before returning to this in [term_from_qq_mor] below. *)
-Lemma term_from_qq_mor {X X' : obj_ext_precat} {F : X --> X'}
+Lemma term_from_qq_mor {X X' : obj_ext_cat C} {F : X --> X'}
   {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
   {Y : term_fun_disp_cat C X} {Y'}
   (W : strucs_compat_disp_cat (X,,(Y,,Z)))
@@ -220,7 +219,7 @@ Section Rename_me.
 
 (* TODO: naming conventions in this section clash rather with those of [ALV1.CwF_SplitTypeCat_Equivalence]. Consider! *)
 (* TODO: one would expect the type of this to be [nat_trans_data].  However, that name breaks HORRIBLY with general naming conventions: it is not the _type_ of the data (which is un-named for [nat_trans]), but is the _access function_ for that data!  Submit issue for this? *)  
-Lemma tm_from_qq_mor_data {X X' : obj_ext_precat} {F : X --> X'}
+Lemma tm_from_qq_mor_data {X X' : obj_ext_cat C} {F : X --> X'}
     {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
   : forall Γ : C, (tm_from_qq Z Γ) --> (tm_from_qq Z' Γ).
 Proof.
@@ -232,7 +231,7 @@ Proof.
   apply (pr2 (pr2 Ase)).
 Defined.
 
-Lemma tm_from_qq_mor_naturality {X X' : obj_ext_precat} {F : X --> X'}
+Lemma tm_from_qq_mor_naturality {X X' : obj_ext_cat C} {F : X --> X'}
     {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
   : is_nat_trans (tm_from_qq Z) (tm_from_qq Z') (tm_from_qq_mor_data FZ).
 Proof.
@@ -258,7 +257,7 @@ Proof.
       apply pathsinv0, assoc.
 Time Qed.
 
-Lemma tm_from_qq_mor_TM {X X' : obj_ext_precat} {F : X --> X'}
+Lemma tm_from_qq_mor_TM {X X' : obj_ext_cat C} {F : X --> X'}
     {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
   : nat_trans (tm_from_qq Z) (tm_from_qq Z').
 Proof.
@@ -266,7 +265,7 @@ Proof.
   apply tm_from_qq_mor_naturality.
 Defined.
 
-Lemma tm_from_qq_mor_pp {X X' : obj_ext_precat} {F : X --> X'}
+Lemma tm_from_qq_mor_pp {X X' : obj_ext_cat C} {F : X --> X'}
     {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
   : (tm_from_qq_mor_TM FZ : preShv C ⟦ _ , _ ⟧) ;; pp_from_qq Z'
   = pp_from_qq Z;; obj_ext_mor_TY F.
@@ -275,7 +274,7 @@ Proof.
   intros Γ. apply idpath.
 Qed.
 
-Lemma tm_from_qq_mor_te {X X' : obj_ext_precat} {F : X --> X'}
+Lemma tm_from_qq_mor_te {X X' : obj_ext_cat C} {F : X --> X'}
     {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
     {Γ} (A : Ty X Γ)
   : tm_from_qq_mor_TM FZ _ (te_from_qq Z A)
@@ -286,25 +285,25 @@ Proof.
   use tm_from_qq_eq_reindex.
   - cbn.
   (* Putting these equalities under [abstract] shaves a couple of seconds off the overall Qed time, but makes the proof script rather less readable. *) 
-    etrans. Focus 2. exact (toforallpaths _ _ _ (functor_comp (TY _) _ _) _).
-    etrans. Focus 2. cbn. apply maponpaths_2, @pathsinv0, obj_ext_mor_ax.
+    etrans. 2: { exact (toforallpaths _ _ _ (functor_comp (TY _) _ _) _). }
+    etrans. 2: { cbn. apply maponpaths_2, @pathsinv0, obj_ext_mor_ax. }
     exact (toforallpaths _ _ _ (nat_trans_ax (obj_ext_mor_TY F) _ _ _) _).
-  - etrans. Focus 2. apply @pathsinv0, 
-        (postCompWithPullbackArrow _ _ _ (make_Pullback _ _ _ _ _ _ _)).
+  - etrans. 2: { apply @pathsinv0, 
+        (postCompWithPullbackArrow _ _ _ (make_Pullback _ _ _ _ _ _ _)). }
     apply PullbackArrowUnique.
     + cbn.
       etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, qq_π.
       etrans. apply assoc.
-      etrans. Focus 2. apply @pathsinv0, id_right.
-      etrans. Focus 2. apply id_left.
+      etrans. 2: { apply @pathsinv0, id_right. }
+      etrans. 2: { apply id_left. }
       apply maponpaths_2.
       etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, comp_ext_compare_π.
       etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, obj_ext_mor_ax.
       apply (PullbackArrow_PullbackPr1 (make_Pullback _ _ _ _ _ _ _)).
-    + etrans. Focus 2. apply @pathsinv0, id_right.
+    + etrans. 2: { apply @pathsinv0, id_right. }
       etrans. cbn. apply maponpaths_2, maponpaths_2, maponpaths.
         etrans. apply comp_ext_compare_comp.
         apply maponpaths_2, comp_ext_compare_comp.
@@ -329,7 +328,7 @@ Time Qed.
 
 End Rename_me.
 
-Definition term_from_qq_mor_TM {X X' : obj_ext_precat} {F : X --> X'}
+Definition term_from_qq_mor_TM {X X' : obj_ext_cat C} {F : X --> X'}
     {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
     {Y : term_fun_disp_cat C X} {Y'}
     (W : strucs_compat_disp_cat (X,,(Y,,Z)))
@@ -342,7 +341,7 @@ Proof.
 Defined.
 (* TODO: better, construct these three parts as maps of qq-morphism structures, and put them together directly as that. *)
 
-Lemma term_from_qq_mor {X X' : obj_ext_precat} {F : X --> X'}
+Lemma term_from_qq_mor {X X' : obj_ext_cat C} {F : X --> X'}
   {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
   {Y : term_fun_disp_cat C X} {Y'}
   (W : strucs_compat_disp_cat (X,,(Y,,Z)))
@@ -369,7 +368,7 @@ Proof.
     cbn. apply maponpaths. apply (canonical_TM_to_given_te _ _ (_,,_)).
 Defined.
 
-Lemma term_from_qq_mor_unique {X X' : obj_ext_precat} {F : X --> X'}
+Lemma term_from_qq_mor_unique {X X' : obj_ext_cat C} {F : X --> X'}
   {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
   {Y : term_fun_disp_cat C X} {Y'}
   (W : strucs_compat_disp_cat (X,,(Y,,Z)))
@@ -617,7 +616,7 @@ End Strucs_Disp_Equiv.
 
 Section Strucs_Fiber_Equiv.
 
-Context (X : obj_ext_Precat C).
+Context (X : obj_ext_cat C).
 
 Definition term_struc_to_qq_struc_fiber_functor
   : functor
@@ -645,6 +644,20 @@ Defined.
 End Strucs_Fiber_Equiv.
 
 
+Section Strucs_Total_Equiv.
 
+Definition cwf'_struc_to_sty'_struc_is_equiv
+  : adj_equiv
+      (cwf'_structure_precat C)
+      (sty'_structure_precat C).
+Proof.
+  eapply compose_adj_equiv.
+  - eapply inv_adj_equiv, total_equiv_over_id.
+    apply compat_structures_pr1_equiv_over_id.
+  - eapply total_equiv_over_id.
+    apply compat_structures_pr2_equiv_over_id.
+Defined.
+
+End Strucs_Total_Equiv.
 
 End Fix_Context.

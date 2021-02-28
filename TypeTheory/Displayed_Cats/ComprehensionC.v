@@ -23,7 +23,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
 Require Import TypeTheory.Displayed_Cats.DisplayedCatFromCwDM.
 Require Import TypeTheory.OtherDefs.DM.
 
-Local Set Automatic Introduction.
 
 Section Comp_Cat_of_DM_Structure.
 

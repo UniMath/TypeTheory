@@ -4,25 +4,26 @@
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
 
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
+Require Import UniMath.CategoryTheory.slicecat.
+
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Cats.
 Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Equiv_Cats.
-
-Local Set Automatic Introduction.
-(* only needed since imports globally unset it *)
 
 
 Section Auxiliary.
 
 Lemma transportf_term_fun_mor_TM {C : category}
-  {X X' : obj_ext_Precat C} {F F' : X --> X'} (e : F = F')
+  {X X' : obj_ext_cat C} {F F' : X --> X'} (e : F = F')
   {Y : term_fun_disp_cat C X} {Y'} (FY : Y -->[F] Y')
   : term_fun_mor_TM (transportf _ e FY) = term_fun_mor_TM FY.
 Proof.
@@ -42,249 +43,158 @@ Local Notation Δ := comp_ext_compare.
 Local Notation φ := obj_ext_mor_φ.
 
 
-Section Is_Univalent_Obj_Ext_1.
+Section Is_Univalent_Obj_Ext_Disp.
 
-Definition obj_ext_iso_alt (X X' : obj_ext_Precat C) : UU :=
-  ∑ F_TY : iso (TY X) (TY X'),
-        ∏ {Γ:C} {A' : Ty X' Γ},
-         ∑ φ : iso (Γ ◂ ((inv_from_iso F_TY) : nat_trans _ _ ) _ A') (Γ ◂  A'),
-           φ ;; π _ = π _ .
+  Context {C_univalent : is_univalent C}.
 
-(* TODO: anstract this as a general function on any [category] (if there isn’t one already provided). *) 
-Definition is_saturated_preShv (F G : preShv C) : F = G ≃ iso F G.
-Proof.
-  apply (make_weq idtoiso (pr1 (univalent_category_is_univalent _) _ _ )).
-Defined.
+  (* OUTLINE:
+  for ext_disp Cxt_dispct-extension structures X, X',
+  X = X'
+  <~> forall Γ A, (X Γ A = X' Γ A)    (by funext)
+  <~> forall Γ Α, (iso (slice ___))   (by [id_weq_iso_slicecat])
+  <~> iso (obj_ext) X X'              (by hand, in [slice_isos_to_obj_ext_iso])
+  *)
 
-Definition weq_eq_obj_ext_iso_alt (X X' : obj_ext_Precat C) :
-  (X = X') ≃ obj_ext_iso_alt X X'.
-Proof.
-  eapply weqcomp. apply total2_paths_equiv.
+  Lemma slice_maps_to_obj_ext_map {TY : PreShv C} {X X' : obj_ext_disp TY}
+    : (∏ Γ A, slice_precat C Γ (homset_property C) ⟦ X Γ A , X' Γ A ⟧)
+    -> X -->[identity_iso TY] X'.
+  Proof.
+    intros I Γ A.
+    exists (pr1 (I Γ A)).  
+    apply pathsinv0, (pr2 (I Γ A)).  
+  Defined.
+
+  Lemma is_iso_slice_isos_to_obj_ext_map {TY : PreShv C} {X X' : obj_ext_disp TY}
+    (I : ∏ Γ A, @iso (slice_precat C Γ (homset_property C)) (X Γ A) (X' Γ A))
+    : is_iso_disp (identity_iso _) (slice_maps_to_obj_ext_map (fun Γ A => I Γ A)).
+  Proof.
+    exists (slice_maps_to_obj_ext_map (fun Γ A => inv_from_iso (I Γ A))).
+    split.
+    - use obj_ext_mor_disp_transportb_eq_gen.
+      + cbn; intros; apply idpath.
+      + cbn; intros.
+        etrans. { apply id_right. } 
+        exact (maponpaths pr1 (iso_after_iso_inv (I Γ A))).
+    - use obj_ext_mor_disp_transportb_eq_gen.
+      + cbn; intros; apply idpath.
+      + cbn; intros.
+        etrans. { apply id_right. } 
+        exact (maponpaths pr1 (iso_inv_after_iso (I Γ A))).
+  Qed.
+
+  Lemma slice_isos_to_obj_ext_iso {TY : PreShv C} (X X' : obj_ext_disp TY)
+    : (∏ Γ A, @iso (slice_precat C Γ (homset_property C)) (X Γ A) (X' Γ A))
+    -> iso_disp (identity_iso TY) X X'.
+  Proof.
+    intros I.
+    exists (slice_maps_to_obj_ext_map I).
+    apply is_iso_slice_isos_to_obj_ext_map.
+  Defined.
+
+  Lemma obj_ext_map_to_slice_maps {TY : PreShv C} {X X' : obj_ext_disp TY}
+    : X -->[identity_iso TY] X'
+      -> (∏ Γ A, slice_precat C Γ (homset_property C) ⟦ X Γ A , X' Γ A ⟧).
+  Proof.
+    intros I Γ A.
+    exists (pr1 (I Γ A)).  
+    apply pathsinv0, (pr2 (I Γ A)).
+  Defined.
+
+  Lemma is_iso_obj_ext_iso_to_slice_maps {TY : PreShv C} {X X' : obj_ext_disp TY}
+    (I : iso_disp (identity_iso TY) X X')
+    : forall Γ A, is_iso (obj_ext_map_to_slice_maps I Γ A).
+  Proof.
+    intros Γ A. use is_iso_from_is_z_iso.
+    exists (obj_ext_map_to_slice_maps (inv_mor_disp_from_iso I) Γ A).
+    split; apply subtypePath; cbn.
+    1, 3: intro f; apply homset_property.
+    - set (I_V := inv_mor_after_iso_disp I).
+      apply (maponpaths (fun f => obj_ext_mor_disp_φ f A)) in I_V.
+      etrans. { apply I_V. }
+      etrans. { use obj_ext_mor_disp_transportb. }
+      etrans. { apply id_left. }
+      apply comp_ext_compare_id_general. 
+    - set (V_I := iso_disp_after_inv_mor I).
+      apply (maponpaths (fun f => obj_ext_mor_disp_φ f A)) in V_I.
+      etrans. { apply V_I. }
+      etrans. { use obj_ext_mor_disp_transportb. }
+      etrans. { apply id_left. }
+      apply comp_ext_compare_id_general. 
+  Qed.
+
+  Lemma isweq_slice_isos_obj_ext_iso {TY : PreShv C} (X X' : obj_ext_disp TY)
+    : isweq (slice_isos_to_obj_ext_iso X X').
+  Proof.
+    use gradth.
+    - intros I Γ A; use tpair.
+      apply (obj_ext_map_to_slice_maps I). 
+      apply is_iso_obj_ext_iso_to_slice_maps.
+    - intros I.
+      apply funextsec; intros Γ.
+      apply funextsec; intros A.
+      apply eq_iso.
+      apply subtypePath. { intros ?; apply homset_property. }
+      apply idpath.
+    - intros I.
+      apply eq_iso_disp.
+      apply obj_ext_mor_disp_eq.
+      intros ? ?. apply idpath.
+  Qed.
+
+  Lemma weq_slice_isos_obj_ext_iso {TY : PreShv C} (X X' : obj_ext_disp TY)
+    : (∏ Γ A, @iso (slice_precat C Γ (homset_property C)) (X Γ A) (X' Γ A))
+    ≃ iso_disp (identity_iso TY) X X'.
+  Proof.
+    exists (slice_isos_to_obj_ext_iso _ _).
+    apply isweq_slice_isos_obj_ext_iso.
+  Defined.
+
+  Lemma is_univalent_mor_weq {TY : PreShv C} (X X' : obj_ext_disp TY)
+    : X = X' ≃ iso_disp (identity_iso TY) X X'.
+  Proof.
+    apply (@weqcomp _ (forall Γ A, X Γ A = X' Γ A)).
+    { refine (weqcomp _ _). { apply weqtoforallpaths. } 
+      apply weqonsecfibers; intros Γ. 
+      apply weqtoforallpaths.
+    }
+    eapply weqcomp.
+    { apply weqonsecfibers; intros Γ.
+      apply weqonsecfibers; intros A.
+      use id_weq_iso_slicecat; auto.
+    }
+    apply weq_slice_isos_obj_ext_iso.
+  Defined.
   
-  set (H := is_saturated_preShv (TY X) (TY X')).
-  use (weqbandf H).
-  intro F. simpl.
-(*  rewrite transportf_forall. (* do better *) *)
-  eapply weqcomp. apply weqtoforallpaths.
-  apply weqonsecfibers.
-  intro Γ.
-  eapply weqcomp. apply weqtoforallpaths. simpl.
-  apply weqonsecfibers.
-  intro A'.
-  eapply weqcomp. apply total2_paths_equiv.
-  simpl.
-(*  rewrite transportf_forall. *)
-  use weqbandf. simpl.
-  - 
-    set (RX := @transportf_forall).
-    specialize (RX (preShv C) C).
-    specialize (RX (fun F Γ' => ((F:functor _ _ ) Γ' : hSet) → ∑ ΓA : C, ΓA --> Γ')).
-    simpl in RX.
-    specialize (RX _ _ F).
-    rewrite RX.
-    simpl.
-    clear RX.
-    rewrite transportf_forall_var.
+  Lemma is_univalent_obj_ext_fibers : is_univalent_in_fibers (@obj_ext_disp C).
+  Proof.
+    unfold is_univalent_in_fibers.
+    intros TY X X'.
+    apply weqhomot with (is_univalent_mor_weq _ _).
+    intros e; destruct e.
+    apply eq_iso_disp.
+    apply obj_ext_mor_disp_eq.
+    intros; apply idpath.
+  Qed.
 
-    simpl. cbn.
- 
-  admit.
-Abort.
+  Theorem is_univalent_obj_ext_disp : is_univalent_disp (@obj_ext_disp C).
+  Proof.
+    apply is_univalent_disp_from_fibers,
+          is_univalent_obj_ext_fibers.
+  Defined.
+  
+  Theorem is_univalent_obj_ext : is_univalent (obj_ext_cat C).
+  Proof.
+    apply is_univalent_total_category.
+    - apply is_univalent_functor_category.
+    - apply is_univalent_obj_ext_disp.
+  Defined.
 
-End Is_Univalent_Obj_Ext_1.
-
-(* TODO: above here and below here are two mostly separate approaches to [is_univalent_obj_ext].  Once one is complete, most of the other can probably be pruned *)
-
-Section Is_Univalent_Obj_Ext_2.
-
-(* TODO: move*)
-Definition obj_ext_to_preShv_functor_data
-  : functor_data (obj_ext_Precat C) (preShv C).
-Proof.
-  use tpair.
-  apply pr1.
-  simpl; intros X X'; apply pr1.
-Defined.
-
-(* TODO: move *)
-Definition obj_ext_to_preShv_functor_axioms
-  : is_functor obj_ext_to_preShv_functor_data.
-Proof.
-  split; intro; intros; apply idpath.
-Qed.
-
-(* TODO: move; rename to [obj_ext_TY_functor]? *)
-Definition obj_ext_to_preShv_functor
-  : functor (obj_ext_Precat C) (preShv C)
-:= (_ ,, obj_ext_to_preShv_functor_axioms).
-
-
-
-Definition transportf_obj_ext
-  {T T' : preShv C} (e : T = T')
-  (extn : ∏ Γ : C, ((T : functor _ _) Γ : hSet) → ∑ ΓA : C, ΓA --> Γ) 
-: transportf _ e extn
-  = fun Γ A => extn Γ ((inv_from_iso (idtoiso e) : nat_trans _ _) Γ A).
-Proof.
-  destruct e; cbn. apply idpath.
-Defined.
-
-Lemma obj_ext_mor_TY_eq {X X' : obj_ext_Precat C}
-  {F F' : X --> X'} (E : F = F')
-  {Γ} (A : Ty X Γ)
-: (obj_ext_mor_TY F : nat_trans _ _) _ A
-  = (obj_ext_mor_TY F' : nat_trans _ _) _ A.
-Proof.
-  destruct E; apply idpath.
-Qed.
-
-Lemma obj_ext_mor_φ_eq {X X' : obj_ext_Precat C}
-  {F F' : X --> X'} (E : F = F')
-  {Γ} (A : Ty X Γ)
-: φ F A ;; Δ (obj_ext_mor_TY_eq E A)
-  = φ F' A.
-Proof.
-  destruct E.
-  etrans. apply maponpaths, comp_ext_compare_id_general.
-  apply id_right.
-Qed.
-
-Definition iso_to_obj_ext_eq (H : is_univalent C)
-  {X X' : obj_ext_Precat C}
-: (iso X X') -> (X = X').
-Proof.
-  intros F.
-  apply (total2_paths_f (isotoid _
-    (univalent_category_is_univalent _)
-    (functor_on_iso obj_ext_to_preShv_functor F))).
-  etrans. apply transportf_obj_ext.
-  apply funextsec; intro Γ; apply funextsec; intro A.
-  rewrite idtoiso_isotoid.
-  etrans.
-  { apply maponpaths.
-    refine (toforallpaths _ _ _ _ A).
-    refine (toforallpaths _ _ _ _ Γ).
-    eapply pathsinv0, maponpaths.
-    use (maponpaths pr1 (functor_on_iso_inv _ _ obj_ext_to_preShv_functor _ _ _)).
-  }
-  set (F' := inv_from_iso F).
-  set (FF' := iso_after_iso_inv F).
-  set (F'F := iso_inv_after_iso F).
-  simpl.
-  (* Now we break out a proof-irrelevant subproof needed later.  By breaking it out _before_ [use total2_paths_f], we ensure that this large subterm only occurs once in the proof term; this saves c.30s at the [Defined.] 
-
-  For reading: skip this subproof block for now, then imagine it inlined at [exact H'] below. *)
-  assert (H' : is_inverse_in_precat
-     (φ _ ((obj_ext_mor_TY (inv_from_iso F) : nat_trans _ _) Γ A)
-       ;; Δ (obj_ext_mor_TY_eq FF' A))
-     (φ (inv_from_iso F) A)).
-  { split.
-    * etrans. eapply pathsinv0, assoc.
-      etrans. apply maponpaths, Δ_φ.
-      etrans. apply assoc.
-      etrans. Focus 2. apply (obj_ext_mor_φ_eq F'F).
-      cbn. apply maponpaths.
-      apply maponpaths, setproperty.
-    * etrans. apply assoc.
-      apply (obj_ext_mor_φ_eq FF').
-  }
-  use total2_paths_f.
-  use isotoid. assumption.
-  exists (φ (F : _ --> _) _ ;; Δ (obj_ext_mor_TY_eq FF' _)).
-  + simpl. apply is_iso_from_is_z_iso.
-    exists (φ _ _). exact H'.
-  + etrans. apply transportf_isotoid.
-    etrans. apply maponpaths_2. 
-      apply inv_from_iso_from_is_z_iso.
-    use obj_ext_mor_ax.
-Defined.
-
-(* TODO: inline *)
-Lemma foo {X X' : obj_ext_Precat C} (e : X = X')
-  {Γ} (A : Ty X Γ)
-: comp_ext X Γ A
-  --> comp_ext X' Γ ((obj_ext_mor_TY (idtoiso e : X --> X') : nat_trans _ _) _ A).
-Proof.
-  Unset Printing Notations.
-  revert Γ A.
-  set (e' := (fiber_paths e)). simpl in e'.
-  assert (H : (fun Γ (A : Ty X' Γ)
-                => pr2 X Γ (transportb (fun (T : functor C^op hset_precategory) => T Γ : hSet) (base_paths X X' e) A))
-              = pr2 X').
-  { etrans. Focus 2. apply e'.
-    apply pathsinv0.
-    etrans. use (transportf_forall _ _ _). simpl.
-    apply funextsec; intros Γ.
-    apply (transportf_forall_var _
-     (fun (T : functor C^op hset_precategory) => T Γ : hSet)).
-  }
-  intros Γ A; simpl in A. 
-  refine (_ ;; _).
-    Focus 2. eapply idtoiso.
-    use (maponpaths pr1 (toforallpaths _ _ _
-              (toforallpaths _ _ _ H Γ) _)).
-  apply Δ. destruct e; apply idpath.
-  Set Printing Notations.
-Defined.
-
-Lemma funextsec_idpath (T : UU) (P : T -> UU) (f : forall t, P t)
-  : funextsec P f f (fun t => idpath _) = idpath _.
-Proof.
-  apply invmap_eq. apply idpath.
-Defined.
-
-(* TODO: name *)
-Lemma foo2 {X X' : obj_ext_Precat C} (e : X = X')
-  {Γ} (A : Ty X Γ)
-: φ (idtoiso e : _ --> _) A = foo e A.
-Proof.
-  (* should be trivial once [foo] is defined correctly: *)
-  destruct e. cbn. apply pathsinv0.
-  unfold foo. cbn. 
-  etrans. apply id_left. 
-  rewrite funextsec_idpath; apply idpath.
-Qed.
-
-Theorem is_univalent_obj_ext (H : is_univalent C)
-  : is_univalent (obj_ext_Precat C).
-Proof.
-  split. Focus 2. apply homset_property.
-  apply (eq_equiv_from_retraction _ (@iso_to_obj_ext_eq H)). 
-  intros X X' F.
-  apply eq_iso.
-  apply obj_ext_mor_eq'.
-  - intros Γ; apply toforallpaths; revert Γ; apply toforallpaths.
-    apply maponpaths.
-    use (@maponpaths _ _ pr1
-      (functor_on_iso (obj_ext_to_preShv_functor) _)
-      (functor_on_iso _ _)).
-    etrans. apply @pathsinv0, maponpaths_idtoiso.
-    etrans. apply maponpaths, base_total2_paths.
-    use (idtoiso_isotoid).
-  - intros e_TY Γ A.
-    etrans. apply maponpaths_2. apply foo2. unfold foo.
-    etrans. apply maponpaths_2. apply maponpaths.
-    eapply (maponpaths pr1).
-    (* lemma foo2 above: [φ] of an [idtoiso] is… what? *) 
-Abort.
-
-End Is_Univalent_Obj_Ext_2.
+End Is_Univalent_Obj_Ext_Disp.
 
 Section Is_Univalent_Families_Strucs.
 
-(* TODO: inline *) 
-Lemma isaprop_whatever
-  (x : obj_ext_Precat C)
-  (d d' : (term_fun_disp_cat C) x)
-  : isaprop (iso_disp (identity_iso x) d d').
-Proof.
-  apply isofhleveltotal2.
-  - apply isaprop_term_fun_mor.
-  - intro. apply isaprop_is_iso_disp.
-Qed.
-
 Definition iso_disp_to_TM_eq
-  (X : obj_ext_Precat C)
+  (X : obj_ext_cat C)
   (Y Y' : (term_fun_disp_cat C) X)
   : iso_disp (identity_iso X) Y Y'
   -> TM (Y : term_fun_structure _ X) = TM (Y' : term_fun_structure _ X).
@@ -334,7 +244,7 @@ Proof.
 Qed.
 
 Definition iso_to_id__term_fun_disp_cat
-  {X : obj_ext_Precat C}
+  {X : obj_ext_cat C}
   (Y Y' : term_fun_disp_cat C X)
   : iso_disp (identity_iso _) Y Y' -> Y = Y'.
 Proof.
@@ -396,7 +306,7 @@ Proof.
 Qed. 
 
 Lemma isaprop_iso_disp_qq_morphism_structure 
-  (x : obj_ext_Precat C)
+  (x : obj_ext_cat C)
   (d d' : (qq_structure_disp_cat C) x)
   : isaprop (iso_disp (identity_iso x) d d').
 Proof.
@@ -407,7 +317,7 @@ Proof.
 Qed.
 
 Lemma qq_structure_eq 
-  (x : obj_ext_Precat C)
+  (x : obj_ext_cat C)
   (d d' : qq_morphism_structure x)
   (H : ∏ (Γ Γ' : C) (f : Γ' --> Γ) (A : (TY x : functor _ _ ) Γ : hSet), 
            qq d f A = qq d' f A)
@@ -426,7 +336,7 @@ Proof.
 Defined.
 
 Definition qq_structure_iso_disp_to_id
-  (x : obj_ext_Precat C)
+  (x : obj_ext_cat C)
   (d d' : (qq_structure_disp_cat C) x)
   : iso_disp (identity_iso x) d d' → d = d'.
 Proof.
@@ -497,5 +407,27 @@ Proof.
 Defined.
 
 End Is_Univalent_Compat_Strucs.
+
+Section Is_Univalent_Total_Cats.
+
+  Context (C_univ : is_univalent C).
+
+  Theorem is_univalent_cwf'_structure_precat
+    : is_univalent (cwf'_structure_precat C).
+  Proof.
+    apply is_univalent_total_category.
+    - apply @is_univalent_obj_ext; auto.
+    - apply is_univalent_term_fun_structure.
+  Defined.
+  
+  Theorem is_univalent_sty'_structure_precat
+    : is_univalent (sty'_structure_precat C).
+  Proof.
+    apply is_univalent_total_category.
+    - apply @is_univalent_obj_ext; auto.
+    - apply is_univalent_qq_morphism.
+  Defined.
+
+End Is_Univalent_Total_Cats.
 
 End Fix_Context.
