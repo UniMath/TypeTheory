@@ -372,17 +372,6 @@ Section MorWithUniqueLift.
                @ ! pr2 iscontr_mor_with_unique_lift' default_mor_with_unique_lift).
   Defined.
 
-  Definition mor_with_unique_lift_reformulation
-             (mor : mor_with_unique_lift)
-             {Γ Γ' : C} {f : C ⟦ Γ', Γ ⟧} {A : D_ob Γ}
-             (P : ∏ (A' : D_ob Γ'), pr1 mor _ _ A' A f → UU)
-    : P (D_lift_ob Γ Γ' f A) (invweq (mor_with_unique_lift_mor_weq mor) (idpath _))
-        ≃ (∏ (A' : D_ob Γ') (ff : pr1 mor Γ' Γ A' A f), P A' ff).
-  Proof.
-    use weq_iso.
-    - intros p.
-      
-  Abort.
 
 End MorWithUniqueLift.
 
