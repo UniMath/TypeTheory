@@ -162,14 +162,14 @@ Section MorWithUniqueLift.
     : isaprop (default_mor Γ Γ' A A' f).
   Proof.
     apply D_ob_isaset.
-  Defined.
+  Qed.
 
   Definition default_mor_homsets
              (Γ Γ' : C) (f : C ⟦ Γ, Γ' ⟧) (A : D_ob Γ) (A' : D_ob Γ')
     : isaset (default_mor _ _ A A' f).
   Proof.
     intros. apply isasetaprop. apply D_ob_isaset.
-  Defined.
+  Qed.
 
   Context
     (Fob : ∏ Γ : C, D_ob Γ → disp_codomain C Γ).
@@ -302,7 +302,7 @@ Section MorWithUniqueLift.
       apply funextsec; intros f.
       apply isapropweqtoprop.
       apply D_ob_isaset.
-  Defined.
+  Qed.
 
   Definition iscontr_mor_with_unique_lift'''
     : iscontr mor_with_unique_lift'''.
@@ -316,6 +316,44 @@ Section MorWithUniqueLift.
     := (mor_with_unique_lift'''_weq
           ∘ mor_with_unique_lift''_weq
           ∘ mor_with_unique_lift'_weq)%weq.
+
+  Definition mor_with_unique_lift_mor_weq
+             (mor : mor_with_unique_lift)
+             {Γ Γ' : C} {f : C ⟦ Γ, Γ' ⟧}
+             {A : D_ob Γ} {A' : D_ob Γ'}
+    : pr1 mor Γ Γ' A A' f ≃ default_mor Γ Γ' A A' f.
+  Proof.
+    set (uf := pr2 (pr2 mor) Γ' Γ f A').
+    use weq_iso.
+    - intros ff.
+      exact (! maponpaths pr1 (pr2 uf (A ,, ff))).
+    - intros p.
+      exact (transportf (λ B, pr1 mor Γ Γ' B A' f) p (pr1 uf)).
+    - abstract (
+          intros ff;
+          apply (transportf_pathsinv0' (λ B, pr1 mor Γ Γ' B A' f));
+          apply pathsinv0;
+          apply (transportf_transpose_right
+                   (P := λ B, pr1 mor Γ Γ' B A' f)
+                );
+          apply (fiber_paths_from_total2_paths
+                   (B := λ x, pr1 mor Γ Γ' x A' f)
+                   (A ,, ff)
+                   (D_lift_ob Γ' Γ f A' ,, pr1 uf))
+        ).
+    - abstract (intros p; apply D_ob_isaset).
+  Defined.
+
+  Definition isaprop_mor_with_unique_lift_mor
+             (mor : mor_with_unique_lift)
+             {Γ Γ' : C} {f : C ⟦ Γ, Γ' ⟧}
+             {A : D_ob Γ} {A' : D_ob Γ'}
+    : isaprop (pr1 mor Γ Γ' A A' f).
+  Proof.
+    apply (isapropinclb (mor_with_unique_lift_mor_weq mor)).
+    - apply isinclweq, (pr2 (mor_with_unique_lift_mor_weq mor)).
+    - apply isaprop_default_mor.
+  Qed.
 
   Definition iscontr_mor_with_unique_lift'
     : iscontr mor_with_unique_lift.
@@ -333,6 +371,7 @@ Section MorWithUniqueLift.
     exact (pr2 iscontr_mor_with_unique_lift' t
                @ ! pr2 iscontr_mor_with_unique_lift' default_mor_with_unique_lift).
   Defined.
+
 
 End MorWithUniqueLift.
 
@@ -370,7 +409,7 @@ Section DiscreteComprehensionCats.
     - repeat (apply impred_isaprop; intros ?). apply D_homsets.
     - repeat (apply impred_isaprop; intros ?). apply D_homsets.
     - repeat (apply impred_isaprop; intros ?). apply D_homsets.
-  Defined.
+  Qed.
 
   Definition disp_cat_axioms'_weq {C : precategory} {D : disp_cat_data C}
     : (disp_cat_axioms' C D × (∏ x y f (xx : D x) (yy : D y), isaset (xx -->[f] yy)))
@@ -420,7 +459,7 @@ Section DiscreteComprehensionCats.
     - intros. use total2_paths_f.
       + repeat (apply funextsec; intros ?). apply D_ob_isaset.
       + repeat (apply funextsec; intros ?). apply D_ob_isaset.
-  Defined.
+  Qed.
   
   Definition discrete_comprehension_cat_structure2 {C : category}
              (D_ob : C → UU)
@@ -443,6 +482,71 @@ Section DiscreteComprehensionCats.
          (D_mor : mor_with_unique_lift D_ob (@D_lift_ob)),
 
        discrete_comprehension_cat_structure2 D_ob Fob (@D_lift_ob) D_ob_isaset D_mor.
+
+  Section DiscCompCat1_Accessors.
+
+    Definition discrete_comprehension_cat_structure1_D_ob
+                {C : category}
+                (DC : discrete_comprehension_cat_structure1 C)
+        : C → UU
+        := pr1 DC.
+
+    Definition discrete_comprehension_cat_structure1_F_ob
+                {C : category}
+                (DC : discrete_comprehension_cat_structure1 C)
+        : ∏ {Γ : C},
+        discrete_comprehension_cat_structure1_D_ob DC Γ
+        → disp_codomain C Γ
+        := pr1 (pr2 DC).
+
+    Definition discrete_comprehension_cat_structure1_D_lift_ob
+                {C : category}
+                (DC : discrete_comprehension_cat_structure1 C)
+        : ∏ {Γ Γ' : C},
+        C ⟦ Γ', Γ ⟧
+        → discrete_comprehension_cat_structure1_D_ob DC Γ
+        → discrete_comprehension_cat_structure1_D_ob DC Γ'
+        := pr1 (pr2 (pr2 DC)).
+
+    Definition discrete_comprehension_cat_structure1_D_ob_isaset
+                {C : category}
+                (DC : discrete_comprehension_cat_structure1 C)
+        : ∏ (Γ : C), isaset (discrete_comprehension_cat_structure1_D_ob DC Γ)
+        := pr1 (pr2 (pr2 (pr2 DC))).
+
+    Definition discrete_comprehension_cat_structure1_D_mor_with_unique_lift
+                {C : category}
+                (DC : discrete_comprehension_cat_structure1 C)
+      : mor_with_unique_lift (pr1 DC) (pr1 (pr2 (pr2 DC)))
+      := pr1 (pr2 (pr2 (pr2 (pr2 DC)))).
+
+    Definition discrete_comprehension_cat_structure1_D_mor
+                {C : category}
+                (DC : discrete_comprehension_cat_structure1 C)
+      : ∏ (Γ Γ' : C), pr1 DC Γ → pr1 DC Γ' → C ⟦ Γ, Γ' ⟧ → UU
+      := pr1 (pr1 (pr2 (pr2 (pr2 (pr2 DC))))).
+
+    Definition discrete_comprehension_cat_structure1_D_id
+                {C : category}
+                (DC : discrete_comprehension_cat_structure1 C)
+      : ∏ (Γ : C) (A : discrete_comprehension_cat_structure1_D_ob DC Γ),
+        discrete_comprehension_cat_structure1_D_mor DC _ _ A A (identity Γ)
+        := pr1 (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DC))))))).
+
+    Definition discrete_comprehension_cat_structure1_D_comp
+                {C : category}
+                (DC : discrete_comprehension_cat_structure1 C)
+      : _
+        := pr2 (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DC))))))).
+
+    Definition discrete_comprehension_cat_structure1_F_mor
+                {C : category}
+                (DC : discrete_comprehension_cat_structure1 C)
+      : _
+        := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 DC))))).
+
+
+  End DiscCompCat1_Accessors.
 
   Definition discrete_comprehension_cat_structure1_weq {C : category}
     : discrete_comprehension_cat_structure C ≃ discrete_comprehension_cat_structure1 C.
@@ -503,6 +607,58 @@ Section DiscreteComprehensionCats.
        discrete_comprehension_cat_structure2
          D_ob Fob (@D_lift_ob) D_ob_isaset
          (default_mor_with_unique_lift D_ob (@D_lift_ob) D_ob_isaset).
+
+  Section DiscCompCat_DefaultMor_Accessors.
+
+    Definition discrete_comprehension_cat_structure_with_default_mor_D_ob
+                {C : category}
+                (DC : discrete_comprehension_cat_structure_with_default_mor C)
+        : C → UU
+        := pr1 DC.
+
+    Definition discrete_comprehension_cat_structure_with_default_mor_F_ob
+                {C : category}
+                (DC : discrete_comprehension_cat_structure_with_default_mor C)
+        : ∏ {Γ : C},
+        discrete_comprehension_cat_structure_with_default_mor_D_ob DC Γ
+        → disp_codomain C Γ
+        := pr1 (pr2 DC).
+
+    Definition discrete_comprehension_cat_structure_with_default_mor_D_lift_ob
+                {C : category}
+                (DC : discrete_comprehension_cat_structure_with_default_mor C)
+        : ∏ {Γ Γ' : C},
+        C ⟦ Γ', Γ ⟧
+        → discrete_comprehension_cat_structure_with_default_mor_D_ob DC Γ
+        → discrete_comprehension_cat_structure_with_default_mor_D_ob DC Γ'
+        := pr1 (pr2 (pr2 DC)).
+
+    Definition discrete_comprehension_cat_structure_with_default_mor_D_ob_isaset
+                {C : category}
+                (DC : discrete_comprehension_cat_structure_with_default_mor C)
+        : ∏ (Γ : C), isaset (discrete_comprehension_cat_structure_with_default_mor_D_ob DC Γ)
+        := pr1 (pr2 (pr2 (pr2 DC))).
+
+    Definition discrete_comprehension_cat_structure_with_default_mor_D_id
+                {C : category}
+                (DC : discrete_comprehension_cat_structure_with_default_mor C)
+      : ∏ (Γ : C) (A : discrete_comprehension_cat_structure_with_default_mor_D_ob DC Γ),
+        discrete_comprehension_cat_structure_with_default_mor_D_lift_ob DC (identity Γ) A = A
+        := pr1 (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 DC)))))).
+
+    Definition discrete_comprehension_cat_structure_with_default_mor_D_comp
+                {C : category}
+                (DC : discrete_comprehension_cat_structure_with_default_mor C)
+      : _
+        := pr2 (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 DC)))))).
+
+    Definition discrete_comprehension_cat_structure_with_default_mor_F_mor
+                {C : category}
+                (DC : discrete_comprehension_cat_structure_with_default_mor C)
+      : _
+        := pr1 (pr2 (pr2 (pr2 (pr2 DC)))).
+
+  End DiscCompCat_DefaultMor_Accessors.
 
   Definition discrete_comprehension_cat_structure_with_default_mor_weq1
              {C : category}
