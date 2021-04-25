@@ -433,7 +433,7 @@ Proof.
            (ftn_ft m X)) = eq' ) .
  *)
   assert ( int' : (internal_paths_rew_r BB (ftn m (ft X)) 
-           ((ft ∘ ftn m) X) (fun l : BB => Y = l) eq 
+           (ft (ftn m X)) (fun l : BB => Y = l) eq 
            (ftn_ft m X)) = eq' ) by apply isasetB.
   rewrite int'.
   apply idpath.
