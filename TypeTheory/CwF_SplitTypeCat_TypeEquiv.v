@@ -3,6 +3,8 @@ Content :
 - Unit and Universe Type on CwF
 - Unit Type on Split_Type_Category
 - term equivalence over weq_sty_cwf
+- unit equivalence over weq_sty_cwf
+_ universe equivalence over weq_sty_cwf
 **)
 
 Require Import UniMath.Foundations.Sets.
@@ -17,6 +19,7 @@ Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
 Require Import TypeTheory.ALV1.TypeCat.
 
 Require Import TypeTheory.Initiality.SplitTypeCat_General.
+Require Import TypeTheory.Initiality.SplitTypeCat_Structure.
 Require Import TypeTheory.Articles.ALV_2017.
 
 Section CwF.
@@ -194,8 +197,7 @@ Section Global_Lemma.
 Lemma inver {A B : UU} (f : A ≃ B) (a : A) : ( ∏ ( b : A), a = b) -> ∏ (b : B), f a = b.
 Proof.
   intros g b.
-  eapply pathscomp0.
-  exact (maponpaths f (g (invweq f b))).
+  apply (pathscomp0 (maponpaths f (g (invweq f b)))).
   exact (homotweqinvweq _ _).
 Defined.
 End Global_Lemma.
@@ -210,8 +212,8 @@ tm A → tm_inter A.
 Proof.
 intros [s ids].
 use tpair.
-exact (A,,(s,,ids)).
-reflexivity.
+- exact (A,,(s,,ids)).
+- reflexivity.
 Defined.
 
 Definition tm_equiv_inter_2 {Γ :C} (A: Sc Γ) :
@@ -260,8 +262,8 @@ Definition reind_tm_inter {Γ Δ : Sc} {A: Sc Δ} (f : Sc ⟦Γ,Δ⟧) (a : tm_i
 : tm_inter (A ⦃f⦄).
 Proof.
 use tpair.
-exact (#(tm_from_qq Sc') f (pr1 a)).
-induction (pr2 a). reflexivity.
+- exact (#(tm_from_qq Sc') f (pr1 a)).
+- induction (pr2 a). reflexivity.
 Defined.
 
 Lemma pb_of_section_eq {a b c d : C} {f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : C⟦d, b⟧} {k : C⟦d,c⟧}
@@ -270,14 +272,11 @@ Lemma pb_of_section_eq {a b c d : C} {f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : 
 pb_of_section H isPb s K = pb_of_section H' isPb' s' K'.
 Proof.
 induction eqS.
-assert (eqH : H = H').
-exact (pr1(pr2 C _ _ _ _ _ _)).
+assert (eqH : H = H') by exact (pr1(pr2 C _ _ _ _ _ _)).
 induction eqH.
-assert (eqK : K = K').
-exact (pr1(pr2 C _ _ _ _ _ _)).
+assert (eqK : K = K') by exact (pr1(pr2 C _ _ _ _ _ _)).
 induction eqK.
-assert (eqPb: isPb = isPb').
-exact (pr1(isaprop_isPullback _ _ _ _ _ _ _)).
+assert (eqPb: isPb = isPb') by exact (pr1(isaprop_isPullback _ _ _ _ _ _ _)).
 induction eqPb.
 reflexivity.
 Qed.
@@ -288,18 +287,18 @@ Lemma reind_tm_equiv_inter  {Γ Δ : Sc} {A: Sc Δ} (f : Sc ⟦Γ,Δ⟧) (a : tm
 Proof.
 refine (subtypePairEquality' _ _ ).
 - apply pathsinv0, (pathscomp0 (idpath (A ⦃f⦄,,reind_tm f a))).
-refine (pair_path_in2 _ _).
-unfold tm_equiv.
-assert (eq1 : ((pr1 a) :C ⟦ Δ,_ ⟧)= (pr121 (tm_equiv_inter A a))) by (simpl; reflexivity).
-(* important for typing in order to make *)
-set ( isPb := ((reind_pb_typecat A f) : isPullback f (π (pr11 (tm_equiv_inter A a)))
-(π (# ((TY Sc')  : functor _ _) f (pr11 (tm_equiv_inter A a))))
-(qq Sc' f (pr11 (tm_equiv_inter A a)))
-((! dpr_q_typecat A f) : (π (# ((TY Sc') : functor _ _) f (pr11 (tm_equiv_inter A a))) ;; f)%mor =
-(qq Sc' f (pr11 (tm_equiv_inter A a)) ;; π (pr11 (tm_equiv_inter A a)))%mor)));
-set ( H := ((! dpr_q_typecat A f) : (π (# ((TY Sc') : functor _ _) f (pr11 (tm_equiv_inter A a))) ;; f)%mor =
-(qq Sc' f (pr11 (tm_equiv_inter A a)) ;; π (pr11 (tm_equiv_inter A a)))%mor));
-exact (pb_of_section_eq H _ isPb _ eq1 _ (pr221 (tm_equiv_inter A a))).
+    refine (pair_path_in2 _ _).
+    unfold tm_equiv.
+    assert (eq1 : ((pr1 a) :C ⟦ Δ,_ ⟧)= (pr121 (tm_equiv_inter A a))) by (simpl; reflexivity).
+    (* important for typing in order to make *)
+    set ( isPb := ((reind_pb_typecat A f) : isPullback f (π (pr11 (tm_equiv_inter A a)))
+    (π (# ((TY Sc')  : functor _ _) f (pr11 (tm_equiv_inter A a))))
+    (qq Sc' f (pr11 (tm_equiv_inter A a)))
+    ((! dpr_q_typecat A f) : (π (# ((TY Sc') : functor _ _) f (pr11 (tm_equiv_inter A a))) ;; f)%mor =
+    (qq Sc' f (pr11 (tm_equiv_inter A a)) ;; π (pr11 (tm_equiv_inter A a)))%mor)));
+    set ( H := ((! dpr_q_typecat A f) : (π (# ((TY Sc') : functor _ _) f (pr11 (tm_equiv_inter A a))) ;; f)%mor =
+    (qq Sc' f (pr11 (tm_equiv_inter A a)) ;; π (pr11 (tm_equiv_inter A a)))%mor));
+    exact (pb_of_section_eq H _ isPb _ eq1 _ (pr221 (tm_equiv_inter A a))).
 - exact (pr12 Split _ _ _).
 Qed. 
 
@@ -316,9 +315,7 @@ Lemma equiv_reind_tm {Γ Δ : Sc} {A: Sc Δ} (f : Sc ⟦Γ,Δ⟧) (a : CwF_tm CW
 invweq (tm_equiv _) (CwF_reind_tm CWF f a)  = (reind_tm f (invweq (tm_equiv _) a)).
 Proof. 
   set (a' := (invweq (tm_equiv _) a) : tm A).
-  assert (eqa : a = tm_equiv _ a').
-  cbn.
-  exact (!(tm_equiv_inter_21 _)).
+  assert (eqa : a = tm_equiv _ a') by (cbn; exact (!(tm_equiv_inter_21 _))).
   rewrite eqa.
   rewrite reind_tm_equiv.
   exact (homotinvweqweq0 (tm_equiv (A ⦃f⦄)) _).
@@ -328,7 +325,7 @@ Lemma transportf_tm_equiv {Γ: Sc} {A A': Sc Γ} (eq : A = A') (a' : tm A) :
 (CwF_tm_transportf CWF eq (tm_equiv _ a'))  =  tm_equiv _ (tm_transportf eq a').
 Proof.
   refine (subtypePairEquality' _ _ ).
-  -  induction eq. rewrite tm_transportf_idpath. reflexivity.
+  - induction eq. rewrite tm_transportf_idpath. reflexivity.
   - apply (setproperty (Ty CWF Γ)).
 Qed.
 
@@ -336,12 +333,148 @@ Lemma equiv_transportf_tm {Γ: Sc} {A A': Sc Γ} (eq : A = A') (a : CwF_tm CWF A
 invweq (tm_equiv _) (CwF_tm_transportf CWF eq a)  =  tm_transportf eq (invweq (tm_equiv _) a).
 Proof.
   set (a' := (invweq (tm_equiv _) a) : tm A).
-  assert (eqa : a = tm_equiv _ a').
-  cbn.
-  exact (!(tm_equiv_inter_21 _)).
+  assert (eqa : a = tm_equiv _ a') by (cbn; exact (!(tm_equiv_inter_21 _))).
   rewrite eqa.
   rewrite transportf_tm_equiv.
   exact (homotinvweqweq0 (tm_equiv A') _).
 Qed.
 
 End tm_equiv.
+
+Section Unit_Equiv.
+
+Definition unit_equiv_1 : unit_structure Sc -> CwF_unit_structure CWF.
+Proof.
+  intro Unit.
+  use tpair.
+  - exact (pr1 Unit).
+  - use tpair.
+    -- intro Γ. exact (tm_equiv _ (pr12 Unit Γ)).
+    -- intro Γ. exact (inver (tm_equiv (pr1 Unit Γ)) (pr12 Unit Γ) (pr22 Unit Γ)).
+Defined.
+
+Definition unit_equiv_2 : CwF_unit_structure CWF -> unit_structure Sc.
+Proof.
+  intro Unit.
+  use tpair.
+  - exact (pr1 Unit).
+  - use tpair.
+    -- intro Γ. exact (invweq (tm_equiv _) (pr12 Unit Γ)).
+    -- intro Γ. exact (inver (invweq (tm_equiv (pr1 Unit Γ))) (pr12 Unit Γ) (pr22 Unit Γ)).
+Defined.
+
+Lemma unit_equiv_inv1 : ∏ (x : unit_structure Sc), unit_equiv_2(unit_equiv_1 x) = x.
+Proof.
+  intro Unit.
+  apply pair_path_in2.
+  assert (prj : pr2 Unit = (pr12 Unit ,, pr22 Unit)) by auto.
+  apply pathsinv0.
+  apply (pathscomp0 prj).
+  refine (subtypePairEquality' _ _ ).
+  - assert (func:  pr12 Unit = λ Γ : C , pr12 Unit Γ) by auto.
+    apply (pathscomp0 func).
+    apply funextsec2.
+    intro Γ.
+    exact (homotinvweqweq0 _ _).
+  - apply isaprop_unity.
+Qed.
+
+Lemma unit_equiv_inv2 : ∏ (x : CwF_unit_structure CWF), unit_equiv_1(unit_equiv_2 x) = x.
+Proof.
+  intro Unit.
+  apply pair_path_in2.
+  assert (prj : pr2 Unit = (pr12 Unit ,, pr22 Unit)) by auto.
+  apply pathsinv0.
+  apply (pathscomp0 prj).
+  refine (subtypePairEquality' _ _ ).
+  - assert (func:  pr12 Unit = λ Γ : C , pr12 Unit Γ) by auto.
+    apply (pathscomp0 func).
+    apply funextsec2.
+    intro Γ.
+    apply pathsinv0.
+    exact (homotweqinvweq _ _).
+  - apply CwF_isaprop_unity.
+Qed.
+
+Definition unit_equiv : unit_structure Sc ≃ CwF_unit_structure CWF :=
+ (unit_equiv_1,,gradth unit_equiv_1 unit_equiv_2 unit_equiv_inv1 unit_equiv_inv2).
+
+ End Unit_Equiv.
+
+ Section Universe_Equiv.
+
+ Definition universe_equiv_1 : universe_struct Sc -> CwF_universe_struct CWF.
+ Proof.
+   intro Universe.
+   use tpair.
+   - exact (pr1 Universe).
+   - use tpair.
+    -- intros Γ a. exact (pr12 Universe  _ ((invweq (tm_equiv _) a))).
+    -- intros Γ Δ f a.  
+        apply (pathscomp0 (pr22 Universe _ _ _ _)).
+        apply maponpaths.
+        apply pathsinv0.
+        apply (pathscomp0 (equiv_transportf_tm _ _)).
+        apply maponpaths.
+        exact (equiv_reind_tm _ _).
+Defined.
+
+Definition universe_equiv_2 : CwF_universe_struct CWF -> universe_struct Sc.
+Proof.
+  intro Universe.
+  use tpair.
+  - exact (pr1 Universe).
+  - use tpair.
+    -- intros Γ a. exact (pr12 Universe  _ ( (tm_equiv _) a)).
+    -- intros Γ Δ f a.  apply (pathscomp0 (pr22 Universe _ _ _ _)).
+        apply maponpaths.
+        apply pathsinv0.
+        apply (pathscomp0 (!(transportf_tm_equiv _ _))).
+        apply maponpaths.
+        exact (!(reind_tm_equiv _ _)).
+Defined.
+
+Lemma universe_equiv_inv1 : ∏ (x : universe_struct Sc), universe_equiv_2(universe_equiv_1 x) = x.
+Proof.
+  intro Universe.
+  apply pair_path_in2.
+  assert (prj : pr2 Universe = (pr12 Universe ,, pr22 Universe)) by auto.
+  apply pathsinv0.
+  apply (pathscomp0 prj).
+  refine (subtypePairEquality' _ _ ).
+  - assert (func:  pr12 Universe = λ Γ : C , pr12 Universe Γ) by auto.
+    apply (pathscomp0 func).
+    apply funextsec2.
+    intro Γ.
+    simpl.
+    assert (simplman : (pr12 Universe) Γ  =  λ a : tm (pr1 Universe Γ), pr12 Universe Γ a) by auto.
+    rewrite simplman.
+    reflexivity.
+  - do 4 (apply impred_isaprop; intro); exact (pr12 Split _ _ _).
+Qed.
+
+Lemma universe_equiv_inv2 : ∏ (x : CwF_universe_struct CWF), universe_equiv_1(universe_equiv_2 x) = x.
+Proof.
+  intro Universe.
+  apply pair_path_in2.
+  assert (prj : pr2 Universe = (pr12 Universe ,, pr22 Universe)) by auto.
+  apply pathsinv0.
+  apply (pathscomp0 prj).
+  refine (subtypePairEquality' _ _ ).
+  - assert (func:  pr12 Universe = λ Γ : C , pr12 Universe Γ) by auto.
+    apply (pathscomp0 func).
+    apply funextsec2.
+    intro Γ.
+    simpl.
+    assert (simplman : (pr12 Universe) Γ  =  λ a : CwF_tm CWF (pr1 Universe Γ), pr12 Universe Γ a) by auto.
+    rewrite simplman.
+    cbn; apply funextsec; intro a; rewrite tm_equiv_inter_21; reflexivity.
+  - do 4 (apply impred_isaprop; intro); exact (setproperty (Ty CWF _) _ _).
+Qed.
+
+Definition universe_equiv : universe_struct Sc ≃ CwF_universe_struct CWF :=
+ (universe_equiv_1,,gradth universe_equiv_1 universe_equiv_2 universe_equiv_inv1 universe_equiv_inv2).
+
+End Universe_Equiv.
+
+End Stc_Equiv.
