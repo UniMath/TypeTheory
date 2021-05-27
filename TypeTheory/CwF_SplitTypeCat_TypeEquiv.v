@@ -1,6 +1,7 @@
 (**
 Content :
 - Unit and Universe Type on CwF
+- Unit Type on Split_Type_Category
 **)
 
 Require Import UniMath.Foundations.Sets.
@@ -111,7 +112,7 @@ Proof.
   apply CwF_isaset_tm.
 Qed.
 
-Definition CwF_unit_structure := ∑ (U : CwF_unit_TypeFormer) (E : CwF_unit_Elem U), CwF_unit_unity U E.
+Definition CwF_unit_structure : UU := ∑ (U : CwF_unit_TypeFormer) (E : CwF_unit_Elem U), CwF_unit_unity U E.
 
 End Unit.
 
@@ -155,3 +156,25 @@ Definition CwF_deptype_struct (U : CwF_basetype_struct) : UU.
 End Universe.
 
 End CwF.
+
+Section SplitTypeCat.
+Context (C : split_typecat).
+Section Unit.
+
+Definition unit_TypeFormer : UU := ∏ (Γ : C), C Γ.
+
+Definition unit_Elem (U : unit_TypeFormer) : UU := ∏  (Γ : C), tm (U Γ).
+
+Definition unit_unity (U : unit_TypeFormer) (E : unit_Elem U)  : UU := ∏ (Γ : C) (b : tm (U Γ)), (E Γ) = b.
+
+Lemma isaprop_unity (U : unit_TypeFormer) (E : unit_Elem U) : isaprop (unit_unity U E).
+Proof.
+  unfold unit_unity.
+  Search "impred".
+  do 2 (apply impred_isaprop; intro).
+  apply isaset_tm.
+Qed.
+
+Definition unit_structure : UU := ∑ (U : unit_TypeFormer) (E : unit_Elem U), unit_unity U E.
+End Unit.
+End SplitTypeCat.
