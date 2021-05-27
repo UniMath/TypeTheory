@@ -24,23 +24,23 @@ Require Import TypeTheory.Articles.ALV_2017.
 
 Section CwF.
 Context (CwF : cwf).
-Definition C : category := pr1(CwF).
-Definition pp : mor_total(preShv(C)) := pr1(pr2(CwF)).
-Definition Ty : functor _ _ := target pp.
-Definition Tm : functor _ _ := source pp.
+Local Definition C : category := pr1(CwF).
+Local Definition pp : mor_total(preShv(C)) := pr1(pr2(CwF)).
+Local Definition Ty : functor _ _ := target pp.
+Local Definition Tm : functor _ _ := source pp.
 
 (* extension of context *)
-Definition ext {Γ : C} (A : Ty Γ : hSet) : C := pr1(pr1(pr2(pr2(CwF)) Γ A)).
-Notation "Γ.: A" :=  (ext A) (at level 24).
+Local Definition ext {Γ : C} (A : Ty Γ : hSet) : C := pr1(pr1(pr2(pr2(CwF)) Γ A)).
+Local Notation "Γ.: A" :=  (ext A) (at level 24).
 
 Definition pi {Γ :C} (A : Ty Γ : hSet) : C⟦Γ.:A,Γ⟧ := pr2 (pr1 (pr2 (pr2 CwF) _ A)).
 
 
 (* just a simple to use pp as a nat_trans *)
-Definition Nat_trans_morp {C : category} (Γ : C) (p : mor_total(preShv C)) :=
+Local Definition Nat_trans_morp {C : category} (Γ : C) (p : mor_total(preShv C)) :=
   (pr1(pr2(p)) Γ).
 Notation "p __: Γ" := (Nat_trans_morp Γ p)  (at level 24).
-Definition pp_ (Γ :C)  : ((Tm Γ : hSet) → (Ty Γ : hSet)) := pp __: Γ.
+Local Definition pp_ (Γ :C)  : ((Tm Γ : hSet) → (Ty Γ : hSet)) := pp __: Γ.
 
 
 Definition CwF_tm {Γ : C} (A : Ty Γ : hSet) : UU
@@ -53,7 +53,7 @@ Definition reind_cwf
   : Ty Γ' : hSet
   := #Ty f A.
 Notation "A ⟪ f ⟫" := (reind_cwf A f) (at level 30).
-Definition te {Γ :C} (A : Ty Γ : hSet) : CwF_tm (#Ty (pi A) A) :=
+Local Definition te {Γ :C} (A : Ty Γ : hSet) : CwF_tm (#Ty (pi A) A) :=
   pr1(pr2((pr2(pr2(CwF)) _ A))).
 
 Definition CwF_tm_transportf {Γ} {A A' : Ty Γ : hSet} (e : A = A')
