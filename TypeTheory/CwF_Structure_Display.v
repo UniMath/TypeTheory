@@ -165,7 +165,7 @@ Section qq.
 Let Xk {Γ :C} (A : Ty Γ : hSet) :=
   make_Pullback _ _ _ _ _ _ (pr22 pr22 CwF Γ A).
 
-Definition qq_yoneda {Γ  Δ :C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧) :
+Definition qq_yoneda {Γ  Δ : C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧) :
   _ ⟦Yo (_ .: (#Ty f A)), Yo (Γ.: A) ⟧.
 Proof.
 use (PullbackArrow (Xk A)).
@@ -180,11 +180,19 @@ use (PullbackArrow (Xk A)).
     ).
 Defined.
 
+Lemma Yo_of_qq_commutes_1 {Γ Δ : C} (A : Ty Γ : hSet) (f : C ⟦Δ,Γ⟧) 
+: (# Yo (pi _) ;; # Yo f) = (qq_yoneda A f) ;; # Yo (pi A ) .
+Proof.
+  apply pathsinv0.
+  apply (PullbackArrow_PullbackPr1 (Xk _)).
+Qed.
+
 Lemma qq_yoneda_commutes {Γ Δ: C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧) :
   (qq_yoneda A f) ;; yy (te A) = yy (te _).
 Proof.
   apply (PullbackArrow_PullbackPr2 (Xk A)).
 Qed.
+
 
 Definition qq_term {Γ  Δ :C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧) :
   _ ⟦ _ .: (#Ty f A) , Γ.: A⟧.
@@ -193,12 +201,35 @@ Proof.
   (qq_yoneda A f).
 Defined.
 
-Definition qq_yoneda_compatibility {Γ  Δ :C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧) :
+Lemma qq_yoneda_compatibility {Γ  Δ :C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧) :
  #Yo(qq_term A f) = qq_yoneda A f.
 Proof.
   apply (homotweqinvweq
      (make_weq _ (yoneda_fully_faithful _ (homset_property _) ( _ .:(#Ty f A)) (Γ.:A)))).
 Qed.
+
+Lemma qq_term_te {Γ Δ: C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧) 
+: #Tm (qq_term A f) (te A) = te (#Ty f A).
+Proof.
+assert (Hyp := qq_yoneda_commutes A f).
+rewrite <- qq_yoneda_compatibility in Hyp. 
+apply (pathscomp0 (yy_natural  _ _ _ _ _)) in Hyp.
+apply (invmaponpathsweq (@yy _ (pr2 C) _ _) ).
+exact Hyp.
+Qed.
+
+Lemma qq_term_pullback {Γ  Δ :C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧) :
+  f ;; pi (#Ty f A) = (qq_term A f);; pi A.
+Proof.
+  assert (XT := (Yo_of_qq_commutes_1 A f)).
+  rewrite <- qq_yoneda_compatibility in XT.
+  do 2 rewrite <- functor_comp in XT.
+  apply (invmaponpathsweq (make_weq _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
+  cbn.
+  cbn in XT.
+  exact XT.
+Qed.
+
 
 Section Familly_Of_Types.
 (** Famillies of types in a Category with famillies**)
@@ -557,7 +588,8 @@ Definition CwF_IdRefl (Id : CwF_IdTypeFormer) : UU :=
 
 Definition CwF_IdReflNatContext (Id : CwF_IdTypeFormer) (nid : CwF_IdTypeNat Id) (refl : CwF_IdRefl Id) : UU :=
   ∏ (Γ Δ :C) (f : C^op ⟦Γ,Δ⟧) (A: Ty Γ :hSet) (a :tm A),
-  reind_tm f (refl _ A a) = (tm_transportf (!(nid _ _ f _ a a)) (refl _ (#Ty f A) (reind_tm f a))).
+  reind_tm f (refl _ A a) =
+  (tm_transportf (!(nid _ _ f _ a a)) (refl _ (#Ty f A) (reind_tm f a))).
 
 Definition CwF_maponpathsIdForm {Id : CwF_IdTypeFormer}
       {Γ} {A A'} (e_A : A = A')
@@ -572,12 +604,12 @@ Proof.
   cbn in e_b.
   apply Auxiliary.maponpaths_12; assumption.
 Qed.
-  
+
 Definition CwF_IdBasedFam (Id : CwF_IdTypeFormer) {Γ:C} (A : Ty Γ : hSet) (a : tm A)
     : Ty (Γ.:A) : hSet
   := Id _ _ (reind_tm _ a) (te A).
 Lemma reind_compose_tm
-      {Γ Γ' Γ'' : C} (f : Γ' --> Γ) (g : Γ'' --> Γ') {A : Ty Γ : hSet} (a : tm A)
+      {Γ Γ' Γ'' : C} (f : C⟦Γ',Γ⟧) (g : C⟦Γ'',Γ'⟧) {A : Ty Γ : hSet} (a : tm A)
     : reind_tm (g ;; f) a
       = tm_transportb (Ty_composition _ _ _)
           (reind_tm g (reind_tm f a)).
@@ -586,17 +618,38 @@ Proof.
   simpl. apply Tm_composition.
 Qed.
 Lemma tm_transportf_idpath {Γ} {A : Ty Γ : hSet} (t : tm A)
-    : tm_transportf (idpath A) t = t.
+: tm_transportf (idpath A) t = t.
 Proof.
 reflexivity.
 Qed.  
+Lemma tm_transportb_idpath {Γ} {A : Ty Γ : hSet} (t : tm A)
+    : tm_transportb (idpath A) t = t.
+Proof.
+reflexivity.
+Qed.  
+Lemma maponpaths_2_reind_tm 
+{Γ Γ' : C} {f f' : C⟦Γ',Γ⟧} (e : f = f') {A : Ty Γ : hSet} (a : tm A)
+: reind_tm f a = tm_transportb (maponpaths (fun g => #Ty g A) e) (reind_tm f' a).
+Proof.
+induction e.
+rewrite maponpaths_eq_idpath; [|apply idpath].
+now rewrite tm_transportb_idpath.
+Qed.
 
-Lemma tm_transportf_compose (Γ : C) (A A' A'' : Ty Γ : hSet) (e : A = A')
+
+Lemma tm_transportf_compose {Γ : C} {A A' A'' : Ty Γ : hSet} (e : A = A')
 (e' : A' = A'') (a : tm A) : tm_transportf (e @ e') a = tm_transportf e' (tm_transportf e a).
 Proof.
 induction e.
 induction e'.
 reflexivity.
+Qed.
+Lemma tm_transportf_irrelevant {Γ} {A A' : Ty Γ : hSet} (e e' : A = A')
+(t : tm A)
+: tm_transportf e t = tm_transportf e' t.
+Proof.
+apply (maponpaths (fun e => tm_transportf e t)).
+apply (setproperty (Ty Γ : hSet)).
 Qed.
 
 Lemma tm_transportbf {Γ} {A A' : Ty Γ : hSet} (e : A = A') : tm_transportb e = tm_transportf (!e).
@@ -613,10 +666,6 @@ Proof.
   reflexivity.
 Qed.
 
-Definition qq_term_pullback {Γ  Δ :C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧) :
-  f ;; pi (#Ty f A) = (qq_term A f);; pi A.
-Proof.
-Admitted.
 
 Definition CwF_IdBasedFamNatural (Id : CwF_IdTypeFormer) (nid : CwF_IdTypeNat Id)
     {Γ Δ:C} (f : C^op ⟦Γ,Δ⟧) (A :Ty Γ : hSet) (a : tm A)
@@ -631,23 +680,18 @@ Proof.
        apply pathsinv0, (pathscomp0 (!(Ty_composition _ _ A))).
        refine ((toforallpaths _ _ _ _) A).
        exact (maponpaths _ (qq_term_pullback _ _)).
-    -- admit.
-    -- admit.
+    -- etrans. {apply pathsinv0, tm_transport_compose. }
+       etrans. 2: { apply maponpaths, tm_transport_compose. }
+       etrans. 2: {rewrite tm_transportbf. apply  tm_transportf_compose. }
+       etrans.
+      { eapply maponpaths.
+        refine (maponpaths_2_reind_tm _ _). 
+        apply (!(qq_term_pullback _ _)). }
+      etrans. { rewrite tm_transportbf. apply (!(tm_transportf_compose _ _ _)). }
+      apply tm_transportf_irrelevant.
+    -- apply subtypePath; [intro x; apply (setproperty (Ty _ : hSet))|].
+       apply qq_term_te.
+Qed.
   
- (* tm_transportf (reind_comp_typecat Γ A Γ' f Γ'' g) (reind_tm (g · f) a) = reind_tm g (reind_tm f a)
-  
-  About functor_idax.*)
-Admitted.
-(*Definition CwF_IdBasedInduction := ∏ (Γ :C) (A: Ty Γ : hSet)
-(id : CwF_IdTypeFormer) (refl : CwF_IdReflContext)
-(trefl : CwF_IdReflType)                                     
-(a : Tm Γ : hSet) (pa : pp_ _ a = A)
-(B : Ty (Γ.:(id _ (#Ty (pi A) A) (#Tm (pi A) a) (te A))) : hSet)
-(c : DepTypesType (DepTypesType B (refl _ _ (te A))
-    (trefl _ id refl _ (te A) (te' A))) a pa )
-(b : Tm Γ : hSet) (pb : pp_ _ a = A)                                                     
-(h : Tm Γ : hSet) (ph : pp_ _ h = id _ A a b),
-DepTypesType (DepTypesType B h ph) b pb.*)
-
 End Identity_Structure.
 End Fix_Category.
