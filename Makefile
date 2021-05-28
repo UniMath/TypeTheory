@@ -20,6 +20,7 @@ PACKAGES += Csystems
 PACKAGES += Bsystems
 PACKAGES += Cubical
 PACKAGES += Initiality
+PACKAGES += TypeConstructions
 ############################################
 # other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= no 
