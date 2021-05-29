@@ -18,17 +18,6 @@ Require Import TypeTheory.ALV1.CwF_def.
 Notation "'pr1121' x" := (pr1(pr1(pr2(pr1(x))))) (at level 30).
 Notation "'pr2121' x" := (pr2(pr1(pr2(pr1(x))))) (at level 30).
 
-Section Auxiliary.
-Definition id_left (E : category) := pr1121 E.
-Definition id_right (E : category) := pr2121 E.
- 
-Lemma hSetProofIrr {S : hSet} {A B : S} (a b : A = B) : a = b.
-Proof.
-  apply setproperty.
-Qed.
-
-End Auxiliary.
-
 Section Fix_Category.
 (** * Preliminaries *)
 (** General context for a category with famillies and some usefull notations *)  
@@ -42,10 +31,10 @@ Local Definition ext (Γ : C) (A : Ty Γ : hSet) : C := pr11 pr22 CwF Γ A.
 Local Notation "Γ .: A" :=  (ext Γ A) (at level 24).
 
 Local Definition pi {Γ : C} (A : Ty Γ : hSet) : C⟦Γ.:A,Γ⟧ := pr21 pr22 CwF _ A.
-Definition CwF_Pullback {Γ} (A : Ty Γ : hSet) := pr22 pr22 CwF Γ A.
 (* just a simple to use pp as a nat_trans *)
 Local Definition Nat_trans_morp {C : category} (Γ : C) (p : mor_total(preShv C))
-:= pr12 p Γ.
+: HSET_univalent_category ⟦ (pr21 p : functor _ _) Γ, (pr11 p : functor _ _) Γ ⟧ := pr12 p Γ.
+
 Notation "p __: Γ" := (Nat_trans_morp Γ p)  (at level 24).
 Local Definition pp_ (Γ : C) : (Tm Γ : hSet) → (Ty Γ : hSet) := pp __: Γ.
 
@@ -65,15 +54,17 @@ Qed.
 Section tm.
 Definition tm {Γ : C} (A : Ty Γ : hSet) : UU
 := ∑ (a : Tm Γ : hSet), pp_ _ a = A.
-Definition pr1_tm {Γ : C} {A : Ty Γ : hSet} (a : tm A) := pr1 a.
+
+Definition pr1_tm {Γ : C} {A : Ty Γ : hSet} (a : tm A) : Tm Γ : hSet := pr1 a.
 Coercion pr1_tm : tm >-> pr1hSet.
 
 Lemma ppComp1 {Γ Δ : C} {A : Ty Γ : hSet} (f : C^op ⟦Γ,Δ⟧) (a : tm A) :
   pp_ _ (# Tm f a ) = # Ty f A. 
 Proof.
-  apply pathsinv0, (pathscomp0(!(maponpaths (# Ty f) (pr2 a)))),
-  pathsinv0, (toforallpaths _ _ _ (pr22 pp _ _ f) a) .
+  apply pathsinv0, (pathscomp0(!(maponpaths (# Ty f) (pr2 a)))).
+  apply pathsinv0, (toforallpaths _ _ _ (pr22 pp _ _ f) a) .
 Qed.
+
 Definition reind_cwf {Γ : C} (A : Ty Γ : hSet) {Γ'} (f : C⟦Γ',Γ⟧)
 : Ty Γ' : hSet := #Ty f A.
 Definition reind_tm {Γ Δ} (f : C^op ⟦Γ,Δ⟧) {A : Ty Γ : hSet} (x : tm A)
@@ -83,6 +74,7 @@ Local Definition te {Γ : C} (A : Ty Γ : hSet) : tm (#Ty (pi A) A)
 := pr12 pr22 CwF _ A.
 (* proof of pp (te A) = Ty (pi A) A*)
 Local Definition te' {Γ : C} (A : Ty Γ : hSet) : pp_ _ (te A) = #Ty (pi A) A := pr212 pr22 CwF Γ A.
+Definition CwF_Pullback {Γ} (A : Ty Γ : hSet) : isPullback (yy A) pp (#Yo (pi A)) (yy(te A)) (cwf_square_comm (te' A)) := pr22 pr22 CwF Γ A.
 
 Definition tm_transportf {Γ} {A A' : Ty Γ : hSet} (e : A = A')
 : tm A ≃ tm A'.
@@ -93,21 +85,7 @@ Proof.
 Defined.
 
 Definition tm_transportb {Γ} {A A' : Ty Γ : hSet} (e : A = A')
-: tm A' ≃ tm A.
-Proof.
-  use weqbandf.
-  -  exact (idweq (Tm Γ : hSet)).
-  -  induction e. intro x. exact (idweq _).
-Defined.
-
-Lemma reind_compose_tm
-{Γ Γ' Γ'' : C} (f : C⟦Γ',Γ⟧) (g : C⟦Γ'',Γ'⟧) {A : Ty Γ : hSet} (a : tm A)
-: reind_tm (g ;; f) a 
-= tm_transportb (Ty_composition _ _ _) (reind_tm g (reind_tm f a)).
-Proof.
-  apply subtypePath. intro x. apply (setproperty (Ty Γ'' : hSet)).
-  simpl. apply Tm_composition.
-Qed.
+: tm A' ≃ tm A := invweq(tm_transportf e).
 
 Lemma tm_transportf_idpath {Γ} {A : Ty Γ : hSet} (t : tm A)
 : tm_transportf (idpath A) t = t.
@@ -116,9 +94,26 @@ Proof.
 Qed.
 
 Lemma tm_transportb_idpath {Γ} {A : Ty Γ : hSet} (t : tm A)
-    : tm_transportb (idpath A) t = t.
+: tm_transportb (idpath A) t = t.
 Proof.
   reflexivity.
+Qed.
+
+Lemma tm_transportbf {Γ} {A A' : Ty Γ : hSet} (e : A = A') : tm_transportb e = tm_transportf (!e).
+Proof.
+  induction e.
+  refine (subtypePath isapropisweq _).
+  apply (idpath _).
+Qed.
+
+Lemma reind_compose_tm
+{Γ Γ' Γ'' : C} (f : C⟦Γ',Γ⟧) (g : C⟦Γ'',Γ'⟧) {A : Ty Γ : hSet} (a : tm A)
+: reind_tm (g ;; f) a 
+= tm_transportb (Ty_composition _ _ _) (reind_tm g (reind_tm f a)).
+Proof.
+  apply subtypePath. 
+  -  intro x. apply (setproperty (Ty Γ'' : hSet)).
+  -  rewrite tm_transportbf. apply Tm_composition.
 Qed.
 
 Lemma maponpaths_2_reind_tm 
@@ -131,7 +126,8 @@ Proof.
 Qed.
 
 Lemma tm_transportf_compose {Γ : C} {A A' A'' : Ty Γ : hSet} (e : A = A')
-(e' : A' = A'') (a : tm A) : tm_transportf (e @ e') a = tm_transportf e' (tm_transportf e a).
+(e' : A' = A'') (a : tm A) 
+: tm_transportf (e @ e') a = tm_transportf e' (tm_transportf e a).
 Proof.
   induction e.
   induction e'.
@@ -144,12 +140,6 @@ Lemma tm_transportf_irrelevant {Γ} {A A' : Ty Γ : hSet} (e e' : A = A')
 Proof.
   apply (maponpaths (fun e => tm_transportf e t)).
   apply (setproperty (Ty Γ : hSet)).
-Qed.
-
-Lemma tm_transportbf {Γ} {A A' : Ty Γ : hSet} (e : A = A') : tm_transportb e = tm_transportf (!e).
-Proof.
-  induction e.
-  reflexivity.
 Qed.
 
 Lemma tm_transport_compose {Γ Γ' Γ'' : C} (f : C⟦Γ',Γ⟧) (g : C⟦Γ'',Γ'⟧) (A : Ty Γ : hSet) (a : tm A)
@@ -182,7 +172,7 @@ Lemma yonedacarac {Γ Δ : C} (f  : _ ⟦Yo Γ,Yo Δ⟧)
 : # Yo ((f :nat_trans _ _) Γ (identity Γ)) = f.
 Proof.
   assert (H : (# Yo ((f : nat_trans _ _) Γ (identity Γ)) : nat_trans _ _) Γ (identity Γ)
-               = (f : nat_trans _ _) Γ (identity Γ)) by apply (id_left _ Γ).
+               = (f : nat_trans _ _) Γ (identity Γ)) by apply (id_left _).
   assert (Map1 : (f : nat_trans _ _) Γ (identity Γ) = yoneda_map_1 C (pr2 C) Γ (Yo(Δ)) f) by reflexivity.
   assert (Map2 : # Yo ((f : nat_trans _ _) Γ (identity Γ)) = yoneda_map_2 C (pr2 C) Γ (Yo(Δ))
          ((f : nat_trans _ _) Γ (identity Γ))).                                      
@@ -217,7 +207,7 @@ Let Xk {Γ : C} (A : Ty Γ : hSet) :=
   make_Pullback _ _ _ _ _ _ (pr22 pr22 CwF Γ A).
 
 Definition qq_yoneda {Γ  Δ : C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧)
-: _ ⟦Yo (_ .: (#Ty f A)), Yo (Γ.: A) ⟧.
+: (preShv C) ⟦Yo (Δ .: (#Ty f A)), Yo (Γ.: A) ⟧.
 Proof.
   use (PullbackArrow (Xk A)).
   -  apply (#Yo (pi _) ;; #Yo f ). 
@@ -232,21 +222,21 @@ Proof.
 Defined.
 
 Lemma qq_yoneda_commutes_1 {Γ Δ : C} (A : Ty Γ : hSet) (f : C ⟦Δ,Γ⟧)
-: (# Yo (pi _) ;; # Yo f) = (qq_yoneda A f) ;; # Yo (pi A ) .
+: (# Yo (pi (#Ty f A)) ;; # Yo f) = (qq_yoneda A f) ;; # Yo (pi A ) .
 Proof.
   apply pathsinv0.
   apply (PullbackArrow_PullbackPr1 (Xk _)).
 Qed.
 
 Lemma qq_yoneda_commutes {Γ Δ : C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧)
-: (qq_yoneda A f) ;; yy (te A) = yy (te _).
+: (qq_yoneda A f) ;; yy (te A) = yy (te (#Ty f A)).
 Proof.
   apply (PullbackArrow_PullbackPr2 (Xk A)).
 Qed.
 
 
 Definition qq_term {Γ  Δ : C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧)
-: _ ⟦ _ .: (#Ty f A) , Γ.: A⟧.
+: C ⟦ Δ.:(#Ty f A) , Γ.: A⟧.
 Proof.
   apply (invweq (make_weq _ (yoneda_fully_faithful _ (homset_property _) _ _ ))) ,
   (qq_yoneda A f).
@@ -285,7 +275,7 @@ Lemma Subproof_γ {Γ : C} {A : Ty Γ : hSet} (a : tm A)
 : identity (Yo Γ) ;; yy A = yy a ;;pp.
 Proof.
   apply pathsinv0, (pathscomp0(yy_comp_nat_trans Tm Ty pp Γ a)) ,pathsinv0,
-  (pathscomp0(id_left _  (Yo Γ) Ty  (yy A))), ((maponpaths yy) (!(pr2 a))).
+  (pathscomp0(id_left _ )), ((maponpaths yy) (!(pr2 a))).
 Qed.
 
 Definition γ {Γ : C} {A : Ty Γ : hSet} (a : tm A) : (preShv C)⟦Yo Γ,Yo (Γ.:A)⟧
@@ -310,7 +300,7 @@ Proof.
          eapply pathscomp0.
          *  rewrite (cancel_precomposition _ _ _ _ _ _ _
             (pr121((CwF_Pullback _) (Yo Γ) (identity (Yo Γ)) (yy(a)) (Subproof_γ a )))).
-            apply (id_right _ _ (Yo Γ) (#Yo f)).
+            apply id_right.
          *  rewrite qq_yoneda_compatibility.
             rewrite <- assoc.
             apply pathsinv0.
@@ -345,7 +335,7 @@ Qed.
 Lemma γPullback1 {Γ : C} (A : Ty Γ : hSet)
 : γ (te A) ;; #Yo (qq_term A (pi A)) ;; yy(te A) = identity _;; yy (te A).
 Proof.
-  rewrite (id_left (preShv C)).
+  rewrite id_left.
   assert (γ (te A) ;; yy ( te (# Ty (pi A) A)) = yy( te A)) by 
   (rewrite <- (pr221 (pr22 (pr22 CwF (Γ.:A) (#Ty (pi A) A))
     (Yo (Γ.:A)) (identity _) (yy (te A))
@@ -357,7 +347,7 @@ Proof.
 Qed.
 
 Lemma  γPullback2 {Γ : C} (A : Ty Γ : hSet)
-:γ (te A) ;; #Yo (qq_term A (pi A)) ;; #Yo (pi A) = identity _;;(#Yo (pi A)).
+: γ (te A) ;; #Yo (qq_term A (pi A)) ;; #Yo (pi A) = identity _;;(#Yo (pi A)).
 Proof.
   assert (Eq1 : #Yo (pi (#Ty (pi A) A)) ;; #Yo (pi A) = qq_yoneda A (pi A) ;; #Yo (pi A)) by (
   rewrite <- (pr121((pr22(make_Pullback (yy A) pp
@@ -384,21 +374,24 @@ Proof.
 Qed.
 
 Definition DepTypesType {Γ : C} {A : Ty Γ : hSet} (B : Ty(Γ.:A) : hSet)
-(a : tm A) : (Ty Γ : hSet) := ( γ a;;yy B : nat_trans _ _) Γ (identity Γ).
+(a : tm A)
+: Ty Γ : hSet := ( γ a;;yy B : nat_trans _ _) Γ (identity Γ).
 
 Definition DepTypesElem_pr1 {Γ : C} {A : Ty Γ : hSet} {B : Ty(Γ.:A) : hSet}
-(b : tm B) (a : tm A) : (Tm Γ : hSet) 
-:= (γ a;;yy b : nat_trans _ _) Γ (identity Γ).
+(b : tm B) (a : tm A) 
+: Tm Γ : hSet := (γ a;;yy b : nat_trans _ _) Γ (identity Γ).
 
 Lemma DepTypesComp {Γ : C} { A : Ty Γ : hSet} {B : Ty(Γ.:A) : hSet}
-(b : tm B) (a : tm A) : pp_  Γ (DepTypesElem_pr1 b a) = DepTypesType B a.
+(b : tm B) (a : tm A)
+: pp_  Γ (DepTypesElem_pr1 b a) = DepTypesType B a.
 Proof.
   apply pathsinv0,(pathscomp0(maponpaths _ (!(pr2 b)))),pathsinv0,
   (toforallpaths _ _ _ (pr22 pp (Γ.:A) Γ ((γ a : nat_trans _ _ ) Γ (identity Γ))) b).
 Qed.
 
 Definition DepTypesElems {Γ : C} { A : Ty Γ : hSet} {B : Ty(Γ.:A) : hSet}
-(b : tm B) (a : tm A) : tm (DepTypesType B a) := DepTypesElem_pr1 b a ,, DepTypesComp b a.
+(b : tm B) (a : tm A)
+: tm (DepTypesType B a) := DepTypesElem_pr1 b a ,, DepTypesComp b a.
 
 Lemma DepTypesNat {Γ Δ : C} {A : Ty Γ : hSet} (B : Ty (Γ.: A) : hSet)
 (f : C^op ⟦Γ,Δ⟧) (a : tm A)
@@ -433,17 +426,18 @@ Proof.
         (cwf_square_comm (te' A))
         (CwF_Pullback A)))
         (γ (te A) ;; #Yo (qq_term A (pi A))) (identity _) (γPullback2 A) (γPullback1 A)).
-     *  rewrite Id, (id_left (preShv C)) in Natu.
+     *  rewrite Id, (id_left _) in Natu.
         unfold DepTypesType.
         rewrite Natu; exact (!(yyidentity B)).
 Qed.
 
 Lemma DepTypesrewrite {Γ : C} {A : Ty Γ : hSet} (B : Ty (Γ.:A) : hSet)
-(a b : tm A) (e : pr1 a = pr1 b) : DepTypesType B a = DepTypesType B b.
+(a b : tm A) (e : pr1 a = pr1 b)
+: DepTypesType B a = DepTypesType B b.
 Proof.
   destruct a as [a pa]; destruct b as [b pb].
   cbn in e; induction e.
-  assert (ProofIrr : pa = pb) by apply hSetProofIrr.
+  assert (ProofIrr : pa = pb) by apply (setproperty( Ty Γ : hSet)).
   rewrite ProofIrr.
   reflexivity.
 Qed.
@@ -480,15 +474,11 @@ Qed.
 Definition CwF_PiAbs (π : CwF_PiTypeFormer): UU
 := ∏ (Γ : C) (A : Ty Γ : hSet) (B : Ty (Γ.:A) : hSet) (b : tm B), tm (π _ A B) .
 
-Definition CwF_PiAbsNat (π : CwF_PiTypeFormer) (nπ : CwF_PiTypeNat π) (Λ : CwF_PiAbs π)  : UU.
-Proof.
-  refine (∏ (Γ Δ : C) (f : C^op ⟦Γ,Δ⟧) (A : Ty Γ : hSet) (B : Ty(Γ.: A) : hSet) (b : tm B),
-  reind_tm f (Λ _ A _ b) = _).
-  simple refine (tm_transportf _ _).
-  -  exact (π Δ (# Ty f A) (# Ty (qq_term A f) B)).
-  -  apply pathsinv0, (pathscomp0(!(ppComp1 f (Λ _ _ _ b)))); exact (ppComp3 f nπ (Λ Γ A B b)).
-  -  exact (Λ Δ (#Ty f A) (#Ty (qq_term A f) B) (reind_tm (qq_term A f) b)).
-Defined.
+Definition CwF_PiAbsNat (π : CwF_PiTypeFormer) (nπ : CwF_PiTypeNat π) (Λ : CwF_PiAbs π) 
+: UU := ∏ (Γ Δ : C) (f : C^op ⟦ Γ, Δ ⟧) (A : Ty Γ : hSet)
+(B : Ty (Γ .: A) : hSet) (b : tm B), reind_tm f (Λ Γ A B b) =
+tm_transportf (! (! ppComp1 f (Λ Γ A B b) @ ppComp3 f nπ (Λ Γ A B b)))
+(Λ Δ (# Ty f A) (# Ty (qq_term A f) B) (reind_tm (qq_term A f) b)).
 
 Definition CwF_Pi_intro_struct (π : CwF_pi_form_struct) : UU
 := ∑ Λ : CwF_PiAbs π, CwF_PiAbsNat π (pr2 π) Λ.
@@ -498,9 +488,11 @@ Definition CwF_PiApp (π : CwF_PiTypeFormer) : UU
 tm (DepTypesType B a).
 
 Definition CwF_PiAppNat  (π : CwF_PiTypeFormer) (nπ : CwF_PiTypeNat π) (app : CwF_PiApp π) : UU
-:= ∏ (Γ Δ : C) (f : C^op ⟦Γ,Δ⟧) (A : Ty Γ : hSet) (B : Ty(Γ.: A) : hSet) (c : tm (π _ A B)) (a : tm A) ,
+:= ∏ (Γ Δ : C) (f : C^op ⟦Γ,Δ⟧) (A : Ty Γ : hSet) (B : Ty(Γ.: A) : hSet) 
+(c : tm (π _ A B)) (a : tm A), 
 reind_tm f (app _ _ _ c a) = (tm_transportf  (!(DepTypesNat B f a))
-(app _ (#Ty f A) (# Ty (qq_term A f) B) (tm_transportf (nπ _ _ f A B) (reind_tm f c)) (reind_tm f a))).
+(app _ (#Ty f A) (# Ty (qq_term A f) B)
+ (tm_transportf (nπ _ _ f A B) (reind_tm f c)) (reind_tm f a))).
 
 Definition CwF_Pi_app_struct (π : CwF_pi_form_struct) : UU 
 := ∑ app : CwF_PiApp π, CwF_PiAppNat π (pr2 π) app.
@@ -514,15 +506,12 @@ Definition CwF_Pi_comp_struct (π : CwF_pi_form_struct)
 := CwF_PiAppAbs π (pr1 lam) (pr1 app).
 
 Definition CwF_PiAbsAppComp (π : CwF_PiTypeFormer) (nπ : CwF_PiTypeNat π)
-(Λ : CwF_PiAbs π) (app : CwF_PiApp π) : UU.
-Proof.
-  refine ( ∏ Γ (A : Ty Γ : hSet) (B : Ty(Γ.: A) : hSet) (c : tm (π _ A B)), c = _).
-  refine (Λ _ _ _ _).
-  refine (tm_transportf (DepTypesEta B) _).
-  refine (app _ _ _ _ _).
-  refine (tm_transportf (nπ _ _ (pi A) _ _) _).
-  exact (reind_tm (pi A) c).
-Defined.
+(Λ : CwF_PiAbs π) (app : CwF_PiApp π) 
+: UU
+:= ∏ (Γ : C) (A : Ty Γ: hSet) (B : Ty (Γ .: A) : hSet) (c : tm (π Γ A B)),
+c = Λ Γ A B (tm_transportf (DepTypesEta B)
+(app (Γ .: A) (# Ty (pi A) A) (# Ty (qq_term A (pi A)) B)
+(tm_transportf (nπ Γ (Γ .: A) (pi A) A B) (reind_tm (pi A) c)) (te A))).
 
 End Pi_structure.
 
@@ -541,14 +530,12 @@ Definition CwF_SigAbs (σ : CwF_SigTypeFormer) : UU
 (b : tm (DepTypesType B a) ), tm (σ _ A B).
 
 Definition CwF_SigAbsNat (σ : CwF_SigTypeFormer) (nσ : CwF_SigTypeNat σ)
-(pair : CwF_SigAbs σ) : UU.
-Proof.
-  refine  (∏ (Γ Δ : C) (f : C^op ⟦Γ,Δ⟧) (A : Ty Γ : hSet) (B : Ty(Γ.:A) : hSet)
-  (a : tm A) (b : tm (DepTypesType B a)), reind_tm f (pair _  _ _ a b) = _).
-  refine (tm_transportf (!(nσ _ _ f A B)) _).
-  refine (pair _ _ _ (reind_tm f a) _).
-  exact (tm_transportf (DepTypesNat B f a) (reind_tm f b)).
-Defined.
+(pair : CwF_SigAbs σ) 
+: UU := ∏ (Γ Δ : C) (f : C^op ⟦ Γ, Δ ⟧) (A : Ty Γ : hSet) (B : Ty (Γ .: A) : hSet)
+(a : tm A) (b : tm (DepTypesType B a)), reind_tm f (pair Γ A B a b) =
+tm_transportf (! nσ Γ Δ f A B)
+(pair Δ (# Ty f A) (# Ty (qq_term A f) B) (reind_tm f a)
+(tm_transportf (DepTypesNat B f a) (reind_tm f b))).
 
 Definition CwF_SigPr1 (σ : CwF_SigTypeFormer) : UU
 := ∏ Γ (A : Ty Γ : hSet) (B : Ty(Γ.:A) : hSet) (c: tm (σ _ A B)), tm A.
@@ -563,34 +550,31 @@ Definition CwF_SigPr2 (σ : CwF_SigTypeFormer) (p1 : CwF_SigPr1 σ) :UU
 (c : tm (σ _ A B) ), tm (DepTypesType B (p1 _ _ _ c)).
 
 Definition CwF_SigPr2Nat (σ : CwF_SigTypeFormer) (nσ : CwF_SigTypeNat σ) (p1 : CwF_SigPr1 σ)
-(np1 : CwF_SigPr1Nat σ nσ p1) (p2 : CwF_SigPr2 σ p1) : UU.
-Proof.
-  refine (∏ (Γ Δ : C) (f : C^op ⟦Γ,Δ⟧)
-  (A : Ty Γ : hSet) (B : Ty(Γ.:A) : hSet) (c: tm (σ _ A B)),
-  reind_tm  f (p2 _ _ _ c) =  tm_transportf (!(DepTypesNat B f (p1 _ _ _ c))) _).
-  refine (tm_transportf _ _).
-  -  exact (DepTypesrewrite (#Ty (qq_term A f) B) _ _ (maponpaths pr1 (!(np1 _ _ f A B c)))).
-  -  exact (p2 _ (#Ty f A) (#Ty (qq_term A f) B) _).
-Defined.
+(np1 : CwF_SigPr1Nat σ nσ p1) (p2 : CwF_SigPr2 σ p1) 
+: UU := ∏ (Γ Δ : C) (f : C^op ⟦ Γ, Δ ⟧) (A : Ty Γ : hSet) (B : Ty (Γ .: A) : hSet)
+(c : tm (σ Γ A B)),
+reind_tm f (p2 Γ A B c) = tm_transportf (! DepTypesNat B f (p1 Γ A B c))
+(tm_transportf (DepTypesrewrite (# Ty (qq_term A f) B)
+(p1 Δ (# Ty f A) (# Ty (qq_term A f) B) (tm_transportf (nσ Γ Δ f A B) (reind_tm f c)))
+(reind_tm f (p1 Γ A B c)) (maponpaths pr1 (! np1 Γ Δ f A B c)))
+(p2 Δ (# Ty f A) (# Ty (qq_term A f) B) (tm_transportf (nσ Γ Δ f A B) (reind_tm f c)))).
 
 Definition CwF_SigAbsPr1 (σ : CwF_SigTypeFormer) (pair : CwF_SigAbs σ) (p1 : CwF_SigPr1 σ)
 : UU := ∏ Γ (A : Ty Γ : hSet) (B : Ty(Γ.:A) : hSet) (a : tm A) (b : tm (DepTypesType B a)),
 p1 _ _ _ (pair _  _ _ a b) = a.
 
 Definition CwF_SigAbsPr2 (σ : CwF_SigTypeFormer) (pair : CwF_SigAbs σ) (p1 : CwF_SigPr1 σ)
-(p2 : CwF_SigPr2 σ p1) (Ap1 : CwF_SigAbsPr1 σ pair p1) : UU.
-Proof.
-  refine (∏ Γ (A : Ty Γ : hSet) (B : Ty(Γ.:A) : hSet)
-  (a : tm A) (b : tm (DepTypesType B a)) , b = _).
-  refine (tm_transportf _ _).
-  -  exact (DepTypesrewrite B  _ _ (maponpaths pr1 (Ap1 _ A B a b))). 
-  -  exact (p2 _ _ _ (pair _  _ _ a b)).
-Defined.
+(p2 : CwF_SigPr2 σ p1) (Ap1 : CwF_SigAbsPr1 σ pair p1)
+: UU := ∏ (Γ : C^op) (A : Ty Γ : hSet) (B : Ty (Γ .: A) : hSet)
+(a : tm A) (b : tm (DepTypesType B a)),
+b = tm_transportf
+(DepTypesrewrite B (p1 Γ A B (pair Γ A B a b)) a (maponpaths pr1 (Ap1 Γ A B a b)))
+(p2 Γ A B (pair Γ A B a b)).
 
 Definition CwF_SigAbsPr (σ : CwF_SigTypeFormer) (pair : CwF_SigAbs σ)
 (p1 : CwF_SigPr1 σ) (p2 : CwF_SigPr2 σ p1) : UU
 := ∏ Γ (A : Ty Γ : hSet) (B : Ty(Γ.:A) : hSet) (c : tm (σ _ A B)),
-pair _ _ _ (p1 _ _ _ c) (p2 _ _ _ c ) = c. 
+pair _ _ _ (p1 _ _ _ c) (p2 _ _ _ c ) = c.
 
 End Sigma_structure.
 
@@ -620,7 +604,8 @@ Definition CwF_maponpathsIdForm {Id : CwF_IdTypeFormer}
 : Id Γ A a b = Id Γ A' a' b'.
 Proof.
   destruct e_A.
-  cbn in e_a, e_b.
+  rewrite (tm_transportbf _) in e_a, e_b;
+   cbn in e_a, e_b.
   apply Auxiliary.maponpaths_12; assumption.
 Qed.
 
@@ -646,7 +631,8 @@ Proof.
          apply (!(qq_term_pullback _ _)). }
          etrans. { rewrite tm_transportbf; apply (!(tm_transportf_compose _ _ _)). }
          apply tm_transportf_irrelevant.
-     --  apply subtypePath; [intro x; apply (setproperty (Ty _ : hSet))|apply qq_term_te].
+     --  apply subtypePath; [intro x; apply (setproperty (Ty _ : hSet))|
+         rewrite tm_transportbf ;apply qq_term_te].
 Qed.
 
 End Identity_Structure.
