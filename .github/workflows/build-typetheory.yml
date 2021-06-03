@@ -33,14 +33,14 @@ jobs:
       # Change into UniMath directory and build UniMath
       - name: Build UniMath
         run: |
-          pushd ..        
-	  git clone --no-checkout https://github.com/UniMath/UniMath
-	  cd UniMath
-	  git checkout master
-	  git show
-	  make PACKAGES="Foundations MoreFoundations Combinatorics Algebra NumberSystems CategoryTheory Topology Ktheory PAdics" install
-	  export PATH=$PATH:$PWD/sub/coq/bin/
-	  popd
+          pushd ..
+          git clone --no-checkout https://github.com/UniMath/UniMath
+          cd UniMath
+          git checkout master
+          git show
+          make PACKAGES="Foundations MoreFoundations Combinatorics Algebra NumberSystems CategoryTheory Topology Ktheory PAdics" install
+          export PATH=$PATH:$PWD/sub/coq/bin/
+          popd
 
       # Change into UniMath directory and run sanity checks
       - name: Change into UniMath directory and run sanity checks
