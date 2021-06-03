@@ -43,10 +43,6 @@ jobs:
           export PATH=$PATH:$PWD/sub/coq/bin/
           echo $PATH
           popd
-
-      # Change into TypeTheory directory and compile
-      - name: Change into TypeTheory directory and build
-        run: |
           cd $GITHUB_WORKSPACE
           echo $PATH
           time make
