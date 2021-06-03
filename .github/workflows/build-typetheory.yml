@@ -45,7 +45,7 @@ jobs:
           popd
 
       # Change into TypeTheory directory and compile
-      - name: Change into UniMath directory and run sanity checks
+      - name: Change into TypeTheory directory and build
         run: |
           cd $GITHUB_WORKSPACE
           echo $PATH
