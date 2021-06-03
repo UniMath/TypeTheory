@@ -47,3 +47,4 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE
           time make
+
