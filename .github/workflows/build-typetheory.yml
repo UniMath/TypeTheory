@@ -36,16 +36,19 @@ jobs:
           pushd ..
           git clone --no-checkout https://github.com/UniMath/UniMath
           cd UniMath
+	  pwd
           git checkout master
           git show
           make PACKAGES="Foundations MoreFoundations Combinatorics Algebra NumberSystems CategoryTheory Topology Ktheory PAdics" install
           export PATH=$PATH:$PWD/sub/coq/bin/
+	  echo $PATH
           popd
 
       # Change into TypeTheory directory and compile
       - name: Change into UniMath directory and run sanity checks
         run: |
           cd $GITHUB_WORKSPACE
+	  echo $PATH
           time make
 
 
