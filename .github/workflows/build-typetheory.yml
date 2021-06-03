@@ -42,7 +42,7 @@ jobs:
           export PATH=$PATH:$PWD/sub/coq/bin/
           popd
 
-      # Change into UniMath directory and run sanity checks
+      # Change into TypeTheory directory and compile
       - name: Change into UniMath directory and run sanity checks
         run: |
           cd $GITHUB_WORKSPACE
