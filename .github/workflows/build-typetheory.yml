@@ -39,7 +39,8 @@ jobs:
           pwd
           git checkout master
           git show
-          make PACKAGES="Foundations MoreFoundations Combinatorics Algebra NumberSystems CategoryTheory Topology Ktheory PAdics" install
+	  make build-coq
+	  make -j2 PACKAGES="Foundations MoreFoundations Combinatorics Algebra NumberSystems CategoryTheory Topology Ktheory PAdics" install
           export PATH=$PATH:$PWD/sub/coq/bin/
           echo $PATH
           popd
