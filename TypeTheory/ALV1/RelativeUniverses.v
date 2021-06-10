@@ -862,7 +862,7 @@ Proof.
       rewrite functor_comp.
       repeat rewrite assoc. apply maponpaths_2.
       apply pathsinv0. rewrite <- assoc. rewrite <- assoc.
-      apply (iso_inv_to_left D' _ _ _ (αpwiso Xf )).
+      apply (iso_inv_to_left (C:=D') _ _ _ (αpwiso Xf )).
       cbn. unfold precomp_with. rewrite id_right.
       assert (XR := nat_trans_ax α').
       apply pathsinv0. 

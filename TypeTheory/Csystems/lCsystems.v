@@ -539,7 +539,7 @@ Proof.
     assert (e: f_star gt0 (ftf g2) = f_star (C0ax5a gt0 f) g1)
     by exact (! maponpaths (f_star gt0) pbeq @ ! C0ax7a gt0 f g1).
     apply (eq_par_arrow_cor_objirr (isaset_ob CC) _ _ (pnX 1) e).
-  - apply (pre_comp_with_iso_is_inj _ _ _ _ (C0eiso gt0 (ftf g2))).
+  - apply (pre_comp_with_iso_is_inj _ _ _ (C0eiso gt0 (ftf g2))).
     { apply iso_is_iso. }
     apply pathsinv0.
     etrans.
