@@ -1129,7 +1129,7 @@ Lemma commuting_square_transfer_iso {C : precategory}
    -> p1' ;; f' = p2' ;; g'.
 Proof.
   intro H.
-  refine (pre_comp_with_iso_is_inj _ _ _ _ i_d _ _ _ _).
+  refine (pre_comp_with_iso_is_inj _ _ _ i_d _ _ _ _).
   exact (pr2 i_d).  (* TODO: access function [is_iso_from_iso]? *)
   rewrite 2 assoc.
   rewrite <- i_p1, <- i_p2.
@@ -1163,7 +1163,7 @@ Proof.
       + exact (h ;; iso_inv_from_iso i_b).
       + exact (k ;; iso_inv_from_iso i_c).
       + abstract (
-          apply (post_comp_with_iso_is_inj _ _ _ i_a (pr2 _));
+          apply (post_comp_with_iso_is_inj _ _ i_a (pr2 _));
             (* TODO: access function for isos! *)
           repeat rewrite <- assoc;
           rewrite i_f, i_g;
@@ -1193,17 +1193,17 @@ Proof.
     apply subtypePath.
       intro; apply isapropdirprod; apply homset_property.
     cbn.
-    apply (post_comp_with_iso_is_inj _ _ _ (iso_inv_from_iso i_d) (pr2 _)).
+    apply (post_comp_with_iso_is_inj _ _ (iso_inv_from_iso i_d) (pr2 _)).
     eapply @pathscomp0.
     2: { rewrite <- assoc. cbn. rewrite iso_inv_after_iso. eapply pathsinv0, id_right. }
     apply PullbackArrowUnique; cbn.
-    + apply (post_comp_with_iso_is_inj _ _ _ i_b (pr2 _)).
+    + apply (post_comp_with_iso_is_inj _ _ i_b (pr2 _)).
       repeat rewrite <- assoc.
       rewrite i_p1, iso_after_iso_inv, id_right.
       eapply @pathscomp0.
         apply maponpaths. rewrite assoc, iso_after_iso_inv. apply id_left.
       apply (pr1 (pr2 hk')).
-    + apply (post_comp_with_iso_is_inj _ _ _ i_c (pr2 _)).
+    + apply (post_comp_with_iso_is_inj _ _ i_c (pr2 _)).
       repeat rewrite <- assoc.
       rewrite i_p2, iso_after_iso_inv, id_right.
       eapply @pathscomp0.

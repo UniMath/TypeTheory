@@ -353,7 +353,7 @@ Proof.
       = (q_typecat (reind_typecat A (dpr_typecat A)) (a;; q_typecat A γ))
           ;; (q_typecat A (dpr_typecat A))).
 
-      unshelve refine (pre_comp_with_iso_is_inj _ _ _ _ _ _ _ _ _).
+      unshelve refine (pre_comp_with_iso_is_inj _ _ _ _ _ _ _ _).
       Focus 4.
         etrans. Focus 2. symmetry; apply assoc.
         etrans. Focus 2. apply (@q_q_typecat (((CC,,homs_sets),,pr1 C),,pr2 C)).
