@@ -59,10 +59,10 @@ Qed.
 
 (** * Tm as a Display **)
 Section tm.
-Definition tm {Γ : C} (A : Ty Γ : hSet) : UU
+Local Definition tm {Γ : C} (A : Ty Γ : hSet) : UU
 := ∑ (a : Tm Γ : hSet), pp_ _ a = A.
 
-Definition pr1_tm {Γ : C} {A : Ty Γ : hSet} (a : tm A) : Tm Γ : hSet := pr1 a.
+Local Definition pr1_tm {Γ : C} {A : Ty Γ : hSet} (a : tm A) : Tm Γ : hSet := pr1 a.
 Coercion pr1_tm : tm >-> pr1hSet.
 
 Lemma ppComp1 {Γ Δ : C} {A : Ty Γ : hSet} (f : C^op ⟦Γ,Δ⟧) (a : tm A) :
@@ -74,7 +74,7 @@ Qed.
 
 Definition reind_cwf {Γ : C} (A : Ty Γ : hSet) {Γ'} (f : C⟦Γ',Γ⟧)
 : Ty Γ' : hSet := #Ty f A.
-Definition reind_tm {Γ Δ} (f : C^op ⟦Γ,Δ⟧) {A : Ty Γ : hSet} (x : tm A)
+Local Definition reind_tm {Γ Δ} (f : C^op ⟦Γ,Δ⟧) {A : Ty Γ : hSet} (x : tm A)
 : tm (#Ty f A) := #Tm f x,,ppComp1 f x.
 
 Local Definition te {Γ : C} (A : Ty Γ : hSet) : tm (#Ty (pi A) A)
@@ -83,7 +83,7 @@ Local Definition te {Γ : C} (A : Ty Γ : hSet) : tm (#Ty (pi A) A)
 Local Definition te' {Γ : C} (A : Ty Γ : hSet) : pp_ _ (te A) = #Ty (pi A) A := pr212 pr22 CwF Γ A.
 Definition CwF_Pullback {Γ} (A : Ty Γ : hSet) : isPullback (yy A) pp (#Yo (pi A)) (yy(te A)) (cwf_square_comm (te' A)) := pr22 pr22 CwF Γ A.
 
-Definition tm_transportf {Γ} {A A' : Ty Γ : hSet} (e : A = A')
+Local Definition tm_transportf {Γ} {A A' : Ty Γ : hSet} (e : A = A')
 : tm A ≃ tm A'.
 Proof.
   use weqbandf.
@@ -91,7 +91,7 @@ Proof.
   -  induction e. intro x. exact (idweq _).
 Defined.
 
-Definition tm_transportb {Γ} {A A' : Ty Γ : hSet} (e : A = A')
+Local Definition tm_transportb {Γ} {A A' : Ty Γ : hSet} (e : A = A')
 : tm A' ≃ tm A := invweq(tm_transportf e).
 
 Lemma tm_transportf_idpath {Γ} {A : Ty Γ : hSet} (t : tm A)
@@ -158,7 +158,7 @@ Proof.
   reflexivity.
 Qed.
 
-Definition tm_transportf_bind {Γ} {A A' A'': Ty Γ : hSet} {e : A' = A} {e' : A'' = A'}
+Lemma tm_transportf_bind {Γ} {A A' A'': Ty Γ : hSet} {e : A' = A} {e' : A'' = A'}
 {t} {t'} {t''} (ee : t = tm_transportf e t') (ee' : t' = tm_transportf e' t'')
 : t = tm_transportf (e' @ e) t''.
 Proof.
@@ -177,7 +177,7 @@ Proof.
   now rewrite <- tm_transportf_compose, pathsinv0l, tm_transportf_idpath.
 Qed.
 
-Definition reind_id_tm {Γ : C}{A : Ty Γ : hSet} (a : tm A)
+Lemma reind_id_tm {Γ : C}{A : Ty Γ : hSet} (a : tm A)
 : reind_tm (identity _) a
 = tm_transportb ((toforallpaths _ _ _ (pr12 Ty _ )) A) a.
 Proof.
@@ -246,7 +246,7 @@ Section qq.
 Let Xk {Γ : C} (A : Ty Γ : hSet) :=
   make_Pullback _ _ _ _ _ _ (pr22 pr22 CwF Γ A).
 
-Definition qq_yoneda {Γ  Δ : C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧)
+Local Definition qq_yoneda {Γ  Δ : C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧)
 : (preShv C) ⟦Yo (Δ .: (#Ty f A)), Yo (Γ.: A) ⟧.
 Proof.
   use (PullbackArrow (Xk A)).
@@ -275,7 +275,7 @@ Proof.
 Qed.
 
 
-Definition qq_term {Γ  Δ : C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧)
+Local Definition qq_term {Γ  Δ : C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧)
 : C ⟦ Δ.:(#Ty f A) , Γ.: A⟧.
 Proof.
   apply (invweq (make_weq _ (yoneda_fully_faithful _ (homset_property _) _ _ ))) ,
@@ -453,7 +453,7 @@ Proof.
      exact inter.
 Qed.
 
-Definition reind_id_tm' {Γ : C} {A : Ty Γ : hSet}  (a : tm A) (b : tm A)
+Lemma reind_id_tm' {Γ : C} {A : Ty Γ : hSet}  (a : tm A) (b : tm A)
 (e : # Ty (identity Γ) A = # Ty (Yo^-1 (γ b) ;; pi A) A) 
 : tm_transportf e (reind_tm (identity _) a)
 = tm_transportf ((Ty_identity _) @ e) a.
