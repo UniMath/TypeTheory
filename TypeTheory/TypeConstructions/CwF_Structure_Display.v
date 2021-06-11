@@ -50,6 +50,13 @@ Proof.
   exact (!((toforallpaths _ _ _ (!(pr22 Tm _ _ _  g f))) A)).
 Qed.
 
+Lemma Ty_identity {Γ : C} (A : Ty Γ : hSet) : A = #Ty (identity Γ) A.
+Proof.
+  assert (eqA : A = (identity (pr1 Ty Γ) A)) by auto.
+  rewrite eqA.
+  apply (!((toforallpaths _ _ _ (pr12 Ty _ )) A)).
+Qed.
+
 (** * Tm as a Display **)
 Section tm.
 Definition tm {Γ : C} (A : Ty Γ : hSet) : UU
@@ -151,6 +158,34 @@ Proof.
   reflexivity.
 Qed.
 
+Definition tm_transportf_bind {Γ} {A A' A'': Ty Γ : hSet} {e : A' = A} {e' : A'' = A'}
+{t} {t'} {t''} (ee : t = tm_transportf e t') (ee' : t' = tm_transportf e' t'')
+: t = tm_transportf (e' @ e) t''.
+Proof.
+  etrans. 2: { apply pathsinv0, tm_transportf_compose. }
+  etrans. { eassumption. }
+  apply maponpaths; assumption.
+Qed.
+
+Lemma reind_compose_tm' 
+{Γ Γ' Γ'' : C} (f : C⟦Γ',Γ⟧) (g : C⟦Γ'',Γ'⟧) {A : Ty Γ : hSet} (a : tm A)
+: tm_transportf (Ty_composition _ _ _)
+        (reind_tm (g ;; f) a)
+      = reind_tm g (reind_tm f a).
+Proof.
+  rewrite reind_compose_tm. rewrite tm_transportbf.
+  now rewrite <- tm_transportf_compose, pathsinv0l, tm_transportf_idpath.
+Qed.
+
+Definition reind_id_tm {Γ : C}{A : Ty Γ : hSet} (a : tm A)
+: reind_tm (identity _) a
+= tm_transportb ((toforallpaths _ _ _ (pr12 Ty _ )) A) a.
+Proof.
+  apply subtypePath. 
+  -  intros x. apply (setproperty (Ty Γ : hSet)).
+  -  apply ((toforallpaths _ _ _ (pr12 Tm _ )) a).
+Qed.
+
 End tm. 
 
 Section Yoneda.
@@ -188,6 +223,11 @@ Proof.
         exact (pr1 (prop _ _)).
      --  apply pair_path_in2; apply nattrans.
   -  rewrite Map2; rewrite Map1; apply yoneda_map_1_2.
+Qed.
+
+Lemma invyoneda {A B : C} (f : _⟦Yo A,Yo B⟧) : #Yo (Yo^-1 f) = f.
+Proof.
+  apply yonedacarac.  
 Qed.
 
 Lemma yyidentity {Γ : C} {A : Ty Γ : hSet} (B : Ty (Γ.:A) : hSet) 
@@ -287,6 +327,13 @@ Proof.
   exact (pr221((CwF_Pullback _) (Yo (Γ.:A)) (identity _) (yy _) (Subproof_γ _))).
 Qed.
 
+Lemma pull_γ {Γ : C} {A : Ty Γ : hSet} (a : tm A) : γ a ;; #Yo (pi A) = identity _.
+Proof.
+  apply pathsinv0, (pathscomp0(!(pr121 (CwF_Pullback _
+        (Yo Γ) (identity (Yo Γ)) (yy a)
+        (Subproof_γ a))))); auto.
+Qed.
+
 Lemma γNat {Γ Δ : C} {A : Ty Γ : hSet} (f : C^op ⟦Γ,Δ⟧) (a : tm A)
 : (f : C⟦Δ,Γ⟧) ;; (γ a : nat_trans _ _) Γ (identity Γ) =
   (γ (reind_tm f a ) ;; #Yo (qq_term A f) : nat_trans _ _) Δ (identity Δ).
@@ -371,6 +418,57 @@ Proof.
   rewrite assoc.
   apply (pathscomp0 (cancel_postcomposition _ _ _ (Eq2))).
   reflexivity.
+Qed.
+
+Definition γ_qq {Γ} {A : Ty Γ: hSet} {Γ'} (f : C⟦Γ',Γ⟧) (a : tm (#Ty f A)) : C⟦Γ',Γ.: A⟧.
+Proof.
+  exact (Yo^-1 (γ a) ;; qq_term A f).    
+Defined.
+
+Lemma γ_pi {Γ} {A : Ty Γ: hSet} (a : tm A) : Yo^-1 (γ a) ;; pi A = identity _.
+Proof.
+  assert (Yoeq : #Yo(Yo^-1 (γ a) ;; pi A) = #Yo(identity Γ)).
+  -  apply (pathscomp0 (pr22 Yo _ _ _  _ _ )).
+     apply pathsinv0 , (pathscomp0 (pr12 Yo _)).    
+     assert (simplman : identity (pr1 (yoneda C (homset_property C)) Γ) 
+     = identity (Yo Γ)) by auto.
+     apply (pathscomp0 simplman).
+     rewrite (!(pull_γ a)).
+     apply cancel_postcomposition.
+     assert (simplman2 : # (pr1 (yoneda C (homset_property C))) (Yo^-1 (γ a))
+     = #Yo (Yo^-1 (γ a))) by auto.
+     apply pathsinv0, (pathscomp0 simplman2), invyoneda.
+  -  apply (maponpaths (Yo^-1) ) in Yoeq.
+     rewrite yonedainv, yonedainv in Yoeq.
+     exact Yoeq.
+Qed.
+
+Lemma te_subtitution {Γ} {A : Ty Γ : hSet} (a : tm A) : #Tm (Yo^-1(γ a)) (te A) = a.
+Proof.
+  assert (inter : @yy _ (pr2 C) _ _ (#Tm (Yo^-1(γ a)) (te A)) = yy a). 
+  -  rewrite yy_natural, invyoneda. 
+     exact (pr221((CwF_Pullback _) (Yo _) (identity _) (yy _) (Subproof_γ _))).
+  -  apply (maponpaths (invmap yy) ) in inter.
+     do 2 rewrite homotinvweqweq in inter.
+     exact inter.
+Qed.
+
+Definition reind_id_tm' {Γ : C} {A : Ty Γ : hSet}  (a : tm A) (b : tm A)
+(e : # Ty (identity Γ) A = # Ty (Yo^-1 (γ b) ;; pi A) A) 
+: tm_transportf e (reind_tm (identity _) a)
+= tm_transportf ((Ty_identity _) @ e) a.
+Proof.
+  apply subtypePath.  
+  -  intros x. apply (setproperty (Ty Γ : hSet)).
+  -  apply ((toforallpaths _ _ _ (pr12 Tm _ )) a).
+Qed.
+
+Lemma Ty_γ_id {Γ : C} {A : Ty Γ : hSet} (a : tm A) 
+: # Ty (Yo^-1 (γ a)) (# Ty (pi A) A) = A.
+Proof.
+  simple refine (!(Ty_composition _ _ _) @ _).
+  apply (pathscomp0 ((toforallpaths  _ _ _ (maponpaths _ (γ_pi _)) )A)).
+  apply ((toforallpaths _ _ _ (pr12 Ty _ )) A).
 Qed.
 
 Definition DepTypesType {Γ : C} {A : Ty Γ : hSet} (B : Ty(Γ.:A) : hSet)
@@ -634,6 +732,34 @@ Proof.
      --  apply subtypePath; [intro x; apply (setproperty (Ty _ : hSet))|
          rewrite tm_transportbf ;apply qq_term_te].
 Qed.
+
+Definition CwF_Id_map {Id} (nid : CwF_IdTypeNat Id) {Γ} {A : Ty Γ : hSet} (a : tm A) (b : tm A) (eqab : tm (Id _ _ a b))
+: C⟦Γ,_.:CwF_IdBasedFam Id A a⟧.
+Proof.
+  simple refine (γ_qq (Yo^-1 (γ b)) _). unfold CwF_IdBasedFam.
+  simple refine (tm_transportb _ eqab).
+  abstract(
+  simple refine (nid  _ _ _ _ _ _ @ _);
+  use CwF_maponpathsIdForm;
+  [ apply Ty_γ_id
+  | rewrite tm_transportbf ;
+    refine (_ @ tm_transportf_irrelevant _ _ _);
+    simple refine (tm_transportf_bind (!reind_compose_tm' _ _ _) _);
+    [ apply (pathscomp0 (!(Ty_γ_id b))) , (!(Ty_composition _ _ _)) |
+      simple refine (maponpaths_2_reind_tm _ _ @ _);
+      [exact (identity _) | apply γ_pi |
+      rewrite tm_transportbf; apply (pathscomp0 (reind_id_tm' _ _ _));
+      apply tm_transportf_irrelevant ]]
+  | apply subtypePath;
+    [  intros x; apply (setproperty (Ty Γ : hSet))
+     | rewrite tm_transportbf; apply te_subtitution]]).
+Defined.
+
+Definition CwF_IdBased_path_inducton {Id} (nid : CwF_IdTypeNat Id) (refl : CwF_IdRefl Id) := ∏ Γ (A : Ty Γ : hSet) (a : tm A)
+(P : Ty (_ .: CwF_IdBasedFam Id A a) :  hSet)
+(d : tm  (#Ty (CwF_Id_map nid a a (refl _ _ a)) P))
+(b : tm A) (eqab : tm (Id _ _ a b)), 
+tm (#Ty (CwF_Id_map nid a b eqab) P).
 
 End Identity_Structure.
 End Fix_Category.
