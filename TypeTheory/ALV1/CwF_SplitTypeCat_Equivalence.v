@@ -142,7 +142,7 @@ Definition canonical_TM_to_given_iso
   : @iso (preShv C) (tm_from_qq Z) (TM (pr1 Y)).
 Proof.
   exists canonical_TM_to_given.
-  apply functor_iso_if_pointwise_iso.
+  apply functor_iso_if_pointwise_iso. intro c.
   apply canonical_TM_to_given_pointwise_iso.
 Defined.
 
