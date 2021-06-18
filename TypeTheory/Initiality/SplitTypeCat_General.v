@@ -165,6 +165,8 @@ Section Terms.
     now rewrite (PullbackArrow_PullbackPr2 pb).
   Qed.
 
+About q_q_typecat.
+
   (** A concrete construction of “transport” of terms, by composing with [comp_ext_compare]. *)
   Definition tm_transportf {C : typecat} {Γ} {A A' : C Γ} (e : A = A')
     : tm A ≃ tm A'.
@@ -300,7 +302,8 @@ Section Terms.
     + eapply (map_into_Pb _ _ _ _ _ (reind_pb_typecat A _) _ _ (idpath (identity _ ;; _))).
     + apply Pb_map_commutes_1.
   Defined.
-
+  About reind_comp_typecat.
+About q_q_typecat.
   (* TODO: upstream; consider whether this should be primitive instead of [q_q_typecat]. *)
   Definition q_q_typecat' {C : split_typecat}
     : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
