@@ -165,8 +165,6 @@ Section Terms.
     now rewrite (PullbackArrow_PullbackPr2 pb).
   Qed.
 
-About q_q_typecat.
-
   (** A concrete construction of “transport” of terms, by composing with [comp_ext_compare]. *)
   Definition tm_transportf {C : typecat} {Γ} {A A' : C Γ} (e : A = A')
     : tm A ≃ tm A'.
