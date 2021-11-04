@@ -69,8 +69,7 @@ Context {C D : category}
 
 Definition Fop_precomp : preShv D ⟶ preShv C.
 Proof.
-  use (pre_composition_functor C^op D^op HSET _ _ (functor_opp F) ).
-  apply has_homsets_opp. apply homset_property.
+  use (pre_composition_functor C^op D^op HSET (functor_opp F) ).
 Defined.
 
 Definition ff_Fop_precomp : fully_faithful Fop_precomp.
@@ -83,6 +82,7 @@ Defined.
 Definition es_Fop_precomp : essentially_surjective Fop_precomp.
 Proof.
   apply pre_composition_essentially_surjective.
+  + apply is_univalent_HSET.
   + apply opp_functor_essentially_surjective. apply F_es.
   + apply opp_functor_fully_faithful. apply F_ff.
 Defined.
@@ -92,6 +92,7 @@ Definition equiv_Fcomp : adj_equivalence_of_precats Fop_precomp.
 Proof.
   apply rad_equivalence_of_precats.
   - apply is_univalent_functor_category.
+    apply is_univalent_HSET.
   - apply ff_Fop_precomp.
   - apply es_Fop_precomp.
 Defined.
@@ -136,8 +137,7 @@ Definition fi : iso (C:=[C, preShv D])
           (functor_composite F Yo).
 Proof.
   set (T:= @iso_from_fully_faithful_reflection _ _ 
-             (pre_composition_functor C^op _ HSET (has_homsets_opp (homset_property _) ) has_homsets_HSET 
-                                           (functor_opp (F)))
+             (pre_composition_functor C^op D^op HSET (functor_opp (F)))
       ).
 
   set (XTT := ff_Fop_precomp).
