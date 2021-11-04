@@ -856,8 +856,8 @@ Defined.
 
 Definition preShv C := functor_univalent_category C^op HSET_univalent_category.
 
-Notation "'Yo'" := (yoneda _ (homset_property _) : functor _ (preShv _)).
-Notation "'Yo^-1'" := (invweq (make_weq _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
+Notation "'Yo'" := (yoneda _ : functor _ (preShv _)).
+Notation "'Yo^-1'" := (invweq (make_weq _ (yoneda_fully_faithful _ _ _ ))).
 
 (* TODO: perhaps rename e.g. [yoneda_eq]? *)
 Definition yy {C : category} 
@@ -988,7 +988,6 @@ Proof.
   apply maponpaths, maponpaths, idtoiso_isotoid.
 Qed.
 
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 Lemma inv_from_iso_iso_from_fully_faithful_reflection {C D : precategory}
       (F : functor C D) (HF : fully_faithful F) (a b : C) (i : iso (F a) (F b))
