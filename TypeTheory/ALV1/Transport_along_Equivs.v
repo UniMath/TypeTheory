@@ -149,11 +149,11 @@ Proof.
      apply functor_assoc_iso.
   eapply iso_comp.
      eapply functor_precomp_iso.
-     apply counit_iso_from_adj_equivalence_of_precats.
+     apply (counit_iso_from_adj_equivalence_of_precats equiv_Fcomp).
   eapply iso_comp.
     apply functor_comp_id_iso.
 
-  exists (yoneda_functor_precomp_nat_trans _ _ _ _ _ ).
+  exists (yoneda_functor_precomp_nat_trans _ _ _ ).
   apply functor_iso_if_pointwise_iso.
     intro c. apply is_iso_yoneda_functor_precomp.
     apply F_ff.
@@ -180,7 +180,7 @@ Defined.
 
 Definition Transfer_of_RelUnivYoneda (Dcat : is_univalent D) (X : @relative_universe C _ Yo)
   : relative_universe
-      ((yoneda D (homset_property D) : functor D (preShv D))
+      ((yoneda D : functor D (preShv D))
        :
          functor D (preShv D)).
 Proof.
@@ -192,11 +192,11 @@ Proof.
          F
          ext
          fi
-         (pr2 fi)
+         (pr2 fi) 
          preserves_pullbacks_ext
          F_es
          Dcat
-         (yoneda_fully_faithful _ _ )
+         (yoneda_fully_faithful _)
          (right_adj_equiv_is_full _ _)
        ).
 Defined.
@@ -206,18 +206,19 @@ Defined.
 Lemma is_univalent_preShv X : is_univalent (preShv X).
 Proof.
   apply is_univalent_functor_category.
+  apply is_univalent_HSET.
 Defined.
 
 (** * Transfer of a relative weak universe *)
 
 Definition Transfer_of_WeakRelUnivYoneda : 
-  weak_relative_universe (yoneda C (homset_property C)) ≃ 
-                         weak_relative_universe (yoneda D (homset_property D)).
+  weak_relative_universe (yoneda C) ≃ 
+                         weak_relative_universe (yoneda D).
 Proof.
   set (XR := @weq_weak_relative_universe_transfer 
                C 
                (preShv C)
-               (yoneda C (homset_property C))
+               (yoneda C)
                D
                (preShv D)
                Yo 
