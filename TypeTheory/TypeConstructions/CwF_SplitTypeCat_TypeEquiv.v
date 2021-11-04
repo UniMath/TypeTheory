@@ -33,7 +33,7 @@ Local Definition Tm : functor _ _ := source pp.
 Local Definition ext {Γ : C} (A : Ty Γ : hSet) : C := pr11(pr22 CwF Γ A).
 Local Notation "Γ.: A" :=  (ext A) (at level 24).
 
-Definition pi {Γ :C} (A : Ty Γ : hSet) : C⟦Γ.:A,Γ⟧ := pr21 (pr22 CwF _ A).
+Local Definition pi {Γ :C} (A : Ty Γ : hSet) : C⟦Γ.:A,Γ⟧ := pr21 (pr22 CwF _ A).
 
 (* just a simple to use pp as a nat_trans *)
 Local Definition Nat_trans_morp {C : category} (Γ : C) (p : mor_total(preShv C)) 
