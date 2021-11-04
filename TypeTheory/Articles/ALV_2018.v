@@ -122,7 +122,7 @@ Admitted.
 Definition equiv_cat_rep_map_cwf_Rezk (C : category)
   : equivalence_of_precats
       (rep_map_cat C)
-      (cwf_structure_cat (Rezk_completion C (homset_property _ ) )).
+      (cwf_structure_cat (Rezk_completion C)).
 Admitted.
 
 
