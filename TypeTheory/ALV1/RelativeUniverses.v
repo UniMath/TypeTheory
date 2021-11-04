@@ -31,7 +31,7 @@ Local Notation "[ C , D ]" := (functor_category C D).
 
 Section Relative_Comprehension.
 
-Context {C D : precategory} (J : functor C D).
+Context {C D : category} (J : functor C D).
 Context {U tU : D} (p : D ⟦tU, U⟧).
 
 Definition fpullback_data {X : C} (f : D ⟦J X, U⟧) : UU 
@@ -52,7 +52,7 @@ Coercion fpullback_data_from_fpullback {X : C} {f : D ⟦J X, U⟧} (T : fpullba
 
 Definition isPullback_fpullback
            {X : C} {f : D ⟦J X, U⟧ } (Y : fpullback f)
-  : isPullback _ _ _ _ _ := pr2 (pr2 Y).
+  : isPullback _ := pr2 (pr2 Y).
 
 Definition rel_universe_structure := ∏ X (f : D⟦J X, U⟧), fpullback f.
 
@@ -93,7 +93,7 @@ Arguments rel_universe_structure_data [_ _] _ _ _.
 
 Section Relative_Comprehension_Lemmas.
 
-Context {C : precategory} {D : category} (J : functor C D).
+Context {C : category} {D : category} (J : functor C D).
 Context {U tU : D} (pp : D ⟦tU, U⟧).
 
 Lemma isaprop_fpullback_prop {X : C} {f : D ⟦J X, U⟧} (T : fpullback_data J f)
@@ -120,8 +120,8 @@ Proof.
     destruct H' as [H' isP'].
     use total2_paths_f.
     + unfold fpullback_prop in *.
-      set (T1 := make_Pullback _ _ _ _ _ _ isP).
-      set (T2 := make_Pullback _ _ _ _ _ _ isP').
+      set (T1 := make_Pullback _ isP).
+      set (T2 := make_Pullback _ isP').
       set (i := iso_from_Pullback_to_Pullback T1 T2). cbn in i.
       set (i' := invmap (weq_ff_functor_on_iso HJ a a') i ).
       set (TT := isotoid _ is_c i').
@@ -150,7 +150,7 @@ Proof.
         cbn in *.
         rewrite functor_comp. rewrite T. clear T.
         clear XT' XT. clear TT. 
-        assert (X1:= PullbackArrow_PullbackPr1 (make_Pullback _ _ _ _ _ _ isP)).
+        assert (X1:= PullbackArrow_PullbackPr1 (make_Pullback _ isP)).
         cbn in X1.
         apply X1.
       * unfold TT. clear TT. clear XT' XT.
@@ -160,7 +160,7 @@ Proof.
         cbn. unfold precomp_with. rewrite id_right. rewrite id_right.
         assert (XX:=homotweqinvweq (weq_from_fully_faithful HJ a' a  )).
         simpl in XX. rewrite XX. simpl. cbn.
-        assert (X1:= PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ isP)).
+        assert (X1:= PullbackArrow_PullbackPr2 (make_Pullback _ isP)).
         apply X1.
 Qed.
 
@@ -180,15 +180,15 @@ End Relative_Comprehension_Lemmas.
 (** A _universe relative to a functor_ is just a map in the target category, 
     equipped with a relative comprehension structure. *)
 
-Definition relative_universe {C D : precategory} (J : functor C D) : UU
+Definition relative_universe {C D : category} (J : functor C D) : UU
   := ∑ X : mor_total D, rel_universe_structure J X.
 
-Definition weak_relative_universe {C D : precategory} (J : functor C D) : UU
+Definition weak_relative_universe {C D : category} (J : functor C D) : UU
   := ∑ X : mor_total D, is_universe_relative_to J X.
 
 (** ** Forgetful function from relative universes to relative weak universes *)
 
-Definition weak_from_relative_universe {C D : precategory} (J : functor C D) 
+Definition weak_from_relative_universe {C D : category} (J : functor C D) 
   : relative_universe J → weak_relative_universe J.
 Proof.
   use bandfmap.
@@ -221,7 +221,7 @@ Qed.
 (* Access functions for relative universes *)
 Section Relative_Universe_Accessors.
 
-Context {C D : precategory} {J : functor C D}.
+Context {C D : category} {J : functor C D}.
 
 (* NOTE: it would be nice to have at least [base] as a coercion, and perhaps also [mor].  But when one declarest them as such and tries to use them, they are not found (presumably since they don’t satisfy the “uniform inheritance condition”, according to a warning given at declaration time). *)
 
@@ -538,11 +538,11 @@ Section Rel_Univ_Structure_Transfer.
     in which the right-hand functor _S_ preserves pullbacks. *)
 
 Context
-   {C : precategory} {D : category}
+   {C : category} {D : category}
    (J : functor C D)
    (RUJ : relative_universe J)
 
-   {C' : precategory} {D' : category}
+   {C' : category} {D' : category}
    (J' : functor C' D')
 
    (R : functor C C') (S : functor D D')
@@ -725,10 +725,10 @@ End Rel_Univ_Structure_Transfer.
 Section Is_universe_relative_to_Transfer.
 
 Context
-   {C : precategory} {D : category}
+   {C : category} {D : category}
    (J : functor C D)
 
-   {C' : precategory} {D' : category}
+   {C' : category} {D' : category}
    (J' : functor C' D')
 
    (R : functor C C') (S : functor D D')
@@ -874,11 +874,11 @@ Proof.
       rewrite functor_comp.
       apply pathsinv0, assoc.
     + cbn. 
-      match goal with |[|- isPullback _ _ _ _ (?HH)] => generalize HH end.
+      match goal with |[|- isPullback (?HH)] => generalize HH end.
       intro HH.
       use (isPullback_preimage_square _ _ _ _ S_ff). 
       { apply homset_property. }
-      match goal with |[|- isPullback _ _ _ _ (?HH)] => generalize HH end.
+      match goal with |[|- isPullback (?HH)] => generalize HH end.
       assert (XR := homotweqinvweq (weq_from_fully_faithful S_ff (J Xf) tU )).
       simpl in XR. rewrite XR.
       clear HH XR.
