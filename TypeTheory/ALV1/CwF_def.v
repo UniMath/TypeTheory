@@ -35,11 +35,11 @@ Defined.
 
 Definition yoneda_induction {C : category} (F : preShv C) (Γ' : C) 
            (P : ((F : functor _ _ ) Γ' : hSet) -> UU) :
-  (forall K : _ ⟦ Yo Γ', F ⟧, P (invmap (@yy _ _ F Γ') K)) -> 
+  (forall K : _ ⟦ Yo Γ', F ⟧, P (invmap (@yy _ F Γ') K)) -> 
   forall A : (F : functor _ _ ) Γ' : hSet, P A.
 Proof.
   intros H A0.
-  set(XR := homotinvweqweq (@yy _ (homset_property C) F Γ')).
+  set(XR := homotinvweqweq (@yy _ F Γ')).
   rewrite <- XR.
   apply H.
 Defined.  
@@ -102,7 +102,7 @@ Qed.
 
 Definition cwf_fiber_representation {Γ : C} (A : Ty Γ : hSet) : UU
   := ∑ (ΓAπ : map_into Γ) (te : cwf_tm_of_ty (# Ty (pr2 ΓAπ) A)), 
-     isPullback _ _ _ _ (cwf_square_comm (pr2 te)).
+     isPullback (cwf_square_comm (pr2 te)).
 (* See below for an alternative version [cwf_fiber_representation'], separated into data + axioms *)
 
 Definition cwf_representation : UU 
@@ -163,7 +163,7 @@ Definition cwf_fiber_rep_data {Γ:C} (A : Ty pp Γ : hSet) : UU
 Definition cwf_fiber_rep_ax {Γ:C} {A : Ty pp Γ : hSet}
    (ΓAπt : cwf_fiber_rep_data A) : UU 
   := ∑ (H : ((pp : _ --> _) : nat_trans _ _ ) _ (pr2 (pr2 ΓAπt)) = #(Ty pp) (pr1 (pr2 ΓAπt)) A),
-     isPullback _ _ _ _ (cwf_square_comm H).
+     isPullback (cwf_square_comm H).
 
 Definition cwf_fiber_representation' {Γ:C} (A : Ty pp Γ : hSet) : UU
   := ∑ ΓAπt : cwf_fiber_rep_data A, cwf_fiber_rep_ax ΓAπt.
@@ -206,10 +206,10 @@ Proof.
   destruct H as [H isP].
   destruct H' as [H' isP'].
   use (total2_paths_f).
-  - set (T1 := make_Pullback _ _ _ _ _ _ isP).
-    set (T2 := make_Pullback _ _ _ _ _ _ isP').
+  - set (T1 := make_Pullback _ isP).
+    set (T2 := make_Pullback _ isP').
     set (i := iso_from_Pullback_to_Pullback T1 T2). cbn in i.
-    set (i' := invmap (weq_ff_functor_on_iso (yoneda_fully_faithful _ _ ) _ _ ) i ).
+    set (i' := invmap (weq_ff_functor_on_iso (yoneda_fully_faithful _ ) _ _ ) i ).
     set (TT := isotoid _ isC i').
     apply TT.
   - cbn.
@@ -250,12 +250,12 @@ Proof.
       match goal with |[|- transportf ?r  _ _ = _ ] => set (P:=r) end.
       match goal with |[|- transportf _ (_ _ _ (_ _ ?ii)) _ = _ ] => set (i:=ii) end.
       simpl in i.
-      apply (invmaponpathsweq (@yy _ (homset_property _ ) (Tm pp) ΓA')).
+      apply (invmaponpathsweq (@yy _ (Tm pp) ΓA')).
       etrans. apply transportf_yy.
       etrans. apply transportf_isotoid_functor.  
       rewrite inv_from_iso_iso_from_fully_faithful_reflection.
       assert (XX:=homotweqinvweq (weq_from_fully_faithful 
-                                    (yoneda_fully_faithful _ (homset_property C)) ΓA' ΓA )).
+                                    (yoneda_fully_faithful _ ) ΓA' ΓA )).
       etrans. apply maponpaths_2. apply XX.
       clear XX.
       etrans. apply maponpaths_2. apply id_right.
@@ -302,7 +302,7 @@ Context (pp : mor_total (preShv C)).
 (* TODO: there is considerable redundancy between this and [cwf_fiber_representation_weq] above; in particular, the same reassociation is used. Try to consolidate? *)
 Definition weq_cwf_fiber_representation_fpullback {Γ : C} (A : Ty pp Γ : hSet)
 : cwf_fiber_representation pp A
-  ≃ fpullback (yoneda C (homset_property C)) pp (yy A).
+  ≃ fpullback (yoneda C) pp (yy A).
 Proof.
   unfold cwf_fiber_representation, fpullback.
   (* reassociate the RHS to match the LHS:
@@ -330,11 +330,8 @@ Proof.
     + apply @cwf_square_comm.
     + apply @cwf_square_comm_converse.
     + apply setproperty.
-    + use (homset_property (preShv C) _ _ _
-        (fq
-          (ΓA,, π,, invmap (yoneda_weq C (homset_property C) ΓA (Tm pp)) v)
-        ;; _)).
-    (* Why does so much need to be given explicitly there? *)
+    + apply isaset_nat_trans.
+      apply has_homsets_HSET.
   - intros [v e]; cbn.
     apply idweq.
 Defined.
@@ -418,7 +415,7 @@ Context {C D : category}
         (Dcat : is_univalent D) 
         (T : cwf_structure C).
 
-Let DD : univalent_category := (pr1 D,,Dcat).
+Let DD : univalent_category := (D,,Dcat).
 Let T' : cwf_structure D := transfer_cwf_weak_equiv F F_ff F_es Dcat T.
 Let TM : preShv C := Tm (pr1 T).
 Let TM' : preShv DD := Tm (pr1 T').
@@ -431,7 +428,7 @@ Let pp' : _ ⟦ TM' , TY' ⟧ := pr1 T'.
 Let hsDop : has_homsets (opp_precat D) := has_homsets_opp (homset_property _).
 
 Let ηη : functor (preShv D) (preShv C) :=
-  pre_composition_functor _ _ _ hsDop (has_homsets_HSET) (functor_opp F).
+  pre_composition_functor C^op D^op _ (functor_opp F).
 
 Let isweq_Fcomp : isweq (pr1 (pr1 (Fop_precomp F))) := 
 adj_equiv_of_cats_is_weq_of_objects 
@@ -501,7 +498,7 @@ End CwF_Ftransport_recover.
 (** ** Special case of transport: Descent along Rezk-completion *)
 (** The construction below is also a special case of [transfer_cwf_weak_equiv] *)
 Definition Rezk_on_cwf_structures {C : category} (CC : cwf_structure C)
-  : cwf_structure (Rezk_completion C (homset_property _)).
+  : cwf_structure (Rezk_completion C).
 Proof.
   apply (invmap (@weq_cwf_structure_RelUnivYo _)).
   apply (Rezk_on_RelUnivYoneda C).
@@ -513,7 +510,7 @@ Section CwF_RC_recover.
 
 Context {C : category} (T : cwf_structure C).
 
-Let RC : univalent_category := Rezk_completion C (homset_property _ ).
+Let RC : univalent_category := Rezk_completion C.
 Let T' : cwf_structure RC := Rezk_on_cwf_structures T.
 Let TM : preShv C := Tm (pr1 T).
 Let TM' : preShv RC := Tm (pr1 T').
@@ -526,13 +523,13 @@ Let pp' : _ ⟦ TM' , TY' ⟧ := pr1 T'.
 Let hsRCop : has_homsets (opp_precat RC) := has_homsets_opp (homset_property _).
 
 Let ηη : functor (preShv RC) (preShv C) :=
-  pre_composition_functor _ _ _ hsRCop (has_homsets_HSET) (functor_opp (Rezk_eta C _ )).
+  pre_composition_functor C^op RC^op _ (functor_opp (Rezk_eta C)).
 
 Lemma Tm_Rezk_completion_recover : 
  (*  Tm = functor_composite (functor_opp (Rezk_eta C _ )) Tm'.*)
       TM = ηη TM'.
 Proof.
-  set (XR := Rezk_opp_weq C (homset_property C) HSET is_univalent_HSET).
+  set (XR := Rezk_opp_weq C HSET is_univalent_HSET).
   assert (XT := homotweqinvweq XR TM).
   apply pathsinv0.
   apply XT.
@@ -542,17 +539,17 @@ Lemma Ty_Rezk_completion_recover :
 (*   Ty = functor_composite (functor_opp (Rezk_eta C _ )) Ty'. *)
    TY = ηη TY'.
 Proof.
-  set (XR := Rezk_opp_weq C (homset_property C) HSET is_univalent_HSET).
+  set (XR := Rezk_opp_weq C HSET is_univalent_HSET).
   assert (XT := homotweqinvweq XR TY).
   apply pathsinv0.
   apply XT.
 Defined.  
 
 
-Let RCequiv : adj_equivalence_of_precats _  := Rezk_op_adj_equiv C (homset_property C) 
+Let RCequiv : adj_equivalence_of_precats _  := Rezk_op_adj_equiv C
           HSET is_univalent_HSET.
 
-Lemma has_homsets_preShv (D : precategory) : has_homsets (preShv D).
+Lemma has_homsets_preShv (D : category) : has_homsets (preShv D).
 Proof.
   apply functor_category_has_homsets.
 Defined.

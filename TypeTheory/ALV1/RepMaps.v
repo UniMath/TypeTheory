@@ -128,7 +128,7 @@ Proof.
     refine (weqonsecbase _ _). apply yy. }
   apply weqonsecfibers. intro A.
   apply weqimplimpl.
-  - apply hinhfun. apply weq_cwf_fiber_representation_fpullback.
+  - apply hinhfun. intro f. apply (@weq_cwf_fiber_representation_fpullback C pp Γ A). apply f.
   - apply hinhfun. apply (invmap (weq_cwf_fiber_representation_fpullback _ _)).
   - apply propproperty.
   - apply propproperty.
@@ -161,7 +161,7 @@ Defined.
 (** This could be made an instance of the above *)
 
 Definition Rezk_on_rep_map (C : category)
-  : rep_map C ≃ rep_map (Rezk_completion C (homset_property _)).
+  : rep_map C ≃ rep_map (Rezk_completion C).
 Proof.
   eapply weqcomp.
     apply weq_rep_map_weakRelUnivYo.
