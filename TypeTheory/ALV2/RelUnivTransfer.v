@@ -854,11 +854,11 @@ End WeakRelUniv_Transfer.
 Section RelUniv_Yo_Rezk.
 
   Context (C : category).
-  Let RC : univalent_category := Rezk_completion C (homset_property _).
+  Let RC : univalent_category := Rezk_completion C.
 
-  Let R := Rezk_eta C (homset_property _).
-  Let R_ff := Rezk_eta_fully_faithful C (homset_property _).
-  Let R_es := Rezk_eta_essentially_surjective C (homset_property _).
+  Let R := Rezk_eta C.
+  Let R_ff := Rezk_eta_fully_faithful C.
+  Let R_es := Rezk_eta_essentially_surjective C.
   Let S := Transport_along_Equivs.ext R R_ff R_es.
   Let S_pb := Transport_along_Equivs.preserves_pullbacks_ext R R_ff R_es.
   Let α := Transport_along_Equivs.fi R R_ff R_es.
@@ -878,7 +878,7 @@ Section RelUniv_Yo_Rezk.
            (pr2 α)
            S_pb
            (pr2 RC)
-           (yoneda_fully_faithful _ _)
+           (yoneda_fully_faithful _)
            (right_adj_equiv_is_full _ _)
            R_es
         ).
