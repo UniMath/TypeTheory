@@ -246,14 +246,14 @@ Proof.
       etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, obj_ext_mor_ax.
       use (PullbackArrow_PullbackPr1
-                (make_Pullback _ _ _ _ _ _ (qq_π_Pb _ f A))).
+                (make_Pullback _ (qq_π_Pb _ f A))).
     + cbn in FZ; cbn.
       etrans. apply maponpaths_2, @pathsinv0, assoc.
       etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, @pathsinv0, FZ.
       etrans. apply assoc.
       etrans. apply maponpaths_2.
-        apply (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _)). 
+        apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)). 
       apply pathsinv0, assoc.
 Time Qed.
 

@@ -128,7 +128,7 @@ Defined.
 (** * Equivalence between [rep_map C] and [cwf (Rezk_completion C)] *)
 
 Definition weq_rep_map_cwf_Rezk (C : category)
-  : rep_map C ≃ cwf_structure (Rezk_completion C (homset_property _ ) ).
+  : rep_map C ≃ cwf_structure (Rezk_completion C).
 Proof.
   eapply weqcomp.
     apply Rezk_on_rep_map.
