@@ -22,11 +22,11 @@ Require Import TypeTheory.OtherDefs.TypeCat_to_DM.
 
 Section TypeCat_to_DM.
 
-Variable CC : precategory.
+Variable CC : category.
 Variable H : is_univalent CC.  
 Variable C : DM_structure CC.
 
-Lemma DM_to_TypeCat_to_DM : DM_structure_of_TypeCat _ H (type_cat_struct_from_DM _ (pr2 H)  C) = C.
+Lemma DM_to_TypeCat_to_DM : DM_structure_of_TypeCat _ H (type_cat_struct_from_DM _ (homset_property _) C) = C.
 Proof.
   apply DM_equal.
   - assumption.

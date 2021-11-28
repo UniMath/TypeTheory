@@ -5,8 +5,8 @@
 
 Contents:
 
-  - Construction of a type-precategory from a precategory with Families
-  - Proof that the constructed type-precategory is split
+  - Construction of a type-category from a category with Families
+  - Proof that the constructed type-category is split
 
 *)
 
@@ -27,7 +27,7 @@ Local Notation "γ ## a" := (pairing γ a) (at level 75).
 Section Prelims.
 
 (* TODO: move to [cwf] *)
-Definition pairing_transport {CC : precategory} (C : cwf_struct CC) {Γ} {A A' : C⟨Γ⟩} (e : A = A')
+Definition pairing_transport {CC : category} (C : cwf_struct CC) {Γ} {A A' : C⟨Γ⟩} (e : A = A')
   {Γ'} (γ : Γ' --> Γ) (a : C ⟨Γ'⊢A{{γ}}⟩)
 : (γ ## a) ;; idtoiso (maponpaths (fun (B : C⟨Γ⟩) => Γ∙B) e)
 = (γ ## (transportf (fun B => C ⟨ Γ' ⊢ B {{γ}}⟩) e a)).
@@ -37,7 +37,7 @@ Proof.
 Defined.
 
 (* TODO: generalise; really it’s about any [transportf] along any [maponpaths]. *)
-Lemma transportf_maponpaths {CC : precategory} {C : cwf_struct CC} {Γ} {B B' : C⟨Γ⟩} (e : B = B')
+Lemma transportf_maponpaths {CC : category} {C : cwf_struct CC} {Γ} {B B' : C⟨Γ⟩} (e : B = B')
   {Γ'} (f : Γ' --> Γ) (b : C ⟨ Γ' ⊢ B{{f}} ⟩)
 : transportf (term C Γ') (maponpaths (fun D => D{{f}}) e) b
   = transportf (fun D => term C Γ' (D{{f}})) e b.
@@ -49,24 +49,24 @@ Defined.
 End Prelims.
 
 
-(** * Type-precat from precat with Families *)
+(** * Type-cat from cat with Families *)
 
 (**
-Every pre-CwF gives rise to a type-precategory.
+Every pre-CwF gives rise to a type-category.
 
-(TODO: moreover, this type-precat should be split; and there should be a function from split type-precats back to pre-CwFs making the two equivalent.)
+(TODO: moreover, this type-cat should be split; and there should be a function from split type-cats back to pre-CwFs making the two equivalent.)
 
-Since the components of the type-precat structure are highly successively dependent, we construct most of them individually, before putting them together in [type_precat_of_precwf].
+Since the components of the type-cat structure are highly successively dependent, we construct most of them individually, before putting them together in [type_cat_of_cwf].
 *)
 
 
-Section TypePreCat_of_PreCwF.
+Section TypeCat_of_CwF.
 
 (* TODO: move the [has_homsets] assumption to the definition of a [pre_cwf]? 
    TODO: discuss namine of [has_homsets]: wouldn’t e.g. [homs_are_sets] be clearer? *)
-Context (CC : precategory) (C : cwf_struct CC) (homs_sets : has_homsets CC).
+Context (CC : category) (C : cwf_struct CC) (homs_sets : has_homsets CC).
 
-Definition type_cat1_of_precwf : typecat_structure1 CC.
+Definition type_cat1_of_cwf : typecat_structure1 CC.
 Proof.
   unfold typecat_structure1.
   exists (type C).
@@ -74,25 +74,25 @@ Proof.
   exact (fun Γ a Γ' f => a{{f}}).
 Defined.
 
-(** We can now assemble the components into a type-precategory: *)
+(** We can now assemble the components into a type-category: *)
 
-Definition type_cat_of_precwf : typecat_structure CC.
+Definition type_cat_of_cwf : typecat_structure CC.
 Proof.
-  exists type_cat1_of_precwf.
+  exists type_cat1_of_cwf.
   unfold typecat_structure2.
   exists (@proj_mor CC C).
-  exists (@q_precwf CC C).
-  exists (@dpr_q_precwf CC C).
+  exists (@q_cwf CC C).
+  exists (@dpr_q_cwf CC C).
   intros; apply @is_symmetric_isPullback. { apply homs_sets. }
   apply is_pullback_reindx_cwf. apply homs_sets.
 Defined.
 
 (** * Splitness of the constructed TypeCat *)
 
-(** Moreover, the type-precat of a pre-CwF is always split. *)
+(** Moreover, the type-cat of a pre-CwF is always split. *)
 
-Definition issplit_type_precat_of_precwf
-  : is_split_typecat type_cat_of_precwf.
+Definition issplit_type_cat_of_cwf
+  : is_split_typecat type_cat_of_cwf.
 Proof.
   unfold is_split_typecat.
   repeat split. 
@@ -101,7 +101,7 @@ Proof.
   - (* Reindexing along identities *)
     exists (reindx_type_id C).
     intros Γ A. 
-    unfold q_typecat; simpl. unfold q_precwf.
+    unfold q_typecat; simpl. unfold q_cwf.
     eapply pathscomp0. 2: { apply id_left. }
     eapply pathscomp0.
     2: refine (maponpaths (fun q => q ;; _) _).    
@@ -130,7 +130,7 @@ Proof.
     unfold ext_typecat. simpl.
     rewrite <- cwf_law_4.
     rewrite pairing_transport.
-    unfold q_precwf. 
+    unfold q_cwf. 
     rewrite cwf_law_3.
     match goal with [|- pairing ?b _ = pairing ?e _ ] => 
               set (X := b); set (X' := e)  end.
@@ -194,4 +194,4 @@ Proof.
 Qed.
 
 
-End TypePreCat_of_PreCwF.
+End TypeCat_of_CwF.
