@@ -125,7 +125,7 @@ Local Open Scope cat.
 
 Section presheaves.
 
-Context {C : precategory} (hsC : has_homsets C).
+Context {C : category}.
 
 (** Γ ⊢ A is interpreted as a presheaf of ∫ Γ. In Coq this is written A : Γ ⊢ *)
 Local Notation "Γ ⊢" := (PreShv (∫ Γ)) (at level 50).
@@ -136,16 +136,15 @@ Local Notation "'1'" := (nat_trans_id _).
 Definition subst_functor {Γ Δ : PreShv C} (σ : Δ --> Γ) :
   functor (PreShv (∫ Γ)) (PreShv (∫ Δ)).
 Proof.
-use pre_composition_functor.
-- apply has_homsets_opp, has_homsets_cat_of_elems, hsC.
-- apply functor_opp, (cat_of_elems_on_nat_trans σ).
+  use pre_composition_functor.
+  apply functor_opp, (cat_of_elems_on_nat_trans σ).
 Defined.
 
 (** WARNING: Only use this for small C *)
 Lemma is_left_adjoint_subst_functor {Γ Δ : PreShv C} (σ : Δ --> Γ) :
   is_left_adjoint (subst_functor σ).
 Proof.
-use (RightKanExtension_from_limits _ _ _ LimsHSET). (* apply is slow here... *)
+  apply RightKanExtension_from_limits, LimsHSET.
 Defined.
 
 (** The right adjoint to substitution *)
@@ -583,11 +582,11 @@ End presheaves.
 (** * Presheaf categories are type categories *)
 Section TypeCat.
 
-Context (C : precategory) (hsC : has_homsets C).
+Context (C : category).
 
 Local Notation "Γ ⊢" := (PreShv (∫ Γ)) (at level 50).
 Local Notation "Γ ⊢ A" := (@TermIn _ Γ A) (at level 50).
-Local Notation "A ⦃ s ⦄" := (subst_type hsC A s) (at level 40, format "A ⦃ s ⦄").
+Local Notation "A ⦃ s ⦄" := (subst_type A s) (at level 40, format "A ⦃ s ⦄").
 Local Notation "Γ ⋆ A" := (@ctx_ext _ Γ A) (at level 30).
 
 Definition PreShv_TypeCat : typecat_structure (PreShv C).
@@ -598,12 +597,12 @@ use tpair.
   intros Γ A Δ σ.
   exact (A⦃σ⦄).
 - exists (λ Γ A, @ctx_proj _ Γ A).
-  exists (λ Γ A Δ σ, q_gen_mor hsC A σ).
-  exists (λ Γ A Δ σ, q_gen_mor_p hsC A σ).
+  exists (λ Γ A Δ σ, q_gen_mor A σ).
+  exists (λ Γ A Δ σ, q_gen_mor_p A σ).
   intros Γ A Δ σ.
   apply is_symmetric_isPullback.
   + apply (functor_category_has_homsets C^op).
-  + exact (isPullback_q_gen_mor hsC A σ).
+  + exact (isPullback_q_gen_mor A σ).
 Defined.
 
 End TypeCat.
@@ -613,11 +612,11 @@ Section CwF.
 
 Require Import TypeTheory.OtherDefs.CwF_Pitts.
 
-Context (C : precategory) (hsC : has_homsets C).
+Context (C : category).
 
 Local Notation "Γ ⊢" := (PreShv (∫ Γ)) (at level 50).
 Local Notation "Γ ⊢ A" := (@TermIn _ Γ A) (at level 50).
-Local Notation "A ⦃ s ⦄" := (subst_type hsC A s) (at level 40, format "A ⦃ s ⦄").
+Local Notation "A ⦃ s ⦄" := (subst_type A s) (at level 40, format "A ⦃ s ⦄").
 Local Notation "Γ ⋆ A" := (@ctx_ext _ Γ A) (at level 30).
 
 Definition PreShv_tt_structure : tt_structure (PreShv C).
@@ -633,7 +632,7 @@ use tpair.
 - intros Γ Δ A σ.
   exact (A⦃σ⦄).
 - intros Γ Δ A a σ.
-  exact (subst_term _ σ a).
+  exact (subst_term σ a).
 Defined.
 
 Definition PreShv_tt_reindx_type_struct : tt_reindx_type_struct (PreShv C).
@@ -647,7 +646,7 @@ use tpair.
   split.
   * apply ctx_last.
   * intros Δ σ a.
-    exact (subst_pair hsC σ a).
+    exact (subst_pair σ a).
 Defined.
 
 Lemma PreShv_reindx_laws : reindx_laws PreShv_tt_reindx_type_struct.
@@ -657,12 +656,12 @@ use tpair.
   + intros Γ A.
     apply subst_type_id.
   + intros Γ Δ Θ σ1 σ2 A.
-    apply (subst_type_comp hsC).
+    apply subst_type_comp.
 - use tpair.
   + intros Γ A a.
-    apply (subst_term_id hsC a).
+    apply (subst_term_id a).
   + intros Γ Δ Θ σ1 σ2 A a.
-    exact (subst_term_comp hsC σ2 σ1 a).
+    exact (subst_term_comp σ2 σ1 a).
 Defined.
 
 (* This is commented as we cannot complete it *)
