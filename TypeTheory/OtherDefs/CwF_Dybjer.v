@@ -16,8 +16,7 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Categories.category_FAM.
 
-
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
+Local Open Scope precat.
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "C ⦃ a , b ⦄" := (precategory_morphisms (C:=C) a b) (at level 50).
 (** * A "preview" of the definition *)
@@ -33,8 +32,8 @@ Reserved Notation "'π' A" (at level 20).
 Reserved Notation "'ν' A" (at level 15).
 Reserved Notation "γ ♯ a" (at level 25).
 
-Notation "A ₁" := (index_type _ A)(at level 3).
-Notation "A ₂" := (index_func _ A)(at level 3).
+Notation "A ₁" := (index_type A)(at level 3).
+Notation "A ₂" := (index_func A)(at level 3).
 
 Record precwf_record : Type := {
   C :> precategory ;
