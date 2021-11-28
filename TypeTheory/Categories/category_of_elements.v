@@ -3,7 +3,7 @@
 (**
   Contents:
 
-    - not much yet
+    - category of elements of a covariant functor, including its univalence
 *)
 
 Require Import UniMath.Foundations.Sets.
@@ -13,11 +13,10 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
+(* TODO: refactor as displayed category? *)
+Section precategory_of_elements_covariant.
 
-Section category_of_elements_covariant.
-
-Variable C : precategory.
-Variable F : functor C HSET.
+Context {C : precategory} (F : functor C HSET).
 
 Definition precategory_of_elements_ob_mor : precategory_ob_mor.
 Proof.
@@ -60,6 +59,14 @@ Qed.
 Definition precategory_of_elements : precategory 
   := (_,,is_precategory_precategory_of_elements).
 
+Lemma precategory_of_elements_has_homsets
+  : has_homsets C -> has_homsets precategory_of_elements.
+Proof.
+  intros H ca db. apply isaset_total2.
+  - apply H.
+  - intros; apply isasetaprop, setproperty.
+Defined.
+
 Local Notation "∫" := precategory_of_elements.
 (* written \int in agda input mode *)
 
@@ -79,6 +86,18 @@ Qed.
 
 Definition proj_functor : functor _ _ := tpair _ _ is_functor_proj.
 
+End precategory_of_elements_covariant.
+
+Section category_of_elements.
+
+Context {C : category} (F : functor C HSET).
+
+Definition category_of_elements
+  := make_category _
+       (precategory_of_elements_has_homsets F (homset_property C)).
+
+Local Notation "∫" := category_of_elements.
+(* written \int in agda input mode *)
 
 Definition Elem_cov_iso_type (ac bd : ∫) : UU
   := ∑ (f : iso (pr1 ac) (pr1 bd)), #F f (pr2 ac) = pr2 bd.
@@ -188,7 +207,7 @@ Proof.
   eapply weqcomp.
   apply total2_paths_equiv.
   unshelve refine (weqbandf (make_weq (@idtoiso _ _ _ ) _ ) _ _ _ ).
-  - apply (pr1 H).
+  - apply H.
   - simpl. intro x.
     destruct ac. destruct bd.
     simpl in *.
@@ -211,28 +230,22 @@ Defined.
 
 Definition is_univalent_Elem  (H : is_univalent C) : is_univalent ∫.
 Proof.
-  split.
-  - intros a b.
-    set (T := isweqhomot (foobar  H a b)(@idtoiso _ a b) ).
-    apply T.
-    intro p.
-    induction p.
-    destruct a; simpl in *.
-    
-    simpl.
-    apply eq_iso.
-    simpl.
-    apply subtypePath. intro; apply setproperty.
-    apply idpath.
-    apply pr2.
-  - intros a b.
-    apply (isofhleveltotal2 2).
-    apply (pr2 H).
-    intro. apply isasetaprop.
-    apply setproperty.
+  intros a b.
+  set (T := isweqhomot (foobar  H a b)(@idtoiso _ a b) ).
+  apply T.
+  intro p.
+  induction p.
+  destruct a; simpl in *.
+  
+  simpl.
+  apply eq_iso.
+  simpl.
+  apply subtypePath. intro; apply setproperty.
+  apply idpath.
+  apply pr2.
 Defined.
 
-End category_of_elements_covariant.
+End category_of_elements.
 
 
 (*
