@@ -3,8 +3,8 @@
 (**
   Contents:
 
-    - Definition of the precategory FAM(C) for a precategory C
-    - TODO: FAM(C) saturated if C is
+    - Definition of the (pre)category FAM(C) for a (pre)category C
+    - FAM(C) is univalent if C is
 *)
 
 Require Import UniMath.Foundations.Sets.
@@ -75,7 +75,7 @@ End Auxiliary.
 
 Section FAM.
 
-Variable C : precategory.
+Context {C : precategory}.
 
 Definition obj_UU : UU := ∑ A : UU, A → C.
 
@@ -89,12 +89,6 @@ Definition index_func (A : obj) : index_type A → C := pr2 (pr1 A).
 
 Notation "A ₁" := (index_type A)(at level 3).
 Notation "A ₂" := (index_func A)(at level 3).
-
-
-(*
-Notation "A ₁" := (pr1 (pr1 A))(at level 3).
-Notation "A ₂" := (pr2 (pr1 A))(at level 3).
- *)
 
 Definition mor (A B : obj_UU) : UU := ∑ f : pr1 A → pr1 B,
       ∏ a : pr1 A, pr2 A a --> pr2 B (f a).
@@ -202,9 +196,9 @@ Proof.
     intros; apply assoc.
 Qed.
 
-Definition FAM : precategory := tpair _ _ is_precategory_FAM.
+Definition FAM_precategory : precategory := tpair _ _ is_precategory_FAM.
 
-Lemma has_homsets_FAM : has_homsets C → has_homsets FAM.
+Lemma has_homsets_FAM : has_homsets C → has_homsets FAM_precategory.
 Proof.
   intro H.
   intros A B f g.
@@ -217,6 +211,20 @@ Proof.
     apply H.
 Qed.
 
+End FAM.
+
+Arguments obj_UU _ : clear implicits.
+Arguments obj _ : clear implicits.
+Arguments FAM_precategory _ : clear implicits.
+
+Notation "A ₁" := (index_type A)(at level 3).
+Notation "A ₂" := (index_func A)(at level 3).
+
+Definition FAM (C : category)
+  := make_category (FAM_precategory C) (has_homsets_FAM (homset_property C)).
+
+
+Section FAM_univalent.
 (** ** [FAM(C)] is saturated if C is *)
 (** we construct an equivalence between equalities between (A,f) and (B,g) and isos between them,
    by composing many "small" equivalences
@@ -224,12 +232,13 @@ Qed.
     the first equivalence is [FAM_obj_weq_1] from above 
 *)
 
-
-Definition FAM_obj_eq_type_2 (A B : obj_UU) : UU 
+Context {C : category}.
+  
+Definition FAM_obj_eq_type_2 (A B : obj_UU C) : UU 
   := 
   ∑ f : pr1 A ≃ pr1 B, ∏ a : pr1 A, iso (pr2 A a) (pr2 B (f a)).
 
-Lemma FAM_obj_weq_2 (A B : obj) (H : is_univalent C) :
+Lemma FAM_obj_weq_2 (A B : obj C) (H : is_univalent C) :
   FAM_obj_eq_type A B ≃ FAM_obj_eq_type_2 A B.
 Proof.
   unfold FAM_obj_eq_type, FAM_obj_eq_type_2.
@@ -237,12 +246,11 @@ Proof.
   intro f.
   apply weqonsecfibers.
   intro x.
-  assert (T:=pr1 H).
   exists (@idtoiso _ _ _ ).
-  apply (pr1 H).
+  apply H.
 Defined.  
 
-Lemma FAM_obj_weq_3 (A B : obj) : 
+Lemma FAM_obj_weq_3 (A B : obj C) : 
   FAM_obj_eq_type_2 A B ≃
           ∑ f : pr1 (pr1 A) → pr1 (pr1 B), 
              ∑ i : ∏ a : pr1 (pr1 A), pr2 (pr1 A) a --> pr2 (pr1 B) (f a), isweq f × ∏ a, is_iso (i a).
@@ -280,12 +288,9 @@ Defined.
 
 (** Characterisation of isos in [FAM] as pairs of a bijection and a family of isos **)
 
-Definition make_iso {C : precategory} {a b : C} (f : a --> b) (H : is_iso f) : iso a b 
-  := tpair _ f H.
-
 Section isos.
 
-Definition isweq_from_is_iso {A B : FAM} (f : A --> B) : is_iso f → isweq (pr1 f). 
+Definition isweq_from_is_iso {A B : FAM C} (f : A --> B) : is_iso f → isweq (pr1 f). 
 Proof.
   intro H.
   apply (gradth _ (pr1 (inv_from_iso (make_iso f H)))).
@@ -295,10 +300,10 @@ Proof.
     apply (toforallpaths _ _ _ (maponpaths pr1 (iso_after_iso_inv (make_iso f H)))).
 Defined.
 
-Definition FAM_is_iso {A B : FAM} (f : A --> B) : UU := 
+Definition FAM_is_iso {A B : FAM C} (f : A --> B) : UU := 
    isweq (pr1 f) × (∏ x, is_iso (pr2 f x)).
 
-Definition inv_from_FAM_is_iso {A B : FAM} {f : A --> B} (H : FAM_is_iso f) : B --> A.
+Definition inv_from_FAM_is_iso {A B : FAM C} {f : A --> B} (H : FAM_is_iso f) : B --> A.
 Proof.
   set (finv := invmap (make_weq _ (pr1 H))).
   exists finv.
@@ -323,7 +328,7 @@ Proof.
 Qed.
     
 
-Lemma is_iso_from_FAM_is_iso (A B : FAM) (f : A --> B) : FAM_is_iso f → is_iso f.
+Lemma is_iso_from_FAM_is_iso (A B : FAM C) (f : A --> B) : FAM_is_iso f → is_iso f.
 Proof.
   intros H.
   apply is_iso_from_is_z_iso.
@@ -363,7 +368,7 @@ Proof.
 Qed.
 
 
-Lemma FAM_is_iso_from_is_iso (A B : FAM) (f : A --> B) : is_iso f → FAM_is_iso f.
+Lemma FAM_is_iso_from_is_iso (A B : FAM C) (f : A --> B) : is_iso f → FAM_is_iso f.
 Proof.
   intro f_iso.
   split.
@@ -411,28 +416,27 @@ Proof.
       apply maponpaths. apply (pr2 B).
 Qed.
 
-Lemma isaprop_FAM_is_iso {A B : FAM} (f : A --> B) : has_homsets C -> isaprop (FAM_is_iso f).
+Lemma isaprop_FAM_is_iso {A B : FAM C} (f : A --> B) : isaprop (FAM_is_iso f).
 Proof.
-  intros HC.
   apply isofhleveltotal2.
   - apply isapropisweq.
   - intros _. apply impred. intros. apply isaprop_is_iso.
 Qed.
 
   
-Lemma FAM_is_iso_weq {A B : FAM} (f : A --> B)
-  : has_homsets C -> is_iso f ≃ FAM_is_iso f.
+Lemma FAM_is_iso_weq {A B : FAM C} (f : A --> B)
+  : is_iso f ≃ FAM_is_iso f.
 Proof.
-  intros HC. apply weqimplimpl.
+  apply weqimplimpl.
   - apply FAM_is_iso_from_is_iso.
   - apply is_iso_from_FAM_is_iso.
   - apply isaprop_is_iso.
-  - apply isaprop_FAM_is_iso. assumption.
+  - apply isaprop_FAM_is_iso.
 Defined.
 
 End isos.
 
-Lemma FAM_obj_weq_4 (A B : ob FAM) : 
+Lemma FAM_obj_weq_4 (A B : FAM C) : 
   (∑ f1 : pr1 (pr1 A) → pr1 (pr1 B), 
    ∑ f2 : ∏ a : pr1 (pr1 A), pr2 (pr1 A) a --> pr2 (pr1 B) (f1 a),
      isweq f1 × ∏ a, is_iso (f2 a))
@@ -445,33 +449,33 @@ Proof.
   - intros [[f1 f2] [wf1 wf2]]. simpl. apply idpath.
 Defined.
 
-Lemma FAM_obj_weq_5 (A B : ob FAM) (H : has_homsets C) 
+Lemma FAM_obj_weq_5 (A B : FAM C) 
   : (∑ (f : A --> B), FAM_is_iso f)
   ≃ ∑ (f : A --> B), is_iso f.
 Proof.
   unshelve refine (weqbandf _ _ _ _).
   - apply idweq.
-  - simpl. intros. apply invweq. apply FAM_is_iso_weq. assumption.
+  - simpl. intros. apply invweq. apply FAM_is_iso_weq.
 Defined.
 
-Definition FAM_obj_weq (A B : ob FAM) (H : is_univalent C)
+Definition FAM_obj_weq (A B : FAM C) (H : is_univalent C)
 : (A = B) ≃ ∑ (f : A --> B), is_iso f.
 Proof.
   apply (weqcomp (FAM_obj_weq_1 A B)).
   apply (weqcomp (FAM_obj_weq_2 A B H)).
   apply (weqcomp (FAM_obj_weq_3 A B)).
   apply (weqcomp (FAM_obj_weq_4 A B)).
-  exact (FAM_obj_weq_5 A B (pr2 H)).
+  apply FAM_obj_weq_5.
 Defined.
 
 (* We still need to know that the underlying map of this equivalence agrees with [ idtoiso ]. *)
 
-Definition FAM_id1 (A : ob FAM) : FAM_obj_eq_type (pr1 A) (pr1 A).
+Definition FAM_id1 (A : FAM C) : FAM_obj_eq_type (pr1 A) (pr1 A).
 Proof.
   exists (idweq _). intros; apply idpath.
 Defined.
   
-Lemma FAM_obj_weq_1_id (A : ob FAM)
+Lemma FAM_obj_weq_1_id (A : FAM C)
   : (FAM_obj_weq_1 A A (idpath A)) = FAM_id1 A.
 Proof.
   apply (@total2_paths_f _ _
@@ -482,19 +486,19 @@ Proof.
   destruct A as [[A1 A2] A3]; cbn. apply idpath.
 Qed.
 
-Definition FAM_id2 (A : ob FAM) : FAM_obj_eq_type_2 (pr1 A) (pr1 A).
+Definition FAM_id2 (A : FAM C) : FAM_obj_eq_type_2 (pr1 A) (pr1 A).
 Proof.
   exists (idweq _). intros; apply identity_iso.
 Defined.
 
-Lemma FAM_obj_weq_2_id (A : ob FAM) (H : is_univalent C)
+Lemma FAM_obj_weq_2_id (A : FAM C) (H : is_univalent C)
   : (FAM_obj_weq_2 A A H (FAM_id1 A)) = FAM_id2 A.
 Proof.
   apply (total2_paths_f (idpath _)).
   cbn. apply idpath.
 Qed.
 
-Definition FAM_id3 (A : ob FAM)
+Definition FAM_id3 (A : FAM C)
   : ∑ (f : A ₁ → A ₁) (i : ∏ a : A ₁, A ₂ a --> A ₂ (f a)),
           isweq f × (∏ a : A ₁, is_iso (i a)).
 Proof.
@@ -502,7 +506,7 @@ Proof.
   split. apply idisweq. intros; apply identity_is_iso.
 Defined.
 
-Lemma FAM_obj_weq_3_id (A : ob FAM)
+Lemma FAM_obj_weq_3_id (A : FAM C)
   : (FAM_obj_weq_3 A A (FAM_id2 A)) = FAM_id3 A.
 Proof.
   apply (total2_paths_f (idpath _)).
@@ -517,30 +521,30 @@ Proof.
     + intros _. apply impred; intros. apply isaprop_is_iso.
 Qed.
 
-Definition FAM_id4 (A : ob FAM)
+Definition FAM_id4 (A : FAM C)
   : (∑ f : A --> A, FAM_is_iso f).
 Proof.
   exists (identity _).
   split; simpl. apply idisweq. intros; apply identity_is_iso.
 Defined.
 
-Lemma FAM_obj_weq_4_id (A : ob FAM)
+Lemma FAM_obj_weq_4_id (A : FAM C)
   : (FAM_obj_weq_4 A A (FAM_id3 A)) = FAM_id4 A.
 Proof.
   apply idpath.
 Qed.
 
-Lemma FAM_obj_weq_5_id (A : ob FAM) (H : has_homsets C)
-  : pr1 (FAM_obj_weq_5 A A H (FAM_id4 A)) = identity A.
+Lemma FAM_obj_weq_5_id (A : FAM C)
+  : pr1 (FAM_obj_weq_5 A A (FAM_id4 A)) = identity A.
 Proof.
   apply idpath.
 Qed.
 
-Lemma FAM_obj_weq_idpath (A : ob FAM) (H : is_univalent C)
+Lemma FAM_obj_weq_idpath (A : FAM C) (H : is_univalent C)
   : (FAM_obj_weq A A H (idpath A)) = identity_iso A.
 Proof.
   unfold FAM_obj_weq.
-  eapply pathscomp0. eapply (maponpaths (FAM_obj_weq_5 A A (pr2 H))).
+  eapply pathscomp0. eapply (maponpaths (FAM_obj_weq_5 A A)).
   eapply pathscomp0. eapply (maponpaths (FAM_obj_weq_4 A A)).
   eapply pathscomp0. eapply (maponpaths (FAM_obj_weq_3 A A)).
   eapply pathscomp0. eapply (maponpaths (FAM_obj_weq_2 A A H)).
@@ -551,14 +555,12 @@ Proof.
   apply eq_iso, FAM_obj_weq_5_id.
 Qed.
 
-Theorem FAM_is_univalent : is_univalent C -> is_univalent FAM.
+Theorem FAM_is_univalent : is_univalent C -> is_univalent (FAM C).
 Proof.
-  intros H. split.
-  - intros A B.
-    apply (isweqhomot' (FAM_obj_weq A B H)).
-    exact (pr2 (FAM_obj_weq A B H)).
-    intros p; destruct p. apply FAM_obj_weq_idpath.
-  - apply has_homsets_FAM. exact (pr2 H).
+  intros H A B.
+  apply (isweqhomot' (FAM_obj_weq A B H)).
+  exact (pr2 (FAM_obj_weq A B H)).
+  intros p; destruct p. apply FAM_obj_weq_idpath.
 Qed.
 
-End FAM.
+End FAM_univalent.
