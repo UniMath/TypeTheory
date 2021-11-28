@@ -262,7 +262,7 @@ Section Derived_Actions.
     reind_tm (# F f) (fmap_tm F a).
   Proof.
     apply paths_tm, PullbackArrowUnique; cbn; simpl;
-      set (pb := make_Pullback _ _ _ _ _ _ _); rewrite <-!assoc.
+      set (pb := make_Pullback _ _); rewrite <-!assoc.
     - etrans; [apply maponpaths, maponpaths, comp_ext_compare_dpr_typecat|].
       etrans; [apply maponpaths, (!typecat_mor_triangle F (A ⦃f⦄))|].
       now rewrite <- functor_comp, (PullbackArrow_PullbackPr1 pb), functor_id.
@@ -328,8 +328,7 @@ Section Derived_Actions.
         etrans. { apply assoc. }
         etrans. { apply maponpaths_2, assoc. }
         etrans. { apply maponpaths_2, maponpaths_2.
-                  refine (PullbackArrow_PullbackPr2
-                            (make_Pullback _ _ _ _ _ _ _) _ _ _ _). }
+          refine (PullbackArrow_PullbackPr2 (make_Pullback _ _) _ _ _ _). }
         simpl pr1.
         etrans. { apply maponpaths_2, maponpaths_2, assoc. }
         etrans. { apply pathsinv0, assoc. }
@@ -343,8 +342,7 @@ Section Derived_Actions.
           etrans. { apply pathsinv0, functor_comp. }
           etrans.
           { apply maponpaths.
-            refine (PullbackArrow_PullbackPr2
-                            (make_Pullback _ _ _ _ _ _ _) _ _ _ _).
+            refine (PullbackArrow_PullbackPr2 (make_Pullback _ _) _ _ _ _).
           }
           apply functor_id.
         }
