@@ -1375,12 +1375,9 @@ Proof.
     apply subtypePath; simpl.
       intros x; apply isapropdirprod; apply setproperty.
     refine (@toforallpaths unitset _ (fun _ => ab) (fun _ => ab') _ tt).
-    admit.
-(*
-    use (MorphismsIntoPullbackEqual);
+    refine (MorphismsIntoPullbackEqual pb _ _ _ _ _ );
     apply funextsec; intros []; cbn;
     (eapply @pathscomp0; [ eassumption | apply pathsinv0; eassumption]).
-*)
   - simple refine (_,,_).
     refine (_ tt).
     refine (PullbackArrow Pb (unitset : HSET)
@@ -1391,7 +1388,7 @@ Proof.
       apply (PullbackArrow_PullbackPr1 Pb unitset).
     + generalize tt; apply toforallpaths.
       apply (PullbackArrow_PullbackPr2 Pb unitset).
-Admitted.
+Defined.
 
 Lemma pullback_HSET_elements_unique {P A B C : HSET}
     {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
