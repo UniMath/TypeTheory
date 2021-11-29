@@ -188,17 +188,16 @@ Definition is_split_typecat {CC : precategory} (C : typecat_structure CC)
                ;; q_typecat (A{{f}}) g
                ;; q_typecat A f).
 
-Lemma isaprop_is_split_typecat (CC : precategory) (hs : has_homsets CC)
+Lemma isaprop_is_split_typecat (CC : category)
        (C : typecat_structure CC) : isaprop (is_split_typecat C).
 Proof.
   repeat (apply isofhleveltotal2; intros).
   - apply impred; intro; apply isapropisaset.
   - repeat (apply impred; intro). apply x.
-  - repeat (apply impred; intro). apply hs.
+  - repeat (apply impred; intro). apply homset_property.
   - repeat (apply impred; intro). apply x.
-  - intros.  
-    repeat (apply impred; intro).
-    apply hs.
+  - intros.
+    repeat (apply impred; intro). apply homset_property.
 Qed.
 
 Definition typecat := ∑ (C : category), (typecat_structure C).
