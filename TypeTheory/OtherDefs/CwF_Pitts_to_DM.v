@@ -97,10 +97,10 @@ Proof.
     + simpl. unfold dm_sub_struct_of_CwF.
       simpl.
       refine (pr1 (postcomp_pb_with_iso CC _ _ _ _ (q_cwf A f) _ _ f _
-            (is_pullback_reindx_cwf (homset_property _) _ _ _ _ ) _ _ _ _)).
+            (is_pullback_reindx_cwf _ _ _ _ ) _ _ _ _)).
       sym. assumption.
     + eapply (pr2 ( postcomp_pb_with_iso CC _ _ _ _  (q_cwf A f) _ _ f _
-              (is_pullback_reindx_cwf (homset_property _) _ _ _ _ ) _ _ _ _ )).
+              (is_pullback_reindx_cwf _ _ _ _ ) _ _ _ _ )).
   - simpl.
     apply hinhpr.
     unfold iso_to_dpr.

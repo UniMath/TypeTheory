@@ -676,7 +676,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition dpr_q_pbpairing_cwf_unique (hs : has_homsets CC)
+Definition dpr_q_pbpairing_cwf_unique
   {Γ} (A : C⟨Γ⟩)
   {Γ'} (f : Γ' --> Γ)
   {X} (h : X --> Γ ∙ A) (k : X --> Γ') (H : h ;; π A = k ;; f)
@@ -687,10 +687,10 @@ Proof.
   destruct t as [hk [e2 e1]]. 
   refine (@total2_paths_f _ _ (tpair _ hk (tpair _ e2 e1)) _ 
     (dpr_q_pbpairing_cwf_mapunique A f H hk e2 e1) _).
-  unshelve refine (total2_paths_f _ _); apply hs.
+  unshelve refine (total2_paths_f _ _); apply homset_property.
 Qed.
 
-Lemma is_pullback_reindx_cwf (hs : has_homsets CC) : ∏ (Γ : CC) (A : C⟨Γ⟩) (Γ' : CC) 
+Lemma is_pullback_reindx_cwf : ∏ (Γ : CC) (A : C⟨Γ⟩) (Γ' : CC) 
    (f : Γ' --> Γ),
    isPullback (dpr_q_cwf A f).
 Proof.
@@ -699,7 +699,6 @@ Proof.
   intros e h k H.
   exists (dpr_q_pbpairing_cwf _ _ h k H).
   apply dpr_q_pbpairing_cwf_unique.
-  assumption.
 Defined.
   
 End CwF_lemmas.

@@ -84,7 +84,7 @@ Proof.
   exists (@q_cwf CC C).
   exists (@dpr_q_cwf CC C).
   intros; apply @is_symmetric_isPullback. { apply homs_sets. }
-  apply is_pullback_reindx_cwf. apply homs_sets.
+  apply is_pullback_reindx_cwf.
 Defined.
 
 (** * Splitness of the constructed TypeCat *)
