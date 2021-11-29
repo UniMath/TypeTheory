@@ -27,12 +27,11 @@ Open Scope cat_deprecated.
 
 (** * From generalized algebraic precategories to essentially algebraic ones.*)
 
-(** We need extra assumption that the gen. alg. precategory has hom-sets *)
+(** We need extra assumption that the gen. alg. precategory is a category, i.e. has hom-sets *)
 
 Section ess_alg_from_gen_alg.
 
-Variable C : precategory.
-Variable hs : has_homsets C.
+Variable C : category.
 Variable H : isaset C.
 
 (* TODO: now we are writing compositional in diagrammatic order,
@@ -125,7 +124,7 @@ Proof.
  - split.
    + apply H. 
    + apply isaset_total2. apply isaset_dirprod; try assumption.
-     intro x; apply hs.
+     intro x; apply homset_property.
 Qed.
 
 End ess_alg_from_gen_alg.

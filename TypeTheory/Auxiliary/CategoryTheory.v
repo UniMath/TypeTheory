@@ -148,7 +148,7 @@ Proof.
     apply is_iso_counit_over_id, axioms_of_equiv_over_id.
 Defined.
 
-(* Notes towards some possible improvements in UniMath’s treatment of adjunctions, equivalences (and a few other unrelated things in the library):
+(* TODO: Notes towards some possible improvements in UniMath’s treatment of adjunctions, equivalences (and a few other unrelated things in the library):
 
   One really confusing point is having
   [adj_equivalence_of_precats] for the property of (or structure on) a functor,
@@ -185,7 +185,6 @@ Defined.
   Unrelated:
 
   - improve stuff on nat isos?  Move from current location to a more core one, and give good access functions, e.g. use it in lemmase like [functor_iso_from_pointwise_iso]?
-  - consolidated things with a “has_homsets” argument to have a “category” argument instead
 
   - Rename “transportb_transpose_right”.
 

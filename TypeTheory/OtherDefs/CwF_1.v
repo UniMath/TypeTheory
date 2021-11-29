@@ -274,12 +274,12 @@ Definition comp_law_4  {CC : precategory} {C : tt_reindx_type_struct CC}
 
 
 
-
-Definition cwf_laws {CC : precategory}(C : tt_reindx_type_struct CC) 
+(* Note: the restriction now from categories to precategories is deliberate — we are insisting that cwf’s have hom-sets. *)
+Definition cwf_laws {CC : category} (C : tt_reindx_type_struct CC) 
    :=
     (∑ T : reindx_laws C,
        (comp_laws_1_2 T × comp_law_3 T × comp_law_4 T)) ×
-    (has_homsets CC × (*∏ Γ, isaset (C⟨Γ⟩) × *) ∏ Γ (A : C⟨Γ⟩), isaset (C⟨Γ⊢ A⟩)). 
+    (∏ Γ (A : C⟨Γ⟩), isaset (C⟨Γ⊢ A⟩)). 
 
 (** * Definition of precategory with families *)
 (** A precategory with families [pre_cwf] is 
@@ -292,7 +292,7 @@ Definition cwf_laws {CC : precategory}(C : tt_reindx_type_struct CC)
 *)
 
 
-Definition cwf_struct (CC : precategory) : UU 
+Definition cwf_struct (CC : category) : UU 
   := ∑ C : tt_reindx_type_struct CC, cwf_laws C.
 
 (** * Various access functions to the components *)
@@ -300,36 +300,35 @@ Definition cwf_struct (CC : precategory) : UU
     generalized proofs of identity of types, terms (which form hsets) 
 *)
 
-Coercion cwf_data_from_cwf_struct (CC : precategory) (C : cwf_struct CC) : _ CC := pr1 C.
-Coercion cwf_laws_from_cwf_struct (CC : precategory) (C : cwf_struct CC) : cwf_laws C := pr2 C.
+Coercion cwf_data_from_cwf_struct (CC : category) (C : cwf_struct CC)
+  : tt_reindx_type_struct CC
+  := pr1 C.
 
+Coercion cwf_laws_from_cwf_struct (CC : category) (C : cwf_struct CC)
+  : cwf_laws C
+  := pr2 C.
 
-Coercion reindx_laws_from_cwf_struct (CC : precategory) (C : cwf_struct CC)
+Coercion reindx_laws_from_cwf_struct (CC : category) (C : cwf_struct CC)
   : reindx_laws C
   := pr1 (pr1 (pr2 C)).
 
-
-Definition cwf_comp_laws {CC : precategory} (C : cwf_struct CC)
+Definition cwf_comp_laws {CC : category} (C : cwf_struct CC)
   : (comp_laws_1_2 C × comp_law_3 C × comp_law_4 C)
   := pr2 (pr1 (pr2 C)).
 
-
-Definition has_homsets_cwf {CC : precategory} (C : cwf_struct CC) : has_homsets CC
-  := pr1 (pr2 (pr2 C)).
-
-Definition cwf_types_isaset {CC : precategory} (C : cwf_struct CC) Γ : isaset (C⟨Γ⟩)
+Definition cwf_types_isaset {CC : category} (C : cwf_struct CC) Γ : isaset (C⟨Γ⟩)
   := setproperty (C⟨Γ⟩).
 
-Definition cwf_terms_isaset  {CC : precategory} (C : cwf_struct CC) : ∏ Γ A, isaset (C⟨Γ ⊢ A⟩)
-  :=  (pr2 (pr2 (pr2 C))).
+Definition cwf_terms_isaset  {CC : category} (C : cwf_struct CC) : ∏ Γ A, isaset (C⟨Γ ⊢ A⟩)
+  :=  (pr2 (pr2 C)).
 
 
-Definition cwf_law_1 {CC : precategory} (C : cwf_struct CC) 
+Definition cwf_law_1 {CC : category} (C : cwf_struct CC) 
   Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A[[γ]]⟩)
   : (γ ♯ a) ;; (π _) = γ
   :=  pr1 (pr1 (cwf_comp_laws C) Γ A Γ' γ a).
 
-Definition cwf_law_2 {CC : precategory} (C : cwf_struct CC) 
+Definition cwf_law_2 {CC : category} (C : cwf_struct CC) 
   Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A[[γ]]⟩)
   : transportf (λ ι, C⟨Γ'⊢ A [[ι]]⟩) (cwf_law_1 C Γ A Γ' γ a)
     (transportf (λ B, C⟨Γ'⊢ B⟩) (!reindx_type_comp (π _)(γ ♯ a) _ ) 
@@ -337,7 +336,7 @@ Definition cwf_law_2 {CC : precategory} (C : cwf_struct CC)
     = a
   := pr2 ((pr1 (cwf_comp_laws C)) Γ A Γ' γ a).
 
-Definition cwf_law_2_gen {CC : precategory} (C : cwf_struct CC) 
+Definition cwf_law_2_gen {CC : category} (C : cwf_struct CC) 
   Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A[[γ]]⟩)
   :  ∏ (p : (A [[π A]]) [[γ ♯ a]] = A [[γ ♯ a;; π A]]) (p0 : γ ♯ a;; π A = γ),
    transportf (λ ι : Γ' --> Γ, C ⟨ Γ' ⊢ A [[ι]] ⟩) p0
@@ -346,17 +345,17 @@ Proof.
   intros p p'.
   etrans; [ | apply cwf_law_2].
   match goal with | [ |- _ = transportf _ ?p1 _ ] => assert (T : p' = p1) end. 
-  { apply (has_homsets_cwf C). }
+  { apply homset_property. }
   rewrite T; clear T. apply maponpaths.
   match goal with | [ |- _ = transportf _ ?p1 _ ] => assert (T : p = p1) end.
   { apply (cwf_types_isaset C). }
   rewrite T; apply idpath.
 Qed.  
 
-Definition cwf_law_3 {CC : precategory} (C : cwf_struct CC) : comp_law_3 C
+Definition cwf_law_3 {CC : category} (C : cwf_struct CC) : comp_law_3 C
   :=  pr1 (pr2 (cwf_comp_laws C)).
 
-Definition cwf_law_3_gen {CC : precategory} (C : cwf_struct CC) 
+Definition cwf_law_3_gen {CC : category} (C : cwf_struct CC) 
   (Γ : CC) (A : C ⟨ Γ ⟩) (Γ' Γ'' : CC) (γ : Γ' --> Γ) (γ' : Γ'' --> Γ')
   (a : C ⟨ Γ' ⊢ A [[γ]] ⟩) (p : (A [[γ]]) [[γ']] = A [[γ';; γ]]):
    γ';; γ ♯ a =
@@ -369,15 +368,12 @@ Proof.
   rewrite T; apply idpath.
 Qed.
 
-Definition cwf_law_4 {CC : precategory} (C : cwf_struct CC) : comp_law_4 C
+Definition cwf_law_4 {CC : category} (C : cwf_struct CC) : comp_law_4 C
   := pr2 (pr2 (cwf_comp_laws C)).
-
-
 
 Ltac imp := apply impred; intro.
 
-
-Lemma isPredicate_cwf_laws (CC : precategory)
+Lemma isPredicate_cwf_laws (CC : category)
 : isPredicate (@cwf_laws CC).
 Proof.
   intros T.
@@ -386,26 +382,17 @@ Proof.
   set (X:= tpair _ T H : cwf_struct CC).
   apply (isofhleveltotal2).
   - apply isofhleveltotal2.
-    + apply isofhleveltotal2.
-      * intros.
-        do 3 imp. apply (cwf_terms_isaset X).
-      * intros.
-        do 7 imp. apply (cwf_terms_isaset X).
+    + apply isofhleveltotal2;
+      intros; repeat imp; apply (cwf_terms_isaset X).
     + intros.
-      repeat (apply isofhleveldirprod).
-      *
-        {
-          do 5 imp.
-          apply (isofhleveltotal2 1).
-          - apply (has_homsets_cwf X).
-          - intros. apply (cwf_terms_isaset X).
-        }
-      * do 7 imp. apply (has_homsets_cwf X).
-      * do 2 imp. apply (has_homsets_cwf X).
+      repeat (apply isofhleveldirprod); repeat imp;
+        try apply homset_property.
+      apply (isofhleveltotal2 1).
+      * apply homset_property.
+      * intros. apply (cwf_terms_isaset X).
   - intros.
     repeat (apply isofhleveldirprod).
-    + apply isaprop_has_homsets.
-    + do 2 imp. apply isapropisaset.
+    do 2 imp. apply isapropisaset.
 Qed.
     
 
@@ -686,7 +673,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition dpr_q_pbpairing_precwf_unique (hs : has_homsets CC)
+Definition dpr_q_pbpairing_precwf_unique
   {Γ} (A : C⟨Γ⟩)
   {Γ'} (f : Γ' --> Γ)
   {X} (h : X --> Γ ∙ A) (k : X --> Γ') (H : h ;; π A = k ;; f)
@@ -697,10 +684,10 @@ Proof.
   destruct t as [hk [e2 e1] ]. 
   unshelve refine (@total2_paths_f _ _ (tpair _ hk (tpair _ e2 e1)) _ 
     (dpr_q_pbpairing_precwf_mapunique A f H hk e2 e1) _).
-  unshelve refine (total2_paths_f _ _); apply hs.
+  unshelve refine (total2_paths_f _ _); apply homset_property.
 Qed.
 
-Lemma is_pullback_reindx_cwf (hs : has_homsets CC) : ∏ (Γ : CC) (A : C⟨Γ⟩) (Γ' : CC) 
+Lemma is_pullback_reindx_cwf : ∏ (Γ : CC) (A : C⟨Γ⟩) (Γ' : CC) 
    (f : Γ' --> Γ),
    isPullback (dpr_q_precwf A f).
 Proof.
@@ -709,7 +696,6 @@ Proof.
   intros e h k H.
   exists (dpr_q_pbpairing_precwf _ _ h k H).
   apply dpr_q_pbpairing_precwf_unique.
-  assumption.
 Defined.
   
 End CwF_lemmas.
