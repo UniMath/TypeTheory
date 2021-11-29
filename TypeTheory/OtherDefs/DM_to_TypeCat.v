@@ -20,8 +20,7 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 
 Section DM_to_TypeCat.
 
-Variable CC : precategory.
-Variable hs : has_homsets CC. 
+Variable CC : category.
 Variable C : DM_structure CC.
 
 
@@ -60,9 +59,9 @@ Proof.
         - intros Γ A Γ' f.
           unshelve refine (sqr_comm_of_DM (( DM_from_DM_over A)) _ ).
         - intros.
-          apply is_symmetric_isPullback. { apply hs. }
-          refine (@isPullback_of_DM  _ _ _ _ _ _ _ _ ).
-          apply hs. }
+          apply is_symmetric_isPullback. { apply homset_property. }
+          refine (@isPullback_of_DM  _ _ _ _ _ _ _ ).
+      }
 Defined.
 
 Definition type_cat_struct_from_DM : typecat_structure CC.

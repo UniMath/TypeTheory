@@ -158,7 +158,6 @@ Proof.
     * apply sqr_comm_of_dm_sub_pb.
   + apply pullback_is_cartesian.
     apply isPullback_of_dm_sub_pb.
-    apply homset_property.
 Defined.
 
 End DM_Disp.

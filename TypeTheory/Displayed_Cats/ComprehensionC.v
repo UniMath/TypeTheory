@@ -65,7 +65,7 @@ Proof.
   - apply is_fibration_DM_disp.
   - intros c c' f d. 
     apply isPullback_cartesian_in_cod_disp.
-    apply isPullback_of_dm_sub_pb, homset_property.
+    apply isPullback_of_dm_sub_pb.
 Qed.
 
 Definition total_comprehension_of_dm_structure

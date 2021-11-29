@@ -62,9 +62,7 @@ Since the components of the type-cat structure are highly successively dependent
 
 Section TypeCat_of_CwF.
 
-(* TODO: move the [has_homsets] assumption to the definition of a [pre_cwf]? 
-   TODO: discuss namine of [has_homsets]: wouldn’t e.g. [homs_are_sets] be clearer? *)
-Context (CC : category) (C : cwf_struct CC) (homs_sets : has_homsets CC).
+Context (CC : category) (C : cwf_struct CC).
 
 Definition type_cat1_of_cwf : typecat_structure1 CC.
 Proof.
@@ -83,7 +81,7 @@ Proof.
   exists (@proj_mor CC C).
   exists (@q_cwf CC C).
   exists (@dpr_q_cwf CC C).
-  intros; apply @is_symmetric_isPullback. { apply homs_sets. }
+  intros; apply @is_symmetric_isPullback. { apply homset_property. }
   apply is_pullback_reindx_cwf.
 Defined.
 

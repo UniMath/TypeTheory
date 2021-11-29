@@ -310,7 +310,7 @@ Definition sqr_comm_of_dm_sub_pb {CC : precategory} {C : dm_sub_pb CC}
 : _ ;; _ = _ ;; _ 
 := PullbackSqrCommutes (pr1 (pr2 C _ _ γ _ f )).
 
-Definition isPullback_of_dm_sub_pb {CC : precategory} (hs: has_homsets CC) {C : dm_sub_pb CC}
+Definition isPullback_of_dm_sub_pb {CC : category} {C : dm_sub_pb CC}
            {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' --> Γ)
 : isPullback _ :=
 isPullback_Pullback (pr1 (pr2 C _ _ γ _ f )).
@@ -372,10 +372,10 @@ Proof.
   apply sqr_comm_of_dm_sub_pb.
 Defined.
 
-Definition isPullback_of_DM {CC : precategory} (hs: has_homsets CC) {C : DM_structure CC} {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' --> Γ)
+Definition isPullback_of_DM {CC : category} {C : DM_structure CC} {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' --> Γ)
 : isPullback (sqr_comm_of_DM γ f).
 Proof.
-  apply isPullback_of_dm_sub_pb; assumption.
+  apply isPullback_of_dm_sub_pb.
 Defined.
 
 
