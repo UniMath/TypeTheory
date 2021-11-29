@@ -359,7 +359,7 @@ now rewrite <-!assoc, H2, H3, assoc, H4, id_left, id_right.
 Qed.
 
 (* We can lift the above operations to presheaves using yoneda *)
-Let yon := yoneda_functor_data C.
+Let yon := yoneda_functor_data C : functor_data C (PreShv C).
 
 Definition p_PreShv (I : C) : yon (I+) --> yon I := # yon (p_F I).
 
@@ -515,8 +515,7 @@ Qed.
 
 Lemma e₀_f_pb {I J} (f : J --> I) : isPullback (e₀_f f).
 Proof.
-apply Auxiliary.is_symmetric'_isPullback.
-apply functor_category_has_homsets.
+apply is_symmetric'_isPullback.
 apply pb_if_pointwise_pb; intros K.
 apply Auxiliary.isPullback_HSET; intros L f1 f2.
 now apply e₀_pb.
