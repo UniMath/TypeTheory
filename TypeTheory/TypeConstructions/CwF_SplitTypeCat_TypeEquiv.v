@@ -269,7 +269,7 @@ Proof.
   induction eqH.
   assert (eqK : K = K') by exact (pr1(pr2 C _ _ _ _ _ _)).
   induction eqK.
-  assert (eqPb: isPb = isPb') by exact (pr1(isaprop_isPullback _ _ _ _ _ _ _)).
+  assert (eqPb: isPb = isPb') by exact (pr1 (isaprop_isPullback _ _ _ _ _ _ _ _)).
   induction eqPb.
   reflexivity.
 Qed.

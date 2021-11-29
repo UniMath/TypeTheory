@@ -580,9 +580,7 @@ Qed.
 
 Definition q_of_f_is_pullback_type {CC: lC0system}{X Y: CC}
   (gt0: ll X > 0)(f: Y --> ft X): UU :=
-  isPullback (C0eiso gt0 f · f) (pnX 1 X)
-             (pnX 1 (f_star gt0 f)) (q_of_f gt0 f)
-             (C0ax5c gt0 f).
+  isPullback (C0ax5c gt0 f).
 
 Lemma q_of_f_is_pullback {CC: lCsystem}{X Y: CC} (gt0: ll X > 0)(f: Y --> ft X):
   q_of_f_is_pullback_type gt0 f.

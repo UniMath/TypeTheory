@@ -81,7 +81,7 @@ Local Definition te {Γ : C} (A : Ty Γ : hSet) : tm (#Ty (pi A) A)
 := pr12 pr22 CwF _ A.
 (* proof of pp (te A) = Ty (pi A) A*)
 Local Definition te' {Γ : C} (A : Ty Γ : hSet) : pp_ _ (te A) = #Ty (pi A) A := pr212 pr22 CwF Γ A.
-Definition CwF_Pullback {Γ} (A : Ty Γ : hSet) : isPullback (yy A) pp (#Yo (pi A)) (yy(te A)) (cwf_square_comm (te' A)) := pr22 pr22 CwF Γ A.
+Definition CwF_Pullback {Γ} (A : Ty Γ : hSet) : isPullback (cwf_square_comm (te' A)) := pr22 pr22 CwF Γ A.
 
 Local Definition tm_transportf {Γ} {A A' : Ty Γ : hSet} (e : A = A')
 : tm A ≃ tm A'.
@@ -208,17 +208,17 @@ Lemma yonedacarac {Γ Δ : C} (f  : _ ⟦Yo Γ,Yo Δ⟧)
 Proof.
   assert (H : (# Yo ((f : nat_trans _ _) Γ (identity Γ)) : nat_trans _ _) Γ (identity Γ)
                = (f : nat_trans _ _) Γ (identity Γ)) by apply (id_left _).
-  assert (Map1 : (f : nat_trans _ _) Γ (identity Γ) = yoneda_map_1 C (pr2 C) Γ (Yo(Δ)) f) by reflexivity.
-  assert (Map2 : # Yo ((f : nat_trans _ _) Γ (identity Γ)) = yoneda_map_2 C (pr2 C) Γ (Yo(Δ))
+  assert (Map1 : (f : nat_trans _ _) Γ (identity Γ) = yoneda_map_1 C Γ (Yo(Δ)) f) by reflexivity.
+  assert (Map2 : # Yo ((f : nat_trans _ _) Γ (identity Γ)) = yoneda_map_2 C Γ (Yo(Δ))
          ((f : nat_trans _ _) Γ (identity Γ))).                                      
   -  unfold yoneda_map_2; cbn; unfold yoneda_morphisms; unfold yoneda_morphisms_data; cbn.
-     assert (nattrans : is_nat_trans_yoneda_morphisms_data C _ Γ Δ
+     assert (nattrans : is_nat_trans_yoneda_morphisms_data C Γ Δ
          ((f :nat_trans _ _) Γ (identity Γ))
-          = yoneda_map_2_ax C (pr2 C) Γ (yoneda_objects C _ Δ)
+          = yoneda_map_2_ax C Γ (yoneda_objects C Δ)
           ((f : nat_trans _ _) Γ (identity Γ))).
-     --  assert (prop : isaprop(is_nat_trans (yoneda_objects C _ Γ)
-         (yoneda_objects C (homset_property C) Δ)
-         (yoneda_morphisms_data C _ Γ Δ
+     --  assert (prop : isaprop(is_nat_trans (yoneda_objects C Γ)
+         (yoneda_objects C Δ)
+         (yoneda_morphisms_data C Γ Δ
          ((f : nat_trans _ _) Γ (identity Γ))))) by (apply isaprop_is_nat_trans;exact (pr2 hset_category));
         exact (pr1 (prop _ _)).
      --  apply pair_path_in2; apply nattrans.
@@ -231,7 +231,7 @@ Proof.
 Qed.
 
 Lemma yyidentity {Γ : C} {A : Ty Γ : hSet} (B : Ty (Γ.:A) : hSet) 
-: B = (@yy (pr1 C) (pr2 C) Ty (Γ.:A) B : nat_trans _ _) (Γ.:A) (identity (Γ.:A)).
+: B = (@yy C Ty (Γ.:A) B : nat_trans _ _) (Γ.:A) (identity (Γ.:A)).
 Proof.
   apply pathsinv0; eapply pathscomp0.
   -  apply (toforallpaths _ (# Ty _) _ (functor_id Ty (Γ.:A))).
@@ -244,9 +244,9 @@ Section qq.
 (** morphism between contexts *)
 
 Let Xk {Γ : C} (A : Ty Γ : hSet) :=
-  make_Pullback _ _ _ _ _ _ (pr22 pr22 CwF Γ A).
+  make_Pullback _ (pr22 pr22 CwF Γ A).
 
-Local Definition qq_yoneda {Γ  Δ : C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧)
+Local Definition qq_yoneda {Γ  Δ : C} (A : Ty Γ : hSet) (f : C ⟦Δ,Γ⟧)
 : (preShv C) ⟦Yo (Δ .: (#Ty f A)), Yo (Γ.: A) ⟧.
 Proof.
   use (PullbackArrow (Xk A)).
@@ -278,7 +278,7 @@ Qed.
 Local Definition qq_term {Γ  Δ : C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧)
 : C ⟦ Δ.:(#Ty f A) , Γ.: A⟧.
 Proof.
-  apply (invweq (make_weq _ (yoneda_fully_faithful _ (homset_property _) _ _ ))) ,
+  apply (invweq (make_weq _ (yoneda_fully_faithful _ _ _ ))) ,
   (qq_yoneda A f).
 Defined.
 
@@ -286,7 +286,7 @@ Lemma qq_yoneda_compatibility {Γ  Δ : C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ
  #Yo(qq_term A f) = qq_yoneda A f.
 Proof.
   apply (homotweqinvweq
-  (make_weq _ (yoneda_fully_faithful _ (homset_property _) ( _ .:(#Ty f A)) (Γ.:A)))).
+  (make_weq _ (yoneda_fully_faithful _ ( _ .:(#Ty f A)) (Γ.:A)))).
 Qed.
 
 Lemma qq_term_te {Γ Δ : C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧) 
@@ -295,18 +295,19 @@ Proof.
   assert (Hyp := qq_yoneda_commutes A f).
   rewrite <- qq_yoneda_compatibility in Hyp. 
   apply (pathscomp0 (yy_natural  _ _ _ _ _)) in Hyp.
-  apply (invmaponpathsweq (@yy _ (pr2 C) _ _) ).
+  apply (invmaponpathsweq (@yy _ _ _) ).
   exact Hyp.
 Qed.
 
 Lemma qq_term_pullback {Γ  Δ :C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧)
 : f ;; pi (#Ty f A) = (qq_term A f);; pi A.
 Proof.
+  cbn; cbn in f.
   assert (XT := (qq_yoneda_commutes_1 A f)).
   rewrite <- qq_yoneda_compatibility in XT.
   do 2 rewrite <- functor_comp in XT.
-  apply (invmaponpathsweq (make_weq _ (yoneda_fully_faithful _ (homset_property _) _ _ ))).
-  cbn; cbn in XT; exact XT.
+  apply (invmaponpathsweq (make_weq _ (yoneda_fully_faithful _ _ _ ))).
+  exact XT.
 Qed.
 
 Section Familly_Of_Types.
@@ -340,8 +341,8 @@ Lemma γNat {Γ Δ : C} {A : Ty Γ : hSet} (f : C^op ⟦Γ,Δ⟧) (a : tm A)
 Proof.
   assert (Yoγ : #Yo ((f : C⟦Δ,Γ⟧) ;; (γ a : nat_trans _ _) Γ (identity Γ)) =
   #Yo((γ (reind_tm f a) : nat_trans _ _) Δ (identity Δ) ;; qq_term A f)).
-  -  do 2 (rewrite (pr22 (yoneda C (pr2 C)) _ _ _); rewrite yonedacarac).
-     refine (MorphismsIntoPullbackEqual (CwF_Pullback A)
+  -  do 2 (rewrite (pr22 (yoneda C) _ _ _); rewrite yonedacarac).
+     cbn in f. refine (MorphismsIntoPullbackEqual (CwF_Pullback A) _
      (#Yo f ;; γ a) (γ (reind_tm f a) ;; #Yo (qq_term A f)) _ _).
      --  rewrite <- assoc.
          eapply pathscomp0.
@@ -360,7 +361,7 @@ Proof.
                 rewrite  (cancel_postcomposition _ _ _
                 (pr121 ((CwF_Pullback _) (Yo Δ) (identity (Yo Δ))
                 (yy(#Tm f a)) (Subproof_γ (reind_tm f a) )))).
-                apply (pr1 (pr121 (preShv C)) _ (Yo Γ) (#Yo f)).
+                apply id_left.
             **  reflexivity.
     --  rewrite <- assoc.
         apply (pathscomp0  (cancel_precomposition _ _ _ _ _ _ _
@@ -397,14 +398,8 @@ Lemma  γPullback2 {Γ : C} (A : Ty Γ : hSet)
 : γ (te A) ;; #Yo (qq_term A (pi A)) ;; #Yo (pi A) = identity _;;(#Yo (pi A)).
 Proof.
   assert (Eq1 : #Yo (pi (#Ty (pi A) A)) ;; #Yo (pi A) = qq_yoneda A (pi A) ;; #Yo (pi A)) by (
-  rewrite <- (pr121((pr22(make_Pullback (yy A) pp
-    (yoneda (pr1 CwF) (homset_property (pr1 CwF))
-    (Γ.:A))
-    (# (yoneda (pr1 CwF) (homset_property (pr1 CwF)))
-    (pi A))
-    (yy (pr112 (pr22 CwF Γ A)))
-    (cwf_square_comm (pr212 (pr22 CwF Γ A)))
-    (CwF_Pullback A))) (Yo (_ .: (#Ty (pi A) A)))
+  rewrite <- (pr121((pr22(make_Pullback _ (CwF_Pullback A)))
+    (Yo (_ .: (#Ty (pi A) A)))
     (#Yo (pi (#Ty (pi A) A)) ;; #Yo (pi A)) (yy (te (#Ty (pi A) A)))
     (qq_yoneda_subproof Γ (Γ.: A) A (pi A))));          
   auto).         
@@ -425,17 +420,17 @@ Proof.
   exact (Yo^-1 (γ a) ;; qq_term A f).    
 Defined.
 
-Lemma γ_pi {Γ} {A : Ty Γ: hSet} (a : tm A) : Yo^-1 (γ a) ;; pi A = identity _.
+Lemma γ_pi {Γ:C} {A : Ty Γ: hSet} (a : tm A) : Yo^-1 (γ a) ;; pi A = identity _.
 Proof.
-  assert (Yoeq : #Yo(Yo^-1 (γ a) ;; pi A) = #Yo(identity Γ)).
+  assert (Yoeq : #Yo(Yo^-1 (γ a) ;; pi A) = #Yo (identity Γ)).
   -  apply (pathscomp0 (pr22 Yo _ _ _  _ _ )).
      apply pathsinv0 , (pathscomp0 (pr12 Yo _)).    
-     assert (simplman : identity (pr1 (yoneda C (homset_property C)) Γ) 
+     assert (simplman : identity (pr1 (yoneda C) Γ) 
      = identity (Yo Γ)) by auto.
      apply (pathscomp0 simplman).
      rewrite (!(pull_γ a)).
      apply cancel_postcomposition.
-     assert (simplman2 : # (pr1 (yoneda C (homset_property C))) (Yo^-1 (γ a))
+     assert (simplman2 : # (pr1 (yoneda C)) (Yo^-1 (γ a))
      = #Yo (Yo^-1 (γ a))) by auto.
      apply pathsinv0, (pathscomp0 simplman2), invyoneda.
   -  apply (maponpaths (Yo^-1) ) in Yoeq.
@@ -445,7 +440,7 @@ Qed.
 
 Lemma te_subtitution {Γ} {A : Ty Γ : hSet} (a : tm A) : #Tm (Yo^-1(γ a)) (te A) = a.
 Proof.
-  assert (inter : @yy _ (pr2 C) _ _ (#Tm (Yo^-1(γ a)) (te A)) = yy a). 
+  assert (inter : @yy _ _ _ (#Tm (Yo^-1(γ a)) (te A)) = yy a). 
   -  rewrite yy_natural, invyoneda. 
      exact (pr221((CwF_Pullback _) (Yo _) (identity _) (yy _) (Subproof_γ _))).
   -  apply (maponpaths (invmap yy) ) in inter.
@@ -509,7 +504,7 @@ Lemma DepTypesEta {Γ : C} {A : Ty Γ : hSet} (B : Ty (Γ.:A) : hSet)
 Proof.
   assert (Natu : @γ (Γ.:A) (#Ty (pi A) A) (te A) ;; yy (# Ty (qq_term A (pi A)) B)
   = @γ (Γ.:A) (#Ty (pi A) A) (te A) ;; #Yo (qq_term A (pi A)) ;; 
-  (@yy (@pr1 _ _ C) (@pr2 _ _ C) Ty (Γ .: A)) B).
+  (@yy _ Ty (Γ .: A)) B).
   -  rewrite (cancel_precomposition _ _ _ _ (yy (#Ty (qq_term A (pi A)) B))
      (#Yo (qq_term A (pi A));; yy B) _).
      *  rewrite assoc; reflexivity.
@@ -517,12 +512,7 @@ Proof.
   -  assert (Id: @γ (Γ .: A) (# Ty (@pi Γ A) A) (te A) ;; #Yo (qq_term A (pi A))
      = identity _).
      *  refine (MorphismsIntoPullbackEqual
-        (pr22(make_Pullback (yy A) pp
-        (yoneda (pr1 CwF) (homset_property (pr1 CwF)) (Γ.:A))
-        (# (yoneda (pr1 CwF) (homset_property (pr1 CwF))) (pi A))
-        (yy (te A))
-        (cwf_square_comm (te' A))
-        (CwF_Pullback A)))
+        (pr22(make_Pullback _ (CwF_Pullback A))) _
         (γ (te A) ;; #Yo (qq_term A (pi A))) (identity _) (γPullback2 A) (γPullback1 A)).
      *  rewrite Id, (id_left _) in Natu.
         unfold DepTypesType.

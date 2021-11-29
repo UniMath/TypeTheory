@@ -238,7 +238,7 @@ exists VSET_tt_reindx_type_struct. use tpair.
   + split; [apply VSET_reindx_comp_law_3 | apply VSET_reindx_comp_law_4].
 - split.
   + intros Γ Δ. apply isaset_set_fun_space.
-  + split; intros; apply isaset_forall_hSet.
+  + intros; apply isaset_forall_hSet.
 Defined.
 
 End VSET_CwF.
