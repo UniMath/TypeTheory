@@ -109,7 +109,7 @@ Lemma term_to_section_naturality {Y} {Y'}
 Proof.
   set (t' := (term_fun_mor_TM FY : nat_trans _ _) _ t).
   set (A' := (pp Y' : nat_trans _ _) _ t').
-  set (Pb := isPullback_preShv_to_pointwise (homset_property _) (isPullback_Q_pp Y' A') Γ);
+  set (Pb := isPullback_preShv_to_pointwise (isPullback_Q_pp Y' A') Γ);
     simpl in Pb.
   apply (pullback_HSET_elements_unique Pb); clear Pb.
   - unfold yoneda_morphisms_data; cbn.
@@ -393,10 +393,10 @@ Proof.
   - apply idpath.
   - etrans. apply id_right.
     cbn. apply PullbackArrowUnique.
-    + use (PullbackArrow_PullbackPr1
-                (make_Pullback _ _ _ _ _ _ (qq_π_Pb _ f A))).
+    + set (XX := (make_Pullback _ (qq_π_Pb (pr1 Z) f A))).
+      apply (PullbackArrow_PullbackPr1 XX).
     + cbn; cbn in FZ. etrans. apply maponpaths, @pathsinv0, FZ.
-      apply (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _)). 
+      apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)). 
 Qed.
 
 Lemma tm_from_qq_mor_TM {Z Z' : qq_structure_precategory} (FZ : Z --> Z')
@@ -423,10 +423,10 @@ Proof.
   - apply idpath.
   - etrans. apply id_right. 
     cbn. apply PullbackArrowUnique.
-    + cbn. apply (PullbackArrow_PullbackPr1 (make_Pullback _ _ _ _ _ _ _)).
+    + cbn. apply (PullbackArrow_PullbackPr1 (make_Pullback _ _)).
     + cbn. cbn in FZ. 
       etrans. apply maponpaths, @pathsinv0, FZ.
-      apply (PullbackArrow_PullbackPr2 (make_Pullback _ _ _ _ _ _ _)). 
+      apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)). 
 Qed.
 
 End Rename_me.
@@ -618,13 +618,14 @@ Proof.
   repeat (apply impred_isaprop; intro). apply setproperty.
 Qed.
 
+Definition term_fun_category : category := make_category _ has_homsets_term_fun_precategory.
+
 Theorem is_univalent_term_fun_structure
-  : is_univalent term_fun_precategory.
+  : is_univalent term_fun_category.
 Proof.
-  split.
-  - apply eq_equiv_from_retraction with iso_to_id_term_fun_precategory.
-    intros. apply eq_iso. apply isaprop_term_fun_mor.
-  - apply has_homsets_term_fun_precategory. 
+  use eq_equiv_from_retraction.
+  - apply iso_to_id_term_fun_precategory.
+  - intros. apply eq_iso. apply isaprop_term_fun_mor.
 Qed.
 
 End Is_Univalent_Families_Strucs.
@@ -699,16 +700,17 @@ Proof.
   intros a b. apply isasetaprop. apply isaprop_qq_structure_mor.
 Qed.
 
+Definition qq_structure_category : category
+  := make_category _ has_homsets_qq_structure_precategory.
+
 Theorem is_univalent_qq_morphism
-  : is_univalent qq_structure_precategory.
+  : is_univalent qq_structure_category.
 Proof.
-  split.
-  - intros d d'. 
-    use isweqimplimpl. 
-    + apply qq_structure_iso_to_id.
-    + apply isaset_qq_morphism_structure.
-    + apply isaprop_iso_qq_morphism_structure.
-  - apply has_homsets_qq_structure_precategory.
+  intros d d'. 
+  use isweqimplimpl. 
+  + apply qq_structure_iso_to_id.
+  + apply isaset_qq_morphism_structure.
+  + apply isaprop_iso_qq_morphism_structure.
 Qed.
 
 End Is_Univalent_qq_Strucs.
@@ -722,14 +724,23 @@ Proof.
   - apply has_homsets_qq_structure_precategory. 
 Qed.
 
-Definition pr1_equiv : adj_equivalence_of_precats compat_structures_pr1_functor.
+Definition compat_structures_category : category
+  := make_category _ has_homsets_compat_structures_precategory.
+
+Definition pr1_equiv : @adj_equivalence_of_precats
+                         compat_structures_category
+                         term_fun_category
+                         compat_structures_pr1_functor.
 Proof.
   use adj_equivalence_of_precats_ff_split.
   - apply compat_structures_pr1_fully_faithful.
   - apply compat_structures_pr1_split_ess_surj.
 Defined.
 
-Definition pr2_equiv : adj_equivalence_of_precats compat_structures_pr2_functor.
+Definition pr2_equiv : @adj_equivalence_of_precats
+                         compat_structures_category
+                         qq_structure_category
+                         compat_structures_pr2_functor.
 Proof.
   use adj_equivalence_of_precats_ff_split.
   - apply compat_structures_pr2_fully_faithful.

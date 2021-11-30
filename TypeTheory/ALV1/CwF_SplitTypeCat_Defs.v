@@ -440,7 +440,7 @@ Qed.
 Definition term_fun_structure_axioms (Y : term_fun_structure_data) :=
   ∏ Γ (A : Ty X Γ), 
         ∑ (e : (pp Y : nat_trans _ _) _ (te Y A) = A [ π A ]),
-          isPullback _ _ _ _ (term_fun_str_square_comm e).
+          isPullback (term_fun_str_square_comm e).
 
 Lemma isaprop_term_fun_structure_axioms Y
   : isaprop (term_fun_structure_axioms Y).
@@ -467,12 +467,12 @@ Definition Q_pp (Y : term_fun_structure) {Γ} (A : Ty X Γ)
 
 (* TODO: rename this to [Q_pp_Pb], or [qq_π_Pb] to [isPullback_qq_π]? *)
 Definition isPullback_Q_pp (Y : term_fun_structure) {Γ} (A : Ty X Γ)
-  : isPullback _ _ _ _ (Q_pp Y A)
+  : isPullback (Q_pp Y A)
 := pr2 (pr2 Y _ _ ).
 
 (* TODO: look for places these three lemmas can be used to simplify proofs *) 
 Definition Q_pp_Pb_pointwise (Y : term_fun_structure) (Γ' Γ : C) (A : Ty X Γ)
-  := isPullback_preShv_to_pointwise (homset_property _) (isPullback_Q_pp Y A) Γ'.
+  := isPullback_preShv_to_pointwise (isPullback_Q_pp Y A) Γ'.
 
 Definition Q_pp_Pb_univprop (Y : term_fun_structure) (Γ' Γ : C) (A : Ty X Γ)
   := pullback_HSET_univprop_elements _ (Q_pp_Pb_pointwise Y Γ' Γ A).
@@ -491,7 +491,7 @@ Lemma term_to_section_aux {Y : term_fun_structure} {Γ:C} (t : Tm Y Γ)
          f ;; π _ = identity Γ
        × (Q Y A : nat_trans _ _) Γ f = t).
 Proof.
-  set (Pb := isPullback_preShv_to_pointwise (homset_property _) (isPullback_Q_pp Y A) Γ).
+  set (Pb := isPullback_preShv_to_pointwise (isPullback_Q_pp Y A) Γ).
   simpl in Pb.
   apply (pullback_HSET_univprop_elements _ Pb).
   exact (toforallpaths _ _ _ (functor_id (TY X) _) A).
@@ -557,7 +557,7 @@ Definition qq_morphism_data : UU :=
   ∑ q : ∏ {Γ Γ'} (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet), 
            C ⟦Γ' ◂ A [ f ], Γ ◂ A⟧, 
     (∏ Γ Γ' (f : C⟦Γ', Γ⟧) (A : (TY X:functor _ _ ) Γ : hSet), 
-        ∑ e : q f A ;; π _ = π _ ;; f , isPullback _ _ _ _ (!e)).
+        ∑ e : q f A ;; π _ = π _ ;; f , isPullback (!e)).
 
 Definition qq (Z : qq_morphism_data) {Γ Γ'} (f : C ⟦Γ', Γ⟧)
               (A : (TY X:functor _ _ ) Γ : hSet) 
@@ -571,7 +571,7 @@ Proof.
   exact (pr1 (pr2 Z _ _ f A)).
 Qed.
 
-Lemma qq_π_Pb (Z : qq_morphism_data) {Γ Γ'} (f : Γ' --> Γ) (A : _ ) : isPullback _ _ _ _ (!qq_π Z f A).
+Lemma qq_π_Pb (Z : qq_morphism_data) {Γ Γ'} (f : Γ' --> Γ) (A : _ ) : isPullback (!qq_π Z f A).
 Proof.
   exact (pr2 (pr2 Z _ _ f A)).
 Qed.

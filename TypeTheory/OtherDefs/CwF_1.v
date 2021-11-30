@@ -20,7 +20,7 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
-
+Local Open Scope precat.
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 (** * A "preview" of the definition *)
@@ -702,7 +702,7 @@ Qed.
 
 Lemma is_pullback_reindx_cwf (hs : has_homsets CC) : ∏ (Γ : CC) (A : C⟨Γ⟩) (Γ' : CC) 
    (f : Γ' --> Γ),
-   isPullback (π A) f (q_precwf A f) (π (A [[f]])) (dpr_q_precwf A f).
+   isPullback (dpr_q_precwf A f).
 Proof.
   intros.
   apply make_isPullback; try assumption.

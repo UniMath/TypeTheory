@@ -158,7 +158,7 @@ Section CwF_structure_cat.
     : Yo (Γ ◂ A) --> Yo (Γ ◂ ((cwf_structure_mor_TY f : nat_trans _ _) _ A)).
   Proof.
     set (A' := (cwf_structure_mor_TY f : nat_trans _ _) _ A).
-    set (X'_isPullback := pr2 (pr2 (pr2 X' Γ A')) : isPullback _ _ _ _ _).
+    set (X'_isPullback := pr2 (pr2 (pr2 X' Γ A')) : isPullback _).
     set (X_commutes := pr2 (pr1 (pr2 (pr2 X Γ A))) : _ = _).
     apply (X'_isPullback
              _ (# Yo (π A)) (yy (te A) ;; cwf_structure_mor_TM f)).
@@ -211,7 +211,7 @@ Section CwF_structure_cat.
     : cwf_structure_mor_ϕ_data f.
   Proof.
     intros Γ A.
-    apply (yoneda_fully_faithful _ (homset_property _)).
+    apply (yoneda_fully_faithful _ ).
     apply cwf_structure_mor_Yo_ϕ.
   Defined.
 
@@ -222,14 +222,14 @@ Section CwF_structure_cat.
         mor (cwf_structure_mor_ϕ_data_of mor).
   Proof.
     intros Γ A.
-    apply (invmaponpathsweq (# Yo ,, yoneda_fully_faithful _ _ _ _)).
+    apply (invmaponpathsweq (# Yo ,, yoneda_fully_faithful _ _ _)).
     etrans. apply functor_comp.
     etrans. apply maponpaths_2.
-    apply (homotweqinvweq (# Yo ,, yoneda_fully_faithful _ _ _ _)).
+    apply (homotweqinvweq (# Yo ,, yoneda_fully_faithful _ _ _ )).
     simpl.
     set (A' := (cwf_structure_mor_TY mor : nat_trans _ _) _ A).
     set (X'_isPullback := pr2 (pr2 (pr2 X' Γ A'))).
-    set (X'_Pullback := make_Pullback _ _ _ _ _ _ X'_isPullback).
+    set (X'_Pullback := make_Pullback _ X'_isPullback).
     set (P := PullbackArrow_PullbackPr1
                 X'_Pullback _
                 (# Yo (π A))
@@ -244,15 +244,15 @@ Section CwF_structure_cat.
         mor (cwf_structure_mor_ϕ_data_of mor).
   Proof.
     intros Γ A.
-    apply (invmaponpathsweq (@yy _ (homset_property C) _ _)).
+    apply (invmaponpathsweq (@yy _ _ _)).
     etrans. apply pathsinv0, yy_comp_nat_trans.
     apply pathsinv0.
     etrans. apply yy_natural.
     etrans. apply maponpaths_2.
-    apply (homotweqinvweq (# Yo ,, yoneda_fully_faithful _ _ _ _)).
+    apply (homotweqinvweq (# Yo ,, yoneda_fully_faithful _ _ _ )).
     set (A' := (cwf_structure_mor_TY mor : nat_trans _ _) _ A).
     set (X'_isPullback := pr2 (pr2 (pr2 X' Γ A'))).
-    set (X'_Pullback := make_Pullback _ _ _ _ _ _ X'_isPullback).
+    set (X'_Pullback := make_Pullback _ X'_isPullback).
     set (P := PullbackArrow_PullbackPr2
                 X'_Pullback _
                 (# Yo (π A))
@@ -278,11 +278,11 @@ Section CwF_structure_cat.
     use total2_paths_f.
     - apply funextsec. intros Γ.
       apply funextsec. intros A.
-      apply (invmaponpathsweq (# Yo ,, yoneda_fully_faithful _ _ _ _)).
+      apply (invmaponpathsweq (# Yo ,, yoneda_fully_faithful _ _ _)).
       set (A' := (cwf_structure_mor_TY mor : nat_trans _ _) _ A).
       set (X'_isPullback := pr2 (pr2 (pr2 X' Γ A'))).
       set (P := PullbackArrowUnique
-                  _ _ _ _ _
+                  _
                   X'_isPullback
                   _
                   (# Yo (π A))

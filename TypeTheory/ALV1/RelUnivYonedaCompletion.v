@@ -19,22 +19,22 @@ Local Notation "[ C , D ]" := (functor_category C D).
 Section fix_category.
 
 Variable C : category.
-Let RC : univalent_category := Rezk_completion C (homset_property _).
+Let RC : univalent_category := Rezk_completion C.
 
 Definition Rezk_on_RelUnivYoneda (X : @relative_universe C _ Yo)
   : relative_universe
-      ((yoneda RC (homset_property RC) : functor RC (preShv RC))
+      ((yoneda RC : functor RC (preShv RC))
        :
          functor RC (preShv RC)).
 Proof.
-  use (Transfer_of_RelUnivYoneda (Rezk_eta C _) ).
+  use (Transfer_of_RelUnivYoneda (Rezk_eta C)).
   - apply Rezk_eta_fully_faithful.
   - apply Rezk_eta_essentially_surjective.
   - apply univalent_category_is_univalent.
   - apply X.
 Defined.
 
-Definition Rezk_eta_full : full (Rezk_eta C (homset_property C)).
+Definition Rezk_eta_full : full (Rezk_eta C).
 Proof.
   apply full_from_ff.
   apply Rezk_eta_fully_faithful.
@@ -43,13 +43,14 @@ Defined.
 Lemma is_univalent_preShv X : is_univalent (preShv X).
 Proof.
   apply is_univalent_functor_category.
+  apply is_univalent_HSET.
 Defined.
 
 Definition Rezk_on_WeakRelUnivYo : 
-  weak_relative_universe (yoneda C (homset_property C)) 
-                         ≃ weak_relative_universe (yoneda RC (homset_property _ ) ).
+  weak_relative_universe (yoneda C) 
+                         ≃ weak_relative_universe (yoneda RC).
 Proof.
-  use (Transfer_of_WeakRelUnivYoneda (Rezk_eta C _ )).
+  use (Transfer_of_WeakRelUnivYoneda (Rezk_eta C)).
   - apply Rezk_eta_fully_faithful.
   - apply Rezk_eta_essentially_surjective.
 Defined.

@@ -411,7 +411,7 @@ Section DiscreteComprehensionCats.
     - repeat (apply impred_isaprop; intros ?). apply D_homsets.
   Qed.
 
-  Definition disp_cat_axioms'_weq {C : precategory} {D : disp_cat_data C}
+  Definition disp_cat_axioms'_weq {C : category} {D : disp_cat_data C}
     : (disp_cat_axioms' C D × (∏ x y f (xx : D x) (yy : D y), isaset (xx -->[f] yy)))
                        ≃ disp_cat_axioms _ D.
   Proof.

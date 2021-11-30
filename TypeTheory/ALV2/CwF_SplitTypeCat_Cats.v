@@ -185,7 +185,7 @@ Lemma term_to_section_naturality {X X'} {Y} {Y'}
 Proof.
   set (t' := (term_fun_mor_TM FY : nat_trans _ _) _ t).
   set (A' := (pp Y' : nat_trans _ _) _ t').
-  set (Pb := isPullback_preShv_to_pointwise (homset_property _) (isPullback_Q_pp Y' A') Γ);
+  set (Pb := isPullback_preShv_to_pointwise (isPullback_Q_pp Y' A') Γ);
     simpl in Pb.
   apply (pullback_HSET_elements_unique Pb); clear Pb.
   - unfold yoneda_morphisms_data; cbn.
@@ -286,7 +286,7 @@ Qed.
 Definition term_fun_disp_cat : disp_cat (obj_ext_cat C)
   := (_ ,, term_fun_axioms).
 
-Definition cwf'_structure_precat : precategory
+Definition cwf'_structure_precat : category
   := total_category term_fun_disp_cat.
 
 End CwF_Structure_Precat.
@@ -361,7 +361,7 @@ Qed.
 Definition qq_structure_disp_cat : disp_cat (obj_ext_cat C)
   := (_ ,, qq_structure_axioms).
 
-Definition sty'_structure_precat : precategory
+Definition sty'_structure_precat : category
   := total_category (qq_structure_disp_cat).
 
 End STy_Structure_Precat.

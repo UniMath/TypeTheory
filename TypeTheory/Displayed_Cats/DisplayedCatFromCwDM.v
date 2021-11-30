@@ -112,7 +112,7 @@ Definition DM_disp : disp_cat CC
 Definition pullback_is_cartesian
     { Γ Γ' : CC } {f : Γ' --> Γ}
     {p : DM_disp Γ} {p' : DM_disp Γ'} (ff : p' -->[f] p)
-  : (isPullback _ _ _ _ (pr2 ff)) -> is_cartesian ff.
+  : (isPullback (pr2 ff)) -> is_cartesian ff.
 Proof.
   intros Hpb Δ g q hh.
   eapply iscontrweqf.

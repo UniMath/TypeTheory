@@ -11,7 +11,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.TypeCat.
 
-(* This should be upstreamed *)
+(* TODO: upstream? *)
 Arguments nat_trans_ax {C C'} {F F'} a {x x'} f.
 
 Local Open Scope cat.
@@ -161,7 +161,7 @@ Section Terms.
     : reind_tm f a ;; q_typecat A f = f ;; a.
   Proof.
     simpl.
-    set (pb := make_Pullback _ _ _ _ _ _ _).
+    set (pb := make_Pullback _ _).
     now rewrite (PullbackArrow_PullbackPr2 pb).
   Qed.
 
@@ -230,9 +230,9 @@ Section Terms.
       = tm_transportb (reind_id_type_typecat _ _) a.
   Proof.
     apply subtypePath; [ intros x; apply homset_property|]; simpl.
-    set (pb := make_Pullback _ _ _ _ _ _ _).
+    set (pb := make_Pullback _ _).
     (* Why is there a ' version of this lemma??? *)
-    apply pathsinv0, (PullbackArrowUnique' _ _ pb).
+    apply pathsinv0, (PullbackArrowUnique' _ _ _ pb).
     - rewrite <-assoc.
       etrans; [eapply maponpaths, idtoiso_dpr_typecat|].
       exact (pr2 a).
@@ -257,10 +257,10 @@ Section Terms.
           (reind_tm g (reind_tm f a)).
   Proof.
     apply subtypePath; [ intros x; apply homset_property|]; simpl.
-    set (pb := make_Pullback _ _ _ _ _ _ _).
-    set (pb' := make_Pullback _ _ _ _ _ _ _).
-    set (pb'' := make_Pullback _ _ _ _ _ _ _).
-    apply pathsinv0, (PullbackArrowUnique' _ _ pb).
+    set (pb := make_Pullback _ _).
+    set (pb' := make_Pullback _ _).
+    set (pb'' := make_Pullback _ _).
+    apply pathsinv0, (PullbackArrowUnique' _ _ _ pb).
     - rewrite <- assoc.
       etrans; [eapply maponpaths, idtoiso_dpr_typecat|].
       apply (PullbackArrow_PullbackPr1 pb').
@@ -329,8 +329,8 @@ Section Terms.
     apply pathsinv0, PullbackArrowUnique.
     { apply (section_property (tm_transportb _ _)). }
     apply pathsinv0.
-    etrans. { refine (postCompWithPullbackArrow _ _ _
-                                       (make_Pullback _ _ _ _ _ _ _) _ _ _). }
+    etrans. { refine (postCompWithPullbackArrow _ _ _ _
+                                       (make_Pullback _ _) _ _ _). }
     apply pathsinv0, PullbackArrowUnique; cbn; refine (_ @ ! id_right _).
     - rewrite <- assoc.
       etrans. { apply maponpaths, dpr_q_typecat. }
@@ -378,7 +378,7 @@ Section Terms.
     + now induction e; rewrite <-assoc, id_left.
     + unfold map_into_Pb.
       set (pb := Auxiliary.Pbb _ _ _ _ _ _ _ _ _ _ _).
-      rewrite <-assoc, (postCompWithPullbackArrow _ _ _ pb).
+      rewrite <-assoc, (postCompWithPullbackArrow _ _ _ _ pb).
       apply PullbackArrowUnique; cbn.
     - rewrite <-!assoc, dpr_q_typecat; induction e.
       now rewrite id_left, assoc, af, id_left, id_right.

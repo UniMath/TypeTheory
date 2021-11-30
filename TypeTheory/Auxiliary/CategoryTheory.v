@@ -6,7 +6,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.All.
 
 Definition adj_equiv_from_adjunction
-    {C D : precategory}
+    {C D : category}
     (FG : adjunction C D)
     (unit_iso : forall c:C, is_iso (adjunit FG c))
     (counit_iso : forall d:D, is_iso (adjcounit FG d))
@@ -26,7 +26,7 @@ Proof.
 Defined.
 
 Definition compose_adj_equiv
-    {C D E : precategory}
+    {C D E : category}
     (F : adj_equiv C D)
     (G : adj_equiv D E)
   : adj_equiv C E.
@@ -37,7 +37,7 @@ Proof.
 Defined.
 
 Definition inv_adj_equiv
-    {C D : precategory}
+    {C D : category}
     (F : adj_equiv C D)
   : adj_equiv D C.
 Proof.

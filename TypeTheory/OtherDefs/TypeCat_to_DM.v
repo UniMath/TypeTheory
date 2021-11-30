@@ -19,7 +19,7 @@ Require Import TypeTheory.OtherDefs.DM.
 
 Section TypeCat_to_DM.
 
-Variable CC : precategory.
+Variable CC : category.
 Variable H : is_univalent CC.  
 Variable C : typecat_structure CC.
 
@@ -77,19 +77,18 @@ Proof.
   destruct T as [A [h e]].
   clear B.
   unshelve refine (tpair _ _ _ ).
-  - unshelve refine (make_Pullback _ _ _ _ _ _ _ ).
+  - unshelve refine (make_Pullback _ _).
     + apply (Γ' ◂ (A{{f}})).
     + apply (q_typecat _ _ ;; h).
     + apply (dpr_typecat _ ).
     + simpl. unfold dm_sub_struct_of_TypeCat.
       simpl.
-      set (T:= postcomp_pb_with_iso CC (pr2 H)).
-      refine (pr1 (T _ _ _ _  (q_typecat A f) _ _ f _ _ _ _ _ _ )).
-      apply is_symmetric_isPullback. exact (pr2 H).
+      set (T:= postcomp_pb_with_iso CC (homset_property _)).
+      refine (pr1 (T _ _ _ _ (q_typecat A f) _ _ f _ _ _ _ _ _)).
+      apply is_symmetric_isPullback. { apply homset_property. }
       apply reind_pb_typecat.
       sym. assumption.
-    + 
-      set (T:= postcomp_pb_with_iso CC (pr2 H)).
+    + set (T:= postcomp_pb_with_iso CC (homset_property _)).
       eapply (pr2 (T _ _ _ _ _ _ _ _ _ _ _ _ _ _)).
  - simpl.
     apply hinhpr.

@@ -5,7 +5,7 @@
 
  Contents:
 
-  - Construction of a precategory with Families from Comprehension precat
+  - Construction of a category with Families from a split type-category
 
 *)
 
@@ -29,17 +29,16 @@ Defined.
   
 
 
-(** * wF structure from (split) comprehension structure on a precategory 
+(** * CwF structure from split type-category structure on a category 
 
-Every pre-(split)-Comp-cat gives rise to a pre-category with families.
+Every split-Comp-cat gives rise to a category with families.
 
-Since the components of the pre-cat with Families structure are highly successively dependent, we construct most of them individually, before putting them together in [cwf_of_type_precat].
+Since the components of the CwF structure are highly successively dependent, we construct most of them individually, before putting them together in [cwf_of_type_cat].
  *)
 
 Section CwF_of_Comp. 
 
-(* TODO: here and in other old files, use [category] instead of explicit [has_homsets] assumptions. *)
-Context (CC : precategory) (C : split_typecat_structure CC) (homs_sets : has_homsets CC).
+Context (CC : category) (C : split_typecat_structure CC).
 
 Definition tt_structure_of_typecat : tt_structure CC.
 Proof.
@@ -82,7 +81,8 @@ Proof.
 Defined.
 
 Local Definition HC : split_typecat :=
-  (((CC,,homs_sets),,pr1 C),,pr2 C).
+  ((CC,,pr1 C),,pr2 C).
+(* TODO: find or add constructor [make_split_typecat] *)
 
 Lemma reindx_laws_type_of_typecat : reindx_laws_type tt_reindx_from_typecat.
 Proof.
@@ -103,8 +103,8 @@ Lemma reindx_law_1_term_of_typecat
               (! (@reind_id_type_typecat HC Γ A)) a.
 Proof.
   intros. simpl. unfold tt_reindx_from_typecat in *. simpl in *.
-  apply subtypePath.
-  intro; apply homs_sets. simpl.
+  apply subtypePath. { intro; apply homset_property. }
+  simpl.
   apply pathsinv0.
   apply PullbackArrowUnique.
   + destruct a as [f H]; simpl in *.
@@ -122,7 +122,7 @@ Proof.
     etrans.
     apply maponpaths_2. apply T5.
     clear T5.
-    apply (transportf_dpr_typecat (((CC,,homs_sets),,(pr1 C)),,pr2 C)).
+    apply (transportf_dpr_typecat ((CC,,(pr1 C)),,pr2 C)).
 
   + simpl.
     rewrite id_left.
@@ -174,7 +174,7 @@ Proof.
   intros.
   unfold tt_reindx_from_typecat in *. simpl.
   apply subtypePath.
-  intro; apply homs_sets. simpl.
+  intro; apply homset_property. simpl.
   apply pathsinv0.
   apply PullbackArrowUnique.
   + match goal with |[|- pr1 (transportf ?P' ?e' ?x') ;; _ = _ ] =>
@@ -187,7 +187,7 @@ Proof.
     assert (T5:= base_paths _ _ T3); clear T3; simpl in *.
     etrans. apply maponpaths_2. apply T5.
     clear T5.
-    etrans. apply (transportf_dpr_typecat (((CC,,homs_sets),,pr1 C),,pr2 C)).
+    etrans. apply (transportf_dpr_typecat ((CC,,pr1 C),,pr2 C)).
     apply (@Pb_map_commutes_1).
 
   + destruct a as [f H]; simpl in *.
@@ -325,7 +325,7 @@ Proof.
 
       etrans. refine (functtransportf
                       (@rtype _ tt_reindx_type_struct_of_typecat _ _ A) _ _ _).
-      etrans. apply (transportf_reind_typecat (((CC,,homs_sets),,pr1 C),,pr2 C)).
+      etrans. apply (transportf_reind_typecat ((CC,,pr1 C),,pr2 C)).
       etrans. apply maponpaths, transportf_reind_typecat.
       etrans. apply transport_f_f.
       match goal with |[ |- transportf _ ?e' _ = _] => set (e:=e') end.
@@ -356,7 +356,7 @@ Proof.
       unshelve refine (pre_comp_with_iso_is_inj _ _ _ _ _ _ _ _).
       Focus 4.
         etrans. Focus 2. symmetry; apply assoc.
-        etrans. Focus 2. apply (@q_q_typecat (((CC,,homs_sets),,pr1 C),,pr2 C)).
+        etrans. Focus 2. apply (@q_q_typecat ((CC,,pr1 C),,pr2 C)).
       Unfocus.
       apply pr2.
     
@@ -380,7 +380,7 @@ Proof.
     etrans. apply maponpaths. apply Pb_map_commutes_2.
     etrans. symmetry. apply assoc. apply maponpaths.
     apply id_right.
-    + apply homs_sets. 
+    + apply homset_property. 
 Qed.
 
 Lemma comp_law_3_of_typecat : @comp_law_3 CC tt_reindx_type_struct_of_typecat reindx_laws_of_typecat.
@@ -405,7 +405,7 @@ Proof.
   apply maponpaths_2.
   apply functtransportf.
   rewrite <- idtoiso_postcompose.
-  rewrite (@q_q_typecat (((CC,,homs_sets),,pr1 C),,pr2 C)).
+  rewrite (@q_q_typecat ((CC,,pr1 C),,pr2 C)).
   match goal with |[ |- _ ;; ?B' ;; ?C'  = _ ]  => set (B:=B'); set (D:=C') end.
   simpl in *.
   match goal with |[ |- map_into_Pb ?B' ?C' ?D' ?E' ?F' ?G' ?Y' ?Z' ?W'  ;; _ ;; _  = _ ] => 
@@ -451,15 +451,14 @@ Proof.
     + apply comp_laws_1_2_of_typecat. 
     + apply comp_law_3_of_typecat. 
     + apply comp_law_4_of_typecat.
-  -  assumption.
   - apply (@isaset_types_typecat HC).
   - simpl.
     intros.
     apply (isofhleveltotal2 2).
-    + apply homs_sets.
+    + apply homset_property.
     + intros.
       apply hlevelntosn.
-      apply homs_sets.
+      apply homset_property.
 Qed.
 
 Definition cwf_of_typecat : cwf_struct CC.

@@ -32,7 +32,7 @@ Local Notation "γ ## a" := (pairing γ a) (at level 75).
 Section DM_of_CwF.
 
 (** assumption of [CC] being saturated is essential: we need pullbacks to be propositions *)
-Context (CC : precategory) (C : cwf_struct CC) (H : is_univalent CC).
+Context (CC : category) (C : cwf_struct CC) (H : is_univalent CC).
 
 (** Being isomorphic to a dependent projection *)
 Definition iso_to_dpr {Γ Γ'} (γ : Γ --> Γ') : UU
@@ -90,19 +90,19 @@ Proof.
   destruct T as [A [h e]].
   clear B.
   unshelve refine (tpair _ _ _ ).
-  - unshelve refine (make_Pullback _ _ _ _ _ _ _ ).
+  - unshelve refine (make_Pullback _ _).
     + apply (Γ' ∙ (A{{f}})).
-    + apply (q_precwf _ _ ;; h).
+    + apply (q_cwf _ _ ;; h).
     + apply (π _ ). 
     + simpl. unfold dm_sub_struct_of_CwF.
       simpl.
-      set (T:= postcomp_pb_with_iso CC (pr2 H)).
-      set (T':= T _ _ _ _  (q_precwf A f) _ _ f _ (is_pullback_reindx_cwf (pr2 H) _ _ _ _ )).
+      set (T:= postcomp_pb_with_iso CC).
+      set (T':= T (homset_property _) _ _ _ _ (q_cwf A f) _ _ f _ (is_pullback_reindx_cwf (homset_property _) _ _ _ _ )).
       refine (pr1 (T' _ _ _ _ )).
       sym. assumption.
     + 
-      set (T:= postcomp_pb_with_iso CC (pr2 H)).
-      set (T':= T _ _ _ _  (q_precwf A f) _ _ f _ (is_pullback_reindx_cwf (pr2 H) _ _ _ _ )).
+      set (T:= postcomp_pb_with_iso CC (homset_property _)).
+      set (T':= T _ _ _ _  (q_cwf A f) _ _ f _ (is_pullback_reindx_cwf (homset_property _) _ _ _ _ )).
       eapply (pr2 (T' _ _ _ _ )).
   - simpl.
     apply hinhpr.

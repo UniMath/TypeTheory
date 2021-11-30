@@ -91,7 +91,7 @@ Definition rep1_fiber_axioms {pp : mor_total (preShv C)}
 :=
   ∑ (e : ((pp : _ --> _) : nat_trans _ _ ) _ te
          = (# (Ty pp) π A)),
-    isPullback _ _ _ _ (cwf_square_comm e).
+    isPullback (cwf_square_comm e).
 
 Definition rep1_axioms {pp : mor_total (preShv C)} (Y : rep1_data pp) : UU :=
   ∏ Γ (A : Ty pp Γ : hSet), rep1_fiber_axioms A (dpr Y A) (te Y A).

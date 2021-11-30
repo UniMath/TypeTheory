@@ -81,8 +81,8 @@ Section RelUniv_ϕ_Cat.
     := pr1 (pr2 (pr2 u X f)).
   Local Definition u_isPullback (u : relative_universe J)
         (X : C) (f : J X --> U u)
-    : isPullback f (pr1 u) (# J (fp (pr1 (pr2 u X f))))
-                 (fq (pr1 (pr2 u X f))) (pr1 (pr2 (pr2 u X f)))
+    : isPullback (*f (pr1 u) (# J (fp (pr1 (pr2 u X f))))
+                 (fq (pr1 (pr2 u X f)))*) (pr1 (pr2 (pr2 u X f)))
     := pr2 (pr2 (pr2 u X f)).
 
   Definition reluniv_mor_ϕ_data
@@ -162,7 +162,7 @@ Section RelUniv_ϕ_Cat.
     simpl.
     set (u2_Pullback
          := make_Pullback
-              _ _ _ _ _ _
+             _
               (u_isPullback u2 X (f ;; F_U mor))).
     apply (PullbackArrow_PullbackPr1 u2_Pullback).
   Defined.
@@ -178,7 +178,7 @@ Section RelUniv_ϕ_Cat.
     intros X f.
     set (u2_Pullback
          := make_Pullback
-              _ _ _ _ _ _
+            _
               (u_isPullback u2 X (f ;; F_U mor))).
     etrans. apply maponpaths_2, (homotweqinvweq (# J ,, ff_J _ _) _).
     apply (PullbackArrow_PullbackPr2 u2_Pullback).
@@ -210,7 +210,7 @@ Section RelUniv_ϕ_Cat.
     use total2_paths_f.
     + apply (invmaponpathsincl (# J) (f_J _ _)).
       set (P := PullbackArrowUnique
-               _ _ _ _ _
+               _
                (u_isPullback u2 X (f ;; F_U mor))
                _ (# J (π u1 X f)) (Q u1 X f ;; F_Ũ mor)
             ).
@@ -726,8 +726,8 @@ End Functor_Squares.
 
 Section Relative_Universe_Functor.
 
-Context {C D : precategory} {J : functor C D} (U : relative_universe J)
-        {C' D' : precategory} {J' : functor C' D'} (U' : relative_universe J')
+Context {C D : category} {J : functor C D} (U : relative_universe J)
+        {C' D' : category} {J' : functor C' D'} (U' : relative_universe J')
         (FGα : lax_functor_square J J').
 
 Definition relative_universe_functor : UU.
@@ -756,7 +756,7 @@ Proof.
     exact unit.
   - (* G preserves the canonical pullbacks *)
     refine (forall (X:C) (f : J X --> base U),
-                isPullback _ _ _ _ (functor_on_square _ _ G _)).
+                isPullback (functor_on_square _ _ G _)).
     exact (pr1 (pr2 (U X f))). (* TODO: access functions for [commutes_and_is_pullback] and [fpullback] ! *)
 Defined.
 

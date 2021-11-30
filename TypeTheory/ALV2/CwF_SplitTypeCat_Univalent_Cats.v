@@ -56,7 +56,7 @@ Section Is_Univalent_Obj_Ext_Disp.
   *)
 
   Lemma slice_maps_to_obj_ext_map {TY : PreShv C} {X X' : obj_ext_disp TY}
-    : (∏ Γ A, slice_precat C Γ (homset_property C) ⟦ X Γ A , X' Γ A ⟧)
+    : (∏ Γ A, slice_precat C Γ ⟦ X Γ A , X' Γ A ⟧)
     -> X -->[identity_iso TY] X'.
   Proof.
     intros I Γ A.
@@ -65,7 +65,7 @@ Section Is_Univalent_Obj_Ext_Disp.
   Defined.
 
   Lemma is_iso_slice_isos_to_obj_ext_map {TY : PreShv C} {X X' : obj_ext_disp TY}
-    (I : ∏ Γ A, @iso (slice_precat C Γ (homset_property C)) (X Γ A) (X' Γ A))
+    (I : ∏ Γ A, @iso (slice_precat C Γ) (X Γ A) (X' Γ A))
     : is_iso_disp (identity_iso _) (slice_maps_to_obj_ext_map (fun Γ A => I Γ A)).
   Proof.
     exists (slice_maps_to_obj_ext_map (fun Γ A => inv_from_iso (I Γ A))).
@@ -83,7 +83,7 @@ Section Is_Univalent_Obj_Ext_Disp.
   Qed.
 
   Lemma slice_isos_to_obj_ext_iso {TY : PreShv C} (X X' : obj_ext_disp TY)
-    : (∏ Γ A, @iso (slice_precat C Γ (homset_property C)) (X Γ A) (X' Γ A))
+    : (∏ Γ A, @iso (slice_precat C Γ) (X Γ A) (X' Γ A))
     -> iso_disp (identity_iso TY) X X'.
   Proof.
     intros I.
@@ -93,7 +93,7 @@ Section Is_Univalent_Obj_Ext_Disp.
 
   Lemma obj_ext_map_to_slice_maps {TY : PreShv C} {X X' : obj_ext_disp TY}
     : X -->[identity_iso TY] X'
-      -> (∏ Γ A, slice_precat C Γ (homset_property C) ⟦ X Γ A , X' Γ A ⟧).
+      -> (∏ Γ A, slice_precat C Γ ⟦ X Γ A , X' Γ A ⟧).
   Proof.
     intros I Γ A.
     exists (pr1 (I Γ A)).  
@@ -142,7 +142,7 @@ Section Is_Univalent_Obj_Ext_Disp.
   Qed.
 
   Lemma weq_slice_isos_obj_ext_iso {TY : PreShv C} (X X' : obj_ext_disp TY)
-    : (∏ Γ A, @iso (slice_precat C Γ (homset_property C)) (X Γ A) (X' Γ A))
+    : (∏ Γ A, @iso (slice_precat C Γ) (X Γ A) (X' Γ A))
     ≃ iso_disp (identity_iso TY) X X'.
   Proof.
     exists (slice_isos_to_obj_ext_iso _ _).
@@ -185,7 +185,7 @@ Section Is_Univalent_Obj_Ext_Disp.
   Theorem is_univalent_obj_ext : is_univalent (obj_ext_cat C).
   Proof.
     apply is_univalent_total_category.
-    - apply is_univalent_functor_category.
+    - apply is_univalent_functor_category, univalent_category_is_univalent.
     - apply is_univalent_obj_ext_disp.
   Defined.
 
