@@ -52,9 +52,9 @@ End Prelims.
 (** * Type-cat from cat with Families *)
 
 (**
-Every pre-CwF gives rise to a type-category.
+Every CwF gives rise to a type-category.
 
-(TODO: moreover, this type-cat should be split; and there should be a function from split type-cats back to pre-CwFs making the two equivalent.)
+(TODO: moreover, this type-cat should be split; and there should be a function from split type-cats back to CwFs making the two equivalent.)
 
 Since the components of the type-cat structure are highly successively dependent, we construct most of them individually, before putting them together in [type_cat_of_cwf].
 *)
@@ -87,7 +87,7 @@ Defined.
 
 (** * Splitness of the constructed TypeCat *)
 
-(** Moreover, the type-cat of a pre-CwF is always split. *)
+(** Moreover, the type-cat of a CwF is always split. *)
 
 Definition issplit_type_cat_of_cwf
   : is_split_typecat type_cat_of_cwf.
@@ -160,7 +160,7 @@ Proof.
                        generalize e' end.
       clear p.
       intro p.
-      rewrite pre_cwf_law_2'.
+      rewrite cwf_law_2'.
       unfold transportb.
       rewrite transport_f_f.
       rewrite transport_f_f.
@@ -168,7 +168,7 @@ Proof.
       match goal with |[ |- _ = transportf _ ?e _ ⟦ _ ⟧ ] => generalize e end.
       intro q.
       etrans. 2: { apply rterm_typeeq. }
-      rewrite  pre_cwf_law_2'.
+      rewrite  cwf_law_2'.
       rewrite transport_f_f.
       unfold transportb.
       rewrite transport_f_f.

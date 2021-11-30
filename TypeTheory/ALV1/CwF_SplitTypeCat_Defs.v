@@ -8,17 +8,17 @@
 
 In this file, we give the definitions of _split type-categories_ (originally due to Cartmell, here following a version given by Pitts) and _categories with families_ (originally due to Dybjer, here following a formulation given by Fiore).
 
-To facilitate comparing them afterwards, we split up their definitions in a slightly unusual way, starting with the part they share.  The key definitions of this file are therefore (all over a fixed base (pre)category [C]):  
+To facilitate comparing them afterwards, we split up their definitions in a slightly unusual way, starting with the part they share.  The key definitions of this file are therefore (all over a fixed base category [C]):
 
 - _object-extension structures_, [obj_ext_structure], the common core of CwF’s and split type-categories;
 - (_functional) term structures_, [term_fun_structure], the rest of the structure of a CwF on [C];
-- _cwf-structures_, [cwf_structure], the full structure of a CwF on a precategory [C]; 
+- _cwf-structures_, [cwf_structure], the full structure of a CwF on a category [C];
 - _CwF’s_, [cwf]; 
 - _q-morphism structures_, [qq_morphism_structure], for rest of the structure of a split type-category on [C];
 - _split type-cat structures_, [split_typecat_structure], the full structure of a split type-category on [C].
 - _split type-categories_, [split_typecat].
 
-NB: we follow the convention that _category_ does not include an assumption of saturation/univalence, i.e. means what is sometimes called _precategory_.
+NB: we follow UniMath’s convention that _category_ does not assume saturation/univalence, i.e. means what is sometimes called _precategory_ in the literature.
 *)
 
 
@@ -526,9 +526,7 @@ End Families_Structures.
 
 Section qq_Morphism_Structures.
 
-(* NOTE: most of this section does not require the [homset_property] for [C]. If the few lemmas that do require it were moved out of the section, e.g. [isaprop_qq_morphism_axioms], then would could take [C] as just a [precategory] here. Perhaps worth doing so?
-
-(Another alternative would be adding an extra argument of type [has_homsets C] to [isaprop_qq_morphism_axioms], but that’s less convenient for later use than just having [C] be a [category] in those lemmas.) *)
+(* NOTE: most of this section does not require the [homset_property] for [C]. If the few lemmas that do require it were moved out of the section, e.g. [isaprop_qq_morphism_axioms], then would could take [C] as just a [precategory] here. Perhaps worth doing so? Would mainly be relevant if we wanted to generalise to bicategories. *)
 
 Context {C : category} {X : obj_ext_structure C}.
 

@@ -61,12 +61,12 @@ Record cwf_record : Type := {
   gen_element : ∏ Γ (A : C⟨Γ⟩), C⟨Γ∙A ⊢ A{{π _ }}⟩ where "'ν' A" := (gen_element _ A) ;
   pairing : ∏ Γ (A : C⟨Γ⟩) Γ' (γ : Γ' --> Γ)(a : C⟨Γ'⊢ A{{γ}}⟩), Γ' --> Γ∙A 
      where "γ ♯ a" := (pairing _ _ _  γ a) ;
-  pre_cwf_law_1 : ∏ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A{{γ}}⟩), 
+  cwf_law_1 : ∏ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A{{γ}}⟩), 
           (γ ♯ a) ;; (π _) 
           = 
           γ ;
-  pre_cwf_law_2 : ∏ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A{{γ}}⟩),
-          transportf (λ ι, C⟨Γ'⊢ A {{ι}}⟩) (pre_cwf_law_1 Γ A Γ' γ a)
+  cwf_law_2 : ∏ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A{{γ}}⟩),
+          transportf (λ ι, C⟨Γ'⊢ A {{ι}}⟩) (cwf_law_1 Γ A Γ' γ a)
              (transportf (λ B, C⟨Γ'⊢ B⟩) (!reindx_type_comp (π _ )(γ ♯ a) _ )
                 ((ν A) ⟦γ ♯ a⟧))
           = 
@@ -267,7 +267,7 @@ Definition cwf_laws {CC : category} (C : tt_reindx_type_struct CC)
     × ∏ Γ (A : C⟨Γ⟩), isaset (C⟨Γ⊢ A⟩). 
 
 (** * Definition of category with families *)
-(** A category with families [pre_cwf] is 
+(** A category with families [cwf] is 
   - a category
   - with type-and-term structure 
   - with reindexing 
@@ -506,8 +506,8 @@ Proof.
   apply idpath.
 Qed.
 
-(* TODO: consider giving this instead of current [pre_cwf_law_2] ? *)
-Definition pre_cwf_law_2' Γ (A : C ⟨ Γ ⟩) Γ' (γ : Γ' --> Γ) (a : C ⟨ Γ' ⊢ A{{γ}} ⟩)
+(* TODO: consider giving this instead of current [cwf_law_2] ? *)
+Definition cwf_law_2' Γ (A : C ⟨ Γ ⟩) Γ' (γ : Γ' --> Γ) (a : C ⟨ Γ' ⊢ A{{γ}} ⟩)
   : (ν A) ⟦γ ♯ a⟧
   = transportf _ (reindx_type_comp C _ _ _)
       (transportb _ (maponpaths (fun g => A{{g}}) (cwf_law_1 _ _ _ _ _ _))
@@ -563,7 +563,7 @@ Proof.
   rew_trans_@.
   etrans.
   - apply maponpaths.
-    apply pre_cwf_law_2'.
+    apply cwf_law_2'.
   - rew_trans_@.
     apply term_typeeq_transport_lemma_2.
     apply idpath.
@@ -613,7 +613,7 @@ Proof.
   eapply pathscomp0. apply transport_f_f.
   eapply pathscomp0. apply maponpaths. refine (! rterm_typeeq _ _ _).
   eapply pathscomp0. apply transport_f_f.
-  eapply pathscomp0. apply maponpaths, pre_cwf_law_2'.
+  eapply pathscomp0. apply maponpaths, cwf_law_2'.
   rew_trans_@.
   eapply pathscomp0. apply maponpaths, transportf_rtype_mapeq.
   repeat (eapply pathscomp0; [ apply transport_f_f | ]).

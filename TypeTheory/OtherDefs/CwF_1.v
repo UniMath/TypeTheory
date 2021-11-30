@@ -5,7 +5,7 @@
 
   Contents:
 
-    - Definition of a precategory with families
+    - Definition of a category with families
     - Proof that reindexing forms a pullback
 
   The definition is based on Pitts, *Nominal Presentations of the Cubical Sets
@@ -36,8 +36,8 @@ Reserved Notation "'π' A" (at level 20).
 Reserved Notation "'ν' A" (at level 15).
 Reserved Notation "γ ♯ a" (at level 25).
 (*
-Record precwf_record : Type := {
-  C : precategory ;
+Record cwf_record : Type := {
+  C : category ;
   Ty : functor C HSET     where "C ⟨ Γ ⟩" := (Ty Γ) ;
   term : ∏ Γ : C, pr1hSet (Ty Γ) → UU     where "C ⟨ Γ ⊢ A ⟩" := (term Γ A) ;
 (*  rtype : ∏ {Γ Γ' : C} (A : pr1hSet (Ty Γ)) (γ : Γ' --> Γ), pr1hSetC⟨Γ'⟩ where "A [[ γ ]]" := (rtype A γ) ; *)
@@ -61,12 +61,12 @@ Record precwf_record : Type := {
   gen_element : ∏ Γ (A : C⟨Γ⟩), C⟨Γ∙A ⊢ A[[π _ ]]⟩ where "'ν' A" := (gen_element _ A) ;
   pairing : ∏ Γ (A : C⟨Γ⟩) Γ' (γ : Γ' --> Γ)(a : C⟨Γ'⊢ A[[γ]]⟩), Γ' --> Γ∙A 
      where "γ ♯ a" := (pairing _ _ _  γ a) ;
-  pre_cwf_law_1 : ∏ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A[[γ]]⟩), 
+  cwf_law_1 : ∏ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A[[γ]]⟩), 
           (γ ♯ a) ;; (π _) 
           = 
           γ ;
-  pre_cwf_law_2 : ∏ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A[[γ]]⟩),
-          transportf (λ ι, C⟨Γ'⊢ A [[ι]]⟩) (pre_cwf_law_1 Γ A Γ' γ a)
+  cwf_law_2 : ∏ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A[[γ]]⟩),
+          transportf (λ ι, C⟨Γ'⊢ A [[ι]]⟩) (cwf_law_1 Γ A Γ' γ a)
              (transportf (λ B, C⟨Γ'⊢ B⟩) (!reindx_type_comp (π _ )(γ ♯ a) _ )
                 ((ν A) ⟦γ ♯ a⟧))
           = 
@@ -77,10 +77,14 @@ End Record_Preview.
 
 
 (** * Type and terms of a [CwF] *)
+
+(* Note: in the end, we define not pre-cwfs but cwfs, assuming an underlying _category_ with homsets.  But for the “data” stages of the definition, we just take an underlying precategory. *)
+
 (** 
- A [tt_precategory] comes with a types, written [C⟨Γ⟩], 
+ A [cwf] comes with types, written [C⟨Γ⟩], 
    and terms [C⟨Γ ⊢ A⟩] 
 *)
+
 
 Definition tt_structure (C : precategory) :=
   ∑ f : functor C^op HSET, ∏ c : C, pr1hSet (f c) → UU.
@@ -281,9 +285,9 @@ Definition cwf_laws {CC : category} (C : tt_reindx_type_struct CC)
        (comp_laws_1_2 T × comp_law_3 T × comp_law_4 T)) ×
     (∏ Γ (A : C⟨Γ⟩), isaset (C⟨Γ⊢ A⟩)). 
 
-(** * Definition of precategory with families *)
-(** A precategory with families [pre_cwf] is 
-  - a precategory
+(** * Definition of category with families *)
+(** A category with families [cwf] is 
+  - a category
   - with type-and-term structure 
   - with reindexing 
   - with comprehension structure
@@ -403,7 +407,7 @@ Section CwF_lemmas.
 Generalizable Variable CC.
 Context `{C : cwf_struct CC}.
 
-Lemma map_to_comp_as_pair_precwf {Γ} {A : C⟨Γ⟩} {Γ'} (f : Γ' --> Γ∙A)
+Lemma map_to_comp_as_pair_cwf {Γ} {A : C⟨Γ⟩} {Γ'} (f : Γ' --> Γ∙A)
   :   (f ;; π A) ♯ (transportb _ (reindx_type_comp _ _ _) ((gen_elem A)⟦f⟧))
       = 
       f.
@@ -503,8 +507,8 @@ Proof.
   apply idpath.
 Qed.
 
-(* TODO: consider giving this instead of current [pre_cwf_law_2] ? *)
-Definition pre_cwf_law_2' Γ (A : C ⟨ Γ ⟩) Γ' (γ : Γ' --> Γ) (a : C ⟨ Γ' ⊢ A[[γ]] ⟩)
+(* TODO: consider giving this instead of current [cwf_law_2] ? *)
+Definition cwf_law_2' Γ (A : C ⟨ Γ ⟩) Γ' (γ : Γ' --> Γ) (a : C ⟨ Γ' ⊢ A[[γ]] ⟩)
   : (ν A) ⟦γ ♯ a⟧
   = transportf _ (reindx_type_comp _ _ _)
       (transportb _ (maponpaths (fun g => A[[g]]) (cwf_law_1 _ _ _ _ _ _))
@@ -530,7 +534,7 @@ Proof.
   apply id_right.
 Defined.
 
-Definition q_precwf {Γ} (A : C ⟨ Γ ⟩ ) {Γ'} (f : Γ' --> Γ)
+Definition q_cwf {Γ} (A : C ⟨ Γ ⟩ ) {Γ'} (f : Γ' --> Γ)
   : (comp_obj  Γ' (A[[f]])) --> (Γ ∙ A).
 Proof.
   set (T:= @pairing _ C).
@@ -539,12 +543,12 @@ Proof.
   apply gen_elem.
 Defined.
 
-Definition dpr_q_precwf 
+Definition dpr_q_cwf 
   {Γ} (A : C ⟨ Γ ⟩)
   {Γ'} (f : Γ' --> Γ)
-: (q_precwf A f) ;; (π A) = (π (A[[f]])) ;; f.
+: (q_cwf A f) ;; (π A) = (π (A[[f]])) ;; f.
 Proof.
-  unfold q_precwf.
+  unfold q_cwf.
   apply cwf_law_1.
 Qed.
 
@@ -552,15 +556,15 @@ Qed.
 Lemma rterm_univ {Γ} {A : C ⟨ Γ ⟩} {Γ'} (f : Γ' --> Γ)
   : ν (A[[f]])
    = transportf _ (reindx_type_comp _ _ _)
-       (transportf _ (maponpaths (fun g => A[[g]]) (dpr_q_precwf A f))
+       (transportf _ (maponpaths (fun g => A[[g]]) (dpr_q_cwf A f))
          (transportb _ (reindx_type_comp _ _ _)
-            ((ν A)⟦q_precwf A f⟧))).
+            ((ν A)⟦q_cwf A f⟧))).
 Proof.
   sym.
   rew_trans_@.
   etrans.
   - apply maponpaths.
-    apply pre_cwf_law_2'.
+    apply cwf_law_2'.
   - rew_trans_@.
     apply term_typeeq_transport_lemma_2.
     apply idpath.
@@ -576,7 +580,7 @@ We split this up into several lemmas:
 
 *)
 
-Definition dpr_q_pbpairing_precwf_aux
+Definition dpr_q_pbpairing_cwf_aux
   {Γ} (A : C ⟨ Γ ⟩)
   {Γ'} (f : Γ' --> Γ)
   {X} (h : X --> Γ ∙ A) (k : X --> Γ') (H : h ;; π A = k ;; f)
@@ -590,16 +594,16 @@ Definition dpr_q_pbpairing_commutes
   {Γ} (A : C ⟨ Γ ⟩)
   {Γ'} (f : Γ' --> Γ)
   {X} (h : X --> Γ ∙ A) (k : X --> Γ') (H : h ;; π A = k ;; f)
-  (hk := @pairing _ C Γ' (A[[f]]) X k (dpr_q_pbpairing_precwf_aux A f h k H))
-: (hk ;; q_precwf A f = h) × (hk ;; π (A[[f]]) = k).
+  (hk := @pairing _ C Γ' (A[[f]]) X k (dpr_q_pbpairing_cwf_aux A f h k H))
+: (hk ;; q_cwf A f = h) × (hk ;; π (A[[f]]) = k).
 Proof.
   split. 2: { apply cwf_law_1. }
-  unfold q_precwf.
+  unfold q_cwf.
   etrans.
-  2: { apply map_to_comp_as_pair_precwf. }
+  2: { apply map_to_comp_as_pair_cwf. }
   etrans.
     apply cwf_law_3.
-  assert ((k ♯ (dpr_q_pbpairing_precwf_aux A f h k H)) ;; (π (A [[f]]) ;; f) 
+  assert ((k ♯ (dpr_q_pbpairing_cwf_aux A f h k H)) ;; (π (A [[f]]) ;; f) 
           = h ;; π A) as e1.
     eapply pathscomp0. apply assoc.
     refine (_ @ !H).
@@ -610,7 +614,7 @@ Proof.
   eapply pathscomp0. apply transport_f_f.
   eapply pathscomp0. apply maponpaths. refine (! rterm_typeeq _ _ _).
   eapply pathscomp0. apply transport_f_f.
-  eapply pathscomp0. apply maponpaths, pre_cwf_law_2'.
+  eapply pathscomp0. apply maponpaths, cwf_law_2'.
   rew_trans_@.
   eapply pathscomp0. apply maponpaths, transportf_rtype_mapeq.
   repeat (eapply pathscomp0; [ apply transport_f_f | ]).
@@ -618,30 +622,30 @@ Proof.
   apply cwf_types_isaset.
 Qed.
 
-Definition dpr_q_pbpairing_precwf
+Definition dpr_q_pbpairing_cwf
   {Γ} (A : C ⟨ Γ ⟩)
   {Γ'} (f : Γ' --> Γ)
   {X} (h : X --> Γ ∙ A) (k : X --> Γ') (H : h ;; π A = k ;; f)
 : ∑ (hk : X --> Γ' ∙ (A[[f]])),
-    ( hk ;; q_precwf A f = h
+    ( hk ;; q_cwf A f = h
     × hk ;; π (A[[f]]) = k).
 Proof.
-  exists (@pairing _ C Γ' (A[[f]]) X k (dpr_q_pbpairing_precwf_aux A f h k H)).
+  exists (@pairing _ C Γ' (A[[f]]) X k (dpr_q_pbpairing_cwf_aux A f h k H)).
   apply dpr_q_pbpairing_commutes.
 Defined.
 
 
-Definition dpr_q_pbpairing_precwf_mapunique
+Definition dpr_q_pbpairing_cwf_mapunique
   {Γ} (A : C⟨Γ⟩)
   {Γ'} (f : Γ' --> Γ)
   {X} {h : X --> Γ ∙ A} {k : X --> Γ'} (H : h ;; π A = k ;; f)
   (hk : X --> Γ' ∙ (A [[f]]))
-  (e2 : hk ;; q_precwf A f = h)
+  (e2 : hk ;; q_cwf A f = h)
   (e1 : hk ;; π (A[[f]]) = k)
-: hk = pr1 (dpr_q_pbpairing_precwf A f h k H).
+: hk = pr1 (dpr_q_pbpairing_cwf A f h k H).
 Proof.
   eapply pathscomp0.
-    eapply pathsinv0. apply map_to_comp_as_pair_precwf.
+    eapply pathsinv0. apply map_to_comp_as_pair_cwf.
   eapply pathscomp0.
     apply (pairing_mapeq _ _ e1 _).
   simpl. apply maponpaths.
@@ -673,29 +677,29 @@ Proof.
   apply idpath.
 Qed.
 
-Definition dpr_q_pbpairing_precwf_unique
+Definition dpr_q_pbpairing_cwf_unique
   {Γ} (A : C⟨Γ⟩)
   {Γ'} (f : Γ' --> Γ)
   {X} (h : X --> Γ ∙ A) (k : X --> Γ') (H : h ;; π A = k ;; f)
   (t : ∑ hk : X --> Γ' ∙ (A [[f]]),
-       (hk ;; q_precwf A f = h) × (hk ;; π (A[[f]]) = k))
-: t = dpr_q_pbpairing_precwf A f h k H.
+       (hk ;; q_cwf A f = h) × (hk ;; π (A[[f]]) = k))
+: t = dpr_q_pbpairing_cwf A f h k H.
 Proof.
   destruct t as [hk [e2 e1] ]. 
   unshelve refine (@total2_paths_f _ _ (tpair _ hk (tpair _ e2 e1)) _ 
-    (dpr_q_pbpairing_precwf_mapunique A f H hk e2 e1) _).
+    (dpr_q_pbpairing_cwf_mapunique A f H hk e2 e1) _).
   unshelve refine (total2_paths_f _ _); apply homset_property.
 Qed.
 
 Lemma is_pullback_reindx_cwf : ∏ (Γ : CC) (A : C⟨Γ⟩) (Γ' : CC) 
    (f : Γ' --> Γ),
-   isPullback (dpr_q_precwf A f).
+   isPullback (dpr_q_cwf A f).
 Proof.
   intros.
   apply make_isPullback; try assumption.
   intros e h k H.
-  exists (dpr_q_pbpairing_precwf _ _ h k H).
-  apply dpr_q_pbpairing_precwf_unique.
+  exists (dpr_q_pbpairing_cwf _ _ h k H).
+  apply dpr_q_pbpairing_cwf_unique.
 Defined.
   
 End CwF_lemmas.

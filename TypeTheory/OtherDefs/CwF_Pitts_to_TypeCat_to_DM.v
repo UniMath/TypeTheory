@@ -5,7 +5,7 @@
 
 Contents:
 
-  - Commutativity of the constructions between CwFs, type-(pre)cats, and DM-cats
+  - Commutativity of the constructions between CwFs, type-cats, and DM-cats
 
 *)
 
