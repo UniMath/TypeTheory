@@ -334,8 +334,8 @@ Section RelUniv_Transfer.
     Context (R_ses : split_ess_surj R)
             (D'_univ : is_univalent D')
             (invS : functor D' D)
-            (eta : iso (C:=[D, D, pr2 D]) (functor_identity D) (S ∙ invS))
-            (eps : iso (C:=[D', D', pr2 D']) (invS ∙ S) (functor_identity D'))
+            (eta : iso (C:=[D, D]) (functor_identity D) (S ∙ invS))
+            (eps : iso (C:=[D', D']) (invS ∙ S) (functor_identity D'))
             (S_ff : fully_faithful S).
 
     Let E := ((S,, (invS,, (pr1 eta, pr1 eps)))
@@ -348,10 +348,10 @@ Section RelUniv_Transfer.
     Let ε' := pr2 (pr121 AE) : nat_trans (invS ∙ S) (functor_identity _).
     Let η := functor_iso_from_pointwise_iso
                 _ _ _ _ _ η' (pr12 (adjointificiation E))
-            : iso (C:=[D, D, pr2 D]) (functor_identity D) (S ∙ invS).
+            : iso (C:=[D, D]) (functor_identity D) (S ∙ invS).
     Let ε := functor_iso_from_pointwise_iso
                 _ _ _ _ _ ε' (pr22 (adjointificiation E))
-            : iso (C:=[D', D', pr2 D']) (invS ∙ S) (functor_identity D').
+            : iso (C:=[D', D']) (invS ∙ S) (functor_identity D').
 
     Let ηx := Constructions.pointwise_iso_from_nat_iso (iso_inv_from_iso η).
     Let αx := Constructions.pointwise_iso_from_nat_iso (α,,α_is_iso).
@@ -655,8 +655,8 @@ Section WeakRelUniv_Transfer.
 
   (* S is an equivalence *)
   Context (T : functor D' D).
-  Context (η : iso (C := [D, D, pr2 D]) (functor_identity D) (S ∙ T)).
-  Context (ε : iso (C := [D', D', pr2 D']) (T ∙ S) (functor_identity D')).
+  Context (η : iso (C := [D, D]) (functor_identity D) (S ∙ T)).
+  Context (ε : iso (C := [D', D']) (T ∙ S) (functor_identity D')).
   Context (S_full : full S).
   Context (S_faithful : faithful S).
 

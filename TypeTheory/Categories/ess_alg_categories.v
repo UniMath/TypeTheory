@@ -1,7 +1,7 @@
 
-(** (Pre)-categories in essentially algebraic style *)
+(** Categories in essentially algebraic style *)
 
-(** Such a (pre-)category is given by
+(** Such a category is given by
     - a type (set) of objects
     - a type (set) of morphisms
     - source and target maps

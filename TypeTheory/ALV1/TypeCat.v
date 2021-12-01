@@ -5,7 +5,7 @@
 
 Contents:
 
-  - Definition of type-categories and split type-categories
+  - Definition of type-(pre)categories and split type-categories
   - A few convenience lemmas
 *)
 
@@ -34,13 +34,12 @@ However, that definition includes two _strictness conditions_;
 we follow van den Berg and Garner, _Topological and simplicial models_, Def 2.2.1 #(<a href="http://arxiv.org/abs/1007.4638">arXiv</a>)# 
 in separating these out from the rest of the definition.
 
- An element of [type_precat], as we define it below, is thus exactly a type-category according 
-to the definition of van den Berg and Garner; and an element of [split_type_precat] is a split type-category 
-according to van den Berg and Garner, or a plain type-category in the sense of Pitts 
-(modulo, in either case, the question of equality on objects of the category).
- 
+ An element of [typecat], as we define it below, is thus exactly a type-category according 
+to the definition of van den Berg and Garner (except with an underlying _precategory_, i.e. hom-types not assumed sets); and an element of [split_typecat] is a split type-category 
+according to van den Berg and Garner, or a plain type-category in the sense of Pitts.
+
   In order to avoid the nested sigma-types getting too deep, 
-we split up the structure into two stages: [type_precat_structure1] and [type_precat_structure2]. *)
+we split up the structure into two stages: [typecat_structure1] and [typecat_structure2]. *)
 
 (** * A "preview" of the definition *)
 
@@ -174,8 +173,8 @@ Definition is_type_saturated_typecat {CC : precategory} (C : typecat_structure C
 
 (** * Splitness *)
 
-(** A type-precategory [C] is _split_ if each collection of types [C Γ] is a set, reindexing is strictly functorial, and the [q] maps satisfy the evident functoriality axioms *) 
-Definition is_split_typecat {CC : precategory} (C : typecat_structure CC)
+(** A type-precategory [C] is _split_ if it is a category (i.e. has hom-sets); each collection of types [C Γ] is a set, reindexing is strictly functorial; and the [q] maps satisfy the evident functoriality axioms *) 
+Definition is_split_typecat {CC : category} (C : typecat_structure CC)
   := (∏ Γ:CC, isaset (C Γ))
      × (∑ (reind_id : ∏ Γ (A : C Γ), A {{identity Γ}} = A),
          ∏ Γ (A : C Γ), q_typecat A (identity Γ)
@@ -188,17 +187,16 @@ Definition is_split_typecat {CC : precategory} (C : typecat_structure CC)
                ;; q_typecat (A{{f}}) g
                ;; q_typecat A f).
 
-Lemma isaprop_is_split_typecat (CC : precategory) (hs : has_homsets CC)
+Lemma isaprop_is_split_typecat (CC : category)
        (C : typecat_structure CC) : isaprop (is_split_typecat C).
 Proof.
   repeat (apply isofhleveltotal2; intros).
   - apply impred; intro; apply isapropisaset.
   - repeat (apply impred; intro). apply x.
-  - repeat (apply impred; intro). apply hs.
+  - repeat (apply impred; intro). apply homset_property.
   - repeat (apply impred; intro). apply x.
-  - intros.  
-    repeat (apply impred; intro).
-    apply hs.
+  - intros.
+    repeat (apply impred; intro). apply homset_property.
 Qed.
 
 Definition typecat := ∑ (C : category), (typecat_structure C).
@@ -211,14 +209,14 @@ Definition split_typecat := ∑ (C : typecat), (is_split_typecat C).
 Coercion typecat_of_split_typecat (C : split_typecat) := pr1 C.
 Coercion split_typecat_is_split (C : split_typecat) := pr2 C.
 
-Definition split_typecat_structure (CC : precategory) : UU
+Definition split_typecat_structure (CC : category) : UU
   := ∑ C : typecat_structure CC, is_split_typecat C.
 
-Coercion typecat_from_split (CC : precategory) (C : split_typecat_structure CC)
+Coercion typecat_from_split (CC : category) (C : split_typecat_structure CC)
   : typecat_structure _
   := pr1 C.
 
-Coercion is_split_from_split_typecat (CC : precategory) (C : split_typecat_structure CC)
+Coercion is_split_from_split_typecat (CC : category) (C : split_typecat_structure CC)
   : is_split_typecat C
   := pr2 C.
 

@@ -5,7 +5,7 @@
 
 Contents:
 
-  - Commutativity of the constructions between CwFs, type-(pre)cats, and DM-cats
+  - Commutativity of the constructions between CwFs, type-cats, and DM-cats
 
 *)
 
@@ -26,7 +26,7 @@ Section compare_maps.
 
   Context (CC : category) (C : cwf_struct CC) (H : is_univalent CC).
 
-  Lemma maps_equal : DM_structure_of_TypeCat _ H (type_cat_of_cwf _ C (homset_property _)) = DM_structure_of_CwF _ C H.
+  Lemma maps_equal : DM_structure_of_TypeCat _ H (type_cat_of_cwf _ C) = DM_structure_of_CwF _ C H.
   Proof.
     apply DM_equal.
     - exact H.

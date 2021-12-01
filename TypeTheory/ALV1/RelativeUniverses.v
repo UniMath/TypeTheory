@@ -942,8 +942,8 @@ Definition isweq_weak_relative_universe_transfer
            (R_full : full R)
            (isD : is_univalent D) (isD' : is_univalent D')
            (T : functor D' D)
-           (eta : iso (C:=[D, D, pr2 D]) (functor_identity D) (S ∙ T))
-           (eps : iso (C:=[D', D', pr2 D']) (T ∙ S) (functor_identity D'))
+           (eta : iso (C:=[D, D]) (functor_identity D) (S ∙ T))
+           (eps : iso (C:=[D', D']) (T ∙ S) (functor_identity D'))
            (S_faithful : faithful S) 
   : isweq weak_relative_universe_transfer.
 Proof.
@@ -964,8 +964,8 @@ Definition weq_weak_relative_universe_transfer
            (R_full : full R)
            (isD : is_univalent D) (isD' : is_univalent D')
            (T : functor D' D)
-           (eta : iso (C:=[D, D, pr2 D]) (functor_identity D) (S ∙ T))
-           (eps : iso (C:=[D', D', pr2 D']) (T ∙ S) (functor_identity D'))
+           (eta : iso (C:=[D, D]) (functor_identity D) (S ∙ T))
+           (eps : iso (C:=[D', D']) (T ∙ S) (functor_identity D'))
            (S_ff : fully_faithful S)
 : weak_relative_universe J ≃ weak_relative_universe J'
 := make_weq _ (isweq_weak_relative_universe_transfer R_full isD isD' T eta eps S_ff).

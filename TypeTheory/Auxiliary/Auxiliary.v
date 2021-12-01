@@ -11,7 +11,6 @@ Possibly some should be upstreamed to “UniMath” eventually.
 
 *)
 
-
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
@@ -499,8 +498,8 @@ Proof.
       apply id_left.
 Defined.
 
-Definition iso_ob {C D : precategory} (hsD : has_homsets D)
-          {F G : functor C D} (a : iso (C:= [C, D, hsD]) F G)
+Definition iso_ob {C : precategory} {D : category}
+          {F G : functor C D} (a : iso (C:= [C, D]) F G)
   : ∏ c, iso (F c) (G c).
 Proof.
   intro c.
@@ -523,9 +522,9 @@ Proof.
     + cbn. destruct p as [[a b] f].
       apply pathsdirprod; cbn. 
       * apply (isotoid _ isC). 
-        apply iso_inv_from_iso. apply (iso_ob _ eta).
+        apply iso_inv_from_iso. apply (iso_ob eta).
       * apply (isotoid _ isC).
-        apply iso_inv_from_iso. apply (iso_ob _ eta).
+        apply iso_inv_from_iso. apply (iso_ob eta).
     + cbn. destruct p as [[a b] f]. cbn in *.
       etrans. apply (transportf_pair (λ x : C × C, C ⟦ pr2 x, pr1 x ⟧)).
       cbn.
@@ -544,9 +543,9 @@ Proof.
     + cbn. destruct p as [[a b] f].
       apply pathsdirprod; cbn. 
       * apply (isotoid _ isD). 
-        apply (iso_ob _ eps).
+        apply (iso_ob eps).
       * apply (isotoid _ isD).
-        apply (iso_ob _ eps).
+        apply (iso_ob eps).
     + cbn. destruct p as [[a b] f]. cbn in *.
       etrans. apply (transportf_pair (λ x : D × D, D ⟦ pr2 x, pr1 x ⟧)).
       cbn.
@@ -834,18 +833,6 @@ Qed.
 
 Coercion univalent_category_is_univalent : univalent_category >-> is_univalent.
 
-(* TODO: raise issue in [CategoryTheory.Categories]: delete [category_has_homsets], since now redundant with [homset_property], since [category] coerces to [category]. *)
-
-(* TODO: raise issue: should the [HSET] provided be this by default, and current [HSET] be renamed to [HSET_precategory]? *)
-(* This def exists in UniMath/UniMath
-Definition HSET_univalent_category : univalent_category.
-Proof.
-  exists HSET; split.
-  - apply is_univalent_HSET.
-  - apply has_homsets_HSET.
-Defined.
- *)
-
 Definition functor_univalent_category (C : precategory) (D : univalent_category)
   : univalent_category.
 Proof.
@@ -884,7 +871,7 @@ Lemma yy_comp_nat_trans {C : category}
   : yy v ;; p = yy ((p : nat_trans _ _ )  _ v).
 Proof.
   apply nat_trans_eq.
-  - apply has_homsets_HSET.
+  - apply homset_property.
   - intro c. simpl. 
     apply funextsec. intro f. cbn.
     assert (XR := toforallpaths _ _ _ (nat_trans_ax p _ _ f) v ).
@@ -1000,9 +987,8 @@ Proof.
   apply id_right.
 Defined.
 
-Definition nat_iso_from_pointwise_iso (D E : precategory)
-  (hsE : has_homsets E)
-  (F G : [D, E, hsE])
+Definition nat_iso_from_pointwise_iso (D : precategory) (E : category)
+  (F G : [D, E])
   (a : ∏ d, iso ((F : functor _ _) d) ((G : functor _ _) d))
   (H : is_nat_trans _ _ a)
   : iso F G.
@@ -1014,12 +1000,12 @@ Proof.
   - intro d. apply (pr2 (a d)).
 Defined.
 
-Lemma iso_from_iso_with_postcomp (D E E' : precategory) hsE hsE'
+Lemma iso_from_iso_with_postcomp (D E E' : category)
   (F G : functor D E) (H : functor E E')
   (Hff : fully_faithful H) : 
-  iso (C:=[D, E', hsE']) (functor_composite F H) (functor_composite G H)
+  iso (C:=[D, E']) (functor_composite F H) (functor_composite G H)
   ->
-  iso (C:=[D, E, hsE]) F G.
+  iso (C:=[D, E]) F G.
 Proof.
   intro a.
   use nat_iso_from_pointwise_iso.
@@ -1044,9 +1030,9 @@ Proof.
 Defined.
 
 
-Definition functor_assoc_iso (D1 D2 D3 D4 : precategory) hsD4
+Definition functor_assoc_iso (D1 D2 D3 : precategory) (D4 : category)
      (F : functor D1 D2) (G : functor D2 D3) (H : functor D3 D4) :
-    iso (C:=[D1,D4,hsD4])
+    iso (C:=[D1,D4])
          (functor_composite (functor_composite F G) H)
          (functor_composite F (functor_composite G H)).
 Proof.
@@ -1060,9 +1046,9 @@ Proof.
      ).
 Defined.
 
-Definition functor_comp_id_iso (D1 D2 : precategory) hsD2
+Definition functor_comp_id_iso (D1 : precategory) (D2 : category)
      (F : functor D1 D2) :
-  iso (C:=[D1,D2,hsD2]) (functor_composite F (functor_identity _ )) F.
+  iso (C:=[D1,D2]) (functor_composite F (functor_identity _ )) F.
 Proof.
   use nat_iso_from_pointwise_iso.
   - intro. apply identity_iso.
@@ -1074,10 +1060,10 @@ Proof.
     ).
 Defined.
 
-Definition functor_precomp_iso (D1 D2 D3 : precategory)  hsD3
+Definition functor_precomp_iso (D1 D2 : precategory) (D3 : category)
     (F : functor D1 D2) (G H : functor D2 D3) :
-    iso (C:=[D2,D3,hsD3]) G H ->
-    iso (C:=[D1,D3,hsD3]) (functor_composite F G)
+    iso (C:=[D2,D3]) G H ->
+    iso (C:=[D1,D3]) (functor_composite F G)
                           (functor_composite F H).
 Proof.
   intro a.
@@ -1231,8 +1217,7 @@ End Square_Transfers.
 Section on_pullbacks.
 
 (* TODO: make all these implicit *)
-  Variable C : precategory.
-  Variable hs : has_homsets C.
+  Variable C : category.
   Variables a b c d : C.
   Variables (f : a --> b) (g : a --> c) (k : b --> d) (h : c --> d).
 
@@ -1316,11 +1301,7 @@ Section on_pullbacks.
   Lemma postcomp_pb_with_iso (y : C) (r : y --> d) (i : iso b y) (Hi : i ;; r = k) :
     ∑ H : f ;; i ;; r = g ;; h, isPullback H.
   Proof.
-    simple refine (@commutes_and_is_pullback_transfer_iso (C,,hs)
-              _ _ _ _  _ _ _ _
-              _ _ _ _  _ _ _ _
-              _ _ _ _  _ _ _ _
-              _ Pb);
+    simple refine (commutes_and_is_pullback_transfer_iso _ _ _ _ _ Pb);
     try apply identity_iso;
     try rewrite id_left;
     try rewrite id_right;
@@ -1339,13 +1320,13 @@ Section on_pullbacks.
   Lemma is_symmetric'_isPullback
     : isPullback (!sqr_comm) -> isPullback sqr_comm.
   Proof.
-    refine (is_symmetric_isPullback hs _).
+    use is_symmetric_isPullback; apply homset_property.
   Defined.
 
 End on_pullbacks.
 
-Arguments map_into_Pb {_ _ _ _ _ _ _ _ _ } _ _ {_} _ _ _ .
-Arguments map_into_Pb_unique {_ _ _ _ _ _ _ _ _} _ _ {_} _ _ _ _   .
+Arguments map_into_Pb {_ _ _ _ _ _ _ _ _ } _ Pb {_} _ _ _.
+Arguments map_into_Pb_unique {_ _ _ _ _ _ _ _ _} _ Pb {_} _ _ _ _.
 
 Section Pullbacks_hSet.
 
@@ -1498,7 +1479,7 @@ Proof.
     + apply (pr2 (pr1 XR) Three).
   - intro t.
     apply subtypePath.
-    + intro. apply isapropdirprod; apply has_homsets_HSET.
+    + intro. apply isapropdirprod; apply homset_property.
     + simpl.
       apply path_to_ctr.
       destruct t as [t [H1 H2]].

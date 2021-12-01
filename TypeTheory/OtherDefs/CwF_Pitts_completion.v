@@ -1,9 +1,9 @@
 
-(** * From preCwFs to CwFs *)
+(** * From CwFs to univalent CwFs *)
 (**
   Contents:
 
-    - not much yet
+    - goal (not yet complete): transfer of CwF structure along the Rezk-completion construction
 *)
 
 Require Import UniMath.Foundations.Sets.
@@ -18,7 +18,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.OtherDefs.CwF_Pitts.
 Require Import TypeTheory.Categories.category_of_elements.
 
-Arguments iso: clear implicits.
+Local Arguments iso: clear implicits.
 
 (** How to get a functor from RC(C) to D when having one from C to D **)
 

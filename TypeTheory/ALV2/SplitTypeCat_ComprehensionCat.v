@@ -901,8 +901,6 @@ Section SplitTypeCat_DiscreteComprehensionCat_Equiv.
              apply funextsec. intros ?.
              apply isaprop_isPullback.
       + apply isaprop_is_split_typecat.
-        apply homset_property.
-
     - intros DC.
       use total2_paths_f.
       2: use total2_paths_f.

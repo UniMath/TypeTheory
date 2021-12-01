@@ -425,8 +425,6 @@ Let TY' : preShv D := Ty (pr1 T').
 Let pp : _ ⟦ TM , TY ⟧ := pr1 T.
 Let pp' : _ ⟦ TM' , TY' ⟧ := pr1 T'.
 
-Let hsDop : has_homsets (opp_precat D) := has_homsets_opp (homset_property _).
-
 Let ηη : functor (preShv D) (preShv C) :=
   pre_composition_functor C^op D^op _ (functor_opp F).
 
@@ -519,8 +517,6 @@ Let TY' : preShv RC := Ty (pr1 T').
 
 Let pp : _ ⟦ TM , TY ⟧ := pr1 T.
 Let pp' : _ ⟦ TM' , TY' ⟧ := pr1 T'.
-
-Let hsRCop : has_homsets (opp_precat RC) := has_homsets_opp (homset_property _).
 
 Let ηη : functor (preShv RC) (preShv C) :=
   pre_composition_functor C^op RC^op _ (functor_opp (Rezk_eta C)).

@@ -83,13 +83,12 @@ Proof.
     + apply (dpr_typecat _ ).
     + simpl. unfold dm_sub_struct_of_TypeCat.
       simpl.
-      set (T:= postcomp_pb_with_iso CC (homset_property _)).
-      refine (pr1 (T _ _ _ _ (q_typecat A f) _ _ f _ _ _ _ _ _)).
+      (* TODO: improve implicit arguments of [postcomp_pb_with_iso] *)
+      refine (pr1 (postcomp_pb_with_iso CC _ _ _ _ _ _ _ _ _ _ _ _ _ _)).
       apply is_symmetric_isPullback. { apply homset_property. }
       apply reind_pb_typecat.
       sym. assumption.
-    + set (T:= postcomp_pb_with_iso CC (homset_property _)).
-      eapply (pr2 (T _ _ _ _ _ _ _ _ _ _ _ _ _ _)).
+    + eapply (pr2 (postcomp_pb_with_iso CC _ _ _ _ _ _ _ _ _ _ _ _ _ _)).
  - simpl.
     apply hinhpr.
     unfold iso_to_dpr.
