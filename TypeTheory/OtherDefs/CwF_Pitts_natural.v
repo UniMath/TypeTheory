@@ -30,12 +30,10 @@ Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 (** * A "preview" of the definition *)
 
 Module Preview.
-
-Let hsHSET := has_homsets_HSET.
   
 Variable C : precategory.
 Variable hs : has_homsets C. 
-Variable Ty Tm: [C^op, HSET, hsHSET]. (* functor C^op HSET. *)
+Variable Ty Tm: [C^op, HSET]. (* functor C^op HSET. *)
 Variable p : _ ⟦Tm, Ty⟧. (* needs to be written as mor in a precat *)
 
 Variable comp : forall (Γ : C) (A : pr1hSet ((Ty : functor _ _ ) Γ)), C.
@@ -74,17 +72,15 @@ End Preview.
 
 Section definition.
 
-Let hsHSET := has_homsets_HSET.
-
 Variable C : precategory.
 Variable hsC : has_homsets C.
 
 Definition tt_structure : UU :=
-  ∑ TyTm : [C^op, HSET, hsHSET] × [C^op, HSET, hsHSET],
+  ∑ TyTm : [C^op, HSET] × [C^op, HSET],
            _ ⟦pr2 TyTm, pr1 TyTm⟧.
 
-Definition Ty (X : tt_structure) : [C^op, HSET, hsHSET] := pr1 (pr1 X).
-Definition Tm (X : tt_structure) : [C^op, HSET, hsHSET] := pr2 (pr1 X).
+Definition Ty (X : tt_structure) : [C^op, HSET] := pr1 (pr1 X).
+Definition Tm (X : tt_structure) : [C^op, HSET] := pr2 (pr1 X).
 Definition p (X : tt_structure) :  _ ⟦Tm X, Ty X⟧ := pr2 X.
 
 Definition comp_structure (X : tt_structure) : UU :=
