@@ -170,7 +170,6 @@ Definition unit_unity (U : unit_TypeFormer) (E : unit_Elem U)  : UU
 Lemma isaprop_unity (U : unit_TypeFormer) (E : unit_Elem U) : isaprop (unit_unity U E).
 Proof.
   unfold unit_unity.
-  Search "impred".
   do 2 (apply impred_isaprop; intro).
   apply isaset_tm.
 Qed.

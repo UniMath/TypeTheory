@@ -150,9 +150,6 @@ Proof.
   - simpl. exact p.
 Defined.  
 *)
-(*
-Search (isofhlevel _ _ -> isofhlevel _ _ ).
-*)
 
 (*
 Definition pb_type_of_DM_weq_Pb {CC : precategory} (sat : is_univalent CC) (H : dm_sub_struct CC)
@@ -255,7 +252,6 @@ Proof.
     apply weqfibtototal.
     intro.
     exists (pr1).
-    Search (isweq pr1).
     apply isweqpr1.
     
   - 

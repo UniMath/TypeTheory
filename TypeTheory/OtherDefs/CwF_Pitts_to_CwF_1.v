@@ -311,7 +311,6 @@ Section fix_a_precategory.
             
                     idtac.
                     simpl.
-            Search (transportf funextsec  ).
             
             idtac.
 
@@ -338,8 +337,3 @@ Section fix_a_precategory.
                     (*Focus 2. apply T.
                 apply transportf_ext.
 *)
-
-                Search (?f _ _ = ?f _ _ ).
-          
-Search (transportf _ _ _ = transportf _ _ _ ).
-              
