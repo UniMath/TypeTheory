@@ -43,8 +43,8 @@ Section Auxiliary.
         {C : precategory}
         {a b c d : C} {f : b --> a} {g : c --> a}
         {p1 : d --> b} {p2 : d --> c} {H : p1 · f = p2 · g}
-        (pb : isPullback f g p1 p2 H)
-  : isPullback _ _ _ _ (! H).
+        (pb : isPullback H)
+  : isPullback (! H).
   Proof.
     use make_isPullback.
     intros e h k H'.
@@ -371,7 +371,7 @@ Section TypeCat_Disp.
                (TC : typecat_obj_ext_structure C)
                {Γ Γ' : C} {f : Γ' --> Γ}
                {A : typecat_disp TC Γ} {A' : typecat_disp TC Γ'} (ff : A' -->[f] A)
-      : (isPullback _ _ _ _ (pr2 ff)) -> is_cartesian ff.
+      : (isPullback (pr2 ff)) -> is_cartesian ff.
     Proof.
       intros Hpb Δ g B hh.
       eapply iscontrweqf.
@@ -600,7 +600,7 @@ Section ComprehensionCat_TypeCat.
   Definition pullback_from_comprehension_cat
              (Γ : C) (A : ty_from_comprehension_cat Γ)
              (Γ' : C) (f : Γ' --> Γ)
-    : isPullback _ _ _ _ (!dpr_q_from_comprehension_cat _ A _ f).
+    : isPullback (!dpr_q_from_comprehension_cat _ A _ f).
   Proof.
     intros Δ g k H.
     eapply iscontrweqf.

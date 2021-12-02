@@ -78,8 +78,8 @@ Section Auxiliary.
         {C : precategory}
         {a b c d : C} {f : b --> a} {g : c --> a}
         {p1 : d --> b} {p2 : d --> c} {H : p1 · f = p2 · g}
-        (pb : isPullback f g p1 p2 H)
-  : isPullback _ _ _ _ (! H).
+        (pb : isPullback H)
+  : isPullback (! H).
   Proof.
     use make_isPullback.
     intros e h k H'.

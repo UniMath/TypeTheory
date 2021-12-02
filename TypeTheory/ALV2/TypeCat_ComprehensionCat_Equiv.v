@@ -90,7 +90,7 @@ Section TypeCat_ComprehensionCat_Equiv.
          (dpr_q : ∏ Γ (A : TC Γ) Γ' (f : Γ' --> Γ), 
                   (q _ A _ f) ;; (dpr_typecat_obj_ext A) = (dpr_typecat_obj_ext (reind _ A _ f)) ;; f),
        ∏ Γ (A : TC Γ) Γ' (f : Γ' --> Γ),
-       isPullback _ _ _ _ (!dpr_q _ A _ f).
+       isPullback (!dpr_q _ A _ f).
 
   Definition typecat_structure' (C : category) : UU
     := ∑ (TC : typecat_obj_ext_structure C),
@@ -129,7 +129,7 @@ Section TypeCat_ComprehensionCat_Equiv.
          (q : obj_ext_typecat Γ' reind --> obj_ext_typecat Γ A )
          (dpr_q : q ;; (dpr_typecat_obj_ext A)
                   = dpr_typecat_obj_ext reind ;; f),
-       isPullback _ _ _ _ (!dpr_q).
+       isPullback (!dpr_q).
 
   Definition typecat_structure'' (C : category) : UU
     := ∑ (TC : typecat_obj_ext_structure C),
@@ -250,7 +250,7 @@ Section TypeCat_ComprehensionCat_Equiv.
              {A : pr1 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq _ TC) Γ}
              {A' : pr1 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq _ TC) Γ'}
              (ff : A' -->[f] A)
-    : (isPullback _ _ _ _ (! pr2 ff)) -> is_cartesian ff.
+    : (isPullback (! pr2 ff)) -> is_cartesian ff.
   Proof.
     - intros pb.
       intros Δ g B ggff.
@@ -288,7 +288,7 @@ Section TypeCat_ComprehensionCat_Equiv.
              {A : pr1 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq _ TC) Γ}
              {A' : pr1 (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq _ TC) Γ'}
              (ff : A' -->[f] A)
-    : isPullback _ _ _ _ (! pr2 ff) ->
+    : isPullback (! pr2 ff) ->
       is_cartesian (# (typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq _ TC) ff).
   Proof.
     intros pb.
@@ -387,7 +387,7 @@ Section TypeCat_ComprehensionCat_Equiv.
     eapply weqcomp.
     apply (weqtotal2asstol
              (λ q, (q ;; π A)%mor = (π A' ;; f)%mor)
-             (λ qq, isPullback _ _ _ _ (! pr2 qq))
+             (λ qq, isPullback (! pr2 qq))
           ).
     set (FF := typecat_obj_ext_structure_ff_disp_functor_to_codomain_weq _ TC).
     use (weqtotal2 (idweq _)).

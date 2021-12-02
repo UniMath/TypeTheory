@@ -181,7 +181,7 @@ Definition T_q_etc
        (dpr_q : ∏ Γ (A : ty Γ) Γ' (f : Γ' --> Γ),
          q _ A _ f ;; dpr Γ A = dpr Γ' (reind _ A _ f) ;; f),
        (∏ Γ (A : ty Γ) Γ' (f : Γ' --> Γ),
-         isPullback _ _ _ _ (!dpr_q _ A _ f))).
+         isPullback (!dpr_q _ A _ f))).
 Definition T_set
   := (λ ty : T_ty, ∏ Γ, isaset (ty Γ)).
 Definition T_reind_id
@@ -343,22 +343,22 @@ Proof.
     eapply weqcomp.
       exact (@weqtotaltoforall CC
         (λ Γ, _)
-        (λ Γ dpr_q_Γ, ∏ A Γ' f, isPullback _ _ _ _ (!dpr_q_Γ A Γ' f))).
+        (λ Γ dpr_q_Γ, ∏ A Γ' f, isPullback (!dpr_q_Γ A Γ' f))).
     apply weqonsecfibers; intro Γ.
     eapply weqcomp.
       exact (@weqtotaltoforall (pr1 (pr1 (pr1 (pr1 X))) Γ)
         (λ A, _)
-        (λ A dpr_q_Γ_A, ∏ Γ' f, isPullback _ _ _ _ (!dpr_q_Γ_A Γ' f))).
+        (λ A dpr_q_Γ_A, ∏ Γ' f, isPullback (!dpr_q_Γ_A Γ' f))).
     eapply weqcomp.
       apply weqonsecfibers; intro A.
       eapply weqcomp.
         exact (@weqtotaltoforall CC
           (λ Γ', _)
-          (λ Γ' dpr_q_Γ_A_Γ', ∏ f, isPullback _ _ _ _ (!dpr_q_Γ_A_Γ' f))).
+          (λ Γ' dpr_q_Γ_A_Γ', ∏ f, isPullback (!dpr_q_Γ_A_Γ' f))).
       apply weqonsecfibers; intro Γ'.
       exact (@weqtotaltoforall _
         (λ f, _)
-        (λ f dpr_q_Γ_A_Γ'_f, isPullback _ _ _ _ (!dpr_q_Γ_A_Γ'_f))).
+        (λ f dpr_q_Γ_A_Γ'_f, isPullback (!dpr_q_Γ_A_Γ'_f))).
     simpl.
     eapply weqcomp. apply weq_exchange_args.
     apply weqonsecfibers; intro Γ'.

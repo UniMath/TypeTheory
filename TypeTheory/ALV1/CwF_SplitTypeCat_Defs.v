@@ -390,7 +390,7 @@ Components of [Y : term_fun_structure X]:
 - [pp Y : TM Y --> TY X]
 - [Q Y A :  Yo (Γ ◂ A) --> TM Y]
 - [Q_pp Y A : #Yo (π A) ;; yy A = Q Y A ;; pp Y]
-- [isPullback_Q_pp Y A : isPullback _ _ _ _ (Q_pp Y A)]
+- [isPullback_Q_pp Y A : isPullback (Q_pp Y A)]
 
  See: Marcelo Fiore, slides 32–34 of _Discrete Generalised Polynomial Functors_ , from talk at ICALP 2012,
   #(<a href="http://www.cl.cam.ac.uk/~mpf23/talks/ICALP2012.pdf">link</a>)#
@@ -545,7 +545,7 @@ Components of [Z : qq_morphism_structure X]:
 
 - [qq Z f A : Γ' ◂ A[f] --> Γ ◂ A]
 - [qq_π Z f A : qq Z f A ;; π A = π _ ;; f]
-- [qq_π_Pb Z f A : isPullback _ _ _ _ (!qq_π Z f A)]
+- [qq_π_Pb Z f A : isPullback (!qq_π Z f A)]
 - [qq_id], [qq_comp]: functoriality for [qq]
 *)
 

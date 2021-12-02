@@ -553,7 +553,7 @@ now apply funextsec.
 Qed.
 
 Lemma isPullback_q_gen_mor {Γ Δ : PreShv C} (A : Γ ⊢) (σ : Δ --> Γ) :
-  isPullback _ _ _ _ (q_gen_mor_p A σ).
+  isPullback (q_gen_mor_p A σ).
 Proof.
 use pb_if_pointwise_pb.
 intros I.

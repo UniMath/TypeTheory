@@ -17,13 +17,6 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
-Section Prelims.
-
-(* TODO: upstream, eventually to limits.pullbacks *)
-Global Arguments isPullback [C a b c d] f g p1 p2 H.
-
-End Prelims.
-
 (** * Type pre-categories
 
 We define here *Type (pre-)categories*, closely based on the _type-categories_ of Andy Pitts, _Categorical Logic_, 2000, Def. 6.3.3
@@ -63,7 +56,7 @@ Record type_precat_record : Type := {
   dpr_q : ∏ Γ (A : C⟨Γ⟩) Γ' (f : Γ' --> Γ), 
           (q A f) ;; (π A) = (π (A{{f}})) ;; f ;
   reind_pb : ∏ Γ (A : ty Γ) Γ' (f : Γ' --> Γ),
-      isPullback _ _ _ _ (!dpr_q _ A _ f)
+      isPullback (!dpr_q _ A _ f)
 }.
 
 (** Here we see the components of the definition of a [type_precat].  Under the names of their actual versions below, they are:
@@ -134,7 +127,7 @@ Definition typecat_structure2 {CC : precategory} (C : typecat_structure1 CC) :=
     (dpr_q : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ), 
       (q _ A _ f) ;; (dpr _ A) = (dpr _ (A{{f}})) ;; f),
     ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ),
-      isPullback _ _ _ _ (!dpr_q _ A _ f).
+      isPullback (!dpr_q _ A _ f).
 (* TODO: change name [dpr_q] to [q_dpr] throughout, now that composition is diagrammatic order? *)
 
 Definition typecat_structure (CC : precategory) 
@@ -159,7 +152,7 @@ Definition dpr_q_typecat {CC : precategory} {C : typecat_structure CC} {Γ} (A :
   pr1 (pr2 (pr2 (pr2 C))) _ A _ f.
 
 Definition reind_pb_typecat {CC : precategory} {C : typecat_structure CC} {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ)
-  : isPullback _ _ _ _ (!dpr_q_typecat A f)
+  : isPullback (!dpr_q_typecat A f)
 :=
   pr2 (pr2 (pr2 (pr2 C))) _ A _ f.
 

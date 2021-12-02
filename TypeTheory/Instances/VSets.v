@@ -103,7 +103,7 @@ cbn in *. now do 2 induction Vsig_El.
 Defined.
 
 Lemma VSET_isPullback_q_gen_mor {Γ Δ : VSET V} (A : Γ ⊢) (σ : Δ --> Γ) :
-  isPullback _ _ _ _ (VSET_q_gen_mor_p A σ).
+  isPullback (VSET_q_gen_mor_p A σ).
 Proof.
 unfold VSET_q_gen_mor, VSET_subst_pair, VSET_ctx_proj, VSET_q_gen, VSET_p_gen.
 intros Z h k p. cbn in *.

@@ -177,7 +177,7 @@ Lemma SET_q_gen_mor_p {Γ Δ : HSET} (A : Γ ⊢) (σ : Δ --> Γ) :
 Proof. reflexivity. Defined.
 
 Lemma SET_isPullback_q_gen_mor {Γ Δ : HSET} (A : Γ ⊢) (σ : Δ --> Γ) :
-  isPullback _ _ _ _ (SET_q_gen_mor_p A σ).
+  isPullback (SET_q_gen_mor_p A σ).
 Proof.
 intros Z h k p.
 set (tr f (p : pr1⦃h⦄ = f) z := transportf (λ f, pr1 (A (f z))) p (pr2 (h z))).
