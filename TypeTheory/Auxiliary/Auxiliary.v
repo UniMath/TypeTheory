@@ -25,6 +25,11 @@ Require Export UniMath.CategoryTheory.CategoryEquality.
 
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
+(** * Notation scopes
+
+We open a few scopes that are used throughout the development, and add/tweak a few of UniMath’s notations.
+*)
+
 Undelimit Scope transport.
 
 Notation "( x , y , .. , z )" := (make_dirprod .. (make_dirprod x y) .. z) : core_scope.
@@ -38,6 +43,13 @@ Notation "ff ;; gg" := (compose ff gg)
 Delimit Scope mor_scope with mor.
 Bind Scope mor_scope with precategory_morphisms.
 Open Scope mor_scope.
+
+Declare Scope precat.
+Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op") : precat.
+Delimit Scope precat with precat.
+
+Open Scope cat.
+Open Scope cat_deprecated.
 
 
 (** * Some tactics *)

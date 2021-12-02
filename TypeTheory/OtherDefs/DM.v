@@ -20,8 +20,6 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
-Open Scope cat.
-Open Scope cat_deprecated.
 
 (** * A "preview" of the definition *)
 

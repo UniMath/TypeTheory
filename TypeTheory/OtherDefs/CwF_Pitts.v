@@ -20,9 +20,6 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
-Open Scope cat.
-Open Scope cat_deprecated.
-
 (** * A "preview" of the definition *)
 
 Module Record_Preview.

@@ -15,13 +15,11 @@ Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 
-Open Scope cat.
-Open Scope cat_deprecated.
-
+Require Import TypeTheory.Auxiliary.Auxiliary.
 
 Section Prelims.
 
-(* TODO: move to limits.pullbacks *)
+(* TODO: upstream, eventually to limits.pullbacks *)
 Global Arguments isPullback [C a b c d] f g p1 p2 H.
 
 End Prelims.
