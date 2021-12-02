@@ -745,7 +745,7 @@ Proof.
      | rewrite tm_transportbf; apply te_subtitution]]).
 Defined.
 
-Definition CwF_IdBased_path_inducton {Id} (nid : CwF_IdTypeNat Id) (refl : CwF_IdRefl Id) := ∏ Γ (A : Ty Γ : hSet) (a : tm A)
+Definition CwF_IdBased_path_induction {Id} (nid : CwF_IdTypeNat Id) (refl : CwF_IdRefl Id) := ∏ Γ (A : Ty Γ : hSet) (a : tm A)
 (P : Ty (_ .: CwF_IdBasedFam Id A a) :  hSet)
 (d : tm  (#Ty (CwF_Id_map nid a a (refl _ _ a)) P))
 (b : tm A) (eqab : tm (Id _ _ a b)), 

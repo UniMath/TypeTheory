@@ -1145,7 +1145,7 @@ Proof.
   reflexivity.
 Qed.
 
-Definition IdBased_path_inducton {Id} (nid : IdTypeNat Id) (refl : IdRefl Id) := ∏ Γ (A : Ty Γ : hSet) (a : tm A)
+Definition IdBased_path_induction {Id} (nid : IdTypeNat Id) (refl : IdRefl Id) := ∏ Γ (A : Ty Γ : hSet) (a : tm A)
 (P : Ty (_ ¤ IdBasedFam Id A a) :  hSet)
 (d : tm  (P ⌊Id_map nid a a (refl _ _ a)⌋ ))
 (b : tm A) (eqab : tm (Id _ _ a b)), 
@@ -1189,7 +1189,7 @@ Qed.
 
 Definition IdBased_path_induction_natural {Id} (nid : IdTypeNat Id) (refl : IdRefl Id) (nrefl : IdReflNat Id nid refl) 
 : UU :=
-∏ (J : IdBased_path_inducton nid refl) (Γ Δ : C) (f : C^op ⟦Γ,Δ⟧) (A : Ty Γ : hSet) (a : tm A) 
+∏ (J : IdBased_path_induction nid refl) (Γ Δ : C) (f : C^op ⟦Γ,Δ⟧) (A : Ty Γ : hSet) (a : tm A) 
 (P : Ty (_ ¤ IdBasedFam Id A a) :  hSet)
 (d : tm  (P ⌊Id_map nid a a (refl _ _ a)⌋ ))
 (b : tm A) (eqab : tm (Id _ _ a b)), (tm_transportf (d_type_natural nid refl f P eqab) ((J Γ A a P d b eqab) ⌈f⌉)) = 
