@@ -7,7 +7,7 @@ Content :
 _ universe equivalence over weq_sty_cwf
 **)
 
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 

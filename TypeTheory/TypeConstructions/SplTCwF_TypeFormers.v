@@ -1,4 +1,4 @@
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
@@ -1014,7 +1014,7 @@ Proof.
   destruct e_A.
   rewrite (tm_transportbf _) in e_a, e_b;
    cbn in e_a, e_b.
-  apply Auxiliary.maponpaths_12; assumption.
+  apply maponpaths_12; assumption.
 Qed.
 
 Definition IdBasedFam (Id : IdTypeFormer) {Γ : C} (A : Ty Γ : hSet) (a : tm A)

@@ -8,7 +8,8 @@ category over [C]. Objects over [c:C] are display maps into [c].
 
 *)
 
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 

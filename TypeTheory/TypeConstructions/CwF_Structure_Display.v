@@ -7,7 +7,7 @@ Content :
 - Identity Types in CwF (CwF_Id prefixe)
 **)
 
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
@@ -694,7 +694,7 @@ Proof.
   destruct e_A.
   rewrite (tm_transportbf _) in e_a, e_b;
    cbn in e_a, e_b.
-  apply Auxiliary.maponpaths_12; assumption.
+  apply maponpaths_12; assumption.
 Qed.
 
 Definition CwF_IdBasedFam (Id : CwF_IdTypeFormer) {Γ : C} (A : Ty Γ : hSet) (a : tm A)
