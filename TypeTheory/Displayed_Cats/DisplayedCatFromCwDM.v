@@ -82,22 +82,21 @@ Proof.
     { intro. apply homset_property. }
     etrans. apply id_left.
     apply pathsinv0.
-    etrans. refine (pr1_transportf (CC⟦_,_⟧) _ _ _ _ _ _ ).
+    etrans. use (pr1_transportf (CC⟦_,_⟧)).
     use transportf_const.
   - (* id_right_disp *) 
     apply subtypePath.
     { intro. apply homset_property. }
     etrans. apply id_right.
     apply pathsinv0.
-    etrans. refine (pr1_transportf (CC⟦_,_⟧) _ _ _ _ _ _ ).
+    etrans. use (pr1_transportf (CC⟦_,_⟧)).
     use transportf_const.
   - (* assoc_disp *) 
     apply subtypePath.
     { intro. apply homset_property. }
     etrans. apply assoc.
     apply pathsinv0.
-    etrans. unfold mor_disp.
-    refine (pr1_transportf (CC⟦_,_⟧) _ _ _ _ _ _ ).
+    etrans. use (pr1_transportf (CC⟦_,_⟧)).
     use transportf_const.
   - (* homsets_disp *)
     apply (isofhleveltotal2 2).

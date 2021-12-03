@@ -195,7 +195,7 @@ Proof.
   use total2_paths_f; simpl.
     apply eA.
   apply subtypePath. intro; apply homset_property.
-  simpl. eapply pathscomp0. use (pr1_transportf _ _ _ _ _ eA).
+  simpl. eapply pathscomp0. use (pr1_transportf (Ty X Γ)).
   simpl. eapply pathscomp0. apply functtransportf.
   eapply pathscomp0. eapply pathsinv0. apply idtoiso_postcompose.
   exact es.

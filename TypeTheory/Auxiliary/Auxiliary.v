@@ -86,28 +86,28 @@ Proof.
   apply idpath.
 Defined.
 
-(* TODO: is this really necessary?  Usually an inlined version is just as simple. *)
+(* Note: a common and useful special case of [transport_map]. *)
 Lemma pr1_transportf (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
-   (a a' : A) (e : a = a') (xs : ∑ b : B a, P _ b):
+   {a a' : A} (e : a = a') (xs : ∑ b : B a, P _ b):
    pr1 (transportf (fun x => ∑ b : B x, P _ b) e xs) = 
      transportf (fun x => B x) e (pr1 xs).
 Proof.
   apply pathsinv0, (transport_map (fun a => pr1)).
 Defined.
 
-(* TODO: is this really needed?  Usually an inlined version is just as simple. *)
+(* Included for searchability, but can always be replaced by [pr1_transportf]. *)
 Definition pr1_transportb
-    {A : UU} {B : A → UU} (P : ∏ a : A, B a → UU) {a a' : A}
+    (A : UU) (B : A → UU) (P : ∏ a : A, B a → UU) {a a' : A}
     (e : a = a') (xs : ∑ b : B a', P a' b)
   : pr1 (transportb (λ x : A, ∑ b : B x, P x b) e xs) =
       transportb (λ x : A, B x) e (pr1 xs).
 Proof.
-  apply pathsinv0, (transport_map (fun a => pr1)).
+  apply pr1_transportf.
 Defined.
 
-(* TODO: eliminate in favour of UniMath’s (slightly different) lemma with same name? *)
-Lemma transportf_const (A B : UU) (a a' : A) (e : a = a') (b : B) :
-   transportf (fun _ => B) e b = b.
+(* TODO: try eliminating in favour of UniMath’s (slightly different) lemma with same name? *)
+Lemma transportf_const (A B : UU) (a a' : A) (e : a = a') (b : B)
+  : transportf (fun _ => B) e b = b.
 Proof.
   induction e.
   apply idpath.
