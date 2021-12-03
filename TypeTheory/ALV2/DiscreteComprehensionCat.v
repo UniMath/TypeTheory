@@ -22,8 +22,8 @@ Main definition:
 *)
 
 
-Require Import UniMath.MoreFoundations.PartA.
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
@@ -37,34 +37,27 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
 
 Section Auxiliary.
+(* TODO: upstream content of this section *)
 
-  (* TODO: move upstream? *)
   Definition isaprop_is_cartesian_disp_functor
         {C C' : category} {F : functor C C'}
         {D : disp_cat C} {D' : disp_cat C'} {FF : disp_functor F D D'}
     : isaprop (is_cartesian_disp_functor FF).
   Proof.
-    apply impred_isaprop. intros c.
-    apply impred_isaprop. intros c'.
-    apply impred_isaprop. intros f.
-    apply impred_isaprop. intros d.
-    apply impred_isaprop. intros d'.
-    apply impred_isaprop. intros ff.
-    apply impred_isaprop. intros ff_is_cartesian.
+    do 7 (apply impred; intro).
     apply isaprop_is_cartesian.
   Qed.
 
-  (* TODO: move upstream? *)
   Definition iscontr_irrelevant
              {A : UU} {P : A → UU}
              (iscontr_A : iscontr A)
     : ∏ (a' : A), P a' = P (pr1 iscontr_A).
   Proof.
     intros a'.
-    apply (maponpaths P (pr2 iscontr_A a')).
+    apply maponpaths, proofirrelevancecontr, iscontr_A.
   Defined.
 
-  (* TODO: move upstream? *)
+  (* generalises [weqtotal2overunit] from [Foundations.PartA]; perhaps rename to e.g. [weq_total2_over_iscontr]? *)
   Definition iscontr_total2_irrelevant
              {A : UU} {P : A → UU}
              (iscontr_A : iscontr A)
@@ -82,7 +75,7 @@ Section Auxiliary.
         (p : x = y)
   : transportb B (maponpaths pr1 p) (pr2 y) = pr2 x.
   Proof.
-    induction p. apply idpath.
+    induction p; apply idpath.
   Defined.
 
   Lemma unique_pr2_weq
