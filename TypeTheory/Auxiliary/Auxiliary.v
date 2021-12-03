@@ -63,50 +63,9 @@ Tactic Notation "assoc" := apply @pathsinv0, path_assoc.
 
 Arguments functor_on_inv_from_iso {_ _} _  {_ _} f.
 
-(** * Path-algebra: general lemmas about transport, equivalences, etc. *)
+(** * General type-theoretic content *)
 
-
-(* TODO: delete this and replace with [AxomOfChoice.pr1_issurjective], now that https://github.com/UniMath/UniMath/issues/677 is resolved*)
-Lemma pr1_issurjective' {X : UU} {P : X -> UU} :
-  (∏ x : X, ∥ P x ∥) -> issurjective (pr1 : (∑ x, P x) -> X).
-Proof.
-  intros ne x. simple refine (hinhuniv _ (ne x)).
-  intros p. apply hinhpr.
-  exact ((x,,p),,idpath _).
-Defined.
-
-Lemma fibers_inhab_if_pr1_issurjective {X : UU} {P : X -> UU} :
-  (∏ x : X, ∥ P x ∥) <- issurjective (pr1 : (∑ x, P x) -> X).
-Proof.
-  intros ne x. simple refine (hinhuniv _ (ne x)).
-  intros p. apply hinhpr.
-  cbn in p.
-  destruct p as [[a b] c].
-  cbn in *.
-  induction c. 
-  assumption.
-Defined.
-
-Lemma isaprop_fiber_if_isinclpr1 
-  : ∏ (X : UU) (isasetX : isaset X) (P : X → UU), (∏ x : X, isaprop (P x)) <- isincl (pr1 : (∑ x, P x) -> X).
-Proof.
-  intros X isasetX P H x.
-  unfold isincl in H. unfold isofhlevelf in H.
-  apply invproofirrelevance.
-  intros p p'.
-  assert (X0 :  x,,p = x,,p').
-  { specialize (H x).
-    assert (H1 :  (x,,p),, idpath _ = ((x,,p'),,idpath _ : hfiber pr1 x)).
-    { apply proofirrelevance. apply H. }
-    apply (base_paths _ _ H1).
-  } 
-  set (XR := fiber_paths X0). cbn in XR.
-  etrans. 2: { apply XR. }
-  apply pathsinv0. 
-  etrans. apply maponpaths_2. apply (isasetX _ _ _ (idpath x)).
-  apply idpath_transportf.
-Defined.
-
+(** ** Path-algebra: general lemmas about transport, equivalences, etc. *)
 
 Lemma weqhomot {A B : UU} (f : A -> B) (w : A ≃ B) (H : w ~ f) : isweq f.
 Proof.
@@ -315,6 +274,50 @@ Proof.
   apply idpath.
 Defined.
 
+(* ** Surjectivity *)
+
+(* TODO: delete this and replace with [AxomOfChoice.pr1_issurjective], now that https://github.com/UniMath/UniMath/issues/677 is resolved*)
+Lemma pr1_issurjective' {X : UU} {P : X -> UU} :
+  (∏ x : X, ∥ P x ∥) -> issurjective (pr1 : (∑ x, P x) -> X).
+Proof.
+  intros ne x. simple refine (hinhuniv _ (ne x)).
+  intros p. apply hinhpr.
+  exact ((x,,p),,idpath _).
+Defined.
+
+Lemma fibers_inhab_if_pr1_issurjective {X : UU} {P : X -> UU} :
+  (∏ x : X, ∥ P x ∥) <- issurjective (pr1 : (∑ x, P x) -> X).
+Proof.
+  intros ne x. simple refine (hinhuniv _ (ne x)).
+  intros p. apply hinhpr.
+  cbn in p.
+  destruct p as [[a b] c].
+  cbn in *.
+  induction c.
+  assumption.
+Defined.
+
+Lemma isaprop_fiber_if_isinclpr1
+  : ∏ (X : UU) (isasetX : isaset X) (P : X → UU), (∏ x : X, isaprop (P x)) <- isincl (pr1 : (∑ x, P x) -> X).
+Proof.
+  intros X isasetX P H x.
+  unfold isincl in H. unfold isofhlevelf in H.
+  apply invproofirrelevance.
+  intros p p'.
+  assert (X0 :  x,,p = x,,p').
+  { specialize (H x).
+    assert (H1 :  (x,,p),, idpath _ = ((x,,p'),,idpath _ : hfiber pr1 x)).
+    { apply proofirrelevance. apply H. }
+    apply (base_paths _ _ H1).
+  }
+  set (XR := fiber_paths X0). cbn in XR.
+  etrans. 2: { apply XR. }
+  apply pathsinv0.
+  etrans. apply maponpaths_2. apply (isasetX _ _ _ (idpath x)).
+  apply idpath_transportf.
+Defined.
+
+
 (** ** Other general lemmas *)
 
 (* A slightly surprising but very useful lemma for characterising identity types.
@@ -347,7 +350,9 @@ Proof.
   - apply propproperty. 
 Defined.
 
-(** * Algebra in (pre)categories *)
+(** * Category theory *)
+
+(** ** Isomorphism lemmas *)
 
 Lemma is_iso_comp_is_iso {C : precategory} {a b c : ob C}
   (f : C⟦a, b⟧) (g : C⟦b, c⟧) 
@@ -373,7 +378,18 @@ Proof.
   cbn. apply id_right.
 Qed.
 
-(** The total type of morphisms of a precategory *)
+Definition iso_ob {C : precategory} {D : category}
+          {F G : functor C D} (a : iso (C:= [C, D]) F G)
+  : ∏ c, iso (F c) (G c).
+Proof.
+  intro c.
+  use make_iso.
+  - cbn. apply ((pr1 a : nat_trans _ _ ) c).
+  - apply is_functor_iso_pointwise_if_iso. apply (pr2 a).
+Defined.
+
+(** ** The total type of morphisms of a precategory *)
+
 Definition mor_total (C : precategory) : UU
   := ∑ (ab : C × C), C⟦pr2 ab, pr1 ab⟧.
 
@@ -382,7 +398,6 @@ Proof.
   exists (b,,a).
   exact f.
 Defined.
-
 
 Definition source {C} (X : mor_total C) : C := pr2 (pr1 X).
 Definition target {C} (X : mor_total C) : C := pr1 (pr1 X).
@@ -397,7 +412,6 @@ Proof.
   exists (F (pr1 (pr1 p)) ,, F (pr2 (pr1 p)) ).
   exact (#F p).
 Defined.
-
 
 
 Definition isweq_left_adj_equivalence_on_mor_total {C D : category} (F : functor C D) 
@@ -447,16 +461,6 @@ Proof.
       etrans. apply maponpaths_2.
       apply (iso_after_iso_inv (counit_pointwise_iso_from_adj_equivalence H _)).
       apply id_left.
-Defined.
-
-Definition iso_ob {C : precategory} {D : category}
-          {F G : functor C D} (a : iso (C:= [C, D]) F G)
-  : ∏ c, iso (F c) (G c).
-Proof.
-  intro c.
-  use make_iso.
-  - cbn. apply ((pr1 a : nat_trans _ _ ) c).
-  - apply is_functor_iso_pointwise_if_iso. apply (pr2 a).
 Defined.
 
 Definition isweq_equivalence_on_mor_total {C D : category}
@@ -510,28 +514,6 @@ Proof.
       etrans. apply maponpaths_2.
       apply (nat_trans_inv_pointwise_inv_before _ _ D  _ _ (pr1 eps)).
       apply id_left.
-Defined.
-
-(** ** Fully faithful on isos *)
-
-Definition ff_on_isos {C D : precategory} (F : functor C D) : UU
-  := ∏ c c', isweq (@functor_on_iso _ _ F c c').
-
-Lemma fully_faithful_impl_ff_on_isos {C D : precategory} (F : functor C D) 
-      : fully_faithful F -> ff_on_isos F.
-Proof.
-  intros Fff c c'.
-  use gradth.
-  - intro XR. exists (invmap (make_weq _ (Fff _ _ )) XR). cbn.
-    apply (ff_reflects_is_iso _ _ _ Fff).
-    assert (XT := homotweqinvweq (make_weq _ (Fff c c' ))).
-    cbn in *.
-    apply (transportb (λ i : _ --> _, is_iso i) (XT (pr1 XR) )).
-    apply XR.
-  - cbn. intro i. apply eq_iso. cbn.
-    apply (homotinvweqweq (make_weq _ (Fff _ _ ))).
-  - cbn. intro i. apply eq_iso. cbn.
-    apply (homotweqinvweq (make_weq _ (Fff _ _ ))).
 Defined.
 
 
@@ -779,6 +761,27 @@ Lemma right_adj_equiv_is_full {D1 D2 : category}
 Proof.
   apply full_from_ff, right_adj_equiv_is_ff.
 Qed.
+
+
+Definition ff_on_isos {C D : precategory} (F : functor C D) : UU
+  := ∏ c c', isweq (@functor_on_iso _ _ F c c').
+
+Lemma fully_faithful_impl_ff_on_isos {C D : precategory} (F : functor C D) 
+      : fully_faithful F -> ff_on_isos F.
+Proof.
+  intros Fff c c'.
+  use gradth.
+  - intro XR. exists (invmap (make_weq _ (Fff _ _ )) XR). cbn.
+    apply (ff_reflects_is_iso _ _ _ Fff).
+    assert (XT := homotweqinvweq (make_weq _ (Fff c c' ))).
+    cbn in *.
+    apply (transportb (λ i : _ --> _, is_iso i) (XT (pr1 XR) )).
+    apply XR.
+  - cbn. intro i. apply eq_iso. cbn.
+    apply (homotinvweqweq (make_weq _ (Fff _ _ ))).
+  - cbn. intro i. apply eq_iso. cbn.
+    apply (homotweqinvweq (make_weq _ (Fff _ _ ))).
+Defined.
 
 (** ** Misc lemmas/definitions on (pre)categories *)
 
