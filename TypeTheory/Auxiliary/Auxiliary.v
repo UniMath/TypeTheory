@@ -23,6 +23,11 @@ Require Export UniMath.CategoryTheory.ArrowCategory.
 Require Export UniMath.CategoryTheory.catiso.
 Require Export UniMath.CategoryTheory.CategoryEquality.
 
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
+
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 (** * Notation scopes
@@ -96,6 +101,16 @@ Proof.
   induction e.
   apply idpath.
 Defined.
+
+Lemma fiber_paths_from_total2_paths
+    {A : UU} {B : A → UU}
+    (x y : ∑ (a : A), B a)
+    (p : x = y)
+  : transportb B (maponpaths pr1 p) (pr2 y) = pr2 x.
+Proof.
+  induction p; apply idpath.
+Defined.
+
 
 (* TODO: systematise these variants of [transportf_forall]:
 - probably make [transportf_forall] the most general form, where [B] depends on [A] and [C] depends on both
@@ -434,6 +449,18 @@ Proof.
   - apply is.
   - apply propproperty. 
 Defined.
+
+(* generalises [weqtotal2overunit] from [Foundations.PartA]; perhaps rename to e.g. [weq_total2_over_iscontr] for consistency with that? *)
+Definition iscontr_total2_irrelevant
+    {A : UU} {P : A → UU} (iscontr_A : iscontr A)
+  : (∑ (a : A), P a) ≃ P (pr1 iscontr_A).
+Proof.
+  eapply weqcomp.
+  use (weqtotal2 (Q := λ _, P (pr1 iscontr_A)) (idweq _) _).
+  - intros a. apply eqweqmap, maponpaths, (pr2 iscontr_A).
+  - apply invweq, WeakEquivalences.dirprod_with_contr_l, iscontr_A.
+Defined.
+
 
 (** * Category theory *)
 
@@ -1115,6 +1142,17 @@ Defined.
 Definition adj_from_equiv (D1 D2 : category) (F : functor D1 D2):
     adj_equivalence_of_precats F → is_left_adjoint F := fun x => pr1 x.
 Coercion adj_from_equiv : adj_equivalence_of_precats >-> is_left_adjoint.
+
+(** ** Displayed categories *)
+
+Definition isaprop_is_cartesian_disp_functor
+    {C C' : category} {F : functor C C'}
+    {D : disp_cat C} {D' : disp_cat C'} {FF : disp_functor F D D'}
+  : isaprop (is_cartesian_disp_functor FF).
+Proof.
+  do 7 (apply impred; intro).
+  apply isaprop_is_cartesian.
+Qed.
 
 
 (** ** Lemmas on pullbacks *)
