@@ -27,6 +27,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
+Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
 
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
@@ -1165,7 +1166,6 @@ Proof.
   apply isaprop_is_cartesian.
 Qed.
 
-
 (** ** Lemmas on pullbacks *)
 
 Definition reflects_pullbacks {C D : category} (F : functor C D) : UU
@@ -1718,6 +1718,14 @@ End Pullback_Unique_Up_To_Iso.
 Arguments map_into_Pb {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 Arguments Pb_map_commutes_1 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 Arguments Pb_map_commutes_2 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
+
+(** ** Comprehension categories *)
+
+Definition comprehension_cat
+  := ∑ (C : category), (comprehension_cat_structure C).
+
+Coercion category_of_comprehension_cat (C : comprehension_cat) := pr1 C.
+Coercion structure_of_comprehension_cat (C : comprehension_cat) := pr2 C.
 
 
 (** * Unorganised lemmas *)

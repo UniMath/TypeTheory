@@ -474,12 +474,6 @@ Section TypeCat_Disp_Functor.
 
 End TypeCat_Disp_Functor.
 
-(* TODO: move upstream *)
-Definition comprehension_cat := ∑ (C : category), (comprehension_cat_structure C).
-
-Coercion category_of_comprehension_cat (C : comprehension_cat) := pr1 C.
-Coercion structure_of_comprehension_cat (C : comprehension_cat) := pr2 C.
-
 Section ComprehensionCat_TypeCat.
   Context {C : category}.
   Context (CC : comprehension_cat_structure C).
