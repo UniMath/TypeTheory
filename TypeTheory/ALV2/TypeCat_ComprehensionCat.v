@@ -36,36 +36,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
 
-Section Auxiliary.
-
-  (* TODO: move upstream? *)
-  Lemma isPullback_swap
-        {C : precategory}
-        {a b c d : C} {f : b --> a} {g : c --> a}
-        {p1 : d --> b} {p2 : d --> c} {H : p1 · f = p2 · g}
-        (pb : isPullback H)
-  : isPullback (! H).
-  Proof.
-    use make_isPullback.
-    intros e h k H'.
-    use (iscontrweqf _ (pb e k h (! H'))).
-    use (weqtotal2 (idweq _)).
-    intros ?. apply weqdirprodcomm.
-  Defined.
-
-  (* TODO: move upstream? *)
-  Definition pr1_transportb
-             {A : UU} {B : A → UU} (P : ∏ a : A, B a → UU) {a a' : A}
-             (e : a = a') (xs : ∑ b : B a', P a' b)
-    : pr1 (transportb (λ x : A, ∑ b : B x, P x b) e xs) =
-      transportb (λ x : A, B x) e (pr1 xs).
-  Proof.
-    induction e.
-    apply idpath.
-  Defined.
-
-End Auxiliary.
-
 Section TypeCat_ObjExt.
 
   (* Object extension structure is part of the definition of type category that includes:
@@ -207,24 +177,20 @@ Section TypeCat_Disp.
       apply subtypePath.
       { intro. apply homset_property. }
       etrans. apply id_left.
-      apply pathsinv0.
-      etrans. refine (pr1_transportf (C⟦_,_⟧) _ _ _ _ _ _ ).
-      use transportf_const.
+      etrans. 2: { use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
+      apply pathsinv0, transportf_const.
     - (* id_right_disp *) 
       apply subtypePath.
       { intro. apply homset_property. }
       etrans. apply id_right.
-      apply pathsinv0.
-      etrans. refine (pr1_transportf (C⟦_,_⟧) _ _ _ _ _ _ ).
-      use transportf_const.
+      etrans. 2: { use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
+      apply pathsinv0, transportf_const.
     - (* assoc_disp *) 
       apply subtypePath.
       { intro. apply homset_property. }
       etrans. apply assoc.
-      apply pathsinv0.
-      etrans. unfold mor_disp.
-      refine (pr1_transportf (C⟦_,_⟧) _ _ _ _ _ _ ).
-      use transportf_const.
+      etrans. 2: { use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
+      apply pathsinv0, transportf_const.
     - (* homsets_disp *)
       apply (isofhleveltotal2 2).
       + apply homset_property.
@@ -264,15 +230,13 @@ Section TypeCat_Disp.
       - use total2_paths_f.
         2: apply homset_property.
         etrans. apply inv_i_i.
-        apply pathsinv0.
-        etrans. apply (pr1_transportb (λ _ (_ : C ⟦ obj_ext_typecat Γ B, obj_ext_typecat Γ B ⟧), _)).
-        apply (maponpaths (λ f, f _) (transportb_const _ _)).
+        etrans. 2: { use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
+        apply pathsinv0, transportf_const.
       - use total2_paths_f.
         2: apply homset_property.
         etrans. apply i_inv_i.
-        apply pathsinv0.
-        etrans. apply (pr1_transportb (λ _ (_ : C ⟦ obj_ext_typecat Γ A, obj_ext_typecat Γ A ⟧), _)).
-        apply (maponpaths (λ f, f _) (transportb_const _ _)).
+        etrans. 2: { use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
+        apply pathsinv0, transportf_const.
     Defined.
 
     Definition idtoiso_fiber_disp_to_typecat_is_triangle
@@ -295,12 +259,12 @@ Section TypeCat_Disp.
         + apply inv_i.
         + etrans. apply i_inv_i.
           etrans.
-          use (pr1_transportb (λ _ (_ : C ⟦ obj_ext_typecat Γ A, obj_ext_typecat Γ A ⟧), _)).
-          simpl. apply (maponpaths (λ f, f _) (transportb_const _ _)).
+          { apply pathsinv0. use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
+          apply transportf_const.
         + etrans. apply inv_i_i.
           etrans.
-          use (pr1_transportb (λ _ (_ : C ⟦ obj_ext_typecat Γ B, obj_ext_typecat Γ B ⟧), _)).
-          simpl. apply (maponpaths (λ f, f _) (transportb_const _ _)).
+          { apply pathsinv0. use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
+          apply transportf_const.
       - etrans. apply iB_A. apply id_right.
     Defined.
 
@@ -411,7 +375,8 @@ Section TypeCat_Disp.
         * use q_typecat.
         * apply dpr_q_typecat.
       + apply pullback_is_cartesian.
-        apply (isPullback_swap (reind_pb_typecat A f)).
+        refine (is_symmetric_isPullback _ _ (reind_pb_typecat A f)).
+        apply homset_property.
     Defined.
   End TypeCat_Disp_Cleaving.
 

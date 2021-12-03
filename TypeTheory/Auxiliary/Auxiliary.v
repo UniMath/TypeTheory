@@ -86,15 +86,26 @@ Proof.
   apply idpath.
 Defined.
 
-
+(* TODO: is this really necessary?  Usually an inlined version is just as simple. *)
 Lemma pr1_transportf (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
    (a a' : A) (e : a = a') (xs : ∑ b : B a, P _ b):
    pr1 (transportf (fun x => ∑ b : B x, P _ b) e xs) = 
      transportf (fun x => B x) e (pr1 xs).
 Proof.
-  destruct e; apply idpath.
+  apply pathsinv0, (transport_map (fun a => pr1)).
 Defined.
 
+(* TODO: is this really needed?  Usually an inlined version is just as simple. *)
+Definition pr1_transportb
+    {A : UU} {B : A → UU} (P : ∏ a : A, B a → UU) {a a' : A}
+    (e : a = a') (xs : ∑ b : B a', P a' b)
+  : pr1 (transportb (λ x : A, ∑ b : B x, P x b) e xs) =
+      transportb (λ x : A, B x) e (pr1 xs).
+Proof.
+  apply pathsinv0, (transport_map (fun a => pr1)).
+Defined.
+
+(* TODO: eliminate in favour of UniMath’s (slightly different) lemma with same name? *)
 Lemma transportf_const (A B : UU) (a a' : A) (e : a = a') (b : B) :
    transportf (fun _ => B) e b = b.
 Proof.
@@ -1405,6 +1416,8 @@ End on_pullbacks.
 Arguments map_into_Pb {_ _ _ _ _ _ _ _ _ } _ Pb {_} _ _ _.
 Arguments map_into_Pb_unique {_ _ _ _ _ _ _ _ _} _ Pb {_} _ _ _ _.
 
+(** ** Pullbacks of sets and presheaves *)
+
 Section Pullbacks_hSet.
 
 (* TODO: does this already exist?
@@ -1570,10 +1583,8 @@ Qed.
 
 End Pullbacks_hSet.
 
-(**
-will be an instance of a general lemma to be proved
-   in UniMath
-*)
+(** ** Uniqueness of pullbacks *)
+
 Definition isaprop_Pullback (C : category) (H : is_univalent C)
            (a b c : C) (f : b --> a) (g : c --> a)
 : isaprop (Pullback f g).
@@ -1584,7 +1595,7 @@ Proof.
   intros Pb Pb'.
   apply subtypePath.
   - intro; apply isofhleveltotal2.
-    + apply C.
+    + apply homset_property.
     + intros; apply isaprop_isPullback.
   - apply (total2_paths_f (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))). 
     rewrite transportf_dirprod, transportf_isotoid.
@@ -1602,8 +1613,7 @@ Proof.
     apply idpath.
 Qed.
 
-
-
+(* TODO: check for results of the following section upstream *)
 Section Pullback_Unique_Up_To_Iso.
 
 (*   a'   b'
