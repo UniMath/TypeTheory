@@ -72,6 +72,15 @@ Proof.
   apply isweqhomot with w. apply H. apply weqproperty.
 Defined.
 
+(* General conventions would point to naming this [transportb_idpath], but we use [idpath_transportb] for consistency with [idpath_transportf] upstream. *)
+Lemma idpath_transportb
+      {X : UU} (P : X → UU)
+      (x : X) (p : P x)
+  : transportb P (idpath x) p = p.
+Proof.
+  apply idpath.
+Defined.
+
 
 Lemma pr1_transportf (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
    (a a' : A) (e : a = a') (xs : ∑ b : B a, P _ b):
@@ -178,7 +187,7 @@ Proof.
   induction eA. induction eB. apply idpath.
 Defined.
 
-(** ** Lemmas on equivalences *)
+(** ** Lemmas on equivalences and general type-algebra *)
 
 Lemma invmap_eq {A B : UU} (f : A ≃ B) (b : B) (a : A)
   : b = f a → invmap f b = a.
@@ -187,6 +196,21 @@ Proof.
   apply (invmaponpathsweq f).
   etrans. apply homotweqinvweq. apply H.
 Defined.
+
+Lemma homot_invweq_transportb_weq
+      (Z : UU)
+      (z z' : Z)
+      (X Y : Z → UU)
+      (e : z = z')
+      (w : ∏ z : Z, X z ≃ Y z)
+      (x : X z')
+  : invmap (w z) (transportb Y e (w z' x)) = transportb X e x.
+Proof.
+  induction e.
+  etrans. apply maponpaths, idpath_transportb.
+  apply homotinvweqweq.
+Defined.
+
 
 Definition isweqpathscomp0l {X : UU} {x x' : X} (x'' : X) (e: x = x') :
    isweq (fun (e' : x' = x'') => e @ e').
@@ -243,6 +267,69 @@ Proof.
   exact (weqtotal2asstor P (fun y => Q (pr1 y) (pr2 y))). 
 Defined.
 
+Lemma weqforalltototal3 {X : UU}
+      (P1 : X → UU)
+      (P2 : ∏ x : X, P1 x → UU)
+      (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
+  : (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1), P3 x p1 p2)
+      ≃ (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)), ∏ x : X, P3 x (p1 x) (p2 x)).
+Proof.
+  eapply weqcomp. apply weqforalltototal.
+  apply (weqtotal2 (idweq _)). intros ?.
+  apply weqforalltototal.
+Defined.
+
+Lemma weqtotaltoforall3 {X : UU}
+      (P1 : X → UU)
+      (P2 : ∏ x : X, P1 x → UU)
+      (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
+  : (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)), ∏ x : X, P3 x (p1 x) (p2 x))
+      ≃ (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1), P3 x p1 p2).
+Proof.
+  apply invweq, weqforalltototal3.
+Defined.
+
+Lemma weqforalltototal4 {X : UU}
+      (P1 : X → UU)
+      (P2 : ∏ x : X, P1 x → UU)
+      (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
+      (P4 : ∏ (x : X) (y : P1 x) (z : P2 x y), P3 x y z → UU)
+  : (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1) (p3 : P3 x p1 p2), P4 x p1 p2 p3)
+      ≃ (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)) (p3 : ∏ x : X, P3 x (p1 x) (p2 x)), ∏ x : X, P4 x (p1 x) (p2 x) (p3 x)).
+Proof.
+  eapply weqcomp. apply weqforalltototal.
+  apply (weqtotal2 (idweq _)). intros ?.
+  eapply weqcomp. apply weqforalltototal.
+  apply (weqtotal2 (idweq _)). intros ?.
+  apply weqforalltototal.
+Defined.
+
+Lemma weqtotaltoforall4 {X : UU}
+      (P1 : X → UU)
+      (P2 : ∏ x : X, P1 x → UU)
+      (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
+      (P4 : ∏ (x : X) (y : P1 x) (z : P2 x y), P3 x y z → UU)
+  : (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)) (p3 : ∏ x : X, P3 x (p1 x) (p2 x)), ∏ x : X, P4 x (p1 x) (p2 x) (p3 x))
+      ≃ (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1) (p3 : P3 x p1 p2), P4 x p1 p2 p3).
+Proof.
+  apply invweq, weqforalltototal4.
+Defined.
+
+Lemma iscontr_total2
+      {X : UU} {P : X → UU}
+  : iscontr X → (∏ x : X, iscontr (P x)) → iscontr (∑ (x : X), P x).
+Proof.
+  intros X_contr P_contr.
+  use tpair.
+  - exists (pr1 X_contr). apply P_contr.
+  - intros xp.
+    use total2_paths_f.
+    + apply X_contr.
+    + apply P_contr.
+Defined.
+
+(* ** Surjectivity *)
+
 Lemma issurjective_hinhpr (A : UU) : issurjective (@hinhpr A).
 Proof.
   intro a. 
@@ -273,8 +360,6 @@ Proof.
   exists (x,,p).
   apply idpath.
 Defined.
-
-(* ** Surjectivity *)
 
 (* TODO: delete this and replace with [AxomOfChoice.pr1_issurjective], now that https://github.com/UniMath/UniMath/issues/677 is resolved*)
 Lemma pr1_issurjective' {X : UU} {P : X -> UU} :

@@ -33,105 +33,12 @@ Accessors for [ff_disp_functor]:
 
 *)
 
-Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-
-Section Auxiliary.
-
-  (* TODO: move upstream? *)
-  Lemma weqforalltototal3 {X : UU}
-        (P1 : X → UU)
-        (P2 : ∏ x : X, P1 x → UU)
-        (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
-    : (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1), P3 x p1 p2)
-    ≃ (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)), ∏ x : X, P3 x (p1 x) (p2 x)).
-  Proof.
-    eapply weqcomp. apply weqforalltototal.
-    apply (weqtotal2 (idweq _)). intros ?.
-    apply weqforalltototal.
-  Defined.
-
-  (* TODO: move upstream? *)
-  Lemma weqtotaltoforall3 {X : UU}
-        (P1 : X → UU)
-        (P2 : ∏ x : X, P1 x → UU)
-        (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
-    : (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)), ∏ x : X, P3 x (p1 x) (p2 x))
-    ≃ (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1), P3 x p1 p2).
-  Proof.
-    apply invweq, weqforalltototal3.
-  Defined.
-
-  (* TODO: move upstream? *)
-  Lemma weqforalltototal4 {X : UU}
-        (P1 : X → UU)
-        (P2 : ∏ x : X, P1 x → UU)
-        (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
-        (P4 : ∏ (x : X) (y : P1 x) (z : P2 x y), P3 x y z → UU)
-    : (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1) (p3 : P3 x p1 p2), P4 x p1 p2 p3)
-    ≃ (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)) (p3 : ∏ x : X, P3 x (p1 x) (p2 x)), ∏ x : X, P4 x (p1 x) (p2 x) (p3 x)).
-  Proof.
-    eapply weqcomp. apply weqforalltototal.
-    apply (weqtotal2 (idweq _)). intros ?.
-    eapply weqcomp. apply weqforalltototal.
-    apply (weqtotal2 (idweq _)). intros ?.
-    apply weqforalltototal.
-  Defined.
-
-  (* TODO: move upstream? *)
-  Lemma weqtotaltoforall4 {X : UU}
-        (P1 : X → UU)
-        (P2 : ∏ x : X, P1 x → UU)
-        (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
-        (P4 : ∏ (x : X) (y : P1 x) (z : P2 x y), P3 x y z → UU)
-    : (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)) (p3 : ∏ x : X, P3 x (p1 x) (p2 x)), ∏ x : X, P4 x (p1 x) (p2 x) (p3 x))
-        ≃ (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1) (p3 : P3 x p1 p2), P4 x p1 p2 p3).
-  Proof.
-    apply invweq, weqforalltototal4.
-  Defined.
-
-  (* TODO: move upstream? *)
-  Lemma iscontr_total2
-        {X : UU} {P : X → UU}
-    : iscontr X → (∏ x : X, iscontr (P x)) → iscontr (∑ (x : X), P x).
-  Proof.
-    intros X_contr P_contr.
-    use tpair.
-    - exists (pr1 X_contr). apply P_contr.
-    - intros xp.
-      use total2_paths_f.
-      + apply X_contr.
-      + apply P_contr.
-  Defined.
-
-  (* TODO: move upstream? *)
-  Lemma idpath_transportb
-        {X : UU} (P : X → UU)
-        (x : X) (p : P x)
-    : transportb P (idpath x) p = p.
-  Proof.
-    apply idpath.
-  Defined.
-
-  (* TODO: move upstream? *)
-  Lemma homot_invweq_transportb_weq
-        (Z : UU)
-        (z z' : Z)
-        (X Y : Z → UU)
-        (e : z = z')
-        (w : ∏ z : Z, X z ≃ Y z)
-        (x : X z')
-    : invmap (w z) (transportb Y e (w z' x)) = transportb X e x.
-  Proof.
-    induction e.
-    etrans. apply maponpaths, idpath_transportb.
-    apply homotinvweqweq.
-  Defined.
-
-End Auxiliary.
 
 Section FullyFaithfulDispFunctor.
 
@@ -691,16 +598,14 @@ Section FullyFaithfulDispFunctor.
     : disp_functor_ff F
     := pr2 (pr2 (ff_disp_functor_weq F)).
 
-  (* TODO: move upstream? *)
+  (* “Isomorphism” of displayed cats over a based. TODO: perhaps move this section upstream? *)
   Section DispCatIso.
       
-    (* TODO: move upstream? *)
     Definition is_disp_catiso
                {C : category} {D D' : disp_cat C}
                (F : disp_functor (functor_identity C) D D')
       := disp_functor_ff F × (∏ c, isweq (F c)).
 
-    (* TODO: move upstream? *)
     Definition disp_catiso
                {C : category} (D D' : disp_cat C)
       := ∑ (F : disp_functor _ D D'), is_disp_catiso F.
