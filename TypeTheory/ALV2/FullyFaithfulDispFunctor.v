@@ -598,7 +598,7 @@ Section FullyFaithfulDispFunctor.
     : disp_functor_ff F
     := pr2 (pr2 (ff_disp_functor_weq F)).
 
-  (* “Isomorphism” of displayed cats over a based. TODO: perhaps move this section upstream? *)
+  (* “Isomorphism” of displayed cats over a base. TODO: perhaps move this section upstream? *)
   Section DispCatIso.
       
     Definition is_disp_catiso
