@@ -601,8 +601,7 @@ use tpair.
   exists (λ Γ A Δ σ, q_gen_mor_p A σ).
   intros Γ A Δ σ.
   apply is_symmetric_isPullback.
-  + apply (functor_category_has_homsets C^op).
-  + exact (isPullback_q_gen_mor A σ).
+  exact (isPullback_q_gen_mor A σ).
 Defined.
 
 End TypeCat.

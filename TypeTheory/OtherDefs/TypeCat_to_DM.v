@@ -85,7 +85,7 @@ Proof.
       simpl.
       (* TODO: improve implicit arguments of [postcomp_pb_with_iso] *)
       refine (pr1 (postcomp_pb_with_iso CC _ _ _ _ _ _ _ _ _ _ _ _ _ _)).
-      apply is_symmetric_isPullback. { apply homset_property. }
+      apply @is_symmetric_isPullback.
       apply reind_pb_typecat.
       sym. assumption.
     + eapply (pr2 (postcomp_pb_with_iso CC _ _ _ _ _ _ _ _ _ _ _ _ _ _)).

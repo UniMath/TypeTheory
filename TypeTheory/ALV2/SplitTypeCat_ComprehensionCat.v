@@ -54,29 +54,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
 
 Section Auxiliary.
 
-  Lemma idtoiso_precompose'
-     : ∏ (C : precategory) (a a' b : C) (p : a' = a) (f : C ⟦ a, b ⟧),
-       transportb (λ a0 : C, C ⟦ a0, b ⟧) p f = (idtoiso p;; f)%mor.
-  Proof.
-    induction p.
-    intros f. apply pathsinv0, id_left.
-  Defined.
-
-  (* TODO: move upstream? *)
-  Lemma isPullback_swap
-        {C : precategory}
-        {a b c d : C} {f : b --> a} {g : c --> a}
-        {p1 : d --> b} {p2 : d --> c} {H : p1 · f = p2 · g}
-        (pb : isPullback H)
-  : isPullback (! H).
-  Proof.
-    use make_isPullback.
-    intros e h k H'.
-    use (iscontrweqf _ (pb e k h (! H'))).
-    use (weqtotal2 (idweq _)).
-    intros ?. apply weqdirprodcomm.
-  Defined.
-
   (* TODO: move upstream? *)
   Definition unique_lift_is_cartesian
              {C : category}
@@ -645,7 +622,7 @@ Section SplitTypeCat_from_DiscreteComprehensionCat.
                 : A {{f}} -->[f] A).
       apply (pr2 (disp_functor_on_morphisms FF k)).
     - simpl. intros Γ A Γ' f.
-      apply isPullback_swap.
+      apply is_symmetric_isPullback.
       use cartesian_isPullback_in_cod_disp.
       apply is_cartesian_FF.
       apply (unique_lift_is_cartesian (D := (_ ,, is_discrete_fibration_D)) f A).
@@ -775,7 +752,7 @@ Section From_DiscreteComprehensionCat_Default.
     - intros Γ A Γ' f. simpl.
       apply (pr2 (F_mor _ _ _ _ _ (idpath _))).
     - simpl. intros Γ A Γ' f.
-      apply isPullback_swap.
+      apply is_symmetric_isPullback.
       use cartesian_isPullback_in_cod_disp.
       apply is_cartesian_FF.
       apply (unique_lift_is_cartesian (D := (_ ,, is_discrete_fibration_D_from_discrete_comprehension_cat_structure_default_mor)) f A).

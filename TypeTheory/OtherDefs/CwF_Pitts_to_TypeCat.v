@@ -82,7 +82,7 @@ Proof.
   exists (@proj_mor CC C).
   exists (@q_cwf CC C).
   exists (@dpr_q_cwf CC C).
-  intros; apply @is_symmetric_isPullback. { apply homset_property. }
+  intros; apply @is_symmetric_isPullback.
   apply is_pullback_reindx_cwf.
 Defined.
 

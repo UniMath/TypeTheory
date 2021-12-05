@@ -1030,6 +1030,13 @@ Proof.
   apply idpath.
 Qed.
 
+Lemma idtoiso_precompose'
+  : ∏ (C : precategory) (a a' b : C) (p : a' = a) (f : C ⟦ a, b ⟧),
+    transportb (λ a0 : C, C ⟦ a0, b ⟧) p f = (idtoiso p;; f)%mor.
+Proof.
+  intros; induction p. apply pathsinv0, id_left.
+Defined.
+
 Lemma idtoiso_postcompose_idtoiso_pre {C : precategory} {a b c : C} 
       (g : a --> b) (f : a --> c)
       (p : b = c) 
@@ -1404,17 +1411,37 @@ Section on_pullbacks.
     exact Pb.
   Defined.
  
-  (* In fact, this is judgementally equal to [is_symmetric_isPullback].  However, it is more convenient for applying when reasoning bottom-up. *)
-  Lemma is_symmetric'_isPullback
-    : isPullback (!sqr_comm) -> isPullback sqr_comm.
-  Proof.
-    use is_symmetric_isPullback; apply homset_property.
-  Defined.
-
 End on_pullbacks.
 
 Arguments map_into_Pb {_ _ _ _ _ _ _ _ _ } _ Pb {_} _ _ _.
 Arguments map_into_Pb_unique {_ _ _ _ _ _ _ _ _} _ Pb {_} _ _ _ _.
+
+(* Duplicate of [is_symmetric_isPullback] from UniMath, but without the un-needed [has_homsets]/[category] assumption *)
+Lemma is_symmetric_isPullback
+    {C : precategory}
+    {a b c d : C} {f : b --> a} {g : c --> a}
+    {p1 : d --> b} {p2 : d --> c} {H : p1 · f = p2 · g}
+    (pb : isPullback H)
+  : isPullback (! H).
+Proof.
+  use make_isPullback.
+  intros e h k H'.
+  use (iscontrweqf _ (pb e k h (! H'))).
+  use (weqtotal2 (idweq _)).
+  intros ?. apply weqdirprodcomm.
+Defined.
+
+(* Variant of [is_symmetric_isPullback], more convenient for applying when reasoning bottom-up. *)
+Lemma is_symmetric'_isPullback
+    {C : precategory}
+    {a b c d : C} {f : b --> a} {g : c --> a}
+    {p1 : d --> b} {p2 : d --> c} {H : p1 · f = p2 · g}
+    (pb : isPullback (! H))
+  : isPullback H.
+Proof.
+  eapply transportf. 2: { eapply is_symmetric_isPullback, pb. }
+  apply pathsinv0inv0.
+Defined.
 
 (** ** Pullbacks of sets and presheaves *)
 

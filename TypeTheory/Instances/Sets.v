@@ -99,6 +99,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.Notations.
 
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.OtherDefs.CwF_Pitts.
 
@@ -203,7 +204,6 @@ use tpair.
   exists (λ Γ A Δ σ, SET_q_gen_mor_p A σ).
   intros Γ A Δ σ.
   apply is_symmetric_isPullback.
-  + intros a b. apply isaset_set_fun_space.
   + exact (SET_isPullback_q_gen_mor A σ).
 Defined.
 

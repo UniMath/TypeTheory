@@ -9,6 +9,7 @@ Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.MoreFoundations.Univalence.
 
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.OtherDefs.CwF_Pitts.
 
@@ -132,8 +133,7 @@ use tpair.
   exists (λ Γ A Δ σ, VSET_q_gen_mor_p A σ).
   intros Γ A Δ σ.
   apply is_symmetric_isPullback.
-  + intros a b. apply isaset_set_fun_space.
-  + exact (VSET_isPullback_q_gen_mor A σ).
+  exact (VSET_isPullback_q_gen_mor A σ).
 Defined.
 
 Definition VSET_typecat : typecat := VSET V,, VSET_typecat_structure.

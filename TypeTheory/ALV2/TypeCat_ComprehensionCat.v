@@ -375,8 +375,7 @@ Section TypeCat_Disp.
         * use q_typecat.
         * apply dpr_q_typecat.
       + apply pullback_is_cartesian.
-        refine (is_symmetric_isPullback _ _ (reind_pb_typecat A f)).
-        apply homset_property.
+        eapply @is_symmetric_isPullback, reind_pb_typecat.
     Defined.
   End TypeCat_Disp_Cleaving.
 
