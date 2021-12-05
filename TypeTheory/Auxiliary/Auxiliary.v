@@ -1219,7 +1219,8 @@ Proof.
   apply maponpaths_2, H.
 Qed.
 
-(* Generalisation of [isPulback_iso_of_morphisms].  TODO: prove, move. *)
+(* Generalisation of [isPulback_iso_of_morphisms].
+TODO: This probably should work in an arbitrary precategory, i.e. not requiring the hom-sets assumption.  Try upgrading proof to show that? *)
 Lemma isPullback_transfer_iso {C : category}
       {a b c d : C}
       {f : b --> a} {g : c --> a} {p1 : d --> b} {p2 : d --> c}
@@ -1309,111 +1310,118 @@ Qed.
 
 End Square_Transfers.
 
+
 Section on_pullbacks.
 
-(* TODO: make all these implicit *)
-  Variable C : category.
-  Variables a b c d : C.
-  Variables (f : a --> b) (g : a --> c) (k : b --> d) (h : c --> d).
+Lemma square_morphism_equal
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    (sqr_comm : f ;; k = g ;; h)
+    {k'} (e : k' = k)
+  : f ;; k' = g ;; h.
+Proof.
+  rewrite e. assumption.
+Defined.
 
-(**
-<<
-      f
-   a----b
- g |    | k
-   |    |
-   c----d
-     h 
->>
-*)
+Lemma isPb_morphism_equal
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    (sqr_comm : f ;; k = g ;; h)
+    (Pb : isPullback sqr_comm)
+    {k'} (e : k' = k)
+  : isPullback (square_morphism_equal sqr_comm e).
+Proof.
+  match goal with |[|- isPullback ?HH] => generalize HH end.
+  rewrite e.
+  intro.
+  apply Pb.
+Defined.
 
-  Variable sqr_comm : f ;; k = g ;; h.
-  Variable Pb : isPullback (*k h f g*) sqr_comm.
+Definition map_into_Pb
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    {sqr_comm : f ;; k = g ;; h}
+    (Pb : isPullback sqr_comm)
+    {e : C} (x : e --> b) (y : e --> c) (H : x ;; k = y ;; h)
+  :  e --> a.
+Proof.
+  eapply (PullbackArrow (make_Pullback _ Pb)).
+  apply H.
+Defined.
 
+Definition Pb_map_commutes_1
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    (sqr_comm : f ;; k = g ;; h)
+    (Pb : isPullback sqr_comm)
+    {e : C} (x : e --> b) (y : e --> c) H
+  : map_into_Pb Pb x y H ;; f = x.
+Proof.
+  apply (PullbackArrow_PullbackPr1 (make_Pullback _ _)).
+Qed.
 
-  Lemma square_morphism_equal k' (e : k' = k) : f ;; k' = g ;; h.
-  Proof.
-    rewrite e. assumption.
-  Defined.
+Definition Pb_map_commutes_2
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    (sqr_comm : f ;; k = g ;; h)
+    (Pb : isPullback sqr_comm)
+    {e : C} (x : e --> b) (y : e --> c) H
+  : map_into_Pb Pb x y H ;; g = y.
+Proof.
+  apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)).
+Qed.
 
-  Lemma isPb_morphism_equal k' (e : k' = k) : 
-        isPullback (*k' h f g*) (square_morphism_equal _ e).
-  Proof.
-    match goal with |[|- isPullback ?HH] => generalize HH end.
-    rewrite e.
-    intro.
-    apply Pb.
-  Defined.
+Lemma map_into_Pb_unique
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    (sqr_comm : f ;; k = g ;; h)
+    (Pb : isPullback sqr_comm)
+    {e : C} {x y : e --> a}
+    (e_f : x ;; f = y ;; f) (e_g : x ;; g = y ;; g)
+  : x = y.
+Proof.
+  etrans.
+  { use (PullbackArrowUnique _ Pb); try eassumption.
+    repeat rewrite <- assoc. apply maponpaths; assumption. } 
+  apply pathsinv0, (PullbackArrowUnique _ Pb); apply idpath.
+Qed.
 
-
-  Local Definition Pbb : Pullback k h.
-  Proof.
-    unshelve refine (make_Pullback _ _ ).
-      - apply a.
-      - apply f.
-      - apply g.
-      - apply sqr_comm.
-      - apply Pb.
-  Defined.
-  
-  Definition map_into_Pb {e : C} (x : e --> b) (y : e --> c)
-  :  x ;; k = y ;; h → e --> a.
-  Proof.
-    intro H.
-    unshelve refine (PullbackArrow Pbb _ _ _ _ ).
-    - apply x.
-    - apply y.
-    - apply H.
-  Defined.
-      
-  Definition Pb_map_commutes_1 {e : C} (x : e --> b) (y : e --> c) H
-  : map_into_Pb x y H ;; f = x.
-  Proof.
-    assert (P:=PullbackArrow_PullbackPr1 Pbb).
-    apply P.
-  Qed.
-
-  Definition Pb_map_commutes_2 {e : C} (x : e --> b) (y : e --> c) H
-  : map_into_Pb x y H ;; g = y.
-  Proof.
-    assert (P:=PullbackArrow_PullbackPr2 Pbb).
-    apply P.
-  Qed.
-
-  Lemma map_into_Pb_unique (e : C) (x y : e --> a)
-  : x ;; f = y ;; f → x ;; g = y ;; g → x = y.
-  Proof.
-    intros H H'.
-    set (T:=@map_into_Pb _ (x ;; f)(y ;; g)).
-    assert  (TH : x ;; f ;; k = y ;; g ;; h).
-    { rewrite H. repeat rewrite <- assoc. rewrite sqr_comm. apply idpath. }
-    intermediate_path (T TH).
-    apply PullbackArrowUnique. apply idpath. assumption.
-    apply pathsinv0. apply PullbackArrowUnique. apply pathsinv0; assumption.
-    apply idpath.
-  Qed.
-
-  Lemma postcomp_commutes_and_is_pb_with_iso (y : C) (r : y --> d) (i : iso b y) (Hi : i ;; r = k) :
-    ∑ H : f ;; i ;; r = g ;; h, isPullback H.
-  Proof.
-    simple refine (commutes_and_is_pullback_transfer_iso _ _ _ _ _ Pb);
+Lemma postcomp_commutes_and_is_pb_with_iso
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    (sqr_comm : f ;; k = g ;; h)
+    (Pb : isPullback sqr_comm)
+    {y : C} (r : y --> d) (i : iso b y) (Hi : i ;; r = k)
+  : ∑ H : f ;; i ;; r = g ;; h, isPullback H.
+Proof.
+  simple refine (commutes_and_is_pullback_transfer_iso _ _ _ _ _ Pb);
     try apply identity_iso;
     try rewrite id_left;
     try rewrite id_right;
     try apply idpath.
-    apply pathsinv0, Hi.
-  Qed. 
+  apply pathsinv0, Hi.
+Qed.
 
-  Definition postcomp_pb_with_iso (y : C) (r : y --> d) (i : iso b y) (Hi : i ;; r = k)
-    : isPullback _
-  := pr2 (postcomp_commutes_and_is_pb_with_iso _ _ i Hi).
+Definition postcomp_pb_with_iso
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    (sqr_comm : f ;; k = g ;; h)
+    (Pb : isPullback sqr_comm)
+    {y : C} (r : y --> d) (i : iso b y) (Hi : i ;; r = k)
+  : isPullback _
+:= pr2 (postcomp_commutes_and_is_pb_with_iso _ Pb _ i Hi).
 
-  (* In fact this is trivial, since the equality doesn’t appear in the type of the pullback. However, it’s convenient for proof scripts. *)
-  Lemma isPullback_indepdent_of_path (sqr_comm' :  f ;; k = g ;; h)
-    : isPullback (sqr_comm').
-  Proof.
-    exact Pb.
-  Defined.
+(* In fact this is trivial, since the equality doesn’t appear in the type of the pullback. However, it’s convenient for proof scripts. *)
+Lemma isPullback_indepdent_of_path
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    {sqr_comm : f ;; k = g ;; h}
+    (Pb : isPullback sqr_comm)
+    (sqr_comm' :  f ;; k = g ;; h)
+  : isPullback (sqr_comm').
+Proof.
+  exact Pb.
+Defined.
  
 End on_pullbacks.
 

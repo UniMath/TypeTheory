@@ -377,7 +377,7 @@ Section Terms.
     apply pathsinv0, PullbackArrowUnique; cbn.
     + now induction e; rewrite <-assoc, id_left.
     + unfold map_into_Pb.
-      set (pb := Auxiliary.Pbb _ _ _ _ _ _ _ _ _ _ _).
+      set (pb := make_Pullback _ _).
       rewrite <-assoc, (postCompWithPullbackArrow _ _ _ _ pb).
       apply PullbackArrowUnique; cbn.
     - rewrite <-!assoc, dpr_q_typecat; induction e.
