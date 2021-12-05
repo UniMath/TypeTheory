@@ -92,16 +92,10 @@ Proof.
   clear B.
   unshelve refine (tpair _ _ _ ).
   - unshelve refine (make_Pullback _ _).
-    + apply (Γ' ∙ (A{{f}})).
-    + apply (q_cwf _ _ ;; h).
-    + apply (π _ ). 
-    + simpl. unfold dm_sub_struct_of_CwF.
-      simpl.
-      refine (pr1 (postcomp_pb_with_iso CC _ _ _ _ (q_cwf A f) _ _ f _
-            (is_pullback_reindx_cwf _ _ _ _ ) _ _ _ _)).
-      sym. assumption.
-    + eapply (pr2 ( postcomp_pb_with_iso CC _ _ _ _  (q_cwf A f) _ _ f _
-              (is_pullback_reindx_cwf _ _ _ _ ) _ _ _ _ )).
+    5: use postcomp_pb_with_iso.
+    7: eapply is_pullback_reindx_cwf.
+    + eassumption. 
+    + sym. assumption.
   - simpl.
     apply hinhpr.
     unfold iso_to_dpr.
@@ -109,7 +103,6 @@ Proof.
     exists (identity_iso _ ).
     sym. apply id_left.
 Defined.
-
 
 Definition dm_sub_pb_of_CwF : dm_sub_pb CC.
 Proof.

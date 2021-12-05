@@ -1393,7 +1393,7 @@ Section on_pullbacks.
     apply idpath.
   Qed.
 
-  Lemma postcomp_pb_with_iso (y : C) (r : y --> d) (i : iso b y) (Hi : i ;; r = k) :
+  Lemma postcomp_commutes_and_is_pb_with_iso (y : C) (r : y --> d) (i : iso b y) (Hi : i ;; r = k) :
     ∑ H : f ;; i ;; r = g ;; h, isPullback H.
   Proof.
     simple refine (commutes_and_is_pullback_transfer_iso _ _ _ _ _ Pb);
@@ -1403,6 +1403,10 @@ Section on_pullbacks.
     try apply idpath.
     apply pathsinv0, Hi.
   Qed. 
+
+  Definition postcomp_pb_with_iso (y : C) (r : y --> d) (i : iso b y) (Hi : i ;; r = k)
+    : isPullback _
+  := pr2 (postcomp_commutes_and_is_pb_with_iso _ _ i Hi).
 
   (* In fact this is trivial, since the equality doesn’t appear in the type of the pullback. However, it’s convenient for proof scripts. *)
   Lemma isPullback_indepdent_of_path (sqr_comm' :  f ;; k = g ;; h)
@@ -1415,6 +1419,7 @@ End on_pullbacks.
 
 Arguments map_into_Pb {_ _ _ _ _ _ _ _ _ } _ Pb {_} _ _ _.
 Arguments map_into_Pb_unique {_ _ _ _ _ _ _ _ _} _ Pb {_} _ _ _ _.
+Arguments postcomp_pb_with_iso _ {_ _ _ _} {_ _ _ _} _ Pb {_} _ _ _.
 
 (* Duplicate of [is_symmetric_isPullback] from UniMath, but without the un-needed [has_homsets]/[category] assumption *)
 Lemma is_symmetric_isPullback
