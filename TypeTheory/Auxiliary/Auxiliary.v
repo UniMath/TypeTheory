@@ -907,6 +907,21 @@ Proof.
     apply (homotweqinvweq (make_weq _ (Fff _ _ ))).
 Defined.
 
+
+Definition reflects_pullbacks {C D : category} (F : functor C D) : UU
+  := ∏ {a b c d : C}{f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : C⟦d, b⟧} {k : C⟦d,c⟧}
+       (H : h · f = k · g),
+     isPullback (functor_on_square _ _ F H) -> isPullback H.
+
+Lemma ff_reflects_pullbacks {C D : category} {F : functor C D}
+      (F_ff : fully_faithful F) : reflects_pullbacks F.
+Proof.
+  do 10 intro.
+  use (isPullback_preimage_square _ _ _ _ _ _ X).
+  - apply homset_property.
+  - apply F_ff.
+Defined.
+
 (** ** Misc lemmas/definitions on (pre)categories *)
 
 Coercion univalent_category_is_univalent : univalent_category >-> is_univalent.
@@ -1162,34 +1177,131 @@ Definition adj_from_equiv (D1 D2 : category) (F : functor D1 D2):
     adj_equivalence_of_precats F → is_left_adjoint F := fun x => pr1 x.
 Coercion adj_from_equiv : adj_equivalence_of_precats >-> is_left_adjoint.
 
-(** ** Displayed categories *)
+(** ** Basic pullback utility functions *)
 
-Definition isaprop_is_cartesian_disp_functor
-    {C C' : category} {F : functor C C'}
-    {D : disp_cat C} {D' : disp_cat C'} {FF : disp_functor F D D'}
-  : isaprop (is_cartesian_disp_functor FF).
+Section Pullback_Basics.
+
+Definition map_into_Pb
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    {sqr_comm : f ;; k = g ;; h}
+    (Pb : isPullback sqr_comm)
+    {e : C} (x : e --> b) (y : e --> c) (H : x ;; k = y ;; h)
+  :  e --> a.
 Proof.
-  do 7 (apply impred; intro).
-  apply isaprop_is_cartesian.
-Qed.
-
-(** ** Lemmas on pullbacks *)
-
-Definition reflects_pullbacks {C D : category} (F : functor C D) : UU
-  := ∏ {a b c d : C}{f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : C⟦d, b⟧} {k : C⟦d,c⟧}
-       (H : h · f = k · g),
-     isPullback (functor_on_square _ _ F H) -> isPullback H.
-
-Lemma ff_reflects_pullbacks {C D : category} {F : functor C D} 
-      (F_ff : fully_faithful F) : reflects_pullbacks F.
-Proof.
-  do 10 intro. 
-  use (isPullback_preimage_square _ _ _ _ _ _ X).
-  - apply homset_property.
-  - apply F_ff.
+  eapply (PullbackArrow (make_Pullback _ Pb)).
+  apply H.
 Defined.
 
-Section Square_Transfers.
+Definition Pb_map_commutes_1
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    (sqr_comm : f ;; k = g ;; h)
+    (Pb : isPullback sqr_comm)
+    {e : C} (x : e --> b) (y : e --> c) H
+  : map_into_Pb Pb x y H ;; f = x.
+Proof.
+  apply (PullbackArrow_PullbackPr1 (make_Pullback _ _)).
+Qed.
+
+Definition Pb_map_commutes_2
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    (sqr_comm : f ;; k = g ;; h)
+    (Pb : isPullback sqr_comm)
+    {e : C} (x : e --> b) (y : e --> c) H
+  : map_into_Pb Pb x y H ;; g = y.
+Proof.
+  apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)).
+Qed.
+
+Lemma map_into_Pb_unique
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    (sqr_comm : f ;; k = g ;; h)
+    (Pb : isPullback sqr_comm)
+    {e : C} {x y : e --> a}
+    (e_f : x ;; f = y ;; f) (e_g : x ;; g = y ;; g)
+  : x = y.
+Proof.
+  etrans.
+  { use (PullbackArrowUnique _ Pb); try eassumption.
+    repeat rewrite <- assoc. apply maponpaths; assumption. }
+  apply pathsinv0, (PullbackArrowUnique _ Pb); apply idpath.
+Qed.
+
+(* In fact this is trivial, since the equality doesn’t appear in the type of the pullback. However, it’s convenient for proof scripts. *)
+Lemma isPullback_indepdent_of_path
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    {sqr_comm : f ;; k = g ;; h}
+    (Pb : isPullback sqr_comm)
+    (sqr_comm' :  f ;; k = g ;; h)
+  : isPullback (sqr_comm').
+Proof.
+  exact Pb.
+Defined.
+
+(* Duplicate of [is_symmetric_isPullback] from UniMath, but without the un-needed [has_homsets]/[category] assumption *)
+Lemma is_symmetric_isPullback
+    {C : precategory}
+    {a b c d : C} {f : b --> a} {g : c --> a}
+    {p1 : d --> b} {p2 : d --> c} {H : p1 · f = p2 · g}
+    (pb : isPullback H)
+  : isPullback (! H).
+Proof.
+  use make_isPullback.
+  intros e h k H'.
+  use (iscontrweqf _ (pb e k h (! H'))).
+  use (weqtotal2 (idweq _)).
+  intros ?. apply weqdirprodcomm.
+Defined.
+
+(* Variant of [is_symmetric_isPullback], more convenient for applying when reasoning bottom-up. *)
+Lemma is_symmetric'_isPullback
+    {C : precategory}
+    {a b c d : C} {f : b --> a} {g : c --> a}
+    {p1 : d --> b} {p2 : d --> c} {H : p1 · f = p2 · g}
+    (pb : isPullback (! H))
+  : isPullback H.
+Proof.
+  eapply transportf. 2: { eapply is_symmetric_isPullback, pb. }
+  apply pathsinv0inv0.
+Defined.
+
+End Pullback_Basics.
+
+Arguments map_into_Pb {_ _ _ _ _ _ _ _ _ } _ Pb {_} _ _ _.
+Arguments map_into_Pb_unique {_ _ _ _ _ _ _ _ _} _ Pb {_} _ _ _ _.
+
+(** ** Pullback transfer lemmas *)
+
+Section Pullback_transfers.
+(* Various results, generally showing that perturbing a pullback squares by equalities and/or isos is still a pullback. *)
+
+Lemma square_morphism_equal
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    (sqr_comm : f ;; k = g ;; h)
+    {k'} (e : k' = k)
+  : f ;; k' = g ;; h.
+Proof.
+  rewrite e. assumption.
+Defined.
+
+Lemma isPb_morphism_equal
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    (sqr_comm : f ;; k = g ;; h)
+    (Pb : isPullback sqr_comm)
+    {k'} (e : k' = k)
+  : isPullback (square_morphism_equal sqr_comm e).
+Proof.
+  match goal with |[|- isPullback ?HH] => generalize HH end.
+  rewrite e.
+  intro.
+  apply Pb.
+Defined.
 
 Definition commutes_and_is_pullback {C : category} {a b c d : C}
     (f : b --> a) (g : c --> a) (p1 : d --> b) (p2 : d --> c)
@@ -1245,7 +1357,6 @@ Proof.
       + exact (k ;; iso_inv_from_iso i_c).
       + abstract (
           apply (post_comp_with_iso_is_inj _ _ i_a (pr2 _));
-            (* TODO: access function for isos! *)
           repeat rewrite <- assoc;
           rewrite i_f, i_g;
           eapply @pathscomp0;
@@ -1292,7 +1403,7 @@ Proof.
       apply (pr2 (pr2 hk')).
   Qed.
 
-(* Generalisation of [isPulback_iso_of_morphisms].  TODO: prove, move. *)
+(* Generalisation of [isPulback_iso_of_morphisms]. *)
 Lemma commutes_and_is_pullback_transfer_iso {C : category}
       {a b c d : C}
       {f : b --> a} {g : c --> a} {p1 : d --> b} {p2 : d --> c}
@@ -1308,86 +1419,8 @@ Proof.
   exact (isPullback_transfer_iso _ _ i_f i_g i_p1 i_p2 P).
 Qed.
 
-End Square_Transfers.
-
-
-Section on_pullbacks.
-
-Lemma square_morphism_equal
-    {C : precategory} {a b c d : C}
-    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
-    (sqr_comm : f ;; k = g ;; h)
-    {k'} (e : k' = k)
-  : f ;; k' = g ;; h.
-Proof.
-  rewrite e. assumption.
-Defined.
-
-Lemma isPb_morphism_equal
-    {C : precategory} {a b c d : C}
-    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
-    (sqr_comm : f ;; k = g ;; h)
-    (Pb : isPullback sqr_comm)
-    {k'} (e : k' = k)
-  : isPullback (square_morphism_equal sqr_comm e).
-Proof.
-  match goal with |[|- isPullback ?HH] => generalize HH end.
-  rewrite e.
-  intro.
-  apply Pb.
-Defined.
-
-Definition map_into_Pb
-    {C : precategory} {a b c d : C}
-    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
-    {sqr_comm : f ;; k = g ;; h}
-    (Pb : isPullback sqr_comm)
-    {e : C} (x : e --> b) (y : e --> c) (H : x ;; k = y ;; h)
-  :  e --> a.
-Proof.
-  eapply (PullbackArrow (make_Pullback _ Pb)).
-  apply H.
-Defined.
-
-Definition Pb_map_commutes_1
-    {C : precategory} {a b c d : C}
-    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
-    (sqr_comm : f ;; k = g ;; h)
-    (Pb : isPullback sqr_comm)
-    {e : C} (x : e --> b) (y : e --> c) H
-  : map_into_Pb Pb x y H ;; f = x.
-Proof.
-  apply (PullbackArrow_PullbackPr1 (make_Pullback _ _)).
-Qed.
-
-Definition Pb_map_commutes_2
-    {C : precategory} {a b c d : C}
-    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
-    (sqr_comm : f ;; k = g ;; h)
-    (Pb : isPullback sqr_comm)
-    {e : C} (x : e --> b) (y : e --> c) H
-  : map_into_Pb Pb x y H ;; g = y.
-Proof.
-  apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)).
-Qed.
-
-Lemma map_into_Pb_unique
-    {C : precategory} {a b c d : C}
-    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
-    (sqr_comm : f ;; k = g ;; h)
-    (Pb : isPullback sqr_comm)
-    {e : C} {x y : e --> a}
-    (e_f : x ;; f = y ;; f) (e_g : x ;; g = y ;; g)
-  : x = y.
-Proof.
-  etrans.
-  { use (PullbackArrowUnique _ Pb); try eassumption.
-    repeat rewrite <- assoc. apply maponpaths; assumption. } 
-  apply pathsinv0, (PullbackArrowUnique _ Pb); apply idpath.
-Qed.
-
 Lemma postcomp_commutes_and_is_pb_with_iso
-    {C : precategory} {a b c d : C}
+    {C : category} {a b c d : C}
     {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
     (sqr_comm : f ;; k = g ;; h)
     (Pb : isPullback sqr_comm)
@@ -1403,7 +1436,7 @@ Proof.
 Qed.
 
 Definition postcomp_pb_with_iso
-    {C : precategory} {a b c d : C}
+    {C : category} {a b c d : C}
     {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
     (sqr_comm : f ;; k = g ;; h)
     (Pb : isPullback sqr_comm)
@@ -1411,50 +1444,9 @@ Definition postcomp_pb_with_iso
   : isPullback _
 := pr2 (postcomp_commutes_and_is_pb_with_iso _ Pb _ i Hi).
 
-(* In fact this is trivial, since the equality doesn’t appear in the type of the pullback. However, it’s convenient for proof scripts. *)
-Lemma isPullback_indepdent_of_path
-    {C : precategory} {a b c d : C}
-    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
-    {sqr_comm : f ;; k = g ;; h}
-    (Pb : isPullback sqr_comm)
-    (sqr_comm' :  f ;; k = g ;; h)
-  : isPullback (sqr_comm').
-Proof.
-  exact Pb.
-Defined.
- 
-End on_pullbacks.
+End Pullback_transfers.
 
-Arguments map_into_Pb {_ _ _ _ _ _ _ _ _ } _ Pb {_} _ _ _.
-Arguments map_into_Pb_unique {_ _ _ _ _ _ _ _ _} _ Pb {_} _ _ _ _.
 Arguments postcomp_pb_with_iso _ {_ _ _ _} {_ _ _ _} _ Pb {_} _ _ _.
-
-(* Duplicate of [is_symmetric_isPullback] from UniMath, but without the un-needed [has_homsets]/[category] assumption *)
-Lemma is_symmetric_isPullback
-    {C : precategory}
-    {a b c d : C} {f : b --> a} {g : c --> a}
-    {p1 : d --> b} {p2 : d --> c} {H : p1 · f = p2 · g}
-    (pb : isPullback H)
-  : isPullback (! H).
-Proof.
-  use make_isPullback.
-  intros e h k H'.
-  use (iscontrweqf _ (pb e k h (! H'))).
-  use (weqtotal2 (idweq _)).
-  intros ?. apply weqdirprodcomm.
-Defined.
-
-(* Variant of [is_symmetric_isPullback], more convenient for applying when reasoning bottom-up. *)
-Lemma is_symmetric'_isPullback
-    {C : precategory}
-    {a b c d : C} {f : b --> a} {g : c --> a}
-    {p1 : d --> b} {p2 : d --> c} {H : p1 · f = p2 · g}
-    (pb : isPullback (! H))
-  : isPullback H.
-Proof.
-  eapply transportf. 2: { eapply is_symmetric_isPullback, pb. }
-  apply pathsinv0inv0.
-Defined.
 
 (** ** Pullbacks of sets and presheaves *)
 
@@ -1758,6 +1750,17 @@ End Pullback_Unique_Up_To_Iso.
 Arguments map_into_Pb {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 Arguments Pb_map_commutes_1 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 Arguments Pb_map_commutes_2 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
+
+(** ** Displayed categories *)
+
+Definition isaprop_is_cartesian_disp_functor
+    {C C' : category} {F : functor C C'}
+    {D : disp_cat C} {D' : disp_cat C'} {FF : disp_functor F D D'}
+  : isaprop (is_cartesian_disp_functor FF).
+Proof.
+  do 7 (apply impred; intro).
+  apply isaprop_is_cartesian.
+Qed.
 
 (** ** Comprehension categories *)
 
