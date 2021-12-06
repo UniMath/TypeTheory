@@ -65,10 +65,6 @@ Tactic Notation "rew_trans_@" := repeat (etrans ; [ apply transport_f_f |]).
 Tactic Notation "sym" := apply pathsinv0.
 Tactic Notation "assoc" := apply @pathsinv0, path_assoc.
 
-(** * Some argument settings *)
-
-Arguments functor_on_inv_from_iso {_ _} _  {_ _} f.
-
 (** * General type-theoretic content *)
 
 (** ** Path-algebra: general lemmas about transport, equivalences, etc. *)
@@ -477,6 +473,8 @@ Defined.
 (** * Category theory *)
 
 (** ** Isomorphism lemmas *)
+
+Arguments functor_on_inv_from_iso {_ _} _  {_ _} f.
 
 Lemma is_iso_comp_is_iso {C : precategory} {a b c : ob C}
   (f : C⟦a, b⟧) (g : C⟦b, c⟧) 
@@ -922,65 +920,7 @@ Proof.
   - apply F_ff.
 Defined.
 
-(** ** Misc lemmas/definitions on (pre)categories *)
-
-Coercion univalent_category_is_univalent : univalent_category >-> is_univalent.
-
-Definition functor_univalent_category (C : precategory) (D : univalent_category)
-  : univalent_category.
-Proof.
-  exists (functor_category C D).
-  apply is_univalent_functor_category.
-  apply D.
-Defined.
-
-Definition preShv C := functor_univalent_category C^op HSET_univalent_category.
-
-Notation "'Yo'" := (yoneda _ : functor _ (preShv _)).
-Notation "'Yo^-1'" := (invweq (make_weq _ (yoneda_fully_faithful _ _ _ ))).
-
-(* TODO: perhaps rename e.g. [yoneda_eq]? *)
-Definition yy {C : category} 
-  {F : preShv C} {c : C} : ((F : functor _ _) c : hSet) ≃ _ ⟦ yoneda _ c, F⟧.
-Proof.
-  apply invweq.
-  apply yoneda_weq.
-Defined.
-
-Arguments yy {_ _ _}.
-
-Lemma yy_natural {C : category} 
-  (F : preShv C) (c : C) (A : (F:functor _ _) c : hSet) 
-                  c' (f : C⟦c', c⟧) :
-        yy (# (F : functor _ _) f A) = # (yoneda _ ) f ;; yy A.
-Proof.
-  assert (XTT := is_natural_yoneda_iso_inv _ F _ _ f).
-  apply (toforallpaths _ _ _ XTT).
-Qed.
-
-Lemma yy_comp_nat_trans {C : category}
-      (F F' : preShv C) (p : _ ⟦F, F'⟧)
-      A (v : (F : functor _ _ ) A : hSet)
-  : yy v ;; p = yy ((p : nat_trans _ _ )  _ v).
-Proof.
-  apply nat_trans_eq.
-  - apply homset_property.
-  - intro c. simpl. 
-    apply funextsec. intro f. cbn.
-    assert (XR := toforallpaths _ _ _ (nat_trans_ax p _ _ f) v ).
-    cbn in XR.
-    apply XR.
-Qed.
-
-Lemma transportf_yy {C : category}
-      (F : preShv C) (c c' : C) (A : (F : functor _ _ ) c : hSet)
-      (e : c = c'):
-  yy (transportf (fun d => (F : functor _ _ ) d : hSet) e A) = 
-  transportf (fun d => preShv C ⟦ yoneda _ d, F⟧) e (yy A).
-Proof.
-  induction e.
-  apply idpath.
-Defined.
+(** ** Idtoiso and isotoid *)
 
 Lemma forall_isotid (A : category) (a_is : is_univalent A) 
       (a a' : A) (P : iso a a' -> UU) :
@@ -1075,6 +1015,23 @@ Proof.
   apply maponpaths, maponpaths, idtoiso_isotoid.
 Qed.
 
+(** ** Misc lemmas/definitions on (pre)categories *)
+
+Coercion univalent_category_is_univalent : univalent_category >-> is_univalent.
+
+Definition functor_univalent_category (C : precategory) (D : univalent_category)
+  : univalent_category.
+Proof.
+  exists (functor_category C D).
+  apply is_univalent_functor_category.
+  apply D.
+Defined.
+
+Definition adj_from_equiv (D1 D2 : category) (F : functor D1 D2):
+    adj_equivalence_of_precats F → is_left_adjoint F := fun x => pr1 x.
+Coercion adj_from_equiv : adj_equivalence_of_precats >-> is_left_adjoint.
+
+(** ** Functors and isomorphisms *)
 
 Lemma inv_from_iso_iso_from_fully_faithful_reflection {C D : precategory}
       (F : functor C D) (HF : fully_faithful F) (a b : C) (i : iso (F a) (F b))
@@ -1129,7 +1086,6 @@ Proof.
     ).
 Defined.
 
-
 Definition functor_assoc_iso (D1 D2 D3 : precategory) (D4 : category)
      (F : functor D1 D2) (G : functor D2 D3) (H : functor D3 D4) :
     iso (C:=[D1,D4])
@@ -1173,9 +1129,56 @@ Proof.
 Defined.
 
 
-Definition adj_from_equiv (D1 D2 : category) (F : functor D1 D2):
-    adj_equivalence_of_precats F → is_left_adjoint F := fun x => pr1 x.
-Coercion adj_from_equiv : adj_equivalence_of_precats >-> is_left_adjoint.
+
+(** ** Presheaves and Yoneda *)
+
+Definition preShv C := functor_univalent_category C^op HSET_univalent_category.
+
+Notation "'Yo'" := (yoneda _ : functor _ (preShv _)).
+Notation "'Yo^-1'" := (invweq (make_weq _ (yoneda_fully_faithful _ _ _ ))).
+
+(* TODO: perhaps rename e.g. [yoneda_eq]? *)
+Definition yy {C : category} 
+  {F : preShv C} {c : C} : ((F : functor _ _) c : hSet) ≃ _ ⟦ yoneda _ c, F⟧.
+Proof.
+  apply invweq.
+  apply yoneda_weq.
+Defined.
+
+Arguments yy {_ _ _}.
+
+Lemma yy_natural {C : category} 
+  (F : preShv C) (c : C) (A : (F:functor _ _) c : hSet) 
+                  c' (f : C⟦c', c⟧) :
+        yy (# (F : functor _ _) f A) = # (yoneda _ ) f ;; yy A.
+Proof.
+  assert (XTT := is_natural_yoneda_iso_inv _ F _ _ f).
+  apply (toforallpaths _ _ _ XTT).
+Qed.
+
+Lemma yy_comp_nat_trans {C : category}
+      (F F' : preShv C) (p : _ ⟦F, F'⟧)
+      A (v : (F : functor _ _ ) A : hSet)
+  : yy v ;; p = yy ((p : nat_trans _ _ )  _ v).
+Proof.
+  apply nat_trans_eq.
+  - apply homset_property.
+  - intro c. simpl. 
+    apply funextsec. intro f. cbn.
+    assert (XR := toforallpaths _ _ _ (nat_trans_ax p _ _ f) v ).
+    cbn in XR.
+    apply XR.
+Qed.
+
+Lemma transportf_yy {C : category}
+      (F : preShv C) (c c' : C) (A : (F : functor _ _ ) c : hSet)
+      (e : c = c'):
+  yy (transportf (fun d => (F : functor _ _ ) d : hSet) e A) = 
+  transportf (fun d => preShv C ⟦ yoneda _ d, F⟧) e (yy A).
+Proof.
+  induction e.
+  apply idpath.
+Defined.
 
 (** ** Basic pullback utility functions *)
 
@@ -1541,7 +1544,8 @@ Proof.
   apply (nat_trans_eq_pointwise e).
 Qed.
 
-(* TODO: unify with the converse implication. *)
+(* TODO: unify with the converse implication;
+  perhaps also generalise to all functor categories?  *)
 Lemma isPullback_preShv_to_pointwise {C : category}
     {X Y Z W : preShv C}
     {f : Y --> X} {g : Z --> X} {p1 : W --> Y} {p2 : W --> Z}
