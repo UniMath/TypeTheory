@@ -11,6 +11,9 @@
   The definition is based on Pitts, *Nominal Presentations of the Cubical Sets
   Model of Type Theory*, Def. 3.1: 
   http://www.cl.cam.ac.uk/~amp12/papers/nompcs/nompcs.pdf (page=9)
+
+  This file is very similar to [TypeTheory.OtherDefs.CwF_1]; the main difference is that here the functor of types is split up into its separate components, whereas there it is bundled into an actual functor. 
+
 *)
 
 Require Import UniMath.Foundations.All.
