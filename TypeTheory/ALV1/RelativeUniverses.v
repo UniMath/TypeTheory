@@ -382,7 +382,7 @@ Definition rel_universe_fpullback_mor
   : fpb_ob (U X f) --> fpb_ob (U X' f').
 Proof.
   apply (fully_faithful_inv_hom HJ).
-  use (map_into_Pb _ _ _ _ _ (pr2 (pr2 (U _ _)))).
+  use (map_into_Pb (pr2 (pr2 (U _ _)))).
   - apply (# J). exact (fp _ ;; g). 
   - apply fq.
   - refine (_ @ _). { apply maponpaths_2. apply functor_comp. }
@@ -390,9 +390,6 @@ Proof.
     refine (_ @ _). { apply maponpaths, e. }
     exact (pr1 (pr2 (U X f))).
 Defined.
-
-(* TODO: add access function [fpb_isPullback]. *)
-(* DONE: see [isPullback_fpullback] *)
 
 Definition rel_universe_fpullback_mor_id
     {X : C} (f : J X --> base U)
@@ -402,7 +399,7 @@ Definition rel_universe_fpullback_mor_id
 Proof.
   refine (_ @ _). 2: { apply fully_faithful_inv_identity. }
   apply (maponpaths (fully_faithful_inv_hom _ _ _)). 
-  apply (map_into_Pb_unique _ (pr2 (pr2 (U _ _)))).
+  apply (map_into_Pb_unique (pr2 (pr2 (U _ _)))).
   - refine (_ @ _). { apply Pb_map_commutes_1. }
     refine (_ @ _). { apply maponpaths, id_right. }
     apply pathsinv0, id_left.
@@ -424,7 +421,7 @@ Definition rel_universe_fpullback_mor_comp
 Proof.
   refine (_ @ _). 2: { apply fully_faithful_inv_comp. }
   apply (maponpaths (fully_faithful_inv_hom _ _ _)).
-  apply (map_into_Pb_unique _ (pr2 (pr2 (U _ _)))).
+  apply (map_into_Pb_unique (pr2 (pr2 (U _ _)))).
   - refine (_ @ _). { apply Pb_map_commutes_1. }
     refine (_ @ _).
     2: { apply pathsinv0.
@@ -499,8 +496,7 @@ Proof.
   apply (isweqonpathsincl _ (HJ _ _ )).
   set (UXf' := U X' f').
   set (P:= isPullback_fpullback _ _ UXf').
-  set (PP := @map_into_Pb_unique _ _ _ _ _ _ _ _ _ _ P).
-  use (map_into_Pb_unique _ P).
+  use (map_into_Pb_unique P).
   - destruct xf as [F [H1 [H2 [H3 H4]]]].
     destruct xf' as [F' [H1' [H2' [H3' H4']]]].
     cbn.

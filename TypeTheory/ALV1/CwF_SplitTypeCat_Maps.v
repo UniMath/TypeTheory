@@ -398,7 +398,7 @@ Proof.
       etrans. apply assoc.
       etrans. apply maponpaths_2, e.
       apply id_left.
-    + use (map_into_Pb_unique _ (qq_π_Pb Z _ _  )).
+    + use (map_into_Pb_unique (qq_π_Pb Z _ _  )).
       * cbn.
         use (_ @ !e).
         etrans. apply @pathsinv0, assoc.
@@ -480,7 +480,7 @@ Proof.
       etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, comp_ext_compare_π.
       apply (PullbackArrow_PullbackPr1 (make_Pullback _ _)). 
-    + apply (map_into_Pb_unique _ (qq_π_Pb Z _ _)). 
+    + apply (map_into_Pb_unique (qq_π_Pb Z _ _)).
       * cbn.
         etrans. apply @pathsinv0, assoc.
         etrans. apply maponpaths, qq_π.

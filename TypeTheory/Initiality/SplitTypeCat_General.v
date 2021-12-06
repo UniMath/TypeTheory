@@ -297,7 +297,7 @@ Section Terms.
     : tm (A ⦃dpr_typecat A⦄).
   Proof.
     use tpair.
-    + eapply (map_into_Pb _ _ _ _ _ (reind_pb_typecat A _) _ _ (idpath (identity _ ;; _))).
+    + eapply (map_into_Pb (reind_pb_typecat A _) _ _ (idpath (identity _ ;; _))).
     + apply Pb_map_commutes_1.
   Defined.
 

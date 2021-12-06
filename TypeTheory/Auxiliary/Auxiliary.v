@@ -1199,7 +1199,7 @@ Defined.
 Definition Pb_map_commutes_1
     {C : precategory} {a b c d : C}
     {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
-    (sqr_comm : f ;; k = g ;; h)
+    {sqr_comm : f ;; k = g ;; h}
     (Pb : isPullback sqr_comm)
     {e : C} (x : e --> b) (y : e --> c) H
   : map_into_Pb Pb x y H ;; f = x.
@@ -1210,7 +1210,7 @@ Qed.
 Definition Pb_map_commutes_2
     {C : precategory} {a b c d : C}
     {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
-    (sqr_comm : f ;; k = g ;; h)
+    {sqr_comm : f ;; k = g ;; h}
     (Pb : isPullback sqr_comm)
     {e : C} (x : e --> b) (y : e --> c) H
   : map_into_Pb Pb x y H ;; g = y.
@@ -1221,7 +1221,7 @@ Qed.
 Lemma map_into_Pb_unique
     {C : precategory} {a b c d : C}
     {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
-    (sqr_comm : f ;; k = g ;; h)
+    {sqr_comm : f ;; k = g ;; h}
     (Pb : isPullback sqr_comm)
     {e : C} {x y : e --> a}
     (e_f : x ;; f = y ;; f) (e_g : x ;; g = y ;; g)
@@ -1273,9 +1273,6 @@ Proof.
 Defined.
 
 End Pullback_Basics.
-
-Arguments map_into_Pb {_ _ _ _ _ _ _ _ _ } _ Pb {_} _ _ _.
-Arguments map_into_Pb_unique {_ _ _ _ _ _ _ _ _} _ Pb {_} _ _ _ _.
 
 (** ** Pullback transfer lemmas *)
 
@@ -1678,7 +1675,7 @@ Section Pullback_Unique_Up_To_Iso.
 
   Definition map_to_2nd_pb : A --> A'.
   Proof.
-    unshelve refine (map_into_Pb H' pb' _ _ _  ).
+    use (map_into_Pb pb').
     - exact (f ;; h).
     - exact g.
     - eapply pathscomp0. 2: { apply H. }
@@ -1688,7 +1685,7 @@ Section Pullback_Unique_Up_To_Iso.
 
   Definition map_to_1st_pb : A' --> A.
   Proof.
-    unshelve refine (map_into_Pb H pb _ _ _ ).
+    use (map_into_Pb pb).
     - exact (f';; inv_from_iso h).
     - exact g'.
     - eapply pathscomp0; [| apply H'].
@@ -1699,7 +1696,7 @@ Section Pullback_Unique_Up_To_Iso.
 
   Lemma inv1 : map_to_2nd_pb ;; map_to_1st_pb = identity _ .
   Proof.
-    apply (map_into_Pb_unique  H pb).
+    apply (map_into_Pb_unique pb).
     - rewrite id_left.
       rewrite <- assoc.
       unfold map_to_1st_pb.
@@ -1708,9 +1705,7 @@ Section Pullback_Unique_Up_To_Iso.
       apply pathsinv0.
       apply iso_inv_on_left.
       unfold map_to_2nd_pb.
-      match goal with |[ |- map_into_Pb ?H1 ?pb1 ?x1 ?y1 ?R1 ;; _ = _ ] => assert
-           (T1:=@Pb_map_commutes_1 _ _ _ _ _ _ _ _ _ H' pb' _ x1 y1 R1) end.
-      apply T1.
+      use Pb_map_commutes_1.
     - rewrite id_left.
       rewrite <- assoc.
       unfold map_to_1st_pb.
@@ -1721,7 +1716,7 @@ Section Pullback_Unique_Up_To_Iso.
 
   Lemma inv2 : map_to_1st_pb ;; map_to_2nd_pb = identity _ .
   Proof.
-    apply (map_into_Pb_unique  H' pb').
+    apply (map_into_Pb_unique pb').
     - rewrite id_left.
       rewrite <- assoc.
       unfold map_to_2nd_pb.
@@ -1750,10 +1745,6 @@ Section Pullback_Unique_Up_To_Iso.
   Defined.
 
 End Pullback_Unique_Up_To_Iso.
-
-Arguments map_into_Pb {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
-Arguments Pb_map_commutes_1 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
-Arguments Pb_map_commutes_2 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 
 (** ** Displayed categories *)
 

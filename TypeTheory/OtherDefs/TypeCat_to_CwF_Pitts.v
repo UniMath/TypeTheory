@@ -65,16 +65,15 @@ Proof.
     simpl in *.
     intro γ.
     unshelve refine (tpair _ _ _ ).
-    + eapply (map_into_Pb _ _ γ (dpr_typecat A)).
-      * apply reind_pb_typecat.
+    + eapply map_into_Pb.
+      * use reind_pb_typecat.
       * etrans. apply id_left.
         apply @pathsinv0.
         etrans. eapply pathsinv0. apply assoc.
         etrans. apply maponpaths. apply (pr2 H).
         apply id_right.
-    + simpl.
-      apply Pb_map_commutes_1.
-Defined.    
+    + apply Pb_map_commutes_1.
+Defined.
 
 Definition tt_reindx_from_typecat : tt_reindx_struct CC.
 Proof.
@@ -410,14 +409,14 @@ Proof.
   rewrite (@q_q_typecat ((CC,,pr1 C),,pr2 C)).
   match goal with |[ |- _ ;; ?B' ;; ?C'  = _ ]  => set (B:=B'); set (D:=C') end.
   simpl in *.
-  match goal with |[ |- map_into_Pb ?B' ?C' ?D' ?E' ?F' ?G' ?Y' ?Z' ?W'  ;; _ ;; _  = _ ] => 
+  match goal with |[ |- @map_into_Pb _ _ _ _ _ _ ?B' ?C' ?D' ?E' ?F' ?G' ?Y' ?Z' ?W'  ;; _ ;; _  = _ ] => 
                    set (f':=B'); set (g:=C'); set (h:=D'); set (k:=E') end.
-  match goal with |[ |- map_into_Pb _ _ _ _ ?F' ?G' ?Y' ?Z' _  ;; _ ;; _  = _ ] => 
+  match goal with |[ |- @map_into_Pb _ _ _ _ _ _ _ _ _ _ ?F' ?G' ?Y' ?Z' _  ;; _ ;; _  = _ ] => 
    set (x:=F'); set (y:=G');
                    set (Y:=Y'); set (Z:=Z')
   end.
-  match goal with |[ |- map_into_Pb _ _ _ _ _ _ _ _  ?W'  ;; _ ;; _  = _ ] => set (W:=W') end.
-  assert (T2:=Pb_map_commutes_2 f' g h k x y Y Z W).
+  match goal with |[ |- @map_into_Pb _ _ _ _ _ _ _ _ _ _ _ _ _ _  ?W'  ;; _ ;; _  = _ ] => set (W:=W') end.
+  assert (T2:=Pb_map_commutes_2 x Y Z W).
   unfold B.
   unfold D.
   repeat rewrite assoc.
@@ -434,7 +433,7 @@ Proof.
   rewrite id_right.
   unfold f'. unfold f' in T2.
   apply maponpaths_2. apply T2.
-Qed.  
+Qed.
 
 Lemma comp_law_4_of_typecat : @comp_law_4 _ tt_reindx_type_struct_of_typecat reindx_laws_of_typecat.
 Proof.
