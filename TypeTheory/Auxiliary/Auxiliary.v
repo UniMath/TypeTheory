@@ -1138,14 +1138,13 @@ Notation "'Yo'" := (yoneda _ : functor _ (preShv _)).
 Notation "'Yo^-1'" := (invweq (make_weq _ (yoneda_fully_faithful _ _ _ ))).
 
 (* TODO: perhaps rename e.g. [yoneda_eq]? *)
-Definition yy {C : category} 
-  {F : preShv C} {c : C} : ((F : functor _ _) c : hSet) ≃ _ ⟦ yoneda _ c, F⟧.
+Definition yy {C : category}
+    {F : preShv C} {c : C}
+  : ((F : functor _ _) c : hSet) ≃ _ ⟦ yoneda _ c, F⟧.
 Proof.
   apply invweq.
   apply yoneda_weq.
 Defined.
-
-Arguments yy {_ _ _}.
 
 Lemma yy_natural {C : category} 
   (F : preShv C) (c : C) (A : (F:functor _ _) c : hSet) 
@@ -1445,8 +1444,6 @@ Definition postcomp_pb_with_iso
 := pr2 (postcomp_commutes_and_is_pb_with_iso _ Pb _ i Hi).
 
 End Pullback_transfers.
-
-Arguments postcomp_pb_with_iso _ {_ _ _ _} {_ _ _ _} _ Pb {_} _ _ _.
 
 (** ** Pullbacks of sets and presheaves *)
 
