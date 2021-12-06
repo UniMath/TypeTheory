@@ -922,6 +922,18 @@ Defined.
 
 (** ** Idtoiso and isotoid *)
 
+Lemma idtoiso_identity_iso {C : precategory} (a : C)
+  : idtoiso (idpath a) = identity_iso a.
+Proof.
+  apply idpath.
+Defined.
+
+Lemma idtoiso_identity {C : precategory} (a : C)
+  : (idtoiso (idpath a) : _ --> _) = identity a.
+Proof.
+  apply idpath.
+Defined.
+
 Lemma forall_isotid (A : category) (a_is : is_univalent A) 
       (a a' : A) (P : iso a a' -> UU) :
   (∏ e, P (idtoiso e)) → ∏ i, P i.
@@ -981,8 +993,7 @@ Lemma idtoiso_eq_idpath (C : precategory) (a : C) (e : a = a)
     (H : e = idpath _ )
   : identity a = idtoiso e.
 Proof.
-  rewrite H.
-  apply idpath.
+  destruct (!H). apply idpath.
 Qed.
 
 Lemma idtoiso_precompose'
