@@ -223,99 +223,86 @@ Proof.
   exact  comp_2_struct_of_typecat.
 Defined.
 
-
 Lemma comp_laws_1_2_of_typecat : @comp_laws_1_2 CC
    tt_reindx_type_struct_of_typecat reindx_laws_of_typecat.
 Proof.
   unfold comp_laws_1_2.
-  intros Γ A Γ' γ a. unfold tt_reindx_type_struct_of_typecat.
-  simpl in * .
+  intros Γ A Γ' γ a. simpl.
   unshelve refine (tpair _ _ _ ).
-  * unfold pairing. simpl.
-    destruct a as [a a_sec]; simpl in *.
-    etrans. eapply pathsinv0. apply assoc.
-    etrans. apply maponpaths. apply dpr_q_typecat.
-    etrans. apply assoc.
-    etrans. apply maponpaths_2. apply a_sec.
+  - unfold pairing; simpl.
+    etrans. { apply pathsinv0, assoc. }
+    etrans. { apply maponpaths, dpr_q_typecat. }
+    etrans. { apply assoc. }
+    etrans. { apply maponpaths_2, (pr2 a). }
     apply id_left.
-  * simpl.
-    apply subtypePath'.
-    + destruct a as [a a_sec]; simpl in *.
-
-    (* Commute the [pr1] through the [transportf]s. *)
-      match goal with |[ |- pr1 (transportf _ ?e0' (transportf _ ?e1' _)) = _ ] =>
-                         set (e0:=e0'); set (e1:=e1') end.
-      unfold pairing in *. simpl in *.
-      etrans. apply maponpaths. refine (transportf_total2 e0 _). simpl.
-      etrans. apply maponpaths, maponpaths. refine (transportf_total2 e1 _).
-      match goal with
-        |[ |- transportf _ _ (pr1 (tpair ?P' ?x' _)) = _]
-         => set (x:=x'); set (P:=P') end.    
-      change (pr1 (tpair P x _)) with x. subst x; clear P.
-
-    (* These are maps into [Γ' ◂ A [γ]].  We will show they’re equal by comparing their composites with the pullback “projections”, i.e. by using [map_into_Pb_unique].  This will generate two proof branches, for the two pullback projections.
-
-    There are various different ways one can tidy up the two [transportf]s on the LHS in terms of [idtoiso], [maponpaths], and composites (of paths, functions, or morphisms).  We will need them tidied up into two slightly different forms for the two proof branches; it is not obvous what it is best to tidy when.  For now, we tidy up as much as possible before applying [map_into_Pb_unique], and then reassociate as necessary in the two branches. *)
-
-      etrans. refine (functtransportf
-                      (@rtype _ tt_reindx_type_struct_of_typecat _ _ A) _ _ _).
-      etrans. apply (transportf_reind_typecat ((CC,,pr1 C),,pr2 C)).
-      etrans. apply maponpaths, transportf_reind_typecat.
-      etrans. apply transport_f_f.
-      match goal with |[ |- transportf _ ?e' _ = _] => set (e:=e') end.
-      etrans. symmetry; apply idtoiso_postcompose.
-    
-      eapply map_into_Pb_unique. apply reind_pb_typecat.
-
-    (* The first pullback projection, to [Γ'], gives the easier of the two branches: *)
-      etrans. symmetry;apply assoc.
-      etrans.
-        apply maponpaths. apply maponpaths_2.
-        apply maponpaths, maponpaths. symmetry; apply maponpathscomp0.
-      etrans. apply maponpaths. apply idtoiso_dpr_typecat.
-      etrans. apply Pb_map_commutes_1.
-      symmetry. exact a_sec.
-
-    (* The second projection, to [Γ ◂ A ◂ [π A]], is harder.
-
-    TODO: LaTeX diagram of this!  See photo from 2015-07-02. 
-
-    The main part of the LHS, [pr1 (ν A ⟦ a;; q_typecat A γ ⟧)], was created as a [map_into_Pb]; we need to use the first component of its definition.  So we need to get the LHS into a form where the first projection of that pullback square appears, i.e. [q_typecat (reind_typecat A (dpr_typecat A)) (a;; q_typecat A γ)]. *)
-      etrans. symmetry; apply assoc.
-      assert (e2 :
-      (idtoiso e;; q_typecat A γ)
-      = (q_typecat (reind_typecat A (dpr_typecat A)) (a;; q_typecat A γ))
-          ;; (q_typecat A (dpr_typecat A))).
-
-      unshelve refine (pre_comp_with_iso_is_inj _ _ _ _ _ _ _ _).
-      Focus 4.
-        etrans. Focus 2. symmetry; apply assoc.
-        etrans. Focus 2. apply (@q_q_typecat ((CC,,pr1 C),,pr2 C)).
-      Unfocus.
-      apply pr2.
-    
-      etrans. Focus 2. symmetry. apply (idtoiso_q_typecat _ e0).
-      etrans. apply assoc. apply maponpaths_2.
-      etrans. apply idtoiso_concat_pr.
-      apply maponpaths, maponpaths.
-     
-      subst e.
-      etrans. symmetry. apply maponpaths, maponpathscomp0.
-      etrans. symmetry. apply maponpathscomp0.
-      (* TODO: make an access function for sethood of types in type cat. *)
-      etrans. apply maponpaths. apply (pr1 (pr2 C)).
-      apply maponpathscomp.
-
-    etrans. apply maponpaths, e2. clear e2.
-    etrans. apply assoc.
-    etrans. apply maponpaths_2. apply Pb_map_commutes_2.
-    
-    etrans. symmetry. apply assoc.
-    etrans. apply maponpaths. apply Pb_map_commutes_2.
-    etrans. symmetry. apply assoc. apply maponpaths.
-    apply id_right.
-    + apply homset_property. 
-Qed.
+  - (* TODO: there’s some redundant work in this, and a few places elsewhere:
+    we start by forgetting the section-property, but then have to show it again for [PullbackArrowUnique].
+    This probably should be abstracted as a lemma: to show two terms of a reindexed type are equal, it suffices to check their composites with q. *)
+    apply subtypePath. { intro; apply homset_property. }
+    do 2 (rewrite transportf_total2; simpl).
+    rewrite (functtransportf (fun f => _ ◂ (_ f))).
+    rewrite (functtransportf (fun A => _ ◂ A)).
+    rewrite <- 2 idtoiso_postcompose.
+    etrans. { apply assoc'. }
+    etrans. { apply maponpaths, idtoiso_concat_pr. }
+    apply idtoiso_postcompose_idtoiso_pre.
+    etrans. 2: { apply maponpaths, maponpaths, maponpaths.
+        rewrite <- (maponpathscomp (fun f => A {{f}}) (fun A' => Γ' ◂ A')).
+        rewrite <- maponpathscomp0.
+        apply maponpathsinv0. }
+    apply pathsinv0, (PullbackArrowUnique' _ _ _ (make_Pullback _ _)).
+    + cbn.
+      etrans. { apply assoc'. }
+      etrans. { apply maponpaths.
+        apply (idtoiso_dpr_typecat C_sptc). }
+      apply (pr2 a).
+    + unfold pairing. simpl.
+      use (map_into_Pb_unique (reind_pb_typecat _ _)).
+      * etrans. 2: { apply assoc. }
+        etrans. 2: { eapply maponpaths, pathsinv0, Pb_map_commutes_1. }
+        etrans. 2: { apply pathsinv0, id_right. }
+        etrans. { apply assoc'. }
+        etrans. { apply maponpaths, dpr_q_typecat. }
+        etrans. { apply assoc. }
+        etrans. 2: { apply id_left. }
+        apply maponpaths_2.
+        etrans. { apply assoc'. }
+        etrans. { apply maponpaths, (idtoiso_dpr_typecat C_sptc). }
+        exact (pr2 a).
+      * etrans. 2: { apply assoc. }
+        etrans. 2: { eapply maponpaths, pathsinv0, Pb_map_commutes_2. }
+        etrans. 2: { apply pathsinv0, id_right. }
+        cbn. etrans. { apply assoc'. }
+        etrans. { apply maponpaths, pathsinv0. 
+                  eapply iso_inv_on_right.
+                  etrans. 2: { apply assoc'. }
+                  apply (@q_q_typecat C_sptc). }
+        etrans. { apply maponpaths, maponpaths_2, pathsinv0.
+          refine (maponpaths pr1 (idtoiso_inv _ _ _ _)). }
+        etrans. { apply maponpaths, maponpaths.
+          refine (idtoiso_q_typecat _ _).
+          etrans. { apply assoc'. }
+          etrans. { apply maponpaths, dpr_q_typecat. }
+          etrans. { apply assoc. }
+          etrans. { apply maponpaths_2, (pr2 a). }
+          apply id_left. }
+        etrans. { apply maponpaths, assoc. }
+        etrans. { apply assoc. }
+        etrans. { apply maponpaths_2, assoc'. }
+        apply maponpaths_2.
+        etrans. 2: { apply id_right. }
+        apply maponpaths.
+        etrans. { apply maponpaths, idtoiso_concat_pr. }
+        etrans. { apply idtoiso_concat_pr. }
+        apply pathsinv0, idtoiso_eq_idpath.
+        rewrite <- maponpathsinv0.
+        rewrite <- (maponpathscomp (fun f => A {{f}}) (fun A' => Γ' ◂ A')).
+        repeat rewrite <- maponpathscomp0.
+        (* TODO: make lemma analogous to [idtoiso_eq_idpath] for such situations *)
+        refine (@maponpaths _ _ (maponpaths _) _ (idpath _) _).
+        apply isaset_types_typecat.
+        (* TODO: fix duplicate [reind_comp_term_typecat], [q_q_typecat]. *)
+Time Qed.
 
 Lemma comp_law_3_of_typecat : @comp_law_3 CC tt_reindx_type_struct_of_typecat reindx_laws_of_typecat.
 Proof.
