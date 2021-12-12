@@ -28,7 +28,7 @@ Proof.
   intros. destruct e; simpl. sym. apply id_left.
   (* Why the heck doesn’t “symmetry” work here!? *)
 Defined.
-  
+
 
 
 (** * CwF structure from split type-category structure on a category 
@@ -42,6 +42,10 @@ Section CwF_of_Comp.
 
 Context (CC : category) (C : split_typecat_structure CC).
 
+Local Definition C_sptc : split_typecat :=
+  ((CC,,pr1 C),,pr2 C).
+(* TODO: find or add constructor [make_split_typecat] *)
+
 Definition tt_structure_of_typecat : tt_structure CC.
 Proof.
   unfold tt_structure.
@@ -50,6 +54,19 @@ Proof.
   exact (∑ f : Γ --> Γ ◂ A, f ;; dpr_typecat _  = identity _ ). 
 Defined.
 
+(* A handy lemma for calculations with terms of reindexed types.
+TODO: consider naming; upstream/consolidate to general lemmas on type-cats (like with some other material in this file)? *)
+Lemma tm_reindx_eq {Γ:CC} (A : C Γ )
+    {Γ':CC} (f : Γ' --> Γ)
+    (a a' : tt_structure_of_typecat ⟨ Γ' ⊢ reind_typecat A f ⟩)
+    (e : pr1 a ;; q_typecat A f = pr1 a' ;; q_typecat A f)
+  : a = a'.
+Proof.
+  apply subtypePath. { intro; apply homset_property. }
+  apply (map_into_Pb_unique (@reind_pb_typecat C_sptc _ _ _ _ _)).
+  2: apply e.
+  exact (pr2 a @ ! pr2 a').
+Defined.
 
 (* Maybe some of the below stuff should be opaque, to avoid too much unfolding? *)
 Definition reindx_struct_of_typecat : reindx_structure tt_structure_of_typecat.
@@ -81,10 +98,6 @@ Proof.
   exact reindx_struct_of_typecat.
 Defined.
 
-Local Definition C_sptc : split_typecat :=
-  ((CC,,pr1 C),,pr2 C).
-(* TODO: find or add constructor [make_split_typecat] *)
-
 Lemma reindx_laws_type_of_typecat : reindx_laws_type tt_reindx_from_typecat.
 Proof.
   split.
@@ -104,27 +117,24 @@ Lemma reindx_term_id_typecat
               (! (@reind_id_type_typecat C_sptc Γ A)) a.
 Proof.
   intros. simpl. unfold tt_reindx_from_typecat in *. simpl in *.
-  apply subtypePath. { intro; apply homset_property. }
-  simpl.
+  apply tm_reindx_eq. cbn.
+  etrans. { apply Pb_map_commutes_2. }
+  etrans. { apply id_left. }
   apply pathsinv0.
-  apply PullbackArrowUnique.
-  + rewrite transportf_total2. cbn.
-    etrans. { eapply (transportf_dpr_typecat C_sptc). }
-    exact (pr2 a).
-  + etrans. 2: { apply pathsinv0, id_left. }
-    rewrite transportf_total2. cbn.
-    etrans. { apply maponpaths_2, (functtransportf (fun A => Γ ◂ A)). }
-    etrans. { apply maponpaths_2, pathsinv0, idtoiso_postcompose. }
-    etrans. { apply pathsinv0, assoc. }
-    etrans. 2: { apply id_right. }
-    apply maponpaths.
-    etrans. { apply maponpaths, (@reind_id_term_typecat C_sptc). }
-    etrans. { apply idtoiso_concat_pr. }
-    apply pathsinv0, idtoiso_eq_idpath.
-    etrans. { apply pathsinv0, maponpathscomp0. }
-    etrans. { apply maponpaths, pathsinv0l. }
-    apply idpath.
+  rewrite transportf_total2. cbn.
+  etrans. { apply maponpaths_2, (functtransportf (fun A => Γ ◂ A)). }
+  etrans. { apply maponpaths_2, pathsinv0, idtoiso_postcompose. }
+  etrans. { apply pathsinv0, assoc. }
+  etrans. 2: { apply id_right. }
+        apply maponpaths.
+  etrans. { apply maponpaths, (@reind_id_term_typecat C_sptc). }
+  etrans. { apply idtoiso_concat_pr. }
+  apply pathsinv0, idtoiso_eq_idpath.
+  etrans. { apply pathsinv0, maponpathscomp0. }
+  etrans. { apply maponpaths, pathsinv0l. }
+  apply idpath.
 Qed.
+
 
 Lemma reindx_term_comp_typecat 
   (Γ Γ' Γ'' : CC)
@@ -140,35 +150,31 @@ Lemma reindx_term_comp_typecat
      ((a ⟦ γ ⟧) ⟦ γ' ⟧).
 Proof.
   intros.
-  unfold tt_reindx_from_typecat in *. simpl.
-  apply subtypePath. { intro; apply homset_property. }
-  simpl.
-  apply pathsinv0, PullbackArrowUnique.
-  - rewrite transportf_total2. cbn.
-    etrans. { eapply (transportf_dpr_typecat C_sptc). }
-    apply Pb_map_commutes_1.
-  - rewrite transportf_total2. cbn.
-    etrans. { apply maponpaths_2, (functtransportf (fun A => _ ◂ A)). }
-    etrans. { apply maponpaths_2, pathsinv0, idtoiso_postcompose. }
-    etrans. { apply maponpaths, (@reind_comp_term_typecat C_sptc). }
-    etrans. { apply pathsinv0, assoc. }
-    etrans. { apply maponpaths.
-      etrans. { apply maponpaths, pathsinv0, assoc. }
-      etrans. { apply assoc. }
-      apply maponpaths_2.
-      etrans. { apply idtoiso_concat_pr. }
-      eapply pathsinv0, idtoiso_eq_idpath.
-      etrans. { apply pathsinv0, maponpathscomp0. }
-      etrans. { apply maponpaths, pathsinv0l. }
-      apply idpath. }
-    etrans. { apply maponpaths, id_left. }
+  unfold tt_reindx_from_typecat in *.
+  apply tm_reindx_eq; simpl.
+  etrans. { apply Pb_map_commutes_2. }
+  rewrite transportf_total2. cbn. apply pathsinv0.
+  etrans. { apply maponpaths_2, (functtransportf (fun A => _ ◂ A)). }
+  etrans. { apply maponpaths_2, pathsinv0, idtoiso_postcompose. }
+  etrans. { apply maponpaths, (@reind_comp_term_typecat C_sptc). }
+  etrans. { apply pathsinv0, assoc. }
+  etrans. { apply maponpaths.
+    etrans. { apply maponpaths, pathsinv0, assoc. }
     etrans. { apply assoc. }
-    etrans. { apply maponpaths_2, Pb_map_commutes_2. }
-    etrans. { apply pathsinv0, assoc. } 
-    etrans. 2: { apply assoc. } 
-    apply maponpaths, Pb_map_commutes_2.
+    apply maponpaths_2.
+    etrans. { apply idtoiso_concat_pr. }
+    eapply pathsinv0, idtoiso_eq_idpath.
+    etrans. { apply pathsinv0, maponpathscomp0. }
+    etrans. { apply maponpaths, pathsinv0l. }
+    apply idpath. }
+  etrans. { apply maponpaths, id_left. }
+  etrans. { apply assoc. }
+  etrans. { apply maponpaths_2, Pb_map_commutes_2. }
+  etrans. { apply pathsinv0, assoc. }
+  etrans. 2: { apply assoc. }
+  apply maponpaths, Pb_map_commutes_2.
 Qed.
-  
+
 Definition reindx_laws_terms_of_typecat : reindx_laws_terms  reindx_laws_type_of_typecat.
 Proof.
   split.
@@ -229,79 +235,71 @@ Proof.
   unfold comp_laws_1_2.
   intros Γ A Γ' γ a. simpl.
   unshelve refine (tpair _ _ _ ).
-  - unfold pairing; simpl.
+  { unfold pairing; simpl.
     etrans. { apply pathsinv0, assoc. }
     etrans. { apply maponpaths, dpr_q_typecat. }
     etrans. { apply assoc. }
     etrans. { apply maponpaths_2, (pr2 a). }
-    apply id_left.
-  - (* TODO: there’s some redundant work in this, and a few places elsewhere:
-    we start by forgetting the section-property, but then have to show it again for [PullbackArrowUnique].
-    This probably should be abstracted as a lemma: to show two terms of a reindexed type are equal, it suffices to check their composites with q. *)
-    apply subtypePath. { intro; apply homset_property. }
-    do 2 (rewrite transportf_total2; simpl).
-    rewrite (functtransportf (fun f => _ ◂ (_ f))).
-    rewrite (functtransportf (fun A => _ ◂ A)).
-    rewrite <- 2 idtoiso_postcompose.
+    apply id_left. }
+  use transportf_transpose_left.
+  use (@transportf_transpose_left _ (λ B : C Γ', _)).
+  apply tm_reindx_eq; simpl.
+  etrans. { apply Pb_map_commutes_2. }
+  apply pathsinv0.
+  unfold transportb. do 2 (rewrite transportf_total2; simpl).
+  rewrite (functtransportf (fun f => _ ◂ (_ f))).
+  rewrite (functtransportf (fun A => _ ◂ A)).
+  rewrite <- 2 idtoiso_postcompose.
+  etrans. { apply maponpaths_2, assoc'. }
+  rewrite idtoiso_concat_pr.
+  rewrite <- (maponpathscomp (fun f => A {{f}}) (fun A' => Γ' ◂ A')).
+  rewrite <- maponpathscomp0.
+  unfold pairing. simpl.
+  use (map_into_Pb_unique (reind_pb_typecat _ _)).
+  - etrans. 2: { apply assoc. }
+    etrans. 2: { eapply maponpaths, pathsinv0, Pb_map_commutes_1. }
+    etrans. 2: { apply pathsinv0, id_right. }
     etrans. { apply assoc'. }
-    etrans. { apply maponpaths, idtoiso_concat_pr. }
-    apply idtoiso_postcompose_idtoiso_pre.
-    etrans. 2: { apply maponpaths, maponpaths, maponpaths.
-        rewrite <- (maponpathscomp (fun f => A {{f}}) (fun A' => Γ' ◂ A')).
-        rewrite <- maponpathscomp0.
-        apply maponpathsinv0. }
-    apply pathsinv0, (PullbackArrowUnique' _ _ _ (make_Pullback _ _)).
-    + cbn.
+    etrans. { apply maponpaths, dpr_q_typecat. }
+    etrans. { apply assoc. }
+    etrans. 2: { apply id_left. }
+    apply maponpaths_2.
+    etrans. { apply assoc'. }
+    etrans. { apply maponpaths, (idtoiso_dpr_typecat C_sptc). }
+    exact (pr2 a).
+  - etrans. 2: { apply assoc. }
+    etrans. 2: { eapply maponpaths, pathsinv0, Pb_map_commutes_2. }
+    etrans. 2: { apply pathsinv0, id_right. }
+    cbn. etrans. { apply assoc'. }
+    etrans. { apply maponpaths, pathsinv0. 
+      eapply iso_inv_on_right.
+      etrans. 2: { apply assoc'. }
+      apply (@q_q_typecat C_sptc). }
+    etrans. { apply maponpaths, maponpaths_2, pathsinv0.
+      refine (maponpaths pr1 (idtoiso_inv _ _ _ _)). }
+    etrans. { apply maponpaths, maponpaths.
+      refine (idtoiso_q_typecat _ _).
       etrans. { apply assoc'. }
-      etrans. { apply maponpaths.
-        apply (idtoiso_dpr_typecat C_sptc). }
-      apply (pr2 a).
-    + unfold pairing. simpl.
-      use (map_into_Pb_unique (reind_pb_typecat _ _)).
-      * etrans. 2: { apply assoc. }
-        etrans. 2: { eapply maponpaths, pathsinv0, Pb_map_commutes_1. }
-        etrans. 2: { apply pathsinv0, id_right. }
-        etrans. { apply assoc'. }
-        etrans. { apply maponpaths, dpr_q_typecat. }
-        etrans. { apply assoc. }
-        etrans. 2: { apply id_left. }
-        apply maponpaths_2.
-        etrans. { apply assoc'. }
-        etrans. { apply maponpaths, (idtoiso_dpr_typecat C_sptc). }
-        exact (pr2 a).
-      * etrans. 2: { apply assoc. }
-        etrans. 2: { eapply maponpaths, pathsinv0, Pb_map_commutes_2. }
-        etrans. 2: { apply pathsinv0, id_right. }
-        cbn. etrans. { apply assoc'. }
-        etrans. { apply maponpaths, pathsinv0. 
-                  eapply iso_inv_on_right.
-                  etrans. 2: { apply assoc'. }
-                  apply (@q_q_typecat C_sptc). }
-        etrans. { apply maponpaths, maponpaths_2, pathsinv0.
-          refine (maponpaths pr1 (idtoiso_inv _ _ _ _)). }
-        etrans. { apply maponpaths, maponpaths.
-          refine (idtoiso_q_typecat _ _).
-          etrans. { apply assoc'. }
-          etrans. { apply maponpaths, dpr_q_typecat. }
-          etrans. { apply assoc. }
-          etrans. { apply maponpaths_2, (pr2 a). }
-          apply id_left. }
-        etrans. { apply maponpaths, assoc. }
-        etrans. { apply assoc. }
-        etrans. { apply maponpaths_2, assoc'. }
-        apply maponpaths_2.
-        etrans. 2: { apply id_right. }
-        apply maponpaths.
-        etrans. { apply maponpaths, idtoiso_concat_pr. }
-        etrans. { apply idtoiso_concat_pr. }
-        apply pathsinv0, idtoiso_eq_idpath.
-        rewrite <- maponpathsinv0.
-        rewrite <- (maponpathscomp (fun f => A {{f}}) (fun A' => Γ' ◂ A')).
-        repeat rewrite <- maponpathscomp0.
-        (* TODO: make lemma analogous to [idtoiso_eq_idpath] for such situations *)
-        refine (@maponpaths _ _ (maponpaths _) _ (idpath _) _).
-        apply isaset_types_typecat.
-        (* TODO: fix duplicate [reind_comp_term_typecat], [q_q_typecat]. *)
+      etrans. { apply maponpaths, dpr_q_typecat. }
+      etrans. { apply assoc. }
+      etrans. { apply maponpaths_2, (pr2 a). }
+      apply id_left. }
+    etrans. { apply maponpaths, assoc. }
+    etrans. { apply assoc. }
+    etrans. { apply maponpaths_2, assoc'. }
+    apply maponpaths_2.
+    etrans. 2: { apply id_right. }
+    apply maponpaths.
+    etrans. { apply maponpaths, idtoiso_concat_pr. }
+    etrans. { apply idtoiso_concat_pr. }
+    apply pathsinv0, idtoiso_eq_idpath.
+    rewrite <- maponpathsinv0.
+    rewrite <- (maponpathscomp (fun f => A {{f}}) (fun A' => Γ' ◂ A')).
+    repeat rewrite <- maponpathscomp0.
+    (* TODO: make lemma analogous to [idtoiso_eq_idpath] for such situations *)
+    refine (@maponpaths _ _ (maponpaths _) _ (idpath _) _).
+    apply isaset_types_typecat.
+    (* TODO: fix duplicate [reind_comp_term_typecat], [q_q_typecat]. *)
 Time Qed.
 
 Lemma comp_law_3_of_typecat : @comp_law_3 CC tt_reindx_type_struct_of_typecat reindx_laws_of_typecat.
@@ -389,12 +387,4 @@ Proof.
 Defined.
     
 End CwF_of_Comp.
-
-
-
-
-
-
-
-
 
