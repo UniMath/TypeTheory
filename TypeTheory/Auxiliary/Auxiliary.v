@@ -1779,7 +1779,6 @@ Coercion structure_of_comprehension_cat (C : comprehension_cat) := pr2 C.
 (* Lemmas that probably belong in one of the sections above, but haven’t been sorted into them yet.  Mainly a temporary holding pen for lemmas being upstreamed from other files. TODO: empty this bin frequently (but keep it here for re-use). *) 
 Section Unorganised.
 
-(* TODO: upstream this and the following lemma? *)
 Lemma transportf_pshf {C : category}
     {P P' : preShv C} (e : P = P')
     {c : C} (x : (P : functor _ _) c : hSet)

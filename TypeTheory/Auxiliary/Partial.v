@@ -233,7 +233,6 @@ Section Monad.
     eauto using leq_partial_trans, bind_leq_partial_1, bind_leq_partial_2.
   Defined.
 
-  (* TODO: upstream. Naming alternative: [show_bind_leq_partial] *)
   Lemma bind_partial_as_sup {X Y} {x : partial X} (f : X -> partial Y)
       (y : partial Y)
       (H : forall (x_def : is_defined x), leq_partial (f (evaluate x_def)) y)
@@ -243,7 +242,6 @@ Section Monad.
     intros x_def. apply (leq_partial_commutes (H _)).
   Defined.
 
-  (* TODO: upstream *)
   Lemma leq_bind_partial {X Y} {x : partial X} (f : X -> partial Y)
       (x_def : is_defined x)
     : leq_partial (f (evaluate x_def)) (bind_partial x f).
