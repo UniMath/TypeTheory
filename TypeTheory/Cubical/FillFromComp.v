@@ -104,9 +104,6 @@ Local Open Scope cat.
 
 Ltac pathvia b := (eapply (@pathscomp0 _ _ b _ )).
 
-(* TODO: upstream? *)
-Arguments isPullback {_ _ _ _ _ _ _ _ _} _.
-
 Section cubical.
 
 Context {C : category} (BPC : BinProducts C).
