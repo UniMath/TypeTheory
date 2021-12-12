@@ -210,6 +210,17 @@ Proof.
   induction eA. induction eB. apply idpath.
 Defined.
 
+(* variant of UniMath’s [transportf_dirprod], easier to apply: paired hypotheses are split up, and one redundant component removed *)
+Lemma transportf_dirprod' {A : UU} (B C : A → UU)
+      {a:A} (bc : B a × C a)
+      {a':A} (p : a = a')
+  : transportf (λ a : A, B a × C a) p bc
+    = (transportf (λ a : A, B a) p (pr1 bc),
+       transportf (λ a : A, C a) p (pr2 bc)).
+Proof.
+  destruct p; apply idpath.
+Defined.
+
 (** ** Lemmas on equivalences and general type-algebra *)
 
 Lemma invmap_eq {A B : UU} (f : A ≃ B) (b : B) (a : A)
