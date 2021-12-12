@@ -188,5 +188,4 @@ Defined.
 
   - Rename “transportb_transpose_right”.
 
-  - make first arguments of [nat_trans_comp] implicit
 *)

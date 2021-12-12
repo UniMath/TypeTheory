@@ -464,31 +464,18 @@ Defined.
 
 Definition Tm_iso : iso (ηη TM') TM.
 Proof.
-  set (XR':=  counit_pointwise_iso_from_adj_equivalence Fopequiv TM).
-  apply XR'.
+  apply (counit_pointwise_iso_from_adj_equivalence Fopequiv TM).
 Defined.
 
 Definition Ty_iso : iso (ηη TY') TY.
 Proof.
-  set (XR':=  counit_pointwise_iso_from_adj_equivalence Fopequiv TY).
-  apply XR'.
+  apply (counit_pointwise_iso_from_adj_equivalence Fopequiv TY).
 Defined.
 
 Lemma Morphism_of_presheaves_transfer_recover : Tm_iso ;; pp = pp'_eta ;; Ty_iso.
 Proof.
-  assert (XR := nat_trans_ax (counit_from_left_adjoint Fopequiv) _ _ pp).
   apply pathsinv0.
-  etrans. 2: { apply XR. }
-  clear XR.
-  set (TT := #(right_adjoint Fopequiv) pp).
-  set (TTT := #ηη TT).
-  apply maponpaths_2.
-  intermediate_path TTT. 
-  - apply maponpaths. unfold pp'. 
-    unfold TT.
-    unfold T'.
-    apply idpath.
-  - apply idpath.
+  apply (nat_trans_ax (counit_from_left_adjoint Fopequiv) pp).
 Qed.
 
 End CwF_Ftransport_recover.
@@ -573,19 +560,8 @@ Defined.
 
 Lemma RC_morphism_of_presheaves_recover : RC_Tm_iso ;; pp = RC_pp'_eta ;; RC_Ty_iso.
 Proof.
-  assert (XR := nat_trans_ax (counit_from_left_adjoint RCequiv) _ _ pp).
   apply pathsinv0.
-  etrans.  2: { apply XR. }
-  clear XR.
-  set (TT := #(right_adjoint RCequiv) pp).
-  set (TTT := #ηη TT).
-  apply maponpaths_2.
-  intermediate_path TTT. 
-  - apply maponpaths. unfold pp'. 
-    unfold TT.
-    unfold T'.
-    apply idpath.
-  - apply idpath.
+  apply (nat_trans_ax (counit_from_left_adjoint RCequiv) pp).
 Qed.
 
 End CwF_RC_recover.

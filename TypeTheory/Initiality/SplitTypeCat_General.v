@@ -11,9 +11,6 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.TypeCat.
 
-(* TODO: upstream? *)
-Arguments nat_trans_ax {C C'} {F F'} a {x x'} f.
-
 Local Open Scope cat.
 
 (** Notations for working in split type cats *)

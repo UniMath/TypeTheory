@@ -305,7 +305,7 @@ Lemma subst_term_prf {Γ Δ : PreShv C} (σ : Δ --> Γ) (A : Γ ⊢) (a : Γ �
   # (pr1 (A⦃σ⦄)) (mor_to_el_mor f ρ) (pr1 a I (pr1 σ I ρ)) =
   pr1 a J (pr1 σ J (# (pr1 Δ) f ρ)).
 Proof.
-set (eq := eqtohomot (nat_trans_ax σ I J f) ρ).
+set (eq := eqtohomot (nat_trans_ax σ f) ρ).
 set (x := # (pr1 A) (mor_to_el_mor f (pr1 σ I ρ)) (pr1 a I (pr1 σ I ρ))).
 intermediate_path (transportb (λ x, pr1 ((pr1 A) (make_ob J x))) eq x).
 { apply pathsinv0.
@@ -381,7 +381,7 @@ use make_nat_trans.
   apply (pr1 σ _ ρ,,pr1 a I ρ).
 - intros I J f.
   apply funextsec; intro ρ; cbn.
-  apply (total2_paths2_f (eqtohomot (nat_trans_ax σ I J f) ρ)).
+  apply (total2_paths2_f (eqtohomot (nat_trans_ax σ f) ρ)).
   etrans; [eapply maponpaths, (!(pr2 a I J f ρ))|].
   etrans; [use transportf_make_ob|].
   etrans; [apply (@transportf_PreShv (∫ Γ) A)|].
@@ -390,7 +390,7 @@ use make_nat_trans.
   rewrite transportf_total2; simpl.
   etrans; [apply transportf_make_ob_eq|].
   etrans; [eapply map_on_two_paths; [|apply idpath]|].
-    apply(base_paths_maponpaths_make_ob _ _ (eqtohomot (nat_trans_ax σ I J f) ρ)).
+    apply(base_paths_maponpaths_make_ob _ _ (eqtohomot (nat_trans_ax σ f) ρ)).
   now rewrite idpath_transportf.
 Defined.
 
@@ -530,7 +530,7 @@ use make_nat_trans.
 - intros I X.
   apply (pr1 σ _ (pr1 X)).
 - intros I J f; apply funextsec; intro ρ.
-  apply (eqtohomot (nat_trans_ax σ I J f) (pr1 ρ)).
+  apply (eqtohomot (nat_trans_ax σ f) (pr1 ρ)).
 Defined.
 
 Definition q_gen {Γ Δ : PreShv C} {A : Γ ⊢} (σ : Δ --> Γ) : (Δ ⋆ (A⦃σ⦄)) ⊢ A⦃p_gen σ⦄.

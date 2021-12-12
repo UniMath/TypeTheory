@@ -283,7 +283,7 @@ Section CwF_structure_cat.
         set (A' := (F_TY : nat_trans _ _) _ A).
         unfold cwf_structure_mor_term_axiom in f3, g3. simpl in f3, g3.
         refine (maponpaths _ (f3 Γ A) @ _).
-        etrans. apply (toforallpaths _ _ _ (nat_trans_ax F_TM' _ _ _)).
+        etrans. apply (toforallpaths _ _ _ (nat_trans_ax F_TM' _)).
         refine (maponpaths _ (g3 Γ A') @ _).
         rewrite <- compose_ap, <- (functor_comp (TM Z)).
         apply idpath.

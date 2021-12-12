@@ -86,7 +86,7 @@ Proof.
   apply nat_trans_eq. apply homset_property.
   intros Γ; simpl in Γ. apply funextsec; intros [A [s e]].
   cbn. unfold canonical_TM_to_given_data.
-  etrans. apply (toforallpaths _ _ _ (nat_trans_ax (pp Y) _ _ s)). 
+  etrans. apply (toforallpaths _ _ _ (nat_trans_ax (pp Y) s)). 
   etrans. cbn. apply maponpaths, pp_te.
   etrans. apply (toforallpaths _ _ _ (!functor_comp (TY X) _ _) _).
   etrans. apply maponpaths_2, e.

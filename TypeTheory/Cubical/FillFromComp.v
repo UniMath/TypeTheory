@@ -104,8 +104,7 @@ Local Open Scope cat.
 
 Ltac pathvia b := (eapply (@pathscomp0 _ _ b _ )).
 
-Arguments nat_trans_ax {_ _ _ _} _ {_ _} _.
-Arguments nat_trans_comp {_ _ _ _ _} _ _.
+(* TODO: upstream? *)
 Arguments isPullback {_ _ _ _ _ _ _ _ _} _.
 
 Section cubical.

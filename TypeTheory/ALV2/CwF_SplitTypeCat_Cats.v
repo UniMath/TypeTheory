@@ -155,7 +155,7 @@ Proof.
 (* Insert [cbn] to see what’s actually happening; removed for compile speed. *)
   unfold yoneda_objects_ob. apply funextsec; intros f.
   etrans. 
-    use (toforallpaths _ _ _ (nat_trans_ax (term_fun_mor_TM FF) _ _ _)).
+    use (toforallpaths _ _ _ (nat_trans_ax (term_fun_mor_TM FF) _)).
   etrans. cbn. apply maponpaths, term_fun_mor_te.
   use (toforallpaths _ _ _ (!functor_comp (TM Y') _ _ )).
 Qed.
@@ -260,7 +260,7 @@ Proof.
     + intros Γ A.
       etrans. cbn. apply maponpaths, term_fun_mor_te.
       etrans. use (toforallpaths _ _ _
-                        (nat_trans_ax (term_fun_mor_TM _) _ _ _)).
+                        (nat_trans_ax (term_fun_mor_TM _) _)).
       etrans. cbn. apply maponpaths, term_fun_mor_te.
       use (toforallpaths _ _ _ (!functor_comp (TM _) _ _)).
 Defined.

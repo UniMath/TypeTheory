@@ -861,13 +861,9 @@ Proof.
       apply pathsinv0. rewrite <- assoc. rewrite <- assoc.
       apply (iso_inv_to_left (C:=D') _ _ _ (αpwiso Xf )).
       cbn. unfold precomp_with. rewrite id_right.
-      assert (XR := nat_trans_ax α').
-      apply pathsinv0. 
-      etrans. 2: { apply XR. }
+      etrans. { apply pathsinv0, (nat_trans_ax α'). }
       cbn.
-      apply pathsinv0. 
-      etrans. apply maponpaths_2. apply maponpaths. 
-            apply Hip'.
+      etrans. { apply maponpaths_2, maponpaths, Hip'. }
       rewrite functor_comp.
       apply pathsinv0, assoc.
     + cbn. 
@@ -891,17 +887,14 @@ Proof.
         unfold f'. apply idpath.
       * rewrite id_left. rewrite id_right. apply idpath.
       * cbn. unfold precomp_with. rewrite id_right. rewrite id_right.
-        assert (XR := nat_trans_ax α').
-        cbn in XR. 
         etrans. 2: { apply assoc. }
-        rewrite <- XR.
+        etrans. 2: { apply maponpaths, (nat_trans_ax α'). }
         rewrite assoc.
-        apply maponpaths_2.
+        apply maponpaths_2. cbn.
         rewrite <- functor_comp. 
         apply maponpaths.
         apply pathsinv0.
-        etrans. apply maponpaths. 
-          apply Hip'.
+        etrans. { apply maponpaths, Hip'. }
         rewrite assoc.
         rewrite iso_after_iso_inv.
         apply id_left.
@@ -909,9 +902,8 @@ Proof.
         unfold precomp_with. rewrite id_right.
         apply pathsinv0.
         do 2 rewrite assoc.
-        etrans. apply maponpaths_2. apply assoc4.
-        etrans. apply maponpaths_2. apply maponpaths_2. apply maponpaths.
-          apply α'_α.
+        etrans. { apply maponpaths_2, assoc4. }
+        etrans. { apply maponpaths_2, maponpaths_2, maponpaths, α'_α. }
         rewrite id_right.
         rewrite <- functor_comp.
         rewrite iso_after_iso_inv.

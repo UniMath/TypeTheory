@@ -1143,6 +1143,9 @@ Defined.
 
 (** ** Presheaves and Yoneda *)
 
+Arguments nat_trans_ax {C C'} {F F'} a {x x'} f.
+Arguments nat_trans_comp {_ _ _ _ _} _ _.
+
 Definition preShv C := functor_univalent_category C^op HSET_univalent_category.
 
 Notation "'Yo'" := (yoneda _ : functor _ (preShv _)).
@@ -1175,7 +1178,7 @@ Proof.
   - apply homset_property.
   - intro c. simpl. 
     apply funextsec. intro f. cbn.
-    assert (XR := toforallpaths _ _ _ (nat_trans_ax p _ _ f) v ).
+    assert (XR := toforallpaths _ _ _ (nat_trans_ax p f) v ).
     cbn in XR.
     apply XR.
 Qed.
