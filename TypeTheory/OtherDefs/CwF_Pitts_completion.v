@@ -32,73 +32,6 @@ Proof.
   apply F.
 Defined.
 
-(** The opposite precategory of a saturated category is saturated. **)
-(* TODO: this section probably now provided by UniMath; remove if so, otherwise upstream *)
-Definition opp_iso_inv {C : precategory} {a b : C} : iso (opp_precat C) a b → iso C b a.
-Proof.
-  intro f.
-  set (H:= is_z_iso_from_is_iso f (pr2 f)).
-  exists (pr1 f).
-  apply is_iso_from_is_z_iso.
-  exists (pr1 H).
-  split.
-  - apply (pr2 (pr2 H)).
-  - apply (pr1 (pr2 H)).
-Defined.
-
-Lemma opp_iso_opp_iso_inv (C : precategory) (a b : C) (f : iso (opp_precat C) a b) : 
-   opp_iso (opp_iso_inv f) = f.
-Proof.
-  apply eq_iso.
-  apply idpath.
-Qed.
-
-Lemma opp_iso_inv_opp_iso (C : precategory) (a b : C) (f : iso C a b) : 
-   opp_iso_inv (opp_iso f) = f.
-Proof.
-  apply eq_iso.
-  apply idpath.
-Qed.
-
-Definition weq_opp_iso (C : precategory) (a b : C) : 
-  iso C a b ≃ iso (opp_precat C) b a.
-Proof.
-  exists (opp_iso).
-  apply (gradth (@opp_iso _ _ _  ) (@opp_iso_inv _ _ _ )).
-  - apply opp_iso_inv_opp_iso.
-  - apply opp_iso_opp_iso_inv.
-Defined.
-
-Definition isotoid_opp (C : category) (H : is_univalent C) (a b : opp_precat C) : 
-   weq (a = b) (iso (C^op) a b).
-Proof.
-  eapply weqcomp.
-  - apply weqpathsinv0.
-  - eapply weqcomp.
-    + apply (make_weq (@idtoiso C b a) (H b a)).
-    + apply weq_opp_iso.
-Defined.
-
-
-Definition is_univalent_opp (C : category) (H : is_univalent C) : is_univalent C^op.
-Proof.
-  intros a b.
-  set (H1:=@isweqhomot).
-  set (H2 := H1 _ _ (isotoid_opp C H a b)).
-  apply H2.
-  intro t; induction t.
-  apply eq_iso; apply idpath.
-  apply (pr2 (isotoid_opp C H a b)).
-Qed.
- 
-Definition opp_univalent_cat (C : univalent_category) : univalent_category.
-Proof.
-  exists C^op.
-  apply is_univalent_opp.
-  apply (pr2 C).
-Defined.
-
-
 (** * Saturating a CwF *)
 
 Section CwF_completion.
@@ -133,7 +66,7 @@ Definition type_functor : functor _ _ := tpair _ _ type_is_functor.
 
 Definition RC_type_functor : functor (Rezk_completion CC) (opp_precat HSET).
 Proof.  
-  apply (Rezk_functor CC (opp_univalent_cat HSET_univalent_category)).
+  apply (Rezk_functor CC (op_unicat HSET_univalent_category)).
   apply type_functor.
 Defined.
   
