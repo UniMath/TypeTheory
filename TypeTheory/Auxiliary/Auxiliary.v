@@ -1194,6 +1194,15 @@ Proof.
     apply XR.
 Qed.
 
+Lemma yoneda_postcompose {C : category} (P : preShv C)
+  {y z : C} (α : P --> Yo y) (f : y --> z)
+  {x:C} (p : (P : functor _ _) x : hSet)
+  : ((α : nat_trans _ _) x p) ;; f
+    = (α ;; yoneda_morphisms _ _ _ f : nat_trans _ _) x p.
+Proof.
+  apply idpath.
+Defined.
+
 Lemma transportf_yy {C : category}
       (F : preShv C) (c c' : C) (A : (F : functor _ _ ) c : hSet)
       (e : c = c'):
@@ -1203,6 +1212,18 @@ Proof.
   induction e.
   apply idpath.
 Defined.
+
+Lemma transportf_pshf' {C : category} (P : preShv C)
+  {c c' : C} (e : c = c')
+  (x : (P : functor _ _) c : hSet)
+  : transportf (fun c => (P : functor _ _) c : hSet) e x
+    = # (P : functor _ _) (idtoiso (!e)) x.
+Proof.
+  destruct e. cbn.
+  apply pathsinv0. 
+  revert x; apply toforallpaths. 
+  apply (functor_id P).
+Qed.
 
 (** ** Basic pullback utility functions *)
 
