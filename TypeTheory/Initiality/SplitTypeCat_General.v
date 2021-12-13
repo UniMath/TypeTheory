@@ -3,7 +3,7 @@
 
 Note: much of this essentially duplicates material given already in the [ALV1] package, since everything there is given not for [split_typecat] itself but for the reassociated definition [split_typecat'], and the equivalence doesn’t compute straightforwardly enough to allow them to be used here.
 
-Probably much of this really should belong in a different pagckage. *)
+Probably much of this really should belong in a different package. *)
 
 Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
