@@ -489,7 +489,7 @@ Section RelUniv_ϕ_Cat.
         etrans. apply assoc'.
         etrans. apply maponpaths, idtoiso_concat_pr.
         
-        apply pathsinv0. etrans. apply pathsinv0, id_right.
+        etrans. 2: apply id_right.
         apply maponpaths.
         apply idtoiso_eq_idpath.
 
@@ -561,7 +561,7 @@ Section RelUniv_ϕ_Cat.
         etrans. apply maponpaths, assoc'.
         etrans. apply assoc.
         etrans. apply maponpaths_2, idtoiso_concat_pr.
-        etrans. apply maponpaths_2, pathsinv0, idtoiso_eq_idpath.
+        etrans. apply maponpaths_2, idtoiso_eq_idpath.
         apply pathsinv0r.
         etrans. apply id_left.
         

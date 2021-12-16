@@ -129,7 +129,7 @@ Proof.
         apply maponpaths.
   etrans. { apply maponpaths, (@reind_id_term_typecat C_sptc). }
   etrans. { apply idtoiso_concat_pr. }
-  apply pathsinv0, idtoiso_eq_idpath.
+  apply idtoiso_eq_idpath.
   etrans. { apply pathsinv0, maponpathscomp0. }
   etrans. { apply maponpaths, pathsinv0l. }
   apply idpath.
@@ -163,7 +163,7 @@ Proof.
     etrans. { apply assoc. }
     apply maponpaths_2.
     etrans. { apply idtoiso_concat_pr. }
-    eapply pathsinv0, idtoiso_eq_idpath.
+    eapply idtoiso_eq_idpath.
     etrans. { apply pathsinv0, maponpathscomp0. }
     etrans. { apply maponpaths, pathsinv0l. }
     apply idpath. }
@@ -292,7 +292,7 @@ Proof.
     apply maponpaths.
     etrans. { apply maponpaths, idtoiso_concat_pr. }
     etrans. { apply idtoiso_concat_pr. }
-    apply pathsinv0, idtoiso_eq_idpath.
+    apply idtoiso_eq_idpath.
     rewrite <- maponpathsinv0.
     rewrite <- (maponpathscomp (fun f => A {{f}}) (fun A' => Γ' ◂ A')).
     repeat rewrite <- maponpathscomp0.
@@ -342,7 +342,7 @@ Proof.
   rewrite idtoiso_concat_pr.
 
   etrans. apply maponpaths_2. apply maponpaths_2. apply maponpaths.
-  eapply pathsinv0. apply idtoiso_eq_idpath. 
+  apply idtoiso_eq_idpath. 
   {  rewrite <- maponpathscomp0.
      apply maponpaths_eq_idpath.
      simpl.

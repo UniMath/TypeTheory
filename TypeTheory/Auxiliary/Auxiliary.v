@@ -1004,9 +1004,9 @@ Defined.
 
 Lemma idtoiso_eq_idpath (C : precategory) (a : C) (e : a = a)
     (H : e = idpath _ )
-  : identity a = idtoiso e.
+  : (idtoiso e : _ --> _) = identity_iso _.
 Proof.
-  destruct (!H). apply idpath.
+  apply maponpaths, (maponpaths idtoiso H).
 Qed.
 
 Lemma idtoiso_precompose'
