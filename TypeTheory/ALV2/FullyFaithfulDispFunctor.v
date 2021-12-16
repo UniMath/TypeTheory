@@ -718,9 +718,7 @@ Section FullyFaithfulDispFunctor.
       use weqonsecfibers. intros ?.
       eapply weqcomp. apply weqtoforallpaths.
       use weqonsecfibers. intros ?.
-      eapply weqcomp. apply weqtoforallpaths.
-      use weqonsecfibers. intros ?.
-      apply idweq.
+      apply weqtoforallpaths.
     Defined.
 
     Definition disp_cat_eq_1_to_disp_cat_eq_2
@@ -1010,11 +1008,7 @@ Section FullyFaithfulDispFunctor.
       : ff_disp_functor_weq F = target_disp_inclusion_functor_explicit F.
     Proof.
       apply (invmaponpathsweq (invweq ff_disp_functor_weq)).
-      use total2_paths_f.
-      - apply idpath.
-      - apply funextsec. intros c.
-        apply funextsec. intros d.
-        apply idpath.
+      apply idpath.
     Defined.
 
     Definition ff_disp_functor_explicit_eq
@@ -1032,7 +1026,7 @@ Section FullyFaithfulDispFunctor.
       use total2_paths_f.
       - apply eq_ob.
       - apply funextsec. intros d.
-        etrans. apply (maponpaths (λ k, k d) (transportf_forall_var _ (λ x, x) _ _ _ _ _)).
+        etrans. { eapply (maponpaths (λ k, k d)), (transportf_forall_var _ (λ x, x)). }
         apply eq_Fob.
     Defined.
 
