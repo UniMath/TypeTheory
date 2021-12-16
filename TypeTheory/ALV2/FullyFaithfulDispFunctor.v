@@ -710,15 +710,15 @@ Section FullyFaithfulDispFunctor.
       induction Fo.
       unfold data_cat_eq_1, data_cat_eq_2.
       cbn.
-      refine (_ ∘ weqtoforallpaths _ _ _)%weq.
+      eapply weqcomp. apply weqtoforallpaths.
       use weqonsecfibers. intros ?.
-      eapply weqcomp. apply (weqtoforallpaths _ _ _)%weq.
+      eapply weqcomp. apply weqtoforallpaths.
       use weqonsecfibers. intros ?.
-      eapply weqcomp. apply (weqtoforallpaths _ _ _)%weq.
+      eapply weqcomp. apply weqtoforallpaths.
       use weqonsecfibers. intros ?.
-      eapply weqcomp. apply (weqtoforallpaths _ _ _)%weq.
+      eapply weqcomp. apply weqtoforallpaths.
       use weqonsecfibers. intros ?.
-      eapply weqcomp. apply (weqtoforallpaths _ _ _)%weq.
+      eapply weqcomp. apply weqtoforallpaths.
       use weqonsecfibers. intros ?.
       apply idweq.
     Defined.

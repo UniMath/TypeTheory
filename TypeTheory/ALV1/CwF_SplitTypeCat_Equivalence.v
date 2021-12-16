@@ -49,8 +49,8 @@ Proof.
   apply funextsec; intros [A [s e]].
   unfold canonical_TM_to_given_data; cbn.
   etrans. apply maponpaths, (pr2 Y).
-  etrans. apply (toforallpaths _ _ _ (!functor_comp (TM Y) _ _ ) _).
-  etrans. 2: { apply (toforallpaths _ _ _ (functor_comp (TM Y) _ _ ) _). }
+  etrans. apply (toforallpaths (!functor_comp (TM Y) _ _ ) _).
+  etrans. 2: { apply (toforallpaths (functor_comp (TM Y) _ _ ) _). }
   apply maponpaths_2. 
   apply (@PullbackArrow_PullbackPr2 C _ _ _ _ _ (make_Pullback _ _)).
 Qed.
@@ -86,11 +86,11 @@ Proof.
   apply nat_trans_eq. apply homset_property.
   intros Γ; simpl in Γ. apply funextsec; intros [A [s e]].
   cbn. unfold canonical_TM_to_given_data.
-  etrans. apply (toforallpaths _ _ _ (nat_trans_ax (pp Y) s)). 
+  etrans. apply (toforallpaths (nat_trans_ax (pp Y) s)). 
   etrans. cbn. apply maponpaths, pp_te.
-  etrans. apply (toforallpaths _ _ _ (!functor_comp (TY X) _ _) _).
+  etrans. apply (toforallpaths (!functor_comp (TY X) _ _) _).
   etrans. apply maponpaths_2, e.
-  apply (toforallpaths _ _ _ (functor_id (TY X) _ ) _).
+  apply (toforallpaths (functor_id (TY X) _ ) _).
 Qed.
 
 (* Functions between sets [f : X <--> Y : g] are inverse iff they are _adjoint_, in that [ f x = y <-> x = f y ] for all x, y.
@@ -104,9 +104,8 @@ Proof.
   intros H.
   (* This [assert] is to enable the [destruct eA] below. *)
   assert (eA : (pp Y : nat_trans _ _) _ t = A). {
-    etrans. apply maponpaths, (!H).
-    use (toforallpaths _ _ _ 
-      (nat_trans_eq_pointwise pp_canonical_TM_to_given _)).
+    etrans. { apply maponpaths, (!H). }
+    use (toforallpaths (nat_trans_eq_pointwise pp_canonical_TM_to_given _)).
   }
   use total2_paths_f.
   exact (!eA).
@@ -175,17 +174,17 @@ Lemma canonical_TM_to_given_te {Γ:C} A
 Proof.
   cbn. unfold canonical_TM_to_given_data. cbn.
   etrans. apply maponpaths, (pr2 Y).
-  etrans. use (toforallpaths _ _ _ (!functor_comp (TM Y) _ _ )).
+  etrans. use (toforallpaths (!functor_comp (TM Y) _ _ )).
   etrans. apply maponpaths_2; cbn.
     apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)). 
-  apply (toforallpaths _ _ _ (functor_id (TM Y) _) _).
+  apply (toforallpaths (functor_id (TM Y) _) _).
 Qed.
 
 Lemma given_TM_to_canonical_te {Γ:C} A
   : (given_TM_to_canonical : nat_trans _ _) (Γ ◂ A) (te Y A) = (te_from_qq Z A).
 Proof.
   etrans.
-  2: { exact (toforallpaths _ _ _ (canonical_to_given_to_canonical _) _). }
+  2: { exact (toforallpaths (canonical_to_given_to_canonical _) _). }
   cbn. apply maponpaths, @pathsinv0, canonical_TM_to_given_te.
 Qed.
 
@@ -227,10 +226,10 @@ Proof.
       etrans. apply transportf_isotoid_pshf.
       cbn. unfold canonical_TM_to_given_data. cbn.
       etrans. apply maponpaths, YH.
-      etrans. use (toforallpaths _ _ _ (!functor_comp tm _ _ )).
+      etrans. use (toforallpaths (!functor_comp tm _ _ )).
       etrans. apply maponpaths_2; cbn.
         apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)). 
-      apply (toforallpaths _ _ _ (functor_id tm _) _).
+      apply (toforallpaths (functor_id tm _) _).
 Defined.
 
 (** * Every compatible q-morphism structure is equal to the canonical one *)

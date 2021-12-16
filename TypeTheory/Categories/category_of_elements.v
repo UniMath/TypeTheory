@@ -13,9 +13,6 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
-(* TODO: try upstreaming *)
-Arguments toforallpaths [_ _ _ _] _ _.
-
 (* TODO: refactor as displayed category? *)
 Section precategory_of_elements_covariant.
 

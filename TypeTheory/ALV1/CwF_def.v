@@ -137,11 +137,11 @@ Lemma cwf_square_comm_converse {Γ : C} {A : Ty pp Γ : hSet}
   : ((pp : _ --> _) : nat_trans _ _) _ t = # (Ty pp) π A.
 Proof.
   etrans.
-    apply maponpaths, @pathsinv0.
-    apply (toforallpaths _ _ _ (functor_id (Tm pp) _)).
+  { apply maponpaths, pathsinv0, (toforallpaths (functor_id (Tm pp) _)). }
   etrans. 
-    assert (e' := nat_trans_eq_pointwise e ΓA); clear e; cbn in e'.
-    use (toforallpaths _ _ _ (!e') (identity _)).
+  { assert (e' := nat_trans_eq_pointwise e ΓA); clear e; cbn in e'.
+    refine (toforallpaths (!e') (identity _)).
+  }
   unfold yoneda_morphisms_data.
   apply maponpaths_2, id_left.
 Qed.
@@ -215,8 +215,8 @@ Proof.
     rewrite id_right.
     etrans. { apply yoneda_postcompose. }
     etrans. {
-      refine (toforallpaths _ _ _ _ (identity _)). 
-      refine (toforallpaths _ _ _ _ _). 
+      refine (toforallpaths _ (identity _)). 
+      refine (toforallpaths _ _). 
       apply maponpaths,
         (PullbackArrow_PullbackPr1 (make_Pullback _ (pr22 x))).
     }

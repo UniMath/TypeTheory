@@ -108,7 +108,7 @@ Section Partial_Interpretation.
   Proof.
     destruct e_T_T'.
     eapply pathscomp0.
-    2: { refine (toforallpaths _ _ _ (fmap_idmap_partial _) _). }
+    2: { refine (toforallpaths (fmap_idmap_partial _) _). }
     apply maponpaths_2, funextfun. use @tm_transportf_idpath.
   Qed.
 
@@ -683,7 +683,7 @@ a little more work to state. *)
       destruct (apply_leq_partial_pair l tt) as [ts_def H]; clear l.
       cbn in ts_def, H.
       intros i. exists (ts_def i).
-      eapply pathscomp0. 2: { exact (fiber_paths (toforallpaths _ _ _ H i)). }
+      eapply pathscomp0. 2: { exact (fiber_paths (toforallpaths H i)). }
       simple refine (_ @ _).
       { exact (transportf _ (idpath _) (evaluate (ts_def i))). }
       + apply idpath.

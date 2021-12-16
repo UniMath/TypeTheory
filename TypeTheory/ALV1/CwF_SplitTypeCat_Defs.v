@@ -210,9 +210,9 @@ Section Obj_Ext_Structures_Disp_Utility_Lemmas.
   Proof.
     etrans.
     { unfold φ. apply maponpaths.
-      refine (toforallpaths _ _ _ _ _).
+      refine (toforallpaths _ _).
       etrans.
-      { refine (toforallpaths _ _ _ _ _); refine (transportf_forall _ _ _). }
+      { refine (toforallpaths _ _); refine (transportf_forall _ _ _). }
       simpl. refine (transportf_forall _ _ _).
     } 
     etrans. { use (pr1_transportf (nat_trans _ _)). }
@@ -494,7 +494,7 @@ Proof.
   set (Pb := isPullback_preShv_to_pointwise (isPullback_Q_pp Y A) Γ).
   simpl in Pb.
   apply (pullback_HSET_univprop_elements _ Pb).
-  exact (toforallpaths _ _ _ (functor_id (TY X) _) A).
+  exact (toforallpaths (functor_id (TY X) _) A).
 Qed.
 
 Lemma term_to_section {Y : term_fun_structure} {Γ:C} (t : Tm Y Γ) 
@@ -597,12 +597,12 @@ Definition qq_morphism_axioms (Z : qq_morphism_data) : UU
   := 
     (∏ Γ A,
     qq Z (identity Γ) A
-    = Δ (toforallpaths _ _ _ (functor_id (TY X) _ ) _ ))
+    = Δ (toforallpaths (functor_id (TY X) _ ) _ ))
   ×
     (∏ Γ Γ' Γ'' (f : C⟦Γ', Γ⟧) (g : C ⟦Γ'', Γ'⟧) (A : (TY X:functor _ _ ) Γ : hSet),
     qq Z (g ;; f) A
     = Δ
-           (toforallpaths _ _ _ (functor_comp (TY X) _ _) A)
+           (toforallpaths (functor_comp (TY X) _ _) A)
       ;; qq Z g (A [f]) 
       ;; qq Z f A).
 
@@ -618,14 +618,14 @@ Coercion qq_morphism_data_from_structure :
 Definition qq_id (Z : qq_morphism_structure)
     {Γ} (A : Ty X Γ)
   : qq Z (identity Γ) A
-  = Δ (toforallpaths _ _ _ (functor_id (TY X) _ ) _ )
+  = Δ (toforallpaths (functor_id (TY X) _ ) _ )
 := pr1 (pr2 Z) _ _.
 
 Definition qq_comp (Z : qq_morphism_structure)
     {Γ Γ' Γ'' : C}
     (f : C ⟦ Γ', Γ ⟧) (g : C ⟦ Γ'', Γ' ⟧) (A : Ty X Γ)
   : qq Z (g ;; f) A
-  = Δ (toforallpaths _ _ _ (functor_comp (TY X) _ _) A)
+  = Δ (toforallpaths (functor_comp (TY X) _ _) A)
     ;; qq Z g (A [f]) ;; qq Z f A
 := pr2 (pr2 Z) _ _ _ _ _ _.
 

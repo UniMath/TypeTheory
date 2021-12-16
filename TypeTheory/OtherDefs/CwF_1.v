@@ -149,8 +149,8 @@ Definition reindx_laws_type_proof {CC : precategory}(C : tt_reindx_struct CC)
   : reindx_laws_type C.
 Proof.
   split.
-  - intros. apply (toforallpaths _ _ _ (functor_id (pr1 (pr1 C))_ )).
-  - intros. apply (toforallpaths _ _ _ (functor_comp (pr1 (pr1 C)) _ _ )).
+  - intro. apply toforallpaths, (functor_id (pr1 (pr1 C))).
+  - do 5 intro. apply toforallpaths, (functor_comp (pr1 (pr1 C))).
 Defined.
 
 (** Reindexing for terms needs transport along reindexing for types *) 

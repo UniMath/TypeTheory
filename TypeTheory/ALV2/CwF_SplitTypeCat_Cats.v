@@ -155,9 +155,9 @@ Proof.
 (* Insert [cbn] to see what’s actually happening; removed for compile speed. *)
   unfold yoneda_objects_ob. apply funextsec; intros f.
   etrans. 
-    use (toforallpaths _ _ _ (nat_trans_ax (term_fun_mor_TM FF) _)).
+    use (toforallpaths (nat_trans_ax (term_fun_mor_TM FF) _)).
   etrans. cbn. apply maponpaths, term_fun_mor_te.
-  use (toforallpaths _ _ _ (!functor_comp (TM Y') _ _ )).
+  use (toforallpaths (!functor_comp (TM Y') _ _ )).
 Qed.
 
 (* TODO: inline in [isaprop_term_fun_mor]? *)
@@ -182,7 +182,7 @@ Lemma term_to_section_naturality {X X'} {Y} {Y'}
   {Γ : C} (t : Tm Y Γ) (A := (pp Y : nat_trans _ _) _ t)
   : pr1 (term_to_section ((term_fun_mor_TM FY : nat_trans _ _) _ t))
   = pr1 (term_to_section t) ;; φ F _
-   ;; Δ (!toforallpaths _ _ _ (nat_trans_eq_pointwise (term_fun_mor_pp FY) Γ) t).
+   ;; Δ (!toforallpaths (nat_trans_eq_pointwise (term_fun_mor_pp FY) Γ) t).
 Proof.
   set (t' := (term_fun_mor_TM FY : nat_trans _ _) _ t).
   set (A' := (pp Y' : nat_trans _ _) _ t').
@@ -202,7 +202,7 @@ Proof.
     etrans. apply Q_comp_ext_compare.
     etrans. apply @pathsinv0.
       set (H1 := nat_trans_eq_pointwise (term_fun_mor_Q FY A) Γ).
-      exact (toforallpaths _ _ _ H1 _).
+      exact (toforallpaths H1 _).
     cbn. apply maponpaths. apply term_to_section_recover.
 Qed.
 
@@ -249,7 +249,7 @@ Proof.
     exists (identity _). apply tpair.
     + etrans. apply id_left. apply pathsinv0, id_right.
     + intros Γ A; cbn.
-      use (toforallpaths _ _ _ (!functor_id (TM _) _)).
+      use (toforallpaths (!functor_id (TM _) _)).
   - intros X0 X1 X2 F G Y0 Y1 Y2 FF GG.
     exists (term_fun_mor_TM FF ;; term_fun_mor_TM GG). apply tpair.
     + etrans. apply @pathsinv0. apply assoc.
@@ -259,10 +259,10 @@ Proof.
       apply pathsinv0. apply assoc.
     + intros Γ A.
       etrans. cbn. apply maponpaths, term_fun_mor_te.
-      etrans. use (toforallpaths _ _ _
+      etrans. use (toforallpaths
                         (nat_trans_ax (term_fun_mor_TM _) _)).
       etrans. cbn. apply maponpaths, term_fun_mor_te.
-      use (toforallpaths _ _ _ (!functor_comp (TM _) _ _)).
+      use (toforallpaths (!functor_comp (TM _) _ _)).
 Defined.
 
 Definition term_fun_data : disp_cat_data (obj_ext_cat C)

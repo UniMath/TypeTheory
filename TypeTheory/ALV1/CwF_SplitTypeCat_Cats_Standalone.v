@@ -80,7 +80,7 @@ Proof.
   intros Γ'; simpl in Γ'.
   unfold yoneda_objects_ob. apply funextsec; intros f.
   etrans. 
-    use (toforallpaths _ _ _ (nat_trans_ax (term_fun_mor_TM FF) _)).
+    use (toforallpaths (nat_trans_ax (term_fun_mor_TM FF) _)).
   cbn. apply maponpaths, term_fun_mor_te.
 Qed.
 
@@ -106,7 +106,7 @@ Lemma term_to_section_naturality {Y} {Y'}
   {Γ : C} (t : Tm Y Γ) (A := (pp Y : nat_trans _ _) _ t)
   : pr1 (term_to_section ((term_fun_mor_TM FY : nat_trans _ _) _ t))
   = pr1 (term_to_section t) 
-   ;; Δ (!toforallpaths _ _ _ (nat_trans_eq_pointwise (term_fun_mor_pp FY) Γ) t).
+   ;; Δ (!toforallpaths (nat_trans_eq_pointwise (term_fun_mor_pp FY) Γ) t).
 Proof.
   set (t' := (term_fun_mor_TM FY : nat_trans _ _) _ t).
   set (A' := (pp Y' : nat_trans _ _) _ t').
@@ -123,7 +123,7 @@ Proof.
     etrans. apply Q_comp_ext_compare.
     etrans. apply @pathsinv0.
       set (H1 := nat_trans_eq_pointwise (term_fun_mor_Q FY A) Γ).
-      exact (toforallpaths _ _ _ H1 _).
+      exact (toforallpaths H1 _).
     cbn. apply maponpaths. apply term_to_section_recover.
 Qed.
 
@@ -336,7 +336,7 @@ Proof.
   - etrans. apply qq_π.
     apply pathsinv0, qq_π.
   - etrans. cbn. apply maponpaths, @pathsinv0, (term_fun_mor_te FY).
-    etrans. use (toforallpaths _ _ _ (!nat_trans_ax (term_fun_mor_TM _) _)).
+    etrans. use (toforallpaths (!nat_trans_ax (term_fun_mor_TM _) _)).
     etrans. cbn. apply maponpaths, @pathsinv0, W.
     etrans. apply term_fun_mor_te.
     apply W'.
@@ -601,8 +601,8 @@ Proof.
     apply funextsec; intros A.
     etrans. apply transportf_pshf.
     etrans.
-      refine (toforallpaths _ _ _ _ (te _ _)).
-      refine (toforallpaths _ _ _ _ _).
+      refine (toforallpaths _ (te _ _)).
+      refine (toforallpaths _ _).
       apply maponpaths, idtoiso_iso_to_TM_eq.
     apply term_fun_mor_te.
 Qed.

@@ -77,7 +77,7 @@ Lemma ppComp1 {Γ Δ : C} {A : Ty Γ : hSet} (f : C^op ⟦Γ,Δ⟧) (a : tm A) :
   p _ (# Tm f a ) = # Ty f A. 
 Proof.
   apply pathsinv0, (pathscomp0(!(maponpaths (# Ty f) (pr2 a)))).
-  apply pathsinv0, (toforallpaths _ _ _ (pr2 p _ _ _) a).
+  apply pathsinv0, (toforallpaths (pr2 p _ _ _) a).
 Qed.
 Definition reind_tm {Γ : C} {A : Ty Γ : hSet} {Γ'} (f : C⟦Γ',Γ⟧) (a : tm A) 
 : tm (A ⌊f⌋) := #Tm f a,, ppComp1 f a .
@@ -156,7 +156,7 @@ Lemma yyidentity {Γ : C} {A : Ty Γ : hSet} (B : Ty (Γ¤A) : hSet)
 : B = (@yy (pr1 C) Ty (Γ¤A) B : nat_trans _ _) (Γ¤A) (identity (Γ¤A)).
 Proof.
   apply pathsinv0; eapply pathscomp0.
-  -  apply (toforallpaths _ (# Ty _) _ (functor_id Ty (Γ¤A))).
+  -  apply (toforallpaths (functor_id Ty (Γ¤A))).
   -  reflexivity.
 Qed.
 
@@ -175,20 +175,20 @@ Section Ty_Tm_lemmas.
 Lemma Ty_composition {Γ Γ' Γ'' : C} (f : C⟦Γ,Γ'⟧) (g : C⟦Γ',Γ''⟧) (A : Ty Γ'' : hSet) 
 : A ⌊f;;g⌋ =  (A ⌊ g ⌋) ⌊f⌋.
 Proof.
-  exact (!((toforallpaths _ _ _ (!(pr22 Ty _ _ _  g f))) A)).
+  exact (!((toforallpaths (!(pr22 Ty _ _ _  g f))) A)).
 Qed.
 
 Lemma Tm_composition {Γ Γ' Γ'' : C} (f : C⟦Γ,Γ'⟧) (g : C⟦Γ',Γ''⟧) (A : Tm Γ'' : hSet)
 : #Tm (f;;g) A = #Tm f (#Tm g A).
 Proof.
-  exact (!((toforallpaths _ _ _ (!(pr22 Tm _ _ _  g f))) A)).
+  exact (!((toforallpaths (!(pr22 Tm _ _ _  g f))) A)).
 Qed.
 
 Lemma Ty_identity {Γ : C} (A : Ty Γ : hSet) : A = A ⌊identity Γ⌋ .
 Proof.
   assert (eqA : A = (identity (pr1 Ty Γ) A)) by auto.
   rewrite eqA.
-  apply (!((toforallpaths _ _ _ (pr12 Ty _ )) A)).
+  apply (!((toforallpaths (pr12 Ty _ )) A)).
 Qed.
 
 Lemma compose_ty {Γ Δ Η : C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧) (g : C^op ⟦Δ,Η⟧) : A ⌊f⌋ ⌊g⌋ = A ⌊f;;g⌋.
@@ -492,22 +492,10 @@ Definition q_q
                ;; q A f.
 Proof. 
   intros.
-  apply (pathscomp0 ((pr22 (qq_structure_of_splTCwF C)) _ _ _ _ _ _)).
+  etrans. { use qq_comp. }
   do 2 apply cancel_postcomposition.
-  cbn.
-  assert (eq : 
-  (toforallpaths (λ _ : Ty Γ : hSet, Ty Γ'' : hSet) (# Ty (f;;g))
-        (λ x : Ty Γ : hSet, # Ty g (# Ty f x)) (functor_comp Ty f g) A) =
-        (! compose_ty A f g)) by apply (setproperty (Ty _ : hSet)).
-  assert (eq2 : maponpaths (λ b : Ty Γ'' : hSet, ext Γ'' b) (! compose_ty A f g) =
-  maponpaths (λ A0 : Ty Γ'' : hSet, Γ''¤A0)
-  (toforallpaths (λ _ : Ty Γ : hSet, Ty Γ'' : hSet) (# Ty (f;;g))
-  (λ x : Ty Γ : hSet, # Ty g (# Ty f x)) (functor_comp Ty f g) A)) by (induction eq; reflexivity).
-  apply pathsinv0.
-  apply (maponpaths idtoiso) in eq2.
-  eapply pathscomp0.
-  exact (maponpaths pr1 eq2).
-  reflexivity.
+  apply pathsinv0, (maponpaths pr1), (maponpaths idtoiso).
+  apply maponpaths, pathsinv0, setproperty.
 Qed.
 
 Definition q_q' 
@@ -648,11 +636,11 @@ Qed.
 
 Lemma reind_id_tm {Γ : C}{A : Ty Γ : hSet} (a : tm A)
 : a ⌈identity _⌉
-= tm_transportb ((toforallpaths _ _ _ (pr12 Ty _ )) A) a.
+= tm_transportb ((toforallpaths (pr12 Ty _ )) A) a.
 Proof.
   apply subtypePath. 
   -  intros x. apply (setproperty (Ty Γ : hSet)).
-  -  apply ((toforallpaths _ _ _ (pr12 Tm _ )) a).
+  -  apply ((toforallpaths (pr12 Tm _ )) a).
 Qed.
 
 Lemma reind_id_tm' {Γ : C} {A : Ty Γ : hSet}  (a : tm A) (b : tm A)
@@ -662,7 +650,7 @@ Lemma reind_id_tm' {Γ : C} {A : Ty Γ : hSet}  (a : tm A) (b : tm A)
 Proof.
   apply subtypePath.  
   -  intros x. apply (setproperty (Ty Γ : hSet)).
-  -  apply ((toforallpaths _ _ _ (pr12 Tm _ )) a).
+  -  apply ((toforallpaths (pr12 Tm _ )) a).
 Qed.
 
 Section term_subtitution_lemmas.
@@ -680,8 +668,8 @@ Lemma Ty_γ_id {Γ : C} {A : Ty Γ : hSet} (a : tm A)
 : A ⌊pi A⌋ ⌊a⌋ = A.
 Proof.
   simple refine (!(Ty_composition _ _ _) @ _).
-  apply (pathscomp0 ((toforallpaths  _ _ _ (maponpaths _ (γ_pi _)) )A)).
-  apply ((toforallpaths _ _ _ (pr12 Ty _ )) A).
+  apply (pathscomp0 ((toforallpaths (maponpaths _ (γ_pi _)) )A)).
+  apply ((toforallpaths (pr12 Ty _ )) A).
 Qed.
 
 Lemma var_subtitution {Γ} {A : Ty Γ : hSet} (a : tm A) : #Tm a (var A) = a.
@@ -771,7 +759,7 @@ Lemma DepTypesComp {Γ : C} { A : Ty Γ : hSet} {B : Ty(Γ¤A) : hSet}
 : p Γ (DepTypesElem_pr1 b a) = DepTypesType B a.
 Proof.
   apply pathsinv0,(pathscomp0(maponpaths _ (!(pr2 b)))),pathsinv0.
-  apply (toforallpaths _ _ _ (pr2 p _ _ _) b).
+  apply (toforallpaths (pr2 p _ _ _) b).
 Qed.
 
 Definition DepTypesElems {Γ : C} { A : Ty Γ : hSet} {B : Ty(Γ¤A) : hSet}
@@ -799,9 +787,9 @@ Proof.
   unfold DepTypesType, reind_tm; rewrite yy_natural, assoc.
   assert (Fucn : (# (pr1 Ty) ((γ a :nat_trans _ _) Γ (identity Γ)) ;; # (pr1 Ty) f) B =
   # Ty f (# Ty ((γ a :nat_trans _ _) Γ (identity Γ)) B)) by auto.
-  apply (pathscomp0 (!Fucn)),(pathscomp0(!((toforallpaths _ _ _  
+  apply (pathscomp0 (!Fucn)),(pathscomp0(!((toforallpaths  
   ((pr22 Ty) _ _ _ ((γ a: nat_trans _ _) Γ (identity Γ) : C⟦Γ,Γ¤A⟧) f)) B))), 
-  (pathscomp0(toforallpaths _ _ _ (maponpaths (# Ty) (γNat f a)) B)).
+  (pathscomp0(toforallpaths (maponpaths (# Ty) (γNat f a)) B)).
   reflexivity.
 Qed.
 
@@ -880,7 +868,7 @@ Lemma ppComp3 {Γ Δ : C} {A : Ty Γ : hSet} (f : C^op ⟦Γ,Δ⟧) {π : PiType
 Proof.
   apply pathsinv0, (pathscomp0(!(nπ _ _ f A B))),
   (pathscomp0(!(maponpaths (# Ty f) (pr2 c)))),
-   pathsinv0, (toforallpaths _ _ _ (pr2 p _ _ _) c) .
+   pathsinv0, (toforallpaths (pr2 p _ _ _) c) .
 Qed.
 
 Definition PiAbs (π : PiTypeFormer): UU
@@ -1030,7 +1018,7 @@ Proof.
   -  use maponpathsIdForm.
      --  refine (!(Ty_composition _ _ A) @ _).
          apply pathsinv0, (pathscomp0 (!(Ty_composition _ _ A))).
-         refine ((toforallpaths _ _ _ _) A).
+         refine (toforallpaths _ A).
          exact (maponpaths _ (q_eq _ _)).
      --  etrans. {apply pathsinv0, tm_transport_compose. }
          etrans. 2: { apply maponpaths, tm_transport_compose. }

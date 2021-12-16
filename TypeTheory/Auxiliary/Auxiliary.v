@@ -69,6 +69,8 @@ Tactic Notation "assoc" := apply @pathsinv0, path_assoc.
 
 (** ** Path-algebra: general lemmas about transport, equivalences, etc. *)
 
+Arguments toforallpaths [_ _ _ _] _ _.
+
 Lemma weqhomot {A B : UU} (f : A -> B) (w : A ≃ B) (H : w ~ f) : isweq f.
 Proof.
   apply isweqhomot with w. apply H. apply weqproperty.
@@ -157,7 +159,7 @@ Defined.
 
 Lemma maponpaths_apply {A B} {f0 f1 : A -> B} (e : f0 = f1) (x : A)
   : maponpaths (fun f => f x) e
-  = toforallpaths _ _ _ e x.
+  = toforallpaths e x.
 Proof.
   destruct e; apply idpath.
 Defined.
@@ -1176,8 +1178,7 @@ Lemma yy_natural {C : category}
                   c' (f : C⟦c', c⟧) :
         yy (# (F : functor _ _) f A) = # (yoneda _ ) f ;; yy A.
 Proof.
-  assert (XTT := is_natural_yoneda_iso_inv _ F _ _ f).
-  apply (toforallpaths _ _ _ XTT).
+  apply (toforallpaths (is_natural_yoneda_iso_inv _ F _ _ f)).
 Qed.
 
 Lemma yy_comp_nat_trans {C : category}
@@ -1189,9 +1190,7 @@ Proof.
   - apply homset_property.
   - intro c. simpl. 
     apply funextsec. intro f. cbn.
-    assert (XR := toforallpaths _ _ _ (nat_trans_ax p f) v ).
-    cbn in XR.
-    apply XR.
+    apply (toforallpaths (nat_trans_ax p f)).
 Qed.
 
 Lemma yoneda_postcompose {C : category} (P : preShv C)
@@ -1512,17 +1511,16 @@ Proof.
     apply subtypePath. { intro. apply isapropdirprod; apply setproperty. }
     destruct hk as [hk [eh ek]], hk' as [hk' [eh' ek']]; simpl.
     apply funextsec; intro x.
-    refine (H_uniqueness (h x) (k x) _ (_,,_) (_,,_)).
-    apply (toforallpaths _ _ _ ehk).
-    split. apply (toforallpaths _ _ _ eh). apply (toforallpaths _ _ _ ek).
-    split. apply (toforallpaths _ _ _ eh'). apply (toforallpaths _ _ _ ek').
+    refine (H_uniqueness (h x) (k x) _ (_,,_) (_,,_));
+      try split;
+    revert x; apply toforallpaths; assumption.
   - use tpair. 
-    + intros x. refine (pr1 (H_existence (h x) (k x) _)). apply (toforallpaths _ _ _ ehk).
+    + intros x. refine (pr1 (H_existence (h x) (k x) _)). apply (toforallpaths ehk).
     + simpl.
       split; apply funextsec; intro x.
-      apply (pr1 (pr2 (H_existence _ _ _))). apply (pr2 (pr2 (H_existence _ _ _))).
+      * apply (pr1 (pr2 (H_existence _ _ _))). 
+      * apply (pr2 (pr2 (H_existence _ _ _))).
 Qed.
-
 
 (* TODO: unify with [isPullback_HSET]? *)
 Lemma pullback_HSET_univprop_elements {P A B C : HSET}
@@ -1538,10 +1536,10 @@ Proof.
   - apply invproofirrelevance; intros [ab [ea eb]] [ab' [ea' eb']].
     apply subtypePath; simpl.
       intros x; apply isapropdirprod; apply setproperty.
-    refine (@toforallpaths unitset _ (fun _ => ab) (fun _ => ab') _ tt).
+    refine (@toforallpaths unitset _ _ _ _ tt).
     refine (MorphismsIntoPullbackEqual pb _ _ _ _ _ );
-    apply funextsec; intros []; cbn;
-    (eapply @pathscomp0; [ eassumption | apply pathsinv0; eassumption]).
+      apply funextsec; intros []; cbn;
+      (eapply @pathscomp0; [ eassumption | apply pathsinv0; eassumption]).
   - simple refine (_,,_).
     refine (_ tt).
     refine (PullbackArrow Pb (unitset : HSET)
@@ -1565,7 +1563,7 @@ Lemma pullback_HSET_elements_unique {P A B C : HSET}
 Proof.
   set (temp := proofirrelevancecontr 
     (pullback_HSET_univprop_elements _ pb (p1 ab') (p2 ab')
-        (toforallpaths _ _ _ ep ab'))).
+        (toforallpaths ep ab'))).
   refine (maponpaths pr1 (temp (ab,, _) (ab',, _))).
   - split; assumption.
   - split; apply idpath.
@@ -1831,8 +1829,8 @@ Lemma transportf_isotoid_pshf {C : category}
   = ((i : _ --> _) : nat_trans _ _) c x.
 Proof.
   etrans. apply transportf_pshf.
-  refine (toforallpaths _ _ _ _ x).
-  refine (toforallpaths _ _ _ _ c).
+  refine (toforallpaths _ x).
+  refine (toforallpaths _ c).
   apply maponpaths, maponpaths, idtoiso_isotoid.
 Qed.
 

@@ -66,7 +66,7 @@ Lemma ppComp1 {Γ Δ : C} {A : Ty Γ : hSet} (f : C^op ⟦Γ,Δ⟧) (a : CwF_tm 
 : pp_ _ (# Tm f a ) = # Ty f A. 
 Proof.
   apply pathsinv0, (pathscomp0(!(maponpaths (# Ty f) (pr2 a)))),
-  pathsinv0, (toforallpaths _ _ _ (pr22 pp _ _ f) a) .
+  pathsinv0, (toforallpaths (pr22 pp _ _ f) a) .
 Qed. 
 
 Definition CwF_Pullback {Γ} (A : Ty Γ : hSet) 
