@@ -15,9 +15,9 @@
   This file is very similar to [TypeTheory.OtherDefs.CwF_Pitts]; the main difference is that here the functor of types is bundled into an actual functor, whereas in [CwF_Pitts], it is split up componentwise. 
 *)
 
+Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
@@ -521,7 +521,7 @@ Proof.
   apply pathsinv0.
   rew_trans_@.
   etrans. apply maponpaths, transportf_rtype_mapeq.
-  rew_trans_@.          
+  rew_trans_@.
   (* TODO: try simplyfying with [term_typeeq_transport_lemma] *)
   refine (@maponpaths _ _ (fun e => transportf _ e _) _ (idpath _) _).
   apply cwf_types_isaset.
@@ -636,7 +636,6 @@ Proof.
   apply dpr_q_pbpairing_commutes.
 Defined.
 
-
 Definition dpr_q_pbpairing_cwf_mapunique
   {Γ} (A : C⟨Γ⟩)
   {Γ'} (f : Γ' --> Γ)
@@ -652,8 +651,8 @@ Proof.
     apply (pairing_mapeq _ _ e1 _).
   simpl. apply maponpaths.
   eapply pathscomp0.
-    apply maponpaths, maponpaths. 
-    apply (@maponpaths (C ⟨ Γ' ∙ (A[[f]]) ⊢ A[[f]][[π (A[[f]])]] ⟩) _ (fun t => t ⟦hk⟧)).
+    apply maponpaths, maponpaths.
+    eapply (maponpaths (fun t => t ⟦hk⟧)).
     apply rterm_univ.
   eapply pathscomp0.
     apply maponpaths, maponpaths. 

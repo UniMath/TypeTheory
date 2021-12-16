@@ -497,7 +497,7 @@ Section Types_with_Terms.
     + eapply pathscomp0. { apply pathsinv0, reind_comp_typecat. }
       eapply pathscomp0. 2: { apply reind_id_type_typecat. }
       apply maponpaths, section_property.
-    + use (@maponpaths _ _ (section_pr1 _) (tm_transportf _ _) _ _).
+    + use (@maponpaths _ _ _ (tm_transportf _ _) _ _).
       refine (_ @ reind_tm_var_typecat' a).
       apply tm_transportf_irrelevant.
   Qed.
