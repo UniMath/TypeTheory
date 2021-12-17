@@ -620,7 +620,7 @@ Section FullyFaithfulDispFunctor.
     Definition disp_cat_path_precat
                {C : category}
                (D D' : disp_cat C)
-      : D = D' ≃ disp_cat_data_from_disp_precat D = D'.
+      : D = D' ≃ disp_cat_data_from_disp_cat D = D'.
     Proof.
       apply path_sigma_hprop, isaprop_disp_cat_axioms.
     Defined.

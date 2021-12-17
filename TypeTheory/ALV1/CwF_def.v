@@ -418,7 +418,7 @@ Proof.
   apply XT.
 Defined.  
 
-Let Fopequiv : adj_equivalence_of_precats _  := equiv_Fcomp F F_ff F_es.
+Let Fopequiv : adj_equivalence_of_cats _  := equiv_Fcomp F F_ff F_es.
 
 
 Definition pp'_eta : 
@@ -495,7 +495,7 @@ Proof.
 Defined.  
 
 
-Let RCequiv : adj_equivalence_of_precats _  := Rezk_op_adj_equiv C
+Let RCequiv : adj_equivalence_of_cats _  := Rezk_op_adj_equiv C
           HSET is_univalent_HSET.
 
 Lemma has_homsets_preShv (D : category) : has_homsets (preShv D).

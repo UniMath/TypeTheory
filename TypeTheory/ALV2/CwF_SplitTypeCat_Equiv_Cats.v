@@ -632,10 +632,10 @@ Proof.
 Defined.
 
 Definition term_struc_to_qq_struc_is_equiv
-  : adj_equivalence_of_precats
+  : adj_equivalence_of_cats
       term_struc_to_qq_struc_fiber_functor.
 Proof.
-  use comp_adj_equivalence_of_precats.
+  use comp_adj_equivalence_of_cats.
   - apply fiber_equiv.
     apply is_equiv_of_equiv_over_id.
   - apply fiber_equiv.

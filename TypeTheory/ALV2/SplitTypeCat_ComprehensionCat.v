@@ -453,13 +453,9 @@ Section DiscreteComprehensionCat_from_SplitTypeCat.
     - intros. apply isasetaprop. apply (pr1 (pr2 TC)).
   Qed.
 
-  Definition disp_precat_from_split_typecat_structure
-    : disp_precat C
-    := (_ ,, disp_cat_axioms_from_split_typecat_structure).
-
   Definition disp_cat_from_split_typecat_structure
     : disp_cat C
-    := disp_precat_from_split_typecat_structure.
+    := (_ ,, disp_cat_axioms_from_split_typecat_structure).
 
   Definition disp_cat_from_split_typecat_structure_is_univalent
     : is_univalent_disp disp_cat_from_split_typecat_structure.

@@ -551,7 +551,7 @@ Defined.
 
 Definition isweq_left_adj_equivalence_on_mor_total {C D : category} (F : functor C D) 
            (isC : is_univalent C) (isD : is_univalent D)
-           (H : adj_equivalence_of_precats F) 
+           (H : adj_equivalence_of_cats F) 
 : isweq (functor_on_mor_total F).
 Proof.
   use (gradth _ _ _ _ ).
@@ -656,7 +656,7 @@ Defined.
 (** Specifically: the composition of (adjoint) equivalences of precats. *)
 
 Coercion left_adj_from_adj_equiv (X Y : category) (K : functor X Y)
-         (HK : adj_equivalence_of_precats K)
+         (HK : adj_equivalence_of_cats K)
   : is_left_adjoint K
 := pr1 HK.
 
@@ -664,7 +664,7 @@ Section about_equivalences.
 
 Variables D1 D2 : category.
 Variable F : functor D1 D2.
-Variable GG : adj_equivalence_of_precats F.
+Variable GG : adj_equivalence_of_cats F.
 
 Let G : functor D2 D1 := right_adjoint GG.
 Let η := unit_from_left_adjoint GG.
@@ -846,7 +846,7 @@ Lemma form_adjunction_ff_split
     apply iso_inv_after_iso.
 Qed.
 
-Definition adj_equivalence_of_precats_ff_split : adj_equivalence_of_precats F.
+Definition adj_equivalence_of_cats_ff_split : adj_equivalence_of_cats F.
 Proof.
   use tpair.
   - exists G_ff_split.
@@ -891,7 +891,7 @@ Proof.
 Qed.
 
 Lemma right_adj_equiv_is_full {D1 D2 : category}
-  (F : functor D1 D2) (GG : adj_equivalence_of_precats F)
+  (F : functor D1 D2) (GG : adj_equivalence_of_cats F)
   : full (right_adjoint GG).
 Proof.
   apply full_from_ff, right_adj_equiv_is_ff.
@@ -1052,8 +1052,8 @@ Proof.
 Defined.
 
 Definition adj_from_equiv (D1 D2 : category) (F : functor D1 D2):
-    adj_equivalence_of_precats F → is_left_adjoint F := fun x => pr1 x.
-Coercion adj_from_equiv : adj_equivalence_of_precats >-> is_left_adjoint.
+    adj_equivalence_of_cats F → is_left_adjoint F := fun x => pr1 x.
+Coercion adj_from_equiv : adj_equivalence_of_cats >-> is_left_adjoint.
 
 (** ** Functors and isomorphisms *)
 

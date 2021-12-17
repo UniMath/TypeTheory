@@ -727,33 +727,33 @@ Qed.
 Definition compat_structures_category : category
   := make_category _ has_homsets_compat_structures_precategory.
 
-Definition pr1_equiv : @adj_equivalence_of_precats
+Definition pr1_equiv : @adj_equivalence_of_cats
                          compat_structures_category
                          term_fun_category
                          compat_structures_pr1_functor.
 Proof.
-  use adj_equivalence_of_precats_ff_split.
+  use adj_equivalence_of_cats_ff_split.
   - apply compat_structures_pr1_fully_faithful.
   - apply compat_structures_pr1_split_ess_surj.
 Defined.
 
-Definition pr2_equiv : @adj_equivalence_of_precats
+Definition pr2_equiv : @adj_equivalence_of_cats
                          compat_structures_category
                          qq_structure_category
                          compat_structures_pr2_functor.
 Proof.
-  use adj_equivalence_of_precats_ff_split.
+  use adj_equivalence_of_cats_ff_split.
   - apply compat_structures_pr2_fully_faithful.
   - apply compat_structures_pr2_split_ess_surj.
 Defined.
 
-Definition pr1_equiv_inv : adj_equivalence_of_precats (right_adjoint pr1_equiv).
+Definition pr1_equiv_inv : adj_equivalence_of_cats (right_adjoint pr1_equiv).
 Proof.
-  use adj_equivalence_of_precats_inv.
+  use adj_equivalence_of_cats_inv.
 Defined.
 
-Definition equiv_of_structures : adj_equivalence_of_precats _ 
-  := @comp_adj_equivalence_of_precats _ _ _ _ _ 
+Definition equiv_of_structures : adj_equivalence_of_cats _ 
+  := @comp_adj_equivalence_of_cats _ _ _ _ _ 
                                       pr1_equiv_inv pr2_equiv.
 
 Definition equiv_of_types_of_structures 
