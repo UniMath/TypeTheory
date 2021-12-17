@@ -166,7 +166,7 @@ Qed.
 
 End Ty_Tm_lemmas.
 
-Section term_subtitution.
+Section term_substitution.
 
 Lemma Subproof_γ {Γ : C} {A : Ty Γ : hSet} (a : tm A)
 : identity (Yo Γ) ;; yy A = yy a ;;p.
@@ -352,7 +352,7 @@ Coercion tm_equiv_coer {Γ: C} {A : Ty Γ : hSet} (a : tm A) : tm_sec A := tm_eq
 
 End tm_equiv.
 
-End term_subtitution.
+End term_substitution.
 
 Section splTCwF_lemmas.
 
@@ -588,7 +588,7 @@ Proof.
   -  apply ((toforallpaths (functor_id Tm _ )) a).
 Qed.
 
-Section term_subtitution_lemmas.
+Section term_substitution_lemmas.
 
 Definition γ_qq {Γ} {A : Ty Γ: hSet} {Γ'} (f : C⟦Γ',Γ⟧) (a : tm (A ⌊f⌋)) : C⟦Γ',Γ¤ A⟧ := (a ;; q A f).    
 
@@ -607,7 +607,7 @@ Proof.
   apply ((toforallpaths (functor_id Ty _ )) A).
 Qed.
 
-Lemma var_subtitution {Γ} {A : Ty Γ : hSet} (a : tm A) : #Tm a (var A) = a.
+Lemma var_substitution {Γ} {A : Ty Γ : hSet} (a : tm A) : #Tm a (var A) = a.
 Proof.
   assert (inter : @yy _ _ _ (#Tm a (var A)) = yy a). 
   -  assert (eqa : Yo^-1 (γ a) = a ) by auto. 
@@ -638,13 +638,13 @@ Proof.
     apply pathsinv0.
     etrans. { apply maponpaths, pathsinv0, yy_natural. }
     rewrite compatibility_splTCwF.
-    rewrite var_subtitution.
+    rewrite var_substitution.
     etrans. { apply pathsinv0, yy_natural. }
     etrans. 2: { apply yy_natural. }
-    apply maponpaths, pathsinv0, var_subtitution.
+    apply maponpaths, pathsinv0, var_substitution.
 Qed.
 
-End term_subtitution_lemmas.
+End term_substitution_lemmas.
 
 End tm_lemmas.
 
@@ -957,7 +957,7 @@ Proof.
       apply tm_transportf_irrelevant ]]
   | apply subtypePath;
     [  intros x; apply (setproperty (Ty Γ : hSet))
-     | rewrite tm_transportbf; apply var_subtitution]]).
+     | rewrite tm_transportbf; apply var_substitution]]).
 Defined.
 
 Definition id_intro_q {Id} (nid : IdTypeNat Id) 

@@ -382,7 +382,7 @@ Proof.
     exact Yoeq.
 Qed.
 
-Lemma te_subtitution {Γ} {A : Ty Γ : hSet} (a : tm A) : #Tm (Yo^-1(γ a)) (te A) = a.
+Lemma te_substitution {Γ} {A : Ty Γ : hSet} (a : tm A) : #Tm (Yo^-1(γ a)) (te A) = a.
 Proof.
   assert (inter : @yy _ _ _ (#Tm (Yo^-1(γ a)) (te A)) = yy a). 
   -  rewrite yy_natural, invyoneda. 
@@ -678,7 +678,7 @@ Proof.
       apply tm_transportf_irrelevant ]]
   | apply subtypePath;
     [  intros x; apply (setproperty (Ty Γ : hSet))
-     | rewrite tm_transportbf; apply te_subtitution]]).
+     | rewrite tm_transportbf; apply te_substitution]]).
 Defined.
 
 Definition CwF_IdBased_path_induction {Id} (nid : CwF_IdTypeNat Id) (refl : CwF_IdRefl Id) := ∏ Γ (A : Ty Γ : hSet) (a : tm A)
