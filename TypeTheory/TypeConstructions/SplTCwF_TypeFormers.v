@@ -113,20 +113,8 @@ Qed.
 Lemma yonedacarac {Γ Δ : C} (f  : _ ⟦Yo Γ,Yo Δ⟧) 
 : # Yo ((f :nat_trans _ _) Γ (identity Γ)) = f.
 Proof.
-  assert (H : (# Yo ((f : nat_trans _ _) Γ (identity Γ)) : nat_trans _ _) Γ (identity Γ)
-               = (f : nat_trans _ _) Γ (identity Γ)) by apply (id_left _).
-  assert (Map1 : (f : nat_trans _ _) Γ (identity Γ) = yoneda_map_1 C Γ (Yo(Δ)) f)
-  by reflexivity.
-  assert (Map2 : # Yo ((f : nat_trans _ _) Γ (identity Γ)) = yoneda_map_2 C Γ (Yo(Δ))
-         ((f : nat_trans _ _) Γ (identity Γ))).                                      
-  -  unfold yoneda_map_2; cbn; unfold yoneda_morphisms; unfold yoneda_morphisms_data; cbn.
-     assert (nattrans : is_nat_trans_yoneda_morphisms_data C Γ Δ
-         ((f :nat_trans _ _) Γ (identity Γ))
-          = yoneda_map_2_ax C Γ (yoneda_objects C Δ)
-          ((f : nat_trans _ _) Γ (identity Γ))).
-     -- apply isaprop_is_nat_trans, homset_property.
-     -- apply pair_path_in2; apply nattrans.
-  -  rewrite Map2; rewrite Map1; apply yoneda_map_1_2.
+  etrans. 2: { apply yoneda_map_1_2. }
+  apply pair_path_in2, isaprop_is_nat_trans, homset_property.
 Qed.
 
 Lemma invyoneda {Γ Δ : C} (f  : _ ⟦Yo Γ,Yo Δ⟧) : #Yo (Yo^-1 f) = f.
@@ -264,7 +252,6 @@ Proof.
   rewrite assoc.
   apply maponpaths_2, pull_γ.
 Qed.
-
 
 
 (** term wiew as sections*)
