@@ -54,40 +54,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
 
 Section Auxiliary.
 
-  Lemma idtoiso_precompose'
-     : ∏ (C : precategory) (a a' b : C) (p : a' = a) (f : C ⟦ a, b ⟧),
-       transportb (λ a0 : C, C ⟦ a0, b ⟧) p f = (idtoiso p;; f)%mor.
-  Proof.
-    induction p.
-    intros f. apply pathsinv0, id_left.
-  Defined.
-
-  (* TODO: move upstream? *)
-  Definition pr1_transportb
-             {A : UU} {B : A → UU} (P : ∏ a : A, B a → UU) {a a' : A}
-             (e : a = a') (xs : ∑ b : B a', P a' b)
-    : pr1 (transportb (λ x : A, ∑ b : B x, P x b) e xs) =
-      transportb (λ x : A, B x) e (pr1 xs).
-  Proof.
-    induction e.
-    apply idpath.
-  Defined.
-
-  (* TODO: move upstream? *)
-  Lemma isPullback_swap
-        {C : precategory}
-        {a b c d : C} {f : b --> a} {g : c --> a}
-        {p1 : d --> b} {p2 : d --> c} {H : p1 · f = p2 · g}
-        (pb : isPullback f g p1 p2 H)
-  : isPullback _ _ _ _ (! H).
-  Proof.
-    use make_isPullback.
-    intros e h k H'.
-    use (iscontrweqf _ (pb e k h (! H'))).
-    use (weqtotal2 (idweq _)).
-    intros ?. apply weqdirprodcomm.
-  Defined.
-
   (* TODO: move upstream? *)
   Definition unique_lift_is_cartesian
              {C : category}
@@ -364,7 +330,7 @@ Section DiscreteComprehensionCatWithDefaultMor.
       use make_dirprod.
       - intros Γ A.
         use total2_paths_f. 2: apply homset_property.
-        simpl. etrans. apply (pr1_transportf _ (λ AA, C ⟦ Γ ◂ AA, Γ ◂ A ⟧)).
+        simpl. etrans. apply (pr1_transportf _ (λ AA, C ⟦ Γ ◂ AA, _ ⟧)).
         cbn. etrans. apply maponpaths.
         apply (pr2 (pr1 (dirprod_pr2 (pr2 TC))) Γ A).
         induction (pr1 (pr1 (dirprod_pr2 (pr2 TC))) Γ A).
@@ -372,7 +338,7 @@ Section DiscreteComprehensionCatWithDefaultMor.
 
       - intros Γ Γ' Γ'' A A' A'' f g ff gg.
         use total2_paths_f. 2: apply homset_property.
-        + simpl. etrans. apply (pr1_transportf _ (λ AA, C ⟦ Γ ◂ AA, Γ'' ◂ A'' ⟧)).
+        + simpl. etrans. apply (pr1_transportf _ (λ AA, C ⟦ Γ ◂ AA, _ ⟧)).
           etrans. apply maponpaths, (pr2 (dirprod_pr2 (pr2 (pr2 TC)))).
           induction ff, gg. simpl.
           etrans. apply maponpaths_2, pathscomp0rid.
@@ -487,13 +453,9 @@ Section DiscreteComprehensionCat_from_SplitTypeCat.
     - intros. apply isasetaprop. apply (pr1 (pr2 TC)).
   Qed.
 
-  Definition disp_precat_from_split_typecat_structure
-    : disp_precat C
-    := (_ ,, disp_cat_axioms_from_split_typecat_structure).
-
   Definition disp_cat_from_split_typecat_structure
     : disp_cat C
-    := disp_precat_from_split_typecat_structure.
+    := (_ ,, disp_cat_axioms_from_split_typecat_structure).
 
   Definition disp_cat_from_split_typecat_structure_is_univalent
     : is_univalent_disp disp_cat_from_split_typecat_structure.
@@ -552,7 +514,7 @@ Section DiscreteComprehensionCat_from_SplitTypeCat.
     use make_dirprod.
     - intros Γ A.
       use total2_paths_f. 2: apply homset_property.
-      simpl. etrans. apply (pr1_transportf _ (λ AA, C ⟦ Γ ◂ AA, Γ ◂ A ⟧)).
+      simpl. etrans. apply (pr1_transportf _ (λ AA, C ⟦ Γ ◂ AA, _ ⟧)).
       cbn. etrans. apply maponpaths.
       apply (pr2 (pr1 (dirprod_pr2 (pr2 TC))) Γ A).
       induction (pr1 (pr1 (dirprod_pr2 (pr2 TC))) Γ A).
@@ -560,7 +522,7 @@ Section DiscreteComprehensionCat_from_SplitTypeCat.
 
     - intros Γ Γ' Γ'' A A' A'' f g ff gg.
       use total2_paths_f. 2: apply homset_property.
-      + simpl. etrans. apply (pr1_transportf _ (λ AA, C ⟦ Γ ◂ AA, Γ'' ◂ A'' ⟧)).
+      + simpl. etrans. apply (pr1_transportf _ (λ AA, C ⟦ Γ ◂ AA, _ ⟧)).
         etrans. apply maponpaths, (pr2 (dirprod_pr2 (pr2 (pr2 TC)))).
         induction ff, gg. simpl.
         etrans. apply maponpaths_2, pathscomp0rid.
@@ -656,7 +618,7 @@ Section SplitTypeCat_from_DiscreteComprehensionCat.
                 : A {{f}} -->[f] A).
       apply (pr2 (disp_functor_on_morphisms FF k)).
     - simpl. intros Γ A Γ' f.
-      apply isPullback_swap.
+      apply is_symmetric_isPullback.
       use cartesian_isPullback_in_cod_disp.
       apply is_cartesian_FF.
       apply (unique_lift_is_cartesian (D := (_ ,, is_discrete_fibration_D)) f A).
@@ -786,7 +748,7 @@ Section From_DiscreteComprehensionCat_Default.
     - intros Γ A Γ' f. simpl.
       apply (pr2 (F_mor _ _ _ _ _ (idpath _))).
     - simpl. intros Γ A Γ' f.
-      apply isPullback_swap.
+      apply is_symmetric_isPullback.
       use cartesian_isPullback_in_cod_disp.
       apply is_cartesian_FF.
       apply (unique_lift_is_cartesian (D := (_ ,, is_discrete_fibration_D_from_discrete_comprehension_cat_structure_default_mor)) f A).
@@ -821,7 +783,7 @@ Section From_DiscreteComprehensionCat_Default.
         
         etrans. apply maponpaths, maponpaths. apply idpath_transportb.
         unfold mor_disp, disp_codomain. cbn.
-        etrans. apply (pr1_transportb (λ B ff, (ff;; pr2 (F_ob Γ A))%mor = (pr2 (F_ob Γ B);; identity Γ)%mor)).
+        etrans. use (pr1_transportf (pr1 DC Γ)).
         simpl.
 
         etrans. apply (functtransportb (λ B, pr1 (F_ob Γ B)) (λ BB, C ⟦ BB, pr1 (F_ob Γ A) ⟧)).
@@ -859,7 +821,7 @@ Section From_DiscreteComprehensionCat_Default.
         etrans. apply maponpaths, maponpaths. apply (disp_functor_comp FF).
 
         unfold mor_disp, disp_codomain. cbn.
-        etrans. apply (pr1_transportb (λ B ff, (ff;; pr2 (F_ob Γ A))%mor = (pr2 (F_ob Γ'' B);; (g;; f))%mor)). simpl.
+        etrans. use (pr1_transportf (pr1 DC _)). simpl.
 
         etrans. apply (functtransportb (λ B, pr1 (F_ob Γ'' B)) (λ BB, C ⟦ BB, pr1 (F_ob Γ A) ⟧)).
 

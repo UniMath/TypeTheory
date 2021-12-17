@@ -84,8 +84,6 @@ Section Auxiliary.
     { apply (eqax2 (pr2 xx)); [apply x | apply x']. }
     rewrite <- (d_respects_R _ _ R_xx').
     eapply pathscomp0. 2: { apply pathsinv0, transport_f_f. }
-    (* TODO: raise issue in [UniMath], several redundant identical lemmas: [app], [transportf_paths], [transportf_ext].
-     One of these is certainly enough (and in any case, all are instances of [maponpaths_2]). *)
     apply maponpaths_2, isasetsetquot.
   Defined.
 

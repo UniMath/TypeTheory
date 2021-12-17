@@ -11,7 +11,8 @@
 *)
 
 
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
@@ -89,12 +90,12 @@ Proof.
     intros Γ''. cbn. unfold yoneda_objects_ob, yoneda_morphisms_data.
     apply funextsec; intros g.
     etrans. apply maponpaths, H.
-    use (toforallpaths _ _ _ (!functor_comp (TM Y) _ _)).
+    use (toforallpaths (!functor_comp (TM Y) _ _)).
   - assert (H' := nat_trans_eq_pointwise H); clear H.
-    assert (H'' := toforallpaths _ _ _ (H' _) (identity _)); clear H'.
+    assert (H'' := toforallpaths (H' _) (identity _)); clear H'.
     cbn in H''; unfold yoneda_morphisms_data in H''.
     refine (_ @ H'' @ _).
-    + use (toforallpaths _ _ _ (!functor_id (TM Y) _)).
+    + use (toforallpaths (!functor_id (TM Y) _)).
     + apply maponpaths_2, id_left.
 Qed.
 
@@ -126,7 +127,7 @@ Proof.
     etrans. 2: { apply id_left. }
     apply maponpaths_2.
     exact (pr2 (term_to_section _)).
-  - etrans. refine (!toforallpaths _ _ _ (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
+  - etrans. refine (!toforallpaths (nat_trans_eq_pointwise (W' _ _ _ _) _) _).
     etrans. apply Q_comp_ext_compare.
     apply term_to_section_recover.
 Qed.
@@ -194,7 +195,7 @@ Proof.
   use total2_paths_f; simpl.
     apply eA.
   apply subtypePath. intro; apply homset_property.
-  simpl. eapply pathscomp0. use (pr1_transportf _ _ _ _ _ eA).
+  simpl. eapply pathscomp0. use (pr1_transportf (Ty X Γ)).
   simpl. eapply pathscomp0. apply functtransportf.
   eapply pathscomp0. eapply pathsinv0. apply idtoiso_postcompose.
   exact es.
@@ -222,14 +223,14 @@ Proof.
   split; [unfold functor_idax | unfold functor_compax].
   - intro Γ; apply funextsec; intro t. destruct t as [A [s e]]; cbn.
     use tm_from_qq_eq; simpl.
-    + exact (toforallpaths _ _ _ (functor_id (TY X) _ ) A).
+    + exact (toforallpaths (functor_id (TY X) _ ) A).
     + etrans. apply maponpaths, @pathsinv0, qq_id.
       etrans. apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)). 
       apply id_left.
   - intros Γ Γ' Γ'' f g; apply funextsec; intro t.
     destruct t as [A [s e]]; cbn in *.
     use tm_from_qq_eq; simpl.
-    + exact (toforallpaths _ _ _ (functor_comp (TY X) _ _) A).
+    + exact (toforallpaths (functor_comp (TY X) _ _) A).
     + {
       apply PullbackArrowUnique; cbn.
       - rewrite <- assoc.
@@ -389,7 +390,7 @@ Proof.
     use tm_from_qq_eq. cbn. 
     + etrans.
         apply @pathsinv0.
-        use (toforallpaths _ _ _ (functor_comp (TY X) _ _ ) A).
+        use (toforallpaths (functor_comp (TY X) _ _ ) A).
       apply maponpaths_2.
       cbn.
       etrans. apply @pathsinv0, assoc. 
@@ -397,7 +398,7 @@ Proof.
       etrans. apply assoc.
       etrans. apply maponpaths_2, e.
       apply id_left.
-    + use (map_into_Pb_unique _ (qq_π_Pb Z _ _  )).
+    + use (map_into_Pb_unique (qq_π_Pb Z _ _  )).
       * cbn.
         use (_ @ !e).
         etrans. apply @pathsinv0, assoc.
@@ -470,8 +471,8 @@ Proof.
   intros ? ? ? ?.
   (* TODO: use [tm_from_qq_eq'] here *)
   use tm_from_qq_eq; simpl.
-  - etrans. apply (toforallpaths _ _ _ (!functor_comp (TY X) _ _ ) A).
-    etrans. 2: { apply (toforallpaths _ _ _ (functor_comp (TY X) _ _ ) A). }
+  - etrans. apply (toforallpaths (!functor_comp (TY X) _ _ ) A).
+    etrans. 2: { apply (toforallpaths (functor_comp (TY X) _ _ ) A). }
     apply maponpaths_2; cbn.
     apply @pathsinv0, qq_π.
   - apply PullbackArrowUnique.
@@ -479,7 +480,7 @@ Proof.
       etrans. apply @pathsinv0, assoc.
       etrans. apply maponpaths, comp_ext_compare_π.
       apply (PullbackArrow_PullbackPr1 (make_Pullback _ _)). 
-    + apply (map_into_Pb_unique _ (qq_π_Pb Z _ _)). 
+    + apply (map_into_Pb_unique (qq_π_Pb Z _ _)).
       * cbn.
         etrans. apply @pathsinv0, assoc.
         etrans. apply maponpaths, qq_π.

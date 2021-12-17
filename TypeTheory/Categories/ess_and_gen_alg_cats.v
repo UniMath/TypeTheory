@@ -22,9 +22,6 @@ Require Import UniMath.CategoryTheory.Core.EssentiallyAlgebraic.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Categories.ess_alg_categories.
 
-Open Scope cat.
-Open Scope cat_deprecated.
-
 (** * From generalized algebraic precategories to essentially algebraic ones.*)
 
 (** We need extra assumption that the gen. alg. precategory is a category, i.e. has hom-sets *)

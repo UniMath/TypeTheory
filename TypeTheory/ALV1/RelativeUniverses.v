@@ -15,7 +15,8 @@ Contents:
 
 *)
 
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
@@ -88,6 +89,7 @@ Arguments fpb_ob [_ _ _ _ _ _ _] _.
 Arguments fp [_ _ _ _ _ _ _] _.
 Arguments fq [_ _ _ _ _ _ _] _.
 Arguments rel_universe_structure_data [_ _] _ _ _.
+Arguments isPullback_fpullback [_ _ _ _ _ _ _ _] Y.
 
 (** * Uniqueness of relative universe structures under some assumptions *)
 
@@ -112,56 +114,31 @@ Proof.
   apply invproofirrelevance.
   intros x x'. apply subtypePath.
   - intro t. apply isaprop_fpullback_prop.
-  - destruct x as [x H]. 
-    destruct x' as [x' H']. cbn.    
-    destruct x as [a m].
-    destruct x' as [a' m']. cbn in *.
-    destruct H as [H isP].
-    destruct H' as [H' isP'].
-    use total2_paths_f.
-    + unfold fpullback_prop in *.
-      set (T1 := make_Pullback _ isP).
-      set (T2 := make_Pullback _ isP').
-      set (i := iso_from_Pullback_to_Pullback T1 T2). cbn in i.
-      set (i' := invmap (weq_ff_functor_on_iso HJ a a') i ).
-      set (TT := isotoid _ is_c i').
-      apply TT.
-    + cbn.
-      set (XT := transportf_dirprod _ (fun a' => C⟦a', X⟧) (fun a' => D⟦J a', tU⟧)).
-      cbn in XT.
-      set (XT' := XT (tpair _ a m : ∑ a : C, C ⟦ a, X ⟧ × D ⟦ J a, tU ⟧ )
-                     (tpair _ a' m' : ∑ a : C, C ⟦ a, X ⟧ × D ⟦ J a, tU ⟧ )).
-      cbn in *.
-      match goal with | [ |- transportf _ ?e _ = _ ] => set (TT := e) end.
-      rewrite XT'.
-      destruct m as [p q].
-      destruct m' as [p' q'].
-      cbn. 
+  - unfold fpullback_data in *.
+    use total2_paths_f; simpl.
+    + apply isotoid. { assumption. }
+      apply (invmap (weq_ff_functor_on_iso HJ _ _)).
+      refine (iso_from_Pullback_to_Pullback
+                (make_Pullback _ (isPullback_fpullback _))
+                (make_Pullback _ (isPullback_fpullback _))).
+    + etrans. { apply (transportf_dirprod'
+                         (λ a', C ⟦ a', _ ⟧) (λ a', D ⟦ J a', _ ⟧)). }
       apply pathsdirprod.
-      * unfold TT.
-        rewrite transportf_isotoid.
-        cbn.
-        unfold precomp_with.
-        rewrite id_right.
-        rewrite id_right.
-        unfold from_Pullback_to_Pullback. cbn.
+      * rewrite transportf_isotoid.
+        cbn; unfold precomp_with.
+        rewrite 2 id_right.
+        unfold from_Pullback_to_Pullback.
         apply (invmaponpathsweq (weq_from_fully_faithful HJ _ _ )).
-        assert (T:= homotweqinvweq (weq_from_fully_faithful HJ a' a)).
-        cbn in *.
-        rewrite functor_comp. rewrite T. clear T.
-        clear XT' XT. clear TT. 
-        assert (X1:= PullbackArrow_PullbackPr1 (make_Pullback _ isP)).
-        cbn in X1.
-        apply X1.
-      * unfold TT. clear TT. clear XT' XT.
-        match goal with |[|- transportf ?r  _ _ = _ ] => set (P:=r) end.
-        etrans. 
-          apply (transportf_isotoid_functor).  
-        cbn. unfold precomp_with. rewrite id_right. rewrite id_right.
-        assert (XX:=homotweqinvweq (weq_from_fully_faithful HJ a' a  )).
-        simpl in XX. rewrite XX. simpl. cbn.
-        assert (X1:= PullbackArrow_PullbackPr2 (make_Pullback _ isP)).
-        apply X1.
+        cbn. rewrite functor_comp.
+        etrans. { apply maponpaths_2,
+                    (homotweqinvweq (weq_from_fully_faithful HJ _ _)). }
+        apply (PullbackArrow_PullbackPr1 (make_Pullback _ _)).
+      * etrans. { apply (transportf_isotoid_functor). }
+        cbn; unfold precomp_with.
+        rewrite 2 id_right.
+        etrans. { apply maponpaths_2,
+                    (homotweqinvweq (weq_from_fully_faithful HJ _ _)). }
+        apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)).
 Qed.
 
 Lemma isaprop_rel_universe_structure  (is_c : is_univalent C) 
@@ -381,7 +358,7 @@ Definition rel_universe_fpullback_mor
   : fpb_ob (U X f) --> fpb_ob (U X' f').
 Proof.
   apply (fully_faithful_inv_hom HJ).
-  use (map_into_Pb _ _ _ _ _ (pr2 (pr2 (U _ _)))).
+  use (map_into_Pb (pr2 (pr2 (U _ _)))).
   - apply (# J). exact (fp _ ;; g). 
   - apply fq.
   - refine (_ @ _). { apply maponpaths_2. apply functor_comp. }
@@ -389,9 +366,6 @@ Proof.
     refine (_ @ _). { apply maponpaths, e. }
     exact (pr1 (pr2 (U X f))).
 Defined.
-
-(* TODO: add access function [fpb_isPullback]. *)
-(* DONE: see [isPullback_fpullback] *)
 
 Definition rel_universe_fpullback_mor_id
     {X : C} (f : J X --> base U)
@@ -401,7 +375,7 @@ Definition rel_universe_fpullback_mor_id
 Proof.
   refine (_ @ _). 2: { apply fully_faithful_inv_identity. }
   apply (maponpaths (fully_faithful_inv_hom _ _ _)). 
-  apply (map_into_Pb_unique _ (pr2 (pr2 (U _ _)))).
+  apply (map_into_Pb_unique (pr2 (pr2 (U _ _)))).
   - refine (_ @ _). { apply Pb_map_commutes_1. }
     refine (_ @ _). { apply maponpaths, id_right. }
     apply pathsinv0, id_left.
@@ -423,7 +397,7 @@ Definition rel_universe_fpullback_mor_comp
 Proof.
   refine (_ @ _). 2: { apply fully_faithful_inv_comp. }
   apply (maponpaths (fully_faithful_inv_hom _ _ _)).
-  apply (map_into_Pb_unique _ (pr2 (pr2 (U _ _)))).
+  apply (map_into_Pb_unique (pr2 (pr2 (U _ _)))).
   - refine (_ @ _). { apply Pb_map_commutes_1. }
     refine (_ @ _).
     2: { apply pathsinv0.
@@ -497,9 +471,8 @@ Proof.
   apply funextsec; intro e.
   apply (isweqonpathsincl _ (HJ _ _ )).
   set (UXf' := U X' f').
-  set (P:= isPullback_fpullback _ _ UXf').
-  set (PP := @map_into_Pb_unique _ _ _ _ _ _ _ _ _ _ P).
-  use (map_into_Pb_unique _ P).
+  set (P:= isPullback_fpullback UXf').
+  use (map_into_Pb_unique P).
   - destruct xf as [F [H1 [H2 [H3 H4]]]].
     destruct xf' as [F' [H1' [H2' [H3' H4']]]].
     cbn.
@@ -864,13 +837,9 @@ Proof.
       apply pathsinv0. rewrite <- assoc. rewrite <- assoc.
       apply (iso_inv_to_left (C:=D') _ _ _ (αpwiso Xf )).
       cbn. unfold precomp_with. rewrite id_right.
-      assert (XR := nat_trans_ax α').
-      apply pathsinv0. 
-      etrans. 2: { apply XR. }
+      etrans. { apply pathsinv0, (nat_trans_ax α'). }
       cbn.
-      apply pathsinv0. 
-      etrans. apply maponpaths_2. apply maponpaths. 
-            apply Hip'.
+      etrans. { apply maponpaths_2, maponpaths, Hip'. }
       rewrite functor_comp.
       apply pathsinv0, assoc.
     + cbn. 
@@ -894,17 +863,14 @@ Proof.
         unfold f'. apply idpath.
       * rewrite id_left. rewrite id_right. apply idpath.
       * cbn. unfold precomp_with. rewrite id_right. rewrite id_right.
-        assert (XR := nat_trans_ax α').
-        cbn in XR. 
         etrans. 2: { apply assoc. }
-        rewrite <- XR.
+        etrans. 2: { apply maponpaths, (nat_trans_ax α'). }
         rewrite assoc.
-        apply maponpaths_2.
+        apply maponpaths_2. cbn.
         rewrite <- functor_comp. 
         apply maponpaths.
         apply pathsinv0.
-        etrans. apply maponpaths. 
-          apply Hip'.
+        etrans. { apply maponpaths, Hip'. }
         rewrite assoc.
         rewrite iso_after_iso_inv.
         apply id_left.
@@ -912,9 +878,8 @@ Proof.
         unfold precomp_with. rewrite id_right.
         apply pathsinv0.
         do 2 rewrite assoc.
-        etrans. apply maponpaths_2. apply assoc4.
-        etrans. apply maponpaths_2. apply maponpaths_2. apply maponpaths.
-          apply α'_α.
+        etrans. { apply maponpaths_2, assoc4. }
+        etrans. { apply maponpaths_2, maponpaths_2, maponpaths, α'_α. }
         rewrite id_right.
         rewrite <- functor_comp.
         rewrite iso_after_iso_inv.

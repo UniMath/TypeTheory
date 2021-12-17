@@ -3,16 +3,13 @@
 
 Note: much of this essentially duplicates material given already in the [ALV1] package, since everything there is given not for [split_typecat] itself but for the reassociated definition [split_typecat'], and the equivalence doesn’t compute straightforwardly enough to allow them to be used here.
 
-Probably much of this really should belong in a different pagckage. *)
+Probably much of this really should belong in a different package. *)
 
 Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.TypeCat.
-
-(* TODO: upstream? *)
-Arguments nat_trans_ax {C C'} {F F'} a {x x'} f.
 
 Local Open Scope cat.
 
@@ -297,7 +294,7 @@ Section Terms.
     : tm (A ⦃dpr_typecat A⦄).
   Proof.
     use tpair.
-    + eapply (map_into_Pb _ _ _ _ _ (reind_pb_typecat A _) _ _ (idpath (identity _ ;; _))).
+    + eapply (map_into_Pb (reind_pb_typecat A _) _ _ (idpath (identity _ ;; _))).
     + apply Pb_map_commutes_1.
   Defined.
 
@@ -377,7 +374,7 @@ Section Terms.
     apply pathsinv0, PullbackArrowUnique; cbn.
     + now induction e; rewrite <-assoc, id_left.
     + unfold map_into_Pb.
-      set (pb := Auxiliary.Pbb _ _ _ _ _ _ _ _ _ _ _).
+      set (pb := make_Pullback _ _).
       rewrite <-assoc, (postCompWithPullbackArrow _ _ _ _ pb).
       apply PullbackArrowUnique; cbn.
     - rewrite <-!assoc, dpr_q_typecat; induction e.
@@ -500,7 +497,7 @@ Section Types_with_Terms.
     + eapply pathscomp0. { apply pathsinv0, reind_comp_typecat. }
       eapply pathscomp0. 2: { apply reind_id_type_typecat. }
       apply maponpaths, section_property.
-    + use (@maponpaths _ _ (section_pr1 _) (tm_transportf _ _) _ _).
+    + use (@maponpaths _ _ _ (tm_transportf _ _) _ _).
       refine (_ @ reind_tm_var_typecat' a).
       apply tm_transportf_irrelevant.
   Qed.

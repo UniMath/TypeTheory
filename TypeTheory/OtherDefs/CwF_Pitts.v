@@ -11,17 +11,18 @@
   The definition is based on Pitts, *Nominal Presentations of the Cubical Sets
   Model of Type Theory*, Def. 3.1: 
   http://www.cl.cam.ac.uk/~amp12/papers/nompcs/nompcs.pdf (page=9)
+
+  This file is very similar to [TypeTheory.OtherDefs.CwF_1]; the main difference is that here the functor of types is split up into its separate components, whereas there it is bundled into an actual functor. 
+
 *)
 
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import TypeTheory.Auxiliary.Auxiliary.
-
-Open Scope cat.
-Open Scope cat_deprecated.
 
 (** * A "preview" of the definition *)
 

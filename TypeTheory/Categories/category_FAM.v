@@ -7,8 +7,8 @@
     - FAM(C) is univalent if C is
 *)
 
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.Foundations.UnivalenceAxiom.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.yoneda.
@@ -44,7 +44,7 @@ Defined.
 
 Lemma transportf_toforallpaths {A B : UU} {f g : A → B} (H : f = g) 
    (P : A → B → UU) (x : ∏ a, P a (f a)) (a : A) : 
-  transportf (λ b : B, P a b) (toforallpaths _ _ _ H a) (x a)
+  transportf (λ b : B, P a b) (toforallpaths H a) (x a)
   = transportf (λ x0 : A → B, ∏ a0 : A, _ ) H x a.
 Proof.
   intros.
@@ -295,9 +295,9 @@ Proof.
   intro H.
   apply (gradth _ (pr1 (inv_from_iso (make_iso f H)))).
   - intro x. 
-    apply (toforallpaths _ _ _ (maponpaths pr1 (iso_inv_after_iso (make_iso f H)))).
+    apply (toforallpaths (maponpaths pr1 (iso_inv_after_iso (make_iso f H)))).
   - intro x.
-    apply (toforallpaths _ _ _ (maponpaths pr1 (iso_after_iso_inv (make_iso f H)))).
+    apply (toforallpaths (maponpaths pr1 (iso_after_iso_inv (make_iso f H)))).
 Defined.
 
 Definition FAM_is_iso {A B : FAM C} (f : A --> B) : UU := 

@@ -87,7 +87,7 @@ Section fix_a_precategory.
                  intros Γ A a.
                  assert (T:= CwF.reindx_term_id CC).
                  eapply pathscomp0. apply T.
-                 apply transportf_ext.
+                 apply maponpaths_2.
                  apply maponpaths.
                  apply pathsinv0.
                  unfold functor_id. simpl.
@@ -111,7 +111,7 @@ Section fix_a_precategory.
                  simpl. (* here is the first place where we get a propositional equality instead of
                            the desired definitional one *)
                  apply idpath.
-                 apply transportf_ext;
+                 apply maponpaths_2;
                  apply proofirrelevance;
                  apply (CwF.cwf_types_isaset).
 *)
@@ -119,7 +119,7 @@ Section fix_a_precategory.
                  intros.
                  assert (T:= @CwF.reindx_term_comp _ CC).
                  eapply pathscomp0; [apply T|].
-                 apply transportf_ext.
+                 apply maponpaths_2.
                  apply maponpaths.
                  apply pathsinv0.
                  unfold functor_comp; simpl.
@@ -135,7 +135,7 @@ Section fix_a_precategory.
                 assert (T:=CwF.cwf_law_2 CC).
                 eapply pathscomp0. Focus 2. apply T.
                 apply maponpaths.
-                apply transportf_ext.
+                apply maponpaths_2.
                 apply maponpaths.
                 unfold reindx_type_comp. simpl.
                 unfold functor_comp. simpl.
@@ -147,7 +147,7 @@ Section fix_a_precategory.
               unfold CwF.comp_law_3 in T.
               eapply pathscomp0. apply T.
               apply maponpaths.
-              apply transportf_ext.
+              apply maponpaths_2.
               apply (CwF.cwf_types_isaset CC).
             - intros ? ? .
               simpl in *.
@@ -234,7 +234,7 @@ Section fix_a_precategory.
                   apply map_on_two_paths.
                   * apply proofirrelevance.
                     apply (CwF_1.has_homsets_cwf CC).
-                  * apply transportf_ext.
+                  * apply maponpaths_2.
                     apply proofirrelevance.
                     apply (CwF_1.cwf_types_isaset CC).
 *)
@@ -311,7 +311,6 @@ Section fix_a_precategory.
             
                     idtac.
                     simpl.
-            Search (transportf funextsec  ).
             
             idtac.
 
@@ -336,10 +335,5 @@ Section fix_a_precategory.
       destruct CC2 as [x y].
                   
                     (*Focus 2. apply T.
-                apply transportf_ext.
+                apply maponpaths_2.
 *)
-
-                Search (?f _ _ = ?f _ _ ).
-          
-Search (transportf _ _ _ = transportf _ _ _ ).
-              

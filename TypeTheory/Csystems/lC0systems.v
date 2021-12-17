@@ -12,7 +12,8 @@ has been added by Ralph Matthes in May 2018.
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
-Require Import TypeTheory.Auxiliary.CategoryTheoryImports.           
+Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+Require Import TypeTheory.Auxiliary.Auxiliary.           
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Export TypeTheory.Csystems.hSet_ltowers.
 

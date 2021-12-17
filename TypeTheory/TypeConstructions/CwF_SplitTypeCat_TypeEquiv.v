@@ -7,7 +7,7 @@ Content :
 _ universe equivalence over weq_sty_cwf
 **)
 
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
@@ -66,11 +66,11 @@ Lemma ppComp1 {Γ Δ : C} {A : Ty Γ : hSet} (f : C^op ⟦Γ,Δ⟧) (a : CwF_tm 
 : pp_ _ (# Tm f a ) = # Ty f A. 
 Proof.
   apply pathsinv0, (pathscomp0(!(maponpaths (# Ty f) (pr2 a)))),
-  pathsinv0, (toforallpaths _ _ _ (pr22 pp _ _ f) a) .
+  pathsinv0, (toforallpaths (pr22 pp _ _ f) a) .
 Qed. 
-  
+
 Definition CwF_Pullback {Γ} (A : Ty Γ : hSet) 
-: isPullback (yy A) pp (#Yo (pi A)) (yy(te A)) _ := pr22 pr22  CwF Γ A.
+: isPullback _ := pr22 pr22  CwF Γ A.
 
 Definition CwF_reind_tm {Γ Δ} (f : C^op ⟦Γ,Δ⟧) {A : Ty Γ : hSet} (x : CwF_tm A)
 : CwF_tm (A⟪f⟫) := (#Tm f x,,ppComp1 f x).
@@ -170,7 +170,6 @@ Definition unit_unity (U : unit_TypeFormer) (E : unit_Elem U)  : UU
 Lemma isaprop_unity (U : unit_TypeFormer) (E : unit_Elem U) : isaprop (unit_unity U E).
 Proof.
   unfold unit_unity.
-  Search "impred".
   do 2 (apply impred_isaprop; intro).
   apply isaset_tm.
 Qed.
@@ -260,7 +259,7 @@ Proof.
 Defined.
 
 Lemma pb_of_section_eq {a b c d : C} {f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : C⟦d, b⟧} {k : C⟦d,c⟧}
-(H H' : h · f = k · g) (isPb  : isPullback _ _ _ _ H) (isPb' : isPullback _ _ _ _ H')
+(H H' : h · f = k · g) (isPb  : isPullback H) (isPb' : isPullback H')
 {s s' : C⟦a,c⟧} (eqS : s = s') (K : s · g = identity _) (K': s' · g = identity _) 
 : pb_of_section H isPb s K = pb_of_section H' isPb' s' K'.
 Proof.
@@ -284,9 +283,7 @@ Proof.
      assert (eq1 : ((pr1 a) :C ⟦ Δ,_ ⟧) = (pr121 (tm_equiv_inter A a)))
      by (simpl; reflexivity).
      (* important for typing in order to make *)
-     set (isPb := (reind_pb_typecat A f) : isPullback f (π (pr11 (tm_equiv_inter A a)))
-     (π (# (TY Sc'  : functor _ _) f (pr11 (tm_equiv_inter A a))))
-     (qq Sc' f (pr11 (tm_equiv_inter A a)))
+     set (isPb := (reind_pb_typecat A f) : isPullback
      ((! dpr_q_typecat A f) : (π (# (TY Sc' : functor _ _) f (pr11 (tm_equiv_inter A a))) ;; f)%mor =
      (qq Sc' f (pr11 (tm_equiv_inter A a)) ;; π (pr11 (tm_equiv_inter A a)))%mor));
      set (H := (! dpr_q_typecat A f) 

@@ -60,27 +60,27 @@ Admitted.
 (** ** Equivalence between two versions of cwf structures *)
 
 Definition equiv_cat_cwf_cwf'_structure (C : category)
-  : equivalence_of_precats (cwf_structure_cat C) (cwf'_structure_cat C).
+  : equivalence_of_cats (cwf_structure_cat C) (cwf'_structure_cat C).
 Admitted.
 
 (** ** Equivalence between two versions of split typecat structures *)
 
 Definition equiv_cat_standalone_to_regrouped (C : category)
-  : equivalence_of_precats
+  : equivalence_of_cats
       (split_typecat_structure_cat C) (split_typecat'_structure_cat C).
 Admitted.
 
 (** ** Auxiliary equivalence between the reordered structures *)
 
 Definition weq_cwf'_sty' (C : category)
-  : equivalence_of_precats
+  : equivalence_of_cats
       (cwf'_structure_cat C) (split_typecat'_structure_cat C).
 Admitted.
 
 (** ** Main construction: equivalence between split typecat structures and cwf structures *)
 
 Definition weq_sty_cwf (C : category)
-  : equivalence_of_precats
+  : equivalence_of_cats
       (split_typecat_structure_cat C) (cwf_structure_cat C).
 Admitted.
 
@@ -97,7 +97,7 @@ Proposition fully_faithful_cwf_to_rep (C : category)
 Admitted.
 
 Definition isweq_from_cwf_to_rep {C : category} (C_univ : is_univalent C)
-  : adj_equivalence_of_precats (functor_cwf_to_rep C).
+  : adj_equivalence_of_cats (functor_cwf_to_rep C).
 Admitted.
 
 (** * Transfer of [cwf_structure]s along weak equivalences *)
@@ -114,13 +114,13 @@ Admitted.
 Definition transfer_rep_map_weak_equivalence
   {C D : category} (F : C ⟶ D) 
   : fully_faithful F → essentially_surjective F
-  → equivalence_of_precats (rep_map_cat C) (rep_map_cat D).
+  → equivalence_of_cats (rep_map_cat C) (rep_map_cat D).
 Admitted.
 
 (** * Equivalence between [rep_map C] and [cwf (Rezk_completion C)] *)
 
 Definition equiv_cat_rep_map_cwf_Rezk (C : category)
-  : equivalence_of_precats
+  : equivalence_of_cats
       (rep_map_cat C)
       (cwf_structure_cat (Rezk_completion C)).
 Admitted.

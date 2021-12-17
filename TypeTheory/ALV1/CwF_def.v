@@ -14,7 +14,8 @@ Contents:
 
 *)
 
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
@@ -136,11 +137,11 @@ Lemma cwf_square_comm_converse {Γ : C} {A : Ty pp Γ : hSet}
   : ((pp : _ --> _) : nat_trans _ _) _ t = # (Ty pp) π A.
 Proof.
   etrans.
-    apply maponpaths, @pathsinv0.
-    apply (toforallpaths _ _ _ (functor_id (Tm pp) _)).
+  { apply maponpaths, pathsinv0, (toforallpaths (functor_id (Tm pp) _)). }
   etrans. 
-    assert (e' := nat_trans_eq_pointwise e ΓA); clear e; cbn in e'.
-    use (toforallpaths _ _ _ (!e') (identity _)).
+  { assert (e' := nat_trans_eq_pointwise e ΓA); clear e; cbn in e'.
+    refine (toforallpaths (!e') (identity _)).
+  }
   unfold yoneda_morphisms_data.
   apply maponpaths_2, id_left.
 Qed.
@@ -191,86 +192,51 @@ End Representation_Regrouping.
 Lemma isaprop_cwf_fiber_representation' {Γ:C} (A : Ty pp Γ : hSet)
   : is_univalent C -> isaprop (cwf_fiber_representation' A).
 Proof.
-  intro isC.
+  intros isC.
   apply invproofirrelevance.
   intros x x'. apply subtypePath.
-  { intro. 
+  { intro t. 
     apply isofhleveltotal2. 
     - apply setproperty.
     - intro. apply isaprop_isPullback.
   }
-  destruct x as [x H]. 
-  destruct x' as [x' H']. cbn.    
-  destruct x as [ΓA m].
-  destruct x' as [ΓA' m']. cbn in *.
-  destruct H as [H isP].
-  destruct H' as [H' isP'].
-  use (total2_paths_f).
-  - set (T1 := make_Pullback _ isP).
-    set (T2 := make_Pullback _ isP').
-    set (i := iso_from_Pullback_to_Pullback T1 T2). cbn in i.
-    set (i' := invmap (weq_ff_functor_on_iso (yoneda_fully_faithful _ ) _ _ ) i ).
-    set (TT := isotoid _ isC i').
-    apply TT.
-  - cbn.
-    set (XT := transportf_dirprod _ (fun a' => C⟦a', Γ⟧) (fun a' => Tm pp a' : hSet)).
-    cbn in XT.
-    set (XT' := XT (tpair _ ΓA m : ∑ R : C, C ⟦ R, Γ ⟧ × (Tm pp R : hSet) )
-                   (tpair _ ΓA' m' : ∑ R : C, C ⟦ R, Γ ⟧ × (Tm pp R : hSet) )).
-    cbn in *.
-    match goal with | [ |- transportf _ ?e _ = _ ] => set (TT := e) end.
-    rewrite XT'. clear XT' XT.
-    destruct m as [π te].
-    destruct m' as [π' te'].
-    cbn. 
-    apply pathsdirprod.
-    + unfold TT; clear TT.
-      rewrite transportf_isotoid.
-      cbn. unfold precomp_with.
-      rewrite id_right.
-      unfold from_Pullback_to_Pullback.
-      cbn in *.
-      match goal with |[|- (_  ( _ ?PP _ _ _  _ ) )  _ _  ;; _ = _ ] => 
-                       set (P:=PP) end.
-      match goal with |[|- ( _ (PullbackArrow P ?PP ?E2 ?E3 _ )) _ _   ;; _ = _ ] 
-                       => set (E1 := PP);
-                         set (e1 := E1);
-                         set (e2 := E2);
-                         set (e3 := E3) end.
-      match goal with |[|- ( _ (PullbackArrow _ _ _ _ ?E4 )) _ _   ;; _ = _ ] 
-                       => set (e4 := E4) end.
-      assert (XR := PullbackArrow_PullbackPr1 P e1 e2 e3 e4).
-      assert (XR':= nat_trans_eq_pointwise XR ΓA'). 
-      cbn in XR'. 
-      assert (XR'':= toforallpaths _ _  _ XR').
-      cbn in XR''.
-      etrans. apply XR''.
-      apply id_left.
-    + unfold TT; clear TT. 
-      match goal with |[|- transportf ?r  _ _ = _ ] => set (P:=r) end.
-      match goal with |[|- transportf _ (_ _ _ (_ _ ?ii)) _ = _ ] => set (i:=ii) end.
-      simpl in i.
-      apply (invmaponpathsweq (@yy _ (Tm pp) ΓA')).
-      etrans. apply transportf_yy.
-      etrans. apply transportf_isotoid_functor.  
-      rewrite inv_from_iso_iso_from_fully_faithful_reflection.
-      assert (XX:=homotweqinvweq (weq_from_fully_faithful 
-                                    (yoneda_fully_faithful _ ) ΓA' ΓA )).
-      etrans. apply maponpaths_2. apply XX.
-      clear XX.
-      etrans. apply maponpaths_2. apply id_right.
-      etrans. apply maponpaths_2. unfold from_Pullback_to_Pullback. apply idpath.
-      match goal with |[|- ( _ ?PP _ _ _  _ )  ;; _ = _ ] => 
-                       set (PT:=PP) end.
-      match goal with |[|- PullbackArrow _ ?PP ?E2 ?E3 _    ;; _ = _ ] 
-                       => set (E1 := PP);
-                         set (e1 := E1);
-                         set (e2 := E2);
-                         set (e3 := E3) end.
-      match goal with |[|- PullbackArrow _ _ _ _ ?E4    ;; _ = _ ] 
-                       => set (e4 := E4) end.
-      apply (PullbackArrow_PullbackPr2 PT e1 e2 e3 e4).
-Qed.   
+  use total2_paths_f; simpl.
+  { apply isotoid. { assumption. }
+    apply (invmap (weq_ff_functor_on_iso (yoneda_fully_faithful _) _ _)).
+    refine (iso_from_Pullback_to_Pullback
+                (make_Pullback _ (pr22 x))
+                (make_Pullback _ (pr22 x'))).
+  }
+  etrans. { apply (transportf_dirprod'
+                       (λ a', C ⟦ a', _ ⟧) (λ a', (Tm pp a' : hSet))). }
+  apply pathsdirprod.
+  - rewrite transportf_isotoid.
+    cbn; unfold precomp_with.
+    rewrite id_right.
+    etrans. { apply yoneda_postcompose. }
+    etrans. {
+      refine (toforallpaths _ (identity _)). 
+      refine (toforallpaths _ _). 
+      apply maponpaths,
+        (PullbackArrow_PullbackPr1 (make_Pullback _ (pr22 x))).
+    }
+    cbn; unfold yoneda_morphisms_data.
+    apply id_left.
+  - etrans. { apply transportf_pshf'. }
+    rewrite idtoiso_inv.
+    rewrite idtoiso_isotoid.
+    cbn; unfold precomp_with.
+    rewrite id_right.
+    match goal with | [ |- (_ ((_ ?f) _ _)) _ = _ ]
+                      => set (i := f :  preShv C ⟦ _, _ ⟧) end.
+    refine (@pathscomp0 _ _
+                 ((i ;; yy _ : nat_trans _ _) _ (identity _)) _ _ _).
+    { apply idpath. }
+    subst i; unfold from_Pullback_to_Pullback.
+    rewrite (PullbackArrow_PullbackPr2 (make_Pullback _ (pr22 x))).
+    cbn. generalize (pr221 x'); apply toforallpaths. 
+    apply (functor_id (Tm pp)).
+Qed.
 
 Lemma isaprop_cwf_fiber_representation {Γ:C} (A : Ty pp Γ : hSet)
   : is_univalent C -> isaprop (cwf_fiber_representation pp A).
@@ -452,7 +418,7 @@ Proof.
   apply XT.
 Defined.  
 
-Let Fopequiv : adj_equivalence_of_precats _  := equiv_Fcomp F F_ff F_es.
+Let Fopequiv : adj_equivalence_of_cats _  := equiv_Fcomp F F_ff F_es.
 
 
 Definition pp'_eta : 
@@ -463,31 +429,18 @@ Defined.
 
 Definition Tm_iso : iso (ηη TM') TM.
 Proof.
-  set (XR':=  counit_pointwise_iso_from_adj_equivalence Fopequiv TM).
-  apply XR'.
+  apply (counit_pointwise_iso_from_adj_equivalence Fopequiv TM).
 Defined.
 
 Definition Ty_iso : iso (ηη TY') TY.
 Proof.
-  set (XR':=  counit_pointwise_iso_from_adj_equivalence Fopequiv TY).
-  apply XR'.
+  apply (counit_pointwise_iso_from_adj_equivalence Fopequiv TY).
 Defined.
 
 Lemma Morphism_of_presheaves_transfer_recover : Tm_iso ;; pp = pp'_eta ;; Ty_iso.
 Proof.
-  assert (XR := nat_trans_ax (counit_from_left_adjoint Fopequiv) _ _ pp).
   apply pathsinv0.
-  etrans. 2: { apply XR. }
-  clear XR.
-  set (TT := #(right_adjoint Fopequiv) pp).
-  set (TTT := #ηη TT).
-  apply maponpaths_2.
-  intermediate_path TTT. 
-  - apply maponpaths. unfold pp'. 
-    unfold TT.
-    unfold T'.
-    apply idpath.
-  - apply idpath.
+  apply (nat_trans_ax (counit_from_left_adjoint Fopequiv) pp).
 Qed.
 
 End CwF_Ftransport_recover.
@@ -542,7 +495,7 @@ Proof.
 Defined.  
 
 
-Let RCequiv : adj_equivalence_of_precats _  := Rezk_op_adj_equiv C
+Let RCequiv : adj_equivalence_of_cats _  := Rezk_op_adj_equiv C
           HSET is_univalent_HSET.
 
 Lemma has_homsets_preShv (D : category) : has_homsets (preShv D).
@@ -572,19 +525,8 @@ Defined.
 
 Lemma RC_morphism_of_presheaves_recover : RC_Tm_iso ;; pp = RC_pp'_eta ;; RC_Ty_iso.
 Proof.
-  assert (XR := nat_trans_ax (counit_from_left_adjoint RCequiv) _ _ pp).
   apply pathsinv0.
-  etrans.  2: { apply XR. }
-  clear XR.
-  set (TT := #(right_adjoint RCequiv) pp).
-  set (TTT := #ηη TT).
-  apply maponpaths_2.
-  intermediate_path TTT. 
-  - apply maponpaths. unfold pp'. 
-    unfold TT.
-    unfold T'.
-    apply idpath.
-  - apply idpath.
+  apply (nat_trans_ax (counit_from_left_adjoint RCequiv) pp).
 Qed.
 
 End CwF_RC_recover.

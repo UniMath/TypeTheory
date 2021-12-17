@@ -59,7 +59,7 @@ Proof.
         - intros Γ A Γ' f.
           unshelve refine (sqr_comm_of_DM (( DM_from_DM_over A)) _ ).
         - intros.
-          apply is_symmetric_isPullback. { apply homset_property. }
+          apply @is_symmetric_isPullback.
           refine (@isPullback_of_DM  _ _ _ _ _ _ _ ).
       }
 Defined.

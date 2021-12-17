@@ -112,7 +112,7 @@ Proof.
   intro. apply isaprop_is_iso.
 Defined.
 
-  
+
 Definition Elem_cov_iso_gives_iso (ac bd : ∫) :
   iso ac bd → iso (pr1 ac) (pr1 bd).
 Proof.
@@ -136,53 +136,38 @@ Proof.
   exact (pr2 (pr1 H)).
 Defined.
 
-
 Lemma iso_in_HSET (A B : HSET) (f : iso A B) (Y : pr1 B) (X : pr1 A) :
   pr1 f X = Y → inv_from_iso f Y = X.
 Proof.
   intro H.
-  set (T:= maponpaths (inv_from_iso f) H).
-  apply pathsinv0.
-  etrans. 2: { apply T. }
-  apply pathsinv0.
-  set (HT:= iso_inv_after_iso f).
-  set (HT':= toforallpaths _ _ _ HT).
-  apply HT'.
+  etrans. { apply maponpaths, pathsinv0, H. }
+  apply (toforallpaths (iso_inv_after_iso f)).
 Qed.
 
-Lemma foo (ac bd : ∫) (H : Elem_cov_iso_type ac bd) :
+Lemma Elem_cov_iso_inv (ac bd : ∫) (H : Elem_cov_iso_type ac bd) :
   # F (inv_from_iso (pr1 H)) (pr2 bd) = pr2 ac.
 Proof.
-  destruct H as [t p].
   destruct ac as [a c].
-  destruct bd as [b d]; simpl in *.
-  set (T:= (@functor_on_inv_from_iso _ HSET F _ _ t)).
-  set (T':= toforallpaths _ _ _ T  d).
-  etrans. apply T'. clear T' T.
-  apply iso_in_HSET.
-  apply p.
+  destruct bd as [b d].
+  destruct H as [t p]; simpl in t, p |- *.
+  etrans. { apply (toforallpaths (functor_on_inv_from_iso F t)). }
+  apply iso_in_HSET, p.
 Qed.
-  
 
 Definition Elem_cov_iso_type_to_Elem_cov_iso (ac bd : ∫) :
   Elem_cov_iso_type ac bd → iso ac bd .
 Proof.
   intro H.
-  unshelve refine (tpair _ _ _ ).
-  unshelve refine (tpair _ _ _ ).
+  use tpair; [ | apply is_iso_from_is_z_iso]; use tpair.
   - exact (pr1 H).
   - exact (pr2 H).
-  - apply is_iso_from_is_z_iso.
-    unshelve refine (tpair _ _ _ ).
-    exists (inv_from_iso (pr1 H)).
-    apply foo.
-    split.
-    + apply subtypePath.
-      intro; apply setproperty.
-      simpl. apply iso_inv_after_iso.
-    + apply subtypePath.
-      intro; apply setproperty.
-      simpl. apply iso_after_iso_inv.
+  - exists (inv_from_iso (pr1 H)).
+    apply Elem_cov_iso_inv.
+  - split; apply subtypePath; simpl.
+    + intro; apply setproperty.
+    + apply iso_inv_after_iso.
+    + intro; apply setproperty.
+    + apply iso_after_iso_inv.
 Defined.
 
 (* opacify the proof components *)
@@ -201,12 +186,12 @@ Proof.
     apply idpath.
 Defined.
 
-Lemma bla (H : is_univalent C) (ac bd : ∫) :
+Lemma elem_eq_weq_1 (H : is_univalent C) (ac bd : ∫) :
   ac = bd ≃ ∑ p : iso (pr1 ac) (pr1 bd), #F p (pr2 ac) = pr2 bd. 
 Proof.
   eapply weqcomp.
   apply total2_paths_equiv.
-  unshelve refine (weqbandf (make_weq (@idtoiso _ _ _ ) _ ) _ _ _ ).
+  unshelve refine (weqbandf (make_weq (@idtoiso _ _ _) _ ) _ _ _ ).
   - apply H.
   - simpl. intro x.
     destruct ac. destruct bd.
@@ -216,14 +201,14 @@ Proof.
     apply idweq.
 Defined.
 
-Definition foobar (H : is_univalent C) (ac bd : ∫) :
+Definition elem_eq_weq_2 (H : is_univalent C) (ac bd : ∫) :
   ac = bd ≃ iso ac bd.
 Proof.
   eapply weqcomp.
-  apply bla.
+  apply elem_eq_weq_1.
   apply H.
   apply invweq.
-  apply  Elem_cov_iso_type_equiv_Elem_cov_iso.
+  apply Elem_cov_iso_type_equiv_Elem_cov_iso.
 Defined.
 
 (*  needs better computational behaviour in previous lemmas *)
@@ -231,18 +216,11 @@ Defined.
 Definition is_univalent_Elem  (H : is_univalent C) : is_univalent ∫.
 Proof.
   intros a b.
-  set (T := isweqhomot (foobar  H a b)(@idtoiso _ a b) ).
-  apply T.
-  intro p.
-  induction p.
-  destruct a; simpl in *.
-  
-  simpl.
+  apply (weqhomot _ (elem_eq_weq_2 H a b)).
+  intro p; destruct p.
   apply eq_iso.
-  simpl.
-  apply subtypePath. intro; apply setproperty.
-  apply idpath.
-  apply pr2.
+  apply subtypePath. { intro; apply setproperty. }
+  cbn. apply idpath.
 Defined.
 
 End category_of_elements.

@@ -22,13 +22,9 @@ Main definition:
 *)
 
 
-Require Import UniMath.MoreFoundations.PartA.
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
-
-Require Import TypeTheory.Auxiliary.Auxiliary.
-Require Import TypeTheory.ALV1.TypeCat.
-Require Import TypeTheory.ALV2.FullyFaithfulDispFunctor.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
@@ -36,55 +32,14 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
 
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.ALV1.TypeCat.
+Require Import TypeTheory.ALV2.FullyFaithfulDispFunctor.
+
+
 Section Auxiliary.
 
-  (* TODO: move upstream? *)
-  Definition isaprop_is_cartesian_disp_functor
-        {C C' : category} {F : functor C C'}
-        {D : disp_cat C} {D' : disp_cat C'} {FF : disp_functor F D D'}
-    : isaprop (is_cartesian_disp_functor FF).
-  Proof.
-    apply impred_isaprop. intros c.
-    apply impred_isaprop. intros c'.
-    apply impred_isaprop. intros f.
-    apply impred_isaprop. intros d.
-    apply impred_isaprop. intros d'.
-    apply impred_isaprop. intros ff.
-    apply impred_isaprop. intros ff_is_cartesian.
-    apply isaprop_is_cartesian.
-  Qed.
-
-  (* TODO: move upstream? *)
-  Definition iscontr_irrelevant
-             {A : UU} {P : A → UU}
-             (iscontr_A : iscontr A)
-    : ∏ (a' : A), P a' = P (pr1 iscontr_A).
-  Proof.
-    intros a'.
-    apply (maponpaths P (pr2 iscontr_A a')).
-  Defined.
-
-  (* TODO: move upstream? *)
-  Definition iscontr_total2_irrelevant
-             {A : UU} {P : A → UU}
-             (iscontr_A : iscontr A)
-    : (∑ (a : A), P a) ≃ P (pr1 iscontr_A).
-  Proof.
-    eapply weqcomp.
-    use (weqtotal2 (Q := λ _, P (pr1 iscontr_A)) (idweq _) _).
-    - intros a. apply eqweqmap, maponpaths, (pr2 iscontr_A).
-    - apply invweq, WeakEquivalences.dirprod_with_contr_l, iscontr_A.
-  Defined.
-
-  Lemma fiber_paths_from_total2_paths
-        {A : UU} {B : A → UU}
-        (x y : ∑ (a : A), B a)
-        (p : x = y)
-  : transportb B (maponpaths pr1 p) (pr2 y) = pr2 x.
-  Proof.
-    induction p. apply idpath.
-  Defined.
-
+  (* Note: This very specifically-tailored result is probably not worth upstreaming.  Perhaps can be clarified by factoring into a version without the [isaset] hypotheses/components, which would be more generally useful and should certainly be upsteamed? *)
   Lemma unique_pr2_weq
         {A : UU} {B : A → UU}
         (isaset_A : isaset A)

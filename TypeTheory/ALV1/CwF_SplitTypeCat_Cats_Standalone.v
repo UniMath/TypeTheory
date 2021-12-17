@@ -23,7 +23,8 @@ Main definitions:
 
 *)
 
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import TypeTheory.Auxiliary.Auxiliary.
@@ -79,7 +80,7 @@ Proof.
   intros Γ'; simpl in Γ'.
   unfold yoneda_objects_ob. apply funextsec; intros f.
   etrans. 
-    use (toforallpaths _ _ _ (nat_trans_ax (term_fun_mor_TM FF) _ _ _)).
+    use (toforallpaths (nat_trans_ax (term_fun_mor_TM FF) _)).
   cbn. apply maponpaths, term_fun_mor_te.
 Qed.
 
@@ -105,7 +106,7 @@ Lemma term_to_section_naturality {Y} {Y'}
   {Γ : C} (t : Tm Y Γ) (A := (pp Y : nat_trans _ _) _ t)
   : pr1 (term_to_section ((term_fun_mor_TM FY : nat_trans _ _) _ t))
   = pr1 (term_to_section t) 
-   ;; Δ (!toforallpaths _ _ _ (nat_trans_eq_pointwise (term_fun_mor_pp FY) Γ) t).
+   ;; Δ (!toforallpaths (nat_trans_eq_pointwise (term_fun_mor_pp FY) Γ) t).
 Proof.
   set (t' := (term_fun_mor_TM FY : nat_trans _ _) _ t).
   set (A' := (pp Y' : nat_trans _ _) _ t').
@@ -122,7 +123,7 @@ Proof.
     etrans. apply Q_comp_ext_compare.
     etrans. apply @pathsinv0.
       set (H1 := nat_trans_eq_pointwise (term_fun_mor_Q FY A) Γ).
-      exact (toforallpaths _ _ _ H1 _).
+      exact (toforallpaths H1 _).
     cbn. apply maponpaths. apply term_to_section_recover.
 Qed.
 
@@ -335,8 +336,7 @@ Proof.
   - etrans. apply qq_π.
     apply pathsinv0, qq_π.
   - etrans. cbn. apply maponpaths, @pathsinv0, (term_fun_mor_te FY).
-    etrans. use (toforallpaths _ _ _
-                      (!nat_trans_ax (term_fun_mor_TM _) _ _ _)).
+    etrans. use (toforallpaths (!nat_trans_ax (term_fun_mor_TM _) _)).
     etrans. cbn. apply maponpaths, @pathsinv0, W.
     etrans. apply term_fun_mor_te.
     apply W'.
@@ -601,8 +601,8 @@ Proof.
     apply funextsec; intros A.
     etrans. apply transportf_pshf.
     etrans.
-      refine (toforallpaths _ _ _ _ (te _ _)).
-      refine (toforallpaths _ _ _ _ _).
+      refine (toforallpaths _ (te _ _)).
+      refine (toforallpaths _ _).
       apply maponpaths, idtoiso_iso_to_TM_eq.
     apply term_fun_mor_te.
 Qed.
@@ -727,33 +727,33 @@ Qed.
 Definition compat_structures_category : category
   := make_category _ has_homsets_compat_structures_precategory.
 
-Definition pr1_equiv : @adj_equivalence_of_precats
+Definition pr1_equiv : @adj_equivalence_of_cats
                          compat_structures_category
                          term_fun_category
                          compat_structures_pr1_functor.
 Proof.
-  use adj_equivalence_of_precats_ff_split.
+  use adj_equivalence_of_cats_ff_split.
   - apply compat_structures_pr1_fully_faithful.
   - apply compat_structures_pr1_split_ess_surj.
 Defined.
 
-Definition pr2_equiv : @adj_equivalence_of_precats
+Definition pr2_equiv : @adj_equivalence_of_cats
                          compat_structures_category
                          qq_structure_category
                          compat_structures_pr2_functor.
 Proof.
-  use adj_equivalence_of_precats_ff_split.
+  use adj_equivalence_of_cats_ff_split.
   - apply compat_structures_pr2_fully_faithful.
   - apply compat_structures_pr2_split_ess_surj.
 Defined.
 
-Definition pr1_equiv_inv : adj_equivalence_of_precats (right_adjoint pr1_equiv).
+Definition pr1_equiv_inv : adj_equivalence_of_cats (right_adjoint pr1_equiv).
 Proof.
-  use adj_equivalence_of_precats_inv.
+  use adj_equivalence_of_cats_inv.
 Defined.
 
-Definition equiv_of_structures : adj_equivalence_of_precats _ 
-  := @comp_adj_equivalence_of_precats _ _ _ _ _ 
+Definition equiv_of_structures : adj_equivalence_of_cats _ 
+  := @comp_adj_equivalence_of_cats _ _ _ _ _ 
                                       pr1_equiv_inv pr2_equiv.
 
 Definition equiv_of_types_of_structures 

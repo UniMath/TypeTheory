@@ -132,10 +132,10 @@ Proof.
   - apply ( isover_geh ( pr2 X ) ). 
 Defined.
 
-(** how can the following be done without variables? *)
-Variables (T: ltower)(A:T).
-Check isov_isov: forall ( X : ltower_over_carrier A ), isover ( pocto X ) A.
-
+(* just to check/assert that [isov_isov] has the stated type: *)
+Local Definition check_isov_isov (T: ltower) (A:T)
+  := isov_isov
+: forall ( X : ltower_over_carrier A ), isover ( pocto X ) A.
   
 Definition ispointed_ltower_over { T : ltower } ( A : T ): ispointed_type ( ltower_over A ) :=
   ispointed_ltower_over_int A.

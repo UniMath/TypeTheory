@@ -88,9 +88,9 @@ Proof.
 Defined.
 
 
-Definition equiv_Fcomp : adj_equivalence_of_precats Fop_precomp.
+Definition equiv_Fcomp : adj_equivalence_of_cats Fop_precomp.
 Proof.
-  apply rad_equivalence_of_precats.
+  apply rad_equivalence_of_cats.
   - apply is_univalent_functor_category.
     apply is_univalent_HSET.
   - apply ff_Fop_precomp.
@@ -116,7 +116,7 @@ Defined.
 Definition epsinv : iso (C:=[_ , _])
                         (functor_identity (preShv C)) (ext ∙ Fop_precomp).
 Proof.
-  set (XR':= (counit_iso_from_adj_equivalence_of_precats equiv_Fcomp)).
+  set (XR':= (counit_iso_from_adj_equivalence_of_cats equiv_Fcomp)).
   apply iso_inv_from_iso.
   apply XR'.
 Defined.
@@ -125,7 +125,7 @@ Defined.
 Definition etainv : iso (C:=[ _ , _]) 
                         (Fop_precomp ∙ ext) (functor_identity (preShv D)).
 Proof.
-  set (XR := (unit_iso_from_adj_equivalence_of_precats equiv_Fcomp)).
+  set (XR := (unit_iso_from_adj_equivalence_of_cats equiv_Fcomp)).
   apply iso_inv_from_iso.
   apply XR.
 Defined.
@@ -148,7 +148,7 @@ Proof.
      apply functor_assoc_iso.
   eapply iso_comp.
      eapply functor_precomp_iso.
-     apply (counit_iso_from_adj_equivalence_of_precats equiv_Fcomp).
+     apply (counit_iso_from_adj_equivalence_of_cats equiv_Fcomp).
   eapply iso_comp.
     apply functor_comp_id_iso.
 

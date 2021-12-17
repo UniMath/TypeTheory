@@ -688,7 +688,6 @@ Proof.
       * assert (isab : isabove X Γ).
         { rewrite eq.
           apply isabove_X_ftnX; try assumption.
-          (* Search ( _ > _). *)
           apply natgthsn0.
         }
         specialize Pft with X isab.

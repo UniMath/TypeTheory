@@ -18,10 +18,3 @@ Require Export UniMath.CategoryTheory.rezk_completion.
 Require Export UniMath.CategoryTheory.yoneda.
 Require Export UniMath.CategoryTheory.categories.HSET.Core.
 Require Export UniMath.CategoryTheory.Presheaf.
-
-Declare Scope precat.
-Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op") : precat.
-Delimit Scope precat with precat.
-
-Open Scope cat.
-Open Scope cat_deprecated.

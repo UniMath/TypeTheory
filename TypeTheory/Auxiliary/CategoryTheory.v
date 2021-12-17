@@ -5,6 +5,10 @@ TODO: upstream this to UniMath, and possibly propose improvements there as in th
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.All.
 
+(* TODO: remove this once renamed to this upstream (from erroneous “…precats…”) *)
+Coercion adj_equiv_of_cats_from_adj {A B : category} (E : adj_equiv A B)
+  : adj_equivalence_of_cats E := pr2 E.
+
 Definition adj_equiv_from_adjunction
     {C D : category}
     (FG : adjunction C D)
@@ -32,8 +36,8 @@ Definition compose_adj_equiv
   : adj_equiv C E.
 Proof.
   exists (functor_composite F G).
-  apply comp_adj_equivalence_of_precats;
-    apply adj_equiv_of_precats_from_adj.
+  apply comp_adj_equivalence_of_cats;
+    apply adj_equiv_of_cats_from_adj.
 Defined.
 
 Definition inv_adj_equiv
@@ -42,7 +46,7 @@ Definition inv_adj_equiv
   : adj_equiv D C.
 Proof.
   exists (adj_equivalence_inv F).
-  apply adj_equivalence_of_precats_inv.
+  apply adj_equivalence_of_cats_inv.
 Defined.
 
 Definition nat_trans_from_nat_iso
@@ -151,19 +155,19 @@ Defined.
 (* TODO: Notes towards some possible improvements in UniMath’s treatment of adjunctions, equivalences (and a few other unrelated things in the library):
 
   One really confusing point is having
-  [adj_equivalence_of_precats] for the property of (or structure on) a functor,
+  [adj_equivalence_of_cats] for the property of (or structure on) a functor,
   while
-  [equivalence_of_precats] is the sigma-type of this over functors.
+  [equivalence_of_cats] is the sigma-type of this over functors.
 
   Suggestion:
   - [equivalence] changes to [equiv] throughout (this seems unambiguous?)
 
-  - [adj_equivalence_of_precats]
+  - [adj_equivalence_of_cats]
     changes to either
     [is_adj_equiv] or [adj_equiv_structure]
-    (possible also [_of_precats], but this seems reasonably implicit since it’s on a functor) 
-  - [equivalence_of_precats]
-    changes to [adj_equiv_of_precats]
+    (possible also [_of_cats], but this seems reasonably implicit since it’s on a functor) 
+  - [equivalence_of_cats]
+    changes to [adj_equiv_of_cats]
   - lemmas about them are renamed as consistently as possible, following these.
 
   - consolidate with the material from [DisplayedCats.Equivalences_bis], including its adj_equiv.
@@ -188,5 +192,4 @@ Defined.
 
   - Rename “transportb_transpose_right”.
 
-  - make first arguments of [nat_trans_comp] implicit
 *)

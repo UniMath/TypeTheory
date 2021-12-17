@@ -11,8 +11,8 @@ Possibly some should be upstreamed to “UniMath” eventually.
 
 *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
@@ -23,7 +23,18 @@ Require Export UniMath.CategoryTheory.ArrowCategory.
 Require Export UniMath.CategoryTheory.catiso.
 Require Export UniMath.CategoryTheory.CategoryEquality.
 
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
+Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
+
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+
+(** * Notation scopes
+
+We open a few scopes that are used throughout the development, and add/tweak a few of UniMath’s notations.
+*)
 
 Undelimit Scope transport.
 
@@ -39,6 +50,13 @@ Delimit Scope mor_scope with mor.
 Bind Scope mor_scope with precategory_morphisms.
 Open Scope mor_scope.
 
+Declare Scope precat.
+Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op") : precat.
+Delimit Scope precat with precat.
+
+Open Scope cat.
+Open Scope cat_deprecated.
+
 
 (** * Some tactics *)
 
@@ -47,128 +65,62 @@ Tactic Notation "rew_trans_@" := repeat (etrans ; [ apply transport_f_f |]).
 Tactic Notation "sym" := apply pathsinv0.
 Tactic Notation "assoc" := apply @pathsinv0, path_assoc.
 
-(** * Some argument settings *)
+(** * General type-theoretic content *)
 
-Arguments functor_on_inv_from_iso {_ _} _  {_ _} f.
+(** ** Path-algebra: general lemmas about transport, equivalences, etc. *)
 
-(** Make [simpl], [cbn], etc. unfold [ (f ∘ g) x ] but not [ f ∘ g ]: *)
-Arguments funcomp {_ _ _} _ _ _/.
-(** Make [simpl], [cbn], etc. unfold [idfun X x] but not [ idfun x ]: *)
-Arguments idfun _ _ / .
-(* TODO: perhaps try upstreaming these to [UniMath], which has over 100 instances of [unfold funcomp]? *)
-
-(** * Path-algebra: general lemmas about transport, equivalences, etc. *)
-
-(** A uniformly-named set of lemmas giving how multi-argument (non-dependent) functions act on paths, generalising [maponpaths].
-
-  The naming convention is that e.g. [maponpaths_135] takes paths in the 1st, 3rd, and 5th arguments, counting _backwards_ from the end.  (The “counting backwards” is so that it doesn’t depend on the total number of arguments the function takes.)
-
-  All are defined in terms of [maponpaths], to allow use of lemmas about it for reasoning about these. *)
-Definition maponpaths_1 {X A : UU} (f : X -> A) {x x'} (e : x = x')
-  : f x = f x'
-:= maponpaths f e.
-
-Definition maponpaths_2 {Y X A : UU} (f : Y -> X -> A)
-    {y y'} (e_y : y = y') x
-  : f y x = f y' x
-:= maponpaths (fun y => f y x) e_y.
-
-(** Note: dupicate of [map_on_two_paths], [two_arg_paths], and several others from [UniMath]. *)
-  (* TODO: raise redundancy issue in UniMath! [Search (?x = ?x' -> ?y = ?y' -> ?f ?x ?y = ?f ?x' ?y')] reveals many redundant versions of this lemma: [aptwice, binproducts.f_equal_2, map_on_two_paths, two_arg_paths] are all approximately equal; and a few others are specialised versions (maybe for good reason, maybe not. *) 
-Definition maponpaths_12 {Y X A : UU} (f : Y -> X -> A)
-    {y y'} (e_y : y = y') {x x'} (e_x : x = x')
-  : f y x = f y' x'
-:= maponpaths_1 _ e_x @ maponpaths_2 f e_y _.
-
-Definition maponpaths_3 {Z Y X A : UU} (f : Z -> Y -> X -> A)
-    {z z'} (e_z : z = z') y x
-  : f z y x = f z' y x
-:= maponpaths (fun z => f z y x) e_z.
-
-Definition maponpaths_123 {Z Y X A : UU} (f : Z -> Y -> X -> A)
-    {z z'} (e_z : z = z') {y y'} (e_y : y = y') {x x'} (e_x : x = x')
-  : f z y x = f z' y' x'
-:= maponpaths_12 _ e_y e_x @ maponpaths_3 f e_z _ _.
-
-Definition maponpaths_13 {Z Y X A : UU} (f : Z -> Y -> X -> A)
-    {z z'} (e_z : z = z') (y:Y) {x x'} (e_x : x = x')
-  : f z y x = f z' y x'
-:= maponpaths_123 _ e_z (idpath y) e_x.
-
-Definition maponpaths_4 {W Z Y X A : UU} (f : W -> Z -> Y -> X -> A)
-    {w w'} (e_w : w = w') z y x
-  : f w z y x = f w' z y x
-:= maponpaths (fun w => f w z y x) e_w.
-
-Definition maponpaths_1234 {W Z Y X A : UU} (f : W -> Z -> Y -> X -> A)
-    {w w'} (e_w : w = w') {z z'} (e_z : z = z')
-    {y y'} (e_y : y = y') {x x'} (e_x : x = x')
-  : f w z y x = f w' z' y' x'
-:= maponpaths_123 _ e_z e_y e_x @ maponpaths_4 _ e_w _ _ _.
-
-(* TODO: delete this and replace with [pr1_issurjective], now that https://github.com/UniMath/UniMath/issues/677 is resolved*)
-Lemma pr1_issurjective' {X : UU} {P : X -> UU} :
-  (∏ x : X, ∥ P x ∥) -> issurjective (pr1 : (∑ x, P x) -> X).
-Proof.
-  intros ne x. simple refine (hinhuniv _ (ne x)).
-  intros p. apply hinhpr.
-  exact ((x,,p),,idpath _).
-Defined.
-
-Lemma fibers_inhab_if_pr1_issurjective {X : UU} {P : X -> UU} :
-  (∏ x : X, ∥ P x ∥) <- issurjective (pr1 : (∑ x, P x) -> X).
-Proof.
-  intros ne x. simple refine (hinhuniv _ (ne x)).
-  intros p. apply hinhpr.
-  cbn in p.
-  destruct p as [[a b] c].
-  cbn in *.
-  induction c. 
-  assumption.
-Defined.
-
-(* TODO : upstream *)
-Lemma isaprop_fiber_if_isinclpr1 
-  : ∏ (X : UU) (isasetX : isaset X) (P : X → UU), (∏ x : X, isaprop (P x)) <- isincl (pr1 : (∑ x, P x) -> X).
-Proof.
-  intros X isasetX P H x.
-  unfold isincl in H. unfold isofhlevelf in H.
-  apply invproofirrelevance.
-  intros p p'.
-  assert (X0 :  x,,p = x,,p').
-  { specialize (H x).
-    assert (H1 :  (x,,p),, idpath _ = ((x,,p'),,idpath _ : hfiber pr1 x)).
-    { apply proofirrelevance. apply H. }
-    apply (base_paths _ _ H1).
-  } 
-  set (XR := fiber_paths X0). cbn in XR.
-  etrans. 2: { apply XR. }
-  apply pathsinv0. 
-  etrans. apply maponpaths_2. apply (isasetX _ _ _ (idpath x)).
-  apply idpath_transportf.
-Defined.
-
+Arguments toforallpaths [_ _ _ _] _ _.
 
 Lemma weqhomot {A B : UU} (f : A -> B) (w : A ≃ B) (H : w ~ f) : isweq f.
 Proof.
   apply isweqhomot with w. apply H. apply weqproperty.
 Defined.
 
+(* General conventions would point to naming this [transportb_idpath], but we use [idpath_transportb] for consistency with [idpath_transportf] upstream. *)
+Lemma idpath_transportb
+      {X : UU} (P : X → UU)
+      (x : X) (p : P x)
+  : transportb P (idpath x) p = p.
+Proof.
+  apply idpath.
+Defined.
 
+(* Note: a common and useful special case of [transport_map]. *)
 Lemma pr1_transportf (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
-   (a a' : A) (e : a = a') (xs : ∑ b : B a, P _ b):
+   {a a' : A} (e : a = a') (xs : ∑ b : B a, P _ b):
    pr1 (transportf (fun x => ∑ b : B x, P _ b) e xs) = 
      transportf (fun x => B x) e (pr1 xs).
 Proof.
-  destruct e; apply idpath.
+  apply pathsinv0, (transport_map (fun a => pr1)).
 Defined.
 
-Lemma transportf_const (A B : UU) (a a' : A) (e : a = a') (b : B) :
-   transportf (fun _ => B) e b = b.
+(* Included for searchability, but can always be replaced by [pr1_transportf]. *)
+Definition pr1_transportb
+    (A : UU) (B : A → UU) (P : ∏ a : A, B a → UU) {a a' : A}
+    (e : a = a') (xs : ∑ b : B a', P a' b)
+  : pr1 (transportb (λ x : A, ∑ b : B x, P x b) e xs) =
+      transportb (λ x : A, B x) e (pr1 xs).
+Proof.
+  apply pr1_transportf.
+Defined.
+
+(* TODO: try eliminating in favour of UniMath’s (slightly different) lemma with same name? *)
+Lemma transportf_const (A B : UU) (a a' : A) (e : a = a') (b : B)
+  : transportf (fun _ => B) e b = b.
 Proof.
   induction e.
   apply idpath.
 Defined.
+
+Lemma fiber_paths_from_total2_paths
+    {A : UU} {B : A → UU}
+    (x y : ∑ (a : A), B a)
+    (p : x = y)
+  : transportb B (maponpaths pr1 p) (pr2 y) = pr2 x.
+Proof.
+  induction p; apply idpath.
+Defined.
+
 
 (* TODO: systematise these variants of [transportf_forall]:
 - probably make [transportf_forall] the most general form, where [B] depends on [A] and [C] depends on both
@@ -207,7 +159,7 @@ Defined.
 
 Lemma maponpaths_apply {A B} {f0 f1 : A -> B} (e : f0 = f1) (x : A)
   : maponpaths (fun f => f x) e
-  = toforallpaths _ _ _ e x.
+  = toforallpaths e x.
 Proof.
   destruct e; apply idpath.
 Defined.
@@ -260,15 +212,18 @@ Proof.
   induction eA. induction eB. apply idpath.
 Defined.
 
-
-(* TODO: redundant: replace with general-purpose [maponpaths_2]. *)
-Lemma transportf_ext (X : UU) (B : X -> UU) (A A' : X) (e e' : A = A') p :
-  e = e' -> transportf _ e p = transportf B e' p.
+(* variant of UniMath’s [transportf_dirprod], easier to apply: paired hypotheses are split up, and one redundant component removed *)
+Lemma transportf_dirprod' {A : UU} (B C : A → UU)
+      {a:A} (bc : B a × C a)
+      {a':A} (p : a = a')
+  : transportf (λ a : A, B a × C a) p bc
+    = (transportf (λ a : A, B a) p (pr1 bc),
+       transportf (λ a : A, C a) p (pr2 bc)).
 Proof.
-  intro H; induction H; apply idpath.
+  destruct p; apply idpath.
 Defined.
 
-(** ** Lemmas on equivalences *)
+(** ** Lemmas on equivalences and general type-algebra *)
 
 Lemma invmap_eq {A B : UU} (f : A ≃ B) (b : B) (a : A)
   : b = f a → invmap f b = a.
@@ -277,6 +232,21 @@ Proof.
   apply (invmaponpathsweq f).
   etrans. apply homotweqinvweq. apply H.
 Defined.
+
+Lemma homot_invweq_transportb_weq
+      (Z : UU)
+      (z z' : Z)
+      (X Y : Z → UU)
+      (e : z = z')
+      (w : ∏ z : Z, X z ≃ Y z)
+      (x : X z')
+  : invmap (w z) (transportb Y e (w z' x)) = transportb X e x.
+Proof.
+  induction e.
+  etrans. apply maponpaths, idpath_transportb.
+  apply homotinvweqweq.
+Defined.
+
 
 Definition isweqpathscomp0l {X : UU} {x x' : X} (x'' : X) (e: x = x') :
    isweq (fun (e' : x' = x'') => e @ e').
@@ -333,6 +303,69 @@ Proof.
   exact (weqtotal2asstor P (fun y => Q (pr1 y) (pr2 y))). 
 Defined.
 
+Lemma weqforalltototal3 {X : UU}
+      (P1 : X → UU)
+      (P2 : ∏ x : X, P1 x → UU)
+      (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
+  : (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1), P3 x p1 p2)
+      ≃ (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)), ∏ x : X, P3 x (p1 x) (p2 x)).
+Proof.
+  eapply weqcomp. apply weqforalltototal.
+  apply (weqtotal2 (idweq _)). intros ?.
+  apply weqforalltototal.
+Defined.
+
+Lemma weqtotaltoforall3 {X : UU}
+      (P1 : X → UU)
+      (P2 : ∏ x : X, P1 x → UU)
+      (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
+  : (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)), ∏ x : X, P3 x (p1 x) (p2 x))
+      ≃ (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1), P3 x p1 p2).
+Proof.
+  apply invweq, weqforalltototal3.
+Defined.
+
+Lemma weqforalltototal4 {X : UU}
+      (P1 : X → UU)
+      (P2 : ∏ x : X, P1 x → UU)
+      (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
+      (P4 : ∏ (x : X) (y : P1 x) (z : P2 x y), P3 x y z → UU)
+  : (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1) (p3 : P3 x p1 p2), P4 x p1 p2 p3)
+      ≃ (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)) (p3 : ∏ x : X, P3 x (p1 x) (p2 x)), ∏ x : X, P4 x (p1 x) (p2 x) (p3 x)).
+Proof.
+  eapply weqcomp. apply weqforalltototal.
+  apply (weqtotal2 (idweq _)). intros ?.
+  eapply weqcomp. apply weqforalltototal.
+  apply (weqtotal2 (idweq _)). intros ?.
+  apply weqforalltototal.
+Defined.
+
+Lemma weqtotaltoforall4 {X : UU}
+      (P1 : X → UU)
+      (P2 : ∏ x : X, P1 x → UU)
+      (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
+      (P4 : ∏ (x : X) (y : P1 x) (z : P2 x y), P3 x y z → UU)
+  : (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)) (p3 : ∏ x : X, P3 x (p1 x) (p2 x)), ∏ x : X, P4 x (p1 x) (p2 x) (p3 x))
+      ≃ (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1) (p3 : P3 x p1 p2), P4 x p1 p2 p3).
+Proof.
+  apply invweq, weqforalltototal4.
+Defined.
+
+Lemma iscontr_total2
+      {X : UU} {P : X → UU}
+  : iscontr X → (∏ x : X, iscontr (P x)) → iscontr (∑ (x : X), P x).
+Proof.
+  intros X_contr P_contr.
+  use tpair.
+  - exists (pr1 X_contr). apply P_contr.
+  - intros xp.
+    use total2_paths_f.
+    + apply X_contr.
+    + apply P_contr.
+Defined.
+
+(* ** Surjectivity *)
+
 Lemma issurjective_hinhpr (A : UU) : issurjective (@hinhpr A).
 Proof.
   intro a. 
@@ -363,6 +396,48 @@ Proof.
   exists (x,,p).
   apply idpath.
 Defined.
+
+(* TODO: delete this and replace with [AxomOfChoice.pr1_issurjective], now that https://github.com/UniMath/UniMath/issues/677 is resolved*)
+Lemma pr1_issurjective' {X : UU} {P : X -> UU} :
+  (∏ x : X, ∥ P x ∥) -> issurjective (pr1 : (∑ x, P x) -> X).
+Proof.
+  intros ne x. simple refine (hinhuniv _ (ne x)).
+  intros p. apply hinhpr.
+  exact ((x,,p),,idpath _).
+Defined.
+
+Lemma fibers_inhab_if_pr1_issurjective {X : UU} {P : X -> UU} :
+  (∏ x : X, ∥ P x ∥) <- issurjective (pr1 : (∑ x, P x) -> X).
+Proof.
+  intros ne x. simple refine (hinhuniv _ (ne x)).
+  intros p. apply hinhpr.
+  cbn in p.
+  destruct p as [[a b] c].
+  cbn in *.
+  induction c.
+  assumption.
+Defined.
+
+Lemma isaprop_fiber_if_isinclpr1
+  : ∏ (X : UU) (isasetX : isaset X) (P : X → UU), (∏ x : X, isaprop (P x)) <- isincl (pr1 : (∑ x, P x) -> X).
+Proof.
+  intros X isasetX P H x.
+  unfold isincl in H. unfold isofhlevelf in H.
+  apply invproofirrelevance.
+  intros p p'.
+  assert (X0 :  x,,p = x,,p').
+  { specialize (H x).
+    assert (H1 :  (x,,p),, idpath _ = ((x,,p'),,idpath _ : hfiber pr1 x)).
+    { apply proofirrelevance. apply H. }
+    apply (base_paths _ _ H1).
+  }
+  set (XR := fiber_paths X0). cbn in XR.
+  etrans. 2: { apply XR. }
+  apply pathsinv0.
+  etrans. apply maponpaths_2. apply (isasetX _ _ _ (idpath x)).
+  apply idpath_transportf.
+Defined.
+
 
 (** ** Other general lemmas *)
 
@@ -396,7 +471,23 @@ Proof.
   - apply propproperty. 
 Defined.
 
-(** * Algebra in (pre)categories *)
+(* generalises [weqtotal2overunit] from [Foundations.PartA]; perhaps rename to e.g. [weq_total2_over_iscontr] for consistency with that? *)
+Definition iscontr_total2_irrelevant
+    {A : UU} {P : A → UU} (iscontr_A : iscontr A)
+  : (∑ (a : A), P a) ≃ P (pr1 iscontr_A).
+Proof.
+  eapply weqcomp.
+  use (weqtotal2 (Q := λ _, P (pr1 iscontr_A)) (idweq _) _).
+  - intros a. apply eqweqmap, maponpaths, (pr2 iscontr_A).
+  - apply invweq, WeakEquivalences.dirprod_with_contr_l, iscontr_A.
+Defined.
+
+
+(** * Category theory *)
+
+(** ** Isomorphism lemmas *)
+
+Arguments functor_on_inv_from_iso {_ _} _  {_ _} f.
 
 Lemma is_iso_comp_is_iso {C : precategory} {a b c : ob C}
   (f : C⟦a, b⟧) (g : C⟦b, c⟧) 
@@ -422,7 +513,18 @@ Proof.
   cbn. apply id_right.
 Qed.
 
-(** The total type of morphisms of a precategory *)
+Definition iso_ob {C : precategory} {D : category}
+          {F G : functor C D} (a : iso (C:= [C, D]) F G)
+  : ∏ c, iso (F c) (G c).
+Proof.
+  intro c.
+  use make_iso.
+  - cbn. apply ((pr1 a : nat_trans _ _ ) c).
+  - apply is_functor_iso_pointwise_if_iso. apply (pr2 a).
+Defined.
+
+(** ** The total type of morphisms of a precategory *)
+
 Definition mor_total (C : precategory) : UU
   := ∑ (ab : C × C), C⟦pr2 ab, pr1 ab⟧.
 
@@ -431,7 +533,6 @@ Proof.
   exists (b,,a).
   exact f.
 Defined.
-
 
 Definition source {C} (X : mor_total C) : C := pr2 (pr1 X).
 Definition target {C} (X : mor_total C) : C := pr1 (pr1 X).
@@ -448,10 +549,9 @@ Proof.
 Defined.
 
 
-
 Definition isweq_left_adj_equivalence_on_mor_total {C D : category} (F : functor C D) 
            (isC : is_univalent C) (isD : is_univalent D)
-           (H : adj_equivalence_of_precats F) 
+           (H : adj_equivalence_of_cats F) 
 : isweq (functor_on_mor_total F).
 Proof.
   use (gradth _ _ _ _ ).
@@ -496,16 +596,6 @@ Proof.
       etrans. apply maponpaths_2.
       apply (iso_after_iso_inv (counit_pointwise_iso_from_adj_equivalence H _)).
       apply id_left.
-Defined.
-
-Definition iso_ob {C : precategory} {D : category}
-          {F G : functor C D} (a : iso (C:= [C, D]) F G)
-  : ∏ c, iso (F c) (G c).
-Proof.
-  intro c.
-  use make_iso.
-  - cbn. apply ((pr1 a : nat_trans _ _ ) c).
-  - apply is_functor_iso_pointwise_if_iso. apply (pr2 a).
 Defined.
 
 Definition isweq_equivalence_on_mor_total {C D : category}
@@ -561,34 +651,12 @@ Proof.
       apply id_left.
 Defined.
 
-(** ** Fully faithful on isos *)
-
-Definition ff_on_isos {C D : precategory} (F : functor C D) : UU
-  := ∏ c c', isweq (@functor_on_iso _ _ F c c').
-
-Lemma fully_faithful_impl_ff_on_isos {C D : precategory} (F : functor C D) 
-      : fully_faithful F -> ff_on_isos F.
-Proof.
-  intros Fff c c'.
-  use gradth.
-  - intro XR. exists (invmap (make_weq _ (Fff _ _ )) XR). cbn.
-    apply (ff_reflects_is_iso _ _ _ Fff).
-    assert (XT := homotweqinvweq (make_weq _ (Fff c c' ))).
-    cbn in *.
-    apply (transportb (λ i : _ --> _, is_iso i) (XT (pr1 XR) )).
-    apply XR.
-  - cbn. intro i. apply eq_iso. cbn.
-    apply (homotinvweqweq (make_weq _ (Fff _ _ ))).
-  - cbn. intro i. apply eq_iso. cbn.
-    apply (homotweqinvweq (make_weq _ (Fff _ _ ))).
-Defined.
-
 
 (** ** Equivalences of categories *)
 (** Specifically: the composition of (adjoint) equivalences of precats. *)
 
 Coercion left_adj_from_adj_equiv (X Y : category) (K : functor X Y)
-         (HK : adj_equivalence_of_precats K)
+         (HK : adj_equivalence_of_cats K)
   : is_left_adjoint K
 := pr1 HK.
 
@@ -596,7 +664,7 @@ Section about_equivalences.
 
 Variables D1 D2 : category.
 Variable F : functor D1 D2.
-Variable GG : adj_equivalence_of_precats F.
+Variable GG : adj_equivalence_of_cats F.
 
 Let G : functor D2 D1 := right_adjoint GG.
 Let η := unit_from_left_adjoint GG.
@@ -778,7 +846,7 @@ Lemma form_adjunction_ff_split
     apply iso_inv_after_iso.
 Qed.
 
-Definition adj_equivalence_of_precats_ff_split : adj_equivalence_of_precats F.
+Definition adj_equivalence_of_cats_ff_split : adj_equivalence_of_cats F.
 Proof.
   use tpair.
   - exists G_ff_split.
@@ -823,69 +891,59 @@ Proof.
 Qed.
 
 Lemma right_adj_equiv_is_full {D1 D2 : category}
-  (F : functor D1 D2) (GG : adj_equivalence_of_precats F)
+  (F : functor D1 D2) (GG : adj_equivalence_of_cats F)
   : full (right_adjoint GG).
 Proof.
   apply full_from_ff, right_adj_equiv_is_ff.
 Qed.
 
-(** ** Misc lemmas/definitions on (pre)categories *)
 
-Coercion univalent_category_is_univalent : univalent_category >-> is_univalent.
+Definition ff_on_isos {C D : precategory} (F : functor C D) : UU
+  := ∏ c c', isweq (@functor_on_iso _ _ F c c').
 
-Definition functor_univalent_category (C : precategory) (D : univalent_category)
-  : univalent_category.
+Lemma fully_faithful_impl_ff_on_isos {C D : precategory} (F : functor C D) 
+      : fully_faithful F -> ff_on_isos F.
 Proof.
-  exists (functor_category C D).
-  apply is_univalent_functor_category.
-  apply D.
-Defined.
-
-Definition preShv C := functor_univalent_category C^op HSET_univalent_category.
-
-Notation "'Yo'" := (yoneda _ : functor _ (preShv _)).
-Notation "'Yo^-1'" := (invweq (make_weq _ (yoneda_fully_faithful _ _ _ ))).
-
-(* TODO: perhaps rename e.g. [yoneda_eq]? *)
-Definition yy {C : category} 
-  {F : preShv C} {c : C} : ((F : functor _ _) c : hSet) ≃ _ ⟦ yoneda _ c, F⟧.
-Proof.
-  apply invweq.
-  apply yoneda_weq.
-Defined.
-
-Arguments yy {_ _ _}.
-
-Lemma yy_natural {C : category} 
-  (F : preShv C) (c : C) (A : (F:functor _ _) c : hSet) 
-                  c' (f : C⟦c', c⟧) :
-        yy (# (F : functor _ _) f A) = # (yoneda _ ) f ;; yy A.
-Proof.
-  assert (XTT := is_natural_yoneda_iso_inv _ F _ _ f).
-  apply (toforallpaths _ _ _ XTT).
-Qed.
-
-Lemma yy_comp_nat_trans {C : category}
-      (F F' : preShv C) (p : _ ⟦F, F'⟧)
-      A (v : (F : functor _ _ ) A : hSet)
-  : yy v ;; p = yy ((p : nat_trans _ _ )  _ v).
-Proof.
-  apply nat_trans_eq.
-  - apply homset_property.
-  - intro c. simpl. 
-    apply funextsec. intro f. cbn.
-    assert (XR := toforallpaths _ _ _ (nat_trans_ax p _ _ f) v ).
-    cbn in XR.
+  intros Fff c c'.
+  use gradth.
+  - intro XR. exists (invmap (make_weq _ (Fff _ _ )) XR). cbn.
+    apply (ff_reflects_is_iso _ _ _ Fff).
+    assert (XT := homotweqinvweq (make_weq _ (Fff c c' ))).
+    cbn in *.
+    apply (transportb (λ i : _ --> _, is_iso i) (XT (pr1 XR) )).
     apply XR.
-Qed.
+  - cbn. intro i. apply eq_iso. cbn.
+    apply (homotinvweqweq (make_weq _ (Fff _ _ ))).
+  - cbn. intro i. apply eq_iso. cbn.
+    apply (homotweqinvweq (make_weq _ (Fff _ _ ))).
+Defined.
 
-Lemma transportf_yy {C : category}
-      (F : preShv C) (c c' : C) (A : (F : functor _ _ ) c : hSet)
-      (e : c = c'):
-  yy (transportf (fun d => (F : functor _ _ ) d : hSet) e A) = 
-  transportf (fun d => preShv C ⟦ yoneda _ d, F⟧) e (yy A).
+
+Definition reflects_pullbacks {C D : category} (F : functor C D) : UU
+  := ∏ {a b c d : C}{f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : C⟦d, b⟧} {k : C⟦d,c⟧}
+       (H : h · f = k · g),
+     isPullback (functor_on_square _ _ F H) -> isPullback H.
+
+Lemma ff_reflects_pullbacks {C D : category} {F : functor C D}
+      (F_ff : fully_faithful F) : reflects_pullbacks F.
 Proof.
-  induction e.
+  do 10 intro.
+  use (isPullback_preimage_square _ _ _ _ _ _ X).
+  - apply homset_property.
+  - apply F_ff.
+Defined.
+
+(** ** Idtoiso and isotoid *)
+
+Lemma idtoiso_identity_iso {C : precategory} (a : C)
+  : idtoiso (idpath a) = identity_iso a.
+Proof.
+  apply idpath.
+Defined.
+
+Lemma idtoiso_identity {C : precategory} (a : C)
+  : (idtoiso (idpath a) : _ --> _) = identity a.
+Proof.
   apply idpath.
 Defined.
 
@@ -946,11 +1004,17 @@ Defined.
 
 Lemma idtoiso_eq_idpath (C : precategory) (a : C) (e : a = a)
     (H : e = idpath _ )
-  : identity a = idtoiso e.
+  : (idtoiso e : _ --> _) = identity_iso _.
 Proof.
-  rewrite H.
-  apply idpath.
+  apply maponpaths, (maponpaths idtoiso H).
 Qed.
+
+Lemma idtoiso_precompose'
+  : ∏ (C : precategory) (a a' b : C) (p : a' = a) (f : C ⟦ a, b ⟧),
+    transportb (λ a0 : C, C ⟦ a0, b ⟧) p f = (idtoiso p;; f)%mor.
+Proof.
+  intros; induction p. apply pathsinv0, id_left.
+Defined.
 
 Lemma idtoiso_postcompose_idtoiso_pre {C : precategory} {a b c : C} 
       (g : a --> b) (f : a --> c)
@@ -975,6 +1039,23 @@ Proof.
   apply maponpaths, maponpaths, idtoiso_isotoid.
 Qed.
 
+(** ** Misc lemmas/definitions on (pre)categories *)
+
+Coercion univalent_category_is_univalent : univalent_category >-> is_univalent.
+
+Definition functor_univalent_category (C : precategory) (D : univalent_category)
+  : univalent_category.
+Proof.
+  exists (functor_category C D).
+  apply is_univalent_functor_category.
+  apply D.
+Defined.
+
+Definition adj_from_equiv (D1 D2 : category) (F : functor D1 D2):
+    adj_equivalence_of_cats F → is_left_adjoint F := fun x => pr1 x.
+Coercion adj_from_equiv : adj_equivalence_of_cats >-> is_left_adjoint.
+
+(** ** Functors and isomorphisms *)
 
 Lemma inv_from_iso_iso_from_fully_faithful_reflection {C D : precategory}
       (F : functor C D) (HF : fully_faithful F) (a b : C) (i : iso (F a) (F b))
@@ -1029,7 +1110,6 @@ Proof.
     ).
 Defined.
 
-
 Definition functor_assoc_iso (D1 D2 D3 : precategory) (D4 : category)
      (F : functor D1 D2) (G : functor D2 D3) (H : functor D3 D4) :
     iso (C:=[D1,D4])
@@ -1073,28 +1153,199 @@ Proof.
 Defined.
 
 
-Definition adj_from_equiv (D1 D2 : category) (F : functor D1 D2):
-    adj_equivalence_of_precats F → is_left_adjoint F := fun x => pr1 x.
-Coercion adj_from_equiv : adj_equivalence_of_precats >-> is_left_adjoint.
 
+(** ** Presheaves and Yoneda *)
 
-(** ** Lemmas on pullbacks *)
+Arguments nat_trans_ax {C C'} {F F'} a {x x'} f.
+Arguments nat_trans_comp {_ _ _ _ _} _ _.
 
-Definition reflects_pullbacks {C D : category} (F : functor C D) : UU
-  := ∏ {a b c d : C}{f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : C⟦d, b⟧} {k : C⟦d,c⟧}
-       (H : h · f = k · g),
-     isPullback (functor_on_square _ _ F H) -> isPullback H.
+Definition preShv C := functor_univalent_category C^op HSET_univalent_category.
 
-Lemma ff_reflects_pullbacks {C D : category} {F : functor C D} 
-      (F_ff : fully_faithful F) : reflects_pullbacks F.
+Notation "'Yo'" := (yoneda _ : functor _ (preShv _)).
+Notation "'Yo^-1'" := (invweq (make_weq _ (yoneda_fully_faithful _ _ _ ))).
+
+(* TODO: perhaps rename e.g. [yoneda_eq]? *)
+Definition yy {C : category}
+    {F : preShv C} {c : C}
+  : ((F : functor _ _) c : hSet) ≃ _ ⟦ yoneda _ c, F⟧.
 Proof.
-  do 10 intro. 
-  use (isPullback_preimage_square _ _ _ _ _ _ X).
-  - apply homset_property.
-  - apply F_ff.
+  apply invweq.
+  apply yoneda_weq.
 Defined.
 
-Section Square_Transfers.
+Lemma yy_natural {C : category} 
+  (F : preShv C) (c : C) (A : (F:functor _ _) c : hSet) 
+                  c' (f : C⟦c', c⟧) :
+        yy (# (F : functor _ _) f A) = # (yoneda _ ) f ;; yy A.
+Proof.
+  apply (toforallpaths (is_natural_yoneda_iso_inv _ F _ _ f)).
+Qed.
+
+Lemma yy_comp_nat_trans {C : category}
+      (F F' : preShv C) (p : _ ⟦F, F'⟧)
+      A (v : (F : functor _ _ ) A : hSet)
+  : yy v ;; p = yy ((p : nat_trans _ _ )  _ v).
+Proof.
+  apply nat_trans_eq.
+  - apply homset_property.
+  - intro c. simpl. 
+    apply funextsec. intro f. cbn.
+    apply (toforallpaths (nat_trans_ax p f)).
+Qed.
+
+Lemma yoneda_postcompose {C : category} (P : preShv C)
+  {y z : C} (α : P --> Yo y) (f : y --> z)
+  {x:C} (p : (P : functor _ _) x : hSet)
+  : ((α : nat_trans _ _) x p) ;; f
+    = (α ;; yoneda_morphisms _ _ _ f : nat_trans _ _) x p.
+Proof.
+  apply idpath.
+Defined.
+
+Lemma transportf_yy {C : category}
+      (F : preShv C) (c c' : C) (A : (F : functor _ _ ) c : hSet)
+      (e : c = c'):
+  yy (transportf (fun d => (F : functor _ _ ) d : hSet) e A) = 
+  transportf (fun d => preShv C ⟦ yoneda _ d, F⟧) e (yy A).
+Proof.
+  induction e.
+  apply idpath.
+Defined.
+
+Lemma transportf_pshf' {C : category} (P : preShv C)
+  {c c' : C} (e : c = c')
+  (x : (P : functor _ _) c : hSet)
+  : transportf (fun c => (P : functor _ _) c : hSet) e x
+    = # (P : functor _ _) (idtoiso (!e)) x.
+Proof.
+  destruct e. cbn.
+  apply pathsinv0. 
+  revert x; apply toforallpaths. 
+  apply (functor_id P).
+Qed.
+
+(** ** Basic pullback utility functions *)
+
+Section Pullback_Basics.
+
+Definition map_into_Pb
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    {sqr_comm : f ;; k = g ;; h}
+    (Pb : isPullback sqr_comm)
+    {e : C} (x : e --> b) (y : e --> c) (H : x ;; k = y ;; h)
+  :  e --> a.
+Proof.
+  eapply (PullbackArrow (make_Pullback _ Pb)).
+  apply H.
+Defined.
+
+Definition Pb_map_commutes_1
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    {sqr_comm : f ;; k = g ;; h}
+    (Pb : isPullback sqr_comm)
+    {e : C} (x : e --> b) (y : e --> c) H
+  : map_into_Pb Pb x y H ;; f = x.
+Proof.
+  apply (PullbackArrow_PullbackPr1 (make_Pullback _ _)).
+Qed.
+
+Definition Pb_map_commutes_2
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    {sqr_comm : f ;; k = g ;; h}
+    (Pb : isPullback sqr_comm)
+    {e : C} (x : e --> b) (y : e --> c) H
+  : map_into_Pb Pb x y H ;; g = y.
+Proof.
+  apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)).
+Qed.
+
+Lemma map_into_Pb_unique
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    {sqr_comm : f ;; k = g ;; h}
+    (Pb : isPullback sqr_comm)
+    {e : C} {x y : e --> a}
+    (e_f : x ;; f = y ;; f) (e_g : x ;; g = y ;; g)
+  : x = y.
+Proof.
+  etrans.
+  { use (PullbackArrowUnique _ Pb); try eassumption.
+    repeat rewrite <- assoc. apply maponpaths; assumption. }
+  apply pathsinv0, (PullbackArrowUnique _ Pb); apply idpath.
+Qed.
+
+(* In fact this is trivial, since the equality doesn’t appear in the type of the pullback. However, it’s convenient for proof scripts. *)
+Lemma isPullback_indepdent_of_path
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    {sqr_comm : f ;; k = g ;; h}
+    (Pb : isPullback sqr_comm)
+    (sqr_comm' :  f ;; k = g ;; h)
+  : isPullback (sqr_comm').
+Proof.
+  exact Pb.
+Defined.
+
+(* Duplicate of [is_symmetric_isPullback] from UniMath, but without the un-needed [has_homsets]/[category] assumption *)
+Lemma is_symmetric_isPullback
+    {C : precategory}
+    {a b c d : C} {f : b --> a} {g : c --> a}
+    {p1 : d --> b} {p2 : d --> c} {H : p1 · f = p2 · g}
+    (pb : isPullback H)
+  : isPullback (! H).
+Proof.
+  use make_isPullback.
+  intros e h k H'.
+  use (iscontrweqf _ (pb e k h (! H'))).
+  use (weqtotal2 (idweq _)).
+  intros ?. apply weqdirprodcomm.
+Defined.
+
+(* Variant of [is_symmetric_isPullback], more convenient for applying when reasoning bottom-up. *)
+Lemma is_symmetric'_isPullback
+    {C : precategory}
+    {a b c d : C} {f : b --> a} {g : c --> a}
+    {p1 : d --> b} {p2 : d --> c} {H : p1 · f = p2 · g}
+    (pb : isPullback (! H))
+  : isPullback H.
+Proof.
+  eapply transportf. 2: { eapply is_symmetric_isPullback, pb. }
+  apply pathsinv0inv0.
+Defined.
+
+End Pullback_Basics.
+
+(** ** Pullback transfer lemmas *)
+
+Section Pullback_transfers.
+(* Various results, generally showing that perturbing a pullback squares by equalities and/or isos is still a pullback. *)
+
+Lemma square_morphism_equal
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    (sqr_comm : f ;; k = g ;; h)
+    {k'} (e : k' = k)
+  : f ;; k' = g ;; h.
+Proof.
+  rewrite e. assumption.
+Defined.
+
+Lemma isPb_morphism_equal
+    {C : precategory} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    (sqr_comm : f ;; k = g ;; h)
+    (Pb : isPullback sqr_comm)
+    {k'} (e : k' = k)
+  : isPullback (square_morphism_equal sqr_comm e).
+Proof.
+  match goal with |[|- isPullback ?HH] => generalize HH end.
+  rewrite e.
+  intro.
+  apply Pb.
+Defined.
 
 Definition commutes_and_is_pullback {C : category} {a b c d : C}
     (f : b --> a) (g : c --> a) (p1 : d --> b) (p2 : d --> c)
@@ -1124,7 +1375,8 @@ Proof.
   apply maponpaths_2, H.
 Qed.
 
-(* Generalisation of [isPulback_iso_of_morphisms].  TODO: prove, move. *)
+(* Generalisation of [isPulback_iso_of_morphisms].
+TODO: This probably should work in an arbitrary precategory, i.e. not requiring the hom-sets assumption.  Try upgrading proof to show that? *)
 Lemma isPullback_transfer_iso {C : category}
       {a b c d : C}
       {f : b --> a} {g : c --> a} {p1 : d --> b} {p2 : d --> c}
@@ -1149,7 +1401,6 @@ Proof.
       + exact (k ;; iso_inv_from_iso i_c).
       + abstract (
           apply (post_comp_with_iso_is_inj _ _ i_a (pr2 _));
-            (* TODO: access function for isos! *)
           repeat rewrite <- assoc;
           rewrite i_f, i_g;
           eapply @pathscomp0;
@@ -1196,7 +1447,7 @@ Proof.
       apply (pr2 (pr2 hk')).
   Qed.
 
-(* Generalisation of [isPulback_iso_of_morphisms].  TODO: prove, move. *)
+(* Generalisation of [isPulback_iso_of_morphisms]. *)
 Lemma commutes_and_is_pullback_transfer_iso {C : category}
       {a b c d : C}
       {f : b --> a} {g : c --> a} {p1 : d --> b} {p2 : d --> c}
@@ -1212,121 +1463,34 @@ Proof.
   exact (isPullback_transfer_iso _ _ i_f i_g i_p1 i_p2 P).
 Qed.
 
-End Square_Transfers.
-
-Section on_pullbacks.
-
-(* TODO: make all these implicit *)
-  Variable C : category.
-  Variables a b c d : C.
-  Variables (f : a --> b) (g : a --> c) (k : b --> d) (h : c --> d).
-
-(**
-<<
-      f
-   a----b
- g |    | k
-   |    |
-   c----d
-     h 
->>
-*)
-
-  Variable sqr_comm : f ;; k = g ;; h.
-  Variable Pb : isPullback (*k h f g*) sqr_comm.
-
-
-  Lemma square_morphism_equal k' (e : k' = k) : f ;; k' = g ;; h.
-  Proof.
-    rewrite e. assumption.
-  Defined.
-
-  Lemma isPb_morphism_equal k' (e : k' = k) : 
-        isPullback (*k' h f g*) (square_morphism_equal _ e).
-  Proof.
-    match goal with |[|- isPullback ?HH] => generalize HH end.
-    rewrite e.
-    intro.
-    apply Pb.
-  Defined.
-
-
-  Local Definition Pbb : Pullback k h.
-  Proof.
-    unshelve refine (make_Pullback _ _ ).
-      - apply a.
-      - apply f.
-      - apply g.
-      - apply sqr_comm.
-      - apply Pb.
-  Defined.
-  
-  Definition map_into_Pb {e : C} (x : e --> b) (y : e --> c)
-  :  x ;; k = y ;; h → e --> a.
-  Proof.
-    intro H.
-    unshelve refine (PullbackArrow Pbb _ _ _ _ ).
-    - apply x.
-    - apply y.
-    - apply H.
-  Defined.
-      
-  Definition Pb_map_commutes_1 {e : C} (x : e --> b) (y : e --> c) H
-  : map_into_Pb x y H ;; f = x.
-  Proof.
-    assert (P:=PullbackArrow_PullbackPr1 Pbb).
-    apply P.
-  Qed.
-
-  Definition Pb_map_commutes_2 {e : C} (x : e --> b) (y : e --> c) H
-  : map_into_Pb x y H ;; g = y.
-  Proof.
-    assert (P:=PullbackArrow_PullbackPr2 Pbb).
-    apply P.
-  Qed.
-
-  Lemma map_into_Pb_unique (e : C) (x y : e --> a)
-  : x ;; f = y ;; f → x ;; g = y ;; g → x = y.
-  Proof.
-    intros H H'.
-    set (T:=@map_into_Pb _ (x ;; f)(y ;; g)).
-    assert  (TH : x ;; f ;; k = y ;; g ;; h).
-    { rewrite H. repeat rewrite <- assoc. rewrite sqr_comm. apply idpath. }
-    intermediate_path (T TH).
-    apply PullbackArrowUnique. apply idpath. assumption.
-    apply pathsinv0. apply PullbackArrowUnique. apply pathsinv0; assumption.
-    apply idpath.
-  Qed.
-
-  Lemma postcomp_pb_with_iso (y : C) (r : y --> d) (i : iso b y) (Hi : i ;; r = k) :
-    ∑ H : f ;; i ;; r = g ;; h, isPullback H.
-  Proof.
-    simple refine (commutes_and_is_pullback_transfer_iso _ _ _ _ _ Pb);
+Lemma postcomp_commutes_and_is_pb_with_iso
+    {C : category} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    (sqr_comm : f ;; k = g ;; h)
+    (Pb : isPullback sqr_comm)
+    {y : C} (r : y --> d) (i : iso b y) (Hi : i ;; r = k)
+  : ∑ H : f ;; i ;; r = g ;; h, isPullback H.
+Proof.
+  simple refine (commutes_and_is_pullback_transfer_iso _ _ _ _ _ Pb);
     try apply identity_iso;
     try rewrite id_left;
     try rewrite id_right;
     try apply idpath.
-    apply pathsinv0, Hi.
-  Qed. 
+  apply pathsinv0, Hi.
+Qed.
 
-  (* In fact this is trivial, since the equality doesn’t appear in the type of the pullback. However, it’s convenient for proof scripts. *)
-  Lemma isPullback_indepdent_of_path (sqr_comm' :  f ;; k = g ;; h)
-    : isPullback (sqr_comm').
-  Proof.
-    exact Pb.
-  Defined.
- 
-  (* In fact, this is judgementally equal to [is_symmetric_isPullback].  However, it is more convenient for applying when reasoning bottom-up. *)
-  Lemma is_symmetric'_isPullback
-    : isPullback (!sqr_comm) -> isPullback sqr_comm.
-  Proof.
-    use is_symmetric_isPullback; apply homset_property.
-  Defined.
+Definition postcomp_pb_with_iso
+    {C : category} {a b c d : C}
+    {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
+    (sqr_comm : f ;; k = g ;; h)
+    (Pb : isPullback sqr_comm)
+    {y : C} (r : y --> d) (i : iso b y) (Hi : i ;; r = k)
+  : isPullback _
+:= pr2 (postcomp_commutes_and_is_pb_with_iso _ Pb _ i Hi).
 
-End on_pullbacks.
+End Pullback_transfers.
 
-Arguments map_into_Pb {_ _ _ _ _ _ _ _ _ } _ Pb {_} _ _ _.
-Arguments map_into_Pb_unique {_ _ _ _ _ _ _ _ _} _ Pb {_} _ _ _ _.
+(** ** Pullbacks of sets and presheaves *)
 
 Section Pullbacks_hSet.
 
@@ -1347,17 +1511,16 @@ Proof.
     apply subtypePath. { intro. apply isapropdirprod; apply setproperty. }
     destruct hk as [hk [eh ek]], hk' as [hk' [eh' ek']]; simpl.
     apply funextsec; intro x.
-    refine (H_uniqueness (h x) (k x) _ (_,,_) (_,,_)).
-    apply (toforallpaths _ _ _ ehk).
-    split. apply (toforallpaths _ _ _ eh). apply (toforallpaths _ _ _ ek).
-    split. apply (toforallpaths _ _ _ eh'). apply (toforallpaths _ _ _ ek').
+    refine (H_uniqueness (h x) (k x) _ (_,,_) (_,,_));
+      try split;
+    revert x; apply toforallpaths; assumption.
   - use tpair. 
-    + intros x. refine (pr1 (H_existence (h x) (k x) _)). apply (toforallpaths _ _ _ ehk).
+    + intros x. refine (pr1 (H_existence (h x) (k x) _)). apply (toforallpaths ehk).
     + simpl.
       split; apply funextsec; intro x.
-      apply (pr1 (pr2 (H_existence _ _ _))). apply (pr2 (pr2 (H_existence _ _ _))).
+      * apply (pr1 (pr2 (H_existence _ _ _))). 
+      * apply (pr2 (pr2 (H_existence _ _ _))).
 Qed.
-
 
 (* TODO: unify with [isPullback_HSET]? *)
 Lemma pullback_HSET_univprop_elements {P A B C : HSET}
@@ -1373,10 +1536,10 @@ Proof.
   - apply invproofirrelevance; intros [ab [ea eb]] [ab' [ea' eb']].
     apply subtypePath; simpl.
       intros x; apply isapropdirprod; apply setproperty.
-    refine (@toforallpaths unitset _ (fun _ => ab) (fun _ => ab') _ tt).
+    refine (@toforallpaths unitset _ _ _ _ tt).
     refine (MorphismsIntoPullbackEqual pb _ _ _ _ _ );
-    apply funextsec; intros []; cbn;
-    (eapply @pathscomp0; [ eassumption | apply pathsinv0; eassumption]).
+      apply funextsec; intros []; cbn;
+      (eapply @pathscomp0; [ eassumption | apply pathsinv0; eassumption]).
   - simple refine (_,,_).
     refine (_ tt).
     refine (PullbackArrow Pb (unitset : HSET)
@@ -1400,7 +1563,7 @@ Lemma pullback_HSET_elements_unique {P A B C : HSET}
 Proof.
   set (temp := proofirrelevancecontr 
     (pullback_HSET_univprop_elements _ pb (p1 ab') (p2 ab')
-        (toforallpaths _ _ _ ep ab'))).
+        (toforallpaths ep ab'))).
   refine (maponpaths pr1 (temp (ab,, _) (ab',, _))).
   - split; assumption.
   - split; apply idpath.
@@ -1419,7 +1582,8 @@ Proof.
   apply (nat_trans_eq_pointwise e).
 Qed.
 
-(* TODO: unify with the converse implication. *)
+(* TODO: unify with the converse implication;
+  perhaps also generalise to all functor categories?  *)
 Lemma isPullback_preShv_to_pointwise {C : category}
     {X Y Z W : preShv C}
     {f : Y --> X} {g : Z --> X} {p1 : W --> Y} {p2 : W --> Z}
@@ -1493,10 +1657,8 @@ Qed.
 
 End Pullbacks_hSet.
 
-(**
-will be an instance of a general lemma to be proved
-   in UniMath
-*)
+(** ** Uniqueness of pullbacks *)
+
 Definition isaprop_Pullback (C : category) (H : is_univalent C)
            (a b c : C) (f : b --> a) (g : c --> a)
 : isaprop (Pullback f g).
@@ -1507,7 +1669,7 @@ Proof.
   intros Pb Pb'.
   apply subtypePath.
   - intro; apply isofhleveltotal2.
-    + apply C.
+    + apply homset_property.
     + intros; apply isaprop_isPullback.
   - apply (total2_paths_f (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))). 
     rewrite transportf_dirprod, transportf_isotoid.
@@ -1525,8 +1687,7 @@ Proof.
     apply idpath.
 Qed.
 
-
-
+(* TODO: check for results of the following section upstream *)
 Section Pullback_Unique_Up_To_Iso.
 
 (*   a'   b'
@@ -1555,7 +1716,7 @@ Section Pullback_Unique_Up_To_Iso.
 
   Definition map_to_2nd_pb : A --> A'.
   Proof.
-    unshelve refine (map_into_Pb H' pb' _ _ _  ).
+    use (map_into_Pb pb').
     - exact (f ;; h).
     - exact g.
     - eapply pathscomp0. 2: { apply H. }
@@ -1565,7 +1726,7 @@ Section Pullback_Unique_Up_To_Iso.
 
   Definition map_to_1st_pb : A' --> A.
   Proof.
-    unshelve refine (map_into_Pb H pb _ _ _ ).
+    use (map_into_Pb pb).
     - exact (f';; inv_from_iso h).
     - exact g'.
     - eapply pathscomp0; [| apply H'].
@@ -1576,7 +1737,7 @@ Section Pullback_Unique_Up_To_Iso.
 
   Lemma inv1 : map_to_2nd_pb ;; map_to_1st_pb = identity _ .
   Proof.
-    apply (map_into_Pb_unique  H pb).
+    apply (map_into_Pb_unique pb).
     - rewrite id_left.
       rewrite <- assoc.
       unfold map_to_1st_pb.
@@ -1585,9 +1746,7 @@ Section Pullback_Unique_Up_To_Iso.
       apply pathsinv0.
       apply iso_inv_on_left.
       unfold map_to_2nd_pb.
-      match goal with |[ |- map_into_Pb ?H1 ?pb1 ?x1 ?y1 ?R1 ;; _ = _ ] => assert
-           (T1:=@Pb_map_commutes_1 _ _ _ _ _ _ _ _ _ H' pb' _ x1 y1 R1) end.
-      apply T1.
+      use Pb_map_commutes_1.
     - rewrite id_left.
       rewrite <- assoc.
       unfold map_to_1st_pb.
@@ -1598,7 +1757,7 @@ Section Pullback_Unique_Up_To_Iso.
 
   Lemma inv2 : map_to_1st_pb ;; map_to_2nd_pb = identity _ .
   Proof.
-    apply (map_into_Pb_unique  H' pb').
+    apply (map_into_Pb_unique pb').
     - rewrite id_left.
       rewrite <- assoc.
       unfold map_to_2nd_pb.
@@ -1628,9 +1787,24 @@ Section Pullback_Unique_Up_To_Iso.
 
 End Pullback_Unique_Up_To_Iso.
 
-Arguments map_into_Pb {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
-Arguments Pb_map_commutes_1 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
-Arguments Pb_map_commutes_2 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
+(** ** Displayed categories *)
+
+Definition isaprop_is_cartesian_disp_functor
+    {C C' : category} {F : functor C C'}
+    {D : disp_cat C} {D' : disp_cat C'} {FF : disp_functor F D D'}
+  : isaprop (is_cartesian_disp_functor FF).
+Proof.
+  do 7 (apply impred; intro).
+  apply isaprop_is_cartesian.
+Qed.
+
+(** ** Comprehension categories *)
+
+Definition comprehension_cat
+  := ∑ (C : category), (comprehension_cat_structure C).
+
+Coercion category_of_comprehension_cat (C : comprehension_cat) := pr1 C.
+Coercion structure_of_comprehension_cat (C : comprehension_cat) := pr2 C.
 
 
 (** * Unorganised lemmas *)
@@ -1638,7 +1812,6 @@ Arguments Pb_map_commutes_2 {_ _ _ _ _} _ _ _ _ _ _ {_} _ _ _ .
 (* Lemmas that probably belong in one of the sections above, but haven’t been sorted into them yet.  Mainly a temporary holding pen for lemmas being upstreamed from other files. TODO: empty this bin frequently (but keep it here for re-use). *) 
 Section Unorganised.
 
-(* TODO: upstream this and the following lemma? *)
 Lemma transportf_pshf {C : category}
     {P P' : preShv C} (e : P = P')
     {c : C} (x : (P : functor _ _) c : hSet)
@@ -1656,8 +1829,8 @@ Lemma transportf_isotoid_pshf {C : category}
   = ((i : _ --> _) : nat_trans _ _) c x.
 Proof.
   etrans. apply transportf_pshf.
-  refine (toforallpaths _ _ _ _ x).
-  refine (toforallpaths _ _ _ _ c).
+  refine (toforallpaths _ x).
+  refine (toforallpaths _ c).
   apply maponpaths, maponpaths, idtoiso_isotoid.
 Qed.
 

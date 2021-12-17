@@ -262,11 +262,11 @@ Proof.
     apply funextsec; intros A.
     etrans. apply transportf_pshf.
     etrans.
-      refine (toforallpaths _ _ _ _ (te _ _)).
-      refine (toforallpaths _ _ _ _ _).
+      refine (toforallpaths _ (te _ _)).
+      refine (toforallpaths _ _).
       apply maponpaths, idtoiso_iso_disp_to_TM_eq.
     etrans. apply term_fun_mor_te.
-    exact (toforallpaths _ _ _ (functor_id (TM _) _) _).
+    exact (toforallpaths (functor_id (TM _) _) _).
 Qed.
 
 Theorem is_univalent_term_fun_structure

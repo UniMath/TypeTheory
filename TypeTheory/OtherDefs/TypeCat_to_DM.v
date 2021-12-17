@@ -78,17 +78,10 @@ Proof.
   clear B.
   unshelve refine (tpair _ _ _ ).
   - unshelve refine (make_Pullback _ _).
-    + apply (Γ' ◂ (A{{f}})).
-    + apply (q_typecat _ _ ;; h).
-    + apply (dpr_typecat _ ).
-    + simpl. unfold dm_sub_struct_of_TypeCat.
-      simpl.
-      (* TODO: improve implicit arguments of [postcomp_pb_with_iso] *)
-      refine (pr1 (postcomp_pb_with_iso CC _ _ _ _ _ _ _ _ _ _ _ _ _ _)).
-      apply is_symmetric_isPullback. { apply homset_property. }
-      apply reind_pb_typecat.
-      sym. assumption.
-    + eapply (pr2 (postcomp_pb_with_iso CC _ _ _ _ _ _ _ _ _ _ _ _ _ _)).
+    5: use postcomp_pb_with_iso.
+    7: eapply is_symmetric_isPullback, reind_pb_typecat.
+    + eassumption. 
+    + sym. assumption.
  - simpl.
     apply hinhpr.
     unfold iso_to_dpr.

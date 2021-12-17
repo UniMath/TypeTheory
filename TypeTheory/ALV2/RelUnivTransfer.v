@@ -341,7 +341,7 @@ Section RelUniv_Transfer.
     Let E := ((S,, (invS,, (pr1 eta, pr1 eps)))
                 ,, ((λ d,  (pr2 (Constructions.pointwise_iso_from_nat_iso eta d )))
                     , (λ d', (pr2 (Constructions.pointwise_iso_from_nat_iso eps d')))))
-            : equivalence_of_precats D D'.
+            : equivalence_of_cats D D'.
 
     Let AE := adjointificiation E.
     Let η' := pr1 (pr121 AE) : nat_trans (functor_identity _) (S ∙ invS).

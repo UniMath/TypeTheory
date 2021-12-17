@@ -13,12 +13,13 @@ Contents:
 
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+Require Import TypeTheory.Auxiliary.Auxiliary.
 
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.OtherDefs.CwF_Pitts.
-Require Import TypeTheory.Auxiliary.Auxiliary.
 
 (* Locally override the notation [ γ ♯ a ], at a higher level,
   to get more informative bracketing when pairing meets composition. *) 
@@ -81,7 +82,7 @@ Proof.
   exists (@proj_mor CC C).
   exists (@q_cwf CC C).
   exists (@dpr_q_cwf CC C).
-  intros; apply @is_symmetric_isPullback. { apply homset_property. }
+  intros; apply @is_symmetric_isPullback.
   apply is_pullback_reindx_cwf.
 Defined.
 
