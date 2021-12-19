@@ -38,7 +38,8 @@ We open a few scopes that are used throughout the development, and add/tweak a f
 
 Undelimit Scope transport.
 
-Notation "( x , y , .. , z )" := (make_dirprod .. (make_dirprod x y) .. z) : core_scope.
+Notation "( x , y , .. , z )" := (make_dirprod .. (make_dirprod x y) .. z)
+ : core_scope.
 (** Replaces builtin notation for [pair], since we use [dirprod, make_dirprod] instead of [prod, pair]. *)
 
 
@@ -172,8 +173,9 @@ Proof.
   exact (maponpaths (maponpaths f) H).
 Defined.
 
-Lemma transportf_comp_lemma (X : UU) (B : X -> UU) {A A' A'': X} (e : A = A'') (e' : A' = A'')
-  (x : B A) (x' : B A')
+Lemma transportf_comp_lemma (X : UU) (B : X -> UU)
+    {A A' A'': X} (e : A = A'') (e' : A' = A'')
+    (x : B A) (x' : B A')
   : transportf _ (e @ !e') x = x'
   -> transportf _ e x = transportf _ e' x'.
 Proof.
@@ -204,10 +206,12 @@ Proof.
   - exact ex.
 Qed.
 
-Lemma transportf_pair {A B} (P : A × B -> UU) {a a' : A} {b b' : B}
-      (eA : a = a') (eB : b = b') (p : P (a,,b)) 
-      : transportf P (pathsdirprod eA eB) p =
-        transportf (fun bb => P(a',,bb) ) eB (transportf (fun aa => P(aa,,b)) eA p).
+Lemma transportf_pair {A B} (P : A × B -> UU)
+    {a a' : A} {b b' : B}
+    (eA : a = a') (eB : b = b') (p : P (a,,b)) 
+  : transportf P (pathsdirprod eA eB) p
+    = transportf (fun bb => P(a',,bb)) eB
+       (transportf (fun aa => P(aa,,b)) eA p).
 Proof.
   induction eA. induction eB. apply idpath.
 Defined.
@@ -308,7 +312,8 @@ Lemma weqforalltototal3 {X : UU}
       (P2 : ∏ x : X, P1 x → UU)
       (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
   : (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1), P3 x p1 p2)
-      ≃ (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)), ∏ x : X, P3 x (p1 x) (p2 x)).
+  ≃ (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)),
+          ∏ x : X, P3 x (p1 x) (p2 x)).
 Proof.
   eapply weqcomp. apply weqforalltototal.
   apply (weqtotal2 (idweq _)). intros ?.
@@ -319,8 +324,9 @@ Lemma weqtotaltoforall3 {X : UU}
       (P1 : X → UU)
       (P2 : ∏ x : X, P1 x → UU)
       (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
-  : (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)), ∏ x : X, P3 x (p1 x) (p2 x))
-      ≃ (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1), P3 x p1 p2).
+  : (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)),
+      ∏ x : X, P3 x (p1 x) (p2 x))
+  ≃ (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1), P3 x p1 p2).
 Proof.
   apply invweq, weqforalltototal3.
 Defined.
@@ -331,7 +337,8 @@ Lemma weqforalltototal4 {X : UU}
       (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
       (P4 : ∏ (x : X) (y : P1 x) (z : P2 x y), P3 x y z → UU)
   : (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1) (p3 : P3 x p1 p2), P4 x p1 p2 p3)
-      ≃ (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)) (p3 : ∏ x : X, P3 x (p1 x) (p2 x)), ∏ x : X, P4 x (p1 x) (p2 x) (p3 x)).
+  ≃ (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x))
+       (p3 : ∏ x : X, P3 x (p1 x) (p2 x)), ∏ x : X, P4 x (p1 x) (p2 x) (p3 x)).
 Proof.
   eapply weqcomp. apply weqforalltototal.
   apply (weqtotal2 (idweq _)). intros ?.
@@ -345,8 +352,9 @@ Lemma weqtotaltoforall4 {X : UU}
       (P2 : ∏ x : X, P1 x → UU)
       (P3 : ∏ (x : X) (y : P1 x), P2 x y → UU)
       (P4 : ∏ (x : X) (y : P1 x) (z : P2 x y), P3 x y z → UU)
-  : (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x)) (p3 : ∏ x : X, P3 x (p1 x) (p2 x)), ∏ x : X, P4 x (p1 x) (p2 x) (p3 x))
-      ≃ (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1) (p3 : P3 x p1 p2), P4 x p1 p2 p3).
+  : (∑ (p1 : ∏ x : X, P1 x) (p2 : ∏ x : X, P2 x (p1 x))
+       (p3 : ∏ x : X, P3 x (p1 x) (p2 x)), ∏ x : X, P4 x (p1 x) (p2 x) (p3 x))
+  ≃ (∏ x : X, ∑ (p1 : P1 x) (p2 : P2 x p1) (p3 : P3 x p1 p2), P4 x p1 p2 p3).
 Proof.
   apply invweq, weqforalltototal4.
 Defined.
@@ -419,7 +427,8 @@ Proof.
 Defined.
 
 Lemma isaprop_fiber_if_isinclpr1
-  : ∏ (X : UU) (isasetX : isaset X) (P : X → UU), (∏ x : X, isaprop (P x)) <- isincl (pr1 : (∑ x, P x) -> X).
+  : ∏ (X : UU) (isasetX : isaset X) (P : X → UU),
+      (∏ x : X, isaprop (P x)) <- isincl (pr1 : (∑ x, P x) -> X).
 Proof.
   intros X isasetX P H x.
   unfold isincl in H. unfold isofhlevelf in H.
@@ -528,7 +537,8 @@ Defined.
 Definition mor_total (C : precategory) : UU
   := ∑ (ab : C × C), C⟦pr2 ab, pr1 ab⟧.
 
-Definition morphism_as_total {C : precategory} {a b : C} (f : a --> b) : mor_total C.
+Definition morphism_as_total {C : precategory} {a b : C} (f : a --> b)
+  : mor_total C.
 Proof.
   exists (b,,a).
   exact f.
@@ -549,10 +559,11 @@ Proof.
 Defined.
 
 
-Definition isweq_left_adj_equivalence_on_mor_total {C D : category} (F : functor C D) 
-           (isC : is_univalent C) (isD : is_univalent D)
-           (H : adj_equivalence_of_cats F) 
-: isweq (functor_on_mor_total F).
+Definition isweq_left_adj_equivalence_on_mor_total
+    {C D : category} (F : functor C D)
+    (isC : is_univalent C) (isD : is_univalent D)
+    (H : adj_equivalence_of_cats F) 
+  : isweq (functor_on_mor_total F).
 Proof.
   use (gradth _ _ _ _ ).
   - apply (functor_on_mor_total (adj_equivalence_inv H)).
@@ -561,16 +572,17 @@ Proof.
     + cbn. destruct p as [[a b] f].
       apply pathsdirprod; cbn. 
       * apply (isotoid _ isC). 
-        apply iso_inv_from_iso. apply (unit_pointwise_iso_from_adj_equivalence H).
+        apply iso_inv_from_iso, (unit_pointwise_iso_from_adj_equivalence H).
       * apply (isotoid _ isC).
-        apply iso_inv_from_iso. apply (unit_pointwise_iso_from_adj_equivalence H).
+        apply iso_inv_from_iso, (unit_pointwise_iso_from_adj_equivalence H).
     + cbn. destruct p as [[a b] f]. cbn in *.
       etrans. apply (transportf_pair (λ x : C × C, C ⟦ pr2 x, pr1 x ⟧)).
       cbn.
       rewrite transportf_isotoid.
       rewrite transportf_isotoid'.
       cbn. unfold precomp_with. rewrite id_right.
-      rewrite assoc. assert (XR := nat_trans_ax (unit_from_are_adjoints (pr2 (pr1 H)))).
+      rewrite assoc.
+      assert (XR := nat_trans_ax (unit_from_are_adjoints (pr2 (pr1 H)))).
       cbn in XR. rewrite <- XR.
       rewrite <- assoc. 
       etrans. apply maponpaths.
@@ -697,16 +709,18 @@ Proof.
       rewrite id_left. apply idpath.
     + assert (XR := nat_trans_ax η). simpl in XR. rewrite <- XR. clear XR.
       repeat rewrite <- assoc.
-      etrans. do 3 apply maponpaths. apply  triangle_id_right_ad. rewrite id_right.
+      etrans. 
+      { do 3 apply maponpaths. apply triangle_id_right_ad. }
+      rewrite id_right.
       rewrite assoc.
       etrans. 2: { apply id_left. }
       apply maponpaths_2.
-      etrans. apply maponpaths_2. apply functor_on_inv_from_iso.
+      etrans. { apply maponpaths_2. apply functor_on_inv_from_iso. }
       assert (XR := triangle_id_right_ad (pr2 (pr1 GG))).
       simpl in XR.
       unfold ηinv. simpl.
       match goal with |[|- inv_from_iso ?e ;; inv_from_iso ?f = _ ] =>
-                       assert (XRR := maponpaths pr1 (iso_inv_of_iso_comp _ _ _ _ f e)) end. 
+         assert (XRR := maponpaths pr1 (iso_inv_of_iso_comp _ _ _ _ f e)) end. 
       simpl in XRR.
       etrans. apply (! XRR). clear XRR.
       apply pathsinv0, inv_iso_unique'.
@@ -816,7 +830,8 @@ Proof.
 Qed.
 
 
-Definition η_ff_split : nat_trans (functor_identity A) (functor_composite F G_ff_split).
+Definition η_ff_split
+  : nat_trans (functor_identity A) (functor_composite F G_ff_split).
 Proof.
   use tpair.
   -  intro a.
@@ -1431,7 +1446,8 @@ Proof.
     cbn.
     apply (post_comp_with_iso_is_inj _ _ (iso_inv_from_iso i_d) (pr2 _)).
     eapply @pathscomp0.
-    2: { rewrite <- assoc. cbn. rewrite iso_inv_after_iso. eapply pathsinv0, id_right. }
+    2: { rewrite <- assoc. cbn. rewrite iso_inv_after_iso.
+         eapply pathsinv0, id_right. }
     apply PullbackArrowUnique; cbn.
     + apply (post_comp_with_iso_is_inj _ _ i_b (pr2 _)).
       repeat rewrite <- assoc.
@@ -1498,13 +1514,15 @@ Section Pullbacks_hSet.
 
   If we had the standard pullback of hsets defined, this could be maybe better stated as the fact that P is a pullback if the map from P to the standard pullback is an iso. *)
 Lemma isPullback_HSET {P A B C : HSET}
-  (p1 : P --> A) (p2 : P --> B) (f : A --> C) (g : B --> C) (ep : p1 ;; f = p2 ;; g) 
+    (p1 : P --> A) (p2 : P --> B) (f : A --> C) (g : B --> C)
+    (ep : p1 ;; f = p2 ;; g)
   : (∏ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b)
   -> isPullback ep.
 Proof.
   intros H X h k ehk.
   set (H_existence := fun a b e => pr1 (H a b e)).
-  set (H_uniqueness := fun a b e x x' => base_paths _ _ (proofirrelevancecontr (H a b e) x x')).
+  set (H_uniqueness
+    := fun a b e x x' => base_paths _ _ (proofirrelevancecontr (H a b e) x x')).
   apply iscontraprop1.
   - apply invproofirrelevance.
     intros hk hk'.
@@ -1515,7 +1533,8 @@ Proof.
       try split;
     revert x; apply toforallpaths; assumption.
   - use tpair. 
-    + intros x. refine (pr1 (H_existence (h x) (k x) _)). apply (toforallpaths ehk).
+    + intros x. refine (pr1 (H_existence (h x) (k x) _)).
+      apply (toforallpaths ehk).
     + simpl.
       split; apply funextsec; intro x.
       * apply (pr1 (pr2 (H_existence _ _ _))). 
@@ -1615,10 +1634,9 @@ Proof.
     intros S h k H.
     specialize (XR S).
     simpl in XR.
-    transparent assert (
-        HC :  (cone
-              (@colimits.diagram_pointwise C^op HSET 
-                                               pullback_graph (pullback_diagram (preShv C) f g) c) S)).
+    transparent assert (HC
+      :  (cone (@colimits.diagram_pointwise C^op HSET 
+                    pullback_graph (pullback_diagram (preShv C) f g) c) S)).
     { use make_cone.
       apply three_rec_dep; cbn.
       - apply h.
@@ -1671,7 +1689,7 @@ Proof.
   - intro; apply isofhleveltotal2.
     + apply homset_property.
     + intros; apply isaprop_isPullback.
-  - apply (total2_paths_f (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))). 
+  - apply (total2_paths_f (isotoid _ H (iso_from_Pullback_to_Pullback _ _))).
     rewrite transportf_dirprod, transportf_isotoid.
     rewrite inv_from_iso_iso_from_Pullback.
     rewrite transportf_isotoid.
@@ -1707,8 +1725,8 @@ Section Pullback_Unique_Up_To_Iso.
   
   Variable CC : category.
   Variables A B C D A' B' : CC.
-  Variables (f : A --> B) (g : A --> C) (k : B --> D) (j : C --> D) (H : f ;; k = g ;; j)
-            (pb : isPullback H).
+  Variables (f : A --> B) (g : A --> C) (k : B --> D) (j : C --> D)
+            (H : f ;; k = g ;; j) (pb : isPullback H).
   Variables (f' : A' --> B') (g' : A' --> C) (r : B' --> D) (h : iso B B').
   Variable (H' : f' ;; r = g' ;; j).
   Variable (pb' : isPullback H').
@@ -1839,14 +1857,16 @@ Lemma transportf_dirprod_path' {C : category}
            (e : (a, b) = (c, d))
            (f : C ⟦ a, b ⟧)
   : transportf (λ x : C × C, C ⟦ dirprod_pr1 x, dirprod_pr2 x ⟧) e f
-    = idtoiso (! pr1 (WeakEquivalences.pathsdirprodweq e)) ;; f ;; idtoiso (dirprod_pr2 (WeakEquivalences.pathsdirprodweq e)).
+    = idtoiso (! pr1 (WeakEquivalences.pathsdirprodweq e)) ;; f
+      ;; idtoiso (dirprod_pr2 (WeakEquivalences.pathsdirprodweq e)).
 Proof.
-  set (e1 := pr1 (WeakEquivalences.pathsdirprodweq e)).
-  set (e2 := dirprod_pr2 (WeakEquivalences.pathsdirprodweq e)).
-  use (paths_rect (C × C) (a, b) (λ xy exy, transportf (λ uv : C × C, C ⟦ pr1 uv, dirprod_pr2 uv ⟧) exy f = idtoiso (! pr1 (WeakEquivalences.pathsdirprodweq exy)) ;; f ;; idtoiso (dirprod_pr2 (WeakEquivalences.pathsdirprodweq exy))) _ _ e).
+  use (paths_rect (C × C) (a, b)
+    (λ xy exy, transportf (λ uv, C ⟦ pr1 uv, pr2 uv ⟧) exy f
+     = idtoiso (! pr1 (WeakEquivalences.pathsdirprodweq exy)) ;; f
+       ;; idtoiso (pr2 (WeakEquivalences.pathsdirprodweq exy))) _ _ e).
   simpl.
   etrans.
-  apply (@idpath_transportf _ (λ xy : C × C, C ⟦ pr1 xy, dirprod_pr2 xy ⟧ ) (a, b)).
+  apply (@idpath_transportf _ (λ xy, C ⟦ pr1 xy, pr2 xy ⟧ ) (a, b)).
   apply pathsinv0.
   etrans. apply assoc'.
   etrans. apply id_left.
@@ -1873,7 +1893,7 @@ Proof.
   - intros p.
     etrans. apply pathsinv0, id_left.
     etrans. apply maponpaths_2, pathsinv0.
-    apply (iso_inv_after_iso (idtoiso (pr1 (WeakEquivalences.pathsdirprodweq e)))).
+    apply (iso_inv_after_iso (idtoiso (pr1 (pathsdirprodweq e)))).
     etrans. apply assoc'.
     apply maponpaths.
     etrans. apply maponpaths_2, pathsinv0.
@@ -1884,7 +1904,7 @@ Proof.
     apply pathsinv0.
     etrans. apply pathsinv0, id_left.
     etrans. apply maponpaths_2, pathsinv0.
-    apply (iso_after_iso_inv (idtoiso (pr1 (WeakEquivalences.pathsdirprodweq e)))).
+    apply (iso_after_iso_inv (idtoiso (pr1 (pathsdirprodweq e)))).
     etrans. apply assoc'.
     etrans. apply maponpaths_2, pathsinv0.
     apply (maponpaths pr1 (idtoiso_inv _ _ _ _)).
@@ -1982,18 +2002,16 @@ Proof.
 
   use make_dirprod.
   - use is_iso_from_is_z_iso.
-    use tpair.
-    + apply d_to_b.
-    + use make_dirprod.
-      * apply (maponpaths (λ k, dirprod_pr2 (pr1 k)) (iso_inv_after_iso (abf_to_cdg,,h))).
-      * apply (maponpaths (λ k, dirprod_pr2 (pr1 k)) (iso_after_iso_inv (_,,h))).
+    use tpair. { apply d_to_b. }
+    use make_dirprod.
+    * apply (maponpaths (λ k, dirprod_pr2 (pr1 k)) (iso_inv_after_iso (_,,h))).
+    * apply (maponpaths (λ k, dirprod_pr2 (pr1 k)) (iso_after_iso_inv (_,,h))).
   - use make_dirprod.
     + use is_iso_from_is_z_iso.
-      use tpair.
-      * apply c_to_a.
-      * use make_dirprod.
-        -- apply (maponpaths (λ k, pr1 (pr1 k)) (iso_inv_after_iso (_,,h))).
-        -- apply (maponpaths (λ k, pr1 (pr1 k)) (iso_after_iso_inv (_,,h))).
+      use tpair. { apply c_to_a. }
+      use make_dirprod.
+      * apply (maponpaths (λ k, pr1 (pr1 k)) (iso_inv_after_iso (_,,h))).
+      * apply (maponpaths (λ k, pr1 (pr1 k)) (iso_after_iso_inv (_,,h))).
     + apply (pr2 abf_to_cdg).
 Defined.
 

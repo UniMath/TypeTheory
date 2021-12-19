@@ -68,7 +68,7 @@ Section Ordering.
   Defined.
 
   Definition leq_partial_trans {X}
-       {x0 x1 x2 : partial X} (l01 : leq_partial x0 x1) (l12 : leq_partial x1 x2)
+      {x0 x1 x2 : partial X} (l01 : leq_partial x0 x1) (l12 : leq_partial x1 x2)
     : leq_partial x0 x2.
   Proof.
     exists (fun x0_def => l12 (l01 x0_def)).
