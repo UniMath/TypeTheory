@@ -405,15 +405,6 @@ Proof.
   apply idpath.
 Defined.
 
-(* TODO: delete this and replace with [AxomOfChoice.pr1_issurjective], now that https://github.com/UniMath/UniMath/issues/677 is resolved*)
-Lemma pr1_issurjective' {X : UU} {P : X -> UU} :
-  (∏ x : X, ∥ P x ∥) -> issurjective (pr1 : (∑ x, P x) -> X).
-Proof.
-  intros ne x. simple refine (hinhuniv _ (ne x)).
-  intros p. apply hinhpr.
-  exact ((x,,p),,idpath _).
-Defined.
-
 Lemma fibers_inhab_if_pr1_issurjective {X : UU} {P : X -> UU} :
   (∏ x : X, ∥ P x ∥) <- issurjective (pr1 : (∑ x, P x) -> X).
 Proof.
