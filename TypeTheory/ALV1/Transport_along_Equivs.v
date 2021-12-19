@@ -185,12 +185,7 @@ Definition Transfer_of_RelUnivYoneda (Dcat : is_univalent D) (X : @relative_univ
 Proof.
   cbn.
   use (transfer_of_rel_univ_with_ess_surj
-         Yo 
          X 
-         Yo
-         F
-         ext
-         fi
          (pr2 fi) 
          preserves_pullbacks_ext
          F_es

@@ -128,7 +128,7 @@ Proof.
     refine (weqonsecbase _ _). apply yy. }
   apply weqonsecfibers. intro A.
   apply weqimplimpl.
-  - apply hinhfun. intro f. apply (@weq_cwf_fiber_representation_fpullback C pp Γ A). apply f.
+  - apply hinhfun. intro f. apply @weq_cwf_fiber_representation_fpullback, f.
   - apply hinhfun. apply (invmap (weq_cwf_fiber_representation_fpullback _ _)).
   - apply propproperty.
   - apply propproperty.

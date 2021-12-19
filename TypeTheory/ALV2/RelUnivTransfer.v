@@ -203,7 +203,8 @@ Section RelUniv_Transfer.
     Context (R_es : essentially_surjective R).
 
     Let transfer_of_reluniv u
-      := transfer_of_rel_univ_with_ess_surj _ u _ _ _ _ α_is_iso S_pb R_es C'_univ J'_ff S_f.
+      := transfer_of_rel_univ_with_ess_surj
+           u α_is_iso S_pb R_es C'_univ J'_ff S_f.
 
     Definition reluniv_mor_J_to_J'_with_ess_surj
                 (u1 u2 : relative_universe J)

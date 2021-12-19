@@ -39,17 +39,20 @@ Definition fpullback_data {X : C} (f : D ⟦J X, U⟧) : UU
   := ∑ Xf : C, C⟦Xf, X⟧ × D⟦J Xf, tU⟧.
 
 Definition fpb_ob  {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f) : C := pr1 T.
-Definition fp {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f) : C⟦fpb_ob T, X⟧ := pr1 (pr2 T).
-Definition fq {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f) : D⟦ J (fpb_ob T), tU⟧ := pr2 (pr2 T).
+Definition fp {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f)
+  : C⟦fpb_ob T, X⟧ := pr1 (pr2 T).
+Definition fq {X : C} {f : D⟦J X, U⟧} (T : fpullback_data f)
+  : D⟦ J (fpb_ob T), tU⟧ := pr2 (pr2 T).
 
 Definition fpullback_prop {X : C} {f : D ⟦J X, U⟧} (T : fpullback_data f) : UU
-  := commutes_and_is_pullback f p (#J (fp T)) (fq T).
+:= commutes_and_is_pullback f p (#J (fp T)) (fq T).
 
-Definition fpullback {X : C} (f : D ⟦J X, U⟧) := 
-  ∑ T : fpullback_data f, fpullback_prop T.
+Definition fpullback {X : C} (f : D ⟦J X, U⟧)
+:= ∑ T : fpullback_data f, fpullback_prop T.
 
-Coercion fpullback_data_from_fpullback {X : C} {f : D ⟦J X, U⟧} (T : fpullback f) :
-   fpullback_data f := pr1 T.
+Coercion fpullback_data_from_fpullback
+  {X : C} {f : D ⟦J X, U⟧} (T : fpullback f) : fpullback_data f
+:= pr1 T.
 
 Definition isPullback_fpullback
            {X : C} {f : D ⟦J X, U⟧ } (Y : fpullback f)
@@ -69,7 +72,8 @@ Definition rel_universe_structure_prop (Y : rel_universe_structure_data)
 
 (**  An equivalent form of [rel_universe_structure], separating its data and properties by interchanging ∑ and ∏ *)
 Definition weq_rel_universe_structure_ :
-   rel_universe_structure ≃ ∑ Y : rel_universe_structure_data, rel_universe_structure_prop Y.
+   rel_universe_structure
+     ≃ ∑ Y : rel_universe_structure_data, rel_universe_structure_prop Y.
 Proof.
   eapply weqcomp.
   2: {
@@ -174,8 +178,9 @@ Proof.
     apply hinhpr. apply H.
 Defined.
 
-Lemma weq_relative_universe_weak_relative_universe {C D : category} (J : functor C D)
-      (Ccat : is_univalent C) (J_ff : fully_faithful J)
+Lemma weq_relative_universe_weak_relative_universe
+    {C D : category} (J : functor C D)
+    (Ccat : is_univalent C) (J_ff : fully_faithful J)
   : relative_universe J ≃ weak_relative_universe J.
 Proof.
   apply weqfibtototal.
@@ -319,19 +324,19 @@ Definition fpb_mor (Y : functorial_structure_relu)
 
 Definition id_fpb_mor (Y : functorial_structure_relu)
   : id_fpb_mor_type (@fpb_mor Y)
-  := pr1 (pr2 Y).                                                                       
+  := pr1 (pr2 Y).
 
 Definition comp_fpb_mor (Y : functorial_structure_relu)
   : comp_fpb_mor_type (@fpb_mor Y)
-  := pr1 (pr2 (pr2 Y)).                                                                       
+  := pr1 (pr2 (pr2 Y)).
 
 Definition fp_nat_fpb_mor (Y : functorial_structure_relu)
   : fp_nat_fpb_mor_type (@fpb_mor Y)
-  := pr1 (pr2 (pr2 (pr2 Y))).                                                                       
+  := pr1 (pr2 (pr2 (pr2 Y))).
 
 Definition fq_nat_fpb_mor (Y : functorial_structure_relu)
   : fq_nat_fpb_mor_type (@fpb_mor Y)
-  := pr2 (pr2 (pr2 (pr2 Y))).                                                                       
+  := pr2 (pr2 (pr2 (pr2 Y))).
 
 
 Definition make_functorial_structure_relu
@@ -681,10 +686,11 @@ Proof.
   apply rel_universe_structure_induced_with_ess_surj; assumption.
 Defined.
 
-
 End Rel_Univ_Structure_Transfer.
 
-
+Arguments transfer_of_rel_univ_with_ess_surj
+  {_ _ J} u {_ _ _ _ _ _} α_is_iso S_pb R_es C'_univ J'_ff S_full : rename.
+ 
 (** ** Transfer of weak relative universes *)
 
 (** The next section literally copies a proof from the
@@ -796,7 +802,8 @@ Definition isweq_is_universe_transfer
            (S_faithful : faithful S)
   : isweq is_universe_transfer.
 Proof.
-  set (S_ff := full_and_faithful_implies_fully_faithful _ _ S (S_full,,S_faithful)).
+  set (S_ff
+    := full_and_faithful_implies_fully_faithful _ _ S (S_full,,S_faithful)).
   use (gradth _ _ _ _ ).
   - intro H.
     intros X f.
@@ -932,14 +939,16 @@ Definition weq_weak_relative_universe_transfer
            (eta : iso (C:=[D, D]) (functor_identity D) (S ∙ T))
            (eps : iso (C:=[D', D']) (T ∙ S) (functor_identity D'))
            (S_ff : fully_faithful S)
-: weak_relative_universe J ≃ weak_relative_universe J'
-:= make_weq _ (isweq_weak_relative_universe_transfer R_full isD isD' T eta eps S_ff).
+  : weak_relative_universe J ≃ weak_relative_universe J'
+:= make_weq _
+     (isweq_weak_relative_universe_transfer R_full isD isD' T eta eps S_ff).
 
 Section Weak_RelU_Comm_Square.
 
   Definition weak_relu_comm_square
   : ∏ (u : relative_universe J),
-    weak_from_relative_universe J' (transfer_of_rel_univ_with_ess_surj _ u _ _ _ _ is_iso_α S_pb R_es C'_sat J'_ff S_full)
+    weak_from_relative_universe J' (transfer_of_rel_univ_with_ess_surj u
+                                      is_iso_α S_pb R_es C'_sat J'_ff S_full)
     = weak_relative_universe_transfer (weak_from_relative_universe J u).
   Proof.
     intros u.
