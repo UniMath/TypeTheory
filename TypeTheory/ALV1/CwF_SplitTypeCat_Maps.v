@@ -23,9 +23,12 @@ Section Fix_Base_Category.
 Context {C : category} {X : obj_ext_structure C}.
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
-Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
-Local Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).  (* TODO: try generalising this notation to allow using it on arbitrary presheaves?  And possibly add lemmas for invoking presheaf functoriality? *)
-Local Notation "'Tm'" := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
+Local Notation "'Ty'"
+  := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
+Local Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).
+  (* TODO: try generalising this notation to allow using it on arbitrary presheaves?  And possibly add lemmas for invoking presheaf functoriality? *)
+Local Notation "'Tm'"
+ := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
 
 Local Notation Δ := comp_ext_compare.
 
@@ -109,8 +112,9 @@ Lemma map_from_term_recover
     {Γ' Γ : C} {A : Ty X Γ} (f : Γ' --> Γ ◂ A)
     {e : (pp Y : nat_trans _ _) Γ' ((Q Y A : nat_trans _ _) Γ' f)
          = A [ f ;; π A ]}
-  : pr1 (term_to_section ((Q Y A : nat_trans _ _) Γ' f)) ;; Δ e ;; qq Z (f ;; π A) A
-  = f.
+  : pr1 (term_to_section ((Q Y A : nat_trans _ _) Γ' f))
+      ;; Δ e ;; qq Z (f ;; π A) A
+    = f.
 Proof.
   assert (W' : iscompatible'_term_qq Y Z).
     apply iscompatible_iscompatible'; assumption.
@@ -160,7 +164,8 @@ Qed.
 
 Definition tm_from_qq_functor_ob Γ : hSet := make_hSet _ (isaset_tm_from_qq Γ).
 
-Definition tm_from_qq_functor_mor Γ Γ' (f : C⟦Γ',Γ⟧) : tm_from_qq_carrier Γ → tm_from_qq_carrier Γ'.
+Definition tm_from_qq_functor_mor Γ Γ' (f : C⟦Γ',Γ⟧)
+  : tm_from_qq_carrier Γ → tm_from_qq_carrier Γ'.
 Proof.
   intro Ase.
   exists ((pr1 Ase) [f]).
@@ -364,7 +369,8 @@ Qed.
 
 Lemma Q_from_qq_reconstruction
     {Γ' : C} ( ft : C ⟦ Γ', Γ ◂ A ⟧ )
-  : ft = pr1 (pr2 ((Q_from_qq : nat_trans _ _) Γ' ft)) ;; qq Z ft _ ;; qq Z (π _) A.
+  : ft
+  = pr1 (pr2 ((Q_from_qq : nat_trans _ _) Γ' ft)) ;; qq Z ft _ ;; qq Z _ A.
 Proof.
   cbn.
   apply pathsinv0.

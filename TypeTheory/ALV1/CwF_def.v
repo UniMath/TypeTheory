@@ -162,9 +162,10 @@ Definition cwf_fiber_rep_data {Γ:C} (A : Ty pp Γ : hSet) : UU
   := ∑ (ΓA : C), C ⟦ΓA, Γ⟧ × (Tm pp ΓA : hSet).
 
 Definition cwf_fiber_rep_ax {Γ:C} {A : Ty pp Γ : hSet}
-   (ΓAπt : cwf_fiber_rep_data A) : UU 
-  := ∑ (H : ((pp : _ --> _) : nat_trans _ _ ) _ (pr2 (pr2 ΓAπt)) = #(Ty pp) (pr1 (pr2 ΓAπt)) A),
-     isPullback (cwf_square_comm H).
+    (ΓAπt : cwf_fiber_rep_data A) : UU 
+  := ∑ (H : ((pp : _ --> _) : nat_trans _ _ ) _ (pr2 (pr2 ΓAπt))
+            = #(Ty pp) (pr1 (pr2 ΓAπt)) A),
+    isPullback (cwf_square_comm H).
 
 Definition cwf_fiber_representation' {Γ:C} (A : Ty pp Γ : hSet) : UU
   := ∑ ΓAπt : cwf_fiber_rep_data A, cwf_fiber_rep_ax ΓAπt.
@@ -437,7 +438,8 @@ Proof.
   apply (counit_pointwise_iso_from_adj_equivalence Fopequiv TY).
 Defined.
 
-Lemma Morphism_of_presheaves_transfer_recover : Tm_iso ;; pp = pp'_eta ;; Ty_iso.
+Lemma Morphism_of_presheaves_transfer_recover
+  : Tm_iso ;; pp = pp'_eta ;; Ty_iso.
 Proof.
   apply pathsinv0.
   apply (nat_trans_ax (counit_from_left_adjoint Fopequiv) pp).
@@ -521,9 +523,8 @@ Proof.
   apply XR'.
 Defined.
 
-
-
-Lemma RC_morphism_of_presheaves_recover : RC_Tm_iso ;; pp = RC_pp'_eta ;; RC_Ty_iso.
+Lemma RC_morphism_of_presheaves_recover
+  : RC_Tm_iso ;; pp = RC_pp'_eta ;; RC_Ty_iso.
 Proof.
   apply pathsinv0.
   apply (nat_trans_ax (counit_from_left_adjoint RCequiv) pp).

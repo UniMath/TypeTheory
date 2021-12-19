@@ -36,8 +36,10 @@ Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.
 (** Some local notations, *)
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
-Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
-Local Notation "'Tm'" := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
+Local Notation "'Ty'"
+  := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
+Local Notation "'Tm'"
+  := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
 Local Notation Δ := comp_ext_compare.
 
 Section fix_cat_obj_ext.
@@ -251,7 +253,8 @@ Proof.
   - exact (∑ YZ : (term_fun_precategory × qq_structure_precategory), 
                   iscompatible_term_qq (pr1 YZ) (pr2 YZ)).
   - intros YZ YZ'.
-    exact ((pr1 (pr1 YZ)) --> (pr1 (pr1 YZ')) × (pr2 (pr1 YZ)) --> pr2 (pr1 YZ')).
+    exact ((pr1 (pr1 YZ)) --> (pr1 (pr1 YZ'))
+           × (pr2 (pr1 YZ)) --> pr2 (pr1 YZ')).
 Defined.
 
 Definition strucs_compat_id_comp
@@ -618,7 +621,8 @@ Proof.
   repeat (apply impred_isaprop; intro). apply setproperty.
 Qed.
 
-Definition term_fun_category : category := make_category _ has_homsets_term_fun_precategory.
+Definition term_fun_category : category
+  := make_category _ has_homsets_term_fun_precategory.
 
 Theorem is_univalent_term_fun_structure
   : is_univalent term_fun_category.

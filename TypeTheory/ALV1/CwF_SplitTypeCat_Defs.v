@@ -356,9 +356,11 @@ Section Obj_Ext_Structures.
   Qed.
 
   Definition TY (X : obj_ext_structure) : preShv _ := pr1 X.
-  Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
+  Local Notation "'Ty'"
+    := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
   
-  Definition comp_ext (X : obj_ext_structure) Γ A : C := comp_ext_disp (pr2 X) Γ A.
+  Definition comp_ext (X : obj_ext_structure) Γ A : C
+    := comp_ext_disp (pr2 X) Γ A.
   Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
   
   Definition π {X : obj_ext_structure} {Γ} A
@@ -370,7 +372,8 @@ End Obj_Ext_Structures.
 Arguments obj_ext_structure _ : clear implicits.
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
-Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
+Local Notation "'Ty'"
+  := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
 
 (** The definitions of term structures and split type-category structures will all be relative to a fixed base category and object-extension structure. *)
 
@@ -406,7 +409,8 @@ Definition term_fun_structure_data : UU
         × (∏ (Γ : C) (A : Ty X Γ), (TM : functor _ _) (Γ ◂ A) : hSet).
 
 Definition TM (Y : term_fun_structure_data) : preShv C := pr1 Y.
-Local Notation "'Tm'" := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
+Local Notation "'Tm'"
+  := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
 
 Definition pp Y : TM Y --> TY X := pr1 (pr2 Y).
 
@@ -569,7 +573,8 @@ Proof.
   exact (pr1 (pr2 Z _ _ f A)).
 Qed.
 
-Lemma qq_π_Pb (Z : qq_morphism_data) {Γ Γ'} (f : Γ' --> Γ) (A : _ ) : isPullback (!qq_π Z f A).
+Lemma qq_π_Pb (Z : qq_morphism_data) {Γ Γ'} (f : Γ' --> Γ) (A : _ )
+  : isPullback (!qq_π Z f A).
 Proof.
   exact (pr2 (pr2 Z _ _ f A)).
 Qed.
@@ -599,10 +604,10 @@ Definition qq_morphism_axioms (Z : qq_morphism_data) : UU
     qq Z (identity Γ) A
     = Δ (toforallpaths (functor_id (TY X) _ ) _ ))
   ×
-    (∏ Γ Γ' Γ'' (f : C⟦Γ', Γ⟧) (g : C ⟦Γ'', Γ'⟧) (A : (TY X:functor _ _ ) Γ : hSet),
+    (∏ Γ Γ' Γ'' (f : C⟦Γ', Γ⟧) (g : C⟦Γ'', Γ'⟧)
+       (A : (TY X:functor _ _ ) Γ : hSet),
     qq Z (g ;; f) A
-    = Δ
-           (toforallpaths (functor_comp (TY X) _ _) A)
+    = Δ (toforallpaths (functor_comp (TY X) _ _) A)
       ;; qq Z g (A [f]) 
       ;; qq Z f A).
 
