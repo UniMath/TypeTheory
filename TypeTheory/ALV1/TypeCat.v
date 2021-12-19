@@ -218,44 +218,44 @@ Coercion is_split_from_split_typecat CC (C : split_typecat_structure CC)
   := pr2 C.
 
 Definition reind_comp_typecat {C : split_typecat}
-  : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
-    A {{g;;f}} = A{{f}}{{g}}
-  := pr1 (pr2 (pr2 (pr2 C))).
+    {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ) {Γ''} (g : Γ'' --> Γ')
+  : A {{g;;f}} = A{{f}}{{g}}
+:= pr1 (pr2 (pr2 (pr2 C))) _ _ _ _ _ _.
 
 Definition q_q_typecat {C : split_typecat}
-  : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
-      q_typecat A (g ;; f)
-      = idtoiso (maponpaths (fun b => Γ''◂b) (reind_comp_typecat _ A _ f _ g))
+    {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ) {Γ''} (g : Γ'' --> Γ')
+  : q_typecat A (g ;; f)
+    = idtoiso (maponpaths (fun b => Γ''◂b) (reind_comp_typecat A f g))
         ;; q_typecat (A{{f}}) g
         ;; q_typecat A f
-  := pr2 (pr2 (pr2 (pr2 C))).
+:= pr2 (pr2 (pr2 (pr2 C))) _ _ _ _ _ _.
 
 Section access_functions.
 
 Context {C : split_typecat}.
 
-Definition isaset_types_typecat : ∏ Γ : C, isaset (C Γ) := pr1 (pr2 C).
+Definition isaset_types_typecat Γ : isaset (C Γ) := pr1 (pr2 C) _.
 
-Definition reind_id_type_typecat :  ∏ Γ (A : C Γ), A {{identity Γ}} = A
-  := pr1 (pr1 (pr2 (pr2 C))).
+Definition reind_id_type_typecat {Γ} (A : C Γ) : A {{identity Γ}} = A
+  := pr1 (pr1 (pr2 (pr2 C))) _ _.
 
-Definition reind_id_term_typecat
-  : ∏ Γ (A : C Γ), q_typecat A (identity Γ)
-                   = idtoiso (maponpaths _ (reind_id_type_typecat Γ A))
-  := pr2 (pr1 (pr2 (pr2 C))).
+Definition reind_id_term_typecat {Γ} (A : C Γ)
+  : q_typecat A (identity Γ)
+    = idtoiso (maponpaths _ (reind_id_type_typecat A))
+  := pr2 (pr1 (pr2 (pr2 C))) _ _.
 
 Definition reind_comp_type_typecat 
-  : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
-    A {{g;;f}} = A{{f}}{{g}}
-  := pr1 (pr2 (pr2 (pr2 C))).
+    {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ) {Γ''} (g : Γ'' --> Γ')
+  : A {{g;;f}} = A{{f}}{{g}}
+  := pr1 (pr2 (pr2 (pr2 C))) _ _ _ _ _ _.
 
 Definition reind_comp_term_typecat 
-  : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
-    q_typecat A (g ;; f)
-    =  idtoiso (maponpaths _ (reind_comp_type_typecat _ A _ f _ g))
+    {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ) {Γ''} (g : Γ'' --> Γ')
+  : q_typecat A (g ;; f)
+    =  idtoiso (maponpaths _ (reind_comp_type_typecat A f g))
                ;; q_typecat (A{{f}}) g
                ;; q_typecat A f
- := pr2 (pr2 (pr2 (pr2 C))).
+ := pr2 (pr2 (pr2 (pr2 C))) _ _ _ _ _ _.
 
 End access_functions.
 

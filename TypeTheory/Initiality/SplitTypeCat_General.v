@@ -224,7 +224,7 @@ Section Terms.
   Definition reind_id_tm {C : split_typecat}
       {Γ : C}{A : C Γ} (a : tm A)
     : reind_tm (identity _) a
-      = tm_transportb (reind_id_type_typecat _ _) a.
+      = tm_transportb (reind_id_type_typecat _) a.
   Proof.
     apply subtypePath; [ intros x; apply homset_property|]; simpl.
     set (pb := make_Pullback _ _).
@@ -250,8 +250,7 @@ Section Terms.
   Lemma reind_compose_tm {C : split_typecat}
       {Γ Γ' Γ'' : C} (f : Γ' --> Γ) (g : Γ'' --> Γ') {A : C Γ} (a : tm A)
     : reind_tm (g ;; f) a
-      = tm_transportb (reind_comp_typecat _ _ _ _ _ _)
-          (reind_tm g (reind_tm f a)).
+      = tm_transportb (reind_comp_typecat _ _ _) (reind_tm g (reind_tm f a)).
   Proof.
     apply subtypePath; [ intros x; apply homset_property|]; simpl.
     set (pb := make_Pullback _ _).
@@ -262,7 +261,7 @@ Section Terms.
       etrans; [eapply maponpaths, idtoiso_dpr_typecat|].
       apply (PullbackArrow_PullbackPr1 pb').
     - unfold comp_ext_compare; cbn.
-      rewrite <- assoc, (reind_comp_term_typecat _ A).
+      rewrite <- assoc, (reind_comp_term_typecat A).
       etrans; [eapply maponpaths|].
       rewrite !assoc, idtoiso_concat_pr, <- maponpathscomp0, pathsinv0l, <-assoc.
       apply id_left.
@@ -272,8 +271,7 @@ Section Terms.
 
   Lemma reind_compose_tm' {C : split_typecat}
       {Γ Γ' Γ'' : C} (f : Γ' --> Γ) (g : Γ'' --> Γ') {A : C Γ} (a : tm A)
-    : tm_transportf (reind_comp_typecat _ _ _ _ _ _)
-        (reind_tm (g ;; f) a)
+    : tm_transportf (reind_comp_typecat _ _ _) (reind_tm (g ;; f) a)
       = reind_tm g (reind_tm f a).
   Proof.
     rewrite reind_compose_tm; unfold tm_transportb.
@@ -302,7 +300,7 @@ Section Terms.
   Definition q_q_typecat' {C : split_typecat}
     : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
       q_typecat (A{{f}}) g ;; q_typecat A f
-      = idtoiso (maponpaths (fun b => Γ''◂b) (!reind_comp_typecat _ A _ f _ g))
+      = idtoiso (maponpaths _ (!reind_comp_typecat A f g))
         ;; q_typecat A (g ;; f).
   Proof.
     intros. apply iso_inv_to_left, pathsinv0. 
@@ -316,9 +314,9 @@ Section Terms.
   Definition reind_var_typecat {C : split_typecat}
       {Γ Γ'} (f : Γ' --> Γ) (A : C Γ)
       (e : (A ⦃dpr_typecat A⦄) ⦃q_typecat A f⦄ = (A ⦃f⦄) ⦃dpr_typecat (A ⦃f⦄)⦄
-        := ! reind_comp_typecat _ _ _ _ _ _
+        := ! reind_comp_typecat _ _ _
            @ maponpaths _ (dpr_q_typecat _ _)
-           @ reind_comp_typecat _ _ _ _ _ _ )
+           @ reind_comp_typecat _ _ _ )
     : reind_tm (q_typecat A f) (var_typecat A)
       = tm_transportb e (var_typecat (A ⦃f⦄)).
   Proof.
@@ -364,9 +362,9 @@ Section Terms.
   Definition reind_tm_var_typecat {C : split_typecat}
       {Γ : C} {A : C Γ} (a : tm A)
       (e : A = (A ⦃dpr_typecat A⦄) ⦃a⦄
-        := ! reind_id_type_typecat _ _
+        := ! reind_id_type_typecat _
            @ maponpaths _ (! section_property a)
-           @ reind_comp_typecat _ _ _ _ _ _)
+           @ reind_comp_typecat _ _ _)
     : reind_tm a (var_typecat A) = tm_transportf e a.
   Proof.
     induction a as [a af]; cbn in *.
@@ -383,7 +381,7 @@ Section Terms.
       unfold e, comp_ext_compare.
       rewrite !maponpathscomp0, <-!idtoiso_concat_pr, <-!assoc.
       etrans; [ do 2 eapply maponpaths; rewrite assoc;
-                apply (!@q_q_typecat C _ A _ (dpr_typecat A) _ a)|].
+                    apply (!q_q_typecat A (dpr_typecat A) a)|].
       now rewrite af, id_left, reind_id_term_typecat,
                   idtoiso_concat_pr, <-maponpathscomp0, pathsinv0l.
   Qed.
@@ -391,9 +389,9 @@ Section Terms.
   Definition reind_tm_var_typecat' {C : split_typecat}
       {Γ:C} {A:C Γ} (a : tm A)
       (e : A = (A ⦃dpr_typecat A⦄) ⦃a⦄
-        := ! reind_id_type_typecat _ _
+        := ! reind_id_type_typecat _
            @ maponpaths _ (! section_property a)
-           @ reind_comp_typecat _ _ _ _ _ _)
+           @ reind_comp_typecat _ _ _)
     : tm_transportb e (reind_tm a (var_typecat A)) = a.
   Proof.
     unfold tm_transportb.

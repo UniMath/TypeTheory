@@ -140,8 +140,8 @@ Lemma reindx_term_comp_typecat
   (Γ Γ' Γ'' : CC)
   (γ : Γ' --> Γ)
   (γ' : Γ'' --> Γ')
-  (A : ( tt_reindx_from_typecat) ⟨ Γ ⟩)
-  (a : ( tt_reindx_from_typecat) ⟨ Γ ⊢ A ⟩)
+  (A : tt_reindx_from_typecat ⟨ Γ ⟩)
+  (a : tt_reindx_from_typecat ⟨ Γ ⊢ A ⟩)
   :
    a ⟦ γ';; γ ⟧ =
    transportf

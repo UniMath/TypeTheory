@@ -145,8 +145,7 @@ Section Pi_Structure.
         {A : C Γ} (B : C (Γ ◂ A)) (a : tm A)
     : (B ⦃a⦄) ⦃f⦄ = (B ⦃q_typecat A f⦄) ⦃reind_tm f a⦄.
   Proof.
-    refine (!reind_comp_typecat _ _ _ _ _ _ @
-             _ @ reind_comp_typecat _ _ _ _ _ _).
+    refine (!reind_comp_typecat _ _ _ @ _ @ reind_comp_typecat _ _ _).
     now apply maponpaths; rewrite (reind_tm_q f).
   Qed.
   
@@ -233,7 +232,7 @@ Section Pi_Preservation.
     fmap_tm F (app Γ A B t a)
     = tm_transportb (reindex_fmap_ty _ _ _
                     @ maponpaths _ (fmap_tm_as_map _ _)
-                    @ reind_comp_typecat _ _ _ _ _ _)
+                    @ reind_comp_typecat _ _ _)
       (app' (F Γ)
          (typecat_mor_Ty F _ A)
          ((typecat_mor_Ty F _ B) ⦃inv_from_iso (typecat_mor_iso F A)⦄)
