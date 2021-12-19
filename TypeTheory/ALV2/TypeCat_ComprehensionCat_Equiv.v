@@ -149,7 +149,7 @@ Section TypeCat_ComprehensionCat_Equiv.
              (λ (Γ : C) reind q, ∏ (A : TC Γ) (Γ' : C) (f : C ⟦ Γ', Γ ⟧),
               (q A Γ' f;; π A)%mor = (π (reind A Γ' f);; f)%mor)
              (λ (Γ : C) reind q dpr_q, ∏ (A : TC Γ) (Γ' : C) (f : C ⟦ Γ', Γ ⟧),
-              isPullback f π A π (reind A Γ' f) (q A Γ' f) (! dpr_q A Γ' f))).
+              isPullback (! dpr_q A Γ' f))).
     apply weqonsecfibers. intros Γ.
 
     eapply weqcomp.
@@ -160,7 +160,7 @@ Section TypeCat_ComprehensionCat_Equiv.
              (λ A reind q, ∏ (Γ' : C) (f : C ⟦ Γ', Γ ⟧),
               (q Γ' f;; π A)%mor = (π (reind Γ' f);; f)%mor)
              (λ (A : TC Γ) reind q dpr_q, ∏ (Γ' : C) (f : C ⟦ Γ', Γ ⟧),
-              isPullback f π A π (reind Γ' f) (q Γ' f) (! dpr_q Γ' f))).
+              isPullback (! dpr_q Γ' f))).
     apply weqonsecfibers. intros A.
     
     eapply weqcomp.
@@ -171,14 +171,14 @@ Section TypeCat_ComprehensionCat_Equiv.
              (λ Γ' reind q, ∏ (f : C ⟦ Γ', Γ ⟧),
               (q f;; π A)%mor = (π (reind f);; f)%mor)
              (λ Γ' reind q dpr_q, ∏ (f : C ⟦ Γ', Γ ⟧),
-              isPullback f π A π (reind f) (q f) (! dpr_q f))).
+              isPullback (! dpr_q f))).
     apply weqonsecfibers. intros Γ'.
 
     apply (weqtotaltoforall4
              (λ f, TC Γ')
              (λ f reind, C ⟦ obj_ext_typecat Γ' reind, obj_ext_typecat Γ A ⟧)
              (λ f reind q, (q ;; π A)%mor = (π reind ;; f)%mor)
-             (λ f reind q dpr_q, isPullback f π A π reind q (! dpr_q))).
+             (λ f reind q dpr_q, isPullback (! dpr_q))).
   Defined.
 
   Definition ff_comprehension_cat_structure (C : category) : UU
