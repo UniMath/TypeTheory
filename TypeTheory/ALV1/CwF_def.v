@@ -27,13 +27,6 @@ Section Auxiliary.
 
 (** * Preliminaries *)
 
-(** A version of [weqtotal2asstor] with the type of the [C] argument slightly changed. Perhaps upstream? *)
-Definition weqtotal2asstor' {A} {B : A -> Type} (C : ∏ a, B a -> Type)
-  : (∑ (xy : ∑ x, B x), C _ (pr2 xy)) ≃ (∑ x y, C x y).
-Proof.
-  apply (weqtotal2asstor _ (fun xy => C (pr1 xy) (pr2 xy))).
-Defined.
-
 Definition yoneda_induction {C : category} (F : preShv C) (Γ' : C) 
            (P : ((F : functor _ _ ) Γ' : hSet) -> UU) :
   (forall K : _ ⟦ Yo Γ', F ⟧, P (invmap (@yy _ F Γ') K)) -> 

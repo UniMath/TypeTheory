@@ -294,13 +294,16 @@ Proof.
   apply (isweqbandfmap (make_weq w Hw) _ _ (fun x => make_weq _ (Hfw x))).
 Defined.
 
-(* TODO: see if this can be used to more easily get other instances of [weqtotal2asstol] that currently need careful use of [specialize]. *)
+(* [weqtotal2asstol'] infers its arguments much more often than UniMath’s [weqtotal2asstol], so is much simpler to use in proofs.
+TODO: if this is upstreamed, see if proofs using [weqtotal2asstol] can be simplified by switching to this.  *)
 Lemma weqtotal2asstol' {X : UU} (P : X → UU) (Q : forall x, P x → UU)
   : (∑ (x : X) (p : P x), Q x p) ≃ (∑ (y : ∑ x, P x), Q (pr1 y) (pr2 y)).
 Proof.
   exact (weqtotal2asstol P (fun y => Q (pr1 y) (pr2 y))). 
 Defined.
 
+(* [weqtotal2asstor'] infers its arguments much more often than UniMath’s [weqtotal2asstor], so is much simpler to use in proofs.
+TODO: if this is upstreamed, see if proofs using [weqtotal2asstol] can be simplified by switching to this.  *)
 Lemma weqtotal2asstor' {X : UU} (P : X → UU) (Q : forall x, P x → UU)
   : (∑ (y : ∑ x, P x), Q (pr1 y) (pr2 y)) ≃ (∑ (x : X) (p : P x), Q x p).
 Proof.

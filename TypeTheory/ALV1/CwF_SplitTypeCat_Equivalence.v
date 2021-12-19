@@ -305,25 +305,8 @@ Definition T2 : UU :=
 
 Definition shuffle : T1 ≃ T2.
 Proof.
-  eapply weqcomp.
-  unfold T1.
-  unfold compatible_qq_morphism_structure.
-  set (XR := @weqtotal2asstol).
-  specialize (XR (term_fun_structure C X)).
-  specialize (XR (fun _ => qq_morphism_structure X)).
-  simpl in XR.
-  specialize (XR (fun YZ => iscompatible_term_qq (pr1 YZ) (pr2 YZ))).
-  apply XR.
-  eapply weqcomp.
-  2: {
-    unfold T2, compatible_term_structure.
-    set (XR := @weqtotal2asstor).
-    specialize (XR (qq_morphism_structure X)).
-    specialize (XR (fun _ => term_fun_structure C X)).
-    simpl in XR.
-    specialize (XR (fun YZ => iscompatible_term_qq (pr2 YZ) (pr1 YZ))).
-    apply XR.
-  }
+  eapply weqcomp. { apply weqtotal2asstol'. }
+  eapply weqcomp. 2: { apply weqtotal2asstor'. }
   use weqbandf.
   - apply weqdirprodcomm.
   - intros. simpl.
