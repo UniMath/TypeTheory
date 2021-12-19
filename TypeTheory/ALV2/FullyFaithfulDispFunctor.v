@@ -665,7 +665,7 @@ Section FullyFaithfulDispFunctor.
         use weqfibtototal.
         intros p.
         cbn.
-        rewrite transportf_const.
+        rewrite transportf_const'.
         exact (idweq _).
     Defined.
 

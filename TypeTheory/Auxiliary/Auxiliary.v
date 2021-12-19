@@ -105,8 +105,8 @@ Proof.
   apply pr1_transportf.
 Defined.
 
-(* TODO: try eliminating in favour of UniMath’s (slightly different) lemma with same name? *)
-Lemma transportf_const (A B : UU) (a a' : A) (e : a = a') (b : B)
+(* Note: this is easier to use than UniMath’s [transportf_const]  *)
+Lemma transportf_const' (A B : UU) (a a' : A) (e : a = a') (b : B)
   : transportf (fun _ => B) e b = b.
 Proof.
   induction e.

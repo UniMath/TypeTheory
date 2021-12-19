@@ -178,19 +178,19 @@ Section TypeCat_Disp.
       { intro. apply homset_property. }
       etrans. apply id_left.
       etrans. 2: { use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
-      apply pathsinv0, transportf_const.
+      apply pathsinv0, transportf_const'.
     - (* id_right_disp *) 
       apply subtypePath.
       { intro. apply homset_property. }
       etrans. apply id_right.
       etrans. 2: { use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
-      apply pathsinv0, transportf_const.
+      apply pathsinv0, transportf_const'.
     - (* assoc_disp *) 
       apply subtypePath.
       { intro. apply homset_property. }
       etrans. apply assoc.
       etrans. 2: { use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
-      apply pathsinv0, transportf_const.
+      apply pathsinv0, transportf_const'.
     - (* homsets_disp *)
       apply (isofhleveltotal2 2).
       + apply homset_property.
@@ -231,12 +231,12 @@ Section TypeCat_Disp.
         2: apply homset_property.
         etrans. apply inv_i_i.
         etrans. 2: { use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
-        apply pathsinv0, transportf_const.
+        apply pathsinv0, transportf_const'.
       - use total2_paths_f.
         2: apply homset_property.
         etrans. apply i_inv_i.
         etrans. 2: { use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
-        apply pathsinv0, transportf_const.
+        apply pathsinv0, transportf_const'.
     Defined.
 
     Definition idtoiso_fiber_disp_to_typecat_is_triangle
@@ -260,11 +260,11 @@ Section TypeCat_Disp.
         + etrans. apply i_inv_i.
           etrans.
           { apply pathsinv0. use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
-          apply transportf_const.
+          apply transportf_const'.
         + etrans. apply inv_i_i.
           etrans.
           { apply pathsinv0. use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
-          apply transportf_const.
+          apply transportf_const'.
       - etrans. apply iB_A. apply id_right.
     Defined.
 

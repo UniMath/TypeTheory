@@ -83,21 +83,21 @@ Proof.
     etrans. apply id_left.
     apply pathsinv0.
     etrans. use (pr1_transportf (CC⟦_,_⟧)).
-    use transportf_const.
+    use transportf_const'.
   - (* id_right_disp *) 
     apply subtypePath.
     { intro. apply homset_property. }
     etrans. apply id_right.
     apply pathsinv0.
     etrans. use (pr1_transportf (CC⟦_,_⟧)).
-    use transportf_const.
+    use transportf_const'.
   - (* assoc_disp *) 
     apply subtypePath.
     { intro. apply homset_property. }
     etrans. apply assoc.
     apply pathsinv0.
     etrans. use (pr1_transportf (CC⟦_,_⟧)).
-    use transportf_const.
+    use transportf_const'.
   - (* homsets_disp *)
     apply (isofhleveltotal2 2).
     + apply homset_property.
