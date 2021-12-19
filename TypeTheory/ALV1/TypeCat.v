@@ -47,10 +47,11 @@ Reserved Notation "'π' A" (at level 5).
 
 Record type_precat_record : Type := {
   C : precategory ;
-  ty : C -> Type                                        where "C ⟨ Γ ⟩" := (ty Γ);
-  ext : ∏ Γ, C⟨Γ⟩ -> C                                  where "Γ ◂ A" := (ext Γ A);
-  dpr : ∏ Γ (A : C⟨Γ⟩), Γ ◂ A --> Γ                       where "'π' A" := (dpr _ A);
-  reind : ∏ Γ (A : C⟨Γ⟩) Γ' (f : Γ' --> Γ), C⟨Γ'⟩         where "A {{ f }}" := (reind _ A _ f)  ;
+  ty : C -> Type                       where "C ⟨ Γ ⟩" := (ty Γ);
+  ext : ∏ Γ, C⟨Γ⟩ -> C                  where "Γ ◂ A" := (ext Γ A);
+  dpr : ∏ Γ (A : C⟨Γ⟩), Γ ◂ A --> Γ     where "'π' A" := (dpr _ A);
+  reind : ∏ Γ (A : C⟨Γ⟩) Γ' (f : Γ' --> Γ), C⟨Γ'⟩ 
+                                       where "A {{ f }}" := (reind _ A _ f);
   q : ∏ {Γ} (A : ty Γ) {Γ'} (f : Γ' --> Γ),
           (Γ' ◂ (A {{f }}) --> Γ ◂ A) ;
   dpr_q : ∏ Γ (A : C⟨Γ⟩) Γ' (f : Γ' --> Γ), 
@@ -137,29 +138,34 @@ Definition typecat1_from_typecat (CC : precategory)(C : typecat_structure CC)
   : typecat_structure1 _  := pr1 C.
 Coercion typecat1_from_typecat : typecat_structure >-> typecat_structure1.
 
-Definition dpr_typecat {CC : precategory}{C : typecat_structure CC} {Γ} (A : C Γ)
+Definition dpr_typecat {CC : precategory}
+    {C : typecat_structure CC} {Γ} (A : C Γ)
   : (Γ◂A) --> Γ
 := pr1 (pr2 C) Γ A.
 
-Definition q_typecat {CC : precategory} {C : typecat_structure CC} {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ)
+Definition q_typecat {CC : precategory}
+    {C : typecat_structure CC} {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ)
   : (Γ' ◂ A{{f}}) --> (Γ ◂ A) 
 :=
   pr1 (pr2 (pr2 C)) _ A _ f.
 
-Definition dpr_q_typecat {CC : precategory} {C : typecat_structure CC} {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ)
+Definition dpr_q_typecat {CC : precategory}
+    {C : typecat_structure CC} {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ)
   : (q_typecat A f) ;; (dpr_typecat A) = (dpr_typecat (A{{f}})) ;; f
 :=
   pr1 (pr2 (pr2 (pr2 C))) _ A _ f.
 
-Definition reind_pb_typecat {CC : precategory} {C : typecat_structure CC} {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ)
+Definition reind_pb_typecat {CC : precategory}
+    {C : typecat_structure CC} {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ)
   : isPullback (!dpr_q_typecat A f)
 :=
   pr2 (pr2 (pr2 (pr2 C))) _ A _ f.
 
 (** * Type-saturation *)
 
-Definition is_type_saturated_typecat {CC : precategory} (C : typecat_structure CC) : UU
-  := ∏ Γ, isincl (λ A : C Γ, tpair (λ X, X --> Γ) (Γ ◂ A) (dpr_typecat A)).
+Definition is_type_saturated_typecat {CC : precategory}
+    (C : typecat_structure CC) : UU
+:= ∏ Γ, isincl (λ A : C Γ, tpair (λ X, X --> Γ) (Γ ◂ A) (dpr_typecat A)).
 
 
 (** * Splitness *)
@@ -203,11 +209,11 @@ Coercion split_typecat_is_split (C : split_typecat) := pr2 C.
 Definition split_typecat_structure (CC : category) : UU
   := ∑ C : typecat_structure CC, is_split_typecat C.
 
-Coercion typecat_from_split (CC : category) (C : split_typecat_structure CC)
+Coercion typecat_from_split CC (C : split_typecat_structure CC)
   : typecat_structure _
   := pr1 C.
 
-Coercion is_split_from_split_typecat (CC : category) (C : split_typecat_structure CC)
+Coercion is_split_from_split_typecat CC (C : split_typecat_structure CC)
   : is_split_typecat C
   := pr2 C.
 
@@ -218,10 +224,10 @@ Definition reind_comp_typecat {C : split_typecat}
 
 Definition q_q_typecat {C : split_typecat}
   : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
-            q_typecat A (g ;; f)
-            =  idtoiso (maponpaths (fun b => Γ''◂b) (reind_comp_typecat _ A _ f _ g))
-               ;; q_typecat (A{{f}}) g
-               ;; q_typecat A f
+      q_typecat A (g ;; f)
+      = idtoiso (maponpaths (fun b => Γ''◂b) (reind_comp_typecat _ A _ f _ g))
+        ;; q_typecat (A{{f}}) g
+        ;; q_typecat A f
   := pr2 (pr2 (pr2 (pr2 C))).
 
 Section access_functions.
@@ -233,19 +239,20 @@ Definition isaset_types_typecat : ∏ Γ : C, isaset (C Γ) := pr1 (pr2 C).
 Definition reind_id_type_typecat :  ∏ Γ (A : C Γ), A {{identity Γ}} = A
   := pr1 (pr1 (pr2 (pr2 C))).
 
-Definition reind_id_term_typecat : 
-  ∏ Γ (A : C Γ), q_typecat A (identity Γ)
-                        = idtoiso (maponpaths (fun b => Γ◂b) (reind_id_type_typecat Γ A)) :=
- pr2 (pr1 (pr2 (pr2 C))).
+Definition reind_id_term_typecat
+  : ∏ Γ (A : C Γ), q_typecat A (identity Γ)
+                   = idtoiso (maponpaths _ (reind_id_type_typecat Γ A))
+  := pr2 (pr1 (pr2 (pr2 C))).
 
-Definition reind_comp_type_typecat : 
-  ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'), A {{g;;f}} = A{{f}}{{g}} 
- := pr1 (pr2 (pr2 (pr2 C))).
+Definition reind_comp_type_typecat 
+  : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
+    A {{g;;f}} = A{{f}}{{g}}
+  := pr1 (pr2 (pr2 (pr2 C))).
 
-Definition reind_comp_term_typecat : 
-   ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
-            q_typecat A (g ;; f)
-            =  idtoiso (maponpaths (fun b => Γ''◂b) (reind_comp_type_typecat _ A _ f _ g))
+Definition reind_comp_term_typecat 
+  : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
+    q_typecat A (g ;; f)
+    =  idtoiso (maponpaths _ (reind_comp_type_typecat _ A _ f _ g))
                ;; q_typecat (A{{f}}) g
                ;; q_typecat A f
  := pr2 (pr2 (pr2 (pr2 C))).
@@ -286,16 +293,18 @@ Proof.
 Defined.
 
 
-Lemma transportf_reind_typecat (Γ Γ' : C) (A A' : C Γ') (e : A = A') t :
-  transportf (λ B, Γ --> Γ' ◂ B) e t = transportf (λ Δ, Γ --> Δ) (maponpaths _ e) t.
+Lemma transportf_reind_typecat (Γ Γ' : C) (A A' : C Γ') (e : A = A') t
+  : transportf (λ B, Γ --> Γ' ◂ B) e t
+    = transportf (λ Δ, Γ --> Δ) (maponpaths _ e) t.
 Proof.
   induction e.
   apply idpath.
 Defined.
 
-Lemma transportf_reind_typecat' (Γ Γ' : C) (A : C Γ) (i i' : Γ' --> Γ) (e : i = i')  t :
-   transportf (λ i0 : Γ' --> Γ, Γ' --> Γ' ◂ reind_typecat A i0) e t =
-   transportf (λ B : C Γ', Γ' --> Γ' ◂ B) (maponpaths _  e) t.
+Lemma transportf_reind_typecat'
+    (Γ Γ' : C) (A : C Γ) (i i' : Γ' --> Γ) (e : i = i')  t
+  : transportf (λ i0 : Γ' --> Γ, Γ' --> Γ' ◂ reind_typecat A i0) e t
+    = transportf (λ B : C Γ', Γ' --> Γ' ◂ B) (maponpaths _  e) t.
 Proof.
   induction e.
   apply idpath.

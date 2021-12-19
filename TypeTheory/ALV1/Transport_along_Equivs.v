@@ -177,7 +177,8 @@ Defined.
 
 (** * Transfer of a relative universe *)
 
-Definition Transfer_of_RelUnivYoneda (Dcat : is_univalent D) (X : @relative_universe C _ Yo)
+Definition Transfer_of_RelUnivYoneda
+    (Dcat : is_univalent D) (X : @relative_universe C _ Yo)
   : relative_universe
       ((yoneda D : functor D (preShv D))
        :
