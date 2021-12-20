@@ -233,17 +233,14 @@ Proof.
 use tpair; easy.
 Defined.
 
-(* The following cannot be completed because SET is not an h-set
+(* The following cannot be completed because SET is not an h-set *)
 Definition SET_CwF : cwf_struct SET.
 Proof.
 exists SET_tt_reindx_type_struct. split.
 - exists SET_reindx_laws. split.
   + intros Γ A Γ' γ a. use tpair; reflexivity.
   + use tpair; easy.
-- split.
-  * intros a b. apply isaset_set_fun_space.
-  * use tpair.
-    + cbn. intro Γ. admit. (* Oops *)
-    + intros Γ A. apply isaset_forall_hSet.
-Admitted.
-*)
+- use tpair.
+  + cbn. intro Γ. admit. (* does not hold! *)
+  + intros Γ A. apply isaset_forall_hSet.
+Abort.
