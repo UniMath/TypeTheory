@@ -663,7 +663,7 @@ use tpair.
     exact (subst_term_comp σ2 σ1 a).
 Defined.
 
-(* as with SET, presheaves do not form a CwF, for h-level reasons. *)
+(* as with SET, presheaves satisfy most of the CwF laws, but not the h-level conditions. *)
 Definition PreShv_CwF : cwf_struct (PreShv C).
 Proof.
   exists PreShv_tt_reindx_type_struct.
@@ -689,5 +689,36 @@ Proof.
       * intros a; repeat (apply impred_isaset; intro).
         apply isasetaprop, setproperty.
 Abort.
+
+Definition PreShv_CwF_laws_only_if_empty
+  : cwf_laws PreShv_tt_reindx_type_struct -> C -> empty.
+Proof.
+  intros H c; revert H.
+  apply or_neg_to_neg_and. apply inr.
+  apply or_neg_to_neg_and. apply inl.
+  apply total2_neg_to_neg_forall. exists (constant_PreShv unitset).
+  apply total2_neg_to_neg_forall. exists (constant_PreShv boolset).
+  apply total2_neg_to_neg_forall. exists (constant_PreShv boolset).
+  eapply negf. { 
+    eapply (isofhlevelweqf 1). 
+    exists idtoiso.
+    apply is_univalent_functor_category, is_univalent_HSET.
+  }
+  eapply negf. { apply proofirrelevance. }
+  apply total2_neg_to_neg_forall. use tpair.
+  { use tpair. { use constant_nat_trans. exact (idfun _). } admit. }
+  (* TODO: add lemma [constant_nat_iso] or similar *)
+  apply total2_neg_to_neg_forall. use tpair.
+  { use tpair. { use constant_nat_trans. exact negb. } admit. }
+  simpl. eapply negf. { apply (maponpaths pr1). }
+  simpl. eapply negf.
+  { refine (maponpaths _).
+    refine (fun (α : nat_trans _ _) => α _). 
+    exists c. apply tt. }
+  simpl. eapply negf. { apply (maponpaths (fun f => f true)). }
+  simpl. exact nopathstruetofalse.
+Admitted.
+
+
 
 End CwF.
