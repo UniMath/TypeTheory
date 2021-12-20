@@ -375,7 +375,26 @@ Proof.
     + apply P_contr.
 Defined.
 
-(* ** Surjectivity *)
+(* eventually upstream to UniMath.Foundations.Propositions, or somewhere in MoreFoundations? (compare [fromnegcoprod] etc) *)
+Definition or_neg_to_neg_and {X Y : UU} : (¬ X ⨿ ¬ Y) → ¬ (X × Y).
+Proof.
+  intros [nx | ny] [x y]; auto.
+Defined.
+
+(* Note: weaker than [hexistsnegtonegforall], but slightly simpler, and often what’s more directly wanted in practice *)
+Definition total2_neg_to_neg_forall {X : UU} {A : X -> UU}
+  : (∑ x:X, ¬ A x) → ¬ (∏ x:X, A x).
+Proof.
+  intros [x nax] nforall; auto.
+Defined.
+
+(** Note: this is a trivial specialisation of [isofhlevelweqf], but useful since that often doesn’t unify when goal is [isaset]. *)
+Definition isaset_weqf {X Y : UU} (e : X ≃ Y) : isaset X -> isaset Y.
+Proof.
+  eapply (isofhlevelweqf 2); eassumption.
+Defined.
+
+(** ** Surjectivity *)
 
 Lemma issurjective_hinhpr (A : UU) : issurjective (@hinhpr A).
 Proof.
@@ -484,6 +503,11 @@ Proof.
   - intros a. apply eqweqmap, maponpaths, (pr2 iscontr_A).
   - apply invweq, WeakEquivalences.dirprod_with_contr_l, iscontr_A.
 Defined.
+
+(** TODO: seek further in library! *)
+Definition hSet_not_set : ¬ isaset hSet.
+  (* sketch proof: show that [bool ≃ bool] is not a prop *)
+Admitted.
 
 
 (** * Category theory *)
