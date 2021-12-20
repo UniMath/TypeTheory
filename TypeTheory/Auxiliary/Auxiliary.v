@@ -504,11 +504,17 @@ Proof.
   - apply invweq, WeakEquivalences.dirprod_with_contr_l, iscontr_A.
 Defined.
 
-(** TODO: seek further in library! *)
+(** TODO: seek further in UniMath in case this already exists *)
 Definition hSet_not_set : ¬ isaset hSet.
-  (* sketch proof: show that [bool ≃ bool] is not a prop *)
-Admitted.
-
+  apply total2_neg_to_neg_forall. exists boolset.
+  apply total2_neg_to_neg_forall. exists boolset.
+  eapply negf. { eapply (isofhlevelweqf 1). apply hSet_univalence. }
+  eapply negf. { apply proofirrelevance. }
+  apply total2_neg_to_neg_forall. exists (idweq _).
+  apply total2_neg_to_neg_forall. exists negb_weq.
+  eapply negf. { apply (maponpaths (fun (f : _ ≃ _) => f true)). }
+  simpl. exact nopathstruetofalse.
+Qed.
 
 (** * Category theory *)
 
