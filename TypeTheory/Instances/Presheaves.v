@@ -99,10 +99,9 @@ Written by: Anders Mörtberg, 2017
 
  *)
 
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.MoreFoundations.PartA.
-Require Import UniMath.MoreFoundations.Notations.
-Require Import UniMath.MoreFoundations.Univalence.
+
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -690,26 +689,65 @@ Proof.
         apply isasetaprop, setproperty.
 Abort.
 
+(* TODO: upstream this group *)
+Definition constant_functor_functor_data {C1 C2 : category}
+  : functor_data C2 [C1,C2].
+Proof.
+  use tpair.
+  - apply constant_functor.
+  - simpl. apply constant_nat_trans.
+Defined.
+
+Definition constant_functor_functor_is_functor (C1 C2 : category)
+  : is_functor (@constant_functor_functor_data C1 C2).
+Proof.
+  split.
+  - intro. apply nat_trans_eq. { apply homset_property. }
+    intro; apply idpath.
+  - intros ? ? ? ? ?. apply nat_trans_eq. { apply homset_property. }
+    intro; apply idpath.
+Qed.
+
+Definition constant_functor_functor {C1 C2 : category}
+  : [C2,[C1,C2]]
+:= make_functor _ (constant_functor_functor_is_functor C1 C2).
+
+(* TODO: upstream *)
+Lemma constant_nat_trans_is_iso
+    {C1 C2 : category} {x y : C2} (f : x --> y )
+  : is_iso f -> @is_iso [C1,C2] _ _ (constant_nat_trans C1 f).
+Proof.
+  intro f_iso. use functor_iso_if_pointwise_iso.
+  intro; apply f_iso.
+Defined.
+
+Lemma constant_nat_iso
+    {C1 C2 : category} {x y : C2} (f : iso x y )
+  : @iso [C1,C2] (constant_functor C1 _ x) (constant_functor C1 _ y).
+Proof.
+  exists (constant_nat_trans _ f).
+  apply constant_nat_trans_is_iso, iso_is_iso.
+Defined.
+
 Definition PreShv_CwF_laws_only_if_empty
   : cwf_laws PreShv_tt_reindx_type_struct -> C -> empty.
 Proof.
   intros H c; revert H.
   apply or_neg_to_neg_and. apply inr.
   apply or_neg_to_neg_and. apply inl.
-  apply total2_neg_to_neg_forall. exists (constant_PreShv unitset).
-  apply total2_neg_to_neg_forall. exists (constant_PreShv boolset).
-  apply total2_neg_to_neg_forall. exists (constant_PreShv boolset).
+  apply total2_neg_to_neg_forall. exists (constant_functor _ SET unitset).
+  apply total2_neg_to_neg_forall. exists (constant_functor _ SET boolset).
+  apply total2_neg_to_neg_forall. exists (constant_functor _ SET boolset).
   eapply negf. { 
     eapply (isofhlevelweqf 1). 
     exists idtoiso.
     apply is_univalent_functor_category, is_univalent_HSET.
   }
   eapply negf. { apply proofirrelevance. }
+  apply total2_neg_to_neg_forall. exists (identity_iso _).
   apply total2_neg_to_neg_forall. use tpair.
-  { use tpair. { use constant_nat_trans. exact (idfun _). } admit. }
-  (* TODO: add lemma [constant_nat_iso] or similar *)
-  apply total2_neg_to_neg_forall. use tpair.
-  { use tpair. { use constant_nat_trans. exact negb. } admit. }
+  { use constant_nat_iso. exists negb.
+    refine (MonoEpiIso.hset_equiv_is_iso boolset boolset negb_weq). } 
   simpl. eapply negf. { apply (maponpaths pr1). }
   simpl. eapply negf.
   { refine (maponpaths _).
@@ -717,8 +755,6 @@ Proof.
     exists c. apply tt. }
   simpl. eapply negf. { apply (maponpaths (fun f => f true)). }
   simpl. exact nopathstruetofalse.
-Admitted.
-
-
+Qed.
 
 End CwF.
