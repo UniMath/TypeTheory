@@ -95,8 +95,8 @@ And the last square is a pullback square ([SET_isPullback_q_gen_mor]).
 This file was created at the UniMath workshop, Birmingham, 2019.
 *)
 
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.MoreFoundations.Notations.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
@@ -236,11 +236,47 @@ Defined.
 (* The following cannot be completed because SET is not an h-set *)
 Definition SET_CwF : cwf_struct SET.
 Proof.
-exists SET_tt_reindx_type_struct. split.
-- exists SET_reindx_laws. split.
-  + intros Γ A Γ' γ a. use tpair; reflexivity.
-  + use tpair; easy.
-- use tpair.
-  + cbn. intro Γ. admit. (* does not hold! *)
-  + intros Γ A. apply isaset_forall_hSet.
+  exists SET_tt_reindx_type_struct. split.
+  - exists SET_reindx_laws. split.
+    + intros Γ A Γ' γ a. use tpair; reflexivity.
+    + use tpair; easy.
+  - use tpair.
+    + cbn. intro Γ. admit. (* does not hold! *)
+    + intros Γ A. apply isaset_forall_hSet.
 Abort.
+
+(* TODO: upstream; eventually to UniMath.Foundations.Propositions, or somewhere in MoreFoundations? (compare [fromnegcoprod] etc) *)
+Definition or_neg_to_neg_and {X Y : UU} : (¬ X ⨿ ¬ Y) → ¬ (X × Y).
+Proof.
+  intros [nx | ny] [x y]; auto.
+Defined.
+
+(* TODO: upstream! Note: weaker than [hexistsnegtonegforall], but slightly simpler, and often what’s more directly wanted in practice *)
+Definition total2_neg_to_neg_forall {X : UU} {A : X -> UU}
+  : (∑ x:X, ¬ A x) → ¬ (∏ x:X, A x).
+Proof.
+  intros [x nax] nforall; auto.
+Defined.
+
+(** TODO: upstream!
+Note: this is a trivial specialisation of [isofhlevelweqf], but useful since that often doesn’t unify when goal is [isaset]. *)
+Definition isaset_weqf {X Y : UU} (e : X ≃ Y) : isaset X -> isaset Y.
+Proof.
+  eapply (isofhlevelweqf 2); eassumption.
+Defined.
+
+(** TODO: upstream; seek further in library! *)
+Definition hSet_not_set : ¬ isaset hSet.
+  (* sketch proof: show that [bool ≃ bool] is not a prop *)
+Admitted.
+
+(* Indeed, we can show it is _not_ an instance: *)
+Definition SET_CwF_laws_fail : ¬ cwf_laws SET_tt_reindx_type_struct.
+Proof.
+  apply or_neg_to_neg_and. apply inr.
+  apply or_neg_to_neg_and. apply inl.
+  apply total2_neg_to_neg_forall. simpl.
+  exists unitset.
+  eapply negf. { eapply isaset_weqf. apply weqfunfromunit. }
+  apply hSet_not_set.
+Defined.
