@@ -130,80 +130,71 @@ Section fix_a_precategory.
 
     Variable CC : CwF_1.cwf_struct C.
 
+    
+    Definition CwF_data_from_CwF_1 : CwF_Pitts.tt_reindx_type_struct C.
+    Proof.
+      use tpair; [use tpair; [use tpair; [use tpair|]|]|].
+      - intro Γ.
+        apply (CwF_1.type CC Γ).
+      - simpl.
+        intros Γ A.
+        apply (CwF_1.term CC Γ A).
+      - simpl.
+        use tpair.
+        + simpl.
+          intros Γ Γ' A γ.
+          apply (rtype A γ).
+        + simpl.
+          intros Γ Γ' A a γ.
+          apply (rterm a γ).
+      - intros Γ A.
+        exists (comp_obj Γ A).
+        exact (proj_mor A).
+      - intros Γ A; simpl in Γ, A |- *. split.
+        * apply gen_elem.
+        * intros Γ' γ a.
+          exact (pairing γ a).
+    Defined.
+
+    Definition CwF_laws_from_CwF_1 : CwF_Pitts.cwf_laws CwF_data_from_CwF_1.
+    Proof.
+      split; simpl.
+      2: { split.
+           - intro. apply setproperty.
+           - intros Γ A. apply CwF_1.cwf_terms_isaset.
+      }
+      use tpair; [use tpair|].
+      - unfold reindx_laws_type.
+        split; simpl.
+        + intros Γ A.
+          apply CwF_1.reindx_type_id.
+        + intros.
+          apply CwF_1.reindx_type_comp.
+      - split.
+        + simpl.
+          intros Γ A a.
+          apply CwF_1.reindx_term_id, CC.
+        + simpl.
+          intros.
+          apply CwF_1.reindx_term_comp, CC.
+      - simpl. split; [|split].
+        + intros ? ? ? ? ? .
+          simpl in * |-.
+          use tpair.
+          * apply CwF_1.cwf_law_1.
+          * apply CwF_1.cwf_law_2.
+        + intros ? ? ? ? ? ? ? .
+          simpl in *|-.
+          apply CwF_1.cwf_law_3.
+        + intros ? ? .
+          simpl in A.
+          apply CwF_1.cwf_law_4.
+    Qed.
+    
     Definition CwF_from_CwF_1 : CwF_Pitts.cwf_struct C.
     Proof.
-      use tpair.
-      - use tpair.
-        + use tpair.
-          * {
-              use tpair.
-              - use tpair.
-                + intro Γ.
-                  apply (CwF_1.type CC Γ).
-                + simpl.
-                  intros Γ A.
-                  apply (CwF_1.term CC Γ A).
-              - simpl.
-                use tpair.
-                + simpl.
-                  intros Γ Γ' A γ.
-                  apply (rtype A γ).
-                + simpl.
-                  intros Γ Γ' A a γ.
-                  apply (rterm a γ).
-            }
-          * intros Γ A.
-            exists (comp_obj Γ A).
-            exact (proj_mor A).
-        + intros Γ A.
-          split; simpl.
-          * simpl in A.
-            apply (gen_elem).
-          * simpl in A.
-            intros Γ' γ a.
-            apply (pairing γ a).
-      - simpl.
-        repeat split; simpl.
-        + use tpair.
-          * {
-              use tpair.
-              - unfold reindx_laws_type.
-                split; simpl.
-                + intros Γ A.
-                  apply (CwF_1.reindx_type_id).
-                + intros.
-                  apply (CwF_1.reindx_type_comp).
-              - split.
-                + simpl.
-                  intros Γ A a.
-                  apply (CwF_1.reindx_term_id).
-                  apply                 
-                           (CwF_1.reindx_laws_from_cwf_struct _ CC).
-                + simpl.
-                  intros.
-                  apply (CwF_1.reindx_term_comp).
-                  apply                 
-                           (CwF_1.reindx_laws_from_cwf_struct _ CC).
-            }
-          * { split.
-              - intros ? ? ? ? ? .
-                simpl in * |-.
-                use tpair.
-                + apply (CwF_1.cwf_law_1).
-                + assert (T:=CwF_1.cwf_law_2 CC).
-                  apply T.
-              - split.
-                + intros ? ? ? ? ? ? ? .
-                  simpl in *|-.
-                  assert (T:= CwF_1.cwf_law_3 CC).
-                  apply T.
-                + intros ? ? .
-                  simpl in A.
-                  apply (CwF_1.cwf_law_4 CC).
-            }
-        + intro Γ. apply setproperty.
-        + intros Γ A.
-          apply (CwF_1.cwf_terms_isaset CC).
+      exists CwF_data_from_CwF_1.
+      apply CwF_laws_from_CwF_1.
     Defined.
 
   End CwF_from_CwF_1.
