@@ -234,7 +234,7 @@ Section Terms.
       etrans; [eapply maponpaths, idtoiso_dpr_typecat|].
       exact (pr2 a).
     - unfold comp_ext_compare; cbn.
-      now rewrite reind_id_term_typecat, id_left,
+      now rewrite q_id_typecat, id_left,
                   <-assoc, idtoiso_concat_pr, <- maponpathscomp0,
                   pathsinv0l, id_right.
   Qed.
@@ -261,7 +261,7 @@ Section Terms.
       etrans; [eapply maponpaths, idtoiso_dpr_typecat|].
       apply (PullbackArrow_PullbackPr1 pb').
     - unfold comp_ext_compare; cbn.
-      rewrite <- assoc, (reind_comp_term_typecat A).
+      rewrite <- assoc, (q_comp_typecat A).
       etrans; [eapply maponpaths|].
       rewrite !assoc, idtoiso_concat_pr, <- maponpathscomp0, pathsinv0l, <-assoc.
       apply id_left.
@@ -296,20 +296,6 @@ Section Terms.
     + apply Pb_map_commutes_1.
   Defined.
 
-  (* TODO: upstream; consider whether this should be primitive instead of [q_q_typecat]. *)
-  Definition q_q_typecat' {C : split_typecat}
-    : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
-      q_typecat (A{{f}}) g ;; q_typecat A f
-      = idtoiso (maponpaths _ (!reind_comp_typecat A f g))
-        ;; q_typecat A (g ;; f).
-  Proof.
-    intros. apply iso_inv_to_left, pathsinv0. 
-    etrans. { apply q_q_typecat. }
-    repeat rewrite <- assoc; apply maponpaths_2.
-    etrans. 2: { apply comp_ext_compare_inv. }
-    apply comp_ext_compare_irrelevant.
-  Qed.
-
   (** naturality of [var_typecat] in the context *)
   Definition reind_var_typecat {C : split_typecat}
       {Γ Γ'} (f : Γ' --> Γ) (A : C Γ)
@@ -338,11 +324,11 @@ Section Terms.
       unfold tm_transportf; simpl.
       repeat rewrite <- assoc.
       etrans.
-      { do 3 apply maponpaths; rewrite assoc. apply pathsinv0, q_q_typecat. }
+      { do 3 apply maponpaths; rewrite assoc. apply pathsinv0, q_comp_typecat. }
       etrans.
       { rewrite <- maponpathsinv0.
         apply maponpaths, maponpaths, comp_ext_compare_q_typecat. }
-      etrans. { apply maponpaths, pathsinv0, q_q_typecat'. }
+      etrans. { apply maponpaths, pathsinv0, q_q_typecat. }
       rewrite assoc.
       etrans. { apply maponpaths_2, Pb_map_commutes_2. }
       apply id_left.
@@ -381,8 +367,8 @@ Section Terms.
       unfold e, comp_ext_compare.
       rewrite !maponpathscomp0, <-!idtoiso_concat_pr, <-!assoc.
       etrans; [ do 2 eapply maponpaths; rewrite assoc;
-                    apply (!q_q_typecat A (dpr_typecat A) a)|].
-      now rewrite af, id_left, reind_id_term_typecat,
+                    apply (!q_comp_typecat A (dpr_typecat A) a)|].
+      now rewrite af, id_left, q_id_typecat,
                   idtoiso_concat_pr, <-maponpathscomp0, pathsinv0l.
   Qed.
 

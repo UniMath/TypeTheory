@@ -321,7 +321,7 @@ Section Derived_Actions.
           etrans. { apply pathsinv0, assoc. }
           etrans. { apply maponpaths, pathsinv0, assoc. }
           etrans. { apply maponpaths, maponpaths, comp_ext_compare_q_typecat. }
-          etrans. { apply maponpaths, pathsinv0, q_q_typecat'. }
+          etrans. { apply maponpaths, pathsinv0, q_q_typecat. }
           etrans. { apply assoc. }
           apply maponpaths_2, q_typecat_typeeq.
         }

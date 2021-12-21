@@ -114,7 +114,7 @@ Proof.
   etrans. { apply pathsinv0, assoc. }
   etrans. 2: { apply id_right. }
         apply maponpaths.
-  etrans. { apply maponpaths, (@reind_id_term_typecat C_sptc). }
+  etrans. { apply maponpaths, (@q_id_typecat C_sptc). }
   etrans. { apply idtoiso_concat_pr. }
   apply idtoiso_eq_idpath.
   etrans. { apply pathsinv0, maponpathscomp0. }
@@ -143,7 +143,7 @@ Proof.
   rewrite transportf_total2. cbn. apply pathsinv0.
   etrans. { apply maponpaths_2, (functtransportf (fun A => _ ◂ A)). }
   etrans. { apply maponpaths_2, pathsinv0, idtoiso_postcompose. }
-  etrans. { apply maponpaths, (@reind_comp_term_typecat C_sptc). }
+  etrans. { apply maponpaths, (@q_comp_typecat C_sptc). }
   etrans. { apply pathsinv0, assoc. }
   etrans. { apply maponpaths.
     etrans. { apply maponpaths, pathsinv0, assoc. }
@@ -261,7 +261,7 @@ Proof.
     etrans. { apply maponpaths, pathsinv0. 
       eapply iso_inv_on_right.
       etrans. 2: { apply assoc'. }
-      apply (@q_q_typecat C_sptc). }
+      apply (@q_comp_typecat C_sptc). }
     etrans. { apply maponpaths, maponpaths_2, pathsinv0.
       refine (maponpaths pr1 (idtoiso_inv _ _ _ _)). }
     etrans. { apply maponpaths, maponpaths.
@@ -286,7 +286,6 @@ Proof.
     (* TODO: make lemma analogous to [idtoiso_eq_idpath] for such situations *)
     refine (@maponpaths _ _ (maponpaths _) _ (idpath _) _).
     apply isaset_types_typecat.
-    (* TODO: fix duplicate [reind_comp_term_typecat], [q_q_typecat]. *)
 Time Qed.
 
 Lemma comp_law_3_of_typecat : @comp_law_3 CC tt_reindx_type_struct_of_typecat reindx_laws_of_typecat.
@@ -311,7 +310,7 @@ Proof.
   apply maponpaths_2.
   apply functtransportf.
   rewrite <- idtoiso_postcompose.
-  rewrite (@q_q_typecat ((CC,,pr1 C),,pr2 C)).
+  rewrite (@q_comp_typecat ((CC,,pr1 C),,pr2 C)).
   match goal with |[ |- _ ;; ?B' ;; ?C'  = _ ]  => set (B:=B'); set (D:=C') end.
   simpl in *.
   match goal with |[ |- @map_into_Pb _ _ _ _ _ _ ?B' ?C' ?D' ?E' ?F' ?G' ?Y' ?Z' ?W'  ;; _ ;; _  = _ ] => 

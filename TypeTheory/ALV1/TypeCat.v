@@ -10,6 +10,7 @@ Contents:
 *)
 
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
@@ -231,28 +232,34 @@ Definition reind_comp_typecat
   : A {{g;;f}} = A{{f}}{{g}}
 := pr1 (pr2 (pr2 (pr2 C))) _ _ _ _ _ _.
 
-(* TODO: rename *)
-Definition reind_id_term_typecat {Γ} (A : C Γ)
+Definition q_id_typecat {Γ} (A : C Γ)
   : q_typecat A (identity Γ)
     = idtoiso (maponpaths _ (reind_id_typecat A))
   := pr2 (pr1 (pr2 (pr2 C))) _ _.
 
-Definition q_q_typecat
+Definition q_comp_typecat
     {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ) {Γ''} (g : Γ'' --> Γ')
   : q_typecat A (g ;; f)
-    = idtoiso (maponpaths (fun b => Γ''◂b) (reind_comp_typecat A f g))
+    = idtoiso (maponpaths _ (reind_comp_typecat A f g))
         ;; q_typecat (A{{f}}) g
         ;; q_typecat A f
 := pr2 (pr2 (pr2 (pr2 C))) _ _ _ _ _ _.
 
-(* TODO: consolidate with q_q_typecat *)
-Definition reind_comp_term_typecat 
-    {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ) {Γ''} (g : Γ'' --> Γ')
-  : q_typecat A (g ;; f)
-    =  idtoiso (maponpaths _ (reind_comp_typecat A f g))
-               ;; q_typecat (A{{f}}) g
-               ;; q_typecat A f
- := pr2 (pr2 (pr2 (pr2 C))) _ _ _ _ _ _.
+(* TODO: see if some uses of [q_comp_typecat] can be simplified with this *)
+Definition q_q_typecat
+  : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ) Γ'' (g : Γ'' --> Γ'),
+    q_typecat (A{{f}}) g ;; q_typecat A f
+    = idtoiso (maponpaths _ (!reind_comp_typecat A f g))
+      ;; q_typecat A (g ;; f).
+Proof.
+  intros. apply iso_inv_to_left, pathsinv0. 
+  etrans. { apply q_comp_typecat. }
+  repeat rewrite <- assoc; apply maponpaths_2.
+  generalize (reind_comp_typecat A f g).
+  generalize (A {{g;;f}}).
+  intros t p; destruct p.
+  reflexivity.
+Qed.
 
 End access_functions.
 

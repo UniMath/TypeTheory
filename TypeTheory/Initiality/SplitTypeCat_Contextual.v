@@ -178,7 +178,7 @@ Section Extensions.
     (* TODO: should direction of [idtoiso_concat_pr] be reversed, to fit conventions?
     Check upstream which direction is wanted more often. *)
     apply maponpaths.
-    apply pathsinv0, reind_id_term_typecat.
+    apply pathsinv0, q_id_typecat.
   Defined.
 
   Definition ext_concat_extension_aux {C : split_typecat} {Γ:C}
