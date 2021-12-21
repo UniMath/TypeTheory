@@ -102,30 +102,23 @@ Proof.
     intros Γ A. 
     unfold q_typecat; simpl. unfold q_cwf.
     eapply pathscomp0. 2: { apply id_left. }
-    eapply pathscomp0.
-    2: refine (maponpaths (fun q => q ;; _) _).    
+    eapply pathscomp0. 2: apply maponpaths_2.
     eapply pathscomp0. 2: { symmetry. apply pairing_transport. }
     2: { apply cwf_law_4. }
+    eapply pathscomp0. { apply (pairing_mapeq _ _ (id_right _ )). }
+    apply maponpaths.
+    eapply pathscomp0. { apply transport_f_f. }
     eapply pathscomp0.
-    apply (pairing_mapeq _ _ (id_right _ )).
-    apply maponpaths. simpl.
-    eapply pathscomp0. apply transport_f_f.
-    unshelve refine (_ @ _).
-      exact (transportf (term C (Γ ◂ reind_typecat A (identity Γ)))
-        (maponpaths (fun B => B {{π (A {{identity Γ}})}}) (reindx_type_id C Γ A))
-        (ν (A {{identity Γ}}))).
-    apply term_typeeq_transport_lemma.
-    apply term_typeeq_transport_lemma_2.
-    reflexivity.
+    { eapply term_typeeq_transport_lemma.
+      eapply term_typeeq_transport_lemma_2.
+      reflexivity. }
     apply transportf_maponpaths.
   - (* Reindexing along composites *)
     exists (fun Γ A Γ' f Γ'' g => reindx_type_comp C f g A).
     intros Γ A Γ' f Γ'' g.
     unfold q_typecat. simpl. 
-    match goal with [|- _ = ?e ] => 
-           intermediate_path (identity _ ;; e); [| apply id_left] end.
-    rewrite assoc.
-    rewrite assoc.
+    eapply pathscomp0. 2: { apply id_left. }
+    rewrite 2 assoc.
     unfold ext_typecat. simpl.
     rewrite <- cwf_law_4.
     rewrite pairing_transport.
@@ -135,61 +128,50 @@ Proof.
               set (X := b); set (X' := e)  end.
     etrans.
     + refine (pairing_mapeq _ X' _ _ ).
-      unfold X; clear X; unfold X'; clear X'.
+      subst X X'.
       etrans. 2: { apply pathsinv0, maponpaths_2, cwf_law_3. }
       etrans. 2: { apply pathsinv0, assoc. }
-      etrans. apply assoc.
+      etrans. { apply assoc. }
       apply maponpaths_2.
       etrans. 2: { apply pathsinv0, cwf_law_1. }
       etrans. 2: { apply pathsinv0, assoc. }
       apply maponpaths_2. sym. apply cwf_law_1.
     + apply maponpaths.
       match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
-                       generalize e; generalize e' end.
+                       generalize e, e' end.
       intros p p'.
       rew_trans_@.
       apply term_typeeq_transport_lemma.
       etrans. 2:{ apply rterm_typeeq. }
       match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
-                       generalize e; generalize e' end.
-      clear p p'.
-      intros p p'.
-      clear X'.
-      rewrite  (reindx_term_comp C).
+                       generalize e, e' end.
+      clear p p' X X'; intros p p'.
+      rewrite (reindx_term_comp C).
       rewrite transport_f_f.
       match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
-                       generalize e' end.
-      clear p.
-      intro p.
+                       generalize e, e' end.
+      clear p p'; intros p p'.
       rewrite cwf_law_2'.
       unfold transportb.
-      rewrite transport_f_f.
-      rewrite transport_f_f.
+      rewrite 2 transport_f_f.
       apply term_typeeq_transport_lemma.
       match goal with |[ |- _ = transportf _ ?e _ ⟦ _ ⟧ ] => generalize e end.
       intro q.
       etrans. 2: { apply rterm_typeeq. }
-      rewrite  cwf_law_2'.
-      rewrite transport_f_f.
+      rewrite cwf_law_2'.
       unfold transportb.
-      rewrite transport_f_f.
+      rewrite 2 transport_f_f.
       match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
-                       generalize e; generalize e' end.
-      intros P P'. clear p q. clear p'.
-      
+                       generalize e, e' end.
+      clear p q p'; intros p p'.
       match goal with |[ |- _ = transportf _ _  (transportf _ ?e' _ ) ] =>
-                       set (Q:=e') end.
-    
+                       set (p'':=e') end.
       apply term_typeeq_transport_lemma.
       match goal with |[ |- transportf _ ?e _ = transportf _ ?e' _  ] =>
                        generalize e end.
-      intro p.
-      clear P P'.
-      clear X.
-      assert (X : p = maponpaths (fun x => x {{π (A {{g ;; f}})}}) Q).
-      { apply cwf_types_isaset. }
-      rewrite X.
-      apply pathsinv0. apply retype_term_pi.
+      clear p p'; intro p. clearbody p''.
+      eapply pathscomp0. 2: { apply pathsinv0, retype_term_pi. }
+      apply maponpaths_2, cwf_types_isaset.
 Qed.
 
 
