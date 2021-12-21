@@ -116,7 +116,7 @@ Section fix_a_precategory.
       * intros ? ? .
         simpl in *.
         apply CwF_Pitts.cwf_law_4.
-  Qed.
+  Defined.
      
   Definition CwF_1_from_CwF : CwF_1.cwf_struct C.
   Proof.
@@ -130,7 +130,6 @@ Section fix_a_precategory.
 
     Variable CC : CwF_1.cwf_struct C.
 
-    
     Definition CwF_data_from_CwF_1 : CwF_Pitts.tt_reindx_type_struct C.
     Proof.
       use tpair; [use tpair; [use tpair; [use tpair|]|]|].
@@ -189,7 +188,7 @@ Section fix_a_precategory.
         + intros ? ? .
           simpl in A.
           apply CwF_1.cwf_law_4.
-    Qed.
+    Defined.
     
     Definition CwF_from_CwF_1 : CwF_Pitts.cwf_struct C.
     Proof.
@@ -200,89 +199,30 @@ Section fix_a_precategory.
   End CwF_from_CwF_1.
 
   
-    Lemma bla (CC : CwF_1.cwf_struct C) : CwF_1_from_CwF (CwF_from_CwF_1 CC) = CC.
-    Proof.
-      apply (subtypePath).
-      { apply (isPredicate_cwf_laws). }
-      destruct CC as [CC1 CClaws].
-      destruct CC1 as [CC1 CC2].
-      destruct CC1 as [CC1a CC1b].
-      destruct CC1a as [A B].
-      destruct A as [a b].
- (* NOTE: Code from here on is incomplete and very stale. 
-      refine (total2_paths _ _ ).
-      - simpl.
-        refine (total2_paths _ _ ).
-        + simpl.
-          refine (total2_paths _ _ ).
-          * simpl.
-            {
-              refine (total2_paths _ _ ).
-              - simpl.
-                destruct a as [t p].
-                refine (total2_paths _ _ ).
-                + simpl. 
-                  destruct t as [t1 t2].
-                  refine (total2_paths _ _ ).
-                  * simpl. 
-                    destruct CClaws as [c d].
-                    destruct c as [c1 c2].
-                    destruct c2 as [c2 c3].
-                    destruct c3 as [c3 c4].
-            
-                    simpl in *.
-            
-                    (*apply funextfun; intro.*)
-                    destruct p as [p1 p2].
-                    simpl in *.
-                    destruct d as [d1 d2].
-                    simpl in *.   (* problem here is: we need eta for pairs under a lambda *)
-                    apply funextsec; intro.
-                    (* apply idpath. *)
-                    { 
-                      refine (total2_paths _ _ ).
-                      - apply idpath.
-                      - apply idpath.
-                    }
-                  * destruct CClaws as [X1 X2].
-                    simpl in *.
-                    destruct X1 as [Y1 Y2].
-                    destruct Y1 as [Z1 Z2].
-                    destruct Y2 as [W1 W2].
-                    destruct W2 as [S1 S2].
-                    destruct p as [p1 p2].
-                    simpl in *.
-                    destruct X2 as [U1 U2].
-            
-                    idtac.
-                    simpl.
-            
-            idtac.
-
-            
-            apply idpath.
-            apply idpath.
-            destruct (t1 x).
-            refine (total2_paths _ _ ).
-            simpl.
-            apply idpath.
-
-            simpl.
-            
-            apply idpath.
-            simpl.
-            apply idpath.
-            apply idpath.
-            
-          apply idpath.
-      apply idpath.
-      apply idpath.
-      destruct CC2 as [x y].
-                  
-                    (*Focus 2. apply T.
-                apply maponpaths_2.
-*)
-*)
+  Lemma CwF_1_to_CwF_to_CwF_1 (CC : CwF_1.cwf_struct C)
+    : CwF_1_from_CwF (CwF_from_CwF_1 CC) = CC.
+  Proof.
+    apply (subtypePath).
+    { apply (isPredicate_cwf_laws). }
+    destruct CC as [CC_data CC_laws ].
+    destruct CC_data as [ [CC_tt_reindx CC_comp_1] CC_comp_2].
+    destruct CC_tt_reindx as [ [C_ty C_tm] C_reindx].
+    destruct C_ty as [ [C_ty C_q] C_ty_laws ].
+    simpl in *.
+    simpl. use total2_paths_f.
+    simpl. use total2_paths_f.
+    simpl. use total2_paths_f.
+    simpl. use total2_paths_f.
+    simpl. use total2_paths_f.
+    - apply idpath.
+    - apply isaprop_is_functor, (homset_property HSET).
+    (* Hard to see how to do this from here.
+       Probably needs some careful thought in the structuring + transport
+     lemmas involved. *)
+    - admit.
+    - admit.
+    - admit.
+    - admit.
     Abort.
 
 End fix_a_precategory.
