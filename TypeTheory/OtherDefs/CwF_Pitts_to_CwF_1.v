@@ -13,16 +13,15 @@
   http://www.cl.cam.ac.uk/~amp12/papers/nompcs/nompcs.pdf (page=9)
 *)
 
-Require Import Systems.Auxiliary.
-Require Import Systems.UnicodeNotations.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.category_hset.
-Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 
-Require Import CwF.
-Require Import CwF_1.
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+
+Require Import TypeTheory.OtherDefs.CwF_Pitts.
+Require Import TypeTheory.OtherDefs.CwF_1.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
@@ -30,63 +29,62 @@ Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
 Section fix_a_precategory.
   
-  Variable C : precategory.
+  Variable C : category.
 
   Section CwF_1_from_CwF.
   
-  Variable CC : CwF.cwf_struct C.
+  Variable CC : CwF_Pitts.cwf_struct C.
 
   Definition type_functor : functor C^op HSET.
   Proof.
-    refine (tpair _ _ _ ).
+    use tpair.
     - exists (fun Γ => make_hSet
-                         (CwF.type CC Γ)
-                         (CwF.cwf_types_isaset CC Γ) ).
+                         (CwF_Pitts.type CC Γ)
+                         (CwF_Pitts.cwf_types_isaset CC Γ)).
       simpl.
       intros a b f A.
-      apply (CwF.rtype A f).
+      apply (CwF_Pitts.rtype A f).
     -  split; intros; simpl.
        + intro Γ; simpl;
          apply funextsec; intro A;
-         apply CwF.reindx_type_id;
-         apply (CwF.reindx_laws_from_cwf_struct _ CC).
+         apply CwF_Pitts.reindx_type_id;
+         apply (CwF_Pitts.reindx_laws_from_cwf_struct _ CC).
        + intros Γ Γ' Γ'' γ γ';
          apply funextsec; intro A;
-         apply CwF.reindx_type_comp;
-         apply (CwF.reindx_laws_from_cwf_struct _ CC).
+         apply CwF_Pitts.reindx_type_comp;
+         apply (CwF_Pitts.reindx_laws_from_cwf_struct _ CC).
   Defined.
 
   Definition CwF_1_from_CwF : CwF_1.cwf_struct C.
   Proof.
-    refine (tpair _ _ _ ).
-    - refine (tpair _ _ _ ).
-      + refine (tpair _ _ _ ).
-        * { refine (tpair _ _ _ ).
-            - refine (tpair _ _ _ ).
+    use tpair.
+    - use tpair.
+      + use tpair.
+        * { use tpair.
+            - use tpair.
               + apply type_functor.
-              + simpl. intros Γ A. apply (CwF.term CC Γ A).
+              + simpl. intros Γ A. apply (CwF_Pitts.term CC Γ A).
             - intros Γ Γ' A a γ. simpl in *.
-              apply (CwF.rterm a γ).
+              apply (CwF_Pitts.rterm a γ).
           }
         * intros Γ A. simpl in *.
-          exists (CwF.comp_obj Γ A).
-          exact (CwF.proj_mor  A).
+          exists (CwF_Pitts.comp_obj Γ A).
+          exact (CwF_Pitts.proj_mor A).
       + simpl.
         intros Γ A; simpl in *.
         refine (make_dirprod _ _ ).
-        * apply (CwF.gen_elem  _ ).
+        * apply (CwF_Pitts.gen_elem  _ ).
         * intros Γ' γ a.
-          apply (CwF.pairing γ a ).
+          apply (CwF_Pitts.pairing γ a ).
     - simpl.
       repeat split.
       + simpl.
-        refine (tpair _ _ _ ).
+        use tpair.
         * simpl.
-          {   refine (tpair _ _ _ ).
+          {   use tpair.
                - simpl;
                  intros Γ A a.
-                 assert (T:= CwF.reindx_term_id CC).
-                 eapply pathscomp0. apply T.
+                 eapply pathscomp0. apply CwF_Pitts.reindx_term_id.
                  apply maponpaths_2.
                  apply maponpaths.
                  apply pathsinv0.
@@ -117,8 +115,7 @@ Section fix_a_precategory.
 *)
                - simpl.
                  intros.
-                 assert (T:= @CwF.reindx_term_comp _ CC).
-                 eapply pathscomp0; [apply T|].
+                 eapply pathscomp0. { apply CwF_Pitts.reindx_term_comp. }
                  apply maponpaths_2.
                  apply maponpaths.
                  apply pathsinv0.
@@ -128,12 +125,11 @@ Section fix_a_precategory.
           }
         * { repeat split; simpl.
             - intros Γ A Γ' γ a.
-              refine (tpair _ _ _ ).
+              use tpair.
               + simpl in A, a.
-                apply (CwF.cwf_law_1).
+                apply (CwF_Pitts.cwf_law_1).
               + simpl in *.
-                assert (T:=CwF.cwf_law_2 CC).
-                eapply pathscomp0. Focus 2. apply T.
+                eapply pathscomp0. 2: apply CwF_Pitts.cwf_law_2.
                 apply maponpaths.
                 apply maponpaths_2.
                 apply maponpaths.
@@ -143,20 +139,18 @@ Section fix_a_precategory.
                 apply idpath.
             - intros ? ? ? ? ? ? ? .
               simpl in *.
-              assert (T:= CwF.cwf_law_3 CC).
-              unfold CwF.comp_law_3 in T.
+              assert (T:= CwF_Pitts.cwf_law_3 CC).
+              unfold CwF_Pitts.comp_law_3 in T.
               eapply pathscomp0. apply T.
               apply maponpaths.
               apply maponpaths_2.
-              apply (CwF.cwf_types_isaset CC).
+              apply CwF_Pitts.cwf_types_isaset.
             - intros ? ? .
               simpl in *.
-              assert (T:=CwF.cwf_law_4 CC).
-              apply T.
+              apply CwF_Pitts.cwf_law_4.
           }
-      + apply (CwF.has_homsets_cwf CC).
       + simpl.
-        apply (CwF.cwf_terms_isaset CC).
+        apply CwF_Pitts.cwf_terms_isaset.
   Defined.
 
   End CwF_1_from_CwF.
@@ -165,21 +159,21 @@ Section fix_a_precategory.
 
     Variable CC : CwF_1.cwf_struct C.
 
-    Definition CwF_from_CwF_1 : CwF.cwf_struct C.
+    Definition CwF_from_CwF_1 : CwF_Pitts.cwf_struct C.
     Proof.
-      refine (tpair _ _ _ ).
-      - refine (tpair _ _ _ ).
-        + refine (tpair _ _ _ ).
+      use tpair.
+      - use tpair.
+        + use tpair.
           * {
-              refine (tpair _ _ _ ).
-              - refine (tpair _ _ _ ).
+              use tpair.
+              - use tpair.
                 + intro Γ.
                   apply (CwF_1.type CC Γ).
                 + simpl.
                   intros Γ A.
                   apply (CwF_1.term CC Γ A).
               - simpl.
-                refine (tpair _ _ _ ).
+                use tpair.
                 + simpl.
                   intros Γ Γ' A γ.
                   apply (rtype A γ).
@@ -199,10 +193,10 @@ Section fix_a_precategory.
             apply (pairing γ a).
       - simpl.
         repeat split; simpl.
-        + refine (tpair _ _ _ ).
+        + use tpair.
           * {
-              refine (tpair _ _ _ ).
-              - unfold CwF.reindx_laws_type.
+              use tpair.
+              - unfold reindx_laws_type.
                 split; simpl.
                 + intros Γ A.
                   apply (CwF_1.reindx_type_id).
@@ -223,7 +217,7 @@ Section fix_a_precategory.
           * { split.
               - intros ? ? ? ? ? .
                 simpl in * |-.
-                refine (tpair _ _ _ ).
+                use tpair.
                 + apply (CwF_1.cwf_law_1).
                 + assert (T:=CwF_1.cwf_law_2 CC).
                   apply T.
@@ -247,7 +241,6 @@ Section fix_a_precategory.
                   simpl in A.
                   apply (CwF_1.cwf_law_4 CC).
             }
-        + apply (CwF_1.has_homsets_cwf CC).
         + intro Γ. apply setproperty.
         + intros Γ A.
           apply (CwF_1.cwf_terms_isaset CC).
@@ -258,13 +251,14 @@ Section fix_a_precategory.
   
     Lemma bla (CC : CwF_1.cwf_struct C) : CwF_1_from_CwF (CwF_from_CwF_1 CC) = CC.
     Proof.
-      apply (subtypeEquality).
-      apply (isPredicate_cwf_laws).
+      apply (subtypePath).
+      { apply (isPredicate_cwf_laws). }
       destruct CC as [CC1 CClaws].
       destruct CC1 as [CC1 CC2].
       destruct CC1 as [CC1a CC1b].
       destruct CC1a as [A B].
       destruct A as [a b].
+ (* NOTE: Code from here on is incomplete and very stale. 
       refine (total2_paths _ _ ).
       - simpl.
         refine (total2_paths _ _ ).
@@ -337,3 +331,5 @@ Section fix_a_precategory.
                     (*Focus 2. apply T.
                 apply maponpaths_2.
 *)
+*)
+Abort.
