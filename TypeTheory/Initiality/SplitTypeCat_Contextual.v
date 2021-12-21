@@ -163,7 +163,7 @@ Section Extensions.
   Proof.
     destruct e_Γ. apply maponpaths.
     etrans. { apply e_A. }
-    apply reind_id_type_typecat.
+    apply reind_id_typecat.
   Defined.
 
   Definition idtoiso_path_ext_typecat {C : split_typecat}

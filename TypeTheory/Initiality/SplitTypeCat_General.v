@@ -99,10 +99,10 @@ Section Terms.
     - use tpair.
       + intros Γ.
         abstract (apply funextfun; intros y; simpl;
-                  apply reind_id_type_typecat).
+                  apply reind_id_typecat).
       + cbn; intros Γ Γ' Γ'' f g.
         abstract (apply funextfun; intros A;
-                  apply reind_comp_type_typecat).
+                  apply reind_comp_typecat).
   Defined.
 
   (* TODO: upstream this and following material on general sections to [TypeTheory.Auxiliary]? *)
@@ -224,7 +224,7 @@ Section Terms.
   Definition reind_id_tm {C : split_typecat}
       {Γ : C}{A : C Γ} (a : tm A)
     : reind_tm (identity _) a
-      = tm_transportb (reind_id_type_typecat _) a.
+      = tm_transportb (reind_id_typecat _) a.
   Proof.
     apply subtypePath; [ intros x; apply homset_property|]; simpl.
     set (pb := make_Pullback _ _).
@@ -362,7 +362,7 @@ Section Terms.
   Definition reind_tm_var_typecat {C : split_typecat}
       {Γ : C} {A : C Γ} (a : tm A)
       (e : A = (A ⦃dpr_typecat A⦄) ⦃a⦄
-        := ! reind_id_type_typecat _
+        := ! reind_id_typecat _
            @ maponpaths _ (! section_property a)
            @ reind_comp_typecat _ _ _)
     : reind_tm a (var_typecat A) = tm_transportf e a.
@@ -389,7 +389,7 @@ Section Terms.
   Definition reind_tm_var_typecat' {C : split_typecat}
       {Γ:C} {A:C Γ} (a : tm A)
       (e : A = (A ⦃dpr_typecat A⦄) ⦃a⦄
-        := ! reind_id_type_typecat _
+        := ! reind_id_typecat _
            @ maponpaths _ (! section_property a)
            @ reind_comp_typecat _ _ _)
     : tm_transportb e (reind_tm a (var_typecat A)) = a.
@@ -452,7 +452,7 @@ Section Types_with_Terms.
     : reind_type_with_term (identity _) Aa = Aa.
   Proof.
     induction Aa as [A a]; cbn in *.
-    use total2_paths2_f; [apply reind_id_type_typecat|].
+    use total2_paths2_f; [apply reind_id_typecat|].
     etrans; [ eapply maponpaths, reind_id_tm |].
     unfold tm_transportb.
     now rewrite <- transportf_tm, transport_f_f, pathsinv0l.
@@ -465,7 +465,7 @@ Section Types_with_Terms.
       = reind_type_with_term f' (reind_type_with_term f Aa).
   Proof.
     induction Aa as [A a]; cbn in *.
-    use total2_paths2_f; [apply reind_comp_type_typecat|].
+    use total2_paths2_f; [apply reind_comp_typecat|].
     rewrite reind_compose_tm; unfold tm_transportb.
     now rewrite <- transportf_tm, transport_f_f, pathsinv0l.
   Qed.
@@ -493,7 +493,7 @@ Section Types_with_Terms.
   Proof.
     use paths_type_with_term.
     + eapply pathscomp0. { apply pathsinv0, reind_comp_typecat. }
-      eapply pathscomp0. 2: { apply reind_id_type_typecat. }
+      eapply pathscomp0. 2: { apply reind_id_typecat. }
       apply maponpaths, section_property.
     + use (@maponpaths _ _ _ (tm_transportf _ _) _ _).
       refine (_ @ reind_tm_var_typecat' a).

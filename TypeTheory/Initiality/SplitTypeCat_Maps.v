@@ -303,7 +303,7 @@ Section Derived_Actions.
     - simpl.
       etrans. { eapply (maponpaths (fun X => reind_typecat X _)).
            exact (reindex_fmap_ty F _ (dpr_typecat A)). }
-      etrans. { apply pathsinv0, reind_comp_type_typecat. }
+      etrans. { apply pathsinv0, reind_comp_typecat. }
       apply maponpaths, iso_inv_on_right, typecat_mor_triangle.
     - apply PullbackArrowUnique.
       + etrans. { apply pathsinv0, assoc. }

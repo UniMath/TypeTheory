@@ -90,9 +90,9 @@ Proof.
   split.
   - unfold tt_reindx_from_typecat. simpl.
     intros Γ A.
-    apply (@reind_id_type_typecat C_sptc).
+    apply (@reind_id_typecat C_sptc).
   - intros.
-    apply (@reind_comp_type_typecat C_sptc).
+    apply (@reind_comp_typecat C_sptc).
 Defined.  (* needs to be transparent for comp_law_3 at least *)
 
 Lemma reindx_term_id_typecat 
@@ -101,7 +101,7 @@ Lemma reindx_term_id_typecat
   (a : tt_reindx_from_typecat ⟨ Γ ⊢ A ⟩) :
    a ⟦ identity Γ ⟧ =
    transportf (λ B : C Γ, ∑ f : Γ --> Γ ◂ B, f;; dpr_typecat B = identity Γ)
-              (! (@reind_id_type_typecat C_sptc Γ A)) a.
+              (! (@reind_id_typecat C_sptc Γ A)) a.
 Proof.
   intros. simpl. unfold tt_reindx_from_typecat in *. simpl in *.
   apply tm_reindx_eq. cbn.
@@ -133,7 +133,7 @@ Lemma reindx_term_comp_typecat
    a ⟦ γ';; γ ⟧ =
    transportf
      (λ B : C Γ'', ∑ f : Γ'' --> Γ'' ◂ B, f;; dpr_typecat B = identity Γ'')
-     (! @reind_comp_type_typecat C_sptc Γ A Γ' γ Γ'' γ') 
+     (! @reind_comp_typecat C_sptc Γ A Γ' γ Γ'' γ') 
      ((a ⟦ γ ⟧) ⟦ γ' ⟧).
 Proof.
   intros.

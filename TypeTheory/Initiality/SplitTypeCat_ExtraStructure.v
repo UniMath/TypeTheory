@@ -38,8 +38,8 @@ Section Pi_eta_structure.
     (* now supply the argument: the “new variable” / generic term *)
     2: { apply var_typecat. }
     (* now some algebra to justify this type-reindexing equality *)
-    eapply pathscomp0. { apply pathsinv0, reind_comp_type_typecat. }
-    eapply pathscomp0. 2: { apply reind_id_type_typecat. }
+    eapply pathscomp0. { apply pathsinv0, reind_comp_typecat. }
+    eapply pathscomp0. 2: { apply reind_id_typecat. }
     apply maponpaths. 
     (* look at the definition of the generic term, as a map into a pullback *)
     unfold var_typecat. apply Auxiliary.Pb_map_commutes_2.

@@ -334,8 +334,6 @@ Section Partial_Interpretation.
           eapply pathscomp0. 2: { eapply (maponpaths (fun A => A ⦃f⦄)), e_T. }
           eapply pathscomp0. { apply pathsinv0, reind_comp_typecat. }
           eapply pathscomp0. 2: { apply reind_comp_typecat. }
-          (* TODO: unify duplicate access functions [reind_comp_typecat],
-             [reind_comp_type_typecat]. *)
           apply maponpaths, reind_tm_q. }
         cbn. intros e_T; destruct e_T.
         (* final naturality part *)
@@ -726,7 +724,7 @@ a little more work to state. *)
       use tpair; cbn.
       + refine (_,,tt). cbn; apply pathsinv0.
         eapply pathscomp0. { apply pathsinv0, reind_comp_typecat. }
-        eapply pathscomp0. 2: { apply reind_id_type_typecat. }
+        eapply pathscomp0. 2: { apply reind_id_typecat. }
         apply maponpaths, section_property.
       + cbn. eapply pathscomp0. 2: { apply reind_compose_tm'. }
         eapply pathscomp0.
@@ -738,7 +736,7 @@ a little more work to state. *)
         apply tm_transportf_irrelevant.
     - refine (tm_transportf_partial_interpretation_tm_leq _ _ _ a_def). 
       eapply pathscomp0. 2: { apply reind_comp_typecat. }
-      eapply pathsinv0, pathscomp0. 2: { apply reind_id_type_typecat. } 
+      eapply pathsinv0, pathscomp0. 2: { apply reind_id_typecat. } 
       apply maponpaths, section_property.
     - eapply pathscomp0. apply leq_partial_commutes.
       cbn. eapply pathscomp0. 2: { apply pathsinv0, reind_tm_var_typecat. }
