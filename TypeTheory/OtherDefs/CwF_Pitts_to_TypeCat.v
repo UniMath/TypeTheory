@@ -25,37 +25,10 @@ Require Import TypeTheory.OtherDefs.CwF_Pitts.
   to get more informative bracketing when pairing meets composition. *) 
 Local Notation "γ ## a" := (pairing γ a) (at level 75).
 
-Section Prelims.
-
-(* TODO: move to [cwf] *)
-Definition pairing_transport {CC : category} (C : cwf_struct CC) {Γ} {A A' : C⟨Γ⟩} (e : A = A')
-  {Γ'} (γ : Γ' --> Γ) (a : C ⟨Γ'⊢A{{γ}}⟩)
-: (γ ## a) ;; idtoiso (maponpaths (fun (B : C⟨Γ⟩) => Γ∙B) e)
-= (γ ## (transportf (fun B => C ⟨ Γ' ⊢ B {{γ}}⟩) e a)).
-Proof.
-  destruct e; simpl.
-  apply id_right.
-Defined.
-
-(* TODO: generalise; really it’s about any [transportf] along any [maponpaths]. *)
-Lemma transportf_maponpaths {CC : category} {C : cwf_struct CC} {Γ} {B B' : C⟨Γ⟩} (e : B = B')
-  {Γ'} (f : Γ' --> Γ) (b : C ⟨ Γ' ⊢ B{{f}} ⟩)
-: transportf (term C Γ') (maponpaths (fun D => D{{f}}) e) b
-  = transportf (fun D => term C Γ' (D{{f}})) e b.
-Proof.
-  apply pathsinv0.
-  apply (@functtransportf _ _ (λ D : C ⟨Γ⟩, D {{f}})).
-Defined.
-
-End Prelims.
-
-
 (** * Type-cat from cat with Families *)
 
 (**
 Every CwF gives rise to a type-category.
-
-(TODO: moreover, this type-cat should be split; and there should be a function from split type-cats back to CwFs making the two equivalent.)
 
 Since the components of the type-cat structure are highly successively dependent, we construct most of them individually, before putting them together in [type_cat_of_cwf].
 *)
@@ -112,7 +85,7 @@ Proof.
     { eapply term_typeeq_transport_lemma.
       eapply term_typeeq_transport_lemma_2.
       reflexivity. }
-    apply transportf_maponpaths.
+    apply pathsinv0, (functtransportf (fun D => D{{_}})).
   - (* Reindexing along composites *)
     exists (fun Γ A Γ' f Γ'' g => reindx_type_comp C f g A).
     intros Γ A Γ' f Γ'' g.
