@@ -164,6 +164,7 @@ Definition reindx_laws_terms {CC : precategory} (C : tt_reindx_struct CC)
           transportf (λ B, C⟨Γ'' ⊢ B⟩) (!pr2 T _ _ _ _ _ _ )  (a⟦γ⟧⟦γ'⟧)).
           
 (** Package of reindexing for types and terms *)
+(* Note: in fact the reindexing laws for types are already packaged into the functor structure, so [reindx_laws] is just an alias for [reindx_laws_terms], given for consistency with other versions of CwF’s. TODO: is this useful/necessary? *)
 Definition reindx_laws {CC : precategory} (C : tt_reindx_struct CC)  : UU := 
           reindx_laws_terms C.
      

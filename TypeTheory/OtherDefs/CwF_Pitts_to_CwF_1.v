@@ -48,109 +48,80 @@ Section fix_a_precategory.
        + intro Γ; simpl;
          apply funextsec; intro A;
          apply CwF_Pitts.reindx_type_id;
-         apply (CwF_Pitts.reindx_laws_from_cwf_struct _ CC).
+         apply CwF_Pitts.reindx_laws_from_cwf_struct.
        + intros Γ Γ' Γ'' γ γ';
          apply funextsec; intro A;
          apply CwF_Pitts.reindx_type_comp;
-         apply (CwF_Pitts.reindx_laws_from_cwf_struct _ CC).
+         apply CwF_Pitts.reindx_laws_from_cwf_struct.
   Defined.
 
+  Definition CwF_1_data_from_CwF : CwF_1.tt_reindx_type_struct C.
+  Proof.    
+    use tpair; [use tpair; [use tpair; [use tpair|]|]|].
+    - apply type_functor.
+    - simpl. intros Γ A. apply (CwF_Pitts.term CC Γ A).
+    - intros Γ Γ' A a γ. simpl in *.
+      apply (CwF_Pitts.rterm a γ).
+    - intros Γ A. simpl in *.
+      exists (CwF_Pitts.comp_obj Γ A).
+      exact (CwF_Pitts.proj_mor A).
+    - simpl.
+      intros Γ A; simpl in *.
+      refine (make_dirprod _ _ ).
+      + apply (CwF_Pitts.gen_elem  _ ).
+      + intros Γ' γ a.
+        apply (CwF_Pitts.pairing γ a ).
+  Defined.
+
+  Definition CwF_1_laws_from_CwF : CwF_1.cwf_laws CwF_1_data_from_CwF.
+  Proof.
+    split. 2: { apply CwF_Pitts.cwf_terms_isaset. }
+    use tpair; [use tpair|].
+    - simpl; intros Γ A a.
+      eapply pathscomp0. { apply CwF_Pitts.reindx_term_id. }
+      apply maponpaths_2.
+      apply maponpaths.
+      apply pathsinv0.
+      unfold functor_id. simpl.
+      rewrite toforallpaths_funextsec.
+      apply idpath.
+    - simpl.
+      intros.
+      eapply pathscomp0. { apply CwF_Pitts.reindx_term_comp. }
+      apply maponpaths_2.
+      apply maponpaths.
+      apply pathsinv0.
+      unfold functor_comp; simpl.
+      rewrite toforallpaths_funextsec.
+      apply idpath.
+    - repeat split; simpl.
+      * intros Γ A Γ' γ a.
+        simpl in *; use tpair.
+        { apply CwF_Pitts.cwf_law_1. }
+        simpl in *.
+        eapply pathscomp0. 2: apply CwF_Pitts.cwf_law_2.
+        apply maponpaths.
+        apply maponpaths_2.
+        apply maponpaths.
+        unfold reindx_type_comp. simpl.
+        unfold functor_comp. simpl.
+        rewrite toforallpaths_funextsec.
+        apply idpath.
+      * intros ? ? ? ? ? ? ? .
+        simpl in *.
+        eapply pathscomp0. { apply CwF_Pitts.cwf_law_3. }
+        apply maponpaths.
+        apply maponpaths_2.
+        apply CwF_Pitts.cwf_types_isaset.
+      * intros ? ? .
+        simpl in *.
+        apply CwF_Pitts.cwf_law_4.
+  Qed.
+     
   Definition CwF_1_from_CwF : CwF_1.cwf_struct C.
   Proof.
-    use tpair.
-    - use tpair.
-      + use tpair.
-        * { use tpair.
-            - use tpair.
-              + apply type_functor.
-              + simpl. intros Γ A. apply (CwF_Pitts.term CC Γ A).
-            - intros Γ Γ' A a γ. simpl in *.
-              apply (CwF_Pitts.rterm a γ).
-          }
-        * intros Γ A. simpl in *.
-          exists (CwF_Pitts.comp_obj Γ A).
-          exact (CwF_Pitts.proj_mor A).
-      + simpl.
-        intros Γ A; simpl in *.
-        refine (make_dirprod _ _ ).
-        * apply (CwF_Pitts.gen_elem  _ ).
-        * intros Γ' γ a.
-          apply (CwF_Pitts.pairing γ a ).
-    - simpl.
-      repeat split.
-      + simpl.
-        use tpair.
-        * simpl.
-          {   use tpair.
-               - simpl;
-                 intros Γ A a.
-                 eapply pathscomp0. apply CwF_Pitts.reindx_term_id.
-                 apply maponpaths_2.
-                 apply maponpaths.
-                 apply pathsinv0.
-                 unfold functor_id. simpl.
-                 rewrite toforallpaths_funextsec.
-                 apply idpath.
-(*
-                 eapply pathscomp0.
-                 set (T2:= toforallpaths_funextsec).
-                 match goal with [|- toforallpaths ?P ?f ?g ?h _ = _ ]
-                                   => set (T3 := toforallpaths_funextsec _ P f g )  end.
-                 rewrite T3. 
-                 eapply pathscomp0.
-                 unfold CwF.reindx_type_id.
-                 simpl.
-                 simpl in T3.
-                 rewrite T3.
-                 apply T3.
-                 set (T3:= @T2 _ (λ _ : CC ⟨ Γ ⟩, CC ⟨ Γ ⟩)).
-                 eapply (toforallpaths_funextsec).
-                 unfold functor_id.
-                 simpl. (* here is the first place where we get a propositional equality instead of
-                           the desired definitional one *)
-                 apply idpath.
-                 apply maponpaths_2;
-                 apply proofirrelevance;
-                 apply (CwF.cwf_types_isaset).
-*)
-               - simpl.
-                 intros.
-                 eapply pathscomp0. { apply CwF_Pitts.reindx_term_comp. }
-                 apply maponpaths_2.
-                 apply maponpaths.
-                 apply pathsinv0.
-                 unfold functor_comp; simpl.
-                 rewrite toforallpaths_funextsec.
-                 apply idpath.
-          }
-        * { repeat split; simpl.
-            - intros Γ A Γ' γ a.
-              use tpair.
-              + simpl in A, a.
-                apply (CwF_Pitts.cwf_law_1).
-              + simpl in *.
-                eapply pathscomp0. 2: apply CwF_Pitts.cwf_law_2.
-                apply maponpaths.
-                apply maponpaths_2.
-                apply maponpaths.
-                unfold reindx_type_comp. simpl.
-                unfold functor_comp. simpl.
-                rewrite toforallpaths_funextsec.
-                apply idpath.
-            - intros ? ? ? ? ? ? ? .
-              simpl in *.
-              assert (T:= CwF_Pitts.cwf_law_3 CC).
-              unfold CwF_Pitts.comp_law_3 in T.
-              eapply pathscomp0. apply T.
-              apply maponpaths.
-              apply maponpaths_2.
-              apply CwF_Pitts.cwf_types_isaset.
-            - intros ? ? .
-              simpl in *.
-              apply CwF_Pitts.cwf_law_4.
-          }
-      + simpl.
-        apply CwF_Pitts.cwf_terms_isaset.
+    exists CwF_1_data_from_CwF.
+    apply CwF_1_laws_from_CwF.
   Defined.
 
   End CwF_1_from_CwF.
@@ -221,17 +192,6 @@ Section fix_a_precategory.
                 + apply (CwF_1.cwf_law_1).
                 + assert (T:=CwF_1.cwf_law_2 CC).
                   apply T.
-(*                  eapply pathscomp0. Focus 2. apply T.
-                  apply idpath.
-                  apply maponpaths.
-                  apply maponpaths.
-                  apply map_on_two_paths.
-                  * apply proofirrelevance.
-                    apply (CwF_1.has_homsets_cwf CC).
-                  * apply maponpaths_2.
-                    apply proofirrelevance.
-                    apply (CwF_1.cwf_types_isaset CC).
-*)
               - split.
                 + intros ? ? ? ? ? ? ? .
                   simpl in *|-.
@@ -332,4 +292,6 @@ Section fix_a_precategory.
                 apply maponpaths_2.
 *)
 *)
-Abort.
+    Abort.
+
+End fix_a_precategory.
