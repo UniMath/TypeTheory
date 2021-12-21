@@ -556,6 +556,44 @@ Proof.
   - apply is_functor_iso_pointwise_if_iso. apply (pr2 a).
 Defined.
 
+Definition constant_functor_functor_data {C1 C2 : category}
+  : functor_data C2 [C1,C2].
+Proof.
+  use tpair.
+  - apply constant_functor.
+  - simpl. apply constant_nat_trans.
+Defined.
+
+Definition constant_functor_functor_is_functor (C1 C2 : category)
+  : is_functor (@constant_functor_functor_data C1 C2).
+Proof.
+  split.
+  - intro. apply nat_trans_eq. { apply homset_property. }
+    intro; apply idpath.
+  - intros ? ? ? ? ?. apply nat_trans_eq. { apply homset_property. }
+    intro; apply idpath.
+Qed.
+
+Definition constant_functor_functor {C1 C2 : category}
+  : [C2,[C1,C2]]
+:= make_functor _ (constant_functor_functor_is_functor C1 C2).
+
+Lemma constant_nat_trans_is_iso
+    {C1 C2 : category} {x y : C2} (f : x --> y )
+  : is_iso f -> @is_iso [C1,C2] _ _ (constant_nat_trans C1 f).
+Proof.
+  intro f_iso. use functor_iso_if_pointwise_iso.
+  intro; apply f_iso.
+Defined.
+
+Lemma constant_nat_iso
+    {C1 C2 : category} {x y : C2} (f : iso x y )
+  : @iso [C1,C2] (constant_functor C1 _ x) (constant_functor C1 _ y).
+Proof.
+  exists (constant_nat_trans _ f).
+  apply constant_nat_trans_is_iso, iso_is_iso.
+Defined.
+
 (** ** The total type of morphisms of a precategory *)
 
 Definition mor_total (C : precategory) : UU
