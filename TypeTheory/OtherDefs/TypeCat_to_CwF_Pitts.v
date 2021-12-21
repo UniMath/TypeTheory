@@ -18,19 +18,6 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.OtherDefs.CwF_Pitts.
 
-(* TODO: move *)
-Lemma idtoiso_q_typecat {CC : precategory} {C : typecat_structure CC}
-      {Γ : CC} (A : C Γ) {Γ' : CC} {f f' : Γ' --> Γ} (e : f = f') :
-      q_typecat A f
-      = (idtoiso (maponpaths (fun f => ext_typecat Γ' (reind_typecat A f)) e))
-          ;; q_typecat A f'.
-Proof.
-  intros. destruct e; simpl. sym. apply id_left.
-  (* Why the heck doesn’t “symmetry” work here!? *)
-Defined.
-
-
-
 (** * CwF structure from split type-category structure on a category 
 
 Every split-Comp-cat gives rise to a category with families.
@@ -265,7 +252,7 @@ Proof.
     etrans. 2: { apply id_left. }
     apply maponpaths_2.
     etrans. { apply assoc'. }
-    etrans. { apply maponpaths, (idtoiso_dpr_typecat C_sptc). }
+    etrans. { apply maponpaths, idtoiso_dpr_typecat. }
     exact (pr2 a).
   - etrans. 2: { apply assoc. }
     etrans. 2: { eapply maponpaths, pathsinv0, Pb_map_commutes_2. }

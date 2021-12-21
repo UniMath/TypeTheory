@@ -267,33 +267,43 @@ Notation "A {{ f }}" := (reind_typecat A f) (at level 30).
 
 (** * Lemmas about type-(pre)categories *)
 
+(* TODO: unify this section with the material of [Initiality.SplitTypeCat.General]. *)
+
 Section lemmas.
 
-Variable (C : split_typecat).
+Context {CC : precategory} {C : typecat_structure CC}.
 
-Lemma transportf_dpr_typecat (Γ : C)
-  (A B : C Γ)
-  (f : Γ --> Γ ◂ A)
-  (p : A = B) :
-   transportf (λ B : C Γ, Γ --> Γ ◂ B) p f;; dpr_typecat B =
-   f;; dpr_typecat A.
+Lemma transportf_dpr_typecat
+    {Γ : CC} {A B : C Γ} (p : A = B)
+    (f : Γ --> Γ ◂ A) 
+  : transportf (λ B : C Γ, Γ --> Γ ◂ B) p f;; dpr_typecat B
+    = f ;; dpr_typecat A.
 Proof.
   induction p.
   apply idpath.
 Defined.
 
-Lemma idtoiso_dpr_typecat (Γ : C)
-  (A B : C Γ)
-  (p : A = B) :
-   idtoiso (maponpaths (λ B : C Γ,  Γ ◂ B) p);; dpr_typecat B =
-   dpr_typecat A.
+Lemma idtoiso_dpr_typecat {Γ : CC} {A B : C Γ} (p : A = B)
+  : idtoiso (maponpaths (λ B : C Γ,  Γ ◂ B) p) ;; dpr_typecat B
+    = dpr_typecat A.
 Proof.
   induction p.
   apply id_left. 
 Defined.
 
+Lemma idtoiso_q_typecat
+    {Γ : CC} (A : C Γ)
+    {Γ' : CC} {f f' : Γ' --> Γ} (e : f = f')
+  : q_typecat A f
+    = (idtoiso (maponpaths (fun f => ext_typecat Γ' (reind_typecat A f)) e))
+      ;; q_typecat A f'.
+Proof.
+  intros. destruct e. sym. apply id_left.
+  (* Why the heck doesn’t “symmetry” work here!? *)
+Defined.
 
-Lemma transportf_reind_typecat (Γ Γ' : C) (A A' : C Γ') (e : A = A') t
+(* TODO: change name *)
+Lemma transportf_reind_typecat {Γ Γ' : CC} {A A' : C Γ'} (e : A = A') t
   : transportf (λ B, Γ --> Γ' ◂ B) e t
     = transportf (λ Δ, Γ --> Δ) (maponpaths _ e) t.
 Proof.
@@ -302,7 +312,7 @@ Proof.
 Defined.
 
 Lemma transportf_reind_typecat'
-    (Γ Γ' : C) (A : C Γ) (i i' : Γ' --> Γ) (e : i = i')  t
+    {Γ Γ' : CC} (A : C Γ) {i i' : Γ' --> Γ} (e : i = i')  t
   : transportf (λ i0 : Γ' --> Γ, Γ' --> Γ' ◂ reind_typecat A i0) e t
     = transportf (λ B : C Γ', Γ' --> Γ' ◂ B) (maponpaths _  e) t.
 Proof.
