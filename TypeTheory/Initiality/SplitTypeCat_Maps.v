@@ -264,7 +264,7 @@ Section Derived_Actions.
   Proof.
     apply paths_tm, PullbackArrowUnique; cbn; simpl;
       set (pb := make_Pullback _ _); rewrite <-!assoc.
-    - etrans; [apply maponpaths, maponpaths, comp_ext_compare_dpr_typecat|].
+    - etrans; [apply maponpaths, maponpaths, dpr_typecat_typeeq|].
       etrans; [apply maponpaths, (!typecat_mor_triangle F (A ⦃f⦄))|].
       now rewrite <- functor_comp, (PullbackArrow_PullbackPr1 pb), functor_id.
     - etrans; [apply maponpaths; rewrite assoc;
@@ -278,19 +278,6 @@ Section Derived_Actions.
   Proof.
     exact (typecat_mor_Ty F _ (type_of Aa),,fmap_tm F Aa).
   Defined.
-
-  (* TODO: upstream to [SplitTypeCat_General];
-     and consider harmonising with name of [comp_ext_compare_q_typecat],
-     e.g. by changing that to [q_typecat_mapeq]? *)
-  Lemma q_typecat_typeeq {C : typecat} {Γ:C}
-        {A A' : C Γ} (e : A = A')
-        {Γ' : C} (f : Γ' --> Γ)
-    : comp_ext_compare (maponpaths (fun X => X {{ f }}) e) ;; q_typecat A' f
-    = q_typecat A f ;; comp_ext_compare e.
-  Proof.
-    destruct e; cbn.
-    rewrite id_right; apply id_left.
-  Qed.
 
   Lemma var_with_type_fmap_type
       {C C'} (F : typecat_mor C C')
@@ -308,7 +295,7 @@ Section Derived_Actions.
       apply maponpaths, iso_inv_on_right, typecat_mor_triangle.
     - apply PullbackArrowUnique.
       + etrans. { apply pathsinv0, assoc. }
-        etrans. { apply maponpaths, comp_ext_compare_dpr_typecat. }
+        etrans. { apply maponpaths, dpr_typecat_typeeq. }
         apply section_property.
       + (* NOTE: the next step is just asking to apply [cbn] to the subterm
          beginning [PullbackPr2].  [simpl PullbackPr2] applies [simpl] to this
@@ -321,7 +308,7 @@ Section Derived_Actions.
         { apply maponpaths.
           etrans. { apply pathsinv0, assoc. }
           etrans. { apply maponpaths, pathsinv0, assoc. }
-          etrans. { apply maponpaths, maponpaths, comp_ext_compare_q_typecat. }
+          etrans. { apply maponpaths, maponpaths, q_typecat_mapeq. }
           etrans. { apply maponpaths, pathsinv0, q_q_typecat. }
           etrans. { apply assoc. }
           apply maponpaths_2, q_typecat_typeeq.

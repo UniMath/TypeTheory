@@ -202,7 +202,7 @@ Section Extensions.
       + simpl. apply pathsinv0.
         etrans. { apply idtoiso_path_ext_typecat. }
         unfold compare_concat_extension. simpl pr2.
-        apply comp_ext_compare_q_typecat.
+        apply q_typecat_mapeq.
   Defined.
 
   Definition ext_concat_extension {C : split_typecat} {Γ:C}
