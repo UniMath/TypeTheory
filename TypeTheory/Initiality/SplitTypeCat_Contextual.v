@@ -10,24 +10,6 @@ Require Import TypeTheory.ALV1.TypeCat.
 
 Require Import TypeTheory.Initiality.SplitTypeCat_General.
 
-(* These two lemmas should be upstreamed to UniMath/CategoryTheory/limits/terminal.v and initial.v *)
-Section upstream.
-
-  Lemma isaprop_isTerminal {C : category} (x : C) : isaprop (isTerminal C x).
-  Proof.
-    repeat (apply impred; intro).
-    apply isapropiscontr.
-  Qed.
-
-  Lemma isaprop_isInitial {C : category} (x : C) : isaprop (isInitial C x).
-  Proof.
-    repeat (apply impred; intro).
-    apply isapropiscontr.
-  Qed.
-    
-End upstream.
-
-
 Section Extensions.
 (** Context extensions in type-categories, i.e. suitable sequences of types *)
 (* TODO: upstream somewhere! And connect to [CSystems] files? *)

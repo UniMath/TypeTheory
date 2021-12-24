@@ -1549,6 +1549,27 @@ Defined.
 
 End Adjoint_Equivalences.
 
+(** * Limits and colimits *)
+
+(* NOTE: just initial and terminal objects for now; but if any other material on general limits/colimits is added, it should be grouped here. *)
+Section Limits.
+
+  Lemma isaprop_isTerminal {C : category} (x : C) : isaprop (isTerminal C x).
+  Proof.
+    repeat (apply impred; intro).
+    apply isapropiscontr.
+  Qed.
+
+  Lemma isaprop_isInitial {C : category} (x : C) : isaprop (isInitial C x).
+  Proof.
+    repeat (apply impred; intro).
+    apply isapropiscontr.
+  Qed.
+
+End Limits.
+
+
+(** * Sections of maps in (pre)categories *)
 
 (* TODO: currently, sections are independently developed in many places in [TypeTheory].  Try to unify the treatments of them here?  Also unify with ad hoc material on sections in [UniMath.CategoryTheory.limits.pullbacks]: [pb_of_section], [section_from_diagonal], etc.*)
 Section Sections.
