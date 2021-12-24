@@ -6,6 +6,7 @@ Require Import UniMath.CategoryTheory.All.
 (* TODO: raise issue upstream: notation "_ ∘ _" is used for function-order composition of functions, but for diagrammatic-order composition of morphisms in categories! *)
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.Partial.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.Initiality.SplitTypeCat_General.

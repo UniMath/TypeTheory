@@ -20,6 +20,7 @@ Require Import UniMath.Foundations.Sets.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 
 Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Cats.
 

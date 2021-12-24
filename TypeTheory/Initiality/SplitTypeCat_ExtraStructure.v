@@ -2,8 +2,10 @@
 not yet integrated into the type theory of [Initiality.Syntax] and the statement/proof of initiality. *)
 
 Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.CategoryTheory.All.
 
-Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.Initiality.SplitTypeCat_General.
 Require Import TypeTheory.Initiality.SplitTypeCat_Structure.
@@ -42,7 +44,7 @@ Section Pi_eta_structure.
     eapply pathscomp0. 2: { apply reind_id_typecat. }
     apply maponpaths. 
     (* look at the definition of the generic term, as a map into a pullback *)
-    unfold var_typecat. apply Auxiliary.Pb_map_commutes_2.
+    unfold var_typecat. apply Pb_map_commutes_2.
   Defined.
 
 End Pi_eta_structure.

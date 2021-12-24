@@ -17,9 +17,10 @@ The equivalence is a bit more involved than one might hope; it proceeds in two m
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+Require Import UniMath.CategoryTheory.All.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.TypeCat.

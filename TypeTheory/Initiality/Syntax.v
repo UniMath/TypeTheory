@@ -13,6 +13,7 @@
 
 Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 
 Section deBruijn.
   (** We first set up the machinery for handling variables, represented by de Bruijn indices. *)

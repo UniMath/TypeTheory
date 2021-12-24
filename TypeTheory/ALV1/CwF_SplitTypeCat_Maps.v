@@ -16,6 +16,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 
 Section Fix_Base_Category.

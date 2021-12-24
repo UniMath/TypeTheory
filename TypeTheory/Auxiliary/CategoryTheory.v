@@ -4,6 +4,8 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.All.
+(* a few libraries need to be reloaded after “All”,
+   to claim precedence on overloaded names *)
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
@@ -11,6 +13,22 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
 (** * Category theory *)
+
+(** Redeclare this notation, along with a new scope. *)
+Notation "ff ;; gg" := (compose ff gg)
+  (at level 50, left associativity, format "ff  ;;  gg")
+  : mor_scope.
+Delimit Scope mor_scope with mor.
+Bind Scope mor_scope with precategory_morphisms.
+Open Scope mor_scope.
+
+Declare Scope precat.
+Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op") : precat.
+Delimit Scope precat with precat.
+
+Open Scope cat.
+Open Scope cat_deprecated.
+
 
 (** ** Isomorphism lemmas *)
 

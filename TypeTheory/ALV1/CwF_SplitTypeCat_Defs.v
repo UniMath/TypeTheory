@@ -28,6 +28,7 @@ Require Import UniMath.CategoryTheory.All. (* TODO: work out what’s actually n
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 
 (** * Object-extension structures 
 

@@ -13,7 +13,8 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
-Require Import TypeTheory.Auxiliary.Auxiliary.           
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.           
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Export TypeTheory.Csystems.hSet_ltowers.
 

@@ -21,6 +21,7 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 
 Local Open Scope precat.
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).

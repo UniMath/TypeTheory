@@ -27,10 +27,10 @@
 
 
 Require Import UniMath.Foundations.Sets.
-Require Import UniMath.CategoryTheory.precomp_ess_surj.
-Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+Require Import UniMath.CategoryTheory.All.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.ALV1.RelativeUniverses.
 
 

@@ -21,6 +21,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Export TypeTheory.Csystems.lC0systems.
 
 Require Import UniMath.CategoryTheory.limits.pullbacks.

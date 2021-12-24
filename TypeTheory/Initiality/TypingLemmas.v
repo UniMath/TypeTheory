@@ -3,6 +3,7 @@
 Require Import UniMath.MoreFoundations.All.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 
 Require Import TypeTheory.Initiality.Syntax.
 Require Import TypeTheory.Initiality.SyntaxLemmas.

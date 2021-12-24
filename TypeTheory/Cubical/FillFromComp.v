@@ -99,6 +99,7 @@ Require Import UniMath.CategoryTheory.yoneda.
 
 Require Import TypeTheory.Instances.Presheaves.
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 
 Local Open Scope cat.
 
@@ -513,7 +514,7 @@ Lemma e₀_f_pb {I J} (f : J --> I) : isPullback (e₀_f f).
 Proof.
 apply is_symmetric'_isPullback.
 apply pb_if_pointwise_pb; intros K.
-apply Auxiliary.isPullback_HSET; intros L f1 f2.
+apply isPullback_HSET; intros L f1 f2.
 now apply e₀_pb.
 Qed.
 

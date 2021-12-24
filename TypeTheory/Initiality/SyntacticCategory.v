@@ -7,6 +7,7 @@ Require Import UniMath.CategoryTheory.All.
 Require Import UniMath.PAdics.lemmas. (* just for [setquotprpathsandR] *)
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.Partial.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.Initiality.SplitTypeCat_General.

@@ -16,6 +16,7 @@ Require Import UniMath.CategoryTheory.rezk_completion.
 
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 
 Section Auxiliary.
 
