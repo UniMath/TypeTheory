@@ -1550,6 +1550,38 @@ Defined.
 End Adjoint_Equivalences.
 
 
+(* TODO: currently, sections are independently developed in many places in [TypeTheory].  Try to unify the treatments of them here?  Also unify with ad hoc material on sections in [UniMath.CategoryTheory.limits.pullbacks]: [pb_of_section], [section_from_diagonal], etc.*)
+Section Sections.
+
+  Definition section {C : precategory} {X Y : C} (f : X --> Y)
+    := ∑ (s : Y --> X), s ;; f = identity _.
+
+  Coercion section_pr1 {C : precategory} {X Y : C} (f : X --> Y)
+    : section f -> (Y --> X)
+  := pr1.
+
+  Definition section_property {C : precategory}
+      {X Y : C} {f : X --> Y} (s : section f)
+    : s ;; f = identity _
+  := pr2 s.
+
+  Definition paths_section {C : category} {X Y : C} {f : X --> Y}
+      {s s' : section f}
+    : ((s : Y --> X) = s') -> s = s'.
+  Proof.
+    apply subtypePath.
+    intro; apply homset_property.
+  Qed.
+
+  Definition isaset_section {C : category} {X Y : C} {f : X --> Y}
+    : isaset (section f).
+  Proof.
+    apply isaset_total2.
+    - apply homset_property.
+    - intros; apply isasetaprop, homset_property.
+  Qed.
+
+End Sections.
 
 (** * Unorganised lemmas *)
 

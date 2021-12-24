@@ -106,35 +106,6 @@ Section Terms.
                   apply reind_comp_typecat).
   Defined.
 
-  (* TODO: upstream this and following material on general sections to [TypeTheory.Auxiliary]? *)
-  Definition section {C : precategory} {X Y : C} (f : X --> Y)
-    := ∑ (s : Y --> X), s ;; f = identity _.
-
-  Coercion section_pr1 {C : precategory} {X Y : C} (f : X --> Y)
-    : section f -> (Y --> X)
-  := pr1.
-
-  Definition section_property {C : precategory}
-      {X Y : C} {f : X --> Y} (s : section f)
-    : s ;; f = identity _
-  := pr2 s.
-
-  Definition paths_section {C : category} {X Y : C} {f : X --> Y}
-      {s s' : section f}
-    : ((s : Y --> X) = s') -> s = s'.
-  Proof.
-    apply subtypePath.
-    intro; apply homset_property.
-  Qed.
-
-  Definition isaset_section {C : category} {X Y : C} {f : X --> Y}
-    : isaset (section f).
-  Proof.
-    apply isaset_total2.
-    - apply homset_property.
-    - intros; apply isasetaprop, homset_property.
-  Qed.
-
   Definition tm {C : typecat} {Γ} (A : C Γ) : UU
     := section (dpr_typecat A).
   Identity Coercion section_of_term : tm >-> section.
