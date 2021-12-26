@@ -46,10 +46,9 @@ Section Comp_Ext_Compare.
   : (comp_ext_compare (e @ e') : _ --> _)
     = comp_ext_compare e ;; comp_ext_compare e'.
   Proof.
-    apply pathsinv0.
-    etrans. { apply idtoiso_concat_pr. }
+    etrans. 2: { apply idtoiso_concat_pr. }
     unfold comp_ext_compare. apply maponpaths, maponpaths.
-    apply pathsinv0, maponpathscomp0.
+    apply maponpathscomp0.
   Qed.
 
   Lemma comp_ext_compare_inv {C : typecat}
@@ -210,14 +209,14 @@ Section Terms.
   Proof.
     apply subtypePath; [ intros x; apply homset_property|]; simpl.
     set (pb := make_Pullback _ _).
-    (* Why is there a ' version of this lemma??? *)
+    (* TODO: is there a ' version of [PullbackArrowUnique']?? *)
     apply pathsinv0, (PullbackArrowUnique' _ _ _ pb).
     - rewrite <-assoc.
       etrans; [eapply maponpaths, idtoiso_dpr_typecat|].
       exact (pr2 a).
     - unfold comp_ext_compare; cbn.
       now rewrite q_id_typecat, id_left,
-                  <-assoc, idtoiso_concat_pr, <- maponpathscomp0,
+                  <-assoc, <- idtoiso_concat_pr, <- maponpathscomp0,
                   pathsinv0l, id_right.
   Qed.
 
@@ -245,7 +244,7 @@ Section Terms.
     - unfold comp_ext_compare; cbn.
       rewrite <- assoc, (q_comp_typecat A).
       etrans; [eapply maponpaths|].
-      rewrite !assoc, idtoiso_concat_pr, <- maponpathscomp0, pathsinv0l, <-assoc.
+      rewrite !assoc, <- idtoiso_concat_pr, <- maponpathscomp0, pathsinv0l, <-assoc.
       apply id_left.
       rewrite assoc, (PullbackArrow_PullbackPr2 pb'), <-!assoc.
       now apply maponpaths, (PullbackArrow_PullbackPr2 pb'').
@@ -347,11 +346,11 @@ Section Terms.
       now rewrite id_left, assoc, af, id_left, id_right.
     - rewrite <-!assoc; apply maponpaths.
       unfold e, comp_ext_compare.
-      rewrite !maponpathscomp0, <-!idtoiso_concat_pr, <-!assoc.
+      rewrite !maponpathscomp0, !idtoiso_concat_pr, <-!assoc.
       etrans; [ do 2 eapply maponpaths; rewrite assoc;
                     apply (!q_comp_typecat A (dpr_typecat A) a)|].
       now rewrite af, id_left, q_id_typecat,
-                  idtoiso_concat_pr, <-maponpathscomp0, pathsinv0l.
+                  <- idtoiso_concat_pr, <-maponpathscomp0, pathsinv0l.
   Qed.
 
   Definition reind_tm_var_typecat' {C : split_typecat}

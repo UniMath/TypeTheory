@@ -385,10 +385,9 @@ Lemma comp_ext_compare_comp
 : (comp_ext_compare (e @ e') : _ --> _)
 = comp_ext_compare e ;; comp_ext_compare e'.
 Proof.
-  apply pathsinv0.
-  etrans. { apply idtoiso_concat_pr. }
+  etrans. 2: { apply idtoiso_concat_pr. }
   unfold comp_ext_compare. apply maponpaths, maponpaths.
-  apply pathsinv0, maponpathscomp0.
+  apply maponpathscomp0.
 Qed.
 
 Lemma comp_ext_compare_irrelevant 

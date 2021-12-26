@@ -161,9 +161,8 @@ Section Obj_Ext_Structures_Disp_Utility_Lemmas.
      {Γ : C} {A A' A'' : Ty [Γ]} (e : A = A') (e' : A' = A'')
     : @comp_ext_compare _ X _ _ _ (e @ e') = Δ e ;; Δ e'.
   Proof.
-    apply pathsinv0.
-    etrans. { apply idtoiso_concat_pr. }
-    apply (maponpaths pr1), (maponpaths idtoiso), pathsinv0, maponpathscomp0.
+    etrans. 2: { apply idtoiso_concat_pr. }
+    apply (maponpaths pr1), (maponpaths idtoiso), maponpathscomp0.
   Qed.
   
   Lemma comp_ext_compare_comp_general

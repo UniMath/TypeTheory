@@ -116,7 +116,7 @@ Proof.
   etrans. 2: { apply id_right. }
         apply maponpaths.
   etrans. { apply maponpaths, (@q_id_typecat C_sptc). }
-  etrans. { apply idtoiso_concat_pr. }
+  etrans. { apply pathsinv0, idtoiso_concat_pr. }
   apply idtoiso_eq_idpath.
   etrans. { apply pathsinv0, maponpathscomp0. }
   etrans. { apply maponpaths, pathsinv0l. }
@@ -150,7 +150,7 @@ Proof.
     etrans. { apply maponpaths, pathsinv0, assoc. }
     etrans. { apply assoc. }
     apply maponpaths_2.
-    etrans. { apply idtoiso_concat_pr. }
+    etrans. { apply pathsinv0, idtoiso_concat_pr. }
     eapply idtoiso_eq_idpath.
     etrans. { apply pathsinv0, maponpathscomp0. }
     etrans. { apply maponpaths, pathsinv0l. }
@@ -239,7 +239,7 @@ Proof.
   rewrite (functtransportf (fun A => _ ◂ A)).
   rewrite <- 2 idtoiso_postcompose.
   etrans. { apply maponpaths_2, assoc'. }
-  rewrite idtoiso_concat_pr.
+  rewrite <- idtoiso_concat_pr.
   rewrite <- (maponpathscomp (fun f => A {{f}}) (fun A' => Γ' ◂ A')).
   rewrite <- maponpathscomp0.
   unfold pairing. simpl.
@@ -278,8 +278,8 @@ Proof.
     apply maponpaths_2.
     etrans. 2: { apply id_right. }
     apply maponpaths.
-    etrans. { apply maponpaths, idtoiso_concat_pr. }
-    etrans. { apply idtoiso_concat_pr. }
+    etrans. { apply maponpaths, pathsinv0, idtoiso_concat_pr. }
+    etrans. { apply pathsinv0, idtoiso_concat_pr. }
     apply idtoiso_eq_idpath.
     rewrite <- maponpathsinv0.
     rewrite <- (maponpathscomp (fun f => A {{f}}) (fun A' => Γ' ◂ A')).
@@ -326,7 +326,7 @@ Proof.
   unfold D.
   repeat rewrite assoc.
   etrans. apply maponpaths_2.  apply maponpaths_2. eapply pathsinv0. apply assoc.
-  rewrite idtoiso_concat_pr.
+  rewrite <- idtoiso_concat_pr.
 
   etrans. apply maponpaths_2. apply maponpaths_2. apply maponpaths.
   apply idtoiso_eq_idpath. 

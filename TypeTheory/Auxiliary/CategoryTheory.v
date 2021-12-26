@@ -582,12 +582,10 @@ Proof.
   apply id_right.
 Qed.
 
-
 Lemma idtoiso_concat_pr (C : precategory) (a a' a'' : ob C)
   (p : a = a') (q : a' = a'') :
-  idtoiso p ;; idtoiso q = idtoiso (p @ q).
+  (idtoiso (p @ q) : _ --> _) = idtoiso p ;; idtoiso q.
 Proof.
-  apply pathsinv0.
   apply (base_paths _ _ (idtoiso_concat _ _ _ _ _ _ )).
 Defined.
 

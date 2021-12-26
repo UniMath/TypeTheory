@@ -115,10 +115,8 @@ Section DiscCompCat_mor.
         {Γ : C} {A A' A'' : D_ob X Γ} (e : A = A') (e' : A' = A'')
     : pr1 (F_ob_compare (e @ e')) = F_ob_compare e ;; F_ob_compare e'.
   Proof.
-    apply pathsinv0.
-    etrans. apply idtoiso_concat_pr. 
+    etrans. 2: { apply idtoiso_concat_pr. }
     unfold F_ob_compare. apply maponpaths, maponpaths.
-    apply pathsinv0.
     etrans. 2: apply maponpathscomp0. 
     apply maponpaths.
     apply maponpathscomp0.

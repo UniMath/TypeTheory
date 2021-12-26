@@ -157,9 +157,7 @@ Section Extensions.
   Proof.
     destruct e_Γ; cbn in *.
     etrans. { apply maponpaths, maponpaths, maponpathscomp0. }
-    etrans. { apply pathsinv0, idtoiso_concat_pr. }
-    (* TODO: should direction of [idtoiso_concat_pr] be reversed, to fit conventions?
-    Check upstream which direction is wanted more often. *)
+    etrans. { apply idtoiso_concat_pr. }
     apply maponpaths.
     apply pathsinv0, q_id_typecat.
   Defined.

@@ -97,10 +97,9 @@ Section SplitTypeCat_Cat_Simple.
         {Γ : C} {A A' A'' : (TY' X : functor _ _) Γ : hSet} (e : A = A') (e' : A' = A'')
     : pr1 (reind_ext_compare (e @ e')) = reind_ext_compare e ;; reind_ext_compare e'.
   Proof.
-    apply pathsinv0.
-    etrans. apply idtoiso_concat_pr. 
+    etrans. 2: { apply idtoiso_concat_pr. } 
     unfold reind_ext_compare. apply maponpaths, maponpaths.
-    apply pathsinv0, maponpathscomp0. 
+    apply maponpathscomp0. 
   Qed.
 
   Lemma reind_ext_compare_comp_general {X : split_typecat_structure C}
