@@ -12,7 +12,6 @@ Require Import TypeTheory.Initiality.SplitTypeCat_General.
 
 Section Extensions.
 (** Context extensions in type-categories, i.e. suitable sequences of types *)
-(* TODO: upstream somewhere! And connect to [CSystems] files? *)
 
   Fixpoint
       extension_aux {C : typecat} (Γ:C) (n:nat) {struct n}

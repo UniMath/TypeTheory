@@ -86,6 +86,8 @@ Section Raw_Context_Category_Operations.
 
 End Raw_Context_Category_Operations.
 
+Arguments comp_raw_context {_ _ _} _ _ _/.
+
 (** Interaction of substitution with renaming/weakening *)
 Section Substitution.
 

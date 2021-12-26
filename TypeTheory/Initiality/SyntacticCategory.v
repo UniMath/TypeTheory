@@ -887,9 +887,6 @@ End Syntactic_Types.
 
 Section Split_Typecat.
 
-  (* TODO: upstream? *)
-  Arguments context_extend : simpl never.
-
   Local Definition ext (ΓΓ : context_mod_eq) (AA : type_mod_eq ΓΓ)
     : context_mod_eq.
   Proof.
@@ -1060,9 +1057,6 @@ Section Split_Typecat.
     - intros f. apply qmor_derivable.
     - intros f g e_fg. exact (qmor_eq AA e_fg).
   Defined.
-
-  (* TODO: upstream! *)
-  Arguments comp_raw_context {_ _ _} _ _ _/.
 
   Local Definition dpr_q
       {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
