@@ -295,12 +295,11 @@ End Flat_Contexts_2.
 
 Section Context_Maps_2.
 
-  (* TODO: rename [add_to_raw_context_map] to [extend…] upstream *)
   Lemma derive_extend_context_map
       {Γ Δ : context}
       {f : raw_context_map Δ Γ} (d_f : [! |- f ::: Δ ---> Γ !])
       {A} {a} (d_a : [! Δ |- a ::: subst_ty f A !])
-    : [! |- add_to_raw_context_map f a ::: Δ ---> Γ;;A !].
+    : [! |- extend_raw_context_map f a ::: Δ ---> Γ;;A !].
   Proof.
     intros i; cbn.
     eapply transportb.

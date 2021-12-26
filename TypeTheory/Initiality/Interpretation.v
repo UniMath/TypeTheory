@@ -508,7 +508,7 @@ a little more work to state. *)
       apply tm_transportf_idpath.
   Defined.
 
-  Definition partial_interpretation_add_to_raw_context_map
+  Definition partial_interpretation_extend_raw_context_map
       {X} {m n:nat} (E : environment X m) (As : n -> C X) (B : C X)
       (f : raw_context_map m n) (b : tm_expr m)
     : leq_partial
@@ -517,7 +517,7 @@ a little more work to state. *)
                                  (partial_interpretation_tm U Π E B b)))
         (partial_interpretation_raw_context_map E
           (dB_Sn_rect _ B As)
-          (add_to_raw_context_map f b)).
+          (extend_raw_context_map f b)).
   Proof.
     apply make_leq_partial'; cbn; intros [f_def b_def].
     use tpair.
@@ -536,7 +536,7 @@ a little more work to state. *)
           (tm_as_raw_context_map a)).
   Proof.
     eapply leq_partial_trans.
-    2: { apply partial_interpretation_add_to_raw_context_map. }
+    2: { apply partial_interpretation_extend_raw_context_map. }
     eapply leq_partial_trans.
     2: { eapply bind_leq_partial_1, partial_interpretation_idmap_raw_context. }
     refine (pr2 (bind_return_partial _ _)).
@@ -695,7 +695,7 @@ a little more work to state. *)
   Qed.
 
   (* TODO: consider naming! *)
-  Definition add_to_raw_context_map_tracks_environments
+  Definition extend_raw_context_map_tracks_environments
       {X Y} {f : Y --> X}
       {m n:nat} {ts : raw_context_map n m} {a : tm_expr n} 
       {F : environment Y n} {E : environment X m} {A : C X}
@@ -703,7 +703,7 @@ a little more work to state. *)
       (a_def : is_defined (partial_interpretation_tm U Π F (A ⦃f⦄) a))
       (a_interp : tm A) (e_a : evaluate a_def = reind_tm f a_interp)
     : raw_context_map_tracks_environments
-        f (add_to_raw_context_map ts a)
+        f (extend_raw_context_map ts a)
         F (add_to_environment E ((A,, a_interp) : type_with_term X)).
   Proof.
     refine (dB_Sn_rect _ _ _); intros; cbn.
@@ -719,7 +719,7 @@ a little more work to state. *)
         (evaluate a_def) (tm_as_raw_context_map a)
         E (extend_environment E A).
   Proof.
-    use add_to_raw_context_map_tracks_environments.   
+    use extend_raw_context_map_tracks_environments.
     - intros i. 
 (* can this be simplified with [tm_transportf_partial_interpretation_tm_leq]? *)
       use tpair; cbn.

@@ -1086,7 +1086,7 @@ Section Split_Typecat.
       (g : raw_context_map ΔΔ ΓΓ') (h : raw_context_map ΔΔ (S ΓΓ))
     : raw_context_map ΔΔ (S ΓΓ').
   Proof.
-    exact (add_to_raw_context_map g (h dB_top)).
+    exact (extend_raw_context_map g (h dB_top)).
   Defined.
 
   Arguments reind_pb_raw {_ _ _} _ _ _/.
