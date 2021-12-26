@@ -1,8 +1,6 @@
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.MoreFoundations.Propositions.
-(* [MoreFoundations.Propositions] seems to need individual importing
-to provide notation [∃!] as [iscontr_hProp] instead of just [iscontr]. *)
-(* TODO: figure out why; perhaps raise issue upstream? *)
+(* [MoreFoundations.Propositions] seems to need individual importing to provide notation [∃!] as [iscontr_hProp] instead of just [iscontr]. TODO: figure out why; perhaps raise issue upstream? *)
 Require Import UniMath.CategoryTheory.All.
 
 
@@ -20,7 +18,6 @@ Require Import TypeTheory.Initiality.Environments.
 Require Import TypeTheory.Initiality.Interpretation.
 
 Section Interpretation_Stratified_Contexts.
-(* TODO: upstream to [InterpretationLemmas]? *)
 
   Context {C : split_typecat}
           (U : universe_struct C)
@@ -157,7 +154,7 @@ Section Existence.
         SyntacticCategory_Structure.pi
     = id_typecat syntactic_typecat.
   Proof.
-  Admitted. (* [intepretation_map_id]: proof-irrelevant; should follow reasonably directly from [interpretation_map] together with [interpretation_trivial]. *)
+  Admitted. (* [intepretation_map_id]: proof-irrelevant; should probably be removed, as will be an (easy, and easily-discoverable) consequence of [interpretation_unique below. *)
 
 End Existence.
 
@@ -174,12 +171,6 @@ Section Uniqueness.
       (f_Π : preserves_pi_struct SyntacticCategory_Structure.pi Π f)
     : f = interpretation_map C U Π.
   Proof.
-  (* Using [interpretation_map_natural] and [interpretation_map_id] above, together with [id_left] for the category of contextual cats:
-    interpretation_map C U Π
-    = compose (interpretation_map syntactic_typecat _ _) f 
-    = compose (identity syntactic_typecat f)
-    = f
-  *)
-  Admitted. (* [interpretation_unique]: should follow purely formally from [interpretation_map_natural] and [interpretation_map_id] above. *) 
+  Admitted. (* [interpretation_unique]: generalise to two parallel maps [f g]; then should follow purely formally from [interpretation_map_natural] and [interpretation_map], by taking map into equaliser of two given maps. *)
 
 End Uniqueness.
