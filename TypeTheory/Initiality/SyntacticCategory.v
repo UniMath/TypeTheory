@@ -227,57 +227,6 @@ computational behaviour. *)
 
   (* TODO: perhaps add [take_representative_with_isaprop], […with_hProp] also *)
 
-  (* We provide several idioms for destructing squashed hypotheses:
-  - [use hinhfun3] or [refine (hinhfun3 _ H1 H2 H3)], for a small given number of squashed hypotheses;
-  - [refine (hinhpr _ H1 ⊛ H2 ⊛ H3 ⊛ …)], for arbitrarily many squashed hypotheses at once
-  - [apply (squash_to_prop H)] or [apply (squash_to_hProp H)] for one at a time
-   *)
-
-  Local Open Scope logic.
-
-  Definition hinh_apply {Q : hProp} {X : UU} (f : X -> Q) : himpl (∥ X ∥) Q
-  := fun x => squash_to_hProp x f.
-
-  Infix "$h" := hinh_apply (at level 101, left associativity).
-
-  Definition squash_to_hProp_2 {Y : hProp} {X1 X2: UU}
-      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (f : X1 ⇒ X2 ⇒ Y)
-    : Y
-  := f $h x1 $h x2.
-
-  Definition squash_to_hProp_3 {Y : hProp} {X1 X2 X3 : UU}
-      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)
-      (f : X1 ⇒ X2 ⇒ X3 ⇒ Y)
-    : Y
-  := f $h x1 $h x2 $h x3.
-
-  Definition squash_to_hProp_4 {Y : hProp} {X1 X2 X3 X4 : UU}
-      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥)
-      (f : X1 ⇒ X2 ⇒ X3 ⇒ X4 ⇒ Y)
-    : Y
-  := f $h x1 $h x2 $h x3 $h x4.
-
-  Definition squash_to_hProp_5 {Y : hProp} {X1 X2 X3 X4 X5 : UU}
-      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)
-      (x4 : ∥ X4 ∥) (x5 : ∥ X5 ∥)
-      (f : X1 ⇒ X2 ⇒ X3 ⇒ X4 ⇒ X5 ⇒ Y)
-    : Y
-  := f $h x1 $h x2 $h x3 $h x4 $h x5.
-
-  Definition squash_to_hProp_6 {Y : hProp} {X1 X2 X3 X4 X5 X6 : UU}
-      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)
-      (x4 : ∥ X4 ∥) (x5 : ∥ X5 ∥) (x6 : ∥ X6 ∥)
-      (f : X1 ⇒ X2 ⇒ X3 ⇒ X4 ⇒ X5 ⇒ X6 ⇒ Y)
-    : Y
-  := f $h x1 $h x2 $h x3 $h x4 $h x5 $h x6.
-
-  Definition squash_to_hProp_7 {Y : hProp} {X1 X2 X3 X4 X5 X6 X7 : UU}
-      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥)
-      (x5 : ∥ X5 ∥) (x6 : ∥ X6 ∥) (x7 : ∥ X7 ∥)
-      (f : X1 ⇒ X2 ⇒ X3 ⇒ X4 ⇒ X5 ⇒ X6 ⇒ X7 ⇒ Y)
-    : Y
-  := f $h x1 $h x2 $h x3 $h x4 $h x5 $h x6 $h x7.
-
   Ltac unsquash_to_hProp x := eapply (squash_to_hProp x); clear x; intro x.
   Ltac unsquash_to_prop x := eapply (squash_to_prop x); [ | clear x; intro x].
 
@@ -334,6 +283,17 @@ End Auxiliary.
 
 Infix "⊛" := hinhfun' (at level 100).
 
+
+(* We provide several idioms for destructing squashed hypotheses:
+  - [unsquash x1 x2 x3] to “destruct” squashed hypotheses to their unsquashed versions;
+  - [unsquash x1 x2 as p1 p2] to further destruct according to given patterns;
+  - [unsquash from t1 t2 as p1 p2] for unsquashing not a variable/hypothesis, but a general term.
+
+  Unfortunately Ltac does not yet allow arbitrary-length lists of inputs, so these are provided here just for small finite numbers of arguments; more should be added as needed.
+*)
+
+(* A wart at the moment is that when the goal is not given as an hProp, its prop-property will appear as a goal separately for each hypothesis unsquashed. TODO: improve the branching in these tactics to avoid this redundancy. TODO: also improve it to recognise [ishinh_UU]. *)
+
 Ltac unsquash_to_hProp x := eapply (squash_to_hProp x); clear x; intro x.
 Ltac unsquash_to_prop x := eapply (squash_to_hProp x); [ | clear x; intro x].
 
@@ -360,9 +320,71 @@ Tactic Notation "unsquash"
        ident(x1) ident(x2) ident(x3) ident(x4) ident(x5) ident(x6) ident(x7)
   := first [ unsquash_to_hProp x1; unsquash x2 x3 x4 x5 x6 x7
            | unsquash_to_prop x1; [ | unsquash x2 x3 x4 x5 x6 x7] ].
+
 Tactic Notation "unsquash" ident(x) "as" simple_intropattern(p)
   := first [ eapply (squash_to_hProp x); clear x; intros p
            | eapply (squash_to_prop x); [ | clear x; intros p] ].
+
+Tactic Notation "unsquash" ident(x1) ident(x2)
+       "as" simple_intropattern(p1) simple_intropattern(p2)
+  := first [ eapply (squash_to_hProp x1); clear x1; intros p1;
+             unsquash x2 as p2
+           | eapply (squash_to_prop x1); [ | clear x1; intros p1];
+             unsquash x2 as p2].
+
+Tactic Notation "unsquash" "from" constr(x) "as" simple_intropattern(p)
+  := first [ eapply (squash_to_hProp x); intros p
+           | eapply (squash_to_prop x); [ | intros p] ].
+
+Tactic Notation "unsquash" "from" constr(x1) constr(x2)
+       "as" simple_intropattern(p1) simple_intropattern(p2)
+  := first [ eapply (squash_to_hProp x1); intros p1;
+             unsquash from x2 as p2
+           | eapply (squash_to_prop x1); [ | intros p1;
+             unsquash from x2 as p2]].
+
+Tactic Notation "unsquash" "from" constr(x1) constr(x2) constr(x3)
+       "as" simple_intropattern(p1) simple_intropattern(p2) simple_intropattern(p3)
+  := first [ eapply (squash_to_hProp x1); intros p1;
+             unsquash from x2 x3 as p2 p3
+           | eapply (squash_to_prop x1); [ | intros p1;
+             unsquash from x2 x3 as p2 p3]].
+
+Tactic Notation "unsquash" "from" constr(x1) constr(x2) constr(x3) constr(x4)
+       "as" simple_intropattern(p1) simple_intropattern(p2) simple_intropattern(p3) simple_intropattern(p4)
+  := first [ eapply (squash_to_hProp x1); intros p1;
+             unsquash from x2 x3 x4 as p2 p3 p4
+           | eapply (squash_to_prop x1); [ | intros p1;
+             unsquash from x2 x3 x4 as p2 p3 p4]].
+
+Tactic Notation "unsquash" "from"
+       constr(x1) constr(x2) constr(x3) constr(x4) constr(x5)
+       "as" simple_intropattern(p1) simple_intropattern(p2)
+       simple_intropattern(p3) simple_intropattern(p4) simple_intropattern(p5)
+  := first [ eapply (squash_to_hProp x1); intros p1;
+             unsquash from x2 x3 x4 x5 as p2 p3 p4 p5
+           | eapply (squash_to_prop x1); [ | intros p1;
+             unsquash from x2 x3 x4 x5 as p2 p3 p4 p5]].
+
+Tactic Notation "unsquash" "from"
+       constr(x1) constr(x2) constr(x3) constr(x4) constr(x5) constr(x6)
+       "as" simple_intropattern(p1) simple_intropattern(p2)
+       simple_intropattern(p3) simple_intropattern(p4)
+       simple_intropattern(p5) simple_intropattern(p6)
+  := first [ eapply (squash_to_hProp x1); intros p1;
+             unsquash from x2 x3 x4 x5 x6 as p2 p3 p4 p5 p6
+           | eapply (squash_to_prop x1); [ | intros p1;
+             unsquash from x2 x3 x4 x5 x6 as p2 p3 p4 p5 p6]].
+
+Tactic Notation "unsquash" "from"
+       constr(x1) constr(x2) constr(x3) constr(x4) constr(x5) constr(x6) constr(x7)
+       "as" simple_intropattern(p1) simple_intropattern(p2)
+       simple_intropattern(p3) simple_intropattern(p4)
+       simple_intropattern(p5) simple_intropattern(p6) simple_intropattern(p7)
+  := first [ eapply (squash_to_hProp x1); intros p1;
+             unsquash from x2 x3 x4 x5 x6 x7 as p2 p3 p4 p5 p6 p7
+           | eapply (squash_to_prop x1); [ | intros p1;
+             unsquash from x2 x3 x4 x5 x6 x7 as p2 p3 p4 p5 p6 p7]].
 
 (** The construction of the syntactic type-category is rather trickier than one might hope, because of the need to quotient by some form of context equality — which, as ever when quotienting objects of a category, is quite fiddly.
 
@@ -1427,7 +1449,7 @@ Section Misc.
         * refine (derive_tm_as_raw_context_map _ _);
             auto using derive_flat_cxt_from_strat.
         * use derive_dB_next_context_map; auto using derive_flat_cxt_from_strat.
-  Defined.
+  Time Defined.
 
   Definition tm_expr_as_partial_term
       {n} (Γ : wellformed_context_of_length n)
