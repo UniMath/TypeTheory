@@ -634,11 +634,13 @@ Section Context_Map_Operations.
   Proof.
     refine (setquotpr _ _).
     exists (idmap_raw_context _).
-    apply map_for_some_rep.
-    apply (take_context_representative ΓΓ). { apply isapropishinh. }
-    intros Γ. apply hinhpr. exists Γ; exists Γ.
-    refine (hinhfun _ Γ); intros.
-    use derive_idmap; apply derive_flat_cxt_from_strat; assumption.
+    abstract (
+      apply map_for_some_rep;
+      apply (take_context_representative ΓΓ);
+      [ apply isapropishinh
+      | intros Γ; apply hinhpr; exists Γ; exists Γ;
+        refine (hinhfun _ Γ); intros;
+        use derive_idmap; apply derive_flat_cxt_from_strat; assumption]).
   Defined.
 
   Local Definition compose
@@ -647,24 +649,32 @@ Section Context_Map_Operations.
   Proof.
     revert ff gg. use setquotfun2'; [ | split].
     - (* construction of the composite *)
-      intros f g. exists (comp_raw_context f g); intros Γ Θ.
-      apply (take_context_representative ΔΔ). { apply isapropishinh. }
-      intros Δ.
-      refine (hinhfun3 _ Δ (map_derivable f Γ Δ) (map_derivable g Δ Θ)).
-      intros d_Δ d_f d_g; eauto using (derive_comp d_f).
+      intros f g. exists (comp_raw_context f g).
+      abstract (intros Γ Θ;
+        apply (take_context_representative ΔΔ);
+        [ apply isapropishinh |
+          intros Δ;
+          unsquash from Δ (map_derivable f Γ Δ) (map_derivable g Δ Θ)
+            as d_Δ d_f d_g; apply hinhpr; 
+          eauto using (derive_comp d_f) ]).
     - (* respecting equality in [f] *)
-      intros f f' g e_f Γ Θ. cbn.
-      apply (take_context_representative ΔΔ). { apply isapropishinh. } intros Δ.
-      refine (hinhfun5 _ Γ (e_f Γ Δ) (map_derivable f Γ Δ)
-                       (map_derivable f' Γ Δ) (map_derivable g Δ Θ)).
-      intros ? e ? ? ?; refine (comp_raw_context_cong_l _ _ _ e _);
-        auto using derive_flat_cxt_from_strat.
+      abstract ( intros f f' g e_f Γ Θ; cbn;
+        apply (take_context_representative ΔΔ); 
+        [ apply isapropishinh |
+          intros Δ;
+          unsquash from Γ (e_f Γ Δ) (map_derivable f Γ Δ)
+                       (map_derivable f' Γ Δ) (map_derivable g Δ Θ)
+            as ? e ? ? ?; apply hinhpr;
+          refine (comp_raw_context_cong_l _ _ _ e _);
+          auto using derive_flat_cxt_from_strat ]).
     - (* respecting equality in [g] *)
-      cbn; intros f g g' e_g Γ Θ.
-      apply (take_context_representative ΔΔ). { apply isapropishinh. } intros Δ.
-      refine (hinhfun3 _ Γ (e_g Δ Θ) (map_derivable f Γ Δ)).
-      intros ? e ?; refine (comp_raw_context_cong_r _ _ e);
-        auto using derive_flat_cxt_from_strat.
+      abstract ( cbn; intros f g g' e_g Γ Θ;
+        apply (take_context_representative ΔΔ);
+        [ apply isapropishinh |
+          intros Δ;
+          unsquash from Γ (e_g Δ Θ) (map_derivable f Γ Δ) as ? e ?;
+          apply hinhpr; refine (comp_raw_context_cong_r _ _ e);
+          auto using derive_flat_cxt_from_strat ]).
   Defined.
 
   (* TODO: “empty” and “extension” context maps. *)
@@ -1261,21 +1271,22 @@ Section Misc.
     - (* morphism part *)
       apply setquotpr.
       exists (tm_as_raw_context_map a).
-      apply map_for_some_rep, hinhpr.
-      refine (context_as_context_representative _,,_).
-      use tpair.
-      { apply ext_representative. apply context_as_context_representative. }
-      refine (hinhfun2 _ (context_derivable Γ) (isd_a)); intros d_Γ d_a; cbn.
-      refine (derive_tm_as_raw_context_map _ _);
-        auto using derive_flat_cxt_from_strat.
+      abstract (
+          apply map_for_some_rep, hinhpr;
+          refine (context_as_context_representative _,,_);
+          use tpair;
+          [ apply ext_representative, context_as_context_representative
+          | refine (hinhfun2 _ (context_derivable Γ) (isd_a)); intros d_Γ d_a; cbn;
+            refine (derive_tm_as_raw_context_map _ _);
+        auto using derive_flat_cxt_from_strat]).
     - (* section property *)
-      Time apply iscompsetquotpr; simpl.
+      Time apply iscompsetquotpr; cbn.
       (* TODO: adapt [mapeq_for_some_rep] sto incorporate [iscompsetquotpr]? *)
       refine (raw_mapeq_for_some_rep _ _ _); apply hinhpr.
       refine (context_as_context_representative _,,_).
       refine (context_as_context_representative _,,_).
       refine (hinhfun3 _ (context_derivable Γ) isd_A isd_a); intros d_Γ d_A d_a.
-      repeat split; simpl.
+      repeat split.
       + use (@derive_comp _ (Γ;;A)%context).
         * refine (derive_tm_as_raw_context_map _ _);
             auto using derive_flat_cxt_from_strat.
