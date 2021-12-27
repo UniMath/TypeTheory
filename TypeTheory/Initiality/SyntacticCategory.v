@@ -284,15 +284,21 @@ End Auxiliary.
 Infix "⊛" := hinhfun' (at level 100).
 
 
-(* We provide several idioms for destructing squashed hypotheses:
+(* We provide several idioms here for destructing squashed hypotheses:
   - [unsquash x1 x2 x3] to “destruct” squashed hypotheses to their unsquashed versions;
   - [unsquash x1 x2 as p1 p2] to further destruct according to given patterns;
   - [unsquash from t1 t2 as p1 p2] for unsquashing not a variable/hypothesis, but a general term.
+  - [refine (hinhfun2 _ t1 t2)] when the goal is itself a truncation, and these are the last hypotheses we need to unsquash.
+
+  Performance note: the [hinhfun] family seem to compute better than the [unsquash] variants, so should be preferred in definitions that will need to compute later.
 
   Unfortunately Ltac does not yet allow arbitrary-length lists of inputs, so these are provided here just for small finite numbers of arguments; more should be added as needed.
-*)
 
-(* A wart at the moment is that when the goal is not given as an hProp, its prop-property will appear as a goal separately for each hypothesis unsquashed. TODO: improve the branching in these tactics to avoid this redundancy. TODO: also improve it to recognise [ishinh_UU]. *)
+  A wart at the moment is that when the goal is not given as an hProp, its prop-property will appear as a goal separately for each hypothesis unsquashed.
+
+  TODO: improve the branching in these tactics to avoid the redundancy when goal not given as hProp.
+  TODO: also improve them to recognise [ishinh_UU].
+  TODO: also try to understand why [unsquash] performs  *)
 
 Ltac unsquash_to_hProp x := eapply (squash_to_hProp x); clear x; intro x.
 Ltac unsquash_to_prop x := eapply (squash_to_hProp x); [ | clear x; intro x].
@@ -1288,8 +1294,9 @@ Section Split_Typecat.
         apply (take_context_representative ΓΓ); [apply isasetsetquot|]; intros Γ.
         apply (take_context_representative ΓΓ'); [apply isasetsetquot|]; intros Γ'.
         apply iscompsetquotpr; simpl; intros Γ''.
-        refine (hinhfun3 _ (type_derivable A Γ) (map_derivable f Γ' Γ) (map_derivable g Γ'' Γ')).
-        intros hA hf hg.
+        unsquash from (type_derivable A Γ) (map_derivable f Γ' Γ)
+                      (map_derivable g Γ'' Γ')
+          as hA hf hg; apply hinhpr.
         rewrite <- subst_subst_ty.
         apply derive_tyeq_refl.
         use (subst_derivation [! Γ' |- _ !] _ hg).
