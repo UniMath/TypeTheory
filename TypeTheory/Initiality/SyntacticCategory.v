@@ -682,17 +682,17 @@ Section Context_Maps.
   Proof.
     repeat split.
     - intros f g h e1 e2 Γ Δ.
-      use (hinhfun7 _ Γ Δ (map_derivable f Γ Δ) (map_derivable g Γ Δ)
-                    (map_derivable h Γ Δ) (e1 Γ Δ) (e2 Γ Δ)).
-      intros d_Γ d_Δ d_f d_g d_h d_fg d_gh.
+      unsquash from Γ Δ (map_derivable f Γ Δ) (map_derivable g Γ Δ)
+                    (map_derivable h Γ Δ) (e1 Γ Δ) (e2 Γ Δ)
+        as d_Γ d_Δ d_f d_g d_h d_fg d_gh; apply hinhpr.
       refine (derive_mapeq_trans _ _ _ d_g _ _ _);
         auto using derive_flat_cxt_from_strat.
     - intros f Γ Δ.
-      use (hinhfun _ (map_derivable f Γ Δ)); intros H.
+      unsquash from (map_derivable f Γ Δ) as H; apply hinhpr.
       apply derive_mapeq_refl; auto.
     - intros f g e Γ Δ.
-      use (hinhfun5 _ Γ Δ (map_derivable f Γ Δ) (map_derivable g Γ Δ) (e Γ Δ));
-      intros d_Γ d_Δ d_f d_g H i.
+      unsquash from Γ Δ (map_derivable f Γ Δ) (map_derivable g Γ Δ) (e Γ Δ)
+        as ? ? ? ? ?. apply hinhpr; intro i.
       apply derive_mapeq_sym; auto using derive_flat_cxt_from_strat.
   Qed.
 
@@ -726,12 +726,10 @@ Section Context_Maps.
         ∥ [! |- f ::: Γ ---> Δ !] ∥.
   Proof.
     intros H Γ Δ.
-    unsquash H as [Γ' [Δ' d_f]].
-    refine (hinhfun7 _ Γ Γ' Δ Δ'
-                    (cxteq_context_representatives Γ Γ')
+    unsquash H as [Γ' [Δ' d_f]]; unsquash d_f.
+    unsquash from Γ Γ' Δ Δ' (cxteq_context_representatives Γ Γ')
                     (cxteq_context_representatives Δ Δ')
-                    d_f).
-    clear d_f. intros ? d_Γ' ? d_Δ' ? ? ?.
+      as ? d_Γ' ? d_Δ' ? ?. apply hinhpr.
     apply (derive_map_conv_cxteq_dom d_Γ');
       auto using derive_flat_cxt_from_strat, derive_flat_cxteq_sym.
     use (derive_map_conv_cxteq_cod _ d_Δ');
@@ -750,11 +748,10 @@ Section Context_Maps.
   Proof.
     intros H Γ Δ.
     unsquash H as [Γ' [Δ' d_fg]].
-    refine (hinhpr _ ⊛ Γ ⊛ Γ' ⊛ Δ ⊛ Δ'
-                    ⊛ (cxteq_context_representatives Γ Γ')
-                    ⊛ (cxteq_context_representatives Δ Δ')
-                    ⊛ d_fg).
-    intros ? d_Γ' ? d_Δ' ? ? [? [? ?]].
+    unsquash from Γ Γ' Δ Δ' d_fg
+             (cxteq_context_representatives Γ Γ')
+             (cxteq_context_representatives Δ Δ')
+      as ? d_Γ' ? d_Δ' [? [? ?]] ? ?. apply hinhpr.
     apply (derive_mapeq_conv_cxteq_dom d_Γ');
       auto using derive_flat_cxt_from_strat, derive_flat_cxteq_sym,
          (derive_map_conv_cxteq_cod d_Γ' d_Δ').
@@ -770,10 +767,10 @@ Section Context_Maps.
         ∥ [! |- f === g ::: Γ ---> Δ !] ∥.
   Proof.
     intros H. apply raw_mapeq_for_some_rep.
-    unsquash H as [Γ [Δ H]].
+    unsquash H as [Γ [Δ H]]; unsquash H.
     apply hinhpr; exists Γ, Δ.
-    refine (hinhfun3 _ (map_derivable f Γ Δ) (map_derivable g Γ Δ) H); clear H.
-    intros; repeat split; auto.
+    unsquash from (map_derivable f Γ Δ) (map_derivable g Γ Δ) as ? ?.
+    apply hinhpr. intros; repeat split; auto.
   Qed.
 
   Lemma mapeq_from_path
@@ -782,7 +779,7 @@ Section Context_Maps.
     -> mapeq ΓΓ ΔΔ f g.
   Proof.
     intros e_fg Γ Δ.
-    refine (hinhfun _ (map_derivable f Γ Δ)); intros d_f.
+    unsquash from (map_derivable f Γ Δ) as d_f; apply hinhpr.
     intros i; rewrite <- (e_fg i).
     apply derive_tmeq_refl, d_f.
   Qed.
@@ -952,7 +949,7 @@ Section Syntactic_Types.
   := pr1 A : type_over ΓΓ.
   Coercion type_representative_as_type : type_representative >-> type_over.
 
-  (* TODO: generalise to general “representatives” *)
+  (* TODO: generalise to “representatives” of arbitrary eqrel, and upstrea. *)
   Lemma typeeq_type_representatives
       {n} {ΓΓ : _ n} {AA : type_mod_eq ΓΓ} (A A' : type_representative AA)
     : typeeq_eqrel A A'.
@@ -968,10 +965,9 @@ Section Syntactic_Types.
   Proof.
     intros H Γ.
     unsquash H as [Γ' d_A].
-    refine (hinhfun3 _ Γ Γ' (cxteq_context_representatives Γ Γ')).
-    intros d_Γ d_Γ' e_Γ.
-    apply (derive_ty_conv_cxteq Γ'); auto using derive_flat_cxt_from_strat.
-    eauto using derive_flat_cxteq_sym, derive_flat_cxt_from_strat.
+    unsquash from Γ Γ' (cxteq_context_representatives Γ Γ') as d_Γ d_Γ' e_Γ.
+    apply hinhpr, (derive_ty_conv_cxteq Γ'); 
+      eauto using derive_flat_cxteq_sym, derive_flat_cxt_from_strat.
   Qed.
 
   Lemma typeeq_for_some_rep
@@ -981,10 +977,9 @@ Section Syntactic_Types.
   Proof.
     intros H Γ.
     unsquash H as [Γ' d_AB].
-    refine (hinhfun3 _ Γ Γ' (cxteq_context_representatives Γ Γ')).
-    intros d_Γ d_Γ' e_Γ.
-    apply (derive_tyeq_conv_cxteq Γ'); auto using derive_flat_cxt_from_strat.
-    eauto using derive_flat_cxteq_sym, derive_flat_cxt_from_strat.
+    unsquash from Γ Γ' (cxteq_context_representatives Γ Γ') as d_Γ d_Γ' e_Γ.
+    apply hinhpr, (derive_tyeq_conv_cxteq Γ');
+      eauto using derive_flat_cxt_from_strat, derive_flat_cxteq_sym.
   Qed.
 
 End Syntactic_Types.
@@ -1107,14 +1102,13 @@ Section Split_Typecat.
     apply (take_context_representative ΓΓ'). { apply propproperty. } intros Γ'.
     revert AA. use setquotunivprop'. { intros; apply propproperty. } intros A.
     apply map_for_some_rep, hinhpr.
-    exists (ext_representative Γ' _); simpl.
-    exists (ext_representative Γ _); simpl.
-    refine (hinhfun4 _ Γ Γ' (A Γ) (map_derivable f Γ' Γ)).
-    intros d_Γ d_Γ' d_A d_f.
+    exists (ext_representative Γ' _); cbn.
+    exists (ext_representative Γ _); cbn.
+    unsquash from Γ Γ' (A Γ) (map_derivable f Γ' Γ) as d_Γ d_Γ' d_A d_f;
+      apply hinhpr.
     refine (derive_weaken_raw_context_map _ _ _ d_f);
       auto using derive_flat_cxt_from_strat.
   Qed.
-
 
   Local Definition qmor_eq
       {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
@@ -1127,9 +1121,9 @@ Section Split_Typecat.
     apply (take_context_representative ΓΓ). { apply propproperty. } intros Γ.
     apply (take_context_representative ΓΓ'). { apply propproperty. } intros Γ'.
     revert AA. use setquotunivprop'. { intros; apply propproperty. } intros A.
-    refine (hinhfun6 _ Γ Γ' (A Γ)
-                     (map_derivable f Γ' Γ) (map_derivable g Γ' Γ) (e_fg Γ' Γ)).
-    intros d_Γ d_Γ' d_A d_f d_g d_fg.
+    unsquash from Γ Γ' (A Γ)
+             (map_derivable f Γ' Γ) (map_derivable g Γ' Γ) (e_fg Γ' Γ)
+      as d_Γ d_Γ' d_A d_f d_g d_fg; apply hinhpr.
     exists (ext_representative Γ' _); simpl.
     exists (ext_representative Γ _); simpl.
     apply hinhpr; repeat split.
