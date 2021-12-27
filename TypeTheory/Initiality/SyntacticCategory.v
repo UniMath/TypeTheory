@@ -227,13 +227,72 @@ computational behaviour. *)
 
   (* TODO: perhaps add [take_representative_with_isaprop], […with_hProp] also *)
 
-  Lemma hinh_apply {X Y : UU} (f : ∥ X → Y ∥) : ∥ X ∥ → ∥ Y ∥.
+  (* We provide several idioms for destructing squashed hypotheses:
+  - [use hinhfun3] or [refine (hinhfun3 _ H1 H2 H3)], for a small given number of squashed hypotheses;
+  - [refine (hinhpr _ H1 ⊛ H2 ⊛ H3 ⊛ …)], for arbitrarily many squashed hypotheses at once
+  - [apply (squash_to_prop H)] or [apply (squash_to_hProp H)] for one at a time
+   *)
+
+  Local Open Scope logic.
+
+  Definition hinh_apply {Q : hProp} {X : UU} (f : X -> Q) : himpl (∥ X ∥) Q
+  := fun x => squash_to_hProp x f.
+
+  Infix "$h" := hinh_apply (at level 101, left associativity).
+
+  Definition squash_to_hProp_2 {Y : hProp} {X1 X2: UU}
+      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (f : X1 ⇒ X2 ⇒ Y)
+    : Y
+  := f $h x1 $h x2.
+
+  Definition squash_to_hProp_3 {Y : hProp} {X1 X2 X3 : UU}
+      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)
+      (f : X1 ⇒ X2 ⇒ X3 ⇒ Y)
+    : Y
+  := f $h x1 $h x2 $h x3.
+
+  Definition squash_to_hProp_4 {Y : hProp} {X1 X2 X3 X4 : UU}
+      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥)
+      (f : X1 ⇒ X2 ⇒ X3 ⇒ X4 ⇒ Y)
+    : Y
+  := f $h x1 $h x2 $h x3 $h x4.
+
+  Definition squash_to_hProp_5 {Y : hProp} {X1 X2 X3 X4 X5 : UU}
+      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)
+      (x4 : ∥ X4 ∥) (x5 : ∥ X5 ∥)
+      (f : X1 ⇒ X2 ⇒ X3 ⇒ X4 ⇒ X5 ⇒ Y)
+    : Y
+  := f $h x1 $h x2 $h x3 $h x4 $h x5.
+
+  Definition squash_to_hProp_6 {Y : hProp} {X1 X2 X3 X4 X5 X6 : UU}
+      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)
+      (x4 : ∥ X4 ∥) (x5 : ∥ X5 ∥) (x6 : ∥ X6 ∥)
+      (f : X1 ⇒ X2 ⇒ X3 ⇒ X4 ⇒ X5 ⇒ X6 ⇒ Y)
+    : Y
+  := f $h x1 $h x2 $h x3 $h x4 $h x5 $h x6.
+
+  Definition squash_to_hProp_7 {Y : hProp} {X1 X2 X3 X4 X5 X6 X7 : UU}
+      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥)
+      (x5 : ∥ X5 ∥) (x6 : ∥ X6 ∥) (x7 : ∥ X7 ∥)
+      (f : X1 ⇒ X2 ⇒ X3 ⇒ X4 ⇒ X5 ⇒ X6 ⇒ X7 ⇒ Y)
+    : Y
+  := f $h x1 $h x2 $h x3 $h x4 $h x5 $h x6 $h x7.
+
+  Ltac unsquash_to_hProp x := eapply (squash_to_hProp x); clear x; intro x.
+  Ltac unsquash_to_prop x := eapply (squash_to_prop x); [ | clear x; intro x].
+
+  Tactic Notation "unsquash" ident(x)
+    := first [ unsquash_to_hProp x | unsquash_to_prop x ].
+  Tactic Notation "unsquash" ident(x1) ident(x2)
+    := first [ unsquash_to_hProp x1; unsquash x2
+           | unsquash_to_prop x1; [ | unsquash x2] ].
+
+  Lemma hinhfun' {X Y : UU} (f : ∥ X → Y ∥) : ∥ X ∥ → ∥ Y ∥.
   Proof.
-    intros x P a.
-    apply (x P); auto.
+    intro x. unsquash x f. apply hinhpr; auto.
   Defined.
 
-  Infix "⊛" := hinh_apply (at level 100).
+  Infix "⊛" := hinhfun' (at level 100).
 
   Lemma hinhfun3 {X1 X2 X3 Y : UU} (f : X1 -> X2 -> X3 -> Y)
       (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)
@@ -264,7 +323,7 @@ computational behaviour. *)
   Defined.
 
   Lemma hinhfun7 {X1 X2 X3 X4 X5 X6 X7 Y : UU}
-                 (f : X1 -> X2 -> X3 -> X4 -> X5 -> X6 -> X7 ->  Y)
+                 (f : X1 -> X2 -> X3 -> X4 -> X5 -> X6 -> X7 -> Y)
                  (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥) (x5 : ∥ X5 ∥)
                  (x6 : ∥ X6 ∥) (x7 : ∥ X7 ∥) : ∥ Y ∥.
   Proof.
@@ -273,8 +332,37 @@ computational behaviour. *)
 
 End Auxiliary.
 
-Infix "⊛" := hinh_apply (at level 100).
+Infix "⊛" := hinhfun' (at level 100).
 
+Ltac unsquash_to_hProp x := eapply (squash_to_hProp x); clear x; intro x.
+Ltac unsquash_to_prop x := eapply (squash_to_hProp x); [ | clear x; intro x].
+
+Tactic Notation "unsquash" ident(x)
+  := first [ unsquash_to_hProp x | unsquash_to_prop x ].
+Tactic Notation "unsquash" ident(x1) ident(x2)
+  := first [ unsquash_to_hProp x1; unsquash x2
+           | unsquash_to_prop x1; [ | unsquash x2] ].
+Tactic Notation "unsquash" ident(x1) ident(x2) ident(x3)
+  := first [ unsquash_to_hProp x1; unsquash x2 x3
+           | unsquash_to_prop x1; [ | unsquash x2 x3] ].
+Tactic Notation "unsquash" ident(x1) ident(x2) ident(x3) ident(x4)
+  := first [ unsquash_to_hProp x1; unsquash x2 x3 x4
+           | unsquash_to_prop x1; [ | unsquash x2 x3 x4] ].
+Tactic Notation "unsquash"
+       ident(x1) ident(x2) ident(x3) ident(x4) ident(x5)
+  := first [ unsquash_to_hProp x1; unsquash x2 x3 x4 x5
+           | unsquash_to_prop x1; [ | unsquash x2 x3 x4 x5] ].
+Tactic Notation "unsquash"
+       ident(x1) ident(x2) ident(x3) ident(x4) ident(x5) ident(x6)
+  := first [ unsquash_to_hProp x1; unsquash x2 x3 x4 x5 x6
+           | unsquash_to_prop x1; [ | unsquash x2 x3 x4 x5 x6] ].
+Tactic Notation "unsquash"
+       ident(x1) ident(x2) ident(x3) ident(x4) ident(x5) ident(x6) ident(x7)
+  := first [ unsquash_to_hProp x1; unsquash x2 x3 x4 x5 x6 x7
+           | unsquash_to_prop x1; [ | unsquash x2 x3 x4 x5 x6 x7] ].
+Tactic Notation "unsquash" ident(x) "as" simple_intropattern(p)
+  := first [ eapply (squash_to_hProp x); clear x; intros p
+           | eapply (squash_to_prop x); [ | clear x; intros p] ].
 
 (** The construction of the syntactic type-category is rather trickier than one might hope, because of the need to quotient by some form of context equality — which, as ever when quotienting objects of a category, is quite fiddly.
 
@@ -604,6 +692,7 @@ Section Context_Maps.
 
   (* TODO: consider naming of this and other analogous lemmas *)
 
+
   (** Generally useful lemma: while the definition of map well-typedness is
   with respect to _all_ contexts representing of its source/target, it’s enough
   to show it with respect to _some_ such representatives. *)
@@ -615,8 +704,7 @@ Section Context_Maps.
         ∥ [! |- f ::: Γ ---> Δ !] ∥.
   Proof.
     intros H Γ Δ.
-    apply (squash_to_prop H). { apply isapropishinh. }
-    intros [Γ' [Δ' d_f]].
+    unsquash H as [Γ' [Δ' d_f]].
     refine (hinhfun7 _ Γ Γ' Δ Δ'
                     (cxteq_context_representatives Γ Γ')
                     (cxteq_context_representatives Δ Δ')
@@ -639,8 +727,7 @@ Section Context_Maps.
         ∥ [! |- f === g ::: Γ ---> Δ !] ∥.
   Proof.
     intros H Γ Δ.
-    apply (squash_to_prop H). { apply isapropishinh. }
-    intros [Γ' [Δ' d_fg]].
+    unsquash H as [Γ' [Δ' d_fg]].
     refine (hinhpr _ ⊛ Γ ⊛ Γ' ⊛ Δ ⊛ Δ'
                     ⊛ (cxteq_context_representatives Γ Γ')
                     ⊛ (cxteq_context_representatives Δ Δ')
@@ -661,8 +748,8 @@ Section Context_Maps.
         ∥ [! |- f === g ::: Γ ---> Δ !] ∥.
   Proof.
     intros H. apply raw_mapeq_for_some_rep.
-    refine (hinhfun _ H); clear H.
-    intros [Γ [Δ H]]. exists Γ, Δ.
+    unsquash H as [Γ [Δ H]].
+    apply hinhpr; exists Γ, Δ.
     refine (hinhfun3 _ (map_derivable f Γ Δ) (map_derivable g Γ Δ) H); clear H.
     intros; repeat split; auto.
   Qed.
@@ -689,8 +776,8 @@ Section Context_Map_Operations.
     apply map_for_some_rep.
     apply (take_context_representative ΓΓ). { apply isapropishinh. }
     intros Γ. apply hinhpr. exists Γ; exists Γ.
-    apply (squash_to_prop Γ). { apply isapropishinh. } intros.
-    apply hinhpr. use derive_idmap; apply derive_flat_cxt_from_strat; assumption.
+    refine (hinhfun _ Γ); intros.
+    use derive_idmap; apply derive_flat_cxt_from_strat; assumption.
   Defined.
 
   Local Definition compose
@@ -814,20 +901,17 @@ Section Syntactic_Types.
   Proof.
     repeat split.
     - intros A B C e_AB e_BC Γ.
-      apply (squash_to_prop (A Γ)). { apply isapropishinh. } intros d_A.
-      apply (squash_to_prop (B Γ)). { apply isapropishinh. } intros d_B.
-      apply (squash_to_prop (C Γ)). { apply isapropishinh. } intros d_C.
-      apply (squash_to_prop (e_AB Γ)). { apply isapropishinh. }
-      clear e_AB; intros e_AB.
-      apply (squash_to_prop (e_BC Γ)). { apply isapropishinh. }
-      clear e_BC; intros e_BC.
+      apply (squash_to_hProp (A Γ)). intros d_A.
+      apply (squash_to_hProp (B Γ)). intros d_B.
+      apply (squash_to_hProp (C Γ)). intros d_C.
+      apply (squash_to_hProp (e_AB Γ)). clear e_AB; intros e_AB.
+      apply (squash_to_hProp (e_BC Γ)). clear e_BC; intros e_BC.
       now apply hinhpr, (derive_tyeq_trans Γ _ B).
     - intros A Γ.
-      apply (squash_to_prop (A Γ)). { apply isapropishinh. } intros d_A.
+      apply (squash_to_hProp (A Γ)). intros d_A.
       now apply hinhpr, derive_tyeq_refl.
     - intros A B e_AB Γ.
-      apply (squash_to_prop (e_AB Γ)). { apply isapropishinh. }
-      clear e_AB; intros e_AB.
+      apply (squash_to_hProp (e_AB Γ)). clear e_AB; intros e_AB.
       now apply hinhpr, derive_tyeq_sym.
   Defined.
 
@@ -861,8 +945,7 @@ Section Syntactic_Types.
     -> is_type_over ΓΓ A.
   Proof.
     intros H Γ.
-    apply (squash_to_prop H). { apply isapropishinh. }
-    intros [Γ' d_A].
+    unsquash H as [Γ' d_A].
     refine (hinhfun3 _ Γ Γ' (cxteq_context_representatives Γ Γ')).
     intros d_Γ d_Γ' e_Γ.
     apply (derive_ty_conv_cxteq Γ'); auto using derive_flat_cxt_from_strat.
@@ -875,8 +958,7 @@ Section Syntactic_Types.
     -> typeeq_hrel A B.
   Proof.
     intros H Γ.
-    apply (squash_to_prop H). { apply isapropishinh. }
-    intros [Γ' d_AB].
+    unsquash H as [Γ' d_AB].
     refine (hinhfun3 _ Γ Γ' (cxteq_context_representatives Γ Γ')).
     intros d_Γ d_Γ' e_Γ.
     apply (derive_tyeq_conv_cxteq Γ'); auto using derive_flat_cxt_from_strat.
