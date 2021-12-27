@@ -625,15 +625,11 @@ Definition fpullback_induced_with_ess_surj
 : fpullback J' (# S (pr1 RUJ)) g.
 Proof.
   cbn in α, α', α'_α.
-  set (Xi := R_es X').
-  apply (squash_to_prop Xi).
-    { apply (isaprop_fpullback J'); assumption. }
-  intros [X i]; clear Xi R_es.
+  unsquash from (R_es X') as [X i]; clear R_es.
+  { apply isaprop_fpullback; assumption. }
   set (f' := (α X ;; #J' i ;; g) : D' ⟦ S (J X), S U ⟧).
-  set (fe := S_full _ _ f').
-  apply (squash_to_prop fe).
-    { apply (isaprop_fpullback J'); assumption. }
-  intros [f e_Sf_f']; clear fe S_full.
+  unsquash from (S_full _ _ f') as [f e_Sf_f']; clear S_full.
+  { apply (isaprop_fpullback J'); assumption. }
   set (Xf :=  (pr2 RUJ) _ f); clearbody Xf.
   destruct Xf as [H A].
   destruct H as [Xf [p q]].
@@ -744,22 +740,10 @@ Lemma mere_fpullback_transfer {X' : C'} (g : D' ⟦ J' X', S U ⟧)
   : ∥ fpullback J' (# S pp) g ∥.
 Proof.
   cbn in α, α', α'_α.
-  set (Xi := R_es X').
-  apply (squash_to_prop Xi).
-  { apply propproperty. }
-  intros [X i]; clear Xi R_es.
+  unsquash from (R_es X') as [X i]; clear R_es.
   set (f' := (α X ;; #J' i ;; g) : D' ⟦ S (J X), S U ⟧).
-  set (fe := S_full _ _ f').
-  apply (squash_to_prop fe).
-  { apply propproperty. } 
-  intros [f e_Sf_f']; clear fe S_full.
-  set (Xf' := is _ f).
-  apply (squash_to_prop Xf').
-  { apply propproperty. } 
-  intro Xf.
-  destruct Xf as [H A].
-  destruct H as [Xf [p q]].
-  destruct A as [e isPb]. cbn in e, isPb.
+  unsquash from (S_full _ _ f') as [f e_Sf_f']; clear S_full.
+  unsquash from (is _ f) as [[Xf [p q]] [e isPb]].
   assert (Sfp := S_pb _ _ _ _ _ _ _ _ _ isPb); clear S_pb.
   set (HSfp := functor_on_square D D' S e) in *; clearbody HSfp.
   apply hinhpr.
@@ -808,24 +792,14 @@ Proof.
   use (gradth _ _ _ _ ).
   - intro H.
     intros X f.
-    set (RX := R X). set (f' := (α' : nat_trans _ _ ) X ;; #S f).
-    set (Pb_RX_f' := H RX f').
-    apply (squash_to_prop Pb_RX_f'). 
-    { apply propproperty. }
-    intro T.
-    destruct T as [X1 X2].
-    destruct X1 as [X' [p' q']].
-    destruct X2 as [H1 H2]. cbn in H1. cbn in H2.
-    unfold RX in *. clear RX. clear Pb_RX_f'.
+    set (f' := (α' : nat_trans _ _ ) X ;; #S f).
+    unsquash from (H (R X) f') as [[X' [p' q']] [H1 H2]]. 
+    cbn in H1, H2.
     
-    apply (squash_to_prop (R_es X')). 
-    { apply propproperty. }
-    intros [Xf i].
+    unsquash from (R_es X') as [Xf i].
     
     (* get a preimage of [i · 'p] *)
-    apply (squash_to_prop (R_full _ _ (i · p'))).
-    { apply propproperty. } 
-    intros [ip' Hip'].
+    unsquash from (R_full _ _ (i · p')) as [ip' Hip'].
     apply hinhpr.
     repeat (use tpair).
     + apply Xf.

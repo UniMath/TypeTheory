@@ -440,7 +440,7 @@ End Truncations.
 Infix "⊛" := hinhfun' (at level 100).
 
 Ltac unsquash_to_hProp x := eapply (squash_to_hProp x); clear x; intro x.
-Ltac unsquash_to_prop x := eapply (squash_to_hProp x); [ | clear x; intro x].
+Ltac unsquash_to_prop x := eapply (squash_to_prop x); [ | clear x; intro x].
 
 Tactic Notation "unsquash" ident(x)
   := first [ unsquash_to_hProp x | unsquash_to_prop x ].
@@ -535,13 +535,12 @@ Tactic Notation "unsquash" "from"
 
 Lemma issurjective_hinhpr (A : UU) : issurjective (@hinhpr A).
 Proof.
-  intro a. 
-  apply (squash_to_prop a).
-  - apply propproperty.
-  - intro aa. apply hinhpr.
-    exists aa.
-    apply proofirrelevance.
-    apply propproperty.
+  intro a.
+  unsquash from a as aa.
+  apply hinhpr.
+  exists aa.
+  apply proofirrelevance.
+  apply propproperty.
 Defined.
 
 Lemma issurjective_bandfmap {X Y : UU} (f : X → Y) (P : X → UU) (Q : Y → UU)
@@ -551,13 +550,9 @@ Lemma issurjective_bandfmap {X Y : UU} (f : X → Y) (P : X → UU) (Q : Y → U
   : issurjective (bandfmap f _ _ fx).
 Proof.
   intros [y q].
-  apply (squash_to_prop (Hf y)).
-  { apply propproperty. }
-  intros [x Hx].
+  unsquash from (Hf y) as [x Hx].
   induction Hx.
-  apply (squash_to_prop (Hfx _ q)).
-  { apply propproperty. }
-  intros [p Hp].
+  unsquash from (Hfx _ q) as [p Hp].
   destruct Hp.
   apply hinhpr.
   exists (x,,p).
@@ -625,7 +620,7 @@ Definition truncation_weq (A : UU) (is : isaprop A) : A ≃ ∥ A ∥.
 Proof.
   apply weqimplimpl.
   - apply hinhpr.
-  - intro a. use (squash_to_prop a is). apply idfun.
+  - intro a. unsquash a; assumption.
   - apply is.
   - apply propproperty. 
 Defined.
