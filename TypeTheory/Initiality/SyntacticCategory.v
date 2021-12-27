@@ -27,9 +27,8 @@ Section Auxiliary.
   Lemma temp_admit {X} : X. Admitted.
 *)
 
-  Global Arguments ishinh : simpl never.
 
- (* we’ll need some material here about quotients:
+  (* we’ll need some material here about quotients:
   particularly, [lemmas.setquotprpathsandR] from [PAdics], I guess? *)
 
   (* Upstream issues to possibly raise about [setquot]:

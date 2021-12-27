@@ -381,64 +381,6 @@ Defined.
   TODO: also improve them to recognise [ishinh_UU].
   TODO: also try to understand why [unsquash] performs  *)
 
-Section Truncations.
-
-  Ltac unsquash_to_hProp x := eapply (squash_to_hProp x); clear x; intro x.
-  Ltac unsquash_to_prop x := eapply (squash_to_prop x); [ | clear x; intro x].
-
-  Tactic Notation "unsquash" ident(x)
-    := first [ unsquash_to_hProp x | unsquash_to_prop x ].
-  Tactic Notation "unsquash" ident(x1) ident(x2)
-    := first [ unsquash_to_hProp x1; unsquash x2
-           | unsquash_to_prop x1; [ | unsquash x2] ].
-
-  Lemma hinhfun' {X Y : UU} (f : ∥ X → Y ∥) : ∥ X ∥ → ∥ Y ∥.
-  Proof.
-    intro x. unsquash x f. apply hinhpr; auto.
-  Defined.
-
-  Infix "⊛" := hinhfun' (at level 100).
-
-  Lemma hinhfun3 {X1 X2 X3 Y : UU} (f : X1 -> X2 -> X3 -> Y)
-      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)
-    : ∥ Y ∥.
-  Proof.
-    exact (hinhpr f ⊛ x1 ⊛ x2 ⊛ x3).
-  Defined.
-
-  Lemma hinhfun4 {X1 X2 X3 X4 Y : UU} (f : X1 -> X2 -> X3 -> X4 -> Y)
-      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥)
-    : ∥ Y ∥.
-  Proof.
-    exact (hinhpr f ⊛ x1 ⊛ x2 ⊛ x3 ⊛ x4).
-  Defined.
-
-  Lemma hinhfun5 {X1 X2 X3 X4 X5 Y : UU} (f : X1 -> X2 -> X3 -> X4 -> X5 -> Y)
-      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥) (x5 : ∥ X5 ∥)
-    : ∥ Y ∥.
-  Proof.
-    exact (hinhpr f ⊛ x1 ⊛ x2 ⊛ x3 ⊛ x4 ⊛ x5).
-  Defined.
-
-  Lemma hinhfun6 {X1 X2 X3 X4 X5 X6 Y : UU} (f : X1 -> X2 -> X3 -> X4 -> X5 -> X6 -> Y)
-      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥) (x5 : ∥ X5 ∥) (x6 : ∥ X6 ∥)
-    : ∥ Y ∥.
-  Proof.
-    exact (hinhpr f ⊛ x1 ⊛ x2 ⊛ x3 ⊛ x4 ⊛ x5 ⊛ x6).
-  Defined.
-
-  Lemma hinhfun7 {X1 X2 X3 X4 X5 X6 X7 Y : UU}
-                 (f : X1 -> X2 -> X3 -> X4 -> X5 -> X6 -> X7 -> Y)
-                 (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥) (x5 : ∥ X5 ∥)
-                 (x6 : ∥ X6 ∥) (x7 : ∥ X7 ∥) : ∥ Y ∥.
-  Proof.
-    exact (hinhpr f ⊛ x1 ⊛ x2 ⊛ x3 ⊛ x4 ⊛ x5 ⊛ x6 ⊛ x7).
-  Defined.
-
-End Truncations.
-
-Infix "⊛" := hinhfun' (at level 100).
-
 Ltac unsquash_to_hProp x := eapply (squash_to_hProp x); clear x; intro x.
 Ltac unsquash_to_prop x := eapply (squash_to_prop x); [ | clear x; intro x].
 
@@ -530,6 +472,57 @@ Tactic Notation "unsquash" "from"
              unsquash from x2 x3 x4 x5 x6 x7 as p2 p3 p4 p5 p6 p7
            | eapply (squash_to_prop x1); [ | intros p1;
              unsquash from x2 x3 x4 x5 x6 x7 as p2 p3 p4 p5 p6 p7]].
+
+Section Truncations.
+
+  Global Arguments ishinh : simpl never.
+
+  Lemma hinhfun' {X Y : UU} (f : ∥ X → Y ∥) : ∥ X ∥ → ∥ Y ∥.
+  Proof.
+    intro x. unsquash x f. apply hinhpr; auto.
+  Defined.
+
+  Infix "⊛" := hinhfun' (at level 100).
+
+  Lemma hinhfun3 {X1 X2 X3 Y : UU} (f : X1 -> X2 -> X3 -> Y)
+      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)
+    : ∥ Y ∥.
+  Proof.
+    exact (hinhpr f ⊛ x1 ⊛ x2 ⊛ x3).
+  Defined.
+
+  Lemma hinhfun4 {X1 X2 X3 X4 Y : UU} (f : X1 -> X2 -> X3 -> X4 -> Y)
+      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥)
+    : ∥ Y ∥.
+  Proof.
+    exact (hinhpr f ⊛ x1 ⊛ x2 ⊛ x3 ⊛ x4).
+  Defined.
+
+  Lemma hinhfun5 {X1 X2 X3 X4 X5 Y : UU} (f : X1 -> X2 -> X3 -> X4 -> X5 -> Y)
+      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥) (x5 : ∥ X5 ∥)
+    : ∥ Y ∥.
+  Proof.
+    exact (hinhpr f ⊛ x1 ⊛ x2 ⊛ x3 ⊛ x4 ⊛ x5).
+  Defined.
+
+  Lemma hinhfun6 {X1 X2 X3 X4 X5 X6 Y : UU} (f : X1 -> X2 -> X3 -> X4 -> X5 -> X6 -> Y)
+      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥) (x5 : ∥ X5 ∥) (x6 : ∥ X6 ∥)
+    : ∥ Y ∥.
+  Proof.
+    exact (hinhpr f ⊛ x1 ⊛ x2 ⊛ x3 ⊛ x4 ⊛ x5 ⊛ x6).
+  Defined.
+
+  Lemma hinhfun7 {X1 X2 X3 X4 X5 X6 X7 Y : UU}
+                 (f : X1 -> X2 -> X3 -> X4 -> X5 -> X6 -> X7 -> Y)
+                 (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥) (x5 : ∥ X5 ∥)
+                 (x6 : ∥ X6 ∥) (x7 : ∥ X7 ∥) : ∥ Y ∥.
+  Proof.
+    exact (hinhpr f ⊛ x1 ⊛ x2 ⊛ x3 ⊛ x4 ⊛ x5 ⊛ x6 ⊛ x7).
+  Defined.
+
+End Truncations.
+
+Infix "⊛" := hinhfun' (at level 100).
 
 (** ** Surjectivity *)
 
