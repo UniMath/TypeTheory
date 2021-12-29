@@ -13,7 +13,7 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
 
-(** * Notations and scopes *)
+(** * General notations and scopes *)
 
 (** We redeclare this notation, along with a new scope . *)
 Notation "ff ;; gg" := (compose ff gg)
@@ -42,13 +42,6 @@ Proof.
   apply (is_iso_comp_of_isos (make_iso f Hf) (make_iso g Hg)).
 Defined.
 
-Lemma functor_is_iso_is_iso {C C' : precategory} (F : functor C C')
-    {a b : ob C} (f : C ⟦a,b⟧) (fH : is_iso f) : is_iso (#F f).
-Proof.
-  apply (functor_on_iso_is_iso _ _ F _ _ (make_iso f fH)).
-Defined.
-
-
 (* TODO: check more thoroughly if this is provided in the library; if so, use the library version, otherwise move this upstream.  Cf. also https://github.com/UniMath/UniMath/issues/279 *)
 Lemma inv_from_iso_from_is_z_iso {D: precategory} {a b : D}
   (f: a --> b) (g : b --> a) (H : is_inverse_in_precat f g)
@@ -58,15 +51,110 @@ Proof.
   cbn. apply id_right.
 Qed.
 
-Definition iso_ob {C : precategory} {D : category}
-          {F G : functor C D} (a : iso (C:= [C, D]) F G)
-  : ∏ c, iso (F c) (G c).
+(** * Idtoiso and isotoid *)
+
+Lemma idtoiso_identity_iso {C : precategory} (a : C)
+  : idtoiso (idpath a) = identity_iso a.
 Proof.
-  intro c.
-  use make_iso.
-  - cbn. apply ((pr1 a : nat_trans _ _ ) c).
-  - apply is_functor_iso_pointwise_if_iso. apply (pr2 a).
+  apply idpath.
 Defined.
+
+Lemma idtoiso_identity {C : precategory} (a : C)
+  : (idtoiso (idpath a) : _ --> _) = identity a.
+Proof.
+  apply idpath.
+Defined.
+
+Lemma forall_isotid (A : category) (a_is : is_univalent A) 
+      (a a' : A) (P : iso a a' -> UU) :
+  (∏ e, P (idtoiso e)) → ∏ i, P i.
+Proof.
+  intros H i.
+  rewrite <- (idtoiso_isotoid _ a_is).
+  apply H.
+Defined.
+
+Lemma transportf_isotoid_functor 
+  (A X : category) (H : is_univalent A)
+  (K : functor A X)
+   (a a' : A) (p : iso a a') (b : X) (f : K a --> b) :
+ transportf (fun a0 => K a0 --> b) (isotoid _ H p) f = #K (inv_from_iso p) ;; f.
+Proof.
+  rewrite functor_on_inv_from_iso. simpl. cbn.
+  unfold precomp_with. rewrite id_right.
+  generalize p.
+  apply forall_isotid.
+  - apply H.
+  - intro e. induction e.
+    cbn.
+    rewrite functor_id.
+    rewrite id_left.
+    rewrite isotoid_identity_iso.
+    apply idpath.
+Defined.
+
+Lemma idtoiso_transportf_family_of_morphisms (D : precategory)
+      (A : UU) (B : A -> UU)
+      (F : ∏ a, B a -> D)
+      (d d' : D) (deq : d = d')
+      (R : ∏ a (b : B a), D⟦ F a b, d⟧)
+     
+: transportf (λ x, ∏ a b, D⟦ F a b, x⟧) deq R 
+  =
+  λ a b, R a b ;; idtoiso deq.
+Proof.
+  destruct deq.
+  apply funextsec.
+  intro. apply funextsec. intro.
+  apply pathsinv0.
+  apply id_right.
+Qed.
+
+Lemma idtoiso_concat_pr (C : precategory) (a a' a'' : ob C)
+  (p : a = a') (q : a' = a'') :
+  (idtoiso (p @ q) : _ --> _) = idtoiso p ;; idtoiso q.
+Proof.
+  apply (base_paths _ _ (idtoiso_concat _ _ _ _ _ _ )).
+Defined.
+
+Lemma idtoiso_eq_idpath (C : precategory) (a : C) (e : a = a)
+    (H : e = idpath _ )
+  : (idtoiso e : _ --> _) = identity_iso _.
+Proof.
+  apply maponpaths, (maponpaths idtoiso H).
+Qed.
+
+Lemma idtoiso_precompose'
+  : ∏ (C : precategory) (a a' b : C) (p : a' = a) (f : C ⟦ a, b ⟧),
+    transportb (λ a0 : C, C ⟦ a0, b ⟧) p f = (idtoiso p;; f)%mor.
+Proof.
+  intros; induction p. apply pathsinv0, id_left.
+Defined.
+
+Lemma idtoiso_postcompose_idtoiso_pre {C : precategory} {a b c : C} 
+      (g : a --> b) (f : a --> c)
+      (p : b = c) 
+  : g = f ;; idtoiso (!p) -> g ;; idtoiso p = f.
+Proof.
+  induction p. simpl.
+  rewrite id_right.
+  induction 1.
+  apply id_right.
+Qed.
+
+(* Left-handed counterpart to [transportf_isotoid], which could be called [prewhisker_isotoid] analogously — neither of these is a fully general transport lemma, they’re about specific cases.
+
+  TODO: look for dupes in library; move; consider naming conventions; rename D to C. *)
+Lemma postwhisker_isotoid {D : category} (H : is_univalent D)
+    {a b b' : D} (f : a --> b) (p : iso b b')
+  : transportf (fun b0 => a --> b0) (isotoid _ H p) f
+  = f ;; p.
+Proof.
+  rewrite <- idtoiso_postcompose.
+  apply maponpaths, maponpaths, idtoiso_isotoid.
+Qed.
+
+(** * Constant functors *)
 
 Definition constant_functor_functor_data {C1 C2 : category}
   : functor_data C2 [C1,C2].
@@ -112,138 +200,80 @@ Definition nat_trans_from_nat_iso
 := pr1 α.
 Coercion nat_trans_from_nat_iso : nat_iso >-> nat_trans.
 
-(** * The total type of morphisms of a precategory *)
+(** * Properties of functors *)
 
-Definition mor_total (C : precategory) : UU
-  := ∑ (ab : C × C), C⟦pr2 ab, pr1 ab⟧.
+Definition split_ess_surj {A B : precategory}
+  (F : functor A B) 
+  := ∏ b : B, ∑ a : A, iso (F a) b.
 
-Definition morphism_as_total {C : precategory} {a b : C} (f : a --> b)
-  : mor_total C.
+Definition split_full {C D : precategory} (F : functor C D) : UU
+  := ∏ c c' (f : F c --> F c'), hfiber (#F) f.
+
+Lemma full_from_split_full {C D : precategory} (F : functor C D)
+  : split_full F -> full F.
 Proof.
-  exists (b,,a).
-  exact f.
+  intros H c c' f.
+  apply hinhpr, H.
+Qed.
+
+Lemma split_full_from_ff {C D : precategory} (F : functor C D)
+  : fully_faithful F -> split_full F.
+Proof.
+  intros H c c' f.
+  exists (fully_faithful_inv_hom H c c' f).
+  apply (homotweqinvweq (weq_from_fully_faithful _ _ _)).
+Qed.
+
+Lemma full_from_ff
+  {D D' : precategory} (F : functor D D')
+  : fully_faithful F -> full F.
+Proof.
+  intros. apply full_from_split_full, split_full_from_ff; assumption.
+Qed.
+
+Lemma right_adj_equiv_is_full {D1 D2 : category}
+  (F : functor D1 D2) (GG : adj_equivalence_of_cats F)
+  : full (right_adjoint GG).
+Proof.
+  apply full_from_ff, right_adj_equiv_is_ff.
+Qed.
+
+
+Definition ff_on_isos {C D : precategory} (F : functor C D) : UU
+  := ∏ c c', isweq (@functor_on_iso _ _ F c c').
+
+Lemma fully_faithful_impl_ff_on_isos {C D : precategory} (F : functor C D) 
+      : fully_faithful F -> ff_on_isos F.
+Proof.
+  intros Fff c c'.
+  use gradth.
+  - intro XR. exists (invmap (make_weq _ (Fff _ _ )) XR). cbn.
+    apply (ff_reflects_is_iso _ _ _ Fff).
+    assert (XT := homotweqinvweq (make_weq _ (Fff c c' ))).
+    cbn in *.
+    apply (transportb (λ i : _ --> _, is_iso i) (XT (pr1 XR) )).
+    apply XR.
+  - cbn. intro i. apply eq_iso. cbn.
+    apply (homotinvweqweq (make_weq _ (Fff _ _ ))).
+  - cbn. intro i. apply eq_iso. cbn.
+    apply (homotweqinvweq (make_weq _ (Fff _ _ ))).
 Defined.
 
-Definition source {C} (X : mor_total C) : C := pr2 (pr1 X).
-Definition target {C} (X : mor_total C) : C := pr1 (pr1 X).
-Definition morphism_from_total {C} (X : mor_total C)
-  : C ⟦source X, target X⟧
-  := pr2 X.
-Coercion morphism_from_total : mor_total >-> precategory_morphisms.
+Definition reflects_pullbacks {C D : category} (F : functor C D) : UU
+  := ∏ {a b c d : C}{f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : C⟦d, b⟧} {k : C⟦d,c⟧}
+       (H : h · f = k · g),
+     isPullback (functor_on_square _ _ F H) -> isPullback H.
 
-Definition functor_on_mor_total {C D : precategory} (F : functor C D) 
-           (p : mor_total C) : mor_total D.
+Lemma ff_reflects_pullbacks {C D : category} {F : functor C D}
+      (F_ff : fully_faithful F) : reflects_pullbacks F.
 Proof.
-  exists (F (pr1 (pr1 p)) ,, F (pr2 (pr1 p)) ).
-  exact (#F p).
+  do 10 intro.
+  use (isPullback_preimage_square _ _ _ _ _ _ X).
+  - apply homset_property.
+  - apply F_ff.
 Defined.
 
-Definition isweq_left_adj_equivalence_on_mor_total
-    {C D : category} (F : functor C D)
-    (isC : is_univalent C) (isD : is_univalent D)
-    (H : adj_equivalence_of_cats F) 
-  : isweq (functor_on_mor_total F).
-Proof.
-  use (gradth _ _ _ _ ).
-  - apply (functor_on_mor_total (adj_equivalence_inv H)).
-  - intro p.
-    use total2_paths_f.
-    + cbn. destruct p as [[a b] f].
-      apply pathsdirprod; cbn. 
-      * apply (isotoid _ isC). 
-        apply iso_inv_from_iso, (unit_pointwise_iso_from_adj_equivalence H).
-      * apply (isotoid _ isC).
-        apply iso_inv_from_iso, (unit_pointwise_iso_from_adj_equivalence H).
-    + cbn. destruct p as [[a b] f]. cbn in *.
-      etrans. apply (transportf_pair (λ x : C × C, C ⟦ pr2 x, pr1 x ⟧)).
-      cbn.
-      rewrite transportf_isotoid.
-      rewrite transportf_isotoid'.
-      cbn. unfold precomp_with. rewrite id_right.
-      rewrite assoc.
-      assert (XR := nat_trans_ax (unit_from_are_adjoints (pr2 (pr1 H)))).
-      cbn in XR. rewrite <- XR.
-      rewrite <- assoc. 
-      etrans. apply maponpaths.
-      apply (iso_inv_after_iso (unit_pointwise_iso_from_adj_equivalence H a)).
-      apply id_right.
-    - intro p.
-    use total2_paths_f.
-    + cbn. destruct p as [[a b] f].
-      apply pathsdirprod; cbn. 
-      * apply (isotoid _ isD). 
-        apply (counit_pointwise_iso_from_adj_equivalence H).
-      * apply (isotoid _ isD).
-        apply (counit_pointwise_iso_from_adj_equivalence H).
-    + cbn. destruct p as [[a b] f]. cbn in *.
-      etrans. apply (transportf_pair (λ x : D × D, D ⟦ pr2 x, pr1 x ⟧)).
-      cbn.
-      rewrite transportf_isotoid.
-      rewrite transportf_isotoid'.
-      cbn. unfold precomp_with. 
-      assert (XR := nat_trans_ax (counit_from_are_adjoints (pr2 (pr1 H)))).
-      cbn in XR. rewrite XR. clear XR.
-      rewrite assoc. 
-      etrans. apply maponpaths_2.
-      apply (iso_after_iso_inv (counit_pointwise_iso_from_adj_equivalence H _)).
-      apply id_left.
-Defined.
-
-Definition isweq_equivalence_on_mor_total {C D : category}
-           (isC : is_univalent C) (isD : is_univalent D)
-           (F : functor C D) (G : functor D C)
-           (eta : iso (C:= [_ , _ ]) (functor_identity C) (F ∙ G))
-           (eps : iso (C:= [_ , _ ]) (G ∙ F) (functor_identity D))
-: isweq (functor_on_mor_total F).
-Proof.
-  use (gradth _ _ _ _ ).
-  - apply (functor_on_mor_total G).
-  - intro p.
-    use total2_paths_f.
-    + cbn. destruct p as [[a b] f].
-      apply pathsdirprod; cbn. 
-      * apply (isotoid _ isC). 
-        apply iso_inv_from_iso. apply (iso_ob eta).
-      * apply (isotoid _ isC).
-        apply iso_inv_from_iso. apply (iso_ob eta).
-    + cbn. destruct p as [[a b] f]. cbn in *.
-      etrans. apply (transportf_pair (λ x : C × C, C ⟦ pr2 x, pr1 x ⟧)).
-      cbn.
-      rewrite transportf_isotoid.
-      rewrite transportf_isotoid'.
-      cbn. unfold precomp_with. rewrite id_right.
-      rewrite assoc. assert (XR := nat_trans_ax (pr1 eta)).
-      cbn in XR. rewrite <- XR.
-      rewrite <- assoc.
-      rewrite id_right.
-      etrans. apply maponpaths.
-      apply (nat_trans_inv_pointwise_inv_after _ _ C _ _ (pr1 eta)).
-      apply id_right.
-  - intro p.
-    use total2_paths_f.
-    + cbn. destruct p as [[a b] f].
-      apply pathsdirprod; cbn. 
-      * apply (isotoid _ isD). 
-        apply (iso_ob eps).
-      * apply (isotoid _ isD).
-        apply (iso_ob eps).
-    + cbn. destruct p as [[a b] f]. cbn in *.
-      etrans. apply (transportf_pair (λ x : D × D, D ⟦ pr2 x, pr1 x ⟧)).
-      cbn.
-      rewrite transportf_isotoid.
-      rewrite transportf_isotoid'.
-      cbn. unfold precomp_with. 
-      assert (XR := nat_trans_ax (pr1 eps)).
-      cbn in XR. rewrite XR. clear XR.
-      rewrite assoc. 
-      rewrite id_right.
-      etrans. apply maponpaths_2.
-      apply (nat_trans_inv_pointwise_inv_before _ _ D  _ _ (pr1 eps)).
-      apply id_left.
-Defined.
-
-
-(** * Equivalences of categories *)
+(** * Equivalences *)
 
 Section Adjoint_Equivalences.
 
@@ -294,10 +324,6 @@ Defined.
 End Adjoint_Equivalences.
 
 Section eqv_from_ess_split_and_ff.
-
-Definition split_ess_surj {A B : precategory}
-  (F : functor A B) 
-  := ∏ b : B, ∑ a : A, iso (F a) b.
 
 Context {A B : category}
         {F : functor A B}
@@ -430,76 +456,6 @@ Defined.
 
 End eqv_from_ess_split_and_ff.
 
-(** * Properties of functors *)
-
-Definition split_full {C D : precategory} (F : functor C D) : UU
-  := ∏ c c' (f : F c --> F c'), hfiber (#F) f.
-
-Lemma full_from_split_full {C D : precategory} (F : functor C D)
-  : split_full F -> full F.
-Proof.
-  intros H c c' f.
-  apply hinhpr, H.
-Qed.
-
-Lemma split_full_from_ff {C D : precategory} (F : functor C D)
-  : fully_faithful F -> split_full F.
-Proof.
-  intros H c c' f.
-  exists (fully_faithful_inv_hom H c c' f).
-  apply (homotweqinvweq (weq_from_fully_faithful _ _ _)).
-Qed.
-
-Lemma full_from_ff
-  {D D' : precategory} (F : functor D D')
-  : fully_faithful F -> full F.
-Proof.
-  intros. apply full_from_split_full, split_full_from_ff; assumption.
-Qed.
-
-Lemma right_adj_equiv_is_full {D1 D2 : category}
-  (F : functor D1 D2) (GG : adj_equivalence_of_cats F)
-  : full (right_adjoint GG).
-Proof.
-  apply full_from_ff, right_adj_equiv_is_ff.
-Qed.
-
-
-Definition ff_on_isos {C D : precategory} (F : functor C D) : UU
-  := ∏ c c', isweq (@functor_on_iso _ _ F c c').
-
-Lemma fully_faithful_impl_ff_on_isos {C D : precategory} (F : functor C D) 
-      : fully_faithful F -> ff_on_isos F.
-Proof.
-  intros Fff c c'.
-  use gradth.
-  - intro XR. exists (invmap (make_weq _ (Fff _ _ )) XR). cbn.
-    apply (ff_reflects_is_iso _ _ _ Fff).
-    assert (XT := homotweqinvweq (make_weq _ (Fff c c' ))).
-    cbn in *.
-    apply (transportb (λ i : _ --> _, is_iso i) (XT (pr1 XR) )).
-    apply XR.
-  - cbn. intro i. apply eq_iso. cbn.
-    apply (homotinvweqweq (make_weq _ (Fff _ _ ))).
-  - cbn. intro i. apply eq_iso. cbn.
-    apply (homotweqinvweq (make_weq _ (Fff _ _ ))).
-Defined.
-
-Definition reflects_pullbacks {C D : category} (F : functor C D) : UU
-  := ∏ {a b c d : C}{f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : C⟦d, b⟧} {k : C⟦d,c⟧}
-       (H : h · f = k · g),
-     isPullback (functor_on_square _ _ F H) -> isPullback H.
-
-Lemma ff_reflects_pullbacks {C D : category} {F : functor C D}
-      (F_ff : fully_faithful F) : reflects_pullbacks F.
-Proof.
-  do 10 intro.
-  use (isPullback_preimage_square _ _ _ _ _ _ X).
-  - apply homset_property.
-  - apply F_ff.
-Defined.
-
-
 (** * Cat-isomorphisms *)
 
 Section CatIso.
@@ -526,109 +482,6 @@ Defined.
 
 End CatIso.
 
-(** * Idtoiso and isotoid *)
-
-Lemma idtoiso_identity_iso {C : precategory} (a : C)
-  : idtoiso (idpath a) = identity_iso a.
-Proof.
-  apply idpath.
-Defined.
-
-Lemma idtoiso_identity {C : precategory} (a : C)
-  : (idtoiso (idpath a) : _ --> _) = identity a.
-Proof.
-  apply idpath.
-Defined.
-
-Lemma forall_isotid (A : category) (a_is : is_univalent A) 
-      (a a' : A) (P : iso a a' -> UU) :
-  (∏ e, P (idtoiso e)) → ∏ i, P i.
-Proof.
-  intros H i.
-  rewrite <- (idtoiso_isotoid _ a_is).
-  apply H.
-Defined.
-
-Lemma transportf_isotoid_functor 
-  (A X : category) (H : is_univalent A)
-  (K : functor A X)
-   (a a' : A) (p : iso a a') (b : X) (f : K a --> b) :
- transportf (fun a0 => K a0 --> b) (isotoid _ H p) f = #K (inv_from_iso p) ;; f.
-Proof.
-  rewrite functor_on_inv_from_iso. simpl. cbn.
-  unfold precomp_with. rewrite id_right.
-  generalize p.
-  apply forall_isotid.
-  - apply H.
-  - intro e. induction e.
-    cbn.
-    rewrite functor_id.
-    rewrite id_left.
-    rewrite isotoid_identity_iso.
-    apply idpath.
-Defined.
-
-Lemma idtoiso_transportf_family_of_morphisms (D : precategory)
-      (A : UU) (B : A -> UU)
-      (F : ∏ a, B a -> D)
-      (d d' : D) (deq : d = d')
-      (R : ∏ a (b : B a), D⟦ F a b, d⟧)
-     
-: transportf (λ x, ∏ a b, D⟦ F a b, x⟧) deq R 
-  =
-  λ a b, R a b ;; idtoiso deq.
-Proof.
-  destruct deq.
-  apply funextsec.
-  intro. apply funextsec. intro.
-  apply pathsinv0.
-  apply id_right.
-Qed.
-
-Lemma idtoiso_concat_pr (C : precategory) (a a' a'' : ob C)
-  (p : a = a') (q : a' = a'') :
-  (idtoiso (p @ q) : _ --> _) = idtoiso p ;; idtoiso q.
-Proof.
-  apply (base_paths _ _ (idtoiso_concat _ _ _ _ _ _ )).
-Defined.
-
-Lemma idtoiso_eq_idpath (C : precategory) (a : C) (e : a = a)
-    (H : e = idpath _ )
-  : (idtoiso e : _ --> _) = identity_iso _.
-Proof.
-  apply maponpaths, (maponpaths idtoiso H).
-Qed.
-
-Lemma idtoiso_precompose'
-  : ∏ (C : precategory) (a a' b : C) (p : a' = a) (f : C ⟦ a, b ⟧),
-    transportb (λ a0 : C, C ⟦ a0, b ⟧) p f = (idtoiso p;; f)%mor.
-Proof.
-  intros; induction p. apply pathsinv0, id_left.
-Defined.
-
-Lemma idtoiso_postcompose_idtoiso_pre {C : precategory} {a b c : C} 
-      (g : a --> b) (f : a --> c)
-      (p : b = c) 
-  : g = f ;; idtoiso (!p) -> g ;; idtoiso p = f.
-Proof.
-  induction p. simpl.
-  rewrite id_right.
-  induction 1.
-  apply id_right.
-Qed.
-
-(* Left-handed counterpart to [transportf_isotoid], which could be called [prewhisker_isotoid] analogously — neither of these is a fully general transport lemma, they’re about specific cases.
-
-  TODO: look for dupes in library; move; consider naming conventions; rename D to C. *)
-Lemma postwhisker_isotoid {D : category} (H : is_univalent D)
-    {a b b' : D} (f : a --> b) (p : iso b b')
-  : transportf (fun b0 => a --> b0) (isotoid _ H p) f
-  = f ;; p.
-Proof.
-  rewrite <- idtoiso_postcompose.
-  apply maponpaths, maponpaths, idtoiso_isotoid.
-Qed.
-
 (** * Univalent categories *)
 
 Coercion univalent_category_is_univalent : univalent_category >-> is_univalent.
@@ -642,6 +495,22 @@ Proof.
 Defined.
 
 (** * Functors and isomorphisms *)
+
+Lemma functor_is_iso_is_iso {C C' : precategory} (F : functor C C')
+    {a b : ob C} (f : C ⟦a,b⟧) (fH : is_iso f) : is_iso (#F f).
+Proof.
+  apply (functor_on_iso_is_iso _ _ F _ _ (make_iso f fH)).
+Defined.
+
+Definition iso_ob {C : precategory} {D : category}
+          {F G : functor C D} (a : iso (C:= [C, D]) F G)
+  : ∏ c, iso (F c) (G c).
+Proof.
+  intro c.
+  use make_iso.
+  - cbn. apply ((pr1 a : nat_trans _ _ ) c).
+  - apply is_functor_iso_pointwise_if_iso. apply (pr2 a).
+Defined.
 
 Lemma inv_from_iso_iso_from_fully_faithful_reflection {C D : precategory}
       (F : functor C D) (HF : fully_faithful F) (a b : C) (i : iso (F a) (F b))
@@ -737,7 +606,6 @@ Proof.
   - intro d. apply (functor_iso_pointwise_if_iso _ _ _ _ _ a (pr2 a)).
   - abstract (intros x x' f; apply (nat_trans_ax (pr1 a))).
 Defined.
-
 
 (** * Basic pullback utility functions *)
 
@@ -1155,7 +1023,7 @@ Section Limits.
 
 End Limits.
 
-(** * Sections of maps in (pre)categories *)
+(** * Sections of maps *)
 
 (* TODO: currently, sections are independently developed in many places in [TypeTheory].  Try to unify the treatments of them here?  Also unify with ad hoc material on sections in [UniMath.CategoryTheory.limits.pullbacks]: [pb_of_section], [section_from_diagonal], etc.*)
 Section Sections.
@@ -1189,6 +1057,140 @@ Section Sections.
   Qed.
 
 End Sections.
+
+(** * The total type of morphisms of a precategory *)
+
+Section Mor_Total.
+
+Definition mor_total (C : precategory) : UU
+  := ∑ (ab : C × C), C⟦pr2 ab, pr1 ab⟧.
+
+Definition morphism_as_total {C : precategory} {a b : C} (f : a --> b)
+  : mor_total C.
+Proof.
+  exists (b,,a).
+  exact f.
+Defined.
+
+Definition source {C} (X : mor_total C) : C := pr2 (pr1 X).
+Definition target {C} (X : mor_total C) : C := pr1 (pr1 X).
+Definition morphism_from_total {C} (X : mor_total C)
+  : C ⟦source X, target X⟧
+  := pr2 X.
+Coercion morphism_from_total : mor_total >-> precategory_morphisms.
+
+Definition functor_on_mor_total {C D : precategory} (F : functor C D) 
+           (p : mor_total C) : mor_total D.
+Proof.
+  exists (F (pr1 (pr1 p)) ,, F (pr2 (pr1 p)) ).
+  exact (#F p).
+Defined.
+
+Definition isweq_left_adj_equivalence_on_mor_total
+    {C D : category} (F : functor C D)
+    (isC : is_univalent C) (isD : is_univalent D)
+    (H : adj_equivalence_of_cats F) 
+  : isweq (functor_on_mor_total F).
+Proof.
+  use (gradth _ _ _ _ ).
+  - apply (functor_on_mor_total (adj_equivalence_inv H)).
+  - intro p.
+    use total2_paths_f.
+    + cbn. destruct p as [[a b] f].
+      apply pathsdirprod; cbn. 
+      * apply (isotoid _ isC). 
+        apply iso_inv_from_iso, (unit_pointwise_iso_from_adj_equivalence H).
+      * apply (isotoid _ isC).
+        apply iso_inv_from_iso, (unit_pointwise_iso_from_adj_equivalence H).
+    + cbn. destruct p as [[a b] f]. cbn in *.
+      etrans. apply (transportf_pair (λ x : C × C, C ⟦ pr2 x, pr1 x ⟧)).
+      cbn.
+      rewrite transportf_isotoid.
+      rewrite transportf_isotoid'.
+      cbn. unfold precomp_with. rewrite id_right.
+      rewrite assoc.
+      assert (XR := nat_trans_ax (unit_from_are_adjoints (pr2 (pr1 H)))).
+      cbn in XR. rewrite <- XR.
+      rewrite <- assoc. 
+      etrans. apply maponpaths.
+      apply (iso_inv_after_iso (unit_pointwise_iso_from_adj_equivalence H a)).
+      apply id_right.
+    - intro p.
+    use total2_paths_f.
+    + cbn. destruct p as [[a b] f].
+      apply pathsdirprod; cbn. 
+      * apply (isotoid _ isD). 
+        apply (counit_pointwise_iso_from_adj_equivalence H).
+      * apply (isotoid _ isD).
+        apply (counit_pointwise_iso_from_adj_equivalence H).
+    + cbn. destruct p as [[a b] f]. cbn in *.
+      etrans. apply (transportf_pair (λ x : D × D, D ⟦ pr2 x, pr1 x ⟧)).
+      cbn.
+      rewrite transportf_isotoid.
+      rewrite transportf_isotoid'.
+      cbn. unfold precomp_with. 
+      assert (XR := nat_trans_ax (counit_from_are_adjoints (pr2 (pr1 H)))).
+      cbn in XR. rewrite XR. clear XR.
+      rewrite assoc. 
+      etrans. apply maponpaths_2.
+      apply (iso_after_iso_inv (counit_pointwise_iso_from_adj_equivalence H _)).
+      apply id_left.
+Defined.
+
+Definition isweq_equivalence_on_mor_total {C D : category}
+           (isC : is_univalent C) (isD : is_univalent D)
+           (F : functor C D) (G : functor D C)
+           (eta : iso (C:= [_ , _ ]) (functor_identity C) (F ∙ G))
+           (eps : iso (C:= [_ , _ ]) (G ∙ F) (functor_identity D))
+: isweq (functor_on_mor_total F).
+Proof.
+  use (gradth _ _ _ _ ).
+  - apply (functor_on_mor_total G).
+  - intro p.
+    use total2_paths_f.
+    + cbn. destruct p as [[a b] f].
+      apply pathsdirprod; cbn. 
+      * apply (isotoid _ isC). 
+        apply iso_inv_from_iso. apply (iso_ob eta).
+      * apply (isotoid _ isC).
+        apply iso_inv_from_iso. apply (iso_ob eta).
+    + cbn. destruct p as [[a b] f]. cbn in *.
+      etrans. apply (transportf_pair (λ x : C × C, C ⟦ pr2 x, pr1 x ⟧)).
+      cbn.
+      rewrite transportf_isotoid.
+      rewrite transportf_isotoid'.
+      cbn. unfold precomp_with. rewrite id_right.
+      rewrite assoc. assert (XR := nat_trans_ax (pr1 eta)).
+      cbn in XR. rewrite <- XR.
+      rewrite <- assoc.
+      rewrite id_right.
+      etrans. apply maponpaths.
+      apply (nat_trans_inv_pointwise_inv_after _ _ C _ _ (pr1 eta)).
+      apply id_right.
+  - intro p.
+    use total2_paths_f.
+    + cbn. destruct p as [[a b] f].
+      apply pathsdirprod; cbn. 
+      * apply (isotoid _ isD). 
+        apply (iso_ob eps).
+      * apply (isotoid _ isD).
+        apply (iso_ob eps).
+    + cbn. destruct p as [[a b] f]. cbn in *.
+      etrans. apply (transportf_pair (λ x : D × D, D ⟦ pr2 x, pr1 x ⟧)).
+      cbn.
+      rewrite transportf_isotoid.
+      rewrite transportf_isotoid'.
+      cbn. unfold precomp_with. 
+      assert (XR := nat_trans_ax (pr1 eps)).
+      cbn in XR. rewrite XR. clear XR.
+      rewrite assoc. 
+      rewrite id_right.
+      etrans. apply maponpaths_2.
+      apply (nat_trans_inv_pointwise_inv_before _ _ D  _ _ (pr1 eps)).
+      apply id_left.
+Defined.
+
+End Mor_Total.
 
 (** * Arrow categories *)
 Section ArrowCategory.
