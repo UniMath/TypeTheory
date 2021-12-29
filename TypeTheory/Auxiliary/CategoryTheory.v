@@ -247,16 +247,9 @@ Defined.
 
 Section Adjoint_Equivalences.
 
-Coercion left_adj_from_adj_equiv (X Y : category) (F : functor X Y)
-  : adj_equivalence_of_cats F -> is_left_adjoint F := fun x => pr1 x.
-
 (* TODO: remove this once renamed to this upstream (from erroneous “…precats…”) *)
 Coercion adj_equiv_of_cats_from_adj {A B : category} (E : adj_equiv A B)
   : adj_equivalence_of_cats E := pr2 E.
-
-Definition adj_from_equiv (D1 D2 : category) (F : functor D1 D2):
-    adj_equivalence_of_cats F → is_left_adjoint F := fun x => pr1 x.
-Coercion adj_from_equiv : adj_equivalence_of_cats >-> is_left_adjoint.
 
 Definition adj_equiv_from_adjunction
     {C D : category}
@@ -299,72 +292,6 @@ Proof.
 Defined.
 
 End Adjoint_Equivalences.
-
-Section ff_and_ess_surj_from_adj_equiv.
-
-Variables D1 D2 : category.
-Variable F : functor D1 D2.
-Variable GG : adj_equivalence_of_cats F.
-
-Let G : functor D2 D1 := right_adjoint GG.
-Let η := unit_from_left_adjoint GG.
-Let ε := counit_from_left_adjoint GG.
-Let ηinv a := iso_inv_from_iso (unit_pointwise_iso_from_adj_equivalence GG a).
-Let εinv a := iso_inv_from_iso (counit_pointwise_iso_from_adj_equivalence GG a).
-
-
-Lemma right_adj_equiv_is_ff : fully_faithful G.
-Proof.
-  intros c d.
-  set (inv := (fun f : D1 ⟦G c, G d⟧ => εinv _ ;; #F f ;; ε _ )).
-  simpl in inv.
-  apply (gradth _ inv ).
-  - intro f. simpl in f. unfold inv.
-    assert (XR := nat_trans_ax ε). simpl in XR.
-    rewrite <- assoc.
-    etrans. apply maponpaths. apply XR.
-    rewrite assoc.
-    etrans. apply maponpaths_2. apply iso_after_iso_inv.
-    apply id_left.
-  - intro g.
-    unfold inv. repeat rewrite functor_comp.
-    match goal with |[|- ?f1 ;; ?f2 ;; ?f3 = _ ] =>
-       intermediate_path ((f1 ;; ηinv _ ) ;; (η _ ;; f2) ;; f3) end.
-    + repeat rewrite <- assoc. apply maponpaths.
-      repeat rewrite assoc.
-      etrans.
-      2: { do 2 apply maponpaths_2. eapply pathsinv0, iso_after_iso_inv. }
-      rewrite id_left. apply idpath.
-    + assert (XR := nat_trans_ax η). simpl in XR. rewrite <- XR. clear XR.
-      repeat rewrite <- assoc.
-      etrans. 
-      { do 3 apply maponpaths. apply triangle_id_right_ad. }
-      rewrite id_right.
-      rewrite assoc.
-      etrans. 2: { apply id_left. }
-      apply maponpaths_2.
-      etrans. { apply maponpaths_2. apply functor_on_inv_from_iso. }
-      assert (XR := triangle_id_right_ad (pr2 (pr1 GG))).
-      simpl in XR.
-      unfold ηinv. simpl.
-      match goal with |[|- inv_from_iso ?e ;; inv_from_iso ?f = _ ] =>
-         assert (XRR := maponpaths pr1 (iso_inv_of_iso_comp _ _ _ _ f e)) end. 
-      simpl in XRR.
-      etrans. apply (! XRR). clear XRR.
-      apply pathsinv0, inv_iso_unique'.
-      simpl. cbn. unfold precomp_with.
-      rewrite id_right. apply XR.
-Defined.
-  
-Lemma right_adj_equiv_is_ess_sur : essentially_surjective G.
-Proof.
-  intro d.
-  apply hinhpr.
-  exists (F d).
-  exact (ηinv d).
-Defined.
-
-End ff_and_ess_surj_from_adj_equiv.
 
 Section eqv_from_ess_split_and_ff.
 

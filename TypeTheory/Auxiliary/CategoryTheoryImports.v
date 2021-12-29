@@ -21,3 +21,4 @@ Require Export UniMath.CategoryTheory.categories.HSET.Univalence.
 Require Export UniMath.CategoryTheory.Presheaf.
 Require Export UniMath.CategoryTheory.catiso.
 Require Export UniMath.CategoryTheory.ArrowCategory.
+Require Export UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
