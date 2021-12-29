@@ -1080,8 +1080,8 @@ Section Misc.
             refine (derive_tm_as_raw_context_map _ _);
         auto using derive_flat_cxt_from_strat]).
     - (* section property *)
-      Time apply iscompsetquotpr; cbn.
-      (* TODO: adapt [mapeq_for_some_rep] sto incorporate [iscompsetquotpr]? *)
+      apply iscompsetquotpr; cbn.
+      (* TODO: adapt [mapeq_for_some_rep] to incorporate [iscompsetquotpr]? *)
       refine (raw_mapeq_for_some_rep _ _ _); apply hinhpr.
       refine (context_as_context_representative _,,_).
       refine (context_as_context_representative _,,_).
@@ -1097,7 +1097,7 @@ Section Misc.
         * refine (derive_tm_as_raw_context_map _ _);
             auto using derive_flat_cxt_from_strat.
         * use derive_dB_next_context_map; auto using derive_flat_cxt_from_strat.
-  Time Defined.
+  Defined.
 
   Definition tm_expr_as_partial_term
       {n} (Γ : wellformed_context_of_length n)
