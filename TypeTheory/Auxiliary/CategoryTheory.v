@@ -12,9 +12,10 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
-(** * Category theory *)
 
-(** Redeclare this notation, along with a new scope. *)
+(** * Notations and scopes *)
+
+(** We redeclare this notation, along with a new scope . *)
 Notation "ff ;; gg" := (compose ff gg)
   (at level 50, left associativity, format "ff  ;;  gg")
   : mor_scope.
@@ -29,8 +30,7 @@ Delimit Scope precat with precat.
 Open Scope cat.
 Open Scope cat_deprecated.
 
-
-(** ** Isomorphism lemmas *)
+(** * Isomorphism lemmas *)
 
 Arguments functor_on_inv_from_iso {_ _} _  {_ _} f.
 
@@ -106,7 +106,7 @@ Proof.
   apply constant_nat_trans_is_iso, iso_is_iso.
 Defined.
 
-(** ** The total type of morphisms of a precategory *)
+(** * The total type of morphisms of a precategory *)
 
 Definition mor_total (C : precategory) : UU
   := ∑ (ab : C × C), C⟦pr2 ab, pr1 ab⟧.
@@ -238,7 +238,7 @@ Proof.
 Defined.
 
 
-(** ** Equivalences of categories *)
+(** * Equivalences of categories *)
 (** Specifically: the composition of (adjoint) equivalences of precats. *)
 
 Coercion left_adj_from_adj_equiv (X Y : category) (K : functor X Y)
@@ -452,7 +452,7 @@ Defined.
 
 End eqv_from_ess_split_and_ff.
 
-(** ** Properties of functors *)
+(** * Properties of functors *)
 
 Definition split_full {C D : precategory} (F : functor C D) : UU
   := ∏ c c' (f : F c --> F c'), hfiber (#F) f.
@@ -522,7 +522,7 @@ Proof.
   - apply F_ff.
 Defined.
 
-(** ** Idtoiso and isotoid *)
+(** * Idtoiso and isotoid *)
 
 Lemma idtoiso_identity_iso {C : precategory} (a : C)
   : idtoiso (idpath a) = identity_iso a.
@@ -626,7 +626,7 @@ Proof.
   apply maponpaths, maponpaths, idtoiso_isotoid.
 Qed.
 
-(** ** Misc lemmas/definitions on (pre)categories *)
+(** * Misc lemmas/definitions on (pre)categories *)
 
 Coercion univalent_category_is_univalent : univalent_category >-> is_univalent.
 
@@ -642,7 +642,7 @@ Definition adj_from_equiv (D1 D2 : category) (F : functor D1 D2):
     adj_equivalence_of_cats F → is_left_adjoint F := fun x => pr1 x.
 Coercion adj_from_equiv : adj_equivalence_of_cats >-> is_left_adjoint.
 
-(** ** Functors and isomorphisms *)
+(** * Functors and isomorphisms *)
 
 Lemma inv_from_iso_iso_from_fully_faithful_reflection {C D : precategory}
       (F : functor C D) (HF : fully_faithful F) (a b : C) (i : iso (F a) (F b))
@@ -741,7 +741,7 @@ Defined.
 
 
 
-(** ** Presheaves and Yoneda *)
+(** * Presheaves and Yoneda *)
 
 Arguments nat_trans_ax {C C'} {F F'} a {x x'} f.
 Arguments nat_trans_comp {_ _ _ _ _} _ _.
@@ -811,7 +811,7 @@ Proof.
   apply (functor_id P).
 Qed.
 
-(** ** Basic pullback utility functions *)
+(** * Basic pullback utility functions *)
 
 Section Pullback_Basics.
 
@@ -905,7 +905,7 @@ Defined.
 
 End Pullback_Basics.
 
-(** ** Pullback transfer lemmas *)
+(** * Pullback transfer lemmas *)
 
 Section Pullback_transfers.
 (* Various results, generally showing that perturbing a pullback squares by equalities and/or isos is still a pullback. *)
@@ -1078,7 +1078,7 @@ Definition postcomp_pb_with_iso
 
 End Pullback_transfers.
 
-(** ** Pullbacks of sets and presheaves *)
+(** * Pullbacks of sets and presheaves *)
 
 Section Pullbacks_hSet.
 
@@ -1247,7 +1247,7 @@ Qed.
 
 End Pullbacks_hSet.
 
-(** ** Uniqueness of pullbacks *)
+(** * Uniqueness of pullbacks *)
 
 Definition isaprop_Pullback (C : category) (H : is_univalent C)
            (a b c : C) (f : b --> a) (g : c --> a)
@@ -1377,7 +1377,7 @@ Section Pullback_Unique_Up_To_Iso.
 
 End Pullback_Unique_Up_To_Iso.
 
-(** ** Displayed categories *)
+(** * Displayed categories *)
 
 Definition isaprop_is_cartesian_disp_functor
     {C C' : category} {F : functor C C'}
@@ -1388,7 +1388,7 @@ Proof.
   apply isaprop_is_cartesian.
 Qed.
 
-(** ** Comprehension categories *)
+(** * Comprehension categories *)
 
 Definition comprehension_cat
   := ∑ (C : category), (comprehension_cat_structure C).
