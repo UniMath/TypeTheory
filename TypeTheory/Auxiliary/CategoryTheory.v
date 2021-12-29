@@ -499,6 +499,33 @@ Proof.
   - apply F_ff.
 Defined.
 
+
+(** * Cat-isomorphisms *)
+
+Section CatIso.
+
+Definition catiso_is_path_cat (C D : category)
+  : (C = D) ≃ catiso C D.
+Proof.
+  eapply weqcomp.
+  - eapply PartA.path_sigma_hprop.
+    apply isaprop_has_homsets.
+  - apply catiso_is_path_precat.
+    apply D.
+Defined.
+
+
+Definition catiso_univalent (C : category) (D : category)
+  : catiso D C → is_univalent C → is_univalent D.
+Proof.
+  intros i C_univ.
+  set (D_eq_C := invweq (catiso_is_path_cat _ _ ) i).
+  use (transportb _ D_eq_C).
+  apply C_univ.
+Defined.
+
+End CatIso.
+
 (** * Idtoiso and isotoid *)
 
 Lemma idtoiso_identity_iso {C : precategory} (a : C)
@@ -710,100 +737,6 @@ Proof.
   - intro d. apply (functor_iso_pointwise_if_iso _ _ _ _ _ a (pr2 a)).
   - abstract (intros x x' f; apply (nat_trans_ax (pr1 a))).
 Defined.
-
-
-
-(** * Presheaves and Yoneda *)
-
-Arguments nat_trans_ax {C C'} {F F'} a {x x'} f.
-Arguments nat_trans_comp {_ _ _ _ _} _ _.
-
-Definition preShv C := functor_univalent_category C^op HSET_univalent_category.
-
-Notation "'Yo'" := (yoneda _ : functor _ (preShv _)).
-Notation "'Yo^-1'" := (invweq (make_weq _ (yoneda_fully_faithful _ _ _ ))).
-
-(* TODO: perhaps rename e.g. [yoneda_eq]? *)
-Definition yy {C : category}
-    {F : preShv C} {c : C}
-  : ((F : functor _ _) c : hSet) ≃ _ ⟦ yoneda _ c, F⟧.
-Proof.
-  apply invweq.
-  apply yoneda_weq.
-Defined.
-
-Lemma yy_natural {C : category} 
-  (F : preShv C) (c : C) (A : (F:functor _ _) c : hSet) 
-                  c' (f : C⟦c', c⟧) :
-        yy (# (F : functor _ _) f A) = # (yoneda _ ) f ;; yy A.
-Proof.
-  apply (toforallpaths (is_natural_yoneda_iso_inv _ F _ _ f)).
-Qed.
-
-Lemma yy_comp_nat_trans {C : category}
-      (F F' : preShv C) (p : _ ⟦F, F'⟧)
-      A (v : (F : functor _ _ ) A : hSet)
-  : yy v ;; p = yy ((p : nat_trans _ _ )  _ v).
-Proof.
-  apply nat_trans_eq.
-  - apply homset_property.
-  - intro c. simpl. 
-    apply funextsec. intro f. cbn.
-    apply (toforallpaths (nat_trans_ax p f)).
-Qed.
-
-Lemma yoneda_postcompose {C : category} (P : preShv C)
-  {y z : C} (α : P --> Yo y) (f : y --> z)
-  {x:C} (p : (P : functor _ _) x : hSet)
-  : ((α : nat_trans _ _) x p) ;; f
-    = (α ;; yoneda_morphisms _ _ _ f : nat_trans _ _) x p.
-Proof.
-  apply idpath.
-Defined.
-
-Lemma transportf_yy {C : category}
-      (F : preShv C) (c c' : C) (A : (F : functor _ _ ) c : hSet)
-      (e : c = c'):
-  yy (transportf (fun d => (F : functor _ _ ) d : hSet) e A) = 
-  transportf (fun d => preShv C ⟦ yoneda _ d, F⟧) e (yy A).
-Proof.
-  induction e.
-  apply idpath.
-Defined.
-
-Lemma transportf_pshf {C : category}
-    {P P' : preShv C} (e : P = P')
-    {c : C} (x : (P : functor _ _) c : hSet)
-  : transportf (fun Q : preShv C => (Q : functor _ _) c : hSet) e x
-  = ((idtoiso e : _ --> _) : nat_trans _ _) c x.
-Proof.
-  destruct e; apply idpath.
-Qed.
-
-Lemma transportf_pshf' {C : category} (P : preShv C)
-  {c c' : C} (e : c = c')
-  (x : (P : functor _ _) c : hSet)
-  : transportf (fun c => (P : functor _ _) c : hSet) e x
-    = # (P : functor _ _) (idtoiso (!e)) x.
-Proof.
-  destruct e. cbn.
-  apply pathsinv0. 
-  revert x; apply toforallpaths. 
-  apply (functor_id P).
-Qed.
-
-Lemma transportf_isotoid_pshf {C : category}
-    {P P' : preShv C} (i : iso P P')
-    {c : C} (x : (P : functor _ _) c : hSet)
-  : transportf (fun Q : preShv C => (Q : functor _ _) c : hSet)
-      (isotoid _ (univalent_category_is_univalent (preShv C)) i) x
-  = ((i : _ --> _) : nat_trans _ _) c x.
-Proof.
-  etrans. apply transportf_pshf.
-  refine (toforallpaths _ x).
-  refine (toforallpaths _ c).
-  apply maponpaths, maponpaths, idtoiso_isotoid.
-Qed.
 
 
 (** * Basic pullback utility functions *)
@@ -1073,175 +1006,6 @@ Definition postcomp_pb_with_iso
 
 End Pullback_transfers.
 
-(** * Pullbacks of sets and presheaves *)
-
-Section Pullbacks_hSet.
-
-(* TODO: does this already exist?
-
-  If we had the standard pullback of hsets defined, this could be maybe better stated as the fact that P is a pullback if the map from P to the standard pullback is an iso. *)
-Lemma isPullback_HSET {P A B C : HSET}
-    (p1 : P --> A) (p2 : P --> B) (f : A --> C) (g : B --> C)
-    (ep : p1 ;; f = p2 ;; g)
-  : (∏ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b)
-  -> isPullback ep.
-Proof.
-  intros H X h k ehk.
-  set (H_existence := fun a b e => pr1 (H a b e)).
-  set (H_uniqueness
-    := fun a b e x x' => base_paths _ _ (proofirrelevancecontr (H a b e) x x')).
-  apply iscontraprop1.
-  - apply invproofirrelevance.
-    intros hk hk'.
-    apply subtypePath. { intro. apply isapropdirprod; apply setproperty. }
-    destruct hk as [hk [eh ek]], hk' as [hk' [eh' ek']]; simpl.
-    apply funextsec; intro x.
-    refine (H_uniqueness (h x) (k x) _ (_,,_) (_,,_));
-      try split;
-    revert x; apply toforallpaths; assumption.
-  - use tpair. 
-    + intros x. refine (pr1 (H_existence (h x) (k x) _)).
-      apply (toforallpaths ehk).
-    + simpl.
-      split; apply funextsec; intro x.
-      * apply (pr1 (pr2 (H_existence _ _ _))). 
-      * apply (pr2 (pr2 (H_existence _ _ _))).
-Qed.
-
-(* TODO: unify with [isPullback_HSET]? *)
-Lemma pullback_HSET_univprop_elements {P A B C : HSET}
-    {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
-    {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
-    (ep : p1 ;; f = p2 ;; g)
-    (pb : isPullback (*f g p1 p2*) ep)
-  : (∏ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b).
-Proof.
-  intros a b e.
-  set (Pb := (make_Pullback _ pb)).
-  apply iscontraprop1.
-  - apply invproofirrelevance; intros [ab [ea eb]] [ab' [ea' eb']].
-    apply subtypePath; simpl.
-      intros x; apply isapropdirprod; apply setproperty.
-    refine (@toforallpaths unitset _ _ _ _ tt).
-    refine (MorphismsIntoPullbackEqual pb _ _ _ _ _ );
-      apply funextsec; intros []; cbn;
-      (eapply @pathscomp0; [ eassumption | apply pathsinv0; eassumption]).
-  - simple refine (_,,_).
-    refine (_ tt).
-    refine (PullbackArrow Pb (unitset : HSET)
-      (fun _ => a) (fun _ => b) _).
-    apply funextsec; intro; exact e.
-    simpl; split.
-    + generalize tt; apply toforallpaths.
-      apply (PullbackArrow_PullbackPr1 Pb unitset).
-    + generalize tt; apply toforallpaths.
-      apply (PullbackArrow_PullbackPr2 Pb unitset).
-Defined.
-
-Lemma pullback_HSET_elements_unique {P A B C : HSET}
-    {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
-    {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
-    {ep : p1 ;; f = p2 ;; g}
-    (pb : isPullback (*f g p1 p2*) ep)
-    (ab ab' : P : hSet)
-    (e1 : p1 ab = p1 ab') (e2 : p2 ab = p2 ab')
-  : ab = ab'.
-Proof.
-  set (temp := proofirrelevancecontr 
-    (pullback_HSET_univprop_elements _ pb (p1 ab') (p2 ab')
-        (toforallpaths ep ab'))).
-  refine (maponpaths pr1 (temp (ab,, _) (ab',, _))).
-  - split; assumption.
-  - split; apply idpath.
-Qed.
-
-
-(* TODO: upstream this and the following lemma, and unify them with the converse implication about pullbacks. *)
-Lemma square_commutes_preShv_to_pointwise {C : category}
-    {X Y Z W : preShv C}
-    {f : Y --> X} {g : Z --> X} {p1 : W --> Y} {p2 : W --> Z}
-    (e : p1 ;; f = p2 ;; g)
-    (c : C)
-  : ((p1 : nat_trans _ _) c) ;; ((f : nat_trans _ _) c)
-  = ((p2 : nat_trans _ _) c) ;; ((g : nat_trans _ _) c).
-Proof.
-  apply (nat_trans_eq_pointwise e).
-Qed.
-
-(* TODO: unify with the converse implication;
-  perhaps also generalise to all functor categories?  *)
-Lemma isPullback_preShv_to_pointwise {C : category}
-    {X Y Z W : preShv C}
-    {f : Y --> X} {g : Z --> X} {p1 : W --> Y} {p2 : W --> Z}
-    {e : p1 ;; f = p2 ;; g} (pb : isPullback e)
-    (c : C)
-  : isPullback (*((f : nat_trans _ _) c) ((g : nat_trans _ _) c)
-      ((p1 : nat_trans _ _) c) ((p2 : nat_trans _ _) c) *)
-      (square_commutes_preShv_to_pointwise e c).
-Proof.
-  set (XR := @isLimFunctor_is_pointwise_Lim C^op HSET
-            pullback_graph).
-  set (XT1 := pullback_diagram _ f g).
-  specialize (XR XT1).
-  transparent assert
-       (XH : (∏ a : C^op,
-        LimCone
-          (@colimits.diagram_pointwise C^op HSET 
-             pullback_graph XT1 a))).
-    { intro. apply LimConeHSET.  }
-    specialize (XR XH).
-    specialize (XR W). 
-    set (XT := PullbCone _ _ _ _ p1 p2 e).
-    specialize (XR XT).
-    transparent assert (XTT : (isLimCone XT1 W XT)).
-    { apply @equiv_isPullback_1.
-      exact pb.
-    }
-    specialize (XR XTT c).    
-    intros S h k H.
-    specialize (XR S).
-    simpl in XR.
-    transparent assert (HC
-      :  (cone (@colimits.diagram_pointwise C^op HSET 
-                    pullback_graph (pullback_diagram (preShv C) f g) c) S)).
-    { use make_cone.
-      apply three_rec_dep; cbn.
-      - apply h.
-      - simpl. apply (h ;; (pr1 f c)).
-      - apply k.
-      - use three_rec_dep; use three_rec_dep.
-        + exact (empty_rect _ ).
-        + intro. apply idpath.
-        + exact (empty_rect _ ).
-        + exact (empty_rect _ ).
-        + exact (empty_rect _ ).
-        + exact (empty_rect _ ).
-        + exact (empty_rect _ ).
-        + intro; apply (!H).
-        + exact (empty_rect _ ).
-    }
-    specialize (XR HC).
-    use tpair.
-  - exists (pr1 (iscontrpr1 XR)).
-    split.
-    + apply (pr2 (pr1 XR) One).
-    + apply (pr2 (pr1 XR) Three).
-  - intro t.
-    apply subtypePath.
-    + intro. apply isapropdirprod; apply homset_property.
-    + simpl.
-      apply path_to_ctr.
-      destruct t as [t [H1 H2]].
-      use three_rec_dep.
-      * apply H1.
-      * destruct H1.
-        apply idpath.
-      * apply H2.
-Qed.
-
-
-End Pullbacks_hSet.
-
 (** * Uniqueness of pullbacks *)
 
 Definition isaprop_Pullback (C : category) (H : is_univalent C)
@@ -1372,126 +1136,6 @@ Section Pullback_Unique_Up_To_Iso.
 
 End Pullback_Unique_Up_To_Iso.
 
-(** * Displayed categories *)
-
-Definition isaprop_is_cartesian_disp_functor
-    {C C' : category} {F : functor C C'}
-    {D : disp_cat C} {D' : disp_cat C'} {FF : disp_functor F D D'}
-  : isaprop (is_cartesian_disp_functor FF).
-Proof.
-  do 7 (apply impred; intro).
-  apply isaprop_is_cartesian.
-Qed.
-
-(** * Comprehension categories *)
-
-Definition comprehension_cat
-  := ∑ (C : category), (comprehension_cat_structure C).
-
-Coercion category_of_comprehension_cat (C : comprehension_cat) := pr1 C.
-Coercion structure_of_comprehension_cat (C : comprehension_cat) := pr2 C.
-
-(** * Displayed Equivalences *)
-
-Section Displayed_Equivalences.
-(** The total equivalence of a displayed equivalence *)
-
-Definition total_functor_comp
-    {C D E : category} {F : functor C D} {G : functor D E} 
-    {CC} {DD} {EE} (FF : disp_functor F CC DD) (GG : disp_functor G DD EE)
-  : nat_iso
-      (total_functor (disp_functor_composite FF GG))
-      (functor_composite (total_functor FF) (total_functor GG)).
-Proof.
-  simple refine (functor_iso_from_pointwise_iso _ _ _ _ _ _ _).
-  - use tpair.
-    + intros c. apply identity.
-    + intros c c' f.
-      etrans. { apply id_right. }
-      apply pathsinv0, id_left.
-  - intros a. apply identity_is_iso.
-Defined.
-
-Definition total_functor_id
-    {C : category}
-    {CC : disp_cat C}
-  : nat_iso
-      (total_functor (disp_functor_identity CC))
-      (functor_identity _).
-Proof.
-  use functor_iso_from_pointwise_iso.
-  - use tpair.
-    + intros c. apply identity.
-    + intros c c' f.
-      etrans. { apply id_right. }
-      apply pathsinv0, id_left.
-  - intros a. apply identity_is_iso.
-Defined.
-
-Definition total_nat_trans
-    {C D : category} {F G : functor C D} {α : nat_trans F G}
-    {CC} {DD} {FF : disp_functor F CC DD} {GG : disp_functor G CC DD}
-    (αα : disp_nat_trans α FF GG)
-  : nat_trans (total_functor FF) (total_functor GG).
-Proof.
-  use tpair.
-  { intros c; exists (α (pr1 c)). apply αα. }
-  intros c c' f.
-  eapply total2_paths_b. apply disp_nat_trans_ax.
-Defined.
-
-Definition total_adjunction_data_over_id
-    {C} {CC DD : disp_cat C}
-    (FG : disp_adjunction_id_data CC DD)
-  : adjunction_data (total_category CC) (total_category DD).
-Proof.
-  exists (total_functor (left_adj_over_id FG)).
-  exists (total_functor (right_adj_over_id FG)).
-  split.
-  - exact (total_nat_trans (unit_over_id FG)).
-  - exact (total_nat_trans (counit_over_id FG)).
-Defined.
-
-Definition total_forms_adjunction_over_id
-    {C} {CC DD : disp_cat C}
-    (FG : disp_adjunction_id CC DD)
-  : form_adjunction' (total_adjunction_data_over_id FG).
-Proof.
-  split.
-  - intros c; cbn.
-    eapply total2_paths_b.
-    apply triangle_1_over_id.
-  - intros c; cbn.
-    eapply total2_paths_b.
-    apply triangle_2_over_id.
-Qed.
-
-Definition total_adjunction_over_id
-    {C} {CC DD : disp_cat C}
-    (FG : disp_adjunction_id CC DD)
-  : adjunction (total_category CC) (total_category DD).
-Proof.
-  exists (total_adjunction_data_over_id FG).
-  apply total_forms_adjunction_over_id.
-Defined.
-
-Definition total_equiv_over_id
-    {C} {CC DD : disp_cat C}
-    (E : equiv_over_id CC DD)
-  : adj_equiv (total_category CC) (total_category DD).
-Proof.
-  use adj_equiv_from_adjunction.
-  - exact (total_adjunction_over_id (adjunction_of_equiv_over_id E)).
-  - intros c. simpl.
-    use is_iso_total. { apply identity_is_iso. }
-    apply is_iso_unit_over_id, axioms_of_equiv_over_id.
-  - intros c. simpl.
-    use is_iso_total. { apply identity_is_iso. }
-    apply is_iso_counit_over_id, axioms_of_equiv_over_id.
-Defined.
-
-End Displayed_Equivalences.
-
 (** * Limits and colimits *)
 
 (* NOTE: just initial and terminal objects for now; but if any other material on general limits/colimits is added, it should be grouped here. *)
@@ -1510,7 +1154,6 @@ Section Limits.
   Qed.
 
 End Limits.
-
 
 (** * Sections of maps in (pre)categories *)
 
@@ -1816,31 +1459,385 @@ Defined.
 
 End ArrowCategory.
 
-(** * Cat-isomorphisms *)
+(** * Presheaves and Yoneda *)
 
-Section CatIso.
+Arguments nat_trans_ax {C C'} {F F'} a {x x'} f.
+Arguments nat_trans_comp {_ _ _ _ _} _ _.
 
-Definition catiso_is_path_cat (C D : category)
-  : (C = D) ≃ catiso C D.
+Definition preShv C := functor_univalent_category C^op HSET_univalent_category.
+
+Notation "'Yo'" := (yoneda _ : functor _ (preShv _)).
+Notation "'Yo^-1'" := (invweq (make_weq _ (yoneda_fully_faithful _ _ _ ))).
+
+(* TODO: perhaps rename e.g. [yoneda_eq]? *)
+Definition yy {C : category}
+    {F : preShv C} {c : C}
+  : ((F : functor _ _) c : hSet) ≃ _ ⟦ yoneda _ c, F⟧.
 Proof.
-  eapply weqcomp.
-  - eapply PartA.path_sigma_hprop.
-    apply isaprop_has_homsets.
-  - apply catiso_is_path_precat.
-    apply D.
+  apply invweq.
+  apply yoneda_weq.
 Defined.
 
-
-Definition catiso_univalent (C : category) (D : category)
-  : catiso D C → is_univalent C → is_univalent D.
+Lemma yy_natural {C : category} 
+  (F : preShv C) (c : C) (A : (F:functor _ _) c : hSet) 
+                  c' (f : C⟦c', c⟧) :
+        yy (# (F : functor _ _) f A) = # (yoneda _ ) f ;; yy A.
 Proof.
-  intros i C_univ.
-  set (D_eq_C := invweq (catiso_is_path_cat _ _ ) i).
-  use (transportb _ D_eq_C).
-  apply C_univ.
+  apply (toforallpaths (is_natural_yoneda_iso_inv _ F _ _ f)).
+Qed.
+
+Lemma yy_comp_nat_trans {C : category}
+      (F F' : preShv C) (p : _ ⟦F, F'⟧)
+      A (v : (F : functor _ _ ) A : hSet)
+  : yy v ;; p = yy ((p : nat_trans _ _ )  _ v).
+Proof.
+  apply nat_trans_eq.
+  - apply homset_property.
+  - intro c. simpl. 
+    apply funextsec. intro f. cbn.
+    apply (toforallpaths (nat_trans_ax p f)).
+Qed.
+
+Lemma yoneda_postcompose {C : category} (P : preShv C)
+  {y z : C} (α : P --> Yo y) (f : y --> z)
+  {x:C} (p : (P : functor _ _) x : hSet)
+  : ((α : nat_trans _ _) x p) ;; f
+    = (α ;; yoneda_morphisms _ _ _ f : nat_trans _ _) x p.
+Proof.
+  apply idpath.
 Defined.
 
-End CatIso.
+Lemma transportf_yy {C : category}
+      (F : preShv C) (c c' : C) (A : (F : functor _ _ ) c : hSet)
+      (e : c = c'):
+  yy (transportf (fun d => (F : functor _ _ ) d : hSet) e A) = 
+  transportf (fun d => preShv C ⟦ yoneda _ d, F⟧) e (yy A).
+Proof.
+  induction e.
+  apply idpath.
+Defined.
+
+Lemma transportf_pshf {C : category}
+    {P P' : preShv C} (e : P = P')
+    {c : C} (x : (P : functor _ _) c : hSet)
+  : transportf (fun Q : preShv C => (Q : functor _ _) c : hSet) e x
+  = ((idtoiso e : _ --> _) : nat_trans _ _) c x.
+Proof.
+  destruct e; apply idpath.
+Qed.
+
+Lemma transportf_pshf' {C : category} (P : preShv C)
+  {c c' : C} (e : c = c')
+  (x : (P : functor _ _) c : hSet)
+  : transportf (fun c => (P : functor _ _) c : hSet) e x
+    = # (P : functor _ _) (idtoiso (!e)) x.
+Proof.
+  destruct e. cbn.
+  apply pathsinv0. 
+  revert x; apply toforallpaths. 
+  apply (functor_id P).
+Qed.
+
+Lemma transportf_isotoid_pshf {C : category}
+    {P P' : preShv C} (i : iso P P')
+    {c : C} (x : (P : functor _ _) c : hSet)
+  : transportf (fun Q : preShv C => (Q : functor _ _) c : hSet)
+      (isotoid _ (univalent_category_is_univalent (preShv C)) i) x
+  = ((i : _ --> _) : nat_trans _ _) c x.
+Proof.
+  etrans. apply transportf_pshf.
+  refine (toforallpaths _ x).
+  refine (toforallpaths _ c).
+  apply maponpaths, maponpaths, idtoiso_isotoid.
+Qed.
+
+(** * Pullbacks of sets and presheaves *)
+
+Section Pullbacks_hSet.
+
+(* TODO: does this already exist?
+
+  If we had the standard pullback of hsets defined, this could be maybe better stated as the fact that P is a pullback if the map from P to the standard pullback is an iso. *)
+Lemma isPullback_HSET {P A B C : HSET}
+    (p1 : P --> A) (p2 : P --> B) (f : A --> C) (g : B --> C)
+    (ep : p1 ;; f = p2 ;; g)
+  : (∏ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b)
+  -> isPullback ep.
+Proof.
+  intros H X h k ehk.
+  set (H_existence := fun a b e => pr1 (H a b e)).
+  set (H_uniqueness
+    := fun a b e x x' => base_paths _ _ (proofirrelevancecontr (H a b e) x x')).
+  apply iscontraprop1.
+  - apply invproofirrelevance.
+    intros hk hk'.
+    apply subtypePath. { intro. apply isapropdirprod; apply setproperty. }
+    destruct hk as [hk [eh ek]], hk' as [hk' [eh' ek']]; simpl.
+    apply funextsec; intro x.
+    refine (H_uniqueness (h x) (k x) _ (_,,_) (_,,_));
+      try split;
+    revert x; apply toforallpaths; assumption.
+  - use tpair. 
+    + intros x. refine (pr1 (H_existence (h x) (k x) _)).
+      apply (toforallpaths ehk).
+    + simpl.
+      split; apply funextsec; intro x.
+      * apply (pr1 (pr2 (H_existence _ _ _))). 
+      * apply (pr2 (pr2 (H_existence _ _ _))).
+Qed.
+
+(* TODO: unify with [isPullback_HSET]? *)
+Lemma pullback_HSET_univprop_elements {P A B C : HSET}
+    {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
+    {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
+    (ep : p1 ;; f = p2 ;; g)
+    (pb : isPullback (*f g p1 p2*) ep)
+  : (∏ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b).
+Proof.
+  intros a b e.
+  set (Pb := (make_Pullback _ pb)).
+  apply iscontraprop1.
+  - apply invproofirrelevance; intros [ab [ea eb]] [ab' [ea' eb']].
+    apply subtypePath; simpl.
+      intros x; apply isapropdirprod; apply setproperty.
+    refine (@toforallpaths unitset _ _ _ _ tt).
+    refine (MorphismsIntoPullbackEqual pb _ _ _ _ _ );
+      apply funextsec; intros []; cbn;
+      (eapply @pathscomp0; [ eassumption | apply pathsinv0; eassumption]).
+  - simple refine (_,,_).
+    refine (_ tt).
+    refine (PullbackArrow Pb (unitset : HSET)
+      (fun _ => a) (fun _ => b) _).
+    apply funextsec; intro; exact e.
+    simpl; split.
+    + generalize tt; apply toforallpaths.
+      apply (PullbackArrow_PullbackPr1 Pb unitset).
+    + generalize tt; apply toforallpaths.
+      apply (PullbackArrow_PullbackPr2 Pb unitset).
+Defined.
+
+Lemma pullback_HSET_elements_unique {P A B C : HSET}
+    {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
+    {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
+    {ep : p1 ;; f = p2 ;; g}
+    (pb : isPullback (*f g p1 p2*) ep)
+    (ab ab' : P : hSet)
+    (e1 : p1 ab = p1 ab') (e2 : p2 ab = p2 ab')
+  : ab = ab'.
+Proof.
+  set (temp := proofirrelevancecontr 
+    (pullback_HSET_univprop_elements _ pb (p1 ab') (p2 ab')
+        (toforallpaths ep ab'))).
+  refine (maponpaths pr1 (temp (ab,, _) (ab',, _))).
+  - split; assumption.
+  - split; apply idpath.
+Qed.
+
+
+(* TODO: upstream this and the following lemma, and unify them with the converse implication about pullbacks. *)
+Lemma square_commutes_preShv_to_pointwise {C : category}
+    {X Y Z W : preShv C}
+    {f : Y --> X} {g : Z --> X} {p1 : W --> Y} {p2 : W --> Z}
+    (e : p1 ;; f = p2 ;; g)
+    (c : C)
+  : ((p1 : nat_trans _ _) c) ;; ((f : nat_trans _ _) c)
+  = ((p2 : nat_trans _ _) c) ;; ((g : nat_trans _ _) c).
+Proof.
+  apply (nat_trans_eq_pointwise e).
+Qed.
+
+(* TODO: unify with the converse implication;
+  perhaps also generalise to all functor categories?  *)
+Lemma isPullback_preShv_to_pointwise {C : category}
+    {X Y Z W : preShv C}
+    {f : Y --> X} {g : Z --> X} {p1 : W --> Y} {p2 : W --> Z}
+    {e : p1 ;; f = p2 ;; g} (pb : isPullback e)
+    (c : C)
+  : isPullback (*((f : nat_trans _ _) c) ((g : nat_trans _ _) c)
+      ((p1 : nat_trans _ _) c) ((p2 : nat_trans _ _) c) *)
+      (square_commutes_preShv_to_pointwise e c).
+Proof.
+  set (XR := @isLimFunctor_is_pointwise_Lim C^op HSET
+            pullback_graph).
+  set (XT1 := pullback_diagram _ f g).
+  specialize (XR XT1).
+  transparent assert
+       (XH : (∏ a : C^op,
+        LimCone
+          (@colimits.diagram_pointwise C^op HSET 
+             pullback_graph XT1 a))).
+    { intro. apply LimConeHSET.  }
+    specialize (XR XH).
+    specialize (XR W). 
+    set (XT := PullbCone _ _ _ _ p1 p2 e).
+    specialize (XR XT).
+    transparent assert (XTT : (isLimCone XT1 W XT)).
+    { apply @equiv_isPullback_1.
+      exact pb.
+    }
+    specialize (XR XTT c).    
+    intros S h k H.
+    specialize (XR S).
+    simpl in XR.
+    transparent assert (HC
+      :  (cone (@colimits.diagram_pointwise C^op HSET 
+                    pullback_graph (pullback_diagram (preShv C) f g) c) S)).
+    { use make_cone.
+      apply three_rec_dep; cbn.
+      - apply h.
+      - simpl. apply (h ;; (pr1 f c)).
+      - apply k.
+      - use three_rec_dep; use three_rec_dep.
+        + exact (empty_rect _ ).
+        + intro. apply idpath.
+        + exact (empty_rect _ ).
+        + exact (empty_rect _ ).
+        + exact (empty_rect _ ).
+        + exact (empty_rect _ ).
+        + exact (empty_rect _ ).
+        + intro; apply (!H).
+        + exact (empty_rect _ ).
+    }
+    specialize (XR HC).
+    use tpair.
+  - exists (pr1 (iscontrpr1 XR)).
+    split.
+    + apply (pr2 (pr1 XR) One).
+    + apply (pr2 (pr1 XR) Three).
+  - intro t.
+    apply subtypePath.
+    + intro. apply isapropdirprod; apply homset_property.
+    + simpl.
+      apply path_to_ctr.
+      destruct t as [t [H1 H2]].
+      use three_rec_dep.
+      * apply H1.
+      * destruct H1.
+        apply idpath.
+      * apply H2.
+Qed.
+
+End Pullbacks_hSet.
+
+(** * Displayed categories *)
+
+Definition isaprop_is_cartesian_disp_functor
+    {C C' : category} {F : functor C C'}
+    {D : disp_cat C} {D' : disp_cat C'} {FF : disp_functor F D D'}
+  : isaprop (is_cartesian_disp_functor FF).
+Proof.
+  do 7 (apply impred; intro).
+  apply isaprop_is_cartesian.
+Qed.
+
+(** * Displayed Equivalences *)
+
+Section Displayed_Equivalences.
+(** The total equivalence of a displayed equivalence *)
+
+Definition total_functor_comp
+    {C D E : category} {F : functor C D} {G : functor D E} 
+    {CC} {DD} {EE} (FF : disp_functor F CC DD) (GG : disp_functor G DD EE)
+  : nat_iso
+      (total_functor (disp_functor_composite FF GG))
+      (functor_composite (total_functor FF) (total_functor GG)).
+Proof.
+  simple refine (functor_iso_from_pointwise_iso _ _ _ _ _ _ _).
+  - use tpair.
+    + intros c. apply identity.
+    + intros c c' f.
+      etrans. { apply id_right. }
+      apply pathsinv0, id_left.
+  - intros a. apply identity_is_iso.
+Defined.
+
+Definition total_functor_id
+    {C : category}
+    {CC : disp_cat C}
+  : nat_iso
+      (total_functor (disp_functor_identity CC))
+      (functor_identity _).
+Proof.
+  use functor_iso_from_pointwise_iso.
+  - use tpair.
+    + intros c. apply identity.
+    + intros c c' f.
+      etrans. { apply id_right. }
+      apply pathsinv0, id_left.
+  - intros a. apply identity_is_iso.
+Defined.
+
+Definition total_nat_trans
+    {C D : category} {F G : functor C D} {α : nat_trans F G}
+    {CC} {DD} {FF : disp_functor F CC DD} {GG : disp_functor G CC DD}
+    (αα : disp_nat_trans α FF GG)
+  : nat_trans (total_functor FF) (total_functor GG).
+Proof.
+  use tpair.
+  { intros c; exists (α (pr1 c)). apply αα. }
+  intros c c' f.
+  eapply total2_paths_b. apply disp_nat_trans_ax.
+Defined.
+
+Definition total_adjunction_data_over_id
+    {C} {CC DD : disp_cat C}
+    (FG : disp_adjunction_id_data CC DD)
+  : adjunction_data (total_category CC) (total_category DD).
+Proof.
+  exists (total_functor (left_adj_over_id FG)).
+  exists (total_functor (right_adj_over_id FG)).
+  split.
+  - exact (total_nat_trans (unit_over_id FG)).
+  - exact (total_nat_trans (counit_over_id FG)).
+Defined.
+
+Definition total_forms_adjunction_over_id
+    {C} {CC DD : disp_cat C}
+    (FG : disp_adjunction_id CC DD)
+  : form_adjunction' (total_adjunction_data_over_id FG).
+Proof.
+  split.
+  - intros c; cbn.
+    eapply total2_paths_b.
+    apply triangle_1_over_id.
+  - intros c; cbn.
+    eapply total2_paths_b.
+    apply triangle_2_over_id.
+Qed.
+
+Definition total_adjunction_over_id
+    {C} {CC DD : disp_cat C}
+    (FG : disp_adjunction_id CC DD)
+  : adjunction (total_category CC) (total_category DD).
+Proof.
+  exists (total_adjunction_data_over_id FG).
+  apply total_forms_adjunction_over_id.
+Defined.
+
+Definition total_equiv_over_id
+    {C} {CC DD : disp_cat C}
+    (E : equiv_over_id CC DD)
+  : adj_equiv (total_category CC) (total_category DD).
+Proof.
+  use adj_equiv_from_adjunction.
+  - exact (total_adjunction_over_id (adjunction_of_equiv_over_id E)).
+  - intros c. simpl.
+    use is_iso_total. { apply identity_is_iso. }
+    apply is_iso_unit_over_id, axioms_of_equiv_over_id.
+  - intros c. simpl.
+    use is_iso_total. { apply identity_is_iso. }
+    apply is_iso_counit_over_id, axioms_of_equiv_over_id.
+Defined.
+
+End Displayed_Equivalences.
+
+(** * Comprehension categories *)
+
+Definition comprehension_cat
+  := ∑ (C : category), (comprehension_cat_structure C).
+
+Coercion category_of_comprehension_cat (C : comprehension_cat) := pr1 C.
+Coercion structure_of_comprehension_cat (C : comprehension_cat) := pr2 C.
 
 
 (** * Unorganised lemmas *)
