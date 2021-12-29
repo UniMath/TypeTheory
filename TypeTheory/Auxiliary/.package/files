@@ -6,3 +6,4 @@ CategoryTheory.v
 DisplayedCategories.v
 SetsAndPresheaves.v
 ArrowCategory.v
+TypeOfMorphisms.v

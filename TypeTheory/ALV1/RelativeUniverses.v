@@ -21,6 +21,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
 
 Local Notation "[ C , D ]" := (functor_category C D).
 
