@@ -17,6 +17,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences_bis.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 Require Import TypeTheory.Auxiliary.DisplayedCategories.
 
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.

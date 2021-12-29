@@ -1,6 +1,7 @@
 Auxiliary.v
+Partial.v
+SetQuotients.v
 CategoryTheoryImports.v
 CategoryTheory.v
 DisplayedCategories.v
-Partial.v
-SetQuotients.v
+SetsAndPresheaves.v
