@@ -106,6 +106,12 @@ Proof.
   apply constant_nat_trans_is_iso, iso_is_iso.
 Defined.
 
+Definition nat_trans_from_nat_iso
+    {C D : category} {F G : functor C D} (α : nat_iso F G)
+  : nat_trans F G
+:= pr1 α.
+Coercion nat_trans_from_nat_iso : nat_iso >-> nat_trans.
+
 (** * The total type of morphisms of a precategory *)
 
 Definition mor_total (C : precategory) : UU
@@ -131,7 +137,6 @@ Proof.
   exists (F (pr1 (pr1 p)) ,, F (pr2 (pr1 p)) ).
   exact (#F p).
 Defined.
-
 
 Definition isweq_left_adj_equivalence_on_mor_total
     {C D : category} (F : functor C D)
@@ -239,14 +244,63 @@ Defined.
 
 
 (** * Equivalences of categories *)
-(** Specifically: the composition of (adjoint) equivalences of precats. *)
 
-Coercion left_adj_from_adj_equiv (X Y : category) (K : functor X Y)
-         (HK : adj_equivalence_of_cats K)
-  : is_left_adjoint K
-:= pr1 HK.
+Section Adjoint_Equivalences.
 
-Section about_equivalences.
+Coercion left_adj_from_adj_equiv (X Y : category) (F : functor X Y)
+  : adj_equivalence_of_cats F -> is_left_adjoint F := fun x => pr1 x.
+
+(* TODO: remove this once renamed to this upstream (from erroneous “…precats…”) *)
+Coercion adj_equiv_of_cats_from_adj {A B : category} (E : adj_equiv A B)
+  : adj_equivalence_of_cats E := pr2 E.
+
+Definition adj_from_equiv (D1 D2 : category) (F : functor D1 D2):
+    adj_equivalence_of_cats F → is_left_adjoint F := fun x => pr1 x.
+Coercion adj_from_equiv : adj_equivalence_of_cats >-> is_left_adjoint.
+
+Definition adj_equiv_from_adjunction
+    {C D : category}
+    (FG : adjunction C D)
+    (unit_iso : forall c:C, is_iso (adjunit FG c))
+    (counit_iso : forall d:D, is_iso (adjcounit FG d))
+  : adj_equiv C D.
+Proof.
+  exists (left_functor FG).
+  use tpair.
+  - exists (right_functor FG).
+    use tpair.
+    + split.
+      * exact (adjunit FG).
+      * exact (adjcounit FG).
+    + exact (pr2 FG).
+  - split; cbn.
+    + apply unit_iso.
+    + apply counit_iso.
+Defined.
+
+Definition compose_adj_equiv
+    {C D E : category}
+    (F : adj_equiv C D)
+    (G : adj_equiv D E)
+  : adj_equiv C E.
+Proof.
+  exists (functor_composite F G).
+  apply comp_adj_equivalence_of_cats;
+    apply adj_equiv_of_cats_from_adj.
+Defined.
+
+Definition inv_adj_equiv
+    {C D : category}
+    (F : adj_equiv C D)
+  : adj_equiv D C.
+Proof.
+  exists (adj_equivalence_inv F).
+  apply adj_equivalence_of_cats_inv.
+Defined.
+
+End Adjoint_Equivalences.
+
+Section ff_and_ess_surj_from_adj_equiv.
 
 Variables D1 D2 : category.
 Variable F : functor D1 D2.
@@ -310,10 +364,7 @@ Proof.
   exact (ηinv d).
 Defined.
 
-End about_equivalences.
-
-
-
+End ff_and_ess_surj_from_adj_equiv.
 
 Section eqv_from_ess_split_and_ff.
 
@@ -507,7 +558,6 @@ Proof.
     apply (homotweqinvweq (make_weq _ (Fff _ _ ))).
 Defined.
 
-
 Definition reflects_pullbacks {C D : category} (F : functor C D) : UU
   := ∏ {a b c d : C}{f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : C⟦d, b⟧} {k : C⟦d,c⟧}
        (H : h · f = k · g),
@@ -563,7 +613,6 @@ Proof.
     rewrite isotoid_identity_iso.
     apply idpath.
 Defined.
-
 
 Lemma idtoiso_transportf_family_of_morphisms (D : precategory)
       (A : UU) (B : A -> UU)
@@ -626,7 +675,7 @@ Proof.
   apply maponpaths, maponpaths, idtoiso_isotoid.
 Qed.
 
-(** * Misc lemmas/definitions on (pre)categories *)
+(** * Univalent categories *)
 
 Coercion univalent_category_is_univalent : univalent_category >-> is_univalent.
 
@@ -637,10 +686,6 @@ Proof.
   apply is_univalent_functor_category.
   apply D.
 Defined.
-
-Definition adj_from_equiv (D1 D2 : category) (F : functor D1 D2):
-    adj_equivalence_of_cats F → is_left_adjoint F := fun x => pr1 x.
-Coercion adj_from_equiv : adj_equivalence_of_cats >-> is_left_adjoint.
 
 (** * Functors and isomorphisms *)
 
@@ -1419,59 +1464,9 @@ Definition comprehension_cat
 Coercion category_of_comprehension_cat (C : comprehension_cat) := pr1 C.
 Coercion structure_of_comprehension_cat (C : comprehension_cat) := pr2 C.
 
-(** * Some constructions on equivalences (normal and displayed) *)
+(** * Displayed Equivalences *)
 
-Section Adjoint_Equivalences.
-(* TODO: remove this once renamed to this upstream (from erroneous “…precats…”) *)
-Coercion adj_equiv_of_cats_from_adj {A B : category} (E : adj_equiv A B)
-  : adj_equivalence_of_cats E := pr2 E.
-
-Definition adj_equiv_from_adjunction
-    {C D : category}
-    (FG : adjunction C D)
-    (unit_iso : forall c:C, is_iso (adjunit FG c))
-    (counit_iso : forall d:D, is_iso (adjcounit FG d))
-  : adj_equiv C D.
-Proof.
-  exists (left_functor FG).
-  use tpair.
-  - exists (right_functor FG).
-    use tpair.
-    + split.
-      * exact (adjunit FG).
-      * exact (adjcounit FG).
-    + exact (pr2 FG).
-  - split; cbn.
-    + apply unit_iso.
-    + apply counit_iso.
-Defined.
-
-Definition compose_adj_equiv
-    {C D E : category}
-    (F : adj_equiv C D)
-    (G : adj_equiv D E)
-  : adj_equiv C E.
-Proof.
-  exists (functor_composite F G).
-  apply comp_adj_equivalence_of_cats;
-    apply adj_equiv_of_cats_from_adj.
-Defined.
-
-Definition inv_adj_equiv
-    {C D : category}
-    (F : adj_equiv C D)
-  : adj_equiv D C.
-Proof.
-  exists (adj_equivalence_inv F).
-  apply adj_equivalence_of_cats_inv.
-Defined.
-
-Definition nat_trans_from_nat_iso
-    {C D : category} {F G : functor C D} (α : nat_iso F G)
-  : nat_trans F G
-:= pr1 α.
-Coercion nat_trans_from_nat_iso : nat_iso >-> nat_trans.
-
+Section Displayed_Equivalences.
 (** The total equivalence of a displayed equivalence *)
 
 Definition total_functor_comp
@@ -1568,7 +1563,7 @@ Proof.
     apply is_iso_counit_over_id, axioms_of_equiv_over_id.
 Defined.
 
-End Adjoint_Equivalences.
+End Displayed_Equivalences.
 
 (** * Limits and colimits *)
 
