@@ -603,7 +603,8 @@ Section Syntactic_Types.
   := pr1 A : type_over ΓΓ.
   Coercion type_representative_as_type : type_representative >-> type_over.
 
-  (* TODO: generalise to “representatives” of arbitrary eqrel, and upstrea. *)
+  (* TODO: perhaps generalise to “representatives” of arbitrary eqrel, and upstream? *)
+
   Lemma typeeq_type_representatives
       {n} {ΓΓ : _ n} {AA : type_mod_eq ΓΓ} (A A' : type_representative AA)
     : typeeq_eqrel A A'.
@@ -959,7 +960,7 @@ End Split_Typecat.
 
 Section Contextuality.
 
-  (* Some of these should be upstreamed *)
+  (* TODO: Should some of these lemmas be upstreamed? *)
   
   Local Definition empty_context : syntactic_typecat.
   Proof.
