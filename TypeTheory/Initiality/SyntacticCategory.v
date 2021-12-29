@@ -850,19 +850,23 @@ Section Split_Typecat.
     - intros Γ.
       use (setquotfun _ _ _ _ AA).
       + intros A. exists (Γ ;; A)%strat_cxt.
-        refine (hinhfun2 _ Γ (A Γ)); intros d_Γ d_ΓA.
-        exact (derive_extend_stratified_context d_Γ d_ΓA).
+        (refine (hinhfun2 _ Γ (A Γ)); intros d_Γ d_ΓA;
+          exact (derive_extend_stratified_context d_Γ d_ΓA)).
       + intros A A' e_A.
-        refine (hinhfun2 _ Γ (e_A Γ)). clear e_A; intros d_Γ e_A.
-        apply derive_extend_flat_cxteq; auto using derive_flat_cxt_from_strat, d_Γ.
-        exact (derive_flat_cxteq_refl d_Γ).
+        abstract (
+          refine (hinhfun2 _ Γ (e_A Γ)); clear e_A; intros d_Γ e_A;
+          apply derive_extend_flat_cxteq;
+          auto using derive_flat_cxt_from_strat, d_Γ;
+          exact (derive_flat_cxteq_refl d_Γ)).
     - intros Γ Γ'; simpl; revert AA.
-      use setquotunivprop'. { intros; apply isasetsetquot. } intros A.
-      apply iscompsetquotpr.
-      refine (hinhfun4 _ Γ Γ' (A Γ) (cxteq_context_representatives Γ Γ')).
-      intros.
-      apply derive_extend_flat_cxteq;
-        auto using derive_flat_cxt_from_strat, derive_tyeq_refl.
+      abstract (
+        use setquotunivprop'; [ intros; apply isasetsetquot |
+        intros A;
+        apply iscompsetquotpr;
+        unsquash from Γ Γ' (A Γ) (cxteq_context_representatives Γ Γ')
+          as ? ? ? ?;
+        apply hinhpr, derive_extend_flat_cxteq;
+        auto using derive_flat_cxt_from_strat, derive_tyeq_refl ]).
   Defined.
 
   Local Definition ext_representative
@@ -876,7 +880,7 @@ Section Split_Typecat.
       exact (derive_extend_stratified_context d_Γ d_ΓA).
     - now simpl; rewrite (take_representative_comp _ _ _ _ Γ).
   Defined.
-  
+
   Local Definition reind
       {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
       {ΓΓ' : context_mod_eq} (ff : map_mod_eq ΓΓ' ΓΓ)
@@ -919,7 +923,6 @@ Section Split_Typecat.
       exact @reind.
   Defined.
 
-
   Local Definition dpr (ΓΓ : context_mod_eq) (AA : type_mod_eq ΓΓ)
     : map_mod_eq (ext ΓΓ AA) ΓΓ.
   Proof.
@@ -929,9 +932,9 @@ Section Split_Typecat.
     apply (take_context_representative ΓΓ). { apply propproperty. } intros Γ.
     revert AA. use setquotunivprop'. { intros; apply isapropishinh. } intros A.
     cbn. apply hinhpr.
-    unfold ext. simpl. rewrite (take_representative_comp _ _ _ _ Γ).
-    refine ((_,, idpath _),, _). exists Γ.
-    simpl. refine (hinhfun2 _ Γ (A Γ)). intros d_Γ d_A.
+    exists (ext_representative Γ _); cbn.
+    exists Γ.
+    unsquash from Γ (A Γ) as d_Γ d_A; apply hinhpr;
     exact (derive_dB_next_context_map d_Γ d_A).
   Defined.
 
@@ -1014,14 +1017,10 @@ Section Split_Typecat.
     : compose (qmor AA ff) (dpr _ AA) = compose (dpr _ (reind AA ff)) ff.
   Proof.
     revert ff; use setquotunivprop'. { intros; apply isasetsetquot. } intros f.
-    simpl. (* TODO: see if [abstract] in [dpr], or factoring the hard part out,
-            makes this quicker? *)
-    unfold qmor, setquot_to_dependent_subquotient; simpl.
-    unfold dpr; simpl.
-    unfold compose; simpl.
-    unfold setquotfun2', setquotuniv2', setquotuniv; simpl. (* Agh! Can’t we have a version that computes more easily?? *)
+    simpl.
     apply iscompsetquotpr.
-    use mapeq_from_path. intros i; simpl.
+    use mapeq_from_path. 
+    intros i; simpl.
     apply rename_as_subst_tm.
   Qed.
 
