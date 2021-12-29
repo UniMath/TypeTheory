@@ -27,7 +27,6 @@ Section Auxiliary.
   Lemma temp_admit {X} : X. Admitted.
 *)
 
-
   (* we’ll need some material here about quotients:
   particularly, [lemmas.setquotprpathsandR] from [PAdics], I guess? *)
 
@@ -850,7 +849,8 @@ Section Split_Typecat.
     - intros Γ.
       use (setquotfun _ _ _ _ AA).
       + intros A. exists (Γ ;; A)%strat_cxt.
-        (refine (hinhfun2 _ Γ (A Γ)); intros d_Γ d_ΓA;
+        abstract (
+          refine (hinhfun2 _ Γ (A Γ)); intros d_Γ d_ΓA;
           exact (derive_extend_stratified_context d_Γ d_ΓA)).
       + intros A A' e_A.
         abstract (
@@ -875,10 +875,8 @@ Section Split_Typecat.
     : context_representative (ext ΓΓ (setquotpr _ A)).
   Proof.
     use tpair.
-    - exists (Γ ;; A)%strat_cxt.
-      refine (hinhfun2 _ Γ (A Γ)); intros d_Γ d_ΓA.
-      exact (derive_extend_stratified_context d_Γ d_ΓA).
-    - now simpl; rewrite (take_representative_comp _ _ _ _ Γ).
+    - exists (Γ ;; A)%strat_cxt. shelve.
+    - apply pathsinv0. use take_representative_comp.
   Defined.
 
   Local Definition reind
