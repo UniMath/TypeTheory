@@ -799,6 +799,15 @@ Proof.
   apply idpath.
 Defined.
 
+Lemma transportf_pshf {C : category}
+    {P P' : preShv C} (e : P = P')
+    {c : C} (x : (P : functor _ _) c : hSet)
+  : transportf (fun Q : preShv C => (Q : functor _ _) c : hSet) e x
+  = ((idtoiso e : _ --> _) : nat_trans _ _) c x.
+Proof.
+  destruct e; apply idpath.
+Qed.
+
 Lemma transportf_pshf' {C : category} (P : preShv C)
   {c c' : C} (e : c = c')
   (x : (P : functor _ _) c : hSet)
@@ -810,6 +819,20 @@ Proof.
   revert x; apply toforallpaths. 
   apply (functor_id P).
 Qed.
+
+Lemma transportf_isotoid_pshf {C : category}
+    {P P' : preShv C} (i : iso P P')
+    {c : C} (x : (P : functor _ _) c : hSet)
+  : transportf (fun Q : preShv C => (Q : functor _ _) c : hSet)
+      (isotoid _ (univalent_category_is_univalent (preShv C)) i) x
+  = ((i : _ --> _) : nat_trans _ _) c x.
+Proof.
+  etrans. apply transportf_pshf.
+  refine (toforallpaths _ x).
+  refine (toforallpaths _ c).
+  apply maponpaths, maponpaths, idtoiso_isotoid.
+Qed.
+
 
 (** * Basic pullback utility functions *)
 
@@ -1602,33 +1625,10 @@ Section Sections.
 
 End Sections.
 
-(** * Unorganised lemmas *)
+(** * Arrow categories *)
+Section ArrowCategory.
 
-(* Lemmas that probably belong in one of the sections above, but haven’t been sorted into them yet.  Mainly a temporary holding pen for lemmas being upstreamed from other files. TODO: empty this bin frequently (but keep it here for re-use). *) 
-Section Unorganised.
-
-Lemma transportf_pshf {C : category}
-    {P P' : preShv C} (e : P = P')
-    {c : C} (x : (P : functor _ _) c : hSet)
-  : transportf (fun Q : preShv C => (Q : functor _ _) c : hSet) e x
-  = ((idtoiso e : _ --> _) : nat_trans _ _) c x.
-Proof.
-  destruct e; apply idpath.
-Qed.
-
-Lemma transportf_isotoid_pshf {C : category}
-    {P P' : preShv C} (i : iso P P')
-    {c : C} (x : (P : functor _ _) c : hSet)
-  : transportf (fun Q : preShv C => (Q : functor _ _) c : hSet)
-      (isotoid _ (univalent_category_is_univalent (preShv C)) i) x
-  = ((i : _ --> _) : nat_trans _ _) c x.
-Proof.
-  etrans. apply transportf_pshf.
-  refine (toforallpaths _ x).
-  refine (toforallpaths _ c).
-  apply maponpaths, maponpaths, idtoiso_isotoid.
-Qed.
-
+(* TODO: perhaps this lemma belongs further upstream; but where? can it be generalized to something clearer and more natural? *)
 Lemma transportf_dirprod_path' {C : category}
            {a b c d : C}
            (e : (a, b) = (c, d))
@@ -1892,6 +1892,12 @@ Proof.
   + apply (pr2 (arrow_category_id_weq_iso C_univ _ _)).
 Defined.
 
+End ArrowCategory.
+
+(** * Cat-isomorphisms *)
+
+Section CatIso.
+
 Definition catiso_is_path_cat (C D : category)
   : (C = D) ≃ catiso C D.
 Proof.
@@ -1911,6 +1917,14 @@ Proof.
   use (transportb _ D_eq_C).
   apply C_univ.
 Defined.
+
+End CatIso.
+
+
+(** * Unorganised lemmas *)
+
+(* Lemmas that probably belong in one of the sections above, but haven’t been sorted into them yet.  Mainly a temporary holding pen for lemmas being upstreamed from other files. TODO: empty this bin frequently (but keep it here for re-use). *) 
+Section Unorganised.
 
 End Unorganised.
 
