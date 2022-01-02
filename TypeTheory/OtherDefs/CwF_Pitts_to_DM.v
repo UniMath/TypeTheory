@@ -20,6 +20,8 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.Pullbacks.
+
 Require Import TypeTheory.OtherDefs.CwF_Pitts.
 Require Import TypeTheory.OtherDefs.DM.
 

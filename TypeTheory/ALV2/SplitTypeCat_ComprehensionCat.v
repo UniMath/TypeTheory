@@ -43,6 +43,8 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.Pullbacks.
+
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.ALV2.FullyFaithfulDispFunctor.
 Require Import TypeTheory.ALV2.DiscreteComprehensionCat.

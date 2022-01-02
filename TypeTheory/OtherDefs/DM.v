@@ -20,6 +20,7 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.Pullbacks.
 
 
 (** * A "preview" of the definition *)

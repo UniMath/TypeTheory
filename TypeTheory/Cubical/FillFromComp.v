@@ -100,6 +100,7 @@ Require Import UniMath.CategoryTheory.yoneda.
 Require Import TypeTheory.Instances.Presheaves.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.Pullbacks.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
 Local Open Scope cat.

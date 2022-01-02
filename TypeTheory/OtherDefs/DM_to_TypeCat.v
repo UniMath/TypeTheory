@@ -16,6 +16,7 @@ Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.OtherDefs.DM.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.Pullbacks.
 
 (** * Construction of Comprehension precategory from Display map precategory *)
 
