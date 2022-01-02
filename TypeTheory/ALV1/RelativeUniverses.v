@@ -24,8 +24,6 @@ Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.Pullbacks.
 Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
 
-Local Notation "[ C , D ]" := (functor_category C D).
-
 (** * Relative universe structures *)
 
 (** Given a map [ p : Ũ —> U ] in a category [D], 

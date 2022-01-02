@@ -38,8 +38,6 @@ Require Import TypeTheory.ALV1.RelativeUniverses.
 
 (** * Transfer of relative universes to Yoneda along weak equivalence *)
 
-Local Notation "[ C , D ]" := (functor_category C D).
-
 Section fix_category.
 
 (** 

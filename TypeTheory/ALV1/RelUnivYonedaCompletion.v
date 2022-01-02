@@ -17,8 +17,6 @@ Require Import TypeTheory.ALV1.Transport_along_Equivs.
 
 (** * Instantiating the hypotheses of transfer of relative universes to Yoneda *)
 
-Local Notation "[ C , D ]" := (functor_category C D).
-
 Section fix_category.
 
 Variable C : category.
