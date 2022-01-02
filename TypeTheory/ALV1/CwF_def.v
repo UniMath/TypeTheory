@@ -31,13 +31,14 @@ Section Auxiliary.
 
 (** * Preliminaries *)
 
-Definition yoneda_induction {C : category} (F : preShv C) (Γ' : C) 
-           (P : ((F : functor _ _ ) Γ' : hSet) -> UU) :
-  (forall K : _ ⟦ Yo Γ', F ⟧, P (invmap (@yy _ F Γ') K)) -> 
-  forall A : (F : functor _ _ ) Γ' : hSet, P A.
+(* TODO: upstream *)
+Definition yoneda_induction {C : category} (F : preShv C) (c : C) 
+           (P : F $p c -> UU) :
+  (forall K : _ ⟦ Yo c, F ⟧, P (invmap (@yy _ F c) K)) -> 
+  forall A : F $p c, P A.
 Proof.
   intros H A0.
-  set(XR := homotinvweqweq (@yy _ F Γ')).
+  set (XR := homotinvweqweq (@yy _ F c)).
   rewrite <- XR.
   apply H.
 Defined.  
@@ -81,15 +82,13 @@ Definition map_into (Γ : C) : UU
 := ∑ (ΓA : C), C ⟦ΓA, Γ⟧.
 
 Definition cwf_tm_of_ty {Γ : C} (A : Ty Γ : hSet) : UU
-:= ∑ t : (Tm Γ : hSet),
-    ((pp : _ --> _) : nat_trans _ _ ) _ t
-    = A.
+:= ∑ t : (Tm Γ : hSet), pp $nt t = A.
 
 (* Lemma: convert an equality giving the type of a term
           into commutativity of a square of maps of presheaves. *)
 Lemma cwf_square_comm {Γ} {A}
   {ΓA : C} {π : ΓA --> Γ}
-  {t : Tm ΓA : hSet} (e : ((pp : _ --> _) : nat_trans _ _) _ t = # Ty π A)
+  {t : Tm ΓA : hSet} (e : pp $nt t = # Ty π A)
   : #Yo π ;; yy A = yy t ;; pp.
 Proof.
   apply pathsinv0.
@@ -131,7 +130,7 @@ Lemma cwf_square_comm_converse {Γ : C} {A : Ty pp Γ : hSet}
     {ΓA : C} {π : ΓA --> Γ}
     {t : Tm pp ΓA : hSet}
     (e :  #Yo π ;; yy A = yy t ;; pp)
-  : ((pp : _ --> _) : nat_trans _ _) _ t = # (Ty pp) π A.
+  : pp $nt t = # (Ty pp) π A.
 Proof.
   etrans.
   { apply maponpaths, pathsinv0, (toforallpaths (functor_id (Tm pp) _)). }
@@ -160,7 +159,7 @@ Definition cwf_fiber_rep_data {Γ:C} (A : Ty pp Γ : hSet) : UU
 
 Definition cwf_fiber_rep_ax {Γ:C} {A : Ty pp Γ : hSet}
     (ΓAπt : cwf_fiber_rep_data A) : UU 
-  := ∑ (H : ((pp : _ --> _) : nat_trans _ _ ) _ (pr2 (pr2 ΓAπt))
+  := ∑ (H : pp $nt (pr2 (pr2 ΓAπt))
             = #(Ty pp) (pr1 (pr2 ΓAπt)) A),
     isPullback (cwf_square_comm H).
 
@@ -228,7 +227,7 @@ Proof.
     match goal with | [ |- (_ ((_ ?f) _ _)) _ = _ ]
                       => set (i := f :  preShv C ⟦ _, _ ⟧) end.
     refine (@pathscomp0 _ _
-                 ((i ;; yy _ : nat_trans _ _) _ (identity _)) _ _ _).
+                 ((i ;; yy _) $nt (identity _)) _ _ _).
     { apply idpath. }
     subst i; unfold from_Pullback_to_Pullback.
     rewrite (PullbackArrow_PullbackPr2 (make_Pullback _ (pr22 x))).

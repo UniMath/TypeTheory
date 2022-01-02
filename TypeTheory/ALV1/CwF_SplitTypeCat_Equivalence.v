@@ -21,11 +21,9 @@ Section Fix_Context.
 Context {C : category} (X : obj_ext_structure C).
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
-Local Notation "'Ty'"
-  := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
-Local Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).
-Local Notation "'Tm'"
-  := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
+Local Notation "'Ty'" := (fun X Γ => TY X $p Γ) (at level 10).
+Local Notation "A [ f ]" := (#p (TY X) f A) (at level 4).
+Local Notation "'Tm'" := (fun Y Γ => TM Y $p Γ) (at level 10).
 
 Local Notation Δ := comp_ext_compare.
 
@@ -42,7 +40,7 @@ Variable Y : compatible_term_structure Z.
 Definition canonical_TM_to_given_data
   {Γ} (Ase : tm_from_qq Z Γ : hSet) : (Tm Y Γ).
 Proof.
-  use (# (TM _ : functor _ _) _ (te _ (pr1 Ase))). 
+  use (#p (TM _) _ (te _ (pr1 Ase))). 
   exact (pr1 (pr2 Ase)).
 Defined.
 
@@ -71,7 +69,7 @@ Definition given_TM_to_canonical_data
   : ∏ Γ, HSET ⟦ Tm (pr1 Y) Γ, tm_from_qq Z Γ⟧.
 Proof.
   intros Γ t.
-  exists ((pp (pr1 Y) : nat_trans _ _ )  _ t).
+  exists (pp (pr1 Y) $nt t).
   apply term_to_section.
 Defined. 
 
@@ -102,13 +100,13 @@ Qed.
 
 Here we give one direction of that “adjunction”; combined with [given_to_canonical_to_given] above, it implies full inverseness. *) 
 Lemma canonical_TM_to_given_paths_adjoint {Γ:C} Ase t
-  : (canonical_TM_to_given : nat_trans _ _) Γ Ase = t
+  : canonical_TM_to_given $nt Ase = t
   -> Ase = given_TM_to_canonical_data Γ t.
 Proof.
   destruct Ase as [A [s e]].
   intros H.
   (* This [assert] is to enable the [destruct eA] below. *)
-  assert (eA : (pp Y : nat_trans _ _) _ t = A). {
+  assert (eA : pp Y $nt t = A). {
     etrans. { apply maponpaths, (!H). }
     use (toforallpaths (nat_trans_eq_pointwise pp_canonical_TM_to_given _)).
   }
@@ -124,7 +122,7 @@ Proof.
 Qed.
 
 Lemma canonical_to_given_to_canonical Γ
-  : (canonical_TM_to_given : nat_trans _ _ )  Γ
+  : (canonical_TM_to_given : nat_trans _ _) Γ
     ;; given_TM_to_canonical_data Γ
   = identity _ .
 Proof.
@@ -174,8 +172,8 @@ Qed.
 
 (* TODO: re-state [given_to_canonical_to_given] and [canonical_to_given_to_canonical] as composites of natural transformations? *)
 
-Lemma canonical_TM_to_given_te {Γ:C} A
-  : (canonical_TM_to_given : nat_trans _ _) (Γ ◂ A) (te_from_qq Z A) = te Y A.
+Lemma canonical_TM_to_given_te {Γ:C} (A : Ty X Γ)
+  : canonical_TM_to_given $nt (te_from_qq Z A) = te Y A.
 Proof.
   cbn. unfold canonical_TM_to_given_data. cbn.
   etrans. apply maponpaths, (pr2 Y).
@@ -185,8 +183,8 @@ Proof.
   apply (toforallpaths (functor_id (TM Y) _) _).
 Qed.
 
-Lemma given_TM_to_canonical_te {Γ:C} A
-  : (given_TM_to_canonical : nat_trans _ _) (Γ ◂ A) (te Y A) = (te_from_qq Z A).
+Lemma given_TM_to_canonical_te {Γ:C} (A : Ty X Γ)
+  : given_TM_to_canonical $nt (te Y A) = (te_from_qq Z A).
 Proof.
   etrans.
   2: { exact (toforallpaths (canonical_to_given_to_canonical _) _). }

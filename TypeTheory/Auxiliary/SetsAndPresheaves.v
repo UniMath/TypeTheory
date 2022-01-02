@@ -12,12 +12,53 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 
-(** * Presheaves and Yoneda *)
+(** * Presheaf generalities *)
 
 Arguments nat_trans_ax {C C'} {F F'} a {x x'} f.
 Arguments nat_trans_comp {_ _ _ _ _} _ _.
 
 Definition preShv C := functor_univalent_category C^op HSET_univalent_category.
+
+(* TODO: consider these notations. Some such notations for applying presheaves is certainly good, but the choice of these symbols, levels, etc are fairly unconsidered/arbitrary for now. *)
+Notation "#p F" := (functor_on_morphisms (F : functor _ _)) (at level 3) : cat.
+(* the type-cast allows this to be applied with things like presheaves, where the given type has to compute to [functor] in order to coerce to [functor_data] *)
+Notation "P $p c" := (((P : preShv _) : functor _ _) c : hSet) (at level 65) : cat.
+Notation "α $nt x" := (((α : preShv _ ⟦_ , _ ⟧) : nat_trans _ _) _ x) (at level 65) : cat.
+
+Lemma transportf_pshf {C : category}
+    {P P' : preShv C} (e : P = P')
+    {c : C} (x : P $p c)
+  : transportf (fun Q => Q $p c : hSet) e x
+  = (idtoiso e : _ --> _) $nt x.
+Proof.
+  destruct e; apply idpath.
+Qed.
+
+Lemma transportf_pshf' {C : category} (P : preShv C)
+  {c c' : C} (e : c = c') (x : P $p c)
+  : transportf (fun c => P $p c) e x
+    = #p P (idtoiso (!e)) x.
+Proof.
+  destruct e. cbn.
+  apply pathsinv0. 
+  revert x; apply toforallpaths. 
+  apply (functor_id P).
+Qed.
+
+Lemma transportf_isotoid_pshf {C : category}
+    {P P' : preShv C} (i : iso P P')
+    {c : C} (x : P $p c)
+  : transportf (fun Q => Q $p c)
+      (isotoid _ (univalent_category_is_univalent (preShv C)) i) x
+  = (i : _ --> _) $nt x.
+Proof.
+  etrans. apply transportf_pshf.
+  refine (toforallpaths _ x).
+  refine (toforallpaths _ c).
+  apply maponpaths, maponpaths, idtoiso_isotoid.
+Qed.
+
+(** * Yoneda embedding *)
 
 Notation "'Yo'" := (yoneda _ : functor _ (preShv _)).
 Notation "'Yo^-1'" := (invweq (make_weq _ (yoneda_fully_faithful _ _ _ ))).
@@ -25,24 +66,24 @@ Notation "'Yo^-1'" := (invweq (make_weq _ (yoneda_fully_faithful _ _ _ ))).
 (* TODO: perhaps rename e.g. [yoneda_eq]? *)
 Definition yy {C : category}
     {F : preShv C} {c : C}
-  : ((F : functor _ _) c : hSet) ≃ _ ⟦ yoneda _ c, F⟧.
+  : F $p c ≃ _ ⟦ yoneda _ c, F⟧.
 Proof.
   apply invweq.
   apply yoneda_weq.
 Defined.
 
 Lemma yy_natural {C : category} 
-  (F : preShv C) (c : C) (A : (F:functor _ _) c : hSet) 
-                  c' (f : C⟦c', c⟧) :
-        yy (# (F : functor _ _) f A) = # (yoneda _ ) f ;; yy A.
+    (F : preShv C) (c : C) (A : F $p c) 
+    c' (f : C⟦c', c⟧)
+  : yy (#p F f A) = # (yoneda _ ) f ;; yy A.
 Proof.
   apply (toforallpaths (is_natural_yoneda_iso_inv _ F _ _ f)).
 Qed.
 
 Lemma yy_comp_nat_trans {C : category}
       (F F' : preShv C) (p : _ ⟦F, F'⟧)
-      A (v : (F : functor _ _ ) A : hSet)
-  : yy v ;; p = yy ((p : nat_trans _ _ )  _ v).
+      A (v : F $p A)
+  : yy v ;; p = yy (p $nt v).
 Proof.
   apply nat_trans_eq.
   - apply homset_property.
@@ -53,56 +94,22 @@ Qed.
 
 Lemma yoneda_postcompose {C : category} (P : preShv C)
   {y z : C} (α : P --> Yo y) (f : y --> z)
-  {x:C} (p : (P : functor _ _) x : hSet)
-  : ((α : nat_trans _ _) x p) ;; f
-    = (α ;; yoneda_morphisms _ _ _ f : nat_trans _ _) x p.
+  {x:C} (p : P $p x)
+  : (α $nt p) ;; f
+    = (α ;; yoneda_morphisms _ _ _ f) $nt p.
 Proof.
   apply idpath.
 Defined.
 
 Lemma transportf_yy {C : category}
-      (F : preShv C) (c c' : C) (A : (F : functor _ _ ) c : hSet)
-      (e : c = c'):
-  yy (transportf (fun d => (F : functor _ _ ) d : hSet) e A) = 
-  transportf (fun d => preShv C ⟦ yoneda _ d, F⟧) e (yy A).
+      (F : preShv C) (c c' : C) (A : F $p c)
+      (e : c = c')
+  : yy (transportf (fun d => F $p d) e A) 
+    = transportf (fun d => preShv C ⟦ yoneda _ d, F⟧) e (yy A).
 Proof.
   induction e.
   apply idpath.
 Defined.
-
-Lemma transportf_pshf {C : category}
-    {P P' : preShv C} (e : P = P')
-    {c : C} (x : (P : functor _ _) c : hSet)
-  : transportf (fun Q : preShv C => (Q : functor _ _) c : hSet) e x
-  = ((idtoiso e : _ --> _) : nat_trans _ _) c x.
-Proof.
-  destruct e; apply idpath.
-Qed.
-
-Lemma transportf_pshf' {C : category} (P : preShv C)
-  {c c' : C} (e : c = c')
-  (x : (P : functor _ _) c : hSet)
-  : transportf (fun c => (P : functor _ _) c : hSet) e x
-    = # (P : functor _ _) (idtoiso (!e)) x.
-Proof.
-  destruct e. cbn.
-  apply pathsinv0. 
-  revert x; apply toforallpaths. 
-  apply (functor_id P).
-Qed.
-
-Lemma transportf_isotoid_pshf {C : category}
-    {P P' : preShv C} (i : iso P P')
-    {c : C} (x : (P : functor _ _) c : hSet)
-  : transportf (fun Q : preShv C => (Q : functor _ _) c : hSet)
-      (isotoid _ (univalent_category_is_univalent (preShv C)) i) x
-  = ((i : _ --> _) : nat_trans _ _) c x.
-Proof.
-  etrans. apply transportf_pshf.
-  refine (toforallpaths _ x).
-  refine (toforallpaths _ c).
-  apply maponpaths, maponpaths, idtoiso_isotoid.
-Qed.
 
 (** * Pullbacks of sets and presheaves *)
 
@@ -206,9 +213,7 @@ Lemma isPullback_preShv_to_pointwise {C : category}
     {f : Y --> X} {g : Z --> X} {p1 : W --> Y} {p2 : W --> Z}
     {e : p1 ;; f = p2 ;; g} (pb : isPullback e)
     (c : C)
-  : isPullback (*((f : nat_trans _ _) c) ((g : nat_trans _ _) c)
-      ((p1 : nat_trans _ _) c) ((p2 : nat_trans _ _) c) *)
-      (square_commutes_preShv_to_pointwise e c).
+  : isPullback (square_commutes_preShv_to_pointwise e c).
 Proof.
   set (XR := @isLimFunctor_is_pointwise_Lim C^op HSET
             pullback_graph).

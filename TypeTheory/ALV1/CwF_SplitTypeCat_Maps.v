@@ -27,12 +27,9 @@ Section Fix_Base_Category.
 Context {C : category} {X : obj_ext_structure C}.
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
-Local Notation "'Ty'"
-  := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
-Local Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).
-  (* TODO: try generalising this notation to allow using it on arbitrary presheaves?  And possibly add lemmas for invoking presheaf functoriality? *)
-Local Notation "'Tm'"
- := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
+Local Notation "'Ty'" := (fun X Γ => TY X $p Γ) (at level 10).
+Local Notation "A [ f ]" := (#p (TY X) f A) (at level 4).
+Local Notation "'Tm'" := (fun Y Γ => TM Y $p Γ) (at level 10).
 
 Local Notation Δ := comp_ext_compare.
 
@@ -49,7 +46,7 @@ Definition iscompatible_term_qq
     (Z : qq_morphism_structure X)
   : UU
 := ∏ Γ Γ' A (f : C⟦Γ', Γ⟧),
-     te Y A[f] = # (TM _ : functor _ _) (qq Z f A) (te Y A).
+     te Y A[f] = #p (TM _) (qq Z f A) (te Y A).
 
 Lemma isaprop_iscompatible_term_qq
   (Y : term_fun_structure C X)
@@ -108,15 +105,13 @@ Qed.
 
 End Compatible_Structures.
 
-
-
 (* TODO: find more natural home for this *)
 Lemma map_from_term_recover
     {Y} {Z} (W : iscompatible_term_qq Y Z)
     {Γ' Γ : C} {A : Ty X Γ} (f : Γ' --> Γ ◂ A)
-    {e : (pp Y : nat_trans _ _) Γ' ((Q Y A : nat_trans _ _) Γ' f)
+    {e : (pp Y) $nt (Q Y A $nt f)
          = A [ f ;; π A ]}
-  : pr1 (term_to_section ((Q Y A : nat_trans _ _) Γ' f))
+  : pr1 (term_to_section (Q Y A $nt f))
       ;; Δ e ;; qq Z (f ;; π A) A
     = f.
 Proof.
@@ -280,7 +275,7 @@ Arguments tm_from_qq : simpl never.
 Lemma tm_from_qq_eq_reindex
     {Γ Γ' : C} (f : Γ' --> Γ)
     (Ase : tm_from_qq Γ : hSet) (Ase' : tm_from_qq Γ' : hSet)
-    (eA : pr1 Ase' = # (TY X : functor _ _) f (pr1 Ase))
+    (eA : pr1 Ase' = #p (TY X) f (pr1 Ase))
     (es : pr1 (pr2 Ase') ;; Δ eA ;; qq Z f _ = f ;; pr1 (pr2 Ase))
   : Ase' = # tm_from_qq f Ase.
 Proof.
@@ -319,7 +314,7 @@ Definition pp_from_qq : preShv C ⟦tm_from_qq, TY X⟧
 Arguments pp_from_qq : simpl never.
 
 Definition te_from_qq {Γ:C} (A : Ty X Γ)
-  : (tm_from_qq : functor _ _) (Γ ◂ A) : hSet.
+  : tm_from_qq $p (Γ ◂ A).
 Proof.
   exists A [π A].
   apply (section_from_diagonal _ (qq_π_Pb Z _ _)). 
@@ -347,7 +342,7 @@ Proof.
 Defined.
 
 Definition pp_te_from_qq
-  : (pp_from_qq : nat_trans _ _) _ (te_from_qq A) = A [ π A ].
+  : pp_from_qq $nt (te_from_qq A) = A [ π A ].
 Proof.
   apply idpath.
 Qed.
@@ -374,7 +369,7 @@ Qed.
 Lemma Q_from_qq_reconstruction
     {Γ' : C} ( ft : C ⟦ Γ', Γ ◂ A ⟧ )
   : ft
-  = pr1 (pr2 ((Q_from_qq : nat_trans _ _) Γ' ft)) ;; qq Z ft _ ;; qq Z _ A.
+  = pr1 (pr2 (Q_from_qq $nt ft)) ;; qq Z ft _ ;; qq Z _ A.
 Proof.
   cbn.
   apply pathsinv0.
