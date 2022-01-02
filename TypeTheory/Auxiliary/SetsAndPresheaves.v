@@ -32,6 +32,29 @@ Notation "α $nt x"
 (* The combinations of type-casts here are chosen as they’re what seems to work for as many given types as possible *)
 (* TODO: consider these notations. Some such notations for applying presheaves is certainly good, but the choice of these symbols, levels, etc are fairly unconsidered/arbitrary for now. *)
 
+Lemma functor_comp_pshf {C : category}
+      { P : preShv C } {c : C} (x : P $p c)
+      {c' : C} (f : c' --> c) {c'' : C} (f' : c'' --> c')
+   : #p P (f' ;; f) x = #p P f' (#p P f x).
+Proof.
+  revert x. apply toforallpaths, (functor_comp P).
+Defined.
+
+Lemma functor_id_pshf {C : category}
+      { P : preShv C } {c : C} (x : P $p c)
+   : #p P (identity c) x = x.
+Proof.
+  revert x. apply toforallpaths, (functor_id P).
+Defined.
+
+Lemma nat_trans_ax_pshf {C : category}
+      { P Q : preShv C } (α : P --> Q)
+      {c : C} (x : P $p c) {c' : C} (f : c' --> c)
+   : α $nt (#p P f x) = #p Q f (α $nt x).
+Proof.
+  revert x. apply toforallpaths, (nat_trans_ax α).
+Defined.
+
 Lemma transportf_pshf {C : category}
     {P P' : preShv C} (e : P = P')
     {c : C} (x : P $p c)
@@ -47,9 +70,7 @@ Lemma transportf_pshf' {C : category} (P : preShv C)
     = #p P (idtoiso (!e)) x.
 Proof.
   destruct e. cbn.
-  apply pathsinv0. 
-  revert x; apply toforallpaths. 
-  apply (functor_id P).
+  apply pathsinv0. apply functor_id_pshf.
 Qed.
 
 Lemma transportf_isotoid_pshf {C : category}
@@ -96,7 +117,7 @@ Proof.
   - apply homset_property.
   - intro c. simpl. 
     apply funextsec. intro f. cbn.
-    apply (toforallpaths (nat_trans_ax p f)).
+    apply nat_trans_ax_pshf.
 Qed.
 
 Lemma yoneda_postcompose {C : category} (P : preShv C)

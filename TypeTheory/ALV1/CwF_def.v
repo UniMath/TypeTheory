@@ -133,7 +133,7 @@ Lemma cwf_square_comm_converse {Γ : C} {A : Ty pp Γ : hSet}
   : pp $nt t = # (Ty pp) π A.
 Proof.
   etrans.
-  { apply maponpaths, pathsinv0, (toforallpaths (functor_id (Tm pp) _)). }
+  { apply maponpaths, pathsinv0, functor_id_pshf. }
   etrans. 
   { assert (e' := nat_trans_eq_pointwise e ΓA); clear e; cbn in e'.
     refine (toforallpaths (!e') (identity _)).
@@ -231,8 +231,7 @@ Proof.
     { apply idpath. }
     subst i; unfold from_Pullback_to_Pullback.
     rewrite (PullbackArrow_PullbackPr2 (make_Pullback _ (pr22 x))).
-    cbn. generalize (pr221 x'); apply toforallpaths. 
-    apply (functor_id (Tm pp)).
+    cbn. apply functor_id_pshf.
 Qed.
 
 Lemma isaprop_cwf_fiber_representation {Γ:C} (A : Ty pp Γ : hSet)

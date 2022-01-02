@@ -84,8 +84,7 @@ Proof.
   apply nat_trans_eq. apply homset_property.
   intros Γ'; simpl in Γ'.
   unfold yoneda_objects_ob. apply funextsec; intros f.
-  etrans. 
-    use (toforallpaths (nat_trans_ax (term_fun_mor_TM FF) _)).
+  etrans. apply nat_trans_ax_pshf.
   cbn. apply maponpaths, term_fun_mor_te.
 Qed.
 
@@ -342,7 +341,7 @@ Proof.
   - etrans. apply qq_π.
     apply pathsinv0, qq_π.
   - etrans. cbn. apply maponpaths, @pathsinv0, (term_fun_mor_te FY).
-    etrans. use (toforallpaths (!nat_trans_ax (term_fun_mor_TM _) _)).
+    etrans. apply pathsinv0, nat_trans_ax_pshf.
     etrans. cbn. apply maponpaths, @pathsinv0, W.
     etrans. apply term_fun_mor_te.
     apply W'.

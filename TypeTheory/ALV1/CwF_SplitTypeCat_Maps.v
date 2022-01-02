@@ -94,12 +94,12 @@ Proof.
     intros Γ''. cbn. unfold yoneda_objects_ob, yoneda_morphisms_data.
     apply funextsec; intros g.
     etrans. apply maponpaths, H.
-    use (toforallpaths (!functor_comp (TM Y) _ _)).
+    apply pathsinv0, functor_comp_pshf.
   - assert (H' := nat_trans_eq_pointwise H); clear H.
     assert (H'' := toforallpaths (H' _) (identity _)); clear H'.
     cbn in H''; unfold yoneda_morphisms_data in H''.
     refine (_ @ H'' @ _).
-    + use (toforallpaths (!functor_id (TM Y) _)).
+    + apply pathsinv0, functor_id_pshf.
     + apply maponpaths_2, id_left.
 Qed.
 
@@ -227,14 +227,14 @@ Proof.
   split; [unfold functor_idax | unfold functor_compax].
   - intro Γ; apply funextsec; intro t. destruct t as [A [s e]]; cbn.
     use tm_from_qq_eq; simpl.
-    + exact (toforallpaths (functor_id (TY X) _ ) A).
+    + apply functor_id_pshf.
     + etrans. apply maponpaths, @pathsinv0, qq_id.
       etrans. apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)). 
       apply id_left.
   - intros Γ Γ' Γ'' f g; apply funextsec; intro t.
     destruct t as [A [s e]]; cbn in *.
     use tm_from_qq_eq; simpl.
-    + exact (toforallpaths (functor_comp (TY X) _ _) A).
+    + apply functor_comp_pshf.
     + {
       apply PullbackArrowUnique; cbn.
       - rewrite <- assoc.
@@ -394,8 +394,7 @@ Proof.
     split. { apply (section_qq_π _ _ _ e). }
     use tm_from_qq_eq. cbn. 
     + etrans.
-        apply @pathsinv0.
-        use (toforallpaths (functor_comp (TY X) _ _ ) A).
+        apply @pathsinv0, functor_comp_pshf.
       apply maponpaths_2.
       cbn.
       etrans. apply @pathsinv0, assoc. 
@@ -476,8 +475,8 @@ Proof.
   intros ? ? ? ?.
   (* TODO: use [tm_from_qq_eq'] here *)
   use tm_from_qq_eq; simpl.
-  - etrans. apply (toforallpaths (!functor_comp (TY X) _ _ ) A).
-    etrans. 2: { apply (toforallpaths (functor_comp (TY X) _ _ ) A). }
+  - etrans. apply pathsinv0, functor_comp_pshf.
+    etrans. 2: { apply functor_comp_pshf. }
     apply maponpaths_2; cbn.
     apply @pathsinv0, qq_π.
   - apply PullbackArrowUnique.

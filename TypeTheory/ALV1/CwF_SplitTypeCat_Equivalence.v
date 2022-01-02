@@ -52,8 +52,8 @@ Proof.
   apply funextsec; intros [A [s e]].
   unfold canonical_TM_to_given_data; cbn.
   etrans. apply maponpaths, (pr2 Y).
-  etrans. apply (toforallpaths (!functor_comp (TM Y) _ _ ) _).
-  etrans. 2: { apply (toforallpaths (functor_comp (TM Y) _ _ ) _). }
+  etrans. apply pathsinv0, functor_comp_pshf.
+  etrans. 2: { apply functor_comp_pshf. }
   apply maponpaths_2. 
   apply (@PullbackArrow_PullbackPr2 C _ _ _ _ _ (make_Pullback _ _)).
 Qed.
@@ -89,11 +89,11 @@ Proof.
   apply nat_trans_eq. apply homset_property.
   intros Γ; simpl in Γ. apply funextsec; intros [A [s e]].
   cbn. unfold canonical_TM_to_given_data.
-  etrans. apply (toforallpaths (nat_trans_ax (pp Y) s)). 
+  etrans. apply nat_trans_ax_pshf. 
   etrans. cbn. apply maponpaths, pp_te.
-  etrans. apply (toforallpaths (!functor_comp (TY X) _ _) _).
+  etrans. apply pathsinv0, functor_comp_pshf.
   etrans. apply maponpaths_2, e.
-  apply (toforallpaths (functor_id (TY X) _ ) _).
+  apply functor_id_pshf.
 Qed.
 
 (* Functions between sets [f : X <--> Y : g] are inverse iff they are _adjoint_, in that [ f x = y <-> x = f y ] for all x, y.
@@ -177,10 +177,10 @@ Lemma canonical_TM_to_given_te {Γ:C} (A : Ty X Γ)
 Proof.
   cbn. unfold canonical_TM_to_given_data. cbn.
   etrans. apply maponpaths, (pr2 Y).
-  etrans. use (toforallpaths (!functor_comp (TM Y) _ _ )).
+  etrans. apply pathsinv0, functor_comp_pshf.
   etrans. apply maponpaths_2; cbn.
     apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)). 
-  apply (toforallpaths (functor_id (TM Y) _) _).
+  apply functor_id_pshf.
 Qed.
 
 Lemma given_TM_to_canonical_te {Γ:C} (A : Ty X Γ)
@@ -229,10 +229,10 @@ Proof.
       etrans. apply transportf_isotoid_pshf.
       cbn. unfold canonical_TM_to_given_data. cbn.
       etrans. apply maponpaths, YH.
-      etrans. use (toforallpaths (!functor_comp tm _ _ )).
+      etrans. apply pathsinv0, functor_comp_pshf.
       etrans. apply maponpaths_2; cbn.
         apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)). 
-      apply (toforallpaths (functor_id tm _) _).
+      apply functor_id_pshf.
 Defined.
 
 (** * Every compatible q-morphism structure is equal to the canonical one *)
