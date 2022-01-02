@@ -18,12 +18,19 @@ Arguments nat_trans_ax {C C'} {F F'} a {x x'} f.
 Arguments nat_trans_comp {_ _ _ _ _} _ _.
 
 Definition preShv C := functor_univalent_category C^op HSET_univalent_category.
+(* Note: just like notation "PreShv" upstream, but univalent. TODO: unify these? *)
 
+(* Notations for working with presheaves and natural transformations given as objects of [preShv C], since applying them directly requires type-casts before the coercions to [Funclass] trigger. *) 
+Notation "#p F" := (functor_on_morphisms (F : functor _ _)) (at level 3)
+  : cat.
+Notation "P $p c" 
+  := (((P : preShv _) : functor _ _) c : hSet)
+  (at level 65) : cat.
+Notation "α $nt x" 
+  := (((α : preShv _ ⟦_ , _ ⟧) : nat_trans _ _) _ x)
+  (at level 65) : cat.
+(* The combinations of type-casts here are chosen as they’re what seems to work for as many given types as possible *)
 (* TODO: consider these notations. Some such notations for applying presheaves is certainly good, but the choice of these symbols, levels, etc are fairly unconsidered/arbitrary for now. *)
-Notation "#p F" := (functor_on_morphisms (F : functor _ _)) (at level 3) : cat.
-(* the type-cast allows this to be applied with things like presheaves, where the given type has to compute to [functor] in order to coerce to [functor_data] *)
-Notation "P $p c" := (((P : preShv _) : functor _ _) c : hSet) (at level 65) : cat.
-Notation "α $nt x" := (((α : preShv _ ⟦_ , _ ⟧) : nat_trans _ _) _ x) (at level 65) : cat.
 
 Lemma transportf_pshf {C : category}
     {P P' : preShv C} (e : P = P')

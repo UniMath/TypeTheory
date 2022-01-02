@@ -22,9 +22,8 @@ Require Import UniMath.CategoryTheory.categories.HSET.All.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
-
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
 (** * A "preview" of the definition *)
@@ -35,36 +34,31 @@ Variable C : category.
 Variable Ty Tm: [C^op, HSET]. (* functor C^op HSET. *)
 Variable p : _ ⟦Tm, Ty⟧. (* needs to be written as mor in a precat *)
 
-Variable comp : forall (Γ : C) (A : pr1hSet ((Ty : functor _ _ ) Γ)), C.
-Variable pi : forall (Γ : C) (A : pr1hSet ((Ty : functor _ _ ) Γ)), comp Γ A --> Γ.
-Variable q : forall (Γ : C) (A : pr1hSet ((Ty : functor _ _)  Γ)),
-               pr1hSet ((Tm : functor _ _ ) (comp Γ A)).
+Variable comp : forall (Γ : C) (A : Ty $p Γ), C.
+Variable pi : forall (Γ : C) (A : Ty $p Γ), comp Γ A --> Γ.
+Variable q : forall (Γ : C) (A : Ty $p Γ), Tm $p (comp Γ A).
 
-Definition yoTy (Γ : C) :
-  pr1hSet ((Ty : functor _ _ ) Γ)
-          ≃
-  _ ⟦(yoneda C Γ) , Ty ⟧.
+Definition yoTy (Γ : C)
+  : Ty $p Γ ≃ _ ⟦(yoneda C Γ) , Ty ⟧.
 Proof.
   apply invweq.
   apply yoneda_weq.
 Defined.
 
-Definition yoTm (Γ : C) :
-  pr1hSet ((Tm : functor _ _ ) Γ)
-          ≃
-  _ ⟦yoneda C Γ, Tm⟧.
+Definition yoTm (Γ : C)
+  : Tm $p Γ ≃ _ ⟦yoneda C Γ, Tm⟧.
 Proof.
   apply invweq.
   apply yoneda_weq.
 Defined.
 
 Variable comp_comm :
-  forall Γ (A : pr1hSet ((Ty : functor _ _ ) Γ)),
+  forall Γ (A : Ty $p Γ),
     yoTm _ (q Γ A) ;; p =
     #(yoneda _ ) (pi Γ A) ;; yoTy _ A.
 
 Variable ispullback_comp_comm : 
-  forall Γ (A : pr1hSet ((Ty : functor _ _ ) Γ)),
+  forall Γ (A : Ty $p Γ),
     isPullback (comp_comm Γ A).
 
 End Preview.
@@ -82,25 +76,24 @@ Definition Tm (X : tt_structure) : [C^op, HSET] := pr2 (pr1 X).
 Definition p (X : tt_structure) :  _ ⟦Tm X, Ty X⟧ := pr2 X.
 
 Definition comp_structure (X : tt_structure) : UU :=
-  forall Γ (A : pr1hSet ((Ty X : functor _ _ ) Γ)),
+  forall Γ (A : Ty X $p Γ),
     ∑ (comp : C) (pi : _ ⟦comp, Γ⟧), 
-         pr1hSet ((Tm X : functor _ _ ) (comp)).
+         Tm X $p comp.
 
 Definition comp {X : tt_structure} (Y : comp_structure X) : 
-  forall (Γ : C) (A : pr1hSet ((Ty X : functor _ _ ) Γ)), C
+  forall (Γ : C) (A : Ty X $p Γ), C
   := fun Γ A => pr1 (Y Γ A).
 
 Definition pi {X : tt_structure} (Y : comp_structure X) : 
-  forall (Γ : C) (A : pr1hSet ((Ty X : functor _ _ ) Γ)), comp _ Γ A --> Γ
+  forall (Γ : C) (A : Ty X $p Γ), comp _ Γ A --> Γ
   := fun Γ A => pr1 (pr2 (Y Γ A)).
 
 Definition q {X : tt_structure} (Y : comp_structure X) : 
-  forall (Γ : C) (A : pr1hSet ((Ty X : functor _ _)  Γ)),
-               pr1hSet ((Tm X : functor _ _ ) (comp Y Γ A)) 
+  forall (Γ : C) (A : Ty X $p Γ), Tm X $p (comp Y Γ A) 
   := fun Γ A => pr2 (pr2 (Y Γ A)).
 
 Definition pullback_structure {X : tt_structure} (Y : comp_structure X) : UU
-  := forall Γ (A : pr1hSet ((Ty X : functor _ _ ) Γ)),
+  := forall Γ (A : Ty X $p Γ),
        ∑ H : 
           invmap (yoneda_weq C _ (Tm X)) (q Y Γ A) ;; p X 
           =
@@ -108,14 +101,14 @@ Definition pullback_structure {X : tt_structure} (Y : comp_structure X) : UU
          isPullback H.
 
 Definition comp_comm {X : tt_structure } {Y : comp_structure X} (Z : pullback_structure Y) 
-  : forall Γ (A : pr1hSet ((Ty X : functor _ _ ) Γ)),
+  : forall Γ (A : Ty X $p Γ),
       invmap (yoneda_weq _ _ (Tm X)) (q Y Γ A) ;; p X 
           =
           #(yoneda _ ) (pi Y Γ A) ;; invmap (yoneda_weq _ _ (Ty X)) A
   := fun Γ A => pr1 (Z Γ A).
 
 Definition is_Pullback_comp {X : tt_structure } {Y : comp_structure X} (Z : pullback_structure Y) 
-  : forall Γ (A : pr1hSet ((Ty X : functor _ _ ) Γ)),
+  : forall Γ (A : Ty X $p Γ),
       isPullback (comp_comm Z _ _ ) 
   := fun Γ A => pr2 (Z Γ A).
 

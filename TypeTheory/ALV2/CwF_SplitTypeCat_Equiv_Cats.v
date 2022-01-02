@@ -50,7 +50,7 @@ Section Fix_Context.
 Context {C : category}.
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
-Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
+Local Notation "'Ty'" := (fun X Γ => TY X $p Γ) (at level 10).
 
 Local Notation Δ := comp_ext_compare.
 Local Notation φ := obj_ext_mor_φ.
@@ -140,7 +140,7 @@ Lemma comp_ext_compare_te
     {X : obj_ext_structure C}
     {Y : term_fun_structure C X}
     {Γ:C} {A A' : Ty X Γ} (e : A = A')
-  : # (TM Y : functor _ _) (Δ e) (te Y A') = te Y A.
+  : #p (TM Y) (Δ e) (te Y A') = te Y A.
 Proof.
   destruct e; cbn.
   exact (toforallpaths (functor_id (TM _) _) _). 
@@ -228,7 +228,7 @@ Lemma tm_from_qq_mor_data {X X' : obj_ext_cat C} {F : X --> X'}
   : forall Γ : C, (tm_from_qq Z Γ) --> (tm_from_qq Z' Γ).
 Proof.
   intros Γ Ase.
-  exists ((obj_ext_mor_TY F : nat_trans _ _) _ (pr1 Ase)).
+  exists (obj_ext_mor_TY F $nt (pr1 Ase)).
   exists (pr1 (pr2 Ase) ;; φ F _).
   etrans. apply @pathsinv0, assoc.
   etrans. apply maponpaths, obj_ext_mor_ax.
@@ -283,7 +283,7 @@ Lemma tm_from_qq_mor_te {X X' : obj_ext_cat C} {F : X --> X'}
     {Γ} (A : Ty X Γ)
   : tm_from_qq_mor_TM FZ _ (te_from_qq Z A)
   = # (tm_from_qq Z') (φ F A)
-      (te_from_qq Z' ((obj_ext_mor_TY F : nat_trans _ _) _ A)).
+      (te_from_qq Z' (obj_ext_mor_TY F $nt A)).
 Proof.
   cbn.
   use tm_from_qq_eq_reindex.

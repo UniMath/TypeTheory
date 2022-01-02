@@ -35,8 +35,8 @@ End Auxiliary.
 (** Some local notations, *)
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
-Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
-Local Notation "'Tm'" := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
+Local Notation "'Ty'" := (fun X Γ => TY X $p Γ) (at level 10).
+Local Notation "'Tm'" := (fun Y Γ => TM Y $p Γ) (at level 10).
 
 Local Notation Δ := comp_ext_compare.
 
@@ -56,7 +56,7 @@ Section Obj_Ext_Cat.
     := pr1 F : _ --> _.
 
   (* TODO: consider naming, placement of this notation. *)
-  Notation "F [ A ]" := ((obj_ext_mor_TY F : nat_trans _ _) _ A) (at level 4) : TY_scope.
+  Notation "F [ A ]" := (obj_ext_mor_TY F $nt A) (at level 4) : TY_scope.
   Delimit Scope TY_scope with TY.
   Bind Scope TY_scope with TY.
   Local Open Scope TY_scope.
@@ -131,25 +131,28 @@ Definition term_fun_mor {X X' : obj_ext_cat C}
        FF_TM ;; pp Y' = pp Y ;; obj_ext_mor_TY F
      × 
        ∏ {Γ:C} {A : Ty X Γ},
-         (FF_TM : nat_trans _ _) _ (te Y A)
-         = # (TM Y' : functor _ _) (φ F A) (te Y' _).
+         FF_TM $nt (te Y A)
+         = #p (TM Y') (φ F A) (te Y' _).
 
 Definition term_fun_mor_TM {X X'} {Y} {Y'} {F : X --> X'} (FF : term_fun_mor Y Y' F)
   : _ --> _
 := pr1 FF.
 (* TODO: try making this a coercion to [nat_trans]?  (Requires type annotation in this definition so may cause problems elsewhere.) *)
 
-Definition term_fun_mor_pp {X X'} {Y} {Y'} {F : X --> X'} (FF : term_fun_mor Y Y' F)
+Definition term_fun_mor_pp {X X'} {Y} {Y'} {F : X --> X'}
+    (FF : term_fun_mor Y Y' F)
   : term_fun_mor_TM FF ;; pp Y' = pp Y ;; obj_ext_mor_TY F
 := pr1 (pr2 FF).
 
-Definition term_fun_mor_te {X X'} {Y} {Y'} {F : X --> X'} (FF : term_fun_mor Y Y' F)
+Definition term_fun_mor_te {X X'} {Y} {Y'} {F : X --> X'}
+    (FF : term_fun_mor Y Y' F)
     {Γ:C} (A : Ty X Γ)
-  : (term_fun_mor_TM FF : nat_trans _ _) _ (te Y A)
-  = # (TM Y' : functor _ _) (φ F A) (te Y' _)
+  : term_fun_mor_TM FF $nt (te Y A)
+  = #p (TM Y') (φ F A) (te Y' _)
 := pr2 (pr2 FF) Γ A.
 
-Definition term_fun_mor_Q {X X'} {Y} {Y'} {F : X --> X'} (FF : term_fun_mor Y Y' F)
+Definition term_fun_mor_Q {X X'} {Y} {Y'} {F : X --> X'}
+    (FF : term_fun_mor Y Y' F)
     {Γ:C} (A : Ty X Γ)
   : Q Y A ;; term_fun_mor_TM FF = #Yo (φ F A) ;; Q Y' _.
 Proof.
@@ -164,10 +167,11 @@ Proof.
 Qed.
 
 (* TODO: inline in [isaprop_term_fun_mor]? *)
-Lemma term_fun_mor_eq {X X'} {Y} {Y'} {F : X --> X'} (FF FF' : term_fun_mor Y Y' F)
+Lemma term_fun_mor_eq {X X'} {Y} {Y'} {F : X --> X'}
+    (FF FF' : term_fun_mor Y Y' F)
     (e_TM : ∏ Γ (t : Tm Y Γ),
-      (term_fun_mor_TM FF : nat_trans _ _) _ t
-      = (term_fun_mor_TM FF' : nat_trans _ _) _ t)
+      term_fun_mor_TM FF $nt t
+      = term_fun_mor_TM FF' $nt t)
   : FF = FF'.
 Proof.
   apply subtypePath.
@@ -182,13 +186,13 @@ Qed.
 (* This is not full naturality of [term_to_section]; it is just what is required for [isaprop_term_fun_mor] below. *)
 Lemma term_to_section_naturality {X X'} {Y} {Y'}
   {F : X --> X'} {FY : term_fun_mor Y Y' F}
-  {Γ : C} (t : Tm Y Γ) (A := (pp Y : nat_trans _ _) _ t)
-  : pr1 (term_to_section ((term_fun_mor_TM FY : nat_trans _ _) _ t))
+  {Γ : C} (t : Tm Y Γ) (A := pp Y $nt t)
+  : pr1 (term_to_section (term_fun_mor_TM FY $nt t))
   = pr1 (term_to_section t) ;; φ F _
    ;; Δ (!toforallpaths (nat_trans_eq_pointwise (term_fun_mor_pp FY) Γ) t).
 Proof.
-  set (t' := (term_fun_mor_TM FY : nat_trans _ _) _ t).
-  set (A' := (pp Y' : nat_trans _ _) _ t').
+  set (t' := term_fun_mor_TM FY $nt t).
+  set (A' := pp Y' $nt t').
   set (Pb := isPullback_preShv_to_pointwise (isPullback_Q_pp Y' A') Γ);
     simpl in Pb.
   apply (pullback_HSET_elements_unique Pb); clear Pb.
@@ -212,8 +216,8 @@ Qed.
 Lemma term_fun_mor_recover_term {X X'} {Y} {Y'}
   {F : X --> X'} {FY : term_fun_mor Y Y' F}
   {Γ : C} (t : Tm Y Γ)
-  : (term_fun_mor_TM FY : nat_trans _ _) Γ t
-  = (Q Y' _ : nat_trans _ _) Γ (pr1 (term_to_section t) ;; φ F _).
+  : term_fun_mor_TM FY $nt t
+  = Q Y' _ $nt (pr1 (term_to_section t) ;; φ F _).
 Proof.
   etrans. apply @pathsinv0, term_to_section_recover.
   etrans. apply maponpaths, term_to_section_naturality.
@@ -233,8 +237,8 @@ Qed.
 Lemma term_fun_mor_transportf {X X'} {Y Y'}
     {F F' : X --> X'} (eF : F = F') (FF : term_fun_mor Y Y' F)
     {Γ:C} (t : Tm Y Γ)
-  : (term_fun_mor_TM (transportf _ eF FF) : nat_trans _ _) Γ t
-    = (term_fun_mor_TM FF : nat_trans _ _) Γ t.
+  : term_fun_mor_TM (transportf _ eF FF) $nt t
+    = term_fun_mor_TM FF $nt t.
 Proof.
   destruct eF. apply idpath.
 Qed.

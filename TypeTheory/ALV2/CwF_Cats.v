@@ -35,6 +35,7 @@ Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 Require Import TypeTheory.ALV1.CwF_def.
 
 
@@ -67,7 +68,7 @@ Section CwF_structure_cat.
   Definition cwf_extended_context
              (X : cwf_structure C)
              (Γ : C)
-             (A : (TY X : functor _ _) Γ : hSet)
+             (A : TY X $p Γ)
     : C
     := pr1 (pr1 (pr2 X _ A)).
 
@@ -77,7 +78,7 @@ Section CwF_structure_cat.
   Definition cwf_projection
              (X : cwf_structure C)
              (Γ : C)
-             (A : (TY X : functor _ _) Γ : hSet)
+             (A : TY X $p Γ)
     : Γ ◂ A --> Γ
     := pr2 (pr1 (pr2 X _ A)).
 
@@ -87,8 +88,8 @@ Section CwF_structure_cat.
   Definition cwf_extended_context_term
              (X : cwf_structure C)
              (Γ : C)
-             (A : (TY X : functor _ _) Γ : hSet)
-    : (TM X : functor _ _) (Γ ◂ A) : hSet
+             (A : TY X $p Γ)
+    : TM X $p (Γ ◂ A)
     := pr1 (pr1 (pr2 (pr2 X _ A))).
 
   Local Notation "'te' A" := (cwf_extended_context_term _ _ A) (at level 40).
@@ -99,8 +100,8 @@ Section CwF_structure_cat.
   *)
   Definition cwf_structure_mor_ty_data (X X' : cwf_structure C) : UU
     := ∑ (F_TY : TY X --> TY X'),
-       ∏ (Γ : C) (A : (TY X : functor _ _) Γ : hSet),
-       (Γ ◂ A --> Γ ◂ ((F_TY : nat_trans _ _) _ A)).
+       ∏ (Γ : C) (A : TY X $p Γ),
+       (Γ ◂ A --> Γ ◂ (F_TY $nt A)).
 
   (* CwF morphism data:
      - a natural transformation of terms presheaves;
@@ -131,8 +132,8 @@ Section CwF_structure_cat.
   Definition cwf_structure_mor_ϕ
              {X X' : cwf_structure C}
              (f : cwf_structure_mor_data X X')
-             (Γ : C^op) (A : (TY X : functor _ _) Γ : hSet)
-    : (Γ ◂ A --> Γ ◂ ((cwf_structure_mor_TY f : nat_trans _ _) _ A))
+             (Γ : C^op) (A : TY X $p Γ)
+    : (Γ ◂ A --> Γ ◂ (cwf_structure_mor_TY f $nt A))
     := pr2 (pr2 f) Γ A.
 
   (* coherence for extended context Γ ◂ A and weakening π *)
@@ -140,8 +141,8 @@ Section CwF_structure_cat.
              (X X' : cwf_structure C)
              (ty_data : cwf_structure_mor_ty_data X X')
     : UU
-    := ∏ (Γ : C) (A : (TY X : functor _ _) Γ : hSet),
-       pr2 ty_data Γ A ;; π ((pr1 ty_data : nat_trans _ _) _ A) = π A.
+    := ∏ (Γ : C) (A : TY X $p Γ),
+       pr2 ty_data Γ A ;; π (pr1 ty_data $nt A) = π A.
 
   (* coherence for "typing" natural transformation *)
   Definition cwf_structure_mor_typing_axiom
@@ -155,9 +156,9 @@ Section CwF_structure_cat.
              (X X' : cwf_structure C)
              (mor : cwf_structure_mor_data X X')
     : UU
-    := ∏ (Γ : C) (A : (TY X : functor _ _) Γ : hSet),
-       ((pr1 mor : nat_trans _ _) _ (te A))
-       = # (TM X' : functor _ _) (pr2 (pr2 mor) Γ A) (te _).
+    := ∏ (Γ : C) (A : TY X $p Γ),
+       (pr1 mor $nt (te A))
+       = #p (TM X') (pr2 (pr2 mor) Γ A) (te _).
 
   Definition is_cwf_structure_mor
              (X X' : cwf_structure C)
@@ -218,7 +219,7 @@ Section CwF_structure_cat.
              { Γ : C }
              { X X' : cwf_structure C }
              { f g : nat_trans (TY X : functor _ _) (TY X' : functor _ _) }
-             { A : (TY X : functor _ _) Γ : hSet }
+             { A : TY X $p Γ }
              ( e : f Γ A = g Γ A )
     : Γ ◂ f Γ A --> Γ ◂ g Γ A.
   Proof.
@@ -264,14 +265,12 @@ Section CwF_structure_cat.
       - exists (F_TM ;; F_TM').
         exists (F_TY ;; F_TY').
         intros Γ A.
-        set (A' := (F_TY : nat_trans _ _) _ A).
-        exact (ϕ Γ A ;; ϕ' Γ A').
+        exact (ϕ Γ A ;; ϕ' Γ (F_TY $nt A)).
       - intros Γ A. simpl.
-        set (A' := (F_TY : nat_trans _ _) _ A).
         rewrite assoc'.
         refine (_ @ f1 Γ A). simpl.
         apply (maponpaths (λ p, ϕ Γ A ;; p)).
-        exact (g1 Γ A').
+        exact (g1 Γ (F_TY $nt A)).
       - unfold cwf_structure_mor_typing_axiom. simpl.
         unfold cwf_structure_mor_typing_axiom in f2, g2.
         simpl in f2, g2.
@@ -282,11 +281,10 @@ Section CwF_structure_cat.
         apply (maponpaths (λ p, p ;; F_TY')).
         exact f2.
       - intros Γ A. simpl.
-        set (A' := (F_TY : nat_trans _ _) _ A).
         unfold cwf_structure_mor_term_axiom in f3, g3. simpl in f3, g3.
         refine (maponpaths _ (f3 Γ A) @ _).
         etrans. apply (toforallpaths (nat_trans_ax F_TM' _)).
-        refine (maponpaths _ (g3 Γ A') @ _).
+        refine (maponpaths _ (g3 Γ (F_TY $nt A)) @ _).
         rewrite <- compose_ap, <- (functor_comp (TM Z)).
         apply idpath.
   Defined.
@@ -296,15 +294,15 @@ Section CwF_structure_cat.
   Definition cwf_structure_mor_eq (X X' : cwf_structure C)
              (f g : cwf_structure_mor X X')
              (* equality of TM components *)
-             (e_TM : ∏ (Γ : C^op) (t : (TM X : functor _ _) Γ : hSet),
-                     (cwf_structure_mor_TM f : nat_trans _ _) Γ t
-                     = (cwf_structure_mor_TM g : nat_trans _ _) Γ t)
+             (e_TM : ∏ (Γ : C^op) (t : TM X $p Γ),
+                     cwf_structure_mor_TM f $nt t
+                     = cwf_structure_mor_TM g $nt t)
              (* equality of TY components *)
-             (e_TY : ∏ (Γ : C^op) (A : (TY X : functor _ _) Γ : hSet),
-                     (cwf_structure_mor_TY f : nat_trans _ _) Γ A
-                     = (cwf_structure_mor_TY g : nat_trans _ _) Γ A)
+             (e_TY : ∏ (Γ : C^op) (A : TY X $p Γ),
+                     cwf_structure_mor_TY f $nt A
+                     = cwf_structure_mor_TY g $nt A)
              (* equality of ϕ components *)
-             (e_ϕ : ∏ (Γ : C^op) (A : (TY X : functor _ _) Γ : hSet),
+             (e_ϕ : ∏ (Γ : C^op) (A : TY X $p Γ),
                     cwf_structure_mor_ϕ f Γ A
                         ;; cwf_extended_context_compare (e_TY Γ A)
                     = cwf_structure_mor_ϕ g Γ A)

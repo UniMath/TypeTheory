@@ -51,7 +51,7 @@ Section CwF_structure_cat.
   Definition cwf_extended_context
              (X : cwf_structure C)
              (Γ : C)
-             (A : (TY X : functor _ _) Γ : hSet)
+             (A : TY X $p Γ)
     : C
     := pr1 (pr1 (pr2 X _ A)).
 
@@ -61,7 +61,7 @@ Section CwF_structure_cat.
   Definition cwf_projection
              (X : cwf_structure C)
              (Γ : C)
-             (A : (TY X : functor _ _) Γ : hSet)
+             (A : TY X $p Γ)
     : Γ ◂ A --> Γ
     := pr2 (pr1 (pr2 X _ A)).
 
@@ -71,8 +71,8 @@ Section CwF_structure_cat.
   Definition cwf_extended_context_term
              (X : cwf_structure C)
              (Γ : C)
-             (A : (TY X : functor _ _) Γ : hSet)
-    : (TM X : functor _ _) (Γ ◂ A) : hSet
+             (A : TY X $p Γ)
+    : TM X $p (Γ ◂ A)
     := pr1 (pr1 (pr2 (pr2 X _ A))).
 
   Local Notation "'te' A" := (cwf_extended_context_term _ _ A) (at level 40).
@@ -158,10 +158,10 @@ Section CwF_structure_cat.
   Definition cwf_structure_mor_Yo_ϕ
              {X X' : cwf_structure C}
              (f : cwf_structure_mor X X')
-             (Γ : C^op) (A : (TY X : functor _ _) Γ : hSet)
-    : Yo (Γ ◂ A) --> Yo (Γ ◂ ((cwf_structure_mor_TY f : nat_trans _ _) _ A)).
+             (Γ : C^op) (A : TY X $p Γ)
+    : Yo (Γ ◂ A) --> Yo (Γ ◂ (cwf_structure_mor_TY f $nt A)).
   Proof.
-    set (A' := (cwf_structure_mor_TY f : nat_trans _ _) _ A).
+    set (A' := cwf_structure_mor_TY f $nt A).
     set (X'_isPullback := pr2 (pr2 (pr2 X' Γ A')) : isPullback _).
     set (X_commutes := pr2 (pr1 (pr2 (pr2 X Γ A))) : _ = _).
     apply (X'_isPullback
@@ -180,16 +180,16 @@ Section CwF_structure_cat.
              {X X' : cwf_structure C}
              (f : cwf_structure_mor X X')
     : UU
-    := ∏ (Γ : C^op) (A : (TY X : functor _ _) Γ : hSet),
-       (Γ ◂ A --> Γ ◂ ((cwf_structure_mor_TY f : nat_trans _ _) _ A)).
+    := ∏ (Γ : C^op) (A : TY X $p Γ),
+       (Γ ◂ A --> Γ ◂ (cwf_structure_mor_TY f $nt A)).
 
   Definition has_cwf_structure_mor_weakening_axiom
              {X X' : cwf_structure C}
              (mor : cwf_structure_mor X X')
              (ϕ : cwf_structure_mor_ϕ_data mor)
     : UU
-    := ∏ (Γ : C) (A : (TY X : functor _ _) Γ : hSet),
-       ϕ Γ A ;; π ((cwf_structure_mor_TY mor : nat_trans _ _) _ A)
+    := ∏ (Γ : C) (A : TY X $p Γ),
+       ϕ Γ A ;; π (cwf_structure_mor_TY mor $nt A)
        = π A.
 
   Definition has_cwf_structure_mor_term_axiom
@@ -197,9 +197,9 @@ Section CwF_structure_cat.
              (mor : cwf_structure_mor X X')
              (ϕ : cwf_structure_mor_ϕ_data mor)
     : UU
-    := ∏ (Γ : C) (A : (TY X : functor _ _) Γ : hSet),
-       ((cwf_structure_mor_TM mor : nat_trans _ _) _ (te A))
-       = # (TM X' : functor _ _) (ϕ Γ A) (te _). 
+    := ∏ (Γ : C) (A : TY X $p Γ),
+       (cwf_structure_mor_TM mor $nt (te A))
+       = #p (TM X') (ϕ Γ A) (te _).
 
   Definition cwf_structure_mor_ϕ 
              {X X' : cwf_structure C}
@@ -231,7 +231,7 @@ Section CwF_structure_cat.
     etrans. apply maponpaths_2.
     apply (homotweqinvweq (# Yo ,, yoneda_fully_faithful _ _ _ )).
     simpl.
-    set (A' := (cwf_structure_mor_TY mor : nat_trans _ _) _ A).
+    set (A' := cwf_structure_mor_TY mor $nt A).
     set (X'_isPullback := pr2 (pr2 (pr2 X' Γ A'))).
     set (X'_Pullback := make_Pullback _ X'_isPullback).
     set (P := PullbackArrow_PullbackPr1
@@ -254,7 +254,7 @@ Section CwF_structure_cat.
     etrans. apply yy_natural.
     etrans. apply maponpaths_2.
     apply (homotweqinvweq (# Yo ,, yoneda_fully_faithful _ _ _ )).
-    set (A' := (cwf_structure_mor_TY mor : nat_trans _ _) _ A).
+    set (A' := cwf_structure_mor_TY mor $nt A).
     set (X'_isPullback := pr2 (pr2 (pr2 X' Γ A'))).
     set (X'_Pullback := make_Pullback _ X'_isPullback).
     set (P := PullbackArrow_PullbackPr2
@@ -283,7 +283,7 @@ Section CwF_structure_cat.
     - apply funextsec. intros Γ.
       apply funextsec. intros A.
       apply (invmaponpathsweq (# Yo ,, yoneda_fully_faithful _ _ _)).
-      set (A' := (cwf_structure_mor_TY mor : nat_trans _ _) _ A).
+      set (A' := cwf_structure_mor_TY mor $nt A).
       set (X'_isPullback := pr2 (pr2 (pr2 X' Γ A'))).
       set (P := PullbackArrowUnique
                   _

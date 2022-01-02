@@ -40,7 +40,7 @@ Section Fix_Context.
 Context {C : category}.
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
-Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
+Local Notation "'Ty'" := (fun X Γ => TY X #p Γ) (at level 10).
 
 Local Notation Δ := comp_ext_compare.
 Local Notation φ := obj_ext_mor_φ.
@@ -322,7 +322,7 @@ Qed.
 Lemma qq_structure_eq 
   (x : obj_ext_cat C)
   (d d' : qq_morphism_structure x)
-  (H : ∏ (Γ Γ' : C) (f : Γ' --> Γ) (A : (TY x : functor _ _ ) Γ : hSet), 
+  (H : ∏ (Γ Γ' : C) (f : Γ' --> Γ) (A : TY x $p Γ), 
            qq d f A = qq d' f A)
   : d = d'.
 Proof.
