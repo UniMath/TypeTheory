@@ -35,7 +35,7 @@ Notation "α $nt x"
 Lemma transportf_pshf {C : category}
     {P P' : preShv C} (e : P = P')
     {c : C} (x : P $p c)
-  : transportf (fun Q => Q $p c : hSet) e x
+  : transportf (fun Q => Q $p c) e x
   = (idtoiso e : _ --> _) $nt x.
 Proof.
   destruct e; apply idpath.

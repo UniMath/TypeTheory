@@ -335,8 +335,8 @@ use mkTermIn.
 - apply subst_term_prf.
 Defined.
 
-Lemma transportf_TypeIn {Γ : PreShv C} (I : C) (ρ : pr1 Γ I : hSet) (A B : Γ ⊢) (e : A = B)
-  (x : (pr1 A) (make_ob I ρ) : hSet) :
+Lemma transportf_TypeIn {Γ : PreShv C} (I : C) (ρ : Γ $p I) (A B : Γ ⊢) (e : A = B)
+  (x : A $p make_ob I ρ) :
   transportf (λ x0 : Γ ⊢, pr1 ((pr1 x0) (make_ob I ρ))) e x =
   transportf (λ x0 : hSet, pr1 x0) (eqtohomot (base_paths _ _ (base_paths _ _ e)) (make_ob I ρ)) x.
 Proof.

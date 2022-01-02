@@ -146,8 +146,8 @@ Definition FF_lattice : bounded_latticeob BinProducts_PreShv 1 FF :=
                         Hmeet_FF Hjoin_FF Hbot_FF Htop_FF.
 
 (* Extract the top and bottom elements of the lattice (as sets)*)
-Definition FF1 {I} : pr1 FF I : hSet := pr1 top_FF I tt.
-Definition FF0 {I} : pr1 FF I : hSet := pr1 bot_FF I tt.
+Definition FF1 {I} : FF $p I := pr1 top_FF I tt.
+Definition FF0 {I} : FF $p I := pr1 bot_FF I tt.
 
 (* The map that constantly returns FF1 *)
 Definition true : 1 --> FF.
@@ -178,24 +178,24 @@ now apply funextsec.
 Qed.
 
 (* Some pointwise equations for the face lattice. TODO: better notations *)
-Lemma meet_FF1 (I : C) (φ : pr1 FF I : hSet) : pr1 meet_FF I (FF1,,φ) = φ.
+Lemma meet_FF1 (I : C) (φ : FF $p I) : pr1 meet_FF I (FF1,,φ) = φ.
 Proof.
 exact (eqtohomot (nat_trans_eq_pointwise (islunit_meet_mor_top_mor _ _ FF_lattice) I) φ).
 Qed.
 
-Lemma join_absorb_meet_FF (I : C) (φ ψ : pr1 FF I : hSet) :
+Lemma join_absorb_meet_FF (I : C) (φ ψ : FF $p I) :
   pr1 join_FF I (φ,,pr1 meet_FF I (φ,,ψ)) = φ.
 Proof.
 exact (eqtohomot (nat_trans_eq_pointwise (join_mor_absorb_meet_mor _ FF_lattice) I) (φ,,ψ)).
 Qed.
 
-Lemma join_FF_assoc (I : C) (x y z : pr1 FF I : hSet) :
+Lemma join_FF_assoc (I : C) (x y z : FF $p I) :
   pr1 join_FF I (pr1 join_FF I (x,,y),, z) = pr1 join_FF I (x,,pr1 join_FF I (y,,z)).
 Proof.
 exact (eqtohomot (nat_trans_eq_pointwise (isassoc_join_mor _ FF_lattice) I) ((x,,y),,z)).
 Qed.
 
-Lemma join_FF1 (I : C) (x : pr1 FF I : hSet) :
+Lemma join_FF1 (I : C) (x : FF $p I) :
   pr1 join_FF I (FF1,,x) = FF1.
 Proof.
 now rewrite <- (meet_FF1 _ x), join_absorb_meet_FF.
@@ -211,7 +211,7 @@ use make_functor.
     abstract (apply isaset_total2; [ apply setproperty
                                    | intros ρ; apply isasetaprop, setproperty ]).
   + simpl; intros I J f ρ.
-    exists (# (pr1 Γ) f (pr1 ρ)).
+    exists (#p Γ f (pr1 ρ)).
     abstract (
         etrans; [apply (eqtohomot (nat_trans_ax φ f) (pr1 ρ))|]; cbn;
         etrans; [apply maponpaths, (pr2 ρ)|];
@@ -553,7 +553,7 @@ use Hδ₀_unique.
 Qed.
 
 Definition box_subst_prf {I J : C} (f : J --> I) (φ : yon I --> FF) (K : C)
-  (ρ' : pr1 (box J (# yon f · φ)) K : hSet) :
+  (ρ' : (box J (# yon f · φ)) $p K) :
   pr1 (# yon (# F f) · (p_PreShv I · φ ∨ δ₀ I)) K (pr1 ρ') = FF1.
 Proof.
 rewrite comp_join.
