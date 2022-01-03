@@ -165,23 +165,6 @@ Proof.
   apply pathsinv0, functor_comp_pshf.
 Qed.
 
-(* TODO: inline in [isaprop_term_fun_mor]? *)
-Lemma term_fun_mor_eq {X X'} {Y} {Y'} {F : X --> X'}
-    (FF FF' : term_fun_mor Y Y' F)
-    (e_TM : ∏ Γ (t : Tm Y Γ),
-      term_fun_mor_TM FF $nt t
-      = term_fun_mor_TM FF' $nt t)
-  : FF = FF'.
-Proof.
-  apply subtypePath.
-  - intros x; apply isapropdirprod.
-    + apply homset_property.
-    + repeat (apply impred_isaprop; intro). apply setproperty.
-  - apply nat_trans_eq. apply has_homsets_HSET. 
-    intros Γ. apply funextsec. unfold homot. apply e_TM.
-Qed.
-
-
 (* This is not full naturality of [term_to_section]; it is just what is required for [isaprop_term_fun_mor] below. *)
 Lemma term_to_section_naturality {X X'} {Y} {Y'}
   {F : X --> X'} {FY : term_fun_mor Y Y' F}
@@ -222,7 +205,22 @@ Proof.
   apply Q_comp_ext_compare.
 Qed.
 
-(* TODO: once all obligations proved, replace [term_fun_mor_eq] with this in subsequent proofs. *)
+(* Note: [term_fun_mor_eq] kept local since only needed for [isaprop_term_fun_mor], which supersedes it *)
+Local Lemma term_fun_mor_eq {X X'} {Y} {Y'} {F : X --> X'}
+    (FF FF' : term_fun_mor Y Y' F)
+    (e_TM : ∏ Γ (t : Tm Y Γ),
+      term_fun_mor_TM FF $nt t
+      = term_fun_mor_TM FF' $nt t)
+  : FF = FF'.
+Proof.
+  apply subtypePath.
+  - intros x; apply isapropdirprod.
+    + apply homset_property.
+    + repeat (apply impred_isaprop; intro). apply setproperty.
+  - apply nat_trans_eq. apply has_homsets_HSET. 
+    intros Γ. apply funextsec. unfold homot. apply e_TM.
+Qed.
+
 Lemma isaprop_term_fun_mor {X X'} {Y} {Y'} {F : X --> X'}
   : isaprop (term_fun_mor Y Y' F).
 Proof.
@@ -274,18 +272,7 @@ Definition term_fun_data : disp_cat_data (obj_ext_cat C)
 
 Definition term_fun_axioms : disp_cat_axioms _ term_fun_data.
 Proof.
-  repeat apply tpair.
-  - intros. apply term_fun_mor_eq. intros; cbn.
-    apply pathsinv0, term_fun_mor_transportf.
-  - intros. apply term_fun_mor_eq. intros; cbn.
-    apply pathsinv0, term_fun_mor_transportf.
-  - intros. apply term_fun_mor_eq. intros; simpl.
-    apply pathsinv0, term_fun_mor_transportf.
-  - intros. apply isaset_total2; [ apply homset_property|].
-    intros.
-    apply isasetaprop, isapropdirprod.
-    + apply homset_property.
-    + repeat (apply impred_isaprop; intro). apply setproperty.
+  repeat apply tpair; intros; try apply isasetaprop; apply isaprop_term_fun_mor.
 Qed.
 
 Definition term_fun_disp_cat : disp_cat (obj_ext_cat C)
