@@ -157,7 +157,7 @@ use make_nat_trans.
   exact (@FF1 I).
 + intros I J f; cbn.
   apply funextsec; intros _.
-  apply (eqtohomot (nat_trans_ax top_FF f) tt).
+  apply (nat_trans_ax_pshf top_FF).
 Defined.
 
 (* The meet and join operations *)
@@ -213,9 +213,9 @@ use make_functor.
   + simpl; intros I J f ρ.
     exists (#p Γ f (pr1 ρ)).
     abstract (
-        etrans; [apply (eqtohomot (nat_trans_ax φ f) (pr1 ρ))|]; cbn;
+        etrans; [apply nat_trans_ax_pshf|]; cbn;
         etrans; [apply maponpaths, (pr2 ρ)|];
-        now apply (!eqtohomot (nat_trans_ax top_FF f) tt)).
+        now apply pathsinv0, (nat_trans_ax_pshf top_FF)).
 - split.
   + intros I; apply funextsec; simpl; intro ρ.
     apply subtypePath; [ intros x; apply setproperty |]; simpl.
@@ -264,9 +264,8 @@ use make_nat_trans.
   apply (pr1 σ I (pr1 u),,pr2 u).
 + abstract (intros I J f; apply funextsec; intro ρ;
   apply subtypePath; [intros x; apply setproperty|]; simpl;
-  apply (eqtohomot (nat_trans_ax σ f) (pr1 ρ))).
+            apply nat_trans_ax_pshf).
 Defined.
-
 
 (*************************)
 (* Cylinder functor on C *)

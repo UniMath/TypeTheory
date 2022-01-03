@@ -239,24 +239,23 @@ use make_functor.
     * apply (pr1 Γ I).
     * intros ρ.
       apply (pr1 A (make_ob I ρ)).
-  + cbn. intros I J f ρu.
+  + simpl. intros I J f ρu.
     exists (# (pr1 Γ) f (pr1 ρu)).
     apply (# (pr1 A) (mor_to_el_mor f (pr1 ρu)) (pr2 ρu)).
 - split.
   + intros I; apply funextfun; intros [ρ u].
     use total2_paths_f.
-    * exact (eqtohomot (functor_id Γ I) ρ).
+    * simpl. apply (@functor_id_pshf _ _).
     * etrans; [use transportf_make_ob|].
       etrans; [apply transportf_PreShv|]; cbn.
       now rewrite (mor_to_el_mor_id ρ), transportfbinv, (functor_id A).
    + intros I J K f g; apply funextfun; intros [ρ u].
      use total2_paths_f.
-     * exact (eqtohomot (functor_comp Γ f g) ρ).
+     * simpl. apply functor_comp_pshf.
      * etrans; [use transportf_make_ob|].
        etrans; [apply transportf_PreShv|].
        rewrite (mor_to_el_mor_comp _ f g), transportfbinv.
-       generalize u; simpl in *.
-       apply eqtohomot, (functor_comp A (mor_to_el_mor f ρ)  (mor_to_el_mor g (# (pr1 Γ) f ρ))).
+       simpl. apply (@functor_comp_pshf _ A).
 Defined.
 
 (* It would be nice to use the notation Γ.A here, but it doesn't seem to work *)
@@ -308,7 +307,7 @@ Lemma subst_term_prf {Γ Δ : PreShv C} (σ : Δ --> Γ) (A : Γ ⊢) (a : Γ �
   # (pr1 (A⦃σ⦄)) (mor_to_el_mor f ρ) (pr1 a I (pr1 σ I ρ)) =
   pr1 a J (pr1 σ J (# (pr1 Δ) f ρ)).
 Proof.
-set (eq := eqtohomot (nat_trans_ax σ f) ρ).
+set (eq := nat_trans_ax_pshf σ ρ f).
 set (x := # (pr1 A) (mor_to_el_mor f (pr1 σ I ρ)) (pr1 a I (pr1 σ I ρ))).
 intermediate_path (transportb (λ x, pr1 ((pr1 A) (make_ob J x))) eq x).
 { apply pathsinv0.
@@ -384,7 +383,7 @@ use make_nat_trans.
   apply (pr1 σ _ ρ,,pr1 a I ρ).
 - intros I J f.
   apply funextsec; intro ρ; cbn.
-  apply (total2_paths2_f (eqtohomot (nat_trans_ax σ f) ρ)).
+  apply (total2_paths2_f (nat_trans_ax_pshf σ ρ f)).
   etrans; [eapply maponpaths, (!(pr2 a I J f ρ))|].
   etrans; [use transportf_make_ob|].
   etrans; [apply (@transportf_PreShv (∫ Γ) A)|].
@@ -393,7 +392,7 @@ use make_nat_trans.
   rewrite transportf_total2; simpl.
   etrans; [apply transportf_make_ob_eq|].
   etrans; [eapply map_on_two_paths; [|apply idpath]|].
-    apply(base_paths_maponpaths_make_ob _ _ (eqtohomot (nat_trans_ax σ f) ρ)).
+    apply (base_paths_maponpaths_make_ob _ _ (nat_trans_ax_pshf σ  ρ f)).
   now rewrite idpath_transportf.
 Defined.
 
@@ -475,7 +474,7 @@ rewrite !transportf_forall.
 apply pathsinv0, (@transportf_transpose_right _ (λ x : Θ ⊢, pr1 ((pr1 x) (make_ob I ρ))) _ _ P).
 unfold transportb, P; rewrite pathsinv0inv0.
 etrans; [apply (transportf_TypeIn I ρ _ _ (subst_type_comp σ2 σ1 A) _)|].
-now rewrite base_paths_subst_type_comp, toforallpaths_funextsec, idpath_transportf.
+Time now rewrite base_paths_subst_type_comp, toforallpaths_funextsec, idpath_transportf.
 Qed.
 
 (** (p,q) = 1 *)
@@ -533,7 +532,7 @@ use make_nat_trans.
 - intros I X.
   apply (pr1 σ _ (pr1 X)).
 - intros I J f; apply funextsec; intro ρ.
-  apply (eqtohomot (nat_trans_ax σ f) (pr1 ρ)).
+  apply nat_trans_ax_pshf.
 Defined.
 
 Definition q_gen {Γ Δ : PreShv C} {A : Γ ⊢} (σ : Δ --> Γ) : (Δ ⋆ (A⦃σ⦄)) ⊢ A⦃p_gen σ⦄.

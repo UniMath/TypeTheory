@@ -72,7 +72,7 @@ Definition typecat_mor_axioms
    × (∏ Γ Γ' (A : C Γ) (f : Γ' --> Γ),
         # F (q_typecat A f) · typecat_mor_iso F A
         = typecat_mor_iso F _
-          · comp_ext_compare (eqtohomot (nat_trans_ax (typecat_mor_Ty F) f) A)
+          · comp_ext_compare (nat_trans_ax_pshf (typecat_mor_Ty F) _ _)
           · q_typecat (typecat_mor_Ty F _ A) (# F f)).
 
 
@@ -87,7 +87,7 @@ Definition make_typecat_mor
   (H1 : ∏ Γ (A : C Γ), # F (dpr_typecat A) = ϕ _ A · dpr_typecat (pr1 FTy _ A))
   (H2 : ∏ Γ Γ' (A : C Γ) (σ : Γ' --> Γ),
         # F (q_typecat A σ) · ϕ Γ A =
-        ϕ Γ' _ · comp_ext_compare (eqtohomot (nat_trans_ax FTy σ) A) ·
+        ϕ Γ' _ · comp_ext_compare (nat_trans_ax_pshf FTy _ _) ·
           q_typecat (pr1 FTy _ A) (# F σ))
   : typecat_mor C D.
 Proof.
@@ -109,7 +109,7 @@ Definition typecat_mor_pentagon {C D} (F : typecat_mor C D)
   : # F (q_typecat A σ)
     · typecat_mor_iso F A
   = typecat_mor_iso F _
-    · comp_ext_compare (eqtohomot (nat_trans_ax (typecat_mor_Ty F) σ) A)
+    · comp_ext_compare (nat_trans_ax_pshf (typecat_mor_Ty F) _ _)
     · q_typecat (typecat_mor_Ty F Γ A) (# F σ)
 := pr2 (pr2 F) Γ Γ' A σ.
 
@@ -257,7 +257,7 @@ Section Derived_Actions.
       {C C' : split_typecat} (F : typecat_mor C C')
       {Γ:C} (A: C Γ) {Γ' : C} (f : Γ' --> Γ)
     : typecat_mor_Ty F _ (A ⦃f⦄) = (typecat_mor_Ty F _ A) ⦃ # F f ⦄
-    := eqtohomot (nat_trans_ax (typecat_mor_Ty F) f) A.
+    := nat_trans_ax_pshf (typecat_mor_Ty F) _ _.
 
   Lemma reindex_fmap_tm {C D : split_typecat} (F : typecat_mor C D) {Γ Γ' : C}
         (f : C ⟦ Γ', Γ ⟧) {A : C Γ} (a : tm A) :
