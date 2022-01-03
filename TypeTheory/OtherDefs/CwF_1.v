@@ -25,7 +25,6 @@ Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
 Local Open Scope precat.
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 (** * A "preview" of the definition *)
 

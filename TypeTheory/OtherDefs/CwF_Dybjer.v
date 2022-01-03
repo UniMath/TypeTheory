@@ -18,8 +18,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Categories.category_FAM.
 
 Local Open Scope precat.
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "C ⦃ a , b ⦄" := (precategory_morphisms (C:=C) a b) (at level 50).
+
 (** * A "preview" of the definition *)
 
 Module Record_Preview.
@@ -27,7 +26,7 @@ Module Record_Preview.
 Reserved Notation "C ⟨ Γ ⟩" (at level 60).
 Reserved Notation "C ⟨ Γ ⊢ A ⟩" (at level 60).
 Reserved Notation "A [ γ ]" (at level 40).
-Reserved Notation "a ⟦ γ ⟧" (at level 40).
+Reserved Notation "a [[ γ ]]" (at level 40).
 Reserved Notation "Γ ∙ A" (at level 35).
 Reserved Notation "'π' A" (at level 20).
 Reserved Notation "'ν' A" (at level 15).
@@ -39,11 +38,11 @@ Notation "A ₂" := (index_func A)(at level 3).
 Record precwf_record : Type := {
   C :> precategory ;
   T : functor C^op (FAM(HSET))  where "C ⟨ Γ ⟩" := ((T Γ) ₁);
-                                  (* "C ⟨ Γ ⊢ A ⟩" := ((T Γ) ₂ A) *)
+                                (* "C ⟨ Γ ⊢ A ⟩" := ((T Γ) ₂ A) *)
   comp_obj : ∏ Γ (A : C⟨Γ⟩), C where "Γ ∙ A" := (comp_obj Γ A) ;
-  proj_mor : ∏ Γ (A : C⟨Γ⟩), C ⦃Γ ∙ A, Γ⦄ where "'π' A" := (proj_mor _ A) ;
+  proj_mor : ∏ Γ (A : C⟨Γ⟩), C ⟦ Γ ∙ A, Γ ⟧ where "'π' A" := (proj_mor _ A) ;
   q : ∏ Γ (A : C ⟨Γ⟩), pr1 ((T _)₂ (pr1 (# T (π A)) A));
-  univ_prop : ∏ Γ (A : C ⟨Γ⟩) Δ (γ : C⦃Δ, Γ⦄) (a : pr1 ((T _)₂ (pr1 (# T γ) A))),
+  univ_prop : ∏ Γ (A : C ⟨Γ⟩) Δ (γ : C ⟦ Δ, Γ ⟧) (a : pr1 ((T _)₂ (pr1 (# T γ) A))),
         iscontr (∑ (θ : Δ --> Γ ∙ A),
                  ∑ (e : θ ;; π A = γ),
                  pr2 (# T θ) _ (q _ A)

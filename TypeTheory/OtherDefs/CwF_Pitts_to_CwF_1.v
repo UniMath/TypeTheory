@@ -24,9 +24,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.OtherDefs.CwF_Pitts.
 Require Import TypeTheory.OtherDefs.CwF_1.
 
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
-
+Local Open Scope precat.
 
 Section fix_a_precategory.
   

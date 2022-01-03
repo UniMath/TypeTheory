@@ -24,7 +24,7 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
+Local Open Scope precat.
 
 (** * A "preview" of the definition *)
 
