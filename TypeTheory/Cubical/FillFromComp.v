@@ -180,19 +180,19 @@ Qed.
 (* Some pointwise equations for the face lattice. TODO: better notations *)
 Lemma meet_FF1 (I : C) (φ : FF $p I) : pr1 meet_FF I (FF1,,φ) = φ.
 Proof.
-exact (eqtohomot (nat_trans_eq_pointwise (islunit_meet_mor_top_mor _ _ FF_lattice) I) φ).
+  apply (nat_trans_eq_pointwise_pshf (islunit_meet_mor_top_mor _ _ FF_lattice)).
 Qed.
 
 Lemma join_absorb_meet_FF (I : C) (φ ψ : FF $p I) :
   pr1 join_FF I (φ,,pr1 meet_FF I (φ,,ψ)) = φ.
 Proof.
-exact (eqtohomot (nat_trans_eq_pointwise (join_mor_absorb_meet_mor _ FF_lattice) I) (φ,,ψ)).
+  apply (nat_trans_eq_pointwise_pshf (join_mor_absorb_meet_mor _ FF_lattice) (_,,_)).
 Qed.
 
 Lemma join_FF_assoc (I : C) (x y z : FF $p I) :
   pr1 join_FF I (pr1 join_FF I (x,,y),, z) = pr1 join_FF I (x,,pr1 join_FF I (y,,z)).
 Proof.
-exact (eqtohomot (nat_trans_eq_pointwise (isassoc_join_mor _ FF_lattice) I) ((x,,y),,z)).
+  apply (nat_trans_eq_pointwise_pshf (isassoc_join_mor _ FF_lattice) ((_,,_),,_)).
 Qed.
 
 Lemma join_FF1 (I : C) (x : FF $p I) :
@@ -240,8 +240,8 @@ Proof.
 intros Δ σ1 σ2 H.
 apply (nat_trans_eq has_homsets_HSET); intro I.
 apply funextsec; intro ρ.
-apply subtypePath; [ intros x; apply setproperty |]; simpl.
-exact (eqtohomot (nat_trans_eq_pointwise H I) ρ).
+apply subtypePath; [ intros x; apply setproperty |].
+apply (nat_trans_eq_pointwise_pshf H).
 Qed.
 
 Definition join_subst {Γ : PreShv C} (φ ψ : Γ --> FF) : Γ,φ --> Γ,(φ ∨ ψ).
@@ -393,16 +393,16 @@ Lemma isMonic_e₀_PreShv I : @isMonic (PreShv C) _ _ (e₀_PreShv I).
 Proof.
 intros Γ σ τ H.
 apply (nat_trans_eq has_homsets_HSET); intros J; apply funextsec; intro ρ.
-generalize (eqtohomot (nat_trans_eq_pointwise H J) ρ).
-now apply isMonic_e₀.
+apply isMonic_e₀.
+now apply (nat_trans_eq_pointwise_pshf H).
 Qed.
 
 Lemma isMonic_e₁_PreShv I : @isMonic (PreShv C) _ _ (e₁_PreShv I).
 Proof.
 intros Γ σ τ H.
 apply (nat_trans_eq has_homsets_HSET); intros J; apply funextsec; intro ρ.
-generalize (eqtohomot (nat_trans_eq_pointwise H J) ρ).
-now apply isMonic_e₁.
+apply isMonic_e₁.
+now apply (nat_trans_eq_pointwise_pshf H).
 Qed.
 
 Lemma e₀_p_PreShv I : e₀_PreShv I · p_PreShv I = identity (yon I).
@@ -590,7 +590,7 @@ apply pathsdirprod.
 - apply maponpaths.
   rewrite <-!assoc.
   apply maponpaths, (!nat_trans_ax p_F f).
-- apply (!eqtohomot (nat_trans_eq_pointwise (plus_δ₀ I J f) K) ρ).
+- apply pathsinv0, (nat_trans_eq_pointwise_pshf (plus_δ₀ I J f)).
 Qed.
 
 (* Multiplication rule for the box formula *)
@@ -776,7 +776,7 @@ Proof.
 intros I φ u v H.
 apply (pr1 Cα (I +) (b φ) (box_b_subst α I φ u) (m_PreShv I · v)).
 abstract (apply (nat_trans_eq has_homsets_HSET); intros J; apply funextsec; intro ρ;
-          apply (eqtohomot (nat_trans_eq_pointwise H J))).
+          apply (nat_trans_eq_pointwise_pshf H)).
 Defined.
 
 (* Upper triangle commutes *)

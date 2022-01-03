@@ -30,7 +30,7 @@ Notation "α $nt x"
   := (((α : preShv _ ⟦_ , _ ⟧) : nat_trans _ _) _ x)
   (at level 65) : cat.
 (* The combinations of type-casts here are chosen as they’re what seems to work for as many given types as possible *)
-(* TODO: consider these notations. Some such notations for applying presheaves is certainly good, but the choice of these symbols, levels, etc are fairly unconsidered/arbitrary for now. *)
+(* TODO: consider these notations. Some such notations for applying presheaves is certainly good, but the choice of these symbols, levels, scopes, etc are fairly unconsidered/arbitrary for now. *)
 
 Lemma functor_comp_pshf {C : category}
       { P : preShv C } {c : C} (x : P $p c)
@@ -53,6 +53,14 @@ Lemma nat_trans_ax_pshf {C : category}
    : α $nt (#p P f x) = #p Q f (α $nt x).
 Proof.
   revert x. apply toforallpaths, (nat_trans_ax α).
+Defined.
+
+Lemma nat_trans_eq_pointwise_pshf {C : category}
+      {P Q : preShv C } {α β : P --> Q} (e : α = β)
+      {c : C} (x : P $p c)
+   : α $nt x = β $nt x.
+Proof.
+  revert x. apply toforallpaths, (nat_trans_eq_pointwise e).
 Defined.
 
 Lemma transportf_pshf {C : category}

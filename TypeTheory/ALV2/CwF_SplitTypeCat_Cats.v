@@ -188,7 +188,7 @@ Lemma term_to_section_naturality {X X'} {Y} {Y'}
   {Γ : C} (t : Tm Y Γ) (A := pp Y $nt t)
   : pr1 (term_to_section (term_fun_mor_TM FY $nt t))
   = pr1 (term_to_section t) ;; φ F _
-   ;; Δ (!toforallpaths (nat_trans_eq_pointwise (term_fun_mor_pp FY) Γ) t).
+   ;; Δ (!nat_trans_eq_pointwise_pshf (term_fun_mor_pp FY) _).
 Proof.
   set (t' := term_fun_mor_TM FY $nt t).
   set (A' := pp Y' $nt t').
@@ -206,10 +206,9 @@ Proof.
     apply comp_ext_compare_π.
   - etrans. apply term_to_section_recover. apply pathsinv0.
     etrans. apply Q_comp_ext_compare.
-    etrans. apply @pathsinv0.
-      set (H1 := nat_trans_eq_pointwise (term_fun_mor_Q FY A) Γ).
-      exact (toforallpaths H1 _).
-    cbn. apply maponpaths. apply term_to_section_recover.
+    etrans.
+      apply @pathsinv0, (nat_trans_eq_pointwise_pshf (term_fun_mor_Q FY A)).
+    cbn. apply maponpaths, term_to_section_recover.
 Qed.
 
 Lemma term_fun_mor_recover_term {X X'} {Y} {Y'}

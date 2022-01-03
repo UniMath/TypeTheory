@@ -134,7 +134,7 @@ Lemma cwf_square_comm_converse {Γ : C} {A : Ty pp Γ : hSet}
 Proof.
   etrans.
   { apply maponpaths, pathsinv0, functor_id_pshf. }
-  etrans. 
+  etrans.
   { assert (e' := nat_trans_eq_pointwise e ΓA); clear e; cbn in e'.
     refine (toforallpaths (!e') (identity _)).
   }

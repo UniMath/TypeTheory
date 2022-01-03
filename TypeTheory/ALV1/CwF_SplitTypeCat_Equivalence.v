@@ -108,8 +108,7 @@ Proof.
   (* This [assert] is to enable the [destruct eA] below. *)
   assert (eA : pp Y $nt t = A). {
     etrans. { apply maponpaths, (!H). }
-    use (toforallpaths (nat_trans_eq_pointwise pp_canonical_TM_to_given _)).
-  }
+    apply (nat_trans_eq_pointwise_pshf pp_canonical_TM_to_given). }
   use total2_paths_f.
   exact (!eA).
   destruct eA; cbn.
