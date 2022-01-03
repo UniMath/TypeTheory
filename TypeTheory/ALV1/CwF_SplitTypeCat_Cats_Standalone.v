@@ -8,7 +8,7 @@
 
 This file defines the categories of term-structures and _q_-morphism structures over a fixed object-extension structure, and proves that they are univalent and equivalent.
 
-For the more interesting case where the object-extension structure is also allowed to vary, see [CwF_Split_TypeCat_Cats], where this more general category is constructed, using the formalism of displayed categories.
+For the more interesting case where the object-extension structure is also allowed to vary, see [CwF_Split_TypeCat_Cats], where this more general category is constructed, using the formalism of displayed categories, and [CwF_SplitTypeCat_Equiv_Cats], giving the equivalence in the displayed setting.
 
 In general, this file should be deprecated, and the displayed version should be used for all further development.  This standalone version is included just to give the equivalence in a form independent of the development of displayed categories.
 
@@ -378,12 +378,11 @@ Lemma term_from_qq_mor
   : (Y --> Y').
 Abort.
 
-(* TODO: rename and move this section! *)
+(* TODO: rename and upstream this section! *)
 Section Rename_me.
 (* TODO: naming conventions in this section clash rather with those of [ALV1.CwF_SplitTypeCat_Equivalence]. Consider! *)
-(* TODO: one would expect the type of this to be [nat_trans_data].  However, that name breaks HORRIBLY with general naming conventions: it is not the _type_ of the data (which is un-named for [nat_trans]), but is the _access function_ for that data!  Submit issue for this? *)  
 Lemma tm_from_qq_mor_data {Z Z' : qq_structure_precategory} (FZ : Z --> Z')
-  : forall Γ : C, (tm_from_qq Z Γ) --> (tm_from_qq Z' Γ).
+  : nat_trans_data (tm_from_qq Z) (tm_from_qq Z').
 Proof.
   intros Γ Ase; exact Ase. (* ! *)
 Defined.

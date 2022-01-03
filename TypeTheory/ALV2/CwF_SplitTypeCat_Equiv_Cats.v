@@ -217,14 +217,13 @@ Abort.
 (* We start by showing that a map of _q_-morphism structures induces a map of term-structures between their canonical term-structures of sections. *)
 
 
-(* TODO: rename and move this section! *)
+(* TODO: rename and upstream this section! *)
 Section Rename_me.
 
 (* TODO: naming conventions in this section clash rather with those of [ALV1.CwF_SplitTypeCat_Equivalence]. Consider! *)
-(* TODO: one would expect the type of this to be [nat_trans_data].  However, that name breaks HORRIBLY with general naming conventions: it is not the _type_ of the data (which is un-named for [nat_trans]), but is the _access function_ for that data!  Submit issue for this? *)  
 Lemma tm_from_qq_mor_data {X X' : obj_ext_cat C} {F : X --> X'}
     {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
-  : forall Γ : C, (tm_from_qq Z Γ) --> (tm_from_qq Z' Γ).
+  : nat_trans_data (tm_from_qq Z) (tm_from_qq Z').
 Proof.
   intros Γ Ase.
   exists (obj_ext_mor_TY F $nt (pr1 Ase)).
