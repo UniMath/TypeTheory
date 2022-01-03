@@ -143,7 +143,7 @@ Lemma comp_ext_compare_te
   : #p (TM Y) (Δ e) (te Y A') = te Y A.
 Proof.
   destruct e; cbn.
-  exact (toforallpaths (functor_id (TM _) _) _). 
+  apply functor_id_pshf.
 Qed.
 
 Lemma qq_from_term_mor {X X' : obj_ext_cat C} {F : X --> X'}
@@ -169,17 +169,16 @@ Proof.
     etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths. apply comp_ext_compare_π.
     apply obj_ext_mor_ax.
-  - etrans. exact (toforallpaths (functor_comp (TM _) _ _) _).
+  - etrans. apply functor_comp_pshf.
     etrans. cbn. apply maponpaths, @pathsinv0, (term_fun_mor_te FY).
-    etrans. use (toforallpaths
-                      (!nat_trans_ax (term_fun_mor_TM _) _)).
+    etrans. apply pathsinv0, nat_trans_ax_pshf.
     etrans. cbn. apply maponpaths, @pathsinv0, W.
     etrans. apply term_fun_mor_te.
     apply pathsinv0.
-    etrans. exact (toforallpaths (functor_comp (TM _) _ _) _).
+    etrans. apply functor_comp_pshf.
     etrans. cbn. apply maponpaths, @pathsinv0, W'.
-    etrans. exact (toforallpaths (functor_comp (TM _) _ _) _).
-    cbn. apply maponpaths. 
+    etrans. apply functor_comp_pshf.
+    apply maponpaths. 
     apply comp_ext_compare_te.
 Time Qed.
 
@@ -242,8 +241,7 @@ Proof.
   intros Γ Γ' f; cbn in Γ, Γ', f.
   apply funextsec; intros [A [s e]].
   use tm_from_qq_eq.
-  - cbn. exact (toforallpaths
-                  (nat_trans_ax (obj_ext_mor_TY _) _) _).
+  - cbn. apply nat_trans_ax_pshf.
   - cbn. apply PullbackArrowUnique. 
     + etrans. cbn. apply @pathsinv0, assoc.
       etrans. apply maponpaths, comp_ext_compare_π.
@@ -289,9 +287,9 @@ Proof.
   use tm_from_qq_eq_reindex.
   - cbn.
   (* Putting these equalities under [abstract] shaves a couple of seconds off the overall Qed time, but makes the proof script rather less readable. *) 
-    etrans. 2: { exact (toforallpaths (functor_comp (TY _) _ _) _). }
+    etrans. 2: { apply functor_comp_pshf. }
     etrans. 2: { cbn. apply maponpaths_2, @pathsinv0, obj_ext_mor_ax. }
-    exact (toforallpaths (nat_trans_ax (obj_ext_mor_TY F) _) _).
+    apply nat_trans_ax_pshf.
   - etrans. 2: { apply @pathsinv0, 
         (postCompWithPullbackArrow _ _ _ _ (make_Pullback _ _)). }
     apply PullbackArrowUnique.
@@ -363,13 +361,11 @@ Proof.
     etrans. apply maponpaths, tm_from_qq_mor_pp.
     etrans. apply assoc.
     apply maponpaths_2, (pp_given_TM_to_canonical _ _ (_,,_)).
-  - unfold term_from_qq_mor_TM.
-    cbn.
-    etrans. apply maponpaths, maponpaths, given_TM_to_canonical_te.
-    etrans. apply maponpaths, (tm_from_qq_mor_te FZ).
-    etrans. apply (toforallpaths
-                     (nat_trans_ax (canonical_TM_to_given _ _ (_,,_)) _) _).
-    cbn. apply maponpaths. apply (canonical_TM_to_given_te _ _ (_,,_)).
+  - unfold term_from_qq_mor_TM. 
+    etrans. 2: { eapply maponpaths, (canonical_TM_to_given_te _ _ (_,,_)). }
+    etrans. 2: { apply nat_trans_ax_pshf. }
+    etrans. 2: { apply maponpaths, (tm_from_qq_mor_te FZ). }
+    cbn. apply maponpaths, maponpaths, given_TM_to_canonical_te.
 Defined.
 
 Lemma term_from_qq_mor_unique {X X' : obj_ext_cat C} {F : X --> X'}

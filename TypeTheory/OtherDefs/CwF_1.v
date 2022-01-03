@@ -22,6 +22,7 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
 Local Open Scope precat.
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
@@ -146,7 +147,7 @@ Definition reindx_laws_type {CC : precategory}(C : tt_reindx_struct CC) : UU :=
     (∏ Γ (A : C⟨Γ⟩), A [[identity Γ]] = A) ×
     (∏ Γ Γ' Γ'' (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') (A : C⟨Γ⟩), A [[γ';;γ]] = A[[γ]][[γ']]). 
 
-Definition reindx_laws_type_proof {CC : precategory}(C : tt_reindx_struct CC)
+Definition reindx_laws_type_proof {CC : precategory} (C : tt_reindx_struct CC)
   : reindx_laws_type C.
 Proof.
   split.

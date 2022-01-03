@@ -160,10 +160,9 @@ Proof.
   intros Γ'; simpl in Γ'.
 (* Insert [cbn] to see what’s actually happening; removed for compile speed. *)
   unfold yoneda_objects_ob. apply funextsec; intros f.
-  etrans. 
-    use (toforallpaths (nat_trans_ax (term_fun_mor_TM FF) _)).
+  etrans. use nat_trans_ax_pshf.
   etrans. cbn. apply maponpaths, term_fun_mor_te.
-  use (toforallpaths (!functor_comp (TM Y') _ _ )).
+  apply pathsinv0, functor_comp_pshf.
 Qed.
 
 (* TODO: inline in [isaprop_term_fun_mor]? *)
@@ -256,7 +255,7 @@ Proof.
     exists (identity _). apply tpair.
     + etrans. apply id_left. apply pathsinv0, id_right.
     + intros Γ A; cbn.
-      use (toforallpaths (!functor_id (TM _) _)).
+      apply pathsinv0, functor_id_pshf.
   - intros X0 X1 X2 F G Y0 Y1 Y2 FF GG.
     exists (term_fun_mor_TM FF ;; term_fun_mor_TM GG). apply tpair.
     + etrans. apply @pathsinv0. apply assoc.
@@ -266,10 +265,9 @@ Proof.
       apply pathsinv0. apply assoc.
     + intros Γ A.
       etrans. cbn. apply maponpaths, term_fun_mor_te.
-      etrans. use (toforallpaths
-                        (nat_trans_ax (term_fun_mor_TM _) _)).
+      etrans. apply nat_trans_ax_pshf.
       etrans. cbn. apply maponpaths, term_fun_mor_te.
-      use (toforallpaths (!functor_comp (TM _) _ _)).
+      apply pathsinv0, functor_comp_pshf.
 Defined.
 
 Definition term_fun_data : disp_cat_data (obj_ext_cat C)
@@ -314,8 +312,7 @@ Proof.
   use (∏ Γ' Γ (f : C ⟦ Γ' , Γ ⟧) (A : Ty X Γ), _).
   use (qq Z f A ;; φ F A = _).
   use (φ F _ ;; Δ _ ;; qq Z' f _).
-  revert A; apply toforallpaths.
-  use (nat_trans_ax (obj_ext_mor_TY F)).
+  apply nat_trans_ax_pshf.
 Defined.
 
 Lemma isaprop_qq_structure_mor
