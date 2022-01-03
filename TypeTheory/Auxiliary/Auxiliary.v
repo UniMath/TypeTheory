@@ -40,7 +40,7 @@ Tactic Notation "assoc" := apply @pathsinv0, path_assoc.
 
 Arguments toforallpaths [_ _ _ _] _ _.
 
-Lemma weqhomot {A B : UU} (f : A -> B) (w : A ≃ B) (H : w ~ f) : isweq f.
+Lemma weqhomot {A B : UU} {f : A -> B} (w : A ≃ B) (H : w ~ f) : isweq f.
 Proof.
   apply isweqhomot with w. apply H. apply weqproperty.
 Defined.

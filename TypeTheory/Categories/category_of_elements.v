@@ -217,7 +217,7 @@ Defined.
 Definition is_univalent_Elem  (H : is_univalent C) : is_univalent ∫.
 Proof.
   intros a b.
-  apply (weqhomot _ (elem_eq_weq_2 H a b)).
+  use weqhomot. { apply elem_eq_weq_2, H. }
   intro p; destruct p.
   apply eq_iso.
   apply subtypePath. { intro; apply setproperty. }

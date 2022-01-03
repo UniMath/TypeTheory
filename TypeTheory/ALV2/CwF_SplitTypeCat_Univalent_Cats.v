@@ -172,7 +172,7 @@ Section Is_Univalent_Obj_Ext_Disp.
   Proof.
     unfold is_univalent_in_fibers.
     intros TY X X'.
-    apply weqhomot with (is_univalent_mor_weq _ _).
+    use weqhomot. { apply is_univalent_mor_weq. }
     intros e; destruct e.
     apply eq_iso_disp.
     apply obj_ext_mor_disp_eq.

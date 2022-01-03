@@ -302,14 +302,14 @@ Section TypeCat_Disp.
       set (f := typecat_is_triangle_idtoiso_fiber_disp_weq A B).
       set (g := (typecat_idtoiso_triangle _ A B,, w' _ A B)).
       use weqhomot.
-      - apply (weqcomp g f).
-      - intros p. induction p.
-        use total2_paths_f.
-        + use total2_paths_f.
-          * apply idpath.
-          * apply homset_property.
-        + apply proofirrelevance.
-          apply isaprop_is_iso_disp.
+      { exact (weqcomp g f). }
+      intros p. induction p.
+      use total2_paths_f.
+      - use total2_paths_f.
+        + apply idpath.
+        + apply homset_property.
+      - apply proofirrelevance.
+        apply isaprop_is_iso_disp.
     Defined.
 
     Definition typecat_disp_is_disp_univalent_implies_typecat_idtoiso_triangle_isweq
@@ -320,11 +320,11 @@ Section TypeCat_Disp.
       set (f := typecat_is_triangle_idtoiso_fiber_disp_weq A B).
       set (g := (idtoiso_fiber_disp ,, is_univalent_in_fibers_from_univalent_disp _ D_is_univalent _ A B)).
       use weqhomot.
-      - apply (weqcomp g (invweq f)).
-      - intros p. induction p.
-        use total2_paths_f.
-        + apply eq_iso, idpath.
-        + apply homset_property.
+      { exact (weqcomp g (invweq f)). }
+      intros p. induction p.
+      use total2_paths_f.
+      - apply eq_iso, idpath.
+      - apply homset_property.
     Defined.
 
   End TypeCat_Disp_is_univalent.
