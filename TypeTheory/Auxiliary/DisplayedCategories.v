@@ -149,6 +149,8 @@ Section Discrete_Fibrations.
     : ∃! d' : D c', d' -->[f] d
   := pr1 H_D c c' f d.
 
+  Arguments unique_lift : simpl never.
+
   Definition lift_source {C} {D : disp_cat C} (H_D : is_discrete_fibration D)
       {c c'} (f : c' --> c) (d : D c)
     : D c'

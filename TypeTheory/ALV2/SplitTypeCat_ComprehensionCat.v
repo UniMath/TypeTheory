@@ -429,8 +429,6 @@ Section SplitTypeCat_from_DiscreteComprehensionCat.
     : typecat_structure C
     := (_ ,, typecat_structure2_from_discrete_comprehension_cat_structure).
 
-  Arguments unique_lift : simpl never. (* TODO: upstream *)
-
   Definition is_split_typecat_from_discrete_comprehension_cat_structure
     : is_split_typecat typecat_structure_from_discrete_comprehension_cat_structure.
   Proof.
