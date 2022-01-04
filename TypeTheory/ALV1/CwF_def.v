@@ -27,24 +27,6 @@ Require Import TypeTheory.ALV1.RelativeUniverses.
 Require Import TypeTheory.ALV1.Transport_along_Equivs.
 Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
 
-Section Auxiliary.
-
-(** * Preliminaries *)
-
-(* TODO: upstream *)
-Definition yoneda_induction {C : category} (F : preShv C) (c : C) 
-           (P : F $p c -> UU) :
-  (forall K : _ ⟦ Yo c, F ⟧, P (invmap (@yy _ F c) K)) -> 
-  forall A : F $p c, P A.
-Proof.
-  intros H A0.
-  set (XR := homotinvweqweq (@yy _ F c)).
-  rewrite <- XR.
-  apply H.
-Defined.  
-
-End Auxiliary.
-
 (** * Definition of a CwF 
 
 A (Fiore-style) CwF consists of:

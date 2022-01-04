@@ -18,10 +18,6 @@ Require Import TypeTheory.Initiality.Environments.
 
 Local Open Scope functions.
 
-Section Auxiliary.
-
-End Auxiliary.
-
 Section Partial_Interpretation.
 (** In this section, we construct the partial interpretation function. *)
 
