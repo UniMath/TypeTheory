@@ -127,11 +127,14 @@ Section Terms.
     apply paths_section.
   Qed.
 
-  Lemma isaset_tm {C : split_typecat} {Γ : C} {A : C Γ}
+  Lemma isaset_tm {C : split_typecat} {Γ : C} (A : C Γ)
     : isaset (tm A).
   Proof.
     apply isaset_section.
   Qed.
+
+  Definition tm_hSet {C : split_typecat} {Γ : C} (A : C Γ) : hSet
+  := make_hSet (tm A) (isaset_tm A).
 
   Definition reind_tm {C : typecat} {Γ Γ'} (f : Γ' --> Γ) {A : C Γ}
     (x : tm A) : tm (A⦃f⦄) := pb_of_section _ (reind_pb_typecat A f) _ (pr2 x).

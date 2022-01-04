@@ -185,7 +185,8 @@ Section Functoriality.
         (* final naturality part *)
         apply leq_partial_of_path.
         eapply pathscomp0. { apply fmap_return_partial. }
-        apply maponpaths. rewrite tm_transportf_idpath.
+        apply maponpaths.
+        eapply pathscomp0. { apply maponpaths, tm_transportf_idpath. }
         eapply pathscomp0. { apply (fmap_pi_intro F_Π). }
         apply tm_transportf_irrelevant.
       + (* [app_expr A B t a] *)
@@ -268,7 +269,8 @@ Section Functoriality.
         (* final naturality part *)
         apply leq_partial_of_path.
         eapply pathscomp0. { apply fmap_return_partial. }
-        apply maponpaths. rewrite tm_transportf_idpath.
+        apply maponpaths.
+        eapply pathscomp0. { apply maponpaths, tm_transportf_idpath. }
         eapply pathscomp0. { apply (fmap_pi_app F_Π). }
         apply tm_transportf_irrelevant.
   Time Defined.

@@ -647,13 +647,16 @@ Section Sections.
     intro; apply homset_property.
   Qed.
 
-  Definition isaset_section {C : category} {X Y : C} {f : X --> Y}
+  Definition isaset_section {C : category} {X Y : C} (f : X --> Y)
     : isaset (section f).
   Proof.
     apply isaset_total2.
     - apply homset_property.
     - intros; apply isasetaprop, homset_property.
   Qed.
+
+  Definition section_hSet {C : category} {X Y : C} (f : X --> Y)
+    := make_hSet (section f) (isaset_section f).
 
 End Sections.
 

@@ -7,6 +7,7 @@ Require Import UniMath.CategoryTheory.All.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 Require Import TypeTheory.Auxiliary.Partial.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.Initiality.SplitTypeCat_General.
@@ -18,20 +19,6 @@ Require Import TypeTheory.Initiality.Environments.
 Local Open Scope functions.
 
 Section Auxiliary.
-
-  (** Functions giving path types in various hsets directly as hprops. *)
-  (* TODO: work out better way to treat them? *)
-  Definition mor_paths_hProp {C : category} {X Y : C} (f g : X --> Y)
-    : hProp
-  := make_hProp (f = g) (homset_property C _ _ _ _).
-
-  Definition type_paths_hProp {C : split_typecat} {Γ : C} (A B : C Γ)
-    : hProp
-  := make_hProp (A = B) (isaset_types_typecat _ _ _).
-
-  Definition tm_paths_hProp {C : split_typecat} {Γ : C} {A : C Γ} (s t : tm A)
-    : hProp
-  := make_hProp (s = t) (isaset_tm _ _).
 
 End Auxiliary.
 
@@ -62,7 +49,7 @@ Section Partial_Interpretation.
     - (* term expressions *)
       destruct e as [ m i | m A B b | m A B f a ].
       + (* [var_expr i] *)
-        assume_partial (type_paths_hProp (type_of (E i)) T) e_Ei_T.
+        assume_partial (type_of (E i) = T :> ty C $p _)%logic e_Ei_T.
         apply return_partial.
         exact (tm_transportf e_Ei_T (E i)).
       + (* [lam_expr A B b] *)
@@ -70,7 +57,7 @@ Section Partial_Interpretation.
         set (E_A := extend_environment E interp_A).
         get_partial (partial_interpretation_ty _ U Π _ _ E_A B) interp_B.
         get_partial (partial_interpretation_tm _ U Π _ _ E_A interp_B b) interp_b.
-        assume_partial (type_paths_hProp (Π _ interp_A interp_B) T) e_ΠAB_T.
+        assume_partial (Π _ interp_A interp_B = T :> ty C $p _)%logic e_ΠAB_T.
         apply return_partial.
         refine (tm_transportf e_ΠAB_T _).
         exact (pi_intro _ _ _ _ interp_b).
@@ -81,7 +68,7 @@ Section Partial_Interpretation.
         set (Π_A_B := Π _ interp_A interp_B).
         get_partial (partial_interpretation_tm _ U Π _ _ E interp_A a) interp_a.
         get_partial (partial_interpretation_tm _ U Π _ _ E Π_A_B f) interp_f. 
-        assume_partial (type_paths_hProp (interp_B ⦃interp_a⦄) T) e_Ba_T.
+        assume_partial (interp_B ⦃interp_a⦄ = T :> ty C $p _)%logic e_Ba_T.
         apply return_partial.
         refine (tm_transportf e_Ba_T _).
         refine (pi_app _ _ _ _ interp_f interp_a).
@@ -874,7 +861,7 @@ Section Totality.
        => ∀ (X:C) (E : typed_environment X Γ)
             (d_A : is_defined (partial_interpretation_ty U Π E A))   
             (d_A' : is_defined (partial_interpretation_ty U Π E A')),
-         type_paths_hProp (evaluate d_A) (evaluate d_A') 
+         (evaluate d_A = evaluate d_A' :> ty C $p _)
      | [! Γ |- a ::: A !]
        => ∀ (X:C) (E : typed_environment X Γ)
             (d_A : is_defined (partial_interpretation_ty U Π E A)), 
@@ -884,7 +871,7 @@ Section Totality.
           (d_A : is_defined (partial_interpretation_ty U Π E A))
           (d_a : is_defined (partial_interpretation_tm U Π E (evaluate d_A) a)) 
           (d_a' : is_defined (partial_interpretation_tm U Π E (evaluate d_A) a')), 
-         tm_paths_hProp (evaluate d_a) (evaluate d_a')
+         (evaluate d_a = evaluate d_a' :> tm_hSet _)
   end.
   (* Note: we DON’T expect to need any inductive information for context judgements!
 

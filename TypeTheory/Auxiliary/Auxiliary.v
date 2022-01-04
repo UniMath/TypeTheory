@@ -26,6 +26,12 @@ Notation "( x , y , .. , z )" := (make_dirprod .. (make_dirprod x y) .. z)
  : core_scope.
 (** Replaces builtin notation for [pair], since we use [dirprod, make_dirprod] instead of [prod, pair]. *)
 
+Notation "x = y :> A" := (@eqset A x y) : logic.
+
+(* Tweak UniMath’s [∀] to add a “logic” scope annotation on inner argument *)
+Notation "∀  x .. y , P"
+  := (forall_hProp (λ x, .. (forall_hProp (λ y, P%logic))..))
+       (at level 200, x binder, y binder, right associativity) : type_scope.
 
 (** * Some tactics *)
 
@@ -586,7 +592,7 @@ Proof.
 Defined.
 
 
-(** ** Other general lemmas *)
+(** ** Other misc general lemmas *)
 
 (* A slightly surprising but very useful lemma for characterising identity types.
 
