@@ -352,6 +352,7 @@ Section Monad.
 
 End Monad.
 
+(* TODO: make these more consistent in naming with similar monadic tactic family [unsquash]? *)
 Ltac get_partial t x := apply (bind_partial t); intros x.
 (** [get_partial t x]: like Haskell’s [x <- t]. *)
 Ltac destruct_partial x := apply (bind_partial x); clear x; intros x.
