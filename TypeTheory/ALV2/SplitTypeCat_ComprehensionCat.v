@@ -41,6 +41,12 @@ Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.Foundations.Sets.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
+Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
+
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.DisplayedCategories.
@@ -49,12 +55,6 @@ Require Import TypeTheory.Auxiliary.Pullbacks.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.ALV2.FullyFaithfulDispFunctor.
 Require Import TypeTheory.ALV2.DiscreteComprehensionCat.
-
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
-Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
-Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
-Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
 
 Section DiscreteComprehensionCatWithDefaultMor.
 
@@ -393,7 +393,7 @@ Section SplitTypeCat_from_DiscreteComprehensionCat.
   Context (DC : discrete_comprehension_cat_structure C).
 
   Let D := pr1 DC : disp_cat C.
-  Let is_discrete_fibration_D := pr1 (pr2 DC) : is_discrete_fibration D.
+  Let isdf_D := pr1 (pr2 DC) : is_discrete_fibration D.
   Let FF := pr1 (pr2 (pr2 DC)) : disp_functor (functor_identity C) D (disp_codomain C).
   Let is_cartesian_FF := pr2 (pr2 (pr2 DC)) : is_cartesian_disp_functor FF.
 
@@ -402,9 +402,9 @@ Section SplitTypeCat_from_DiscreteComprehensionCat.
   Proof.
     exists D.
     use make_dirprod.
-    - intros Γ A. exact (pr1 (disp_functor_on_objects FF A)).
+    - intros Γ A. exact (pr1 (FF _ A)).
     - intros Γ A Γ' f. 
-      exact (pr1 (pr1 (pr1 is_discrete_fibration_D Γ Γ' f A))).
+      exact (lift_source isdf_D f A).
   Defined.
 
   Definition typecat_structure2_from_discrete_comprehension_cat_structure
@@ -412,70 +412,72 @@ Section SplitTypeCat_from_DiscreteComprehensionCat.
   Proof.
     unfold typecat_structure2.
     repeat use tpair.
-    - intros Γ A. exact (pr2 (disp_functor_on_objects FF A)).
+    - intros Γ A. exact (pr2 (FF _ A)).
     - intros Γ A Γ' f.
-      set (k := pr2 (pr1 (pr1 is_discrete_fibration_D Γ Γ' f A))
-                : A {{f}} -->[f] A).
-      apply (pr1 (disp_functor_on_morphisms FF k)).
+      set (k := lift isdf_D f A : A {{f}} -->[f] A).
+      apply (pr1 (# FF k)%mor_disp).
     - intros Γ A Γ' f. simpl.
-      set (k := pr2 (pr1 (pr1 is_discrete_fibration_D Γ Γ' f A))
-                : A {{f}} -->[f] A).
-      apply (pr2 (disp_functor_on_morphisms FF k)).
+      refine (pr2 (# FF _)%mor_disp).
     - simpl. intros Γ A Γ' f.
       apply is_symmetric_isPullback.
       use cartesian_isPullback_in_cod_disp.
       apply is_cartesian_FF.
-      apply (unique_lift_is_cartesian (D := (_ ,, is_discrete_fibration_D)) f A).
+      apply (unique_lift_is_cartesian (D := (_ ,, isdf_D)) f A).
   Defined.
 
   Definition typecat_structure_from_discrete_comprehension_cat_structure
     : typecat_structure C
     := (_ ,, typecat_structure2_from_discrete_comprehension_cat_structure).
 
+  Arguments unique_lift : simpl never. (* TODO: upstream *)
+
   Definition is_split_typecat_from_discrete_comprehension_cat_structure
     : is_split_typecat typecat_structure_from_discrete_comprehension_cat_structure.
   Proof.
     repeat use make_dirprod.
-    - apply (pr2 is_discrete_fibration_D).
+    - apply (pr2 isdf_D).
     - use tpair.
-      + intros Γ A. 
-        set (p := pr2 (pr1 is_discrete_fibration_D Γ Γ (identity Γ) A)).
-        apply (maponpaths pr1 (! p (A ,, id_disp A))).
-
-      + intros Γ A. cbn.
-        induction (! unique_lift_id is_discrete_fibration_D A).
-        etrans. apply maponpaths, (disp_functor_id FF A). simpl.
+      + intros Γ A.
+        set (p := unique_lift isdf_D (identity _) A).
+        apply (maponpaths pr1 (! pr2 p (A ,, id_disp A))).
+      + unfold q_typecat; simpl.
+        unfold reind_typecat, ext_typecat; simpl.
+        unfold lift_source, lift.
+        intros Γ A.
+        set (e := ! unique_lift_id isdf_D A).
+        set (p := unique_lift isdf_D (identity Γ) A) in *.
+        induction e.
+        etrans. { simpl. apply maponpaths, (disp_functor_id FF A). }
         apply pathsinv0.
-        etrans. apply maponpaths, maponpaths, maponpaths, maponpaths, maponpaths.
-        apply pathsinv0r. simpl.
+        etrans. { cbn. do 5 (apply maponpaths).
+                  unfold pathssec2, pathssec1; cbn.
+                  etrans. { apply maponpaths_2, pathscomp0rid. }
+                  apply pathsinv0l. }
         apply idpath.
-
     - use tpair.
       + intros Γ A Γ' f Γ'' g.
-
-        set (A'ff := pr1 is_discrete_fibration_D _ _ f A).
-        set (ff := pr2 (pr1 A'ff) : (A {{f}}) -->[f] A).
-        set (A''gg := pr1 is_discrete_fibration_D _ _ g (A {{f}})).
-        set (gg := pr2 (pr1 A''gg) : ((A {{f}}) {{g}}) -->[g] A {{f}}).
-
-        set (p := pr2 (pr1 is_discrete_fibration_D _ _ (g ;; f) A)).
-        apply (maponpaths pr1 (! p ((A {{f}}) {{g}} ,, (gg ;; ff)%mor_disp))).
-
+        set (p := unique_lift isdf_D (g ;; f) A).
+        set (ff := lift isdf_D f A  : A {{f}} -->[f] A).
+        set (gg := lift isdf_D g _  : (A {{f}}) {{g}} -->[g] A {{f}}).
+        exact (maponpaths pr1 (! pr2 p ((A {{f}}) {{g}} ,, (gg ;; ff)%mor_disp))).
       + intros Γ A Γ' f Γ'' g. cbn.
-        induction (! unique_lift_comp is_discrete_fibration_D f g A).
-        set (A'ff := pr1 (pr1 is_discrete_fibration_D _ _ f A)).
-        set (A' := pr1 A'ff).
-        set (ff := pr2 A'ff).
-        set (gg := pr2 (pr1 (pr1 is_discrete_fibration_D _ _ g A'))).
-        etrans. apply maponpaths, (disp_functor_comp FF gg ff).
-        simpl.
-        apply maponpaths_2.
-        etrans. apply pathsinv0, id_left.
-        apply maponpaths_2.
-
-        apply pathsinv0.
-        etrans. apply maponpaths, maponpaths, maponpaths, maponpaths, maponpaths.
-        apply pathsinv0r. simpl.
+        unfold q_typecat; simpl.
+        unfold reind_typecat, ext_typecat; simpl.
+        unfold lift_source, lift.
+        induction (! unique_lift_comp isdf_D f g A).
+        cbn.
+        set (ff := lift isdf_D f A : _ -->[f] A).
+        set (fA := lift_source isdf_D f A) in *.
+        set (gg := lift isdf_D g fA : _ -->[g] fA).
+        set (gfA := lift_source isdf_D g fA) in *.
+        etrans. { apply maponpaths, (disp_functor_comp FF gg ff). }
+        cbn. apply maponpaths_2.
+        etrans. { apply pathsinv0, id_left. }
+        apply maponpaths_2, pathsinv0.
+        etrans. { do 5 (apply maponpaths).
+                  unfold pathssec2, pathssec1; cbn.
+                  etrans. { apply maponpaths_2, pathscomp0rid. }
+                  apply pathsinv0l. }
         apply idpath.
   Defined.
 

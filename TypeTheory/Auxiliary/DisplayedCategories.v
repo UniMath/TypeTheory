@@ -136,15 +136,44 @@ End Displayed_Equivalences.
 
 Section Discrete_Fibrations.
 
+  (* Some access functions missing upstream *)
+  Definition make_discrete_fibration {C} {D} (H : is_discrete_fibration D)
+    : discrete_fibration C := (D,,H).
+
+  Coercion discrete_fibration_property {C} {D : discrete_fibration C}
+    : is_discrete_fibration D := pr2 D.
+
+  (* arguments tweaked from upstream version, for easier applicability *)
+  Definition unique_lift {C} {D : disp_cat C} (H_D : is_discrete_fibration D)
+      {c c'} (f : c' --> c) (d : D c)
+    : ∃! d' : D c', d' -->[f] d
+  := pr1 H_D c c' f d.
+
+  Definition lift_source {C} {D : disp_cat C} (H_D : is_discrete_fibration D)
+      {c c'} (f : c' --> c) (d : D c)
+    : D c'
+  := pr1 (iscontrpr1 (unique_lift H_D f d)).
+
+  Definition lift {C} {D : disp_cat C} (H_D : is_discrete_fibration D)
+      {c c'} (f : c' --> c) (d : D c)
+    : lift_source H_D f d -->[f] d
+  := pr2 (iscontrpr1 (unique_lift H_D f d)).
+
+  Definition isaset_fiber_is_discrete_fibration
+       {C} {D : disp_cat C} (H_D : is_discrete_fibration D) (c : C)
+    : isaset (D c)
+  := pr2 H_D c.
+
   Definition unique_lift_is_cartesian
              {C : category}
              {D : discrete_fibration C} {c c'}
              (f : c' --> c) (d : D c)
-    : is_cartesian (pr2 (pr1 (unique_lift f d))).
+    : is_cartesian (pr2 (pr1 (unique_lift D f d))).
   Proof.
-    apply (pr2 (pr2 (fibration_from_discrete_fibration _ D _ _ f d))).
+    apply (pr2 (pr2 (fibration_from_discrete_fibration _ D _ _ _ _))).
   Defined.
 
+  (* useful for situations when a particularly canonical lift is known *)
   Definition unique_lift_explicit
              {C : category}
              {D : disp_cat C}
@@ -154,8 +183,7 @@ Section Discrete_Fibrations.
   Proof.
     exists (d' ,, ff).
     intros X.
-    etrans. apply (pr2 (pr1 is_discrete_fibration_D _ _ f d)).
-    apply pathsinv0, (pr2 (pr1 is_discrete_fibration_D _ _ f d)).
+    apply isapropifcontr, unique_lift, is_discrete_fibration_D.
   Defined.
 
   Definition unique_lift_explicit_eq
@@ -185,7 +213,7 @@ Section Discrete_Fibrations.
              {D : disp_cat C}
              (is_discrete_fibration_D : is_discrete_fibration D) {c}
              (d : D c)
-    : pr1 is_discrete_fibration_D _ _ (identity c) d
+    : unique_lift is_discrete_fibration_D (identity c) d
       = unique_lift_identity is_discrete_fibration_D d.
   Proof.
     apply isapropiscontr.
@@ -199,14 +227,8 @@ Section Discrete_Fibrations.
              (d : D c)
     : ∃! (d'' : D c''), d'' -->[g ;; f] d.
   Proof.
-    set (d'ff := pr1 is_discrete_fibration_D _ _ f d).
-    set (d' := pr1 (pr1 d'ff)).
-    set (ff := pr2 (pr1 d'ff)).
-    set (d''gg := pr1 is_discrete_fibration_D _ _ g d').
-    set (d'' := pr1 (pr1 d''gg)).
-    set (gg := pr2 (pr1 d''gg)).
-
-    use (unique_lift_explicit is_discrete_fibration_D d'' (gg ;; ff)%mor_disp).
+    eapply unique_lift_explicit; try assumption.
+    refine (_;;_)%mor_disp; apply (lift is_discrete_fibration_D).
   Defined.
 
   Definition unique_lift_comp
@@ -215,7 +237,7 @@ Section Discrete_Fibrations.
              (is_discrete_fibration_D : is_discrete_fibration D) {c c' c''}
              (f : c' --> c) (g : c'' --> c')
              (d : D c)
-    : pr1 is_discrete_fibration_D _ _ (g ;; f) d
+    : unique_lift is_discrete_fibration_D (g ;; f) d
       = unique_lift_compose is_discrete_fibration_D f g d.
   Proof.
     apply isapropiscontr.
@@ -226,20 +248,15 @@ Section Discrete_Fibrations.
              {D : disp_cat C}
              (is_discrete_fibration_D : is_discrete_fibration D) {c c'}
              (f : c' --> c) (d : D c) (d' : D c')
-    : (d' -->[f] d) ≃ (pr1 (pr1 (pr1 is_discrete_fibration_D c c' f d)) = d').
+    : (d' -->[f] d) ≃ (lift_source is_discrete_fibration_D f d = d').
   Proof.
-    set (uf := pr1 is_discrete_fibration_D c c' f d).
+    set (uf := unique_lift is_discrete_fibration_D f d).
     use weq_iso.
     - intros ff. apply (maponpaths pr1 (! pr2 uf (d' ,, ff))).
     - intros p. apply (transportf _ p (pr2 (pr1 uf))).
     - intros ff. simpl.
-      induction (! unique_lift_explicit_eq is_discrete_fibration_D d' ff
-                : unique_lift_explicit _ d' ff = uf).
-      simpl.
-      etrans. apply maponpaths_2, maponpaths, maponpaths.
-      apply pathsinv0r.
-      apply idpath.
-    - intros ?. apply (pr2 is_discrete_fibration_D).
+      refine (@fiber_paths _ (λ d'', d'' -->[ f] d) _ (_,,_) _).
+    - intros ?. apply isaset_fiber_is_discrete_fibration; assumption.
   Defined.
 
   Definition discrete_fibration_mor
@@ -247,7 +264,7 @@ Section Discrete_Fibrations.
              {D : disp_cat C}
              (is_discrete_fibration_D : is_discrete_fibration D) {c c'}
              (f : c' --> c) (d : D c) (d' : D c')
-    : (d' -->[f] d) = (pr1 (pr1 (pr1 is_discrete_fibration_D c c' f d)) = d').
+    : (d' -->[f] d) = (lift_source is_discrete_fibration_D f d = d').
   Proof.
     apply univalenceweq.
     apply discrete_fibration_mor_weq.
@@ -260,8 +277,8 @@ Section Discrete_Fibrations.
              (f : c' --> c) (d : D c) (d' : D c')
     : isaprop (d' -->[f] d).
   Proof.
-    induction (! discrete_fibration_mor is_discrete_fibration_D f d d').
-    apply (pr2 is_discrete_fibration_D).
+    eapply isofhlevelweqb. { use discrete_fibration_mor_weq; assumption. }
+    apply isaset_fiber_is_discrete_fibration; eassumption.
   Qed.
 
   Definition isaprop_disp_id_comp_of_discrete_fibration
@@ -271,22 +288,10 @@ Section Discrete_Fibrations.
     : isaprop (disp_cat_id_comp C D).
   Proof.
     use isapropdirprod.
-    - apply impred_isaprop. intros ?.
-      apply impred_isaprop. intros ?.
-      apply isaprop_mor_disp_of_discrete_fibration.
-      apply is_discrete_fibration_D.
-    - apply impred_isaprop. intros ?.
-      apply impred_isaprop. intros ?.
-      apply impred_isaprop. intros ?.
-      apply impred_isaprop. intros ?.
-      apply impred_isaprop. intros ?.
-      apply impred_isaprop. intros ?.
-      apply impred_isaprop. intros ?.
-      apply impred_isaprop. intros ?.
-      apply impred_isaprop. intros ?.
-      apply impred_isaprop. intros ?.
-      apply isaprop_mor_disp_of_discrete_fibration.
-      apply is_discrete_fibration_D.
+    - repeat (apply impred_isaprop; intro).
+      apply isaprop_mor_disp_of_discrete_fibration; assumption.
+    - repeat (apply impred_isaprop; intro).
+      apply isaprop_mor_disp_of_discrete_fibration; assumption.
   Qed.
 
   Definition isaprop_is_discrete_fibration
@@ -295,12 +300,9 @@ Section Discrete_Fibrations.
     : isaprop (is_discrete_fibration D).
   Proof.
     use isapropdirprod.
-    - apply impred_isaprop. intros ?.
-      apply impred_isaprop. intros ?.
-      apply impred_isaprop. intros ?.
-      apply impred_isaprop. intros ?.
+    - repeat (apply impred_isaprop; intro).
       apply isapropiscontr.
-    - apply impred_isaprop. intros ?.
+    - apply impred_isaprop; intro.
       apply isapropisaset.
   Qed.
 
