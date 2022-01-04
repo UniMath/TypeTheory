@@ -646,48 +646,24 @@ Section SplitTypeCat_DiscreteComprehensionCat_Equiv.
   Context {C : category}.
 
   Definition split_typecat_structure_discrete_comprehension_cat_structure_default_mor_weq
-    : split_typecat_structure C ≃ discrete_comprehension_cat_structure_with_default_mor C.
+    : split_typecat_structure C
+      ≃ discrete_comprehension_cat_structure_with_default_mor C.
   Proof.
     use weq_iso.
     - apply discrete_comprehension_cat_structure_with_default_mor_from_typecat_structure.
     - apply split_typecat_structure_from_discrete_comprehension_cat_structure_default_mor.
     - intros TC.
       use total2_paths_f.
-      + use total2_paths_f.
-        * apply idpath. (* typecat_structure1 *)
-        * repeat use total2_paths_f.
-          -- apply idpath. (* dpr *)
-          -- apply idpath. (* q *)
-          -- apply funextsec. intros ?.
-             apply funextsec. intros ?.
-             apply funextsec. intros ?.
-             apply funextsec. intros ?.
-             apply homset_property.
-          -- apply funextsec. intros ?.
-             apply funextsec. intros ?.
-             apply funextsec. intros ?.
-             apply funextsec. intros ?.
-             apply isaprop_isPullback.
+      + abstract (repeat (use total2_paths_f; [apply idpath |]);
+                  do 4 (apply funextsec; intro);
+                  apply isaprop_isPullback).
       + apply isaprop_is_split_typecat.
     - intros DC.
+      do 4 (use total2_paths_f; [apply idpath |]).
       use total2_paths_f.
-      2: use total2_paths_f.
-      3: use total2_paths_f.
-      4: use total2_paths_f.
-      5: use total2_paths_f.
-      + apply idpath.
-      + apply idpath.
-      + apply idpath.
-      + apply idpath.
-      + apply funextsec. intros ?.
-        apply funextsec. intros ?.
-        apply funextsec. intros ?.
-        apply funextsec. intros ?.
-        apply funextsec. intros ?.
-        apply funextsec. intros ff.
-        induction ff.
-        apply idpath.
-        
+      + abstract (do 5 (apply funextsec; intro);
+                  apply funextsec; intro ff;
+                  induction ff; apply idpath).
       + apply isaprop_discrete_comprehension_cat_structure2'_with_default_mor.
   Defined.
 
