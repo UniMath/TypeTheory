@@ -25,13 +25,6 @@ Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
-
-(* TODO: as ever, upstream to [Systems.Auxiliary], and look for in library. *)
-Section Auxiliary.
-
-End Auxiliary.
-
-
 (** Some local notations, *)
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).

@@ -38,20 +38,6 @@ Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 Require Import TypeTheory.ALV1.CwF_def.
 
-
-Section Auxiliary.
-
-  (* Switch between composition and application for morphisms *)
-  Lemma compose_ap
-        (a b c : SET)
-        (f : a --> b) (g : b --> c) (x : a : hSet)
-    : (f ;; g) x = g (f x).
-  Proof.
-    unfold compose. cbn. apply idpath.
-  Qed.
-
-End Auxiliary.
-
 Section CwF_structure_cat.
   Context {C : category}.
 
@@ -285,8 +271,7 @@ Section CwF_structure_cat.
         refine (maponpaths _ (f3 Γ A) @ _).
         etrans. apply nat_trans_ax_pshf.
         refine (maponpaths _ (g3 Γ (F_TY $nt A)) @ _).
-        rewrite <- compose_ap, <- (functor_comp (TM Z)).
-        apply idpath.
+        apply pathsinv0, functor_comp_pshf.
   Defined.
 
   (* Prove that two morphisms of CwF structures are equal
