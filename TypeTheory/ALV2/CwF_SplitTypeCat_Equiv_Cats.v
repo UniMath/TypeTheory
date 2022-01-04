@@ -25,26 +25,6 @@ Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
 Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Cats.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence. (* TODO: needed for some natural transformations. *)
 
-
-(* TODO: globalise upstream? *)
-Notation "# F" := (disp_functor_on_morphisms F)
-  (at level 3) : mor_disp_scope.
-
-(* TODO: as ever, upstream when possible. *)
-Section Auxiliary.
-
-(* The following definition takes unfair advantage of the fact that  [functor_composite (functor_identity _) (functor_identity _)]
-  is judgementally(!) equal to [functor_identity _]. *)
-Definition disp_functor_id_composite
-  {C : category}
-  {CC DD EE : disp_cat C}
-  (FF : disp_functor (functor_identity _) CC DD)
-  (GG : disp_functor (functor_identity _) DD EE)
-: disp_functor (functor_identity _) CC EE
-:= disp_functor_composite FF GG.
-
-End Auxiliary.
-
 Section Fix_Context.
 
 Context {C : category}.
