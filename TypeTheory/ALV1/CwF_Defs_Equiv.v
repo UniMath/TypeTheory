@@ -35,6 +35,10 @@ Require Import UniMath.Foundations.Sets.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
+Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
+
 Require Import TypeTheory.ALV1.CwF_def.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 
@@ -89,8 +93,7 @@ Definition rep1_fiber_axioms {pp : mor_total (preShv C)}
   {Γ} (A : Ty pp Γ : hSet) 
   {ΓA : C} (π : ΓA --> Γ) (te : Tm pp ΓA : hSet) : UU
 :=
-  ∑ (e : ((pp : _ --> _) : nat_trans _ _ ) _ te
-         = (# (Ty pp) π A)),
+  ∑ (e : pp $nt te = # (Ty pp) π A),
     isPullback (cwf_square_comm e).
 
 Definition rep1_axioms {pp : mor_total (preShv C)} (Y : rep1_data pp) : UU :=

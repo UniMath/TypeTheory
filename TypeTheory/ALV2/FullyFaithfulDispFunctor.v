@@ -35,10 +35,10 @@ Accessors for [ff_disp_functor]:
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+Require Import UniMath.CategoryTheory.All.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 
 Section FullyFaithfulDispFunctor.
 
@@ -329,7 +329,7 @@ Section FullyFaithfulDispFunctor.
 
       use tpair.
       - exists (pr1 D). apply mor_disp.
-      - exact (id_disp' , comp_disp').
+      - exact (id_disp' ,, comp_disp').
     Defined.
 
     Definition ff_disp_functor_mor_sop : UU
@@ -463,7 +463,7 @@ Section FullyFaithfulDispFunctor.
       set (id_disp' := pr1 (pr2 sop)).
       set (comp_disp' := pr1 (pr2 (pr2 sop))).
 
-      exact (((ob_disp ,, mor_disp) ,, (id_disp' , comp_disp')) ,, axioms_d).
+      exact (((ob_disp ,, mor_disp) ,, (id_disp' ,, comp_disp')) ,, axioms_d).
     Defined.
 
     Definition disp_functor_from_ff_disp_functor_with_morphisms
@@ -478,7 +478,7 @@ Section FullyFaithfulDispFunctor.
       set (Fid := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 sop)))))).
       set (Fcomp := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 sop))))))).
 
-      exact ((Fob,,Fmor),,(Fid,Fcomp)).
+      exact ((Fob,,Fmor),,(Fid,,Fcomp)).
     Defined.
 
     Coercion disp_functor_from_ff_disp_functor_with_morphisms
@@ -665,7 +665,7 @@ Section FullyFaithfulDispFunctor.
         use weqfibtototal.
         intros p.
         cbn.
-        rewrite transportf_const.
+        rewrite transportf_const'.
         exact (idweq _).
     Defined.
 

@@ -26,13 +26,18 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
+Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
+
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
-
+ 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.DisplayedCategories.
+
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.ALV2.FullyFaithfulDispFunctor.
 
@@ -171,12 +176,12 @@ Section MorWithUniqueLift.
       set (D_mor := λ A', pr1 X Γ' Γ A' A f).
       set (D_homsets := λ A', pr1 (pr2 X) Γ' Γ f A' A).
       set (D_unique_lift := pr2 (pr2 X) Γ Γ' f A).
-      exact (D_mor ,, (D_homsets , D_unique_lift)).
+      exact (D_mor ,, (D_homsets ,, D_unique_lift)).
     - intros X.
       set (D_mor := λ Γ Γ' A A' f, pr1 (X Γ' Γ f A') A).
       set (D_homsets := λ Γ Γ' f A A', pr1 (pr2 (X Γ' Γ f A')) A).
       set (D_unique_lift := λ Γ Γ' f A, pr2 (pr2 (X Γ Γ' f A))).
-      exact (D_mor ,, (D_homsets , D_unique_lift)).
+      exact (D_mor ,, (D_homsets ,, D_unique_lift)).
     - apply idpath.
     - apply idpath.
   Defined.
@@ -388,12 +393,12 @@ Section DiscreteComprehensionCats.
          (D_axioms' : disp_cat_axioms' C (_ ,, D_id_comp))
          (FF_axioms : @disp_functor_axioms
                         _ _ (functor_identity C)
-                        (_ ,, disp_cat_axioms'_weq (D_axioms' , pr1 (pr2 D_mor))) _
+                        (_ ,, disp_cat_axioms'_weq (D_axioms' ,, pr1 (pr2 D_mor))) _
                         (Fob,, Fmor)),
 
        is_cartesian_disp_functor
          ((_ ,, FF_axioms)
-          : disp_functor (functor_identity C) (_ ,, disp_cat_axioms'_weq (D_axioms', pr1 (pr2 D_mor))) (disp_codomain C)).
+          : disp_functor (functor_identity C) (_ ,, disp_cat_axioms'_weq (D_axioms',, pr1 (pr2 D_mor))) (disp_codomain C)).
 
   Definition isaprop_discrete_comprehension_cat_structure2'_with_default_mor {C : category}
              (D_ob : C → UU)
@@ -540,7 +545,7 @@ Section DiscreteComprehensionCats.
       set (FF_axioms := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DC))))))))).
       set (is_cartesian_FF := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DC))))))))).
 
-      exists (_ ,, disp_cat_axioms'_weq (D_axioms , D_homsets)).
+      exists (_ ,, disp_cat_axioms'_weq (D_axioms ,, D_homsets)).
       exists (λ Γ Γ' f A',
               ((D_lift_ob _ _ f A' ,, pr1 (D_unique_lift _ _ f A'))
                  ,, pr2 (D_unique_lift _ _ f A'))

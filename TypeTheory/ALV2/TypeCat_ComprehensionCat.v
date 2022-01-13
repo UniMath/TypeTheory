@@ -27,6 +27,9 @@ Require Import UniMath.MoreFoundations.PartA.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.Pullbacks.
+
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.ALV2.FullyFaithfulDispFunctor.
 
@@ -178,19 +181,19 @@ Section TypeCat_Disp.
       { intro. apply homset_property. }
       etrans. apply id_left.
       etrans. 2: { use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
-      apply pathsinv0, transportf_const.
+      apply pathsinv0, transportf_const'.
     - (* id_right_disp *) 
       apply subtypePath.
       { intro. apply homset_property. }
       etrans. apply id_right.
       etrans. 2: { use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
-      apply pathsinv0, transportf_const.
+      apply pathsinv0, transportf_const'.
     - (* assoc_disp *) 
       apply subtypePath.
       { intro. apply homset_property. }
       etrans. apply assoc.
       etrans. 2: { use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
-      apply pathsinv0, transportf_const.
+      apply pathsinv0, transportf_const'.
     - (* homsets_disp *)
       apply (isofhleveltotal2 2).
       + apply homset_property.
@@ -231,12 +234,12 @@ Section TypeCat_Disp.
         2: apply homset_property.
         etrans. apply inv_i_i.
         etrans. 2: { use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
-        apply pathsinv0, transportf_const.
+        apply pathsinv0, transportf_const'.
       - use total2_paths_f.
         2: apply homset_property.
         etrans. apply i_inv_i.
         etrans. 2: { use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
-        apply pathsinv0, transportf_const.
+        apply pathsinv0, transportf_const'.
     Defined.
 
     Definition idtoiso_fiber_disp_to_typecat_is_triangle
@@ -260,11 +263,11 @@ Section TypeCat_Disp.
         + etrans. apply i_inv_i.
           etrans.
           { apply pathsinv0. use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
-          apply transportf_const.
+          apply transportf_const'.
         + etrans. apply inv_i_i.
           etrans.
           { apply pathsinv0. use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
-          apply transportf_const.
+          apply transportf_const'.
       - etrans. apply iB_A. apply id_right.
     Defined.
 
@@ -299,14 +302,14 @@ Section TypeCat_Disp.
       set (f := typecat_is_triangle_idtoiso_fiber_disp_weq A B).
       set (g := (typecat_idtoiso_triangle _ A B,, w' _ A B)).
       use weqhomot.
-      - apply (weqcomp g f).
-      - intros p. induction p.
-        use total2_paths_f.
-        + use total2_paths_f.
-          * apply idpath.
-          * apply homset_property.
-        + apply proofirrelevance.
-          apply isaprop_is_iso_disp.
+      { exact (weqcomp g f). }
+      intros p. induction p.
+      use total2_paths_f.
+      - use total2_paths_f.
+        + apply idpath.
+        + apply homset_property.
+      - apply proofirrelevance.
+        apply isaprop_is_iso_disp.
     Defined.
 
     Definition typecat_disp_is_disp_univalent_implies_typecat_idtoiso_triangle_isweq
@@ -317,11 +320,11 @@ Section TypeCat_Disp.
       set (f := typecat_is_triangle_idtoiso_fiber_disp_weq A B).
       set (g := (idtoiso_fiber_disp ,, is_univalent_in_fibers_from_univalent_disp _ D_is_univalent _ A B)).
       use weqhomot.
-      - apply (weqcomp g (invweq f)).
-      - intros p. induction p.
-        use total2_paths_f.
-        + apply eq_iso, idpath.
-        + apply homset_property.
+      { exact (weqcomp g (invweq f)). }
+      intros p. induction p.
+      use total2_paths_f.
+      - apply eq_iso, idpath.
+      - apply homset_property.
     Defined.
 
   End TypeCat_Disp_is_univalent.

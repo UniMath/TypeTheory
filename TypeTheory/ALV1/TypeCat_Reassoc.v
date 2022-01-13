@@ -17,9 +17,11 @@ The equivalence is a bit more involved than one might hope; it proceeds in two m
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+Require Import UniMath.CategoryTheory.All.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.TypeCat.
@@ -149,9 +151,11 @@ Defined.
 Theorem weq_reassoc_direct : split_struct ≃ reassoc_split_struct.
 Proof.
   use (weq_iso l_to_r_reassoc_direct r_to_l_reassoc_direct).
-  - intros [[[ty [ext reind]] [dpr q_etc]] [set [[reind_id q_id] [reind_comp q_comp]]]].
+  - intros [[[ty [ext reind]] [dpr q_etc]] 
+              [set [[reind_id q_id] [reind_comp q_comp]]]].
     apply idpath.
-  - intros [[[[[ty set] reind] [reind_id reind_comp]] [ext dpr]] [q_etc [q_id q_comp]]].
+  - intros [[[[[ty set] reind] [reind_id reind_comp]] [ext dpr]] 
+              [q_etc [q_id q_comp]]].
     apply idpath.
 Defined.
 

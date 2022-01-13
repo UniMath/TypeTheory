@@ -33,6 +33,10 @@ Require Import UniMath.CategoryTheory.Subcategory.Core.
 Require Import UniMath.CategoryTheory.Subcategory.Full.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.ArrowCategory.
+Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
+
 Require Import TypeTheory.ALV1.RelativeUniverses.
 
 Require Import UniMath.CategoryTheory.catiso.

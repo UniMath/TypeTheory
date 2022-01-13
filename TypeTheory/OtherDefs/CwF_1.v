@@ -21,9 +21,10 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
 Local Open Scope precat.
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 (** * A "preview" of the definition *)
 
@@ -145,7 +146,7 @@ Definition reindx_laws_type {CC : precategory}(C : tt_reindx_struct CC) : UU :=
     (∏ Γ (A : C⟨Γ⟩), A [[identity Γ]] = A) ×
     (∏ Γ Γ' Γ'' (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') (A : C⟨Γ⟩), A [[γ';;γ]] = A[[γ]][[γ']]). 
 
-Definition reindx_laws_type_proof {CC : precategory}(C : tt_reindx_struct CC)
+Definition reindx_laws_type_proof {CC : precategory} (C : tt_reindx_struct CC)
   : reindx_laws_type C.
 Proof.
   split.
@@ -164,6 +165,7 @@ Definition reindx_laws_terms {CC : precategory} (C : tt_reindx_struct CC)
           transportf (λ B, C⟨Γ'' ⊢ B⟩) (!pr2 T _ _ _ _ _ _ )  (a⟦γ⟧⟦γ'⟧)).
           
 (** Package of reindexing for types and terms *)
+(* Note: in fact the reindexing laws for types are already packaged into the functor structure, so [reindx_laws] is just an alias for [reindx_laws_terms], given for consistency with other versions of CwF’s. TODO: is this useful/necessary? *)
 Definition reindx_laws {CC : precategory} (C : tt_reindx_struct CC)  : UU := 
           reindx_laws_terms C.
      

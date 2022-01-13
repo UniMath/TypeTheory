@@ -16,6 +16,10 @@ Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.Pullbacks.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
+
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 
 Section Fix_Base_Category.
@@ -23,9 +27,9 @@ Section Fix_Base_Category.
 Context {C : category} {X : obj_ext_structure C}.
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
-Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
-Local Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).  (* TODO: try generalising this notation to allow using it on arbitrary presheaves?  And possibly add lemmas for invoking presheaf functoriality? *)
-Local Notation "'Tm'" := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
+Local Notation "'Ty'" := (fun X Γ => TY X $p Γ) (at level 10).
+Local Notation "A [ f ]" := (#p (TY X) f A) (at level 4).
+Local Notation "'Tm'" := (fun Y Γ => TM Y $p Γ) (at level 10).
 
 Local Notation Δ := comp_ext_compare.
 
@@ -42,7 +46,7 @@ Definition iscompatible_term_qq
     (Z : qq_morphism_structure X)
   : UU
 := ∏ Γ Γ' A (f : C⟦Γ', Γ⟧),
-     te Y A[f] = # (TM _ : functor _ _) (qq Z f A) (te Y A).
+     te Y A[f] = #p (TM _) (qq Z f A) (te Y A).
 
 Lemma isaprop_iscompatible_term_qq
   (Y : term_fun_structure C X)
@@ -90,27 +94,26 @@ Proof.
     intros Γ''. cbn. unfold yoneda_objects_ob, yoneda_morphisms_data.
     apply funextsec; intros g.
     etrans. apply maponpaths, H.
-    use (toforallpaths (!functor_comp (TM Y) _ _)).
+    apply pathsinv0, functor_comp_pshf.
   - assert (H' := nat_trans_eq_pointwise H); clear H.
     assert (H'' := toforallpaths (H' _) (identity _)); clear H'.
     cbn in H''; unfold yoneda_morphisms_data in H''.
     refine (_ @ H'' @ _).
-    + use (toforallpaths (!functor_id (TM Y) _)).
+    + apply pathsinv0, functor_id_pshf.
     + apply maponpaths_2, id_left.
 Qed.
 
 End Compatible_Structures.
 
-
-
 (* TODO: find more natural home for this *)
 Lemma map_from_term_recover
     {Y} {Z} (W : iscompatible_term_qq Y Z)
     {Γ' Γ : C} {A : Ty X Γ} (f : Γ' --> Γ ◂ A)
-    {e : (pp Y : nat_trans _ _) Γ' ((Q Y A : nat_trans _ _) Γ' f)
+    {e : (pp Y) $nt (Q Y A $nt f)
          = A [ f ;; π A ]}
-  : pr1 (term_to_section ((Q Y A : nat_trans _ _) Γ' f)) ;; Δ e ;; qq Z (f ;; π A) A
-  = f.
+  : pr1 (term_to_section (Q Y A $nt f))
+      ;; Δ e ;; qq Z (f ;; π A) A
+    = f.
 Proof.
   assert (W' : iscompatible'_term_qq Y Z).
     apply iscompatible_iscompatible'; assumption.
@@ -160,7 +163,8 @@ Qed.
 
 Definition tm_from_qq_functor_ob Γ : hSet := make_hSet _ (isaset_tm_from_qq Γ).
 
-Definition tm_from_qq_functor_mor Γ Γ' (f : C⟦Γ',Γ⟧) : tm_from_qq_carrier Γ → tm_from_qq_carrier Γ'.
+Definition tm_from_qq_functor_mor Γ Γ' (f : C⟦Γ',Γ⟧)
+  : tm_from_qq_carrier Γ → tm_from_qq_carrier Γ'.
 Proof.
   intro Ase.
   exists ((pr1 Ase) [f]).
@@ -223,14 +227,14 @@ Proof.
   split; [unfold functor_idax | unfold functor_compax].
   - intro Γ; apply funextsec; intro t. destruct t as [A [s e]]; cbn.
     use tm_from_qq_eq; simpl.
-    + exact (toforallpaths (functor_id (TY X) _ ) A).
+    + apply functor_id_pshf.
     + etrans. apply maponpaths, @pathsinv0, qq_id.
       etrans. apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)). 
       apply id_left.
   - intros Γ Γ' Γ'' f g; apply funextsec; intro t.
     destruct t as [A [s e]]; cbn in *.
     use tm_from_qq_eq; simpl.
-    + exact (toforallpaths (functor_comp (TY X) _ _) A).
+    + apply functor_comp_pshf.
     + {
       apply PullbackArrowUnique; cbn.
       - rewrite <- assoc.
@@ -271,7 +275,7 @@ Arguments tm_from_qq : simpl never.
 Lemma tm_from_qq_eq_reindex
     {Γ Γ' : C} (f : Γ' --> Γ)
     (Ase : tm_from_qq Γ : hSet) (Ase' : tm_from_qq Γ' : hSet)
-    (eA : pr1 Ase' = # (TY X : functor _ _) f (pr1 Ase))
+    (eA : pr1 Ase' = #p (TY X) f (pr1 Ase))
     (es : pr1 (pr2 Ase') ;; Δ eA ;; qq Z f _ = f ;; pr1 (pr2 Ase))
   : Ase' = # tm_from_qq f Ase.
 Proof.
@@ -310,7 +314,7 @@ Definition pp_from_qq : preShv C ⟦tm_from_qq, TY X⟧
 Arguments pp_from_qq : simpl never.
 
 Definition te_from_qq {Γ:C} (A : Ty X Γ)
-  : (tm_from_qq : functor _ _) (Γ ◂ A) : hSet.
+  : tm_from_qq $p (Γ ◂ A).
 Proof.
   exists A [π A].
   apply (section_from_diagonal _ (qq_π_Pb Z _ _)). 
@@ -338,7 +342,7 @@ Proof.
 Defined.
 
 Definition pp_te_from_qq
-  : (pp_from_qq : nat_trans _ _) _ (te_from_qq A) = A [ π A ].
+  : pp_from_qq $nt (te_from_qq A) = A [ π A ].
 Proof.
   apply idpath.
 Qed.
@@ -364,7 +368,8 @@ Qed.
 
 Lemma Q_from_qq_reconstruction
     {Γ' : C} ( ft : C ⟦ Γ', Γ ◂ A ⟧ )
-  : ft = pr1 (pr2 ((Q_from_qq : nat_trans _ _) Γ' ft)) ;; qq Z ft _ ;; qq Z (π _) A.
+  : ft
+  = pr1 (pr2 (Q_from_qq $nt ft)) ;; qq Z ft _ ;; qq Z _ A.
 Proof.
   cbn.
   apply pathsinv0.
@@ -389,8 +394,7 @@ Proof.
     split. { apply (section_qq_π _ _ _ e). }
     use tm_from_qq_eq. cbn. 
     + etrans.
-        apply @pathsinv0.
-        use (toforallpaths (functor_comp (TY X) _ _ ) A).
+        apply @pathsinv0, functor_comp_pshf.
       apply maponpaths_2.
       cbn.
       etrans. apply @pathsinv0, assoc. 
@@ -471,8 +475,8 @@ Proof.
   intros ? ? ? ?.
   (* TODO: use [tm_from_qq_eq'] here *)
   use tm_from_qq_eq; simpl.
-  - etrans. apply (toforallpaths (!functor_comp (TY X) _ _ ) A).
-    etrans. 2: { apply (toforallpaths (functor_comp (TY X) _ _ ) A). }
+  - etrans. apply pathsinv0, functor_comp_pshf.
+    etrans. 2: { apply functor_comp_pshf. }
     apply maponpaths_2; cbn.
     apply @pathsinv0, qq_π.
   - apply PullbackArrowUnique.

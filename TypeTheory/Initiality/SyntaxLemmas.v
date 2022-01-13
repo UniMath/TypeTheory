@@ -8,6 +8,7 @@
 
 Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Initiality.Syntax.
 
 Section deBruijn.
@@ -84,6 +85,8 @@ Section Raw_Context_Category_Operations.
   Defined.
 
 End Raw_Context_Category_Operations.
+
+Arguments comp_raw_context {_ _ _} _ _ _/.
 
 (** Interaction of substitution with renaming/weakening *)
 Section Substitution.

@@ -27,16 +27,16 @@
 
 
 Require Import UniMath.Foundations.Sets.
-Require Import UniMath.CategoryTheory.precomp_ess_surj.
-Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+Require Import UniMath.CategoryTheory.All.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
+
 Require Import TypeTheory.ALV1.RelativeUniverses.
 
 
 (** * Transfer of relative universes to Yoneda along weak equivalence *)
-
-Local Notation "[ C , D ]" := (functor_category C D).
 
 Section fix_category.
 
@@ -177,7 +177,8 @@ Defined.
 
 (** * Transfer of a relative universe *)
 
-Definition Transfer_of_RelUnivYoneda (Dcat : is_univalent D) (X : @relative_universe C _ Yo)
+Definition Transfer_of_RelUnivYoneda
+    (Dcat : is_univalent D) (X : @relative_universe C _ Yo)
   : relative_universe
       ((yoneda D : functor D (preShv D))
        :
@@ -185,12 +186,7 @@ Definition Transfer_of_RelUnivYoneda (Dcat : is_univalent D) (X : @relative_univ
 Proof.
   cbn.
   use (transfer_of_rel_univ_with_ess_surj
-         Yo 
          X 
-         Yo
-         F
-         ext
-         fi
          (pr2 fi) 
          preserves_pullbacks_ext
          F_es

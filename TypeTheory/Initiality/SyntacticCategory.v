@@ -7,7 +7,9 @@ Require Import UniMath.CategoryTheory.All.
 Require Import UniMath.PAdics.lemmas. (* just for [setquotprpathsandR] *)
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.Partial.
+Require Import TypeTheory.Auxiliary.SetQuotients.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.Initiality.SplitTypeCat_General.
 Require Import TypeTheory.Initiality.SplitTypeCat_Contextual.
@@ -20,260 +22,13 @@ Local Open Scope judgement.
 
 Section Auxiliary.
 
-(** Useful for getting computation on partially complete definitions (like how [admit] used to behave).
+(** Useful for getting computation on partially complete definitions (like how the [admit] tactic used to behave).
   BUT: keep commented out when not needed, so as not to have inconsistency lying around. *)
 (*
   Lemma temp_admit {X} : X. Admitted.
 *)
 
-  Global Arguments ishinh : simpl never.
-
- (* we’ll need some material here about quotients:
-  particularly, [lemmas.setquotprpathsandR] from [PAdics], I guess? *)
-
-  (* Upstream issues to possibly raise about [setquot]:
-  - should [pr1] of [eqrel] coerce to [hrel], not directly to [Funclass]?
-  - should [setquotfun2'] replace [setquotfun2]?    *)
-
-  (** Variant of [setquotuniv] with the [isaset] hypothesis separated out,
-  for easier interactive use with [use], analogous to [setquotunivprop']. *)
-  Definition setquotuniv' {X : UU} {R : hrel X} {Y : UU}
-      (isaset_Y : isaset Y) (f : X -> Y) (f_respects_R : iscomprelfun R f)
-    : setquot R -> Y.
-  Proof.
-    use (setquotuniv _ (_,,_)); assumption.
-  Defined.
-
-  Definition setquotuniv_isaprop {X : UU} {R : hrel X} {Y : UU}
-      (isaprop_Y : isaprop Y) (f : X -> Y) : setquot R -> Y.
-  Proof.
-    use setquotuniv'.
-    - now apply isasetaprop.
-    - exact f.
-    - intros x y h.
-      now apply isaprop_Y.
-  Defined.
-
-  (** [setquot_rect]: the general dependent universal property of [setquot].
-  To give a function into a dependent family of sets over the quotient, it suffices to construct the function on the domain of the quotient, and show your construction respects equivalence.
-
-  Unfortunately, this currently doesn’t compute; the intended “computation” is given as a lemma, [setquot_comp.] *)
-  (* TODO: with a bit more thought, could one give a version that computes nicely, like [setquotuniv]? *)
-  (* TODO: possible alternative name [setquotuniv_dep] *)
-  Definition setquot_rect {X:UU} {R:eqrel X}
-      (P : setquot R -> UU) (isaset_P : forall xx, isaset (P xx))
-      (d : forall x:X, P (setquotpr R x))
-      (d_respects_R : forall (x y:X) (r : R x y),
-          transportf _ (iscompsetquotpr _ _ _ r) (d x) = d y)
-    : forall xx, P xx.
-  Proof.
-    intros xx.
-    transparent assert (f : (xx -> P xx)).
-    { intros x. refine (transportf _ _ (d (pr1 x))). apply setquotl0. }
-    apply (pr1image f).
-    apply (squash_to_prop (eqax0 (pr2 xx))).
-    2: { apply prtoimage. }
-    apply invproofirrelevance. intros [y Hy] [y' Hy'].
-    apply subtypePath. { intro; apply isapropishinh. } simpl.
-    apply (squash_to_prop Hy). { apply isaset_P. }
-    clear Hy; intros [x e_xy].
-    apply (squash_to_prop Hy'). { apply isaset_P. }
-    clear Hy'; intros [x' e_xy'].
-    destruct e_xy, e_xy'. subst f; simpl.
-    assert (R_xx' : R (pr1 x) (pr1 x')).
-    { apply (eqax2 (pr2 xx)); [apply x | apply x']. }
-    rewrite <- (d_respects_R _ _ R_xx').
-    eapply pathscomp0. 2: { apply pathsinv0, transport_f_f. }
-    apply maponpaths_2, isasetsetquot.
-  Defined.
-
-  Definition setquot_rect_comp {X:UU} {R:eqrel X}
-      (P : setquot R -> UU) (isaset_P : forall xx, isaset (P xx))
-      (d : forall x:X, P (setquotpr R x))
-      (d_respects_R : forall (x y:X) (r : R x y),
-          transportf _ (iscompsetquotpr _ _ _ r) (d x) = d y)
-    : forall x, (setquot_rect P isaset_P d d_respects_R) (setquotpr R x) = d x.
-  Proof.
-    intros x. unfold setquot_rect; simpl.
-    eapply pathscomp0. 2: { apply idpath_transportf. }
-    apply maponpaths_2, isasetsetquot.
-  Defined.
-
-  Definition setquot_rect_isaprop {X:UU} {R:eqrel X}
-      (P : setquot R -> UU) (isaprop_P : forall xx, isaprop (P xx))
-      (d : forall x:X, P (setquotpr R x))
-    : forall xx, P xx.
-  Proof.
-    use (setquot_rect P (λ x, isasetaprop (isaprop_P x)) d).
-    intros x y r.
-    apply isaprop_P.
-  Defined.
-  
-  Opaque setquot_rect setquot_rect_comp setquot_rect_isaprop.
-
-(** A specialised eliminator for quotients, with better computational
-behaviour than [setquot_rect], but not quite an instance of the simpler
-eliminators: the target type is a subquotient, whose predicate and equivalence
-relation may depend on the input, but whose underlying type is independent.
-
-So this gives, in certain circumstances, a dependent eliminator with some
-computational behaviour. *)
-  Definition setquot_to_dependent_subquotient {X:UU} {R:eqrel X}
-      {P_pre:UU}
-      (P_good : setquot R -> hsubtype P_pre)
-      (P_eq : forall xx, eqrel (P_good xx))
-      (d_pre : X -> P_pre)
-      (d_good : forall x:X, P_good (setquotpr R x) (d_pre x))
-      (d_eq : forall (x y:X) (r : R x y),
-          P_eq (setquotpr R y)
-               (d_pre x,, transportf (fun xx => P_good xx (d_pre x))
-                                     (iscompsetquotpr _ _ _ r) (d_good x))
-               (d_pre y,, d_good y))
-    : forall xx, setquot (P_eq xx).
-  Proof.
-    intros xx.
-    transparent assert (f : (xx -> setquot (P_eq xx))).
-    { intros x. apply setquotpr.
-      exists (d_pre (pr1 x)).
-      refine (transportf (fun xx => P_good xx (d_pre _)) _ (d_good _)).
-      apply setquotl0. }
-    apply (pr1image f).
-    apply (squash_to_prop (eqax0 (pr2 xx))).
-    2: { apply prtoimage. }
-    apply invproofirrelevance. intros [y Hy] [y' Hy'].
-    apply subtypePath. { intro; apply isapropishinh. } simpl.
-    apply (squash_to_prop Hy). { apply isasetsetquot. }
-    clear Hy; intros [x e_xy].
-    apply (squash_to_prop Hy'). { apply isasetsetquot. }
-    clear Hy'; intros [x' e_xy'].
-    destruct e_xy, e_xy'. subst f; simpl.
-    apply iscompsetquotpr.
-    set (e := setquotl0 R xx x'); clearbody e.
-    destruct x' as [x' x1']; simpl in *. clear x1'.
-    destruct e. simpl.
-    assert (r : R (pr1 x) x'). { apply eqrelsymm, (pr2 x). }
-    refine (eqreltrans _ _ _ _ _ _).
-    2: apply (d_eq _ _ r).
-    apply eqreleq, maponpaths, propproperty.
-  Defined.
-
-  Definition setquot_to_dependent_subquotient_comp {X:UU} {R:eqrel X}
-      {P_pre:UU}
-      (P_good : setquot R -> hsubtype P_pre)
-      (P_eq : forall xx, eqrel (P_good xx))
-      (d_pre : X -> P_pre)
-      (d_good : forall x:X, P_good (setquotpr R x) (d_pre x))
-      (d_eq : forall (x y:X) (r : R x y),
-          P_eq (setquotpr R y)
-               (d_pre x,, transportf (fun xx => P_good xx (d_pre x))
-                                     (iscompsetquotpr _ _ _ r) (d_good x))
-               (d_pre y,, d_good y))
-    : forall x,
-       (setquot_to_dependent_subquotient P_good P_eq
-                                   d_pre d_good d_eq) (setquotpr R x)
-       = setquotpr (P_eq (setquotpr _ x)) (d_pre x,, d_good x).
-  Proof.
-    intros x. unfold setquot_to_dependent_subquotient; simpl.
-    apply maponpaths, maponpaths, propproperty.
-  Defined.
-
-  Definition representative {X:UU} {R:eqrel X} (x:setquot R) : UU
-  := hfiber (setquotpr R) x.
-
-  Definition take_representative_with_isaset
-      {X:UU} {R:eqrel X} (xx:setquot R)
-      {Y:UU} (H_Y : isaset Y)
-      (f : representative xx -> Y) (H_f : forall xx xx', f xx = f xx')
-    : Y.
-  Proof.
-    simple refine (setquot_rect (fun xx' => (xx' = xx -> Y)) _ _ _ xx (idpath _)).
-    - intros xx'. repeat (apply impred_isaset; intros); assumption.
-    - intros x e. exact (f (x,, e)).
-    - intros x y r.
-      eapply pathscomp0. { use transportf_fun. }
-      apply funextfun; intros e. simpl.
-      apply H_f.
-  Defined.
-
-  Lemma take_representative_comp
-      {X:UU} {R:eqrel X} (xx : setquot R)
-      {Y:UU} (H_Y : isaset Y) (f : representative xx -> Y)
-      (H_f : forall x x', f x = f x') (x : representative xx) 
-    : take_representative_with_isaset xx H_Y f H_f = f x.
-  Proof.
-    unfold take_representative_with_isaset.
-    destruct x as [x e]; induction e.
-    now rewrite setquot_rect_comp.
-  Qed.
-
-  Lemma take_representative_comp_canon
-      {X:UU} {R:eqrel X} (x : X)
-      {Y:UU} (H_Y : isaset Y) (f : representative (setquotpr R x) -> Y)
-      (H_f : forall xx xx', f xx = f xx')
-    : take_representative_with_isaset (setquotpr R x) H_Y f H_f = f (x,,idpath _).
-  Proof.
-    now rewrite (take_representative_comp _ _ _ _ (x,, idpath _)).
-  Defined.
-  
-  Definition take_representative_with_hSet
-      {X:UU} {R:eqrel X} (xx:setquot R)
-      (Y:hSet)
-      (f : representative xx -> Y) (H_f : forall xx xx', f xx = f xx')
-    : Y.
-  Proof.
-    use take_representative_with_isaset; auto; apply setproperty.
-  Defined.
-
-  (* TODO: perhaps add [take_representative_with_isaprop], […with_hProp] also *)
-
-  Lemma hinh_apply {X Y : UU} (f : ∥ X → Y ∥) : ∥ X ∥ → ∥ Y ∥.
-  Proof.
-    intros x P a.
-    apply (x P); auto.
-  Defined.
-
-  Infix "⊛" := hinh_apply (at level 100).
-
-  Lemma hinhfun3 {X1 X2 X3 Y : UU} (f : X1 -> X2 -> X3 -> Y)
-      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)
-    : ∥ Y ∥.
-  Proof.
-    exact (hinhpr f ⊛ x1 ⊛ x2 ⊛ x3).
-  Defined.
-
-  Lemma hinhfun4 {X1 X2 X3 X4 Y : UU} (f : X1 -> X2 -> X3 -> X4 -> Y)
-      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥)
-    : ∥ Y ∥.
-  Proof.
-    exact (hinhpr f ⊛ x1 ⊛ x2 ⊛ x3 ⊛ x4).
-  Defined.
-
-  Lemma hinhfun5 {X1 X2 X3 X4 X5 Y : UU} (f : X1 -> X2 -> X3 -> X4 -> X5 -> Y)
-      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥) (x5 : ∥ X5 ∥)
-    : ∥ Y ∥.
-  Proof.
-    exact (hinhpr f ⊛ x1 ⊛ x2 ⊛ x3 ⊛ x4 ⊛ x5).
-  Defined.
-
-  Lemma hinhfun6 {X1 X2 X3 X4 X5 X6 Y : UU} (f : X1 -> X2 -> X3 -> X4 -> X5 -> X6 -> Y)
-      (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥) (x5 : ∥ X5 ∥) (x6 : ∥ X6 ∥)
-    : ∥ Y ∥.
-  Proof.
-    exact (hinhpr f ⊛ x1 ⊛ x2 ⊛ x3 ⊛ x4 ⊛ x5 ⊛ x6).
-  Defined.
-
-  Lemma hinhfun7 {X1 X2 X3 X4 X5 X6 X7 Y : UU}
-                 (f : X1 -> X2 -> X3 -> X4 -> X5 -> X6 -> X7 ->  Y)
-                 (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)  (x4 : ∥ X4 ∥) (x5 : ∥ X5 ∥)
-                 (x6 : ∥ X6 ∥) (x7 : ∥ X7 ∥) : ∥ Y ∥.
-  Proof.
-    exact (hinhpr f ⊛ x1 ⊛ x2 ⊛ x3 ⊛ x4 ⊛ x5 ⊛ x6 ⊛ x7).
-  Defined.
-
 End Auxiliary.
-
-Infix "⊛" := hinh_apply (at level 100).
-
 
 (** The construction of the syntactic type-category is rather trickier than one might hope, because of the need to quotient by some form of context equality — which, as ever when quotienting objects of a category, is quite fiddly.
 
@@ -571,17 +326,17 @@ Section Context_Maps.
   Proof.
     repeat split.
     - intros f g h e1 e2 Γ Δ.
-      use (hinhfun7 _ Γ Δ (map_derivable f Γ Δ) (map_derivable g Γ Δ)
-                    (map_derivable h Γ Δ) (e1 Γ Δ) (e2 Γ Δ)).
-      intros d_Γ d_Δ d_f d_g d_h d_fg d_gh.
+      unsquash from Γ Δ (map_derivable f Γ Δ) (map_derivable g Γ Δ)
+                    (map_derivable h Γ Δ) (e1 Γ Δ) (e2 Γ Δ)
+        as d_Γ d_Δ d_f d_g d_h d_fg d_gh; apply hinhpr.
       refine (derive_mapeq_trans _ _ _ d_g _ _ _);
         auto using derive_flat_cxt_from_strat.
     - intros f Γ Δ.
-      use (hinhfun _ (map_derivable f Γ Δ)); intros H.
+      unsquash from (map_derivable f Γ Δ) as H; apply hinhpr.
       apply derive_mapeq_refl; auto.
     - intros f g e Γ Δ.
-      use (hinhfun5 _ Γ Δ (map_derivable f Γ Δ) (map_derivable g Γ Δ) (e Γ Δ));
-      intros d_Γ d_Δ d_f d_g H i.
+      unsquash from Γ Δ (map_derivable f Γ Δ) (map_derivable g Γ Δ) (e Γ Δ)
+        as ? ? ? ? ?. apply hinhpr; intro i.
       apply derive_mapeq_sym; auto using derive_flat_cxt_from_strat.
   Qed.
 
@@ -603,6 +358,7 @@ Section Context_Maps.
 
   (* TODO: consider naming of this and other analogous lemmas *)
 
+
   (** Generally useful lemma: while the definition of map well-typedness is
   with respect to _all_ contexts representing of its source/target, it’s enough
   to show it with respect to _some_ such representatives. *)
@@ -614,13 +370,10 @@ Section Context_Maps.
         ∥ [! |- f ::: Γ ---> Δ !] ∥.
   Proof.
     intros H Γ Δ.
-    apply (squash_to_prop H). { apply isapropishinh. }
-    intros [Γ' [Δ' d_f]].
-    refine (hinhfun7 _ Γ Γ' Δ Δ'
-                    (cxteq_context_representatives Γ Γ')
+    unsquash H as [Γ' [Δ' d_f]]; unsquash d_f.
+    unsquash from Γ Γ' Δ Δ' (cxteq_context_representatives Γ Γ')
                     (cxteq_context_representatives Δ Δ')
-                    d_f).
-    clear d_f. intros ? d_Γ' ? d_Δ' ? ? ?.
+      as ? d_Γ' ? d_Δ' ? ?. apply hinhpr.
     apply (derive_map_conv_cxteq_dom d_Γ');
       auto using derive_flat_cxt_from_strat, derive_flat_cxteq_sym.
     use (derive_map_conv_cxteq_cod _ d_Δ');
@@ -638,13 +391,11 @@ Section Context_Maps.
         ∥ [! |- f === g ::: Γ ---> Δ !] ∥.
   Proof.
     intros H Γ Δ.
-    apply (squash_to_prop H). { apply isapropishinh. }
-    intros [Γ' [Δ' d_fg]].
-    refine (hinhpr _ ⊛ Γ ⊛ Γ' ⊛ Δ ⊛ Δ'
-                    ⊛ (cxteq_context_representatives Γ Γ')
-                    ⊛ (cxteq_context_representatives Δ Δ')
-                    ⊛ d_fg).
-    intros ? d_Γ' ? d_Δ' ? ? [? [? ?]].
+    unsquash H as [Γ' [Δ' d_fg]].
+    unsquash from Γ Γ' Δ Δ' d_fg
+             (cxteq_context_representatives Γ Γ')
+             (cxteq_context_representatives Δ Δ')
+      as ? d_Γ' ? d_Δ' [? [? ?]] ? ?. apply hinhpr.
     apply (derive_mapeq_conv_cxteq_dom d_Γ');
       auto using derive_flat_cxt_from_strat, derive_flat_cxteq_sym,
          (derive_map_conv_cxteq_cod d_Γ' d_Δ').
@@ -660,10 +411,10 @@ Section Context_Maps.
         ∥ [! |- f === g ::: Γ ---> Δ !] ∥.
   Proof.
     intros H. apply raw_mapeq_for_some_rep.
-    refine (hinhfun _ H); clear H.
-    intros [Γ [Δ H]]. exists Γ, Δ.
-    refine (hinhfun3 _ (map_derivable f Γ Δ) (map_derivable g Γ Δ) H); clear H.
-    intros; repeat split; auto.
+    unsquash H as [Γ [Δ H]]; unsquash H.
+    apply hinhpr; exists Γ, Δ.
+    unsquash from (map_derivable f Γ Δ) (map_derivable g Γ Δ) as ? ?.
+    apply hinhpr. intros; repeat split; auto.
   Qed.
 
   Lemma mapeq_from_path
@@ -672,7 +423,7 @@ Section Context_Maps.
     -> mapeq ΓΓ ΔΔ f g.
   Proof.
     intros e_fg Γ Δ.
-    refine (hinhfun _ (map_derivable f Γ Δ)); intros d_f.
+    unsquash from (map_derivable f Γ Δ) as d_f; apply hinhpr.
     intros i; rewrite <- (e_fg i).
     apply derive_tmeq_refl, d_f.
   Qed.
@@ -685,11 +436,13 @@ Section Context_Map_Operations.
   Proof.
     refine (setquotpr _ _).
     exists (idmap_raw_context _).
-    apply map_for_some_rep.
-    apply (take_context_representative ΓΓ). { apply isapropishinh. }
-    intros Γ. apply hinhpr. exists Γ; exists Γ.
-    apply (squash_to_prop Γ). { apply isapropishinh. } intros.
-    apply hinhpr. use derive_idmap; apply derive_flat_cxt_from_strat; assumption.
+    abstract (
+      apply map_for_some_rep;
+      apply (take_context_representative ΓΓ);
+      [ apply isapropishinh
+      | intros Γ; apply hinhpr; exists Γ; exists Γ;
+        refine (hinhfun _ Γ); intros;
+        use derive_idmap; apply derive_flat_cxt_from_strat; assumption]).
   Defined.
 
   Local Definition compose
@@ -698,24 +451,32 @@ Section Context_Map_Operations.
   Proof.
     revert ff gg. use setquotfun2'; [ | split].
     - (* construction of the composite *)
-      intros f g. exists (comp_raw_context f g); intros Γ Θ.
-      apply (take_context_representative ΔΔ). { apply isapropishinh. }
-      intros Δ.
-      refine (hinhfun3 _ Δ (map_derivable f Γ Δ) (map_derivable g Δ Θ)).
-      intros d_Δ d_f d_g; eauto using (derive_comp d_f).
+      intros f g. exists (comp_raw_context f g).
+      abstract (intros Γ Θ;
+        apply (take_context_representative ΔΔ);
+        [ apply isapropishinh |
+          intros Δ;
+          unsquash from Δ (map_derivable f Γ Δ) (map_derivable g Δ Θ)
+            as d_Δ d_f d_g; apply hinhpr; 
+          eauto using (derive_comp d_f) ]).
     - (* respecting equality in [f] *)
-      intros f f' g e_f Γ Θ. cbn.
-      apply (take_context_representative ΔΔ). { apply isapropishinh. } intros Δ.
-      refine (hinhfun5 _ Γ (e_f Γ Δ) (map_derivable f Γ Δ)
-                       (map_derivable f' Γ Δ) (map_derivable g Δ Θ)).
-      intros ? e ? ? ?; refine (comp_raw_context_cong_l _ _ _ e _);
-        auto using derive_flat_cxt_from_strat.
+      abstract ( intros f f' g e_f Γ Θ; cbn;
+        apply (take_context_representative ΔΔ); 
+        [ apply isapropishinh |
+          intros Δ;
+          unsquash from Γ (e_f Γ Δ) (map_derivable f Γ Δ)
+                       (map_derivable f' Γ Δ) (map_derivable g Δ Θ)
+            as ? e ? ? ?; apply hinhpr;
+          refine (comp_raw_context_cong_l _ _ _ e _);
+          auto using derive_flat_cxt_from_strat ]).
     - (* respecting equality in [g] *)
-      cbn; intros f g g' e_g Γ Θ.
-      apply (take_context_representative ΔΔ). { apply isapropishinh. } intros Δ.
-      refine (hinhfun3 _ Γ (e_g Δ Θ) (map_derivable f Γ Δ)).
-      intros ? e ?; refine (comp_raw_context_cong_r _ _ e);
-        auto using derive_flat_cxt_from_strat.
+      abstract ( cbn; intros f g g' e_g Γ Θ;
+        apply (take_context_representative ΔΔ);
+        [ apply isapropishinh |
+          intros Δ;
+          unsquash from Γ (e_g Δ Θ) (map_derivable f Γ Δ) as ? e ?;
+          apply hinhpr; refine (comp_raw_context_cong_r _ _ e);
+          auto using derive_flat_cxt_from_strat ]).
   Defined.
 
   (* TODO: “empty” and “extension” context maps. *)
@@ -813,20 +574,17 @@ Section Syntactic_Types.
   Proof.
     repeat split.
     - intros A B C e_AB e_BC Γ.
-      apply (squash_to_prop (A Γ)). { apply isapropishinh. } intros d_A.
-      apply (squash_to_prop (B Γ)). { apply isapropishinh. } intros d_B.
-      apply (squash_to_prop (C Γ)). { apply isapropishinh. } intros d_C.
-      apply (squash_to_prop (e_AB Γ)). { apply isapropishinh. }
-      clear e_AB; intros e_AB.
-      apply (squash_to_prop (e_BC Γ)). { apply isapropishinh. }
-      clear e_BC; intros e_BC.
+      apply (squash_to_hProp (A Γ)). intros d_A.
+      apply (squash_to_hProp (B Γ)). intros d_B.
+      apply (squash_to_hProp (C Γ)). intros d_C.
+      apply (squash_to_hProp (e_AB Γ)). clear e_AB; intros e_AB.
+      apply (squash_to_hProp (e_BC Γ)). clear e_BC; intros e_BC.
       now apply hinhpr, (derive_tyeq_trans Γ _ B).
     - intros A Γ.
-      apply (squash_to_prop (A Γ)). { apply isapropishinh. } intros d_A.
+      apply (squash_to_hProp (A Γ)). intros d_A.
       now apply hinhpr, derive_tyeq_refl.
     - intros A B e_AB Γ.
-      apply (squash_to_prop (e_AB Γ)). { apply isapropishinh. }
-      clear e_AB; intros e_AB.
+      apply (squash_to_hProp (e_AB Γ)). clear e_AB; intros e_AB.
       now apply hinhpr, derive_tyeq_sym.
   Defined.
 
@@ -845,7 +603,8 @@ Section Syntactic_Types.
   := pr1 A : type_over ΓΓ.
   Coercion type_representative_as_type : type_representative >-> type_over.
 
-  (* TODO: generalise to general “representatives” *)
+  (* TODO: perhaps generalise to “representatives” of arbitrary eqrel, and upstream? *)
+
   Lemma typeeq_type_representatives
       {n} {ΓΓ : _ n} {AA : type_mod_eq ΓΓ} (A A' : type_representative AA)
     : typeeq_eqrel A A'.
@@ -860,12 +619,10 @@ Section Syntactic_Types.
     -> is_type_over ΓΓ A.
   Proof.
     intros H Γ.
-    apply (squash_to_prop H). { apply isapropishinh. }
-    intros [Γ' d_A].
-    refine (hinhfun3 _ Γ Γ' (cxteq_context_representatives Γ Γ')).
-    intros d_Γ d_Γ' e_Γ.
-    apply (derive_ty_conv_cxteq Γ'); auto using derive_flat_cxt_from_strat.
-    eauto using derive_flat_cxteq_sym, derive_flat_cxt_from_strat.
+    unsquash H as [Γ' d_A].
+    unsquash from Γ Γ' (cxteq_context_representatives Γ Γ') as d_Γ d_Γ' e_Γ.
+    apply hinhpr, (derive_ty_conv_cxteq Γ'); 
+      eauto using derive_flat_cxteq_sym, derive_flat_cxt_from_strat.
   Qed.
 
   Lemma typeeq_for_some_rep
@@ -874,20 +631,15 @@ Section Syntactic_Types.
     -> typeeq_hrel A B.
   Proof.
     intros H Γ.
-    apply (squash_to_prop H). { apply isapropishinh. }
-    intros [Γ' d_AB].
-    refine (hinhfun3 _ Γ Γ' (cxteq_context_representatives Γ Γ')).
-    intros d_Γ d_Γ' e_Γ.
-    apply (derive_tyeq_conv_cxteq Γ'); auto using derive_flat_cxt_from_strat.
-    eauto using derive_flat_cxteq_sym, derive_flat_cxt_from_strat.
+    unsquash H as [Γ' d_AB].
+    unsquash from Γ Γ' (cxteq_context_representatives Γ Γ') as d_Γ d_Γ' e_Γ.
+    apply hinhpr, (derive_tyeq_conv_cxteq Γ');
+      eauto using derive_flat_cxt_from_strat, derive_flat_cxteq_sym.
   Qed.
 
 End Syntactic_Types.
 
 Section Split_Typecat.
-
-  (* TODO: upstream? *)
-  Arguments context_extend : simpl never.
 
   Local Definition ext (ΓΓ : context_mod_eq) (AA : type_mod_eq ΓΓ)
     : context_mod_eq.
@@ -901,19 +653,24 @@ Section Split_Typecat.
     - intros Γ.
       use (setquotfun _ _ _ _ AA).
       + intros A. exists (Γ ;; A)%strat_cxt.
-        refine (hinhfun2 _ Γ (A Γ)); intros d_Γ d_ΓA.
-        exact (derive_extend_stratified_context d_Γ d_ΓA).
+        abstract (
+          refine (hinhfun2 _ Γ (A Γ)); intros d_Γ d_ΓA;
+          exact (derive_extend_stratified_context d_Γ d_ΓA)).
       + intros A A' e_A.
-        refine (hinhfun2 _ Γ (e_A Γ)). clear e_A; intros d_Γ e_A.
-        apply derive_extend_flat_cxteq; auto using derive_flat_cxt_from_strat, d_Γ.
-        exact (derive_flat_cxteq_refl d_Γ).
+        abstract (
+          refine (hinhfun2 _ Γ (e_A Γ)); clear e_A; intros d_Γ e_A;
+          apply derive_extend_flat_cxteq;
+          auto using derive_flat_cxt_from_strat, d_Γ;
+          exact (derive_flat_cxteq_refl d_Γ)).
     - intros Γ Γ'; simpl; revert AA.
-      use setquotunivprop'. { intros; apply isasetsetquot. } intros A.
-      apply iscompsetquotpr.
-      refine (hinhfun4 _ Γ Γ' (A Γ) (cxteq_context_representatives Γ Γ')).
-      intros.
-      apply derive_extend_flat_cxteq;
-        auto using derive_flat_cxt_from_strat, derive_tyeq_refl.
+      abstract (
+        use setquotunivprop'; [ intros; apply isasetsetquot |
+        intros A;
+        apply iscompsetquotpr;
+        unsquash from Γ Γ' (A Γ) (cxteq_context_representatives Γ Γ')
+          as ? ? ? ?;
+        apply hinhpr, derive_extend_flat_cxteq;
+        auto using derive_flat_cxt_from_strat, derive_tyeq_refl ]).
   Defined.
 
   Local Definition ext_representative
@@ -922,12 +679,10 @@ Section Split_Typecat.
     : context_representative (ext ΓΓ (setquotpr _ A)).
   Proof.
     use tpair.
-    - exists (Γ ;; A)%strat_cxt.
-      refine (hinhfun2 _ Γ (A Γ)); intros d_Γ d_ΓA.
-      exact (derive_extend_stratified_context d_Γ d_ΓA).
-    - now simpl; rewrite (take_representative_comp _ _ _ _ Γ).
+    - exists (Γ ;; A)%strat_cxt. shelve.
+    - apply pathsinv0. use take_representative_comp.
   Defined.
-  
+
   Local Definition reind
       {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
       {ΓΓ' : context_mod_eq} (ff : map_mod_eq ΓΓ' ΓΓ)
@@ -970,7 +725,6 @@ Section Split_Typecat.
       exact @reind.
   Defined.
 
-
   Local Definition dpr (ΓΓ : context_mod_eq) (AA : type_mod_eq ΓΓ)
     : map_mod_eq (ext ΓΓ AA) ΓΓ.
   Proof.
@@ -980,9 +734,9 @@ Section Split_Typecat.
     apply (take_context_representative ΓΓ). { apply propproperty. } intros Γ.
     revert AA. use setquotunivprop'. { intros; apply isapropishinh. } intros A.
     cbn. apply hinhpr.
-    unfold ext. simpl. rewrite (take_representative_comp _ _ _ _ Γ).
-    refine ((_,, idpath _),, _). exists Γ.
-    simpl. refine (hinhfun2 _ Γ (A Γ)). intros d_Γ d_A.
+    exists (ext_representative Γ _); cbn.
+    exists Γ.
+    unsquash from Γ (A Γ) as d_Γ d_A; apply hinhpr;
     exact (derive_dB_next_context_map d_Γ d_A).
   Defined.
 
@@ -1005,14 +759,13 @@ Section Split_Typecat.
     apply (take_context_representative ΓΓ'). { apply propproperty. } intros Γ'.
     revert AA. use setquotunivprop'. { intros; apply propproperty. } intros A.
     apply map_for_some_rep, hinhpr.
-    exists (ext_representative Γ' _); simpl.
-    exists (ext_representative Γ _); simpl.
-    refine (hinhfun4 _ Γ Γ' (A Γ) (map_derivable f Γ' Γ)).
-    intros d_Γ d_Γ' d_A d_f.
+    exists (ext_representative Γ' _); cbn.
+    exists (ext_representative Γ _); cbn.
+    unsquash from Γ Γ' (A Γ) (map_derivable f Γ' Γ) as d_Γ d_Γ' d_A d_f;
+      apply hinhpr.
     refine (derive_weaken_raw_context_map _ _ _ d_f);
       auto using derive_flat_cxt_from_strat.
   Qed.
-
 
   Local Definition qmor_eq
       {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
@@ -1025,9 +778,9 @@ Section Split_Typecat.
     apply (take_context_representative ΓΓ). { apply propproperty. } intros Γ.
     apply (take_context_representative ΓΓ'). { apply propproperty. } intros Γ'.
     revert AA. use setquotunivprop'. { intros; apply propproperty. } intros A.
-    refine (hinhfun6 _ Γ Γ' (A Γ)
-                     (map_derivable f Γ' Γ) (map_derivable g Γ' Γ) (e_fg Γ' Γ)).
-    intros d_Γ d_Γ' d_A d_f d_g d_fg.
+    unsquash from Γ Γ' (A Γ)
+             (map_derivable f Γ' Γ) (map_derivable g Γ' Γ) (e_fg Γ' Γ)
+      as d_Γ d_Γ' d_A d_f d_g d_fg; apply hinhpr.
     exists (ext_representative Γ' _); simpl.
     exists (ext_representative Γ _); simpl.
     apply hinhpr; repeat split.
@@ -1060,23 +813,16 @@ Section Split_Typecat.
     - intros f g e_fg. exact (qmor_eq AA e_fg).
   Defined.
 
-  (* TODO: upstream! *)
-  Arguments comp_raw_context {_ _ _} _ _ _/.
-
   Local Definition dpr_q
       {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
       {ΓΓ' : context_mod_eq} (ff : map_mod_eq ΓΓ' ΓΓ)
     : compose (qmor AA ff) (dpr _ AA) = compose (dpr _ (reind AA ff)) ff.
   Proof.
     revert ff; use setquotunivprop'. { intros; apply isasetsetquot. } intros f.
-    simpl. (* TODO: see if [abstract] in [dpr], or factoring the hard part out,
-            makes this quicker? *)
-    unfold qmor, setquot_to_dependent_subquotient; simpl.
-    unfold dpr; simpl.
-    unfold compose; simpl.
-    unfold setquotfun2', setquotuniv2', setquotuniv; simpl. (* Agh! Can’t we have a version that computes more easily?? *)
+    simpl.
     apply iscompsetquotpr.
-    use mapeq_from_path. intros i; simpl.
+    use mapeq_from_path. 
+    intros i; simpl.
     apply rename_as_subst_tm.
   Qed.
 
@@ -1085,7 +831,7 @@ Section Split_Typecat.
       (g : raw_context_map ΔΔ ΓΓ') (h : raw_context_map ΔΔ (S ΓΓ))
     : raw_context_map ΔΔ (S ΓΓ').
   Proof.
-    exact (add_to_raw_context_map g (h dB_top)).
+    exact (extend_raw_context_map g (h dB_top)).
   Defined.
 
   Arguments reind_pb_raw {_ _ _} _ _ _/.
@@ -1194,9 +940,10 @@ Section Split_Typecat.
         revert gg; use setquotunivprop'; [intros; apply isasetsetquot|]; intros g.
         apply (take_context_representative ΓΓ); [apply isasetsetquot|]; intros Γ.
         apply (take_context_representative ΓΓ'); [apply isasetsetquot|]; intros Γ'.
-        apply iscompsetquotpr; simpl; intros Γ''.
-        refine (hinhfun3 _ (type_derivable A Γ) (map_derivable f Γ' Γ) (map_derivable g Γ'' Γ')).
-        intros hA hf hg.
+        apply iscompsetquotpr; cbn; intros Γ''.
+        unsquash from (type_derivable A Γ) (map_derivable f Γ' Γ)
+                      (map_derivable g Γ'' Γ')
+          as hA hf hg; apply hinhpr.
         rewrite <- subst_subst_ty.
         apply derive_tyeq_refl.
         use (subst_derivation [! Γ' |- _ !] _ hg).
@@ -1213,7 +960,7 @@ End Split_Typecat.
 
 Section Contextuality.
 
-  (* Some of these should be upstreamed *)
+  (* TODO: Should some of these lemmas be upstreamed? *)
   
   Local Definition empty_context : syntactic_typecat.
   Proof.
@@ -1325,21 +1072,22 @@ Section Misc.
     - (* morphism part *)
       apply setquotpr.
       exists (tm_as_raw_context_map a).
-      apply map_for_some_rep, hinhpr.
-      refine (context_as_context_representative _,,_).
-      use tpair.
-      { apply ext_representative. apply context_as_context_representative. }
-      refine (hinhfun2 _ (context_derivable Γ) (isd_a)); intros d_Γ d_a; cbn.
-      refine (derive_tm_as_raw_context_map _ _);
-        auto using derive_flat_cxt_from_strat.
+      abstract (
+          apply map_for_some_rep, hinhpr;
+          refine (context_as_context_representative _,,_);
+          use tpair;
+          [ apply ext_representative, context_as_context_representative
+          | refine (hinhfun2 _ (context_derivable Γ) (isd_a)); intros d_Γ d_a; cbn;
+            refine (derive_tm_as_raw_context_map _ _);
+        auto using derive_flat_cxt_from_strat]).
     - (* section property *)
-      Time apply iscompsetquotpr; simpl.
-      (* TODO: adapt [mapeq_for_some_rep] sto incorporate [iscompsetquotpr]? *)
+      apply iscompsetquotpr; cbn.
+      (* TODO: adapt [mapeq_for_some_rep] to incorporate [iscompsetquotpr]? *)
       refine (raw_mapeq_for_some_rep _ _ _); apply hinhpr.
       refine (context_as_context_representative _,,_).
       refine (context_as_context_representative _,,_).
       refine (hinhfun3 _ (context_derivable Γ) isd_A isd_a); intros d_Γ d_A d_a.
-      repeat split; simpl.
+      repeat split.
       + use (@derive_comp _ (Γ;;A)%context).
         * refine (derive_tm_as_raw_context_map _ _);
             auto using derive_flat_cxt_from_strat.

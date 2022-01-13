@@ -8,12 +8,15 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
-Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.slicecat.
+
+Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Cats.
@@ -37,7 +40,7 @@ Section Fix_Context.
 Context {C : category}.
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
-Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
+Local Notation "'Ty'" := (fun X Γ => TY X #p Γ) (at level 10).
 
 Local Notation Δ := comp_ext_compare.
 Local Notation φ := obj_ext_mor_φ.
@@ -169,7 +172,7 @@ Section Is_Univalent_Obj_Ext_Disp.
   Proof.
     unfold is_univalent_in_fibers.
     intros TY X X'.
-    apply weqhomot with (is_univalent_mor_weq _ _).
+    use weqhomot. { apply is_univalent_mor_weq. }
     intros e; destruct e.
     apply eq_iso_disp.
     apply obj_ext_mor_disp_eq.
@@ -319,7 +322,7 @@ Qed.
 Lemma qq_structure_eq 
   (x : obj_ext_cat C)
   (d d' : qq_morphism_structure x)
-  (H : ∏ (Γ Γ' : C) (f : Γ' --> Γ) (A : (TY x : functor _ _ ) Γ : hSet), 
+  (H : ∏ (Γ Γ' : C) (f : Γ' --> Γ) (A : TY x $p Γ), 
            qq d f A = qq d' f A)
   : d = d'.
 Proof.

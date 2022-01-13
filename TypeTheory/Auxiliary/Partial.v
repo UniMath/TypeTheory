@@ -68,7 +68,7 @@ Section Ordering.
   Defined.
 
   Definition leq_partial_trans {X}
-       {x0 x1 x2 : partial X} (l01 : leq_partial x0 x1) (l12 : leq_partial x1 x2)
+      {x0 x1 x2 : partial X} (l01 : leq_partial x0 x1) (l12 : leq_partial x1 x2)
     : leq_partial x0 x2.
   Proof.
     exists (fun x0_def => l12 (l01 x0_def)).
@@ -352,6 +352,7 @@ Section Monad.
 
 End Monad.
 
+(* TODO: make these more consistent in naming with similar monadic tactic family [unsquash]? *)
 Ltac get_partial t x := apply (bind_partial t); intros x.
 (** [get_partial t x]: like Haskell’s [x <- t]. *)
 Ltac destruct_partial x := apply (bind_partial x); clear x; intros x.

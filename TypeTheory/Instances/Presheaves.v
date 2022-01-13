@@ -99,12 +99,12 @@ Written by: Anders Mörtberg, 2017
 
  *)
 
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.MoreFoundations.PartA.
-Require Import UniMath.MoreFoundations.Notations.
-Require Import UniMath.MoreFoundations.Univalence.
 
-Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
+
+Require Import UniMath.CategoryTheory.All.
+(*
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.opp_precat.
@@ -116,9 +116,12 @@ Require Import UniMath.CategoryTheory.limits.graphs.eqdiag.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.Presheaf.
 Require Import UniMath.CategoryTheory.ElementsOp.
-
-Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+ *)
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.Pullbacks.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
+
 Require Import TypeTheory.ALV1.TypeCat.
 
 Local Open Scope cat.
@@ -236,24 +239,23 @@ use make_functor.
     * apply (pr1 Γ I).
     * intros ρ.
       apply (pr1 A (make_ob I ρ)).
-  + cbn. intros I J f ρu.
+  + simpl. intros I J f ρu.
     exists (# (pr1 Γ) f (pr1 ρu)).
     apply (# (pr1 A) (mor_to_el_mor f (pr1 ρu)) (pr2 ρu)).
 - split.
   + intros I; apply funextfun; intros [ρ u].
     use total2_paths_f.
-    * exact (eqtohomot (functor_id Γ I) ρ).
+    * simpl. apply (@functor_id_pshf _ _).
     * etrans; [use transportf_make_ob|].
       etrans; [apply transportf_PreShv|]; cbn.
       now rewrite (mor_to_el_mor_id ρ), transportfbinv, (functor_id A).
    + intros I J K f g; apply funextfun; intros [ρ u].
      use total2_paths_f.
-     * exact (eqtohomot (functor_comp Γ f g) ρ).
+     * simpl. apply functor_comp_pshf.
      * etrans; [use transportf_make_ob|].
        etrans; [apply transportf_PreShv|].
        rewrite (mor_to_el_mor_comp _ f g), transportfbinv.
-       generalize u; simpl in *.
-       apply eqtohomot, (functor_comp A (mor_to_el_mor f ρ)  (mor_to_el_mor g (# (pr1 Γ) f ρ))).
+       simpl. apply (@functor_comp_pshf _ A).
 Defined.
 
 (* It would be nice to use the notation Γ.A here, but it doesn't seem to work *)
@@ -305,7 +307,7 @@ Lemma subst_term_prf {Γ Δ : PreShv C} (σ : Δ --> Γ) (A : Γ ⊢) (a : Γ �
   # (pr1 (A⦃σ⦄)) (mor_to_el_mor f ρ) (pr1 a I (pr1 σ I ρ)) =
   pr1 a J (pr1 σ J (# (pr1 Δ) f ρ)).
 Proof.
-set (eq := eqtohomot (nat_trans_ax σ f) ρ).
+set (eq := nat_trans_ax_pshf σ ρ f).
 set (x := # (pr1 A) (mor_to_el_mor f (pr1 σ I ρ)) (pr1 a I (pr1 σ I ρ))).
 intermediate_path (transportb (λ x, pr1 ((pr1 A) (make_ob J x))) eq x).
 { apply pathsinv0.
@@ -332,8 +334,8 @@ use mkTermIn.
 - apply subst_term_prf.
 Defined.
 
-Lemma transportf_TypeIn {Γ : PreShv C} (I : C) (ρ : pr1 Γ I : hSet) (A B : Γ ⊢) (e : A = B)
-  (x : (pr1 A) (make_ob I ρ) : hSet) :
+Lemma transportf_TypeIn {Γ : PreShv C} (I : C) (ρ : Γ $p I) (A B : Γ ⊢) (e : A = B)
+  (x : A $p make_ob I ρ) :
   transportf (λ x0 : Γ ⊢, pr1 ((pr1 x0) (make_ob I ρ))) e x =
   transportf (λ x0 : hSet, pr1 x0) (eqtohomot (base_paths _ _ (base_paths _ _ e)) (make_ob I ρ)) x.
 Proof.
@@ -381,7 +383,7 @@ use make_nat_trans.
   apply (pr1 σ _ ρ,,pr1 a I ρ).
 - intros I J f.
   apply funextsec; intro ρ; cbn.
-  apply (total2_paths2_f (eqtohomot (nat_trans_ax σ f) ρ)).
+  apply (total2_paths2_f (nat_trans_ax_pshf σ ρ f)).
   etrans; [eapply maponpaths, (!(pr2 a I J f ρ))|].
   etrans; [use transportf_make_ob|].
   etrans; [apply (@transportf_PreShv (∫ Γ) A)|].
@@ -390,7 +392,7 @@ use make_nat_trans.
   rewrite transportf_total2; simpl.
   etrans; [apply transportf_make_ob_eq|].
   etrans; [eapply map_on_two_paths; [|apply idpath]|].
-    apply(base_paths_maponpaths_make_ob _ _ (eqtohomot (nat_trans_ax σ f) ρ)).
+    apply (base_paths_maponpaths_make_ob _ _ (nat_trans_ax_pshf σ  ρ f)).
   now rewrite idpath_transportf.
 Defined.
 
@@ -472,7 +474,7 @@ rewrite !transportf_forall.
 apply pathsinv0, (@transportf_transpose_right _ (λ x : Θ ⊢, pr1 ((pr1 x) (make_ob I ρ))) _ _ P).
 unfold transportb, P; rewrite pathsinv0inv0.
 etrans; [apply (transportf_TypeIn I ρ _ _ (subst_type_comp σ2 σ1 A) _)|].
-now rewrite base_paths_subst_type_comp, toforallpaths_funextsec, idpath_transportf.
+Time now rewrite base_paths_subst_type_comp, toforallpaths_funextsec, idpath_transportf.
 Qed.
 
 (** (p,q) = 1 *)
@@ -530,7 +532,7 @@ use make_nat_trans.
 - intros I X.
   apply (pr1 σ _ (pr1 X)).
 - intros I J f; apply funextsec; intro ρ.
-  apply (eqtohomot (nat_trans_ax σ f) (pr1 ρ)).
+  apply nat_trans_ax_pshf.
 Defined.
 
 Definition q_gen {Γ Δ : PreShv C} {A : Γ ⊢} (σ : Δ --> Γ) : (Δ ⋆ (A⦃σ⦄)) ⊢ A⦃p_gen σ⦄.
@@ -663,32 +665,59 @@ use tpair.
     exact (subst_term_comp σ2 σ1 a).
 Defined.
 
-(* This is commented as we cannot complete it *)
-(* Definition PreShv_CwF : cwf_struct (PreShv C). *)
-(* Proof. *)
-(* exists PreShv_tt_reindx_type_struct. *)
-(* mkpair. *)
-(* - exists PreShv_reindx_laws. *)
-(*   repeat split. *)
-(*   + intros Γ A Δ σ a. *)
-(*     exists (subst_pair_p hsC σ a). *)
-(*     intermediate_path (transportf (λ x, Δ ⊢ x) *)
-(*             (subst_type_pair_p hsC σ a) (subst_term hsC (subst_pair hsC σ a) (@ctx_last _ hsC _ A))). *)
-(*     admit. (* this should be provable, but painful *) *)
-(*     apply subst_pair_q. *)
-(*   + intros Γ A Δ Θ σ1 σ2 a. *)
-(*     exact (subst_pair_subst hsC σ1 σ2 a). *)
-(*   + intros Γ A. *)
-(*     apply (@subst_pair_id C hsC Γ A). *)
-(* - repeat split. *)
-(*   + apply (functor_category_has_homsets C^op HSET has_homsets_HSET). *)
-(*   + intros Γ. *)
-(*     admit. (* this is not provable! *) *)
-(*   + intros Γ A. *)
-(*     use isaset_total2. *)
-(*     * repeat (apply impred_isaset; intro); apply setproperty. *)
-(*     * intros a; repeat (apply impred_isaset; intro). *)
-(*       apply isasetaprop, setproperty. *)
-(* Admitted. *)
+(* as with SET, presheaves satisfy most of the CwF laws, but not the h-level conditions. *)
+Definition PreShv_CwF : cwf_struct (PreShv C).
+Proof.
+  exists PreShv_tt_reindx_type_struct.
+  split.
+  - exists PreShv_reindx_laws.
+    repeat split.
+    + intros Γ A Δ σ a.
+      exists (subst_pair_p σ a).
+      intermediate_path (transportf (λ x, Δ ⊢ x)
+          (subst_type_pair_p σ a) (subst_term (subst_pair σ a) ctx_last)).
+      { admit. } (* this should be provable, but painful *)
+      apply subst_pair_q.
+    + intros Γ A Δ Θ σ1 σ2 a.
+      exact (subst_pair_subst σ1 σ2 a).
+    + intros Γ A.
+      apply (@subst_pair_id C).
+  - repeat split.
+    + intros Γ.
+      admit. (* this is not provable! *)
+    + intros Γ A.
+      use isaset_total2.
+      * repeat (apply impred_isaset; intro); apply setproperty.
+      * intros a; repeat (apply impred_isaset; intro).
+        apply isasetaprop, setproperty.
+Abort.
+
+Definition PreShv_CwF_laws_only_if_empty
+  : cwf_laws PreShv_tt_reindx_type_struct -> C -> empty.
+Proof.
+  intros H c; revert H.
+  apply or_neg_to_neg_and. apply inr.
+  apply or_neg_to_neg_and. apply inl.
+  apply total2_neg_to_neg_forall. exists (constant_functor _ SET unitset).
+  apply total2_neg_to_neg_forall. exists (constant_functor _ SET boolset).
+  apply total2_neg_to_neg_forall. exists (constant_functor _ SET boolset).
+  eapply negf. { 
+    eapply (isofhlevelweqf 1). 
+    exists idtoiso.
+    apply is_univalent_functor_category, is_univalent_HSET.
+  }
+  eapply negf. { apply proofirrelevance. }
+  apply total2_neg_to_neg_forall. exists (identity_iso _).
+  apply total2_neg_to_neg_forall. use tpair.
+  { use constant_nat_iso. exists negb.
+    refine (MonoEpiIso.hset_equiv_is_iso boolset boolset negb_weq). } 
+  simpl. eapply negf. { apply (maponpaths pr1). }
+  simpl. eapply negf.
+  { refine (maponpaths _).
+    refine (fun (α : nat_trans _ _) => α _). 
+    exists c. apply tt. }
+  simpl. eapply negf. { apply (maponpaths (fun f => f true)). }
+  simpl. exact nopathstruetofalse.
+Qed.
 
 End CwF.

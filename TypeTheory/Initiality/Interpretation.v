@@ -6,6 +6,8 @@ Require Import UniMath.CategoryTheory.All.
 (* TODO: raise issue upstream: notation "_ ∘ _" is used for function-order composition of functions, but for diagrammatic-order composition of morphisms in categories! *)
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 Require Import TypeTheory.Auxiliary.Partial.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.Initiality.SplitTypeCat_General.
@@ -15,24 +17,6 @@ Require Import TypeTheory.Initiality.Typing.
 Require Import TypeTheory.Initiality.Environments.
 
 Local Open Scope functions.
-
-Section Auxiliary.
-
-  (** Functions giving path types in various hsets directly as hprops. *)
-  (* TODO: work out better way to treat them? *)
-  Definition mor_paths_hProp {C : category} {X Y : C} (f g : X --> Y)
-    : hProp
-  := make_hProp (f = g) (homset_property C _ _ _ _).
-
-  Definition type_paths_hProp {C : split_typecat} {Γ : C} (A B : C Γ)
-    : hProp
-  := make_hProp (A = B) (isaset_types_typecat _ _ _).
-
-  Definition tm_paths_hProp {C : split_typecat} {Γ : C} {A : C Γ} (s t : tm A)
-    : hProp
-  := make_hProp (s = t) (isaset_tm _ _).
-
-End Auxiliary.
 
 Section Partial_Interpretation.
 (** In this section, we construct the partial interpretation function. *)
@@ -61,7 +45,7 @@ Section Partial_Interpretation.
     - (* term expressions *)
       destruct e as [ m i | m A B b | m A B f a ].
       + (* [var_expr i] *)
-        assume_partial (type_paths_hProp (type_of (E i)) T) e_Ei_T.
+        assume_partial (type_of (E i) = T :> ty C $p _)%logic e_Ei_T.
         apply return_partial.
         exact (tm_transportf e_Ei_T (E i)).
       + (* [lam_expr A B b] *)
@@ -69,7 +53,7 @@ Section Partial_Interpretation.
         set (E_A := extend_environment E interp_A).
         get_partial (partial_interpretation_ty _ U Π _ _ E_A B) interp_B.
         get_partial (partial_interpretation_tm _ U Π _ _ E_A interp_B b) interp_b.
-        assume_partial (type_paths_hProp (Π _ interp_A interp_B) T) e_ΠAB_T.
+        assume_partial (Π _ interp_A interp_B = T :> ty C $p _)%logic e_ΠAB_T.
         apply return_partial.
         refine (tm_transportf e_ΠAB_T _).
         exact (pi_intro _ _ _ _ interp_b).
@@ -80,7 +64,7 @@ Section Partial_Interpretation.
         set (Π_A_B := Π _ interp_A interp_B).
         get_partial (partial_interpretation_tm _ U Π _ _ E interp_A a) interp_a.
         get_partial (partial_interpretation_tm _ U Π _ _ E Π_A_B f) interp_f. 
-        assume_partial (type_paths_hProp (interp_B ⦃interp_a⦄) T) e_Ba_T.
+        assume_partial (interp_B ⦃interp_a⦄ = T :> ty C $p _)%logic e_Ba_T.
         apply return_partial.
         refine (tm_transportf e_Ba_T _).
         refine (pi_app _ _ _ _ interp_f interp_a).
@@ -334,8 +318,6 @@ Section Partial_Interpretation.
           eapply pathscomp0. 2: { eapply (maponpaths (fun A => A ⦃f⦄)), e_T. }
           eapply pathscomp0. { apply pathsinv0, reind_comp_typecat. }
           eapply pathscomp0. 2: { apply reind_comp_typecat. }
-          (* TODO: unify duplicate access functions [reind_comp_typecat],
-             [reind_comp_type_typecat]. *)
           apply maponpaths, reind_tm_q. }
         cbn. intros e_T; destruct e_T.
         (* final naturality part *)
@@ -509,7 +491,7 @@ a little more work to state. *)
       apply tm_transportf_idpath.
   Defined.
 
-  Definition partial_interpretation_add_to_raw_context_map
+  Definition partial_interpretation_extend_raw_context_map
       {X} {m n:nat} (E : environment X m) (As : n -> C X) (B : C X)
       (f : raw_context_map m n) (b : tm_expr m)
     : leq_partial
@@ -518,7 +500,7 @@ a little more work to state. *)
                                  (partial_interpretation_tm U Π E B b)))
         (partial_interpretation_raw_context_map E
           (dB_Sn_rect _ B As)
-          (add_to_raw_context_map f b)).
+          (extend_raw_context_map f b)).
   Proof.
     apply make_leq_partial'; cbn; intros [f_def b_def].
     use tpair.
@@ -537,7 +519,7 @@ a little more work to state. *)
           (tm_as_raw_context_map a)).
   Proof.
     eapply leq_partial_trans.
-    2: { apply partial_interpretation_add_to_raw_context_map. }
+    2: { apply partial_interpretation_extend_raw_context_map. }
     eapply leq_partial_trans.
     2: { eapply bind_leq_partial_1, partial_interpretation_idmap_raw_context. }
     refine (pr2 (bind_return_partial _ _)).
@@ -696,7 +678,7 @@ a little more work to state. *)
   Qed.
 
   (* TODO: consider naming! *)
-  Definition add_to_raw_context_map_tracks_environments
+  Definition extend_raw_context_map_tracks_environments
       {X Y} {f : Y --> X}
       {m n:nat} {ts : raw_context_map n m} {a : tm_expr n} 
       {F : environment Y n} {E : environment X m} {A : C X}
@@ -704,7 +686,7 @@ a little more work to state. *)
       (a_def : is_defined (partial_interpretation_tm U Π F (A ⦃f⦄) a))
       (a_interp : tm A) (e_a : evaluate a_def = reind_tm f a_interp)
     : raw_context_map_tracks_environments
-        f (add_to_raw_context_map ts a)
+        f (extend_raw_context_map ts a)
         F (add_to_environment E ((A,, a_interp) : type_with_term X)).
   Proof.
     refine (dB_Sn_rect _ _ _); intros; cbn.
@@ -720,13 +702,13 @@ a little more work to state. *)
         (evaluate a_def) (tm_as_raw_context_map a)
         E (extend_environment E A).
   Proof.
-    use add_to_raw_context_map_tracks_environments.   
+    use extend_raw_context_map_tracks_environments.
     - intros i. 
 (* can this be simplified with [tm_transportf_partial_interpretation_tm_leq]? *)
       use tpair; cbn.
       + refine (_,,tt). cbn; apply pathsinv0.
         eapply pathscomp0. { apply pathsinv0, reind_comp_typecat. }
-        eapply pathscomp0. 2: { apply reind_id_type_typecat. }
+        eapply pathscomp0. 2: { apply reind_id_typecat. }
         apply maponpaths, section_property.
       + cbn. eapply pathscomp0. 2: { apply reind_compose_tm'. }
         eapply pathscomp0.
@@ -738,7 +720,7 @@ a little more work to state. *)
         apply tm_transportf_irrelevant.
     - refine (tm_transportf_partial_interpretation_tm_leq _ _ _ a_def). 
       eapply pathscomp0. 2: { apply reind_comp_typecat. }
-      eapply pathsinv0, pathscomp0. 2: { apply reind_id_type_typecat. } 
+      eapply pathsinv0, pathscomp0. 2: { apply reind_id_typecat. } 
       apply maponpaths, section_property.
     - eapply pathscomp0. apply leq_partial_commutes.
       cbn. eapply pathscomp0. 2: { apply pathsinv0, reind_tm_var_typecat. }
@@ -875,7 +857,7 @@ Section Totality.
        => ∀ (X:C) (E : typed_environment X Γ)
             (d_A : is_defined (partial_interpretation_ty U Π E A))   
             (d_A' : is_defined (partial_interpretation_ty U Π E A')),
-         type_paths_hProp (evaluate d_A) (evaluate d_A') 
+         (evaluate d_A = evaluate d_A' :> ty C $p _)
      | [! Γ |- a ::: A !]
        => ∀ (X:C) (E : typed_environment X Γ)
             (d_A : is_defined (partial_interpretation_ty U Π E A)), 
@@ -885,7 +867,7 @@ Section Totality.
           (d_A : is_defined (partial_interpretation_ty U Π E A))
           (d_a : is_defined (partial_interpretation_tm U Π E (evaluate d_A) a)) 
           (d_a' : is_defined (partial_interpretation_tm U Π E (evaluate d_A) a')), 
-         tm_paths_hProp (evaluate d_a) (evaluate d_a')
+         (evaluate d_a = evaluate d_a' :> tm_hSet _)
   end.
   (* Note: we DON’T expect to need any inductive information for context judgements!
 

@@ -16,6 +16,7 @@ Require Import UniMath.CategoryTheory.rezk_completion.
 
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 
 Section Auxiliary.
 
@@ -269,20 +270,16 @@ Proof.
     intro i.
     apply weqdirprodcomm.
     
-    eapply weqcomp. 
-      use (@weqtotal2asstol 
-             (∏ a : pr1 (pr1 A), C ⟦ pr2 (pr1 A) a, pr2 (pr1 B) (f a) ⟧) 
-             (fun x0 => (∏ a : pr1 (pr1 A), is_iso (x0 a))) 
-             (fun y0 => isweq f) 
-          ). 
     eapply weqcomp.
-       apply weqdirprodcomm.
+      apply weqtotal2asstol'.
+    eapply weqcomp.
+      apply weqdirprodcomm.
     apply invweq.   
     eapply weqcomp.
-       apply weqdirprodcomm.
-     apply weqfibtototal.
-     intro T.
-     apply weqforalltototal.
+      apply weqdirprodcomm.
+    apply weqfibtototal.
+    intro T.
+    apply weqforalltototal.
 Defined.
   
 

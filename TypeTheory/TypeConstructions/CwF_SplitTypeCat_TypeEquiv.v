@@ -12,6 +12,9 @@ Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
+Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
 
 Require Import TypeTheory.ALV1.CwF_def.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
@@ -284,10 +287,10 @@ Proof.
      by (simpl; reflexivity).
      (* important for typing in order to make *)
      set (isPb := (reind_pb_typecat A f) : isPullback
-     ((! dpr_q_typecat A f) : (π (# (TY Sc' : functor _ _) f (pr11 (tm_equiv_inter A a))) ;; f)%mor =
+     ((! dpr_q_typecat A f) : (π (#p (TY Sc') f (pr11 (tm_equiv_inter A a))) ;; f)%mor =
      (qq Sc' f (pr11 (tm_equiv_inter A a)) ;; π (pr11 (tm_equiv_inter A a)))%mor));
      set (H := (! dpr_q_typecat A f) 
-     : (π (# (TY Sc' : functor _ _) f (pr11 (tm_equiv_inter A a))) ;; f)%mor =
+     : (π (#p (TY Sc') f (pr11 (tm_equiv_inter A a))) ;; f)%mor =
      (qq Sc' f (pr11 (tm_equiv_inter A a)) ;; π (pr11 (tm_equiv_inter A a)))%mor);
      exact (pb_of_section_eq H _ isPb _ eq1 _ (pr221 (tm_equiv_inter A a))).
   -  exact (pr12 Split _ _ _).

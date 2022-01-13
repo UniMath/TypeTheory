@@ -20,6 +20,7 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.EssentiallyAlgebraic.
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Categories.ess_alg_categories.
 
 (** * From generalized algebraic precategories to essentially algebraic ones.*)

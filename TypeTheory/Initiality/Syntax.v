@@ -13,6 +13,7 @@
 
 Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 
 Section deBruijn.
   (** We first set up the machinery for handling variables, represented by de Bruijn indices. *)
@@ -157,7 +158,7 @@ Section Raw_Context_Maps.
     exact var_expr.
   Defined.
 
-  Definition add_to_raw_context_map
+  Definition extend_raw_context_map
       {m n} (f : raw_context_map n m) (a : tm_expr n)
     : raw_context_map n (S m)
   := dB_Sn_rect _ a f.
@@ -165,7 +166,7 @@ Section Raw_Context_Maps.
   Definition weaken_raw_context_map {n m}
       : raw_context_map n m -> raw_context_map (S n) (S m).
   Proof.
-    intros f. refine (add_to_raw_context_map _ _).
+    intros f. refine (extend_raw_context_map _ _).
     - intros i. exact (rename_tm dB_next (f i)).
     - apply var_expr, dB_top.
   Defined.
@@ -216,7 +217,7 @@ Section Substitution.
    section of the projection, as in CwA semantics. *)
   Definition tm_as_raw_context_map {n} (a : tm_expr n)
     : raw_context_map n (S n)
-  := add_to_raw_context_map (idmap_raw_context _) a.
+  := extend_raw_context_map (idmap_raw_context _) a.
 
   Definition subst_top_ty {n} (a : tm_expr n) (e : ty_expr (S n)) : ty_expr n
     := subst_ty (tm_as_raw_context_map a) e.

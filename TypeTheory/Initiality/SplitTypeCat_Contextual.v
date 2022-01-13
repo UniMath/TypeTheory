@@ -4,32 +4,14 @@
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.All.
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.Partial.
 Require Import TypeTheory.ALV1.TypeCat.
 
 Require Import TypeTheory.Initiality.SplitTypeCat_General.
 
-(* These two lemmas should be upstreamed to UniMath/CategoryTheory/limits/terminal.v and initial.v *)
-Section upstream.
-
-  Lemma isaprop_isTerminal {C : category} (x : C) : isaprop (isTerminal C x).
-  Proof.
-    repeat (apply impred; intro).
-    apply isapropiscontr.
-  Qed.
-
-  Lemma isaprop_isInitial {C : category} (x : C) : isaprop (isInitial C x).
-  Proof.
-    repeat (apply impred; intro).
-    apply isapropiscontr.
-  Qed.
-    
-End upstream.
-
-
 Section Extensions.
 (** Context extensions in type-categories, i.e. suitable sequences of types *)
-(* TODO: upstream somewhere! And connect to [CSystems] files? *)
 
   Fixpoint
       extension_aux {C : typecat} (Γ:C) (n:nat) {struct n}
@@ -163,7 +145,7 @@ Section Extensions.
   Proof.
     destruct e_Γ. apply maponpaths.
     etrans. { apply e_A. }
-    apply reind_id_type_typecat.
+    apply reind_id_typecat.
   Defined.
 
   Definition idtoiso_path_ext_typecat {C : split_typecat}
@@ -174,11 +156,9 @@ Section Extensions.
   Proof.
     destruct e_Γ; cbn in *.
     etrans. { apply maponpaths, maponpaths, maponpathscomp0. }
-    etrans. { apply pathsinv0, idtoiso_concat_pr. }
-    (* TODO: should direction of [idtoiso_concat_pr] be reversed, to fit conventions?
-    Check upstream which direction is wanted more often. *)
+    etrans. { apply idtoiso_concat_pr. }
     apply maponpaths.
-    apply pathsinv0, reind_id_term_typecat.
+    apply pathsinv0, q_id_typecat.
   Defined.
 
   Definition ext_concat_extension_aux {C : split_typecat} {Γ:C}
@@ -201,7 +181,7 @@ Section Extensions.
       + simpl. apply pathsinv0.
         etrans. { apply idtoiso_path_ext_typecat. }
         unfold compare_concat_extension. simpl pr2.
-        apply comp_ext_compare_q_typecat.
+        apply q_typecat_mapeq.
   Defined.
 
   Definition ext_concat_extension {C : split_typecat} {Γ:C}

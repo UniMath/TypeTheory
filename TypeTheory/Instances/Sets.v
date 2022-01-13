@@ -95,11 +95,14 @@ And the last square is a pullback square ([SET_isPullback_q_gen_mor]).
 This file was created at the UniMath workshop, Birmingham, 2019.
 *)
 
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.MoreFoundations.Notations.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.Pullbacks.
+
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.OtherDefs.CwF_Pitts.
 
@@ -233,17 +236,25 @@ Proof.
 use tpair; easy.
 Defined.
 
-(* The following cannot be completed because SET is not an h-set
+(* The following cannot be completed because SET is not an h-set *)
 Definition SET_CwF : cwf_struct SET.
 Proof.
-exists SET_tt_reindx_type_struct. split.
-- exists SET_reindx_laws. split.
-  + intros Γ A Γ' γ a. use tpair; reflexivity.
-  + use tpair; easy.
-- split.
-  * intros a b. apply isaset_set_fun_space.
-  * use tpair.
-    + cbn. intro Γ. admit. (* Oops *)
+  exists SET_tt_reindx_type_struct. split.
+  - exists SET_reindx_laws. split.
+    + intros Γ A Γ' γ a. use tpair; reflexivity.
+    + use tpair; easy.
+  - use tpair.
+    + cbn. intro Γ. admit. (* does not hold! *)
     + intros Γ A. apply isaset_forall_hSet.
-Admitted.
-*)
+Abort.
+
+(* Indeed, we can show SET is _not_ a CwF (with the given type-category structure): *)
+Definition SET_CwF_laws_fail : ¬ cwf_laws SET_tt_reindx_type_struct.
+Proof.
+  apply or_neg_to_neg_and. apply inr.
+  apply or_neg_to_neg_and. apply inl.
+  apply total2_neg_to_neg_forall. simpl.
+  exists unitset.
+  eapply negf. { eapply isaset_weqf. apply weqfunfromunit. }
+  apply hSet_not_set.
+Defined.

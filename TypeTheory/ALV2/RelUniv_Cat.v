@@ -33,6 +33,9 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
+
 Require Import TypeTheory.ALV1.RelativeUniverses.
 Require Import TypeTheory.ALV2.RelUniv_Cat_Simple.
 
@@ -473,7 +476,7 @@ Section RelUniv_ϕ_Cat.
       + intros X f. cbn.
         unfold reluniv_with_ϕ_Xf_compat.
         etrans. apply assoc'.
-        etrans. apply maponpaths, idtoiso_concat_pr.
+        etrans. apply maponpaths, pathsinv0, idtoiso_concat_pr.
         etrans. apply maponpaths_2, maponpaths_2.
         apply maponpaths, maponpaths, maponpathsinv0.
         etrans. apply maponpaths, maponpaths, maponpaths.
@@ -485,9 +488,9 @@ Section RelUniv_ϕ_Cat.
       + apply id_right.
       + intros X f. cbn.
         etrans. apply assoc'.
-        etrans. apply maponpaths, idtoiso_concat_pr.
+        etrans. apply maponpaths, pathsinv0, idtoiso_concat_pr.
         etrans. apply assoc'.
-        etrans. apply maponpaths, idtoiso_concat_pr.
+        etrans. apply maponpaths, pathsinv0, idtoiso_concat_pr.
         
         etrans. 2: apply id_right.
         apply maponpaths.
@@ -560,7 +563,7 @@ Section RelUniv_ϕ_Cat.
         etrans. apply maponpaths, assoc'.
         etrans. apply maponpaths, assoc'.
         etrans. apply assoc.
-        etrans. apply maponpaths_2, idtoiso_concat_pr.
+        etrans. apply maponpaths_2, pathsinv0, idtoiso_concat_pr.
         etrans. apply maponpaths_2, idtoiso_eq_idpath.
         apply pathsinv0r.
         etrans. apply id_left.
@@ -583,11 +586,10 @@ Section RelUniv_ϕ_Cat.
         *)
         
         (* Step 6: reduce equality of idtoiso to equality of paths *)
-        etrans. apply idtoiso_concat_pr.
-        apply pathsinv0.
-        etrans. apply maponpaths, idtoiso_concat_pr.
-        etrans. apply idtoiso_concat_pr.
-        apply maponpaths, maponpaths.
+        etrans. apply pathsinv0, idtoiso_concat_pr.
+        etrans. 2: { apply maponpaths, idtoiso_concat_pr. }
+        etrans. 2: { apply idtoiso_concat_pr. }
+        apply maponpaths, maponpaths, pathsinv0.
 
         (* Step 7: factor out Xf d X *)
         etrans. apply pathsinv0, maponpaths, maponpathscomp0.

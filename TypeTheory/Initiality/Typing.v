@@ -10,9 +10,9 @@ Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Initiality.Syntax.
 
 Section Contexts.
-  (** Note: for now, we take the type expressions of a context to be over
-  _all_ variables of the context, not just the earlier ones.  *)
-  (* TODO: add more explanation of this choice. *)
+  (** Note: for now, we take the type expressions of a context to be over _all_ variables of the context, not just the earlier ones — so-called _flat_ contexts, as opposed to _stratified_.  We will add stratification later, in [SplitTypeCat_Contextual].
+
+  See Bauer–Lumsdaine–Hasselwarter 2020 on general type theories for a discussion of the philosophy of this choice. Also note how in the present proof of initiality, it works nicely: the main interpretation proof never mentions stratification, nor context equality, working entirely with naturality in typed flat contexts. *)
   Definition context_of_length n := dB_vars n -> ty_expr n.
   Identity Coercion id_context_of_length : context_of_length >-> Funclass.
 
@@ -42,6 +42,8 @@ Section Contexts.
   Defined.
 
 End Contexts.
+
+Arguments context_extend : simpl never.
 
 Delimit Scope context_scope with context.
 Bind Scope context_scope with context.

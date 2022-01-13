@@ -7,6 +7,9 @@ Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
+
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.ALV1.TypeCat_Reassoc.
@@ -69,21 +72,21 @@ Section SplitTypeCat_Cat_Simple.
 
   Definition reind_ext_compare
              {X : split_typecat_structure C}
-             {Γ : C} {A A' : (TY' X : functor _ _) Γ : hSet} (e : A = A')
+             {Γ : C} {A A' : TY' X $p Γ} (e : A = A')
     : iso (Γ ◂ A) (Γ ◂ A').
   Proof.
     apply idtoiso, maponpaths, e.
   Defined.
 
   Lemma reind_ext_compare_id {X : split_typecat_structure C}
-        {Γ : C} (A : (TY' X : functor _ _) Γ : hSet)
+        {Γ : C} (A : TY' X $p Γ)
     : reind_ext_compare (idpath A) = identity_iso (Γ ◂ A).
   Proof.
     apply idpath.
   Qed.
 
   Lemma reind_ext_compare_id_general {X : split_typecat_structure C}
-        {Γ : C} {A : (TY' X : functor _ _) Γ : hSet}
+        {Γ : C} {A : TY' X $p Γ}
         (e : A = A)
     : reind_ext_compare e = identity_iso (Γ ◂ A).
   Proof.
@@ -93,17 +96,16 @@ Section SplitTypeCat_Cat_Simple.
   Qed.
 
   Lemma reind_ext_compare_comp {X : split_typecat_structure C}
-        {Γ : C} {A A' A'' : (TY' X : functor _ _) Γ : hSet} (e : A = A') (e' : A' = A'')
+        {Γ : C} {A A' A'' : TY' X $p Γ} (e : A = A') (e' : A' = A'')
     : pr1 (reind_ext_compare (e @ e')) = reind_ext_compare e ;; reind_ext_compare e'.
   Proof.
-    apply pathsinv0.
-    etrans. apply idtoiso_concat_pr. 
+    etrans. 2: { apply idtoiso_concat_pr. } 
     unfold reind_ext_compare. apply maponpaths, maponpaths.
-    apply pathsinv0, maponpathscomp0. 
+    apply maponpathscomp0. 
   Qed.
 
   Lemma reind_ext_compare_comp_general {X : split_typecat_structure C}
-        {Γ : C} {A A' A'' : (TY' X : functor _ _) Γ : hSet}
+        {Γ : C} {A A' A'' : TY' X $p Γ}
         (e : A = A') (e' : A' = A'') (e'' : A = A'')
     : pr1 (reind_ext_compare e'') = reind_ext_compare e ;; reind_ext_compare e'.
   Proof.
@@ -140,7 +142,7 @@ Section SplitTypeCat_Cat_Simple.
   Local Definition Δ := F_TY_reind_ext_compare.
 
   Lemma Δ_φ {X Y : split_typecat_structure C} (mor : SplitTy_mor_data X Y)
-        {Γ : C} {A A' : (TY' X : functor _ _) Γ : hSet} (e : A = A')
+        {Γ : C} {A A' : TY' X $p Γ} (e : A = A')
     : reind_ext_compare e ;; pr2 mor Γ A'
       = pr2 mor _ A ;; reind_ext_compare (maponpaths (pr1 mor _) e).
   Proof.
@@ -185,10 +187,10 @@ Section SplitTypeCat_Cat_Simple.
        SplitTy_mor_axioms mor_data.
 
   Lemma SplitTy_mor_eq {X Y} (mor1 mor2 : SplitTy_mor X Y)
-        (e_TY : ∏ Γ (A : (TY' X : functor _ _) Γ : hSet),
+        (e_TY : ∏ Γ (A : TY' X $p Γ),
                 pr1 (pr1 mor1) _ A =
                 pr1 (pr1 mor2) _ A)
-        (e_ϕ : ∏ Γ (A : (TY' X : functor _ _) Γ : hSet),
+        (e_ϕ : ∏ Γ (A : TY' X $p Γ),
                   pr2 (pr1 mor1) _ A ;; reind_ext_compare (e_TY _ _)
                   = pr2 (pr1 mor2) _ A)
     : mor1 = mor2.

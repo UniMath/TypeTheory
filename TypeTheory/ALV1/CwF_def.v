@@ -19,33 +19,13 @@ Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
+Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
+
 Require Import TypeTheory.ALV1.RelativeUniverses.
 Require Import TypeTheory.ALV1.Transport_along_Equivs.
 Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
-
-Section Auxiliary.
-
-(** * Preliminaries *)
-
-(** A version of [weqtotal2asstor] with the type of the [C] argument slightly changed. Perhaps upstream? *)
-Definition weqtotal2asstor' {A} {B : A -> Type} (C : ∏ a, B a -> Type)
-  : (∑ (xy : ∑ x, B x), C _ (pr2 xy)) ≃ (∑ x y, C x y).
-Proof.
-  apply (weqtotal2asstor _ (fun xy => C (pr1 xy) (pr2 xy))).
-Defined.
-
-Definition yoneda_induction {C : category} (F : preShv C) (Γ' : C) 
-           (P : ((F : functor _ _ ) Γ' : hSet) -> UU) :
-  (forall K : _ ⟦ Yo Γ', F ⟧, P (invmap (@yy _ F Γ') K)) -> 
-  forall A : (F : functor _ _ ) Γ' : hSet, P A.
-Proof.
-  intros H A0.
-  set(XR := homotinvweqweq (@yy _ F Γ')).
-  rewrite <- XR.
-  apply H.
-Defined.  
-
-End Auxiliary.
 
 (** * Definition of a CwF 
 
@@ -84,15 +64,13 @@ Definition map_into (Γ : C) : UU
 := ∑ (ΓA : C), C ⟦ΓA, Γ⟧.
 
 Definition cwf_tm_of_ty {Γ : C} (A : Ty Γ : hSet) : UU
-:= ∑ t : (Tm Γ : hSet),
-    ((pp : _ --> _) : nat_trans _ _ ) _ t
-    = A.
+:= ∑ t : (Tm Γ : hSet), pp $nt t = A.
 
 (* Lemma: convert an equality giving the type of a term
           into commutativity of a square of maps of presheaves. *)
 Lemma cwf_square_comm {Γ} {A}
   {ΓA : C} {π : ΓA --> Γ}
-  {t : Tm ΓA : hSet} (e : ((pp : _ --> _) : nat_trans _ _) _ t = # Ty π A)
+  {t : Tm ΓA : hSet} (e : pp $nt t = # Ty π A)
   : #Yo π ;; yy A = yy t ;; pp.
 Proof.
   apply pathsinv0.
@@ -134,11 +112,11 @@ Lemma cwf_square_comm_converse {Γ : C} {A : Ty pp Γ : hSet}
     {ΓA : C} {π : ΓA --> Γ}
     {t : Tm pp ΓA : hSet}
     (e :  #Yo π ;; yy A = yy t ;; pp)
-  : ((pp : _ --> _) : nat_trans _ _) _ t = # (Ty pp) π A.
+  : pp $nt t = # (Ty pp) π A.
 Proof.
   etrans.
-  { apply maponpaths, pathsinv0, (toforallpaths (functor_id (Tm pp) _)). }
-  etrans. 
+  { apply maponpaths, pathsinv0, functor_id_pshf. }
+  etrans.
   { assert (e' := nat_trans_eq_pointwise e ΓA); clear e; cbn in e'.
     refine (toforallpaths (!e') (identity _)).
   }
@@ -162,9 +140,10 @@ Definition cwf_fiber_rep_data {Γ:C} (A : Ty pp Γ : hSet) : UU
   := ∑ (ΓA : C), C ⟦ΓA, Γ⟧ × (Tm pp ΓA : hSet).
 
 Definition cwf_fiber_rep_ax {Γ:C} {A : Ty pp Γ : hSet}
-   (ΓAπt : cwf_fiber_rep_data A) : UU 
-  := ∑ (H : ((pp : _ --> _) : nat_trans _ _ ) _ (pr2 (pr2 ΓAπt)) = #(Ty pp) (pr1 (pr2 ΓAπt)) A),
-     isPullback (cwf_square_comm H).
+    (ΓAπt : cwf_fiber_rep_data A) : UU 
+  := ∑ (H : pp $nt (pr2 (pr2 ΓAπt))
+            = #(Ty pp) (pr1 (pr2 ΓAπt)) A),
+    isPullback (cwf_square_comm H).
 
 Definition cwf_fiber_representation' {Γ:C} (A : Ty pp Γ : hSet) : UU
   := ∑ ΓAπt : cwf_fiber_rep_data A, cwf_fiber_rep_ax ΓAπt.
@@ -230,12 +209,11 @@ Proof.
     match goal with | [ |- (_ ((_ ?f) _ _)) _ = _ ]
                       => set (i := f :  preShv C ⟦ _, _ ⟧) end.
     refine (@pathscomp0 _ _
-                 ((i ;; yy _ : nat_trans _ _) _ (identity _)) _ _ _).
+                 ((i ;; yy _) $nt (identity _)) _ _ _).
     { apply idpath. }
     subst i; unfold from_Pullback_to_Pullback.
     rewrite (PullbackArrow_PullbackPr2 (make_Pullback _ (pr22 x))).
-    cbn. generalize (pr221 x'); apply toforallpaths. 
-    apply (functor_id (Tm pp)).
+    cbn. apply functor_id_pshf.
 Qed.
 
 Lemma isaprop_cwf_fiber_representation {Γ:C} (A : Ty pp Γ : hSet)
@@ -437,7 +415,8 @@ Proof.
   apply (counit_pointwise_iso_from_adj_equivalence Fopequiv TY).
 Defined.
 
-Lemma Morphism_of_presheaves_transfer_recover : Tm_iso ;; pp = pp'_eta ;; Ty_iso.
+Lemma Morphism_of_presheaves_transfer_recover
+  : Tm_iso ;; pp = pp'_eta ;; Ty_iso.
 Proof.
   apply pathsinv0.
   apply (nat_trans_ax (counit_from_left_adjoint Fopequiv) pp).
@@ -521,9 +500,8 @@ Proof.
   apply XR'.
 Defined.
 
-
-
-Lemma RC_morphism_of_presheaves_recover : RC_Tm_iso ;; pp = RC_pp'_eta ;; RC_Ty_iso.
+Lemma RC_morphism_of_presheaves_recover
+  : RC_Tm_iso ;; pp = RC_pp'_eta ;; RC_Ty_iso.
 Proof.
   apply pathsinv0.
   apply (nat_trans_ax (counit_from_left_adjoint RCequiv) pp).

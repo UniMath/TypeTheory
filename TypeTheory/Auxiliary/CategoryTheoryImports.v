@@ -17,4 +17,8 @@ Require Export UniMath.CategoryTheory.precomp_fully_faithful.
 Require Export UniMath.CategoryTheory.rezk_completion.
 Require Export UniMath.CategoryTheory.yoneda.
 Require Export UniMath.CategoryTheory.categories.HSET.Core.
+Require Export UniMath.CategoryTheory.categories.HSET.Univalence.
 Require Export UniMath.CategoryTheory.Presheaf.
+Require Export UniMath.CategoryTheory.catiso.
+Require Export UniMath.CategoryTheory.ArrowCategory.
+Require Export UniMath.CategoryTheory.Equivalences.CompositesAndInverses.

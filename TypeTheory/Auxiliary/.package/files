@@ -1,4 +1,10 @@
 Auxiliary.v
+Partial.v
+SetQuotients.v
 CategoryTheoryImports.v
 CategoryTheory.v
-Partial.v
+Pullbacks.v
+DisplayedCategories.v
+SetsAndPresheaves.v
+ArrowCategory.v
+TypeOfMorphisms.v

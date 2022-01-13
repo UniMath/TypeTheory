@@ -17,23 +17,19 @@ Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
+
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
-
-(* TODO: as ever, upstream to [Systems.Auxiliary], and look for in library. *)
-Section Auxiliary.
-
-End Auxiliary.
-
-
 (** Some local notations, *)
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
-Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
-Local Notation "'Tm'" := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
+Local Notation "'Ty'" := (fun X Γ => TY X $p Γ) (at level 10).
+Local Notation "'Tm'" := (fun Y Γ => TM Y $p Γ) (at level 10).
 
 Local Notation Δ := comp_ext_compare.
 
@@ -53,7 +49,7 @@ Section Obj_Ext_Cat.
     := pr1 F : _ --> _.
 
   (* TODO: consider naming, placement of this notation. *)
-  Notation "F [ A ]" := ((obj_ext_mor_TY F : nat_trans _ _) _ A) (at level 4) : TY_scope.
+  Notation "F [ A ]" := (obj_ext_mor_TY F $nt A) (at level 4) : TY_scope.
   Delimit Scope TY_scope with TY.
   Bind Scope TY_scope with TY.
   Local Open Scope TY_scope.
@@ -128,25 +124,28 @@ Definition term_fun_mor {X X' : obj_ext_cat C}
        FF_TM ;; pp Y' = pp Y ;; obj_ext_mor_TY F
      × 
        ∏ {Γ:C} {A : Ty X Γ},
-         (FF_TM : nat_trans _ _) _ (te Y A)
-         = # (TM Y' : functor _ _) (φ F A) (te Y' _).
+         FF_TM $nt (te Y A)
+         = #p (TM Y') (φ F A) (te Y' _).
 
 Definition term_fun_mor_TM {X X'} {Y} {Y'} {F : X --> X'} (FF : term_fun_mor Y Y' F)
   : _ --> _
 := pr1 FF.
 (* TODO: try making this a coercion to [nat_trans]?  (Requires type annotation in this definition so may cause problems elsewhere.) *)
 
-Definition term_fun_mor_pp {X X'} {Y} {Y'} {F : X --> X'} (FF : term_fun_mor Y Y' F)
+Definition term_fun_mor_pp {X X'} {Y} {Y'} {F : X --> X'}
+    (FF : term_fun_mor Y Y' F)
   : term_fun_mor_TM FF ;; pp Y' = pp Y ;; obj_ext_mor_TY F
 := pr1 (pr2 FF).
 
-Definition term_fun_mor_te {X X'} {Y} {Y'} {F : X --> X'} (FF : term_fun_mor Y Y' F)
+Definition term_fun_mor_te {X X'} {Y} {Y'} {F : X --> X'}
+    (FF : term_fun_mor Y Y' F)
     {Γ:C} (A : Ty X Γ)
-  : (term_fun_mor_TM FF : nat_trans _ _) _ (te Y A)
-  = # (TM Y' : functor _ _) (φ F A) (te Y' _)
+  : term_fun_mor_TM FF $nt (te Y A)
+  = #p (TM Y') (φ F A) (te Y' _)
 := pr2 (pr2 FF) Γ A.
 
-Definition term_fun_mor_Q {X X'} {Y} {Y'} {F : X --> X'} (FF : term_fun_mor Y Y' F)
+Definition term_fun_mor_Q {X X'} {Y} {Y'} {F : X --> X'}
+    (FF : term_fun_mor Y Y' F)
     {Γ:C} (A : Ty X Γ)
   : Q Y A ;; term_fun_mor_TM FF = #Yo (φ F A) ;; Q Y' _.
 Proof.
@@ -154,38 +153,21 @@ Proof.
   intros Γ'; simpl in Γ'.
 (* Insert [cbn] to see what’s actually happening; removed for compile speed. *)
   unfold yoneda_objects_ob. apply funextsec; intros f.
-  etrans. 
-    use (toforallpaths (nat_trans_ax (term_fun_mor_TM FF) _)).
+  etrans. use nat_trans_ax_pshf.
   etrans. cbn. apply maponpaths, term_fun_mor_te.
-  use (toforallpaths (!functor_comp (TM Y') _ _ )).
+  apply pathsinv0, functor_comp_pshf.
 Qed.
-
-(* TODO: inline in [isaprop_term_fun_mor]? *)
-Lemma term_fun_mor_eq {X X'} {Y} {Y'} {F : X --> X'} (FF FF' : term_fun_mor Y Y' F)
-    (e_TM : ∏ Γ (t : Tm Y Γ),
-      (term_fun_mor_TM FF : nat_trans _ _) _ t
-      = (term_fun_mor_TM FF' : nat_trans _ _) _ t)
-  : FF = FF'.
-Proof.
-  apply subtypePath.
-  - intros x; apply isapropdirprod.
-    + apply homset_property.
-    + repeat (apply impred_isaprop; intro). apply setproperty.
-  - apply nat_trans_eq. apply has_homsets_HSET. 
-    intros Γ. apply funextsec. unfold homot. apply e_TM.
-Qed.
-
 
 (* This is not full naturality of [term_to_section]; it is just what is required for [isaprop_term_fun_mor] below. *)
 Lemma term_to_section_naturality {X X'} {Y} {Y'}
   {F : X --> X'} {FY : term_fun_mor Y Y' F}
-  {Γ : C} (t : Tm Y Γ) (A := (pp Y : nat_trans _ _) _ t)
-  : pr1 (term_to_section ((term_fun_mor_TM FY : nat_trans _ _) _ t))
+  {Γ : C} (t : Tm Y Γ) (A := pp Y $nt t)
+  : pr1 (term_to_section (term_fun_mor_TM FY $nt t))
   = pr1 (term_to_section t) ;; φ F _
-   ;; Δ (!toforallpaths (nat_trans_eq_pointwise (term_fun_mor_pp FY) Γ) t).
+   ;; Δ (!nat_trans_eq_pointwise_pshf (term_fun_mor_pp FY) _).
 Proof.
-  set (t' := (term_fun_mor_TM FY : nat_trans _ _) _ t).
-  set (A' := (pp Y' : nat_trans _ _) _ t').
+  set (t' := term_fun_mor_TM FY $nt t).
+  set (A' := pp Y' $nt t').
   set (Pb := isPullback_preShv_to_pointwise (isPullback_Q_pp Y' A') Γ);
     simpl in Pb.
   apply (pullback_HSET_elements_unique Pb); clear Pb.
@@ -200,24 +182,38 @@ Proof.
     apply comp_ext_compare_π.
   - etrans. apply term_to_section_recover. apply pathsinv0.
     etrans. apply Q_comp_ext_compare.
-    etrans. apply @pathsinv0.
-      set (H1 := nat_trans_eq_pointwise (term_fun_mor_Q FY A) Γ).
-      exact (toforallpaths H1 _).
-    cbn. apply maponpaths. apply term_to_section_recover.
+    etrans.
+      apply @pathsinv0, (nat_trans_eq_pointwise_pshf (term_fun_mor_Q FY A)).
+    cbn. apply maponpaths, term_to_section_recover.
 Qed.
 
 Lemma term_fun_mor_recover_term {X X'} {Y} {Y'}
   {F : X --> X'} {FY : term_fun_mor Y Y' F}
   {Γ : C} (t : Tm Y Γ)
-  : (term_fun_mor_TM FY : nat_trans _ _) Γ t
-  = (Q Y' _ : nat_trans _ _) Γ (pr1 (term_to_section t) ;; φ F _).
+  : term_fun_mor_TM FY $nt t
+  = Q Y' _ $nt (pr1 (term_to_section t) ;; φ F _).
 Proof.
   etrans. apply @pathsinv0, term_to_section_recover.
   etrans. apply maponpaths, term_to_section_naturality.
   apply Q_comp_ext_compare.
 Qed.
 
-(* TODO: once all obligations proved, replace [term_fun_mor_eq] with this in subsequent proofs. *)
+(* Note: [term_fun_mor_eq] kept local since only needed for [isaprop_term_fun_mor], which supersedes it *)
+Local Lemma term_fun_mor_eq {X X'} {Y} {Y'} {F : X --> X'}
+    (FF FF' : term_fun_mor Y Y' F)
+    (e_TM : ∏ Γ (t : Tm Y Γ),
+      term_fun_mor_TM FF $nt t
+      = term_fun_mor_TM FF' $nt t)
+  : FF = FF'.
+Proof.
+  apply subtypePath.
+  - intros x; apply isapropdirprod.
+    + apply homset_property.
+    + repeat (apply impred_isaprop; intro). apply setproperty.
+  - apply nat_trans_eq. apply has_homsets_HSET. 
+    intros Γ. apply funextsec. unfold homot. apply e_TM.
+Qed.
+
 Lemma isaprop_term_fun_mor {X X'} {Y} {Y'} {F : X --> X'}
   : isaprop (term_fun_mor Y Y' F).
 Proof.
@@ -230,8 +226,8 @@ Qed.
 Lemma term_fun_mor_transportf {X X'} {Y Y'}
     {F F' : X --> X'} (eF : F = F') (FF : term_fun_mor Y Y' F)
     {Γ:C} (t : Tm Y Γ)
-  : (term_fun_mor_TM (transportf _ eF FF) : nat_trans _ _) Γ t
-    = (term_fun_mor_TM FF : nat_trans _ _) Γ t.
+  : term_fun_mor_TM (transportf _ eF FF) $nt t
+    = term_fun_mor_TM FF $nt t.
 Proof.
   destruct eF. apply idpath.
 Qed.
@@ -249,7 +245,7 @@ Proof.
     exists (identity _). apply tpair.
     + etrans. apply id_left. apply pathsinv0, id_right.
     + intros Γ A; cbn.
-      use (toforallpaths (!functor_id (TM _) _)).
+      apply pathsinv0, functor_id_pshf.
   - intros X0 X1 X2 F G Y0 Y1 Y2 FF GG.
     exists (term_fun_mor_TM FF ;; term_fun_mor_TM GG). apply tpair.
     + etrans. apply @pathsinv0. apply assoc.
@@ -259,10 +255,9 @@ Proof.
       apply pathsinv0. apply assoc.
     + intros Γ A.
       etrans. cbn. apply maponpaths, term_fun_mor_te.
-      etrans. use (toforallpaths
-                        (nat_trans_ax (term_fun_mor_TM _) _)).
+      etrans. apply nat_trans_ax_pshf.
       etrans. cbn. apply maponpaths, term_fun_mor_te.
-      use (toforallpaths (!functor_comp (TM _) _ _)).
+      apply pathsinv0, functor_comp_pshf.
 Defined.
 
 Definition term_fun_data : disp_cat_data (obj_ext_cat C)
@@ -270,18 +265,7 @@ Definition term_fun_data : disp_cat_data (obj_ext_cat C)
 
 Definition term_fun_axioms : disp_cat_axioms _ term_fun_data.
 Proof.
-  repeat apply tpair.
-  - intros. apply term_fun_mor_eq. intros; cbn.
-    apply pathsinv0, term_fun_mor_transportf.
-  - intros. apply term_fun_mor_eq. intros; cbn.
-    apply pathsinv0, term_fun_mor_transportf.
-  - intros. apply term_fun_mor_eq. intros; simpl.
-    apply pathsinv0, term_fun_mor_transportf.
-  - intros. apply isaset_total2; [ apply homset_property|].
-    intros.
-    apply isasetaprop, isapropdirprod.
-    + apply homset_property.
-    + repeat (apply impred_isaprop; intro). apply setproperty.
+  repeat apply tpair; intros; try apply isasetaprop; apply isaprop_term_fun_mor.
 Qed.
 
 Definition term_fun_disp_cat : disp_cat (obj_ext_cat C)
@@ -307,8 +291,7 @@ Proof.
   use (∏ Γ' Γ (f : C ⟦ Γ' , Γ ⟧) (A : Ty X Γ), _).
   use (qq Z f A ;; φ F A = _).
   use (φ F _ ;; Δ _ ;; qq Z' f _).
-  revert A; apply toforallpaths.
-  use (nat_trans_ax (obj_ext_mor_TY F)).
+  apply nat_trans_ax_pshf.
 Defined.
 
 Lemma isaprop_qq_structure_mor

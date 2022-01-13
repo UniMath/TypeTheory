@@ -4,6 +4,9 @@ Require Import UniMath.MoreFoundations.All.
 
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
+
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.Initiality.SplitTypeCat_General.
 
@@ -69,7 +72,7 @@ Definition typecat_mor_axioms
    × (∏ Γ Γ' (A : C Γ) (f : Γ' --> Γ),
         # F (q_typecat A f) · typecat_mor_iso F A
         = typecat_mor_iso F _
-          · comp_ext_compare (eqtohomot (nat_trans_ax (typecat_mor_Ty F) f) A)
+          · comp_ext_compare (nat_trans_ax_pshf (typecat_mor_Ty F) _ _)
           · q_typecat (typecat_mor_Ty F _ A) (# F f)).
 
 
@@ -84,7 +87,7 @@ Definition make_typecat_mor
   (H1 : ∏ Γ (A : C Γ), # F (dpr_typecat A) = ϕ _ A · dpr_typecat (pr1 FTy _ A))
   (H2 : ∏ Γ Γ' (A : C Γ) (σ : Γ' --> Γ),
         # F (q_typecat A σ) · ϕ Γ A =
-        ϕ Γ' _ · comp_ext_compare (eqtohomot (nat_trans_ax FTy σ) A) ·
+        ϕ Γ' _ · comp_ext_compare (nat_trans_ax_pshf FTy _ _) ·
           q_typecat (pr1 FTy _ A) (# F σ))
   : typecat_mor C D.
 Proof.
@@ -106,7 +109,7 @@ Definition typecat_mor_pentagon {C D} (F : typecat_mor C D)
   : # F (q_typecat A σ)
     · typecat_mor_iso F A
   = typecat_mor_iso F _
-    · comp_ext_compare (eqtohomot (nat_trans_ax (typecat_mor_Ty F) σ) A)
+    · comp_ext_compare (nat_trans_ax_pshf (typecat_mor_Ty F) _ _)
     · q_typecat (typecat_mor_Ty F Γ A) (# F σ)
 := pr2 (pr2 F) Γ Γ' A σ.
 
@@ -254,7 +257,7 @@ Section Derived_Actions.
       {C C' : split_typecat} (F : typecat_mor C C')
       {Γ:C} (A: C Γ) {Γ' : C} (f : Γ' --> Γ)
     : typecat_mor_Ty F _ (A ⦃f⦄) = (typecat_mor_Ty F _ A) ⦃ # F f ⦄
-    := eqtohomot (nat_trans_ax (typecat_mor_Ty F) f) A.
+    := nat_trans_ax_pshf (typecat_mor_Ty F) _ _.
 
   Lemma reindex_fmap_tm {C D : split_typecat} (F : typecat_mor C D) {Γ Γ' : C}
         (f : C ⟦ Γ', Γ ⟧) {A : C Γ} (a : tm A) :
@@ -263,7 +266,7 @@ Section Derived_Actions.
   Proof.
     apply paths_tm, PullbackArrowUnique; cbn; simpl;
       set (pb := make_Pullback _ _); rewrite <-!assoc.
-    - etrans; [apply maponpaths, maponpaths, comp_ext_compare_dpr_typecat|].
+    - etrans; [apply maponpaths, maponpaths, dpr_typecat_typeeq|].
       etrans; [apply maponpaths, (!typecat_mor_triangle F (A ⦃f⦄))|].
       now rewrite <- functor_comp, (PullbackArrow_PullbackPr1 pb), functor_id.
     - etrans; [apply maponpaths; rewrite assoc;
@@ -278,19 +281,6 @@ Section Derived_Actions.
     exact (typecat_mor_Ty F _ (type_of Aa),,fmap_tm F Aa).
   Defined.
 
-  (* TODO: upstream to [SplitTypeCat_General];
-     and consider harmonising with name of [comp_ext_compare_q_typecat],
-     e.g. by changing that to [q_typecat_mapeq]? *)
-  Lemma q_typecat_typeeq {C : typecat} {Γ:C}
-        {A A' : C Γ} (e : A = A')
-        {Γ' : C} (f : Γ' --> Γ)
-    : comp_ext_compare (maponpaths (fun X => X {{ f }}) e) ;; q_typecat A' f
-    = q_typecat A f ;; comp_ext_compare e.
-  Proof.
-    destruct e; cbn.
-    rewrite id_right; apply id_left.
-  Qed.
-
   Lemma var_with_type_fmap_type
       {C C'} (F : typecat_mor C C')
       {Γ} (A : C Γ)
@@ -303,11 +293,11 @@ Section Derived_Actions.
     - simpl.
       etrans. { eapply (maponpaths (fun X => reind_typecat X _)).
            exact (reindex_fmap_ty F _ (dpr_typecat A)). }
-      etrans. { apply pathsinv0, reind_comp_type_typecat. }
+      etrans. { apply pathsinv0, reind_comp_typecat. }
       apply maponpaths, iso_inv_on_right, typecat_mor_triangle.
     - apply PullbackArrowUnique.
       + etrans. { apply pathsinv0, assoc. }
-        etrans. { apply maponpaths, comp_ext_compare_dpr_typecat. }
+        etrans. { apply maponpaths, dpr_typecat_typeeq. }
         apply section_property.
       + (* NOTE: the next step is just asking to apply [cbn] to the subterm
          beginning [PullbackPr2].  [simpl PullbackPr2] applies [simpl] to this
@@ -320,8 +310,8 @@ Section Derived_Actions.
         { apply maponpaths.
           etrans. { apply pathsinv0, assoc. }
           etrans. { apply maponpaths, pathsinv0, assoc. }
-          etrans. { apply maponpaths, maponpaths, comp_ext_compare_q_typecat. }
-          etrans. { apply maponpaths, pathsinv0, q_q_typecat'. }
+          etrans. { apply maponpaths, maponpaths, q_typecat_mapeq. }
+          etrans. { apply maponpaths, pathsinv0, q_q_typecat. }
           etrans. { apply assoc. }
           apply maponpaths_2, q_typecat_typeeq.
         }

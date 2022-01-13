@@ -20,6 +20,9 @@ Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
+
 Require Import TypeTheory.ALV1.CwF_def.
 Require Import TypeTheory.ALV1.RelativeUniverses.
 Require Import TypeTheory.ALV2.CwF_Cats_Simple.

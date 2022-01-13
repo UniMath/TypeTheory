@@ -19,6 +19,10 @@ Require Import UniMath.Foundations.Sets.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
+
 Require Import TypeTheory.ALV1.CwF_def.
 Require Import TypeTheory.ALV1.RelativeUniverses.
 Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
@@ -128,7 +132,7 @@ Proof.
     refine (weqonsecbase _ _). apply yy. }
   apply weqonsecfibers. intro A.
   apply weqimplimpl.
-  - apply hinhfun. intro f. apply (@weq_cwf_fiber_representation_fpullback C pp Γ A). apply f.
+  - apply hinhfun. intro f. apply @weq_cwf_fiber_representation_fpullback, f.
   - apply hinhfun. apply (invmap (weq_cwf_fiber_representation_fpullback _ _)).
   - apply propproperty.
   - apply propproperty.

@@ -11,6 +11,11 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.Pullbacks.
+Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
+
 Require Import TypeTheory.ALV1.CwF_def.
 
 
@@ -39,18 +44,18 @@ Local Definition pp_ (Γ : C) : (Tm Γ : hSet) → (Ty Γ : hSet) := pp __: Γ.
 Lemma Ty_composition {Γ Γ' Γ'' : C} (f : C⟦Γ,Γ'⟧) (g : C⟦Γ',Γ''⟧) (A : Ty Γ'' : hSet) 
 : #Ty (f;;g) A = #Ty f (#Ty g A).
 Proof.
-  revert A. apply toforallpaths, (functor_comp Ty).
+  apply functor_comp_pshf.
 Qed.
 
 Lemma Tm_composition {Γ Γ' Γ'' : C} (f : C⟦Γ,Γ'⟧) (g : C⟦Γ',Γ''⟧) (A : Tm Γ'' : hSet)
 : #Tm (f;;g) A = #Tm f (#Tm g  A).
 Proof.
-  revert A. apply toforallpaths, (functor_comp Tm).
+  apply functor_comp_pshf.
 Qed.
 
 Lemma Ty_identity {Γ : C} (A : Ty Γ : hSet) : A = #Ty (identity Γ) A.
 Proof.
-  revert A. apply toforallpaths, pathsinv0, (functor_id Ty).
+  apply pathsinv0, functor_id_pshf.
 Qed.
 
 (** * Tm as a Display **)
@@ -64,7 +69,7 @@ Coercion pr1_tm : tm >-> pr1hSet.
 Lemma ppComp1 {Γ Δ : C} {A : Ty Γ : hSet} (f : C^op ⟦Γ,Δ⟧) (a : tm A) :
   pp_ _ (# Tm f a ) = # Ty f A. 
 Proof.
-  etrans. { apply (toforallpaths (nat_trans_ax (pp : _ --> _) f) a). }
+  etrans. { apply nat_trans_ax_pshf. }
   cbn. apply maponpaths, (pr2 a).
 Qed.
 
@@ -180,11 +185,11 @@ Qed.
 
 Lemma reind_id_tm {Γ : C}{A : Ty Γ : hSet} (a : tm A)
 : reind_tm (identity _) a
-= tm_transportb ((toforallpaths (functor_id Ty _)) A) a.
+= tm_transportb (functor_id_pshf _) a.
 Proof.
   apply subtypePath. 
-  -  intros x. apply setproperty.
-  -  apply (toforallpaths (functor_id Tm _) a).
+  - intros x. apply setproperty.
+  - apply (functor_id_pshf a).
 Qed.
 
 End tm. 
@@ -219,9 +224,7 @@ Qed.
 Lemma yyidentity {Γ : C} {A : Ty Γ : hSet} (B : Ty (Γ.:A) : hSet) 
 : B = (@yy C Ty (Γ.:A) B : nat_trans _ _) (Γ.:A) (identity (Γ.:A)).
 Proof.
-  apply pathsinv0; eapply pathscomp0.
-  -  apply (toforallpaths (functor_id Ty (Γ.:A))).
-  -  reflexivity.
+  apply pathsinv0, functor_id_pshf.
 Qed.
 
 End Yoneda.
@@ -399,7 +402,7 @@ Lemma reind_id_tm' {Γ : C} {A : Ty Γ : hSet}  (a : tm A) (b : tm A)
 Proof.
   apply subtypePath.  
   -  intros x. apply (setproperty (Ty Γ : hSet)).
-  -  apply ((toforallpaths (functor_id Tm _ )) a).
+  -  apply (functor_id_pshf a).
 Qed.
 
 Lemma Ty_γ_id {Γ : C} {A : Ty Γ : hSet} (a : tm A) 
@@ -407,7 +410,7 @@ Lemma Ty_γ_id {Γ : C} {A : Ty Γ : hSet} (a : tm A)
 Proof.
   simple refine (!(Ty_composition _ _ _) @ _).
   apply (pathscomp0 ((toforallpaths (maponpaths _ (γ_pi _)) )A)).
-  apply (toforallpaths (functor_id Ty _ )).
+  apply functor_id_pshf.
 Qed.
 
 Definition DepTypesType {Γ : C} {A : Ty Γ : hSet} (B : Ty(Γ.:A) : hSet)
@@ -423,7 +426,7 @@ Lemma DepTypesComp {Γ : C} { A : Ty Γ : hSet} {B : Ty(Γ.:A) : hSet}
 : pp_  Γ (DepTypesElem_pr1 b a) = DepTypesType B a.
 Proof.
   etrans. 2: { exact (maponpaths _ (pr2 b)). }
-  revert b. refine (toforallpaths (nat_trans_ax (pp : _ --> _) _)).
+  apply nat_trans_ax_pshf.
 Qed.
 
 Definition DepTypesElems {Γ : C} { A : Ty Γ : hSet} {B : Ty(Γ.:A) : hSet}
@@ -435,7 +438,7 @@ Lemma DepTypesNat {Γ Δ : C} {A : Ty Γ : hSet} (B : Ty (Γ.: A) : hSet)
 : #Ty f (DepTypesType B a) = DepTypesType (#Ty (qq_term A f) B) (reind_tm f a).
 Proof.
   unfold DepTypesType, reind_tm; rewrite yy_natural, assoc.
-  etrans. { apply (!((toforallpaths (functor_comp Ty _ _)) B)). }
+  etrans. { apply pathsinv0, functor_comp_pshf. }
   apply (toforallpaths (maponpaths (# Ty) (γNat f a)) B).
 Qed.
 
@@ -492,7 +495,7 @@ Lemma ppComp3 {Γ Δ : C} {A : Ty Γ : hSet} (f : C^op ⟦Γ,Δ⟧) {π : CwF_Pi
 Proof.
   etrans. 2: { apply (nπ _ _ f A B). }
   etrans. 2: { eapply (maponpaths (# Ty f)), (pr2 c). }
-  refine (toforallpaths (nat_trans_ax (pp : _ --> _) _) _).
+  apply nat_trans_ax_pshf.
 Qed.
 
 Definition CwF_PiAbs (π : CwF_PiTypeFormer): UU

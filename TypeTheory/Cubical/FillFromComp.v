@@ -99,6 +99,9 @@ Require Import UniMath.CategoryTheory.yoneda.
 
 Require Import TypeTheory.Instances.Presheaves.
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.Pullbacks.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
 Local Open Scope cat.
 
@@ -143,8 +146,8 @@ Definition FF_lattice : bounded_latticeob BinProducts_PreShv 1 FF :=
                         Hmeet_FF Hjoin_FF Hbot_FF Htop_FF.
 
 (* Extract the top and bottom elements of the lattice (as sets)*)
-Definition FF1 {I} : pr1 FF I : hSet := pr1 top_FF I tt.
-Definition FF0 {I} : pr1 FF I : hSet := pr1 bot_FF I tt.
+Definition FF1 {I} : FF $p I := pr1 top_FF I tt.
+Definition FF0 {I} : FF $p I := pr1 bot_FF I tt.
 
 (* The map that constantly returns FF1 *)
 Definition true : 1 --> FF.
@@ -154,7 +157,7 @@ use make_nat_trans.
   exact (@FF1 I).
 + intros I J f; cbn.
   apply funextsec; intros _.
-  apply (eqtohomot (nat_trans_ax top_FF f) tt).
+  apply (nat_trans_ax_pshf top_FF).
 Defined.
 
 (* The meet and join operations *)
@@ -175,24 +178,24 @@ now apply funextsec.
 Qed.
 
 (* Some pointwise equations for the face lattice. TODO: better notations *)
-Lemma meet_FF1 (I : C) (φ : pr1 FF I : hSet) : pr1 meet_FF I (FF1,,φ) = φ.
+Lemma meet_FF1 (I : C) (φ : FF $p I) : pr1 meet_FF I (FF1,,φ) = φ.
 Proof.
-exact (eqtohomot (nat_trans_eq_pointwise (islunit_meet_mor_top_mor _ _ FF_lattice) I) φ).
+  apply (nat_trans_eq_pointwise_pshf (islunit_meet_mor_top_mor _ _ FF_lattice)).
 Qed.
 
-Lemma join_absorb_meet_FF (I : C) (φ ψ : pr1 FF I : hSet) :
+Lemma join_absorb_meet_FF (I : C) (φ ψ : FF $p I) :
   pr1 join_FF I (φ,,pr1 meet_FF I (φ,,ψ)) = φ.
 Proof.
-exact (eqtohomot (nat_trans_eq_pointwise (join_mor_absorb_meet_mor _ FF_lattice) I) (φ,,ψ)).
+  apply (nat_trans_eq_pointwise_pshf (join_mor_absorb_meet_mor _ FF_lattice) (_,,_)).
 Qed.
 
-Lemma join_FF_assoc (I : C) (x y z : pr1 FF I : hSet) :
+Lemma join_FF_assoc (I : C) (x y z : FF $p I) :
   pr1 join_FF I (pr1 join_FF I (x,,y),, z) = pr1 join_FF I (x,,pr1 join_FF I (y,,z)).
 Proof.
-exact (eqtohomot (nat_trans_eq_pointwise (isassoc_join_mor _ FF_lattice) I) ((x,,y),,z)).
+  apply (nat_trans_eq_pointwise_pshf (isassoc_join_mor _ FF_lattice) ((_,,_),,_)).
 Qed.
 
-Lemma join_FF1 (I : C) (x : pr1 FF I : hSet) :
+Lemma join_FF1 (I : C) (x : FF $p I) :
   pr1 join_FF I (FF1,,x) = FF1.
 Proof.
 now rewrite <- (meet_FF1 _ x), join_absorb_meet_FF.
@@ -208,11 +211,11 @@ use make_functor.
     abstract (apply isaset_total2; [ apply setproperty
                                    | intros ρ; apply isasetaprop, setproperty ]).
   + simpl; intros I J f ρ.
-    exists (# (pr1 Γ) f (pr1 ρ)).
+    exists (#p Γ f (pr1 ρ)).
     abstract (
-        etrans; [apply (eqtohomot (nat_trans_ax φ f) (pr1 ρ))|]; cbn;
+        etrans; [apply nat_trans_ax_pshf|]; cbn;
         etrans; [apply maponpaths, (pr2 ρ)|];
-        now apply (!eqtohomot (nat_trans_ax top_FF f) tt)).
+        now apply pathsinv0, (nat_trans_ax_pshf top_FF)).
 - split.
   + intros I; apply funextsec; simpl; intro ρ.
     apply subtypePath; [ intros x; apply setproperty |]; simpl.
@@ -237,8 +240,8 @@ Proof.
 intros Δ σ1 σ2 H.
 apply (nat_trans_eq has_homsets_HSET); intro I.
 apply funextsec; intro ρ.
-apply subtypePath; [ intros x; apply setproperty |]; simpl.
-exact (eqtohomot (nat_trans_eq_pointwise H I) ρ).
+apply subtypePath; [ intros x; apply setproperty |].
+apply (nat_trans_eq_pointwise_pshf H).
 Qed.
 
 Definition join_subst {Γ : PreShv C} (φ ψ : Γ --> FF) : Γ,φ --> Γ,(φ ∨ ψ).
@@ -261,9 +264,8 @@ use make_nat_trans.
   apply (pr1 σ I (pr1 u),,pr2 u).
 + abstract (intros I J f; apply funextsec; intro ρ;
   apply subtypePath; [intros x; apply setproperty|]; simpl;
-  apply (eqtohomot (nat_trans_ax σ f) (pr1 ρ))).
+            apply nat_trans_ax_pshf).
 Defined.
-
 
 (*************************)
 (* Cylinder functor on C *)
@@ -391,16 +393,16 @@ Lemma isMonic_e₀_PreShv I : @isMonic (PreShv C) _ _ (e₀_PreShv I).
 Proof.
 intros Γ σ τ H.
 apply (nat_trans_eq has_homsets_HSET); intros J; apply funextsec; intro ρ.
-generalize (eqtohomot (nat_trans_eq_pointwise H J) ρ).
-now apply isMonic_e₀.
+apply isMonic_e₀.
+now apply (nat_trans_eq_pointwise_pshf H).
 Qed.
 
 Lemma isMonic_e₁_PreShv I : @isMonic (PreShv C) _ _ (e₁_PreShv I).
 Proof.
 intros Γ σ τ H.
 apply (nat_trans_eq has_homsets_HSET); intros J; apply funextsec; intro ρ.
-generalize (eqtohomot (nat_trans_eq_pointwise H J) ρ).
-now apply isMonic_e₁.
+apply isMonic_e₁.
+now apply (nat_trans_eq_pointwise_pshf H).
 Qed.
 
 Lemma e₀_p_PreShv I : e₀_PreShv I · p_PreShv I = identity (yon I).
@@ -513,7 +515,7 @@ Lemma e₀_f_pb {I J} (f : J --> I) : isPullback (e₀_f f).
 Proof.
 apply is_symmetric'_isPullback.
 apply pb_if_pointwise_pb; intros K.
-apply Auxiliary.isPullback_HSET; intros L f1 f2.
+apply isPullback_HSET; intros L f1 f2.
 now apply e₀_pb.
 Qed.
 
@@ -550,7 +552,7 @@ use Hδ₀_unique.
 Qed.
 
 Definition box_subst_prf {I J : C} (f : J --> I) (φ : yon I --> FF) (K : C)
-  (ρ' : pr1 (box J (# yon f · φ)) K : hSet) :
+  (ρ' : (box J (# yon f · φ)) $p K) :
   pr1 (# yon (# F f) · (p_PreShv I · φ ∨ δ₀ I)) K (pr1 ρ') = FF1.
 Proof.
 rewrite comp_join.
@@ -588,7 +590,7 @@ apply pathsdirprod.
 - apply maponpaths.
   rewrite <-!assoc.
   apply maponpaths, (!nat_trans_ax p_F f).
-- apply (!eqtohomot (nat_trans_eq_pointwise (plus_δ₀ I J f) K) ρ).
+- apply pathsinv0, (nat_trans_eq_pointwise_pshf (plus_δ₀ I J f)).
 Qed.
 
 (* Multiplication rule for the box formula *)
@@ -774,7 +776,7 @@ Proof.
 intros I φ u v H.
 apply (pr1 Cα (I +) (b φ) (box_b_subst α I φ u) (m_PreShv I · v)).
 abstract (apply (nat_trans_eq has_homsets_HSET); intros J; apply funextsec; intro ρ;
-          apply (eqtohomot (nat_trans_eq_pointwise H J))).
+          apply (nat_trans_eq_pointwise_pshf H)).
 Defined.
 
 (* Upper triangle commutes *)

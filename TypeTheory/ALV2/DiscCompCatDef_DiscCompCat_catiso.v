@@ -9,6 +9,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV2.DiscCompCat_Cat.
@@ -23,6 +24,10 @@ Section SplitTypeCat_DiscCompCat_catiso.
     : DiscCompCat_cat C ≃ DiscCompCatDef_cat C
     := discrete_comprehension_cat_structure_with_default_mor_weq1.
 
+  (* TODO: try to speed up proofs below and remove this! *)
+  Local Definition admit_slow_proof {X} : X.
+  Admitted.
+
   Definition DiscCompCat_DiscCompCatDef_mor_weq
              (X Y : DiscCompCat_cat C)
     : DiscCompCat_cat C ⟦ X, Y ⟧
@@ -36,11 +41,12 @@ Section SplitTypeCat_DiscCompCat_catiso.
     apply weqonsecfibers; intros Γ'.
     apply weqonsecfibers; intros f.
     apply weqonsecfibers; intros A.
-    use weqimplimpl.
+    use weqimplimpl; apply admit_slow_proof.
+(*
     - intros p.
-      cbn.
-      lazy beta delta iota zeta.
-      cbv beta delta.
+      Time cbn.
+      Time lazy beta delta iota zeta.
+      Time cbv beta delta.
       etrans.
       apply (p (DiscCompCatDef_Cat.D_lift_ob (DiscCompCat_DiscCompCatDef_weq X) _ _ f A)
                (invweq (mor_with_unique_lift_mor_weq _ _ _ (pr1 (pr2 (pr2 (pr2 (pr2 X)))))) (idpath _))
@@ -53,6 +59,7 @@ Section SplitTypeCat_DiscCompCat_catiso.
       set (uf := pr2 (pr2 (pr2 mor) Γ Γ' f A)).
       set (p := uf (A' ,, ff) : (A' ,, ff) = _).
       apply p.
+*)
   Defined.
 
   Definition DiscCompCat_DiscCompCatDef_functor_data
@@ -60,15 +67,15 @@ Section SplitTypeCat_DiscCompCat_catiso.
   Proof.
     use tpair.
     - apply DiscCompCat_DiscCompCatDef_weq.
-    - intros X Y. apply idweq.
+    - intros X Y. apply admit_slow_proof. (* refine (idweq _). *)
   Defined.
 
   Definition DiscCompCat_DiscCompCatDef_functor_axioms
     : is_functor DiscCompCat_DiscCompCatDef_functor_data.
   Proof.
     use make_dirprod.
-    - intros X. apply idpath.
-    - intros X Y Z f g. apply idpath.
+    - intros X. apply admit_slow_proof. (* apply idpath. *)
+    - intros X Y Z f g. apply admit_slow_proof. (* apply idpath. *)
   Defined.
 
   Definition DiscCompCat_DiscCompCatDef_functor
@@ -80,8 +87,8 @@ Section SplitTypeCat_DiscCompCat_catiso.
   Proof.
     unfold is_catiso.
     use make_dirprod.
-    - intros X Y. apply (pr2 (idweq _)).
-    - apply (pr2 DiscCompCat_DiscCompCatDef_weq).
-  Defined.
+    - intros X Y. apply admit_slow_proof. (* refine (pr2 (idweq _)). *)
+    - admit. (* refine (pr2 DiscCompCat_DiscCompCatDef_weq). *)
+  Admitted.
   
 End SplitTypeCat_DiscCompCat_catiso.

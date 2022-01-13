@@ -3,6 +3,7 @@
 Require Import UniMath.MoreFoundations.All.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 
 Require Import TypeTheory.Initiality.Syntax.
 Require Import TypeTheory.Initiality.SyntaxLemmas.
@@ -164,10 +165,10 @@ Section Typed_Renaming.
     : typed_renaming (Γ ;; A) (Δ ;; rename_ty f A). 
   Proof.
     exists (fmap_dB_S f).
-    use dB_Sn_rect; cbn.
+    use dB_Sn_rect; simpl.
     - eapply pathscomp0. 2: { apply rename_comp_ty. } 
       refine (!rename_comp_ty _ _ _).
-    - intros i; cbn.
+    - intros i.
       eapply pathscomp0. 2: { apply rename_comp_ty. } 
       eapply pathscomp0. { apply maponpaths, typed_renaming_commutes. }
       refine (!rename_comp_ty _ _ _).
@@ -294,12 +295,11 @@ End Flat_Contexts_2.
 
 Section Context_Maps_2.
 
-  (* TODO: rename [add_to_raw_context_map] to [extend…] upstream *)
   Lemma derive_extend_context_map
       {Γ Δ : context}
       {f : raw_context_map Δ Γ} (d_f : [! |- f ::: Δ ---> Γ !])
       {A} {a} (d_a : [! Δ |- a ::: subst_ty f A !])
-    : [! |- add_to_raw_context_map f a ::: Δ ---> Γ;;A !].
+    : [! |- extend_raw_context_map f a ::: Δ ---> Γ;;A !].
   Proof.
     intros i; cbn.
     eapply transportb.
@@ -460,7 +460,7 @@ Section Misc.
       (d_g : [! |- g ::: Δ ---> Θ !]) 
     : [! |- comp_raw_context f g ::: Γ ---> Θ !].
   Proof.
-    intros i. cbn. unfold comp_raw_context at 2.
+    intros i. cbn.
     refine (transportb _ _ _).
     { apply maponpaths_2, pathsinv0, subst_subst_ty. }
     refine (subst_derivation [! _ |- _ ::: _ !] _ _); auto.

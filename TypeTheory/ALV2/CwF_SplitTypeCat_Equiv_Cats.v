@@ -17,37 +17,20 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences_bis.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
+Require Import TypeTheory.Auxiliary.DisplayedCategories.
+
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
 Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Cats.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence. (* TODO: needed for some natural transformations. *)
-
-
-(* TODO: globalise upstream? *)
-Notation "# F" := (disp_functor_on_morphisms F)
-  (at level 3) : mor_disp_scope.
-
-(* TODO: as ever, upstream when possible. *)
-Section Auxiliary.
-
-(* The following definition takes unfair advantage of the fact that  [functor_composite (functor_identity _) (functor_identity _)]
-  is judgementally(!) equal to [functor_identity _]. *)
-Definition disp_functor_id_composite
-  {C : category}
-  {CC DD EE : disp_cat C}
-  (FF : disp_functor (functor_identity _) CC DD)
-  (GG : disp_functor (functor_identity _) DD EE)
-: disp_functor (functor_identity _) CC EE
-:= disp_functor_composite FF GG.
-
-End Auxiliary.
 
 Section Fix_Context.
 
 Context {C : category}.
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
-Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
+Local Notation "'Ty'" := (fun X Γ => TY X $p Γ) (at level 10).
 
 Local Notation Δ := comp_ext_compare.
 Local Notation φ := obj_ext_mor_φ.
@@ -137,10 +120,10 @@ Lemma comp_ext_compare_te
     {X : obj_ext_structure C}
     {Y : term_fun_structure C X}
     {Γ:C} {A A' : Ty X Γ} (e : A = A')
-  : # (TM Y : functor _ _) (Δ e) (te Y A') = te Y A.
+  : #p (TM Y) (Δ e) (te Y A') = te Y A.
 Proof.
   destruct e; cbn.
-  exact (toforallpaths (functor_id (TM _) _) _). 
+  apply functor_id_pshf.
 Qed.
 
 Lemma qq_from_term_mor {X X' : obj_ext_cat C} {F : X --> X'}
@@ -166,17 +149,16 @@ Proof.
     etrans. apply @pathsinv0, assoc.
     etrans. apply maponpaths. apply comp_ext_compare_π.
     apply obj_ext_mor_ax.
-  - etrans. exact (toforallpaths (functor_comp (TM _) _ _) _).
+  - etrans. apply functor_comp_pshf.
     etrans. cbn. apply maponpaths, @pathsinv0, (term_fun_mor_te FY).
-    etrans. use (toforallpaths
-                      (!nat_trans_ax (term_fun_mor_TM _) _)).
+    etrans. apply pathsinv0, nat_trans_ax_pshf.
     etrans. cbn. apply maponpaths, @pathsinv0, W.
     etrans. apply term_fun_mor_te.
     apply pathsinv0.
-    etrans. exact (toforallpaths (functor_comp (TM _) _ _) _).
+    etrans. apply functor_comp_pshf.
     etrans. cbn. apply maponpaths, @pathsinv0, W'.
-    etrans. exact (toforallpaths (functor_comp (TM _) _ _) _).
-    cbn. apply maponpaths. 
+    etrans. apply functor_comp_pshf.
+    apply maponpaths. 
     apply comp_ext_compare_te.
 Time Qed.
 
@@ -215,17 +197,16 @@ Abort.
 (* We start by showing that a map of _q_-morphism structures induces a map of term-structures between their canonical term-structures of sections. *)
 
 
-(* TODO: rename and move this section! *)
+(* TODO: rename and upstream this section! *)
 Section Rename_me.
 
 (* TODO: naming conventions in this section clash rather with those of [ALV1.CwF_SplitTypeCat_Equivalence]. Consider! *)
-(* TODO: one would expect the type of this to be [nat_trans_data].  However, that name breaks HORRIBLY with general naming conventions: it is not the _type_ of the data (which is un-named for [nat_trans]), but is the _access function_ for that data!  Submit issue for this? *)  
 Lemma tm_from_qq_mor_data {X X' : obj_ext_cat C} {F : X --> X'}
     {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
-  : forall Γ : C, (tm_from_qq Z Γ) --> (tm_from_qq Z' Γ).
+  : nat_trans_data (tm_from_qq Z) (tm_from_qq Z').
 Proof.
   intros Γ Ase.
-  exists ((obj_ext_mor_TY F : nat_trans _ _) _ (pr1 Ase)).
+  exists (obj_ext_mor_TY F $nt (pr1 Ase)).
   exists (pr1 (pr2 Ase) ;; φ F _).
   etrans. apply @pathsinv0, assoc.
   etrans. apply maponpaths, obj_ext_mor_ax.
@@ -239,8 +220,7 @@ Proof.
   intros Γ Γ' f; cbn in Γ, Γ', f.
   apply funextsec; intros [A [s e]].
   use tm_from_qq_eq.
-  - cbn. exact (toforallpaths
-                  (nat_trans_ax (obj_ext_mor_TY _) _) _).
+  - cbn. apply nat_trans_ax_pshf.
   - cbn. apply PullbackArrowUnique. 
     + etrans. cbn. apply @pathsinv0, assoc.
       etrans. apply maponpaths, comp_ext_compare_π.
@@ -280,15 +260,15 @@ Lemma tm_from_qq_mor_te {X X' : obj_ext_cat C} {F : X --> X'}
     {Γ} (A : Ty X Γ)
   : tm_from_qq_mor_TM FZ _ (te_from_qq Z A)
   = # (tm_from_qq Z') (φ F A)
-      (te_from_qq Z' ((obj_ext_mor_TY F : nat_trans _ _) _ A)).
+      (te_from_qq Z' (obj_ext_mor_TY F $nt A)).
 Proof.
   cbn.
   use tm_from_qq_eq_reindex.
   - cbn.
   (* Putting these equalities under [abstract] shaves a couple of seconds off the overall Qed time, but makes the proof script rather less readable. *) 
-    etrans. 2: { exact (toforallpaths (functor_comp (TY _) _ _) _). }
+    etrans. 2: { apply functor_comp_pshf. }
     etrans. 2: { cbn. apply maponpaths_2, @pathsinv0, obj_ext_mor_ax. }
-    exact (toforallpaths (nat_trans_ax (obj_ext_mor_TY F) _) _).
+    apply nat_trans_ax_pshf.
   - etrans. 2: { apply @pathsinv0, 
         (postCompWithPullbackArrow _ _ _ _ (make_Pullback _ _)). }
     apply PullbackArrowUnique.
@@ -360,13 +340,11 @@ Proof.
     etrans. apply maponpaths, tm_from_qq_mor_pp.
     etrans. apply assoc.
     apply maponpaths_2, (pp_given_TM_to_canonical _ _ (_,,_)).
-  - unfold term_from_qq_mor_TM.
-    cbn.
-    etrans. apply maponpaths, maponpaths, given_TM_to_canonical_te.
-    etrans. apply maponpaths, (tm_from_qq_mor_te FZ).
-    etrans. apply (toforallpaths
-                     (nat_trans_ax (canonical_TM_to_given _ _ (_,,_)) _) _).
-    cbn. apply maponpaths. apply (canonical_TM_to_given_te _ _ (_,,_)).
+  - unfold term_from_qq_mor_TM. 
+    etrans. 2: { eapply maponpaths, (canonical_TM_to_given_te _ _ (_,,_)). }
+    etrans. 2: { apply nat_trans_ax_pshf. }
+    etrans. 2: { apply maponpaths, (tm_from_qq_mor_te FZ). }
+    cbn. apply maponpaths, maponpaths, given_TM_to_canonical_te.
 Defined.
 
 Lemma term_from_qq_mor_unique {X X' : obj_ext_cat C} {F : X --> X'}

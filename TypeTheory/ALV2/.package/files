@@ -12,10 +12,12 @@ RelUniv_Cat_Iso.v
 RelUniv_Cat_Yo_CwF_Iso.v
 RelUnivTransfer.v
 TypeCat_ComprehensionCat.v
+TypeCat_ComprehensionCat_Equiv.v
 FullyFaithfulDispFunctor.v
 DiscreteComprehensionCat.v
 SplitTypeCat_ComprehensionCat.v
 SplitTypeCat_Cat_Simple.v
 DiscCompCat_Cat.v
 DiscCompCatDef_Cat.v
+DiscCompCatDef_DiscCompCat_catiso.v
 SplitTypeCat_DiscCompCatDef_catiso.v

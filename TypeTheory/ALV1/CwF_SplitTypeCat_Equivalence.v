@@ -9,6 +9,9 @@ Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
+
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
 
@@ -18,9 +21,9 @@ Section Fix_Context.
 Context {C : category} (X : obj_ext_structure C).
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
-Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
-Local Notation "A [ f ]" := (# (TY X : functor _ _ ) f A) (at level 4).
-Local Notation "'Tm'" := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
+Local Notation "'Ty'" := (fun X Γ => TY X $p Γ) (at level 10).
+Local Notation "A [ f ]" := (#p (TY X) f A) (at level 4).
+Local Notation "'Tm'" := (fun Y Γ => TM Y $p Γ) (at level 10).
 
 Local Notation Δ := comp_ext_compare.
 
@@ -37,7 +40,7 @@ Variable Y : compatible_term_structure Z.
 Definition canonical_TM_to_given_data
   {Γ} (Ase : tm_from_qq Z Γ : hSet) : (Tm Y Γ).
 Proof.
-  use (# (TM _ : functor _ _) _ (te _ (pr1 Ase))). 
+  use (#p (TM _) _ (te _ (pr1 Ase))). 
   exact (pr1 (pr2 Ase)).
 Defined.
 
@@ -49,8 +52,8 @@ Proof.
   apply funextsec; intros [A [s e]].
   unfold canonical_TM_to_given_data; cbn.
   etrans. apply maponpaths, (pr2 Y).
-  etrans. apply (toforallpaths (!functor_comp (TM Y) _ _ ) _).
-  etrans. 2: { apply (toforallpaths (functor_comp (TM Y) _ _ ) _). }
+  etrans. apply pathsinv0, functor_comp_pshf.
+  etrans. 2: { apply functor_comp_pshf. }
   apply maponpaths_2. 
   apply (@PullbackArrow_PullbackPr2 C _ _ _ _ _ (make_Pullback _ _)).
 Qed.
@@ -66,7 +69,7 @@ Definition given_TM_to_canonical_data
   : ∏ Γ, HSET ⟦ Tm (pr1 Y) Γ, tm_from_qq Z Γ⟧.
 Proof.
   intros Γ t.
-  exists ((pp (pr1 Y) : nat_trans _ _ )  _ t).
+  exists (pp (pr1 Y) $nt t).
   apply term_to_section.
 Defined. 
 
@@ -86,27 +89,26 @@ Proof.
   apply nat_trans_eq. apply homset_property.
   intros Γ; simpl in Γ. apply funextsec; intros [A [s e]].
   cbn. unfold canonical_TM_to_given_data.
-  etrans. apply (toforallpaths (nat_trans_ax (pp Y) s)). 
+  etrans. apply nat_trans_ax_pshf. 
   etrans. cbn. apply maponpaths, pp_te.
-  etrans. apply (toforallpaths (!functor_comp (TY X) _ _) _).
+  etrans. apply pathsinv0, functor_comp_pshf.
   etrans. apply maponpaths_2, e.
-  apply (toforallpaths (functor_id (TY X) _ ) _).
+  apply functor_id_pshf.
 Qed.
 
 (* Functions between sets [f : X <--> Y : g] are inverse iff they are _adjoint_, in that [ f x = y <-> x = f y ] for all x, y.
 
 Here we give one direction of that “adjunction”; combined with [given_to_canonical_to_given] above, it implies full inverseness. *) 
 Lemma canonical_TM_to_given_paths_adjoint {Γ:C} Ase t
-  : (canonical_TM_to_given : nat_trans _ _) Γ Ase = t
+  : canonical_TM_to_given $nt Ase = t
   -> Ase = given_TM_to_canonical_data Γ t.
 Proof.
   destruct Ase as [A [s e]].
   intros H.
   (* This [assert] is to enable the [destruct eA] below. *)
-  assert (eA : (pp Y : nat_trans _ _) _ t = A). {
+  assert (eA : pp Y $nt t = A). {
     etrans. { apply maponpaths, (!H). }
-    use (toforallpaths (nat_trans_eq_pointwise pp_canonical_TM_to_given _)).
-  }
+    apply (nat_trans_eq_pointwise_pshf pp_canonical_TM_to_given). }
   use total2_paths_f.
   exact (!eA).
   destruct eA; cbn.
@@ -119,7 +121,7 @@ Proof.
 Qed.
 
 Lemma canonical_to_given_to_canonical Γ
-  : (canonical_TM_to_given : nat_trans _ _ )  Γ
+  : (canonical_TM_to_given : nat_trans _ _) Γ
     ;; given_TM_to_canonical_data Γ
   = identity _ .
 Proof.
@@ -169,19 +171,19 @@ Qed.
 
 (* TODO: re-state [given_to_canonical_to_given] and [canonical_to_given_to_canonical] as composites of natural transformations? *)
 
-Lemma canonical_TM_to_given_te {Γ:C} A
-  : (canonical_TM_to_given : nat_trans _ _) (Γ ◂ A) (te_from_qq Z A) = te Y A.
+Lemma canonical_TM_to_given_te {Γ:C} (A : Ty X Γ)
+  : canonical_TM_to_given $nt (te_from_qq Z A) = te Y A.
 Proof.
   cbn. unfold canonical_TM_to_given_data. cbn.
   etrans. apply maponpaths, (pr2 Y).
-  etrans. use (toforallpaths (!functor_comp (TM Y) _ _ )).
+  etrans. apply pathsinv0, functor_comp_pshf.
   etrans. apply maponpaths_2; cbn.
     apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)). 
-  apply (toforallpaths (functor_id (TM Y) _) _).
+  apply functor_id_pshf.
 Qed.
 
-Lemma given_TM_to_canonical_te {Γ:C} A
-  : (given_TM_to_canonical : nat_trans _ _) (Γ ◂ A) (te Y A) = (te_from_qq Z A).
+Lemma given_TM_to_canonical_te {Γ:C} (A : Ty X Γ)
+  : given_TM_to_canonical $nt (te Y A) = (te_from_qq Z A).
 Proof.
   etrans.
   2: { exact (toforallpaths (canonical_to_given_to_canonical _) _). }
@@ -226,10 +228,10 @@ Proof.
       etrans. apply transportf_isotoid_pshf.
       cbn. unfold canonical_TM_to_given_data. cbn.
       etrans. apply maponpaths, YH.
-      etrans. use (toforallpaths (!functor_comp tm _ _ )).
+      etrans. apply pathsinv0, functor_comp_pshf.
       etrans. apply maponpaths_2; cbn.
         apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)). 
-      apply (toforallpaths (functor_id tm _) _).
+      apply functor_id_pshf.
 Defined.
 
 (** * Every compatible q-morphism structure is equal to the canonical one *)
@@ -303,25 +305,8 @@ Definition T2 : UU :=
 
 Definition shuffle : T1 ≃ T2.
 Proof.
-  eapply weqcomp.
-  unfold T1.
-  unfold compatible_qq_morphism_structure.
-  set (XR := @weqtotal2asstol).
-  specialize (XR (term_fun_structure C X)).
-  specialize (XR (fun _ => qq_morphism_structure X)).
-  simpl in XR.
-  specialize (XR (fun YZ => iscompatible_term_qq (pr1 YZ) (pr2 YZ))).
-  apply XR.
-  eapply weqcomp.
-  2: {
-    unfold T2, compatible_term_structure.
-    set (XR := @weqtotal2asstor).
-    specialize (XR (qq_morphism_structure X)).
-    specialize (XR (fun _ => term_fun_structure C X)).
-    simpl in XR.
-    specialize (XR (fun YZ => iscompatible_term_qq (pr2 YZ) (pr1 YZ))).
-    apply XR.
-  }
+  eapply weqcomp. { apply weqtotal2asstol'. }
+  eapply weqcomp. 2: { apply weqtotal2asstor'. }
   use weqbandf.
   - apply weqdirprodcomm.
   - intros. simpl.

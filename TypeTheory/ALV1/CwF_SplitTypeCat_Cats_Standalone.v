@@ -8,7 +8,7 @@
 
 This file defines the categories of term-structures and _q_-morphism structures over a fixed object-extension structure, and proves that they are univalent and equivalent.
 
-For the more interesting case where the object-extension structure is also allowed to vary, see [CwF_Split_TypeCat_Cats], where this more general category is constructed, using the formalism of displayed categories.
+For the more interesting case where the object-extension structure is also allowed to vary, see [CwF_Split_TypeCat_Cats], where this more general category is constructed, using the formalism of displayed categories, and [CwF_SplitTypeCat_Equiv_Cats], giving the equivalence in the displayed setting.
 
 In general, this file should be deprecated, and the displayed version should be used for all further development.  This standalone version is included just to give the equivalence in a form independent of the development of displayed categories.
 
@@ -27,7 +27,11 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
+
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.
@@ -36,8 +40,9 @@ Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.
 (** Some local notations, *)
 
 Local Notation "Γ ◂ A" := (comp_ext _ Γ A) (at level 30).
-Local Notation "'Ty'" := (fun X Γ => (TY X : functor _ _) Γ : hSet) (at level 10).
-Local Notation "'Tm'" := (fun Y Γ => (TM Y : functor _ _) Γ : hSet) (at level 10).
+Local Notation "'Ty'" := (fun X Γ => TY X $p Γ) (at level 10).
+Local Notation "'Tm'" := (fun Y Γ => TM Y $p Γ) (at level 10).
+
 Local Notation Δ := comp_ext_compare.
 
 Section fix_cat_obj_ext.
@@ -56,7 +61,7 @@ Definition term_fun_mor
        FF_TM ;; pp Y' = pp Y 
      × 
        ∏ {Γ:C} {A : Ty X Γ},
-           (FF_TM : nat_trans _ _) _ (te Y A) = (te Y' _).
+           FF_TM $nt (te Y A) = te Y' _.
 
 
 Definition term_fun_mor_TM {Y Y'} (FF : term_fun_mor Y Y')
@@ -69,7 +74,7 @@ Definition term_fun_mor_pp {Y Y'} (FF : term_fun_mor Y Y')
 
 Definition term_fun_mor_te {Y Y'} (FF : term_fun_mor Y Y')
     {Γ:C} (A : Ty X Γ)
-  : (term_fun_mor_TM FF : nat_trans _ _) _ (te Y A) = (te Y' _)
+  : term_fun_mor_TM FF $nt (te Y A) = (te Y' _)
 := pr2 (pr2 FF) Γ A.
 
 Definition term_fun_mor_Q {Y Y'} (FF : term_fun_mor Y Y')
@@ -79,16 +84,15 @@ Proof.
   apply nat_trans_eq. apply homset_property.
   intros Γ'; simpl in Γ'.
   unfold yoneda_objects_ob. apply funextsec; intros f.
-  etrans. 
-    use (toforallpaths (nat_trans_ax (term_fun_mor_TM FF) _)).
+  etrans. apply nat_trans_ax_pshf.
   cbn. apply maponpaths, term_fun_mor_te.
 Qed.
 
 (* Defined only locally, since once [isaprop_term_fun_mor_eq] is defined, that should always be used in place of this. *)
 Local Lemma term_fun_mor_eq {Y} {Y'} (FF FF' : term_fun_mor Y Y')
     (e_TM : ∏ Γ (t : Tm Y Γ),
-      (term_fun_mor_TM FF : nat_trans _ _) _ t
-      = (term_fun_mor_TM FF' : nat_trans _ _) _ t)
+      term_fun_mor_TM FF $nt t
+      = term_fun_mor_TM FF' $nt t)
   : FF = FF'.
 Proof.
   apply subtypePath.
@@ -103,13 +107,13 @@ Qed.
 (* This is not full naturality of [term_to_section]; it is just what is required for [isaprop_term_fun_mor] below. *)
 Lemma term_to_section_naturality {Y} {Y'}
   {FY : term_fun_mor Y Y'}
-  {Γ : C} (t : Tm Y Γ) (A := (pp Y : nat_trans _ _) _ t)
-  : pr1 (term_to_section ((term_fun_mor_TM FY : nat_trans _ _) _ t))
+  {Γ : C} (t : Tm Y Γ) (A := pp Y $nt t)
+  : pr1 (term_to_section (term_fun_mor_TM FY $nt t))
   = pr1 (term_to_section t) 
-   ;; Δ (!toforallpaths (nat_trans_eq_pointwise (term_fun_mor_pp FY) Γ) t).
+   ;; Δ (!nat_trans_eq_pointwise_pshf (term_fun_mor_pp FY) _).
 Proof.
-  set (t' := (term_fun_mor_TM FY : nat_trans _ _) _ t).
-  set (A' := (pp Y' : nat_trans _ _) _ t').
+  set (t' := term_fun_mor_TM FY $nt t).
+  set (A' := pp Y' $nt t').
   set (Pb := isPullback_preShv_to_pointwise (isPullback_Q_pp Y' A') Γ);
     simpl in Pb.
   apply (pullback_HSET_elements_unique Pb); clear Pb.
@@ -119,19 +123,19 @@ Proof.
     etrans. apply @pathsinv0, assoc.
     apply maponpaths.
     apply comp_ext_compare_π.
-  - etrans. apply term_to_section_recover. apply pathsinv0.
+  - etrans. apply term_to_section_recover. 
+    apply pathsinv0.
     etrans. apply Q_comp_ext_compare.
-    etrans. apply @pathsinv0.
-      set (H1 := nat_trans_eq_pointwise (term_fun_mor_Q FY A) Γ).
-      exact (toforallpaths H1 _).
-    cbn. apply maponpaths. apply term_to_section_recover.
+    etrans.
+      eapply pathsinv0, nat_trans_eq_pointwise_pshf, term_fun_mor_Q.
+    cbn. apply maponpaths, term_to_section_recover.
 Qed.
 
 Lemma term_fun_mor_recover_term  {Y} {Y'}
   {FY : term_fun_mor Y Y'}
   {Γ : C} (t : Tm Y Γ)
-  : (term_fun_mor_TM FY : nat_trans _ _) Γ t
-  = (Q Y' _ : nat_trans _ _) Γ (pr1 (term_to_section t) ).
+  : term_fun_mor_TM FY $nt t
+  = Q Y' _ $nt (pr1 (term_to_section t) ).
 Proof.
   etrans. apply @pathsinv0, term_to_section_recover.
   etrans. apply maponpaths, term_to_section_naturality.
@@ -251,7 +255,8 @@ Proof.
   - exact (∑ YZ : (term_fun_precategory × qq_structure_precategory), 
                   iscompatible_term_qq (pr1 YZ) (pr2 YZ)).
   - intros YZ YZ'.
-    exact ((pr1 (pr1 YZ)) --> (pr1 (pr1 YZ')) × (pr2 (pr1 YZ)) --> pr2 (pr1 YZ')).
+    exact ((pr1 (pr1 YZ)) --> (pr1 (pr1 YZ'))
+           × (pr2 (pr1 YZ)) --> pr2 (pr1 YZ')).
 Defined.
 
 Definition strucs_compat_id_comp
@@ -336,7 +341,7 @@ Proof.
   - etrans. apply qq_π.
     apply pathsinv0, qq_π.
   - etrans. cbn. apply maponpaths, @pathsinv0, (term_fun_mor_te FY).
-    etrans. use (toforallpaths (!nat_trans_ax (term_fun_mor_TM _) _)).
+    etrans. apply pathsinv0, nat_trans_ax_pshf.
     etrans. cbn. apply maponpaths, @pathsinv0, W.
     etrans. apply term_fun_mor_te.
     apply W'.
@@ -373,12 +378,11 @@ Lemma term_from_qq_mor
   : (Y --> Y').
 Abort.
 
-(* TODO: rename and move this section! *)
+(* TODO: rename and upstream this section! *)
 Section Rename_me.
 (* TODO: naming conventions in this section clash rather with those of [ALV1.CwF_SplitTypeCat_Equivalence]. Consider! *)
-(* TODO: one would expect the type of this to be [nat_trans_data].  However, that name breaks HORRIBLY with general naming conventions: it is not the _type_ of the data (which is un-named for [nat_trans]), but is the _access function_ for that data!  Submit issue for this? *)  
 Lemma tm_from_qq_mor_data {Z Z' : qq_structure_precategory} (FZ : Z --> Z')
-  : forall Γ : C, (tm_from_qq Z Γ) --> (tm_from_qq Z' Γ).
+  : nat_trans_data (tm_from_qq Z) (tm_from_qq Z').
 Proof.
   intros Γ Ase; exact Ase. (* ! *)
 Defined.
@@ -618,7 +622,8 @@ Proof.
   repeat (apply impred_isaprop; intro). apply setproperty.
 Qed.
 
-Definition term_fun_category : category := make_category _ has_homsets_term_fun_precategory.
+Definition term_fun_category : category
+  := make_category _ has_homsets_term_fun_precategory.
 
 Theorem is_univalent_term_fun_structure
   : is_univalent term_fun_category.
@@ -668,7 +673,7 @@ Qed.
 Lemma qq_structure_eq 
   (x : obj_ext_structure C)
   (d d' : qq_morphism_structure x)
-  (H : ∏ (Γ Γ' : C) (f : Γ' --> Γ) (A : (TY x : functor _ _ ) Γ : hSet), 
+  (H : ∏ (Γ Γ' : C) (f : Γ' --> Γ) (A : Ty x Γ), 
            qq d f A = qq d' f A)
   : d = d'.
 Proof.

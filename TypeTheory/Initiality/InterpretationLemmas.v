@@ -6,6 +6,7 @@ Require Import UniMath.PAdics.lemmas. (* just for [setquotprpathsandR] *)
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
+Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.Partial.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.Initiality.SplitTypeCat_General.
@@ -184,7 +185,8 @@ Section Functoriality.
         (* final naturality part *)
         apply leq_partial_of_path.
         eapply pathscomp0. { apply fmap_return_partial. }
-        apply maponpaths. rewrite tm_transportf_idpath.
+        apply maponpaths.
+        eapply pathscomp0. { apply maponpaths, tm_transportf_idpath. }
         eapply pathscomp0. { apply (fmap_pi_intro F_Π). }
         apply tm_transportf_irrelevant.
       + (* [app_expr A B t a] *)
@@ -267,7 +269,8 @@ Section Functoriality.
         (* final naturality part *)
         apply leq_partial_of_path.
         eapply pathscomp0. { apply fmap_return_partial. }
-        apply maponpaths. rewrite tm_transportf_idpath.
+        apply maponpaths.
+        eapply pathscomp0. { apply maponpaths, tm_transportf_idpath. }
         eapply pathscomp0. { apply (fmap_pi_app F_Π). }
         apply tm_transportf_irrelevant.
   Time Defined.
@@ -322,13 +325,12 @@ Section Trivial_Interpretation.
   - if a type/term is interpretable, then it is derivable, and its interpretation is “itself”?  (by induction on expressions)
   - for any derivable judgement, its interpretation its “itself”? (by induction on derivations)?
 
-  Probably go for the middle option — “if a type/term is interpretable in the canonical environmnent (and at some type), then it’s derivable, and its interpretation is itself”.   This can be phrased nicely in terms of [partial_leq] and [tm_/ty_expr_as_partial_type/_term], which may help organise the proof.
+  Probably go for the middle option — “if a type/term is interpretable in the canonical environment (and at some type), then it’s derivable, and its interpretation is itself”.   This can be phrased nicely in terms of [partial_leq] and [tm_/ty_expr_as_partial_type/_term], which may help organise the proof.
 
   The following is therefore a first attempt, which may turn out not to be the best approach.
    *)
-(* TODO: arguments [n], [T] should be made implicit again, once [https://github.com/coq/coq/issues/12895] is fixed. *)
   Fixpoint trivial_interpretation_ty
-      (n : nat) (Γ : wellformed_context_of_length n)
+      {n : nat} (Γ : wellformed_context_of_length n)
       (e : ty_expr n)
       : leq_partial
           (partial_interpretation_ty
@@ -337,8 +339,8 @@ Section Trivial_Interpretation.
              (canonical_environment Γ) e)
           (ty_expr_as_partial_type Γ e)
   with trivial_interpretation_tm
-      (n : nat) (Γ : wellformed_context_of_length n)
-      (T : ty_expr n) (isd_T : ∥ [! Γ |- T !] ∥)
+      {n : nat} (Γ : wellformed_context_of_length n)
+      {T : ty_expr n} (isd_T : ∥ [! Γ |- T !] ∥)
       (e : tm_expr n)
       : leq_partial
           (partial_interpretation_tm
