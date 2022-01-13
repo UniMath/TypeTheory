@@ -488,7 +488,7 @@ Section Truncations.
     intro x. unsquash x f. apply hinhpr; auto.
   Defined.
 
-  Infix "⊛" := hinhfun' (at level 100).
+  Infix "⊛" := hinhfun' (at level 100). (* \circledast in agda-input-mode *)
 
   Lemma hinhfun3 {X1 X2 X3 Y : UU} (f : X1 -> X2 -> X3 -> Y)
       (x1 : ∥ X1 ∥) (x2 : ∥ X2 ∥) (x3 : ∥ X3 ∥)
@@ -528,7 +528,7 @@ Section Truncations.
 
 End Truncations.
 
-Infix "⊛" := hinhfun' (at level 100).
+Infix "⊛" := hinhfun' (at level 100). (* \circledast in agda-input-mode *)
 
 (** ** Surjectivity *)
 
