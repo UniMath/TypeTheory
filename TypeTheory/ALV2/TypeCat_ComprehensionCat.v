@@ -310,8 +310,7 @@ Section TypeCat_Disp.
       - use total2_paths_f.
         + apply idpath.
         + apply homset_property.
-      - apply proofirrelevance.
-        apply isaprop_is_iso_disp.
+      - apply isaprop_is_iso_disp.
     Defined.
 
     Definition typecat_disp_is_disp_univalent_implies_typecat_idtoiso_triangle_isweq

@@ -522,7 +522,6 @@ Proof.
   unsquash from a as aa.
   apply hinhpr.
   exists aa.
-  apply proofirrelevance.
   apply propproperty.
 Defined.
 
@@ -559,13 +558,12 @@ Lemma isaprop_fiber_if_isinclpr1
       (∏ x : X, isaprop (P x)) <- isincl (pr1 : (∑ x, P x) -> X).
 Proof.
   intros X isasetX P H x.
-  unfold isincl in H. unfold isofhlevelf in H.
   apply invproofirrelevance.
   intros p p'.
   assert (X0 :  x,,p = x,,p').
   { specialize (H x).
     assert (H1 :  (x,,p),, idpath _ = ((x,,p'),,idpath _ : hfiber pr1 x)).
-    { apply proofirrelevance. apply H. }
+    { apply H. }
     apply (base_paths _ _ H1).
   }
   set (XR := fiber_paths X0). cbn in XR.

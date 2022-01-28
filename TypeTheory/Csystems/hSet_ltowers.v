@@ -423,9 +423,7 @@ Proof.
   simpl.
   destruct (natgehchoice (ll X) 0 (natgehn0 (ll X))) as [ gt0' | eq0 ]. 
   - assert ( int : gt0 = gt0' ).
-    { apply proofirrelevance.
-      apply ( pr2 ( _ > _ ) ). 
-    }
+    { apply ( pr2 ( _ > _ ) ). }
     rewrite int.
 (*
   assert ( int' : (uu0a.internal_identity_rew_r BB (ftn m (ft X)) 
@@ -462,9 +460,7 @@ Proof.
   simpl.
   destruct (natgehchoice (ll X) 0 (natgehn0 (ll X))) as [ gt0' | eq0 ].
   - assert ( eq' : gt0 = gt0' ).
-    { apply proofirrelevance.
-      apply ( pr2 ( _ > _ ) ).
-    }
+    { apply ( pr2 ( _ > _ ) ). }
     rewrite eq'.
     apply Pcomp_eq. 
   - apply fromempty.
@@ -554,9 +550,7 @@ Proof.
     rewrite eq.
     intro isov.
     assert ( eq1: isov = isover_XX X ). 
-    { apply proofirrelevance.
-      apply isaprop_isover.
-    }
+    { apply isaprop_isover. }
     rewrite eq1.
     apply P0.
   - intros X Y eq isov.
@@ -565,9 +559,7 @@ Proof.
       { intros.
         set ( int11 := Pft X gt0 ).
         assert ( eq1: isov1 = isover_X_ftX X ). 
-        { apply proofirrelevance.
-          apply isaprop_isover.
-        }
+        { apply isaprop_isover. }
         rewrite eq1.
         apply int11.
       }
@@ -592,16 +584,14 @@ Proof.
   (* assert ( int3 := Pcomp _ _ int1 int2 ) . 
   set ( int31 := pr1 int3 ) . assert ( int32 := pr2 int3 ) .
   assert ( eq1: isov = int31 ) . 
-  apply proofirrelevance .  apply isaprop_isover . rewrite eq1 . 
+  apply isaprop_isover . rewrite eq1 . 
   exact int32.*)
   + rewrite ftnX_eq_X in eq. 
     * revert isov.
       rewrite eq. 
       intro isov.
       assert ( eq1: isov = isover_XX X ). 
-      { apply proofirrelevance.
-        apply isaprop_isover.
-      }
+      { apply isaprop_isover. }
       rewrite eq1.
       apply P0.
     * exact eq0. 
@@ -692,9 +682,7 @@ Proof.
         }
         specialize Pft with X isab.
         assert (eq' : isover_ft' isab = H).
-        { apply proofirrelevance.
-          apply isaprop_isover.
-        } 
+        { apply isaprop_isover. } 
         assert (H' : P X isab).
         { apply Pft.
           rewrite eq'.
@@ -702,9 +690,7 @@ Proof.
         }
         red in isab.
         assert (eq'' : pr2 isab = transportf (isover X) (! eq) (isover_X_ftnX X (S n))).
-        { apply proofirrelevance.
-          apply isaprop_isover.
-        }
+        { apply isaprop_isover. }
         rewrite <- eq''.
         exact H'.
       * clear IHn H Pft P'.
@@ -715,7 +701,7 @@ Proof.
         clear eq0.
         remember (transportf (isover X) (! eq) (isover_X_ftnX X (S n))) as H''.
         set (H3 := transportf (isover X) (! eq') (isover_XX X)).
-        assert (eq'' : H'' = H3) by (apply proofirrelevance, isaprop_isover).
+        assert (eq'' : H'' = H3) by (apply isaprop_isover).
         rewrite eq''.
         clear HeqH'' H'' eq'' eq.
         induction eq'.
@@ -728,9 +714,7 @@ Proof.
   specialize P'ok with X (ll X - ll Γ) isov.
   red in P'ok.
   assert ( eq' : isov = (transportf (isover X) (! isov) (isover_X_ftnX X (ll X - ll Γ))) ).
-  { apply proofirrelevance.
-    apply isasetB.
-  }
+  { apply isasetB. }
   induction eq'.
   apply P'ok.
 Defined.

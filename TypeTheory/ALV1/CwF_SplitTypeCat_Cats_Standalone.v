@@ -504,7 +504,7 @@ Proof.
   use gradth.
   - intro f. exists f. use (qq_from_term_mor f W W').
   - intros. cbn. destruct x as [f q]. cbn.
-    apply maponpaths. 
+    apply maponpaths.
     apply proofirrelevance.
     use (qq_from_term_mor_unique f); assumption. 
   - intros y. cbn. apply idpath.

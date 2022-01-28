@@ -515,9 +515,9 @@ Proof.
   change (isoverll0 (ll_cntr BB) X) with ( isabove_to_isover isab ) . 
   rewrite Tj_fun_compt . 
   simpl .
-  assert ( int : (isover_ft' isab) = (isoverll0 (ll_cntr BB) (ft X)) ) by apply proofirrelevance, isaprop_isover . 
+  assert ( int : (isover_ft' isab) = (isoverll0 (ll_cntr BB) (ft X)) ) by apply isaprop_isover . 
   rewrite int .
-  assert ( int' : gt0 = (isabove_gt0 isab) ) by apply proofirrelevance, ( pr2 ( _ > _ ) ) .
+  assert ( int' : gt0 = (isabove_gt0 isab) ) by apply ( pr2 ( _ > _ ) ) .
   rewrite int' . apply idpath . 
 Defined.
 
