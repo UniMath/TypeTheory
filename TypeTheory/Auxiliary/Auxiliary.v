@@ -60,14 +60,7 @@ Proof.
   apply idpath.
 Defined.
 
-(* Note: a common and useful special case of [transport_map]. *)
-Lemma pr1_transportf (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
-   {a a' : A} (e : a = a') (xs : ∑ b : B a, P _ b):
-   pr1 (transportf (fun x => ∑ b : B x, P _ b) e xs) = 
-     transportf (fun x => B x) e (pr1 xs).
-Proof.
-  apply pathsinv0, (transport_map (fun a => pr1)).
-Defined.
+Arguments pr1_transportf _ _ _ _ _ _ _ : clear implicits.
 
 (* Included for searchability, but can always be replaced by [pr1_transportf]. *)
 Definition pr1_transportb
@@ -100,6 +93,7 @@ Defined.
 (* TODO: systematise these variants of [transportf_forall]:
 - probably make [transportf_forall] the most general form, where [B] depends on [A] and [C] depends on both
 - and then give the partly-reduced variants some systematic names, if possible. *)
+(* TODO: this [transportf_forall] is redundant with [MoreFoundations.PartA.transportf_sec_constant]. Upstream; consider naming there? *)
 Lemma transportf_forall {A B} (C : A -> B -> UU)
   {x0 x1 : A} (e : x0 = x1) (f : forall y:B, C x0 y)
   : transportf (fun x => forall y, C x y) e f
@@ -179,16 +173,6 @@ Proof.
     apply hs.
   - exact ex.
 Qed.
-
-Lemma transportf_pair {A B} (P : A × B -> UU)
-    {a a' : A} {b b' : B}
-    (eA : a = a') (eB : b = b') (p : P (a,,b)) 
-  : transportf P (pathsdirprod eA eB) p
-    = transportf (fun bb => P(a',,bb)) eB
-       (transportf (fun aa => P(aa,,b)) eA p).
-Proof.
-  induction eA. induction eB. apply idpath.
-Defined.
 
 (* variant of UniMath’s [transportf_dirprod], easier to apply: paired hypotheses are split up, and one redundant component removed *)
 Lemma transportf_dirprod' {A : UU} (B C : A → UU)
