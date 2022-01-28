@@ -29,8 +29,6 @@ Open Scope cat_deprecated.
 
 (** * Isomorphism lemmas *)
 
-Arguments functor_on_inv_from_iso {_ _} _  {_ _} f.
-
 Lemma is_iso_comp_is_iso {C : precategory} {a b c : ob C}
   (f : C⟦a, b⟧) (g : C⟦b, c⟧) 
   : is_iso f -> is_iso g -> is_iso (f ;; g).
