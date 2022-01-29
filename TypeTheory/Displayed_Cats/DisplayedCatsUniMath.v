@@ -7,7 +7,6 @@ Require Export UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 Require Export UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Export UniMath.CategoryTheory.DisplayedCats.Equivalences.
-Require Export UniMath.CategoryTheory.DisplayedCats.Equivalences_bis.
 
 Require Export UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Export UniMath.CategoryTheory.DisplayedCats.SIP.
