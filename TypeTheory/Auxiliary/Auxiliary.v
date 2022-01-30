@@ -89,6 +89,15 @@ Proof.
   induction p; apply idpath.
 Defined.
 
+(* generalisation of the slightly overspecialised [MoreFoundations.PartA.transportf_pair] *)
+Lemma transportf_paireq {A B} (P : A × B -> UU) {ab ab' : A × B}
+      (e : ab = ab') (p : P ab)
+      : transportf P e p =
+          transportf (λ b, P(pr1 ab',,b) ) (maponpaths _ e)
+            (transportf (λ a, P(a,,pr2 ab)) (maponpaths _ e) p).
+Proof.
+  destruct e. apply idpath.
+Defined.
 
 (* TODO: systematise these variants of [transportf_forall]:
 - probably make [transportf_forall] the most general form, where [B] depends on [A] and [C] depends on both
