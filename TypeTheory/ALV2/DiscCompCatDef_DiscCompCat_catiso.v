@@ -5,7 +5,6 @@
 Require Import UniMath.Foundations.Sets.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.

@@ -1,7 +1,6 @@
 (** * Import the part now residing in UniMath *)
 
 
-Require Export UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 (* Require Export UniMath.CategoryTheory.DisplayedCats.Core. *)
 Require Export UniMath.CategoryTheory.DisplayedCats.Constructions.
 
