@@ -14,7 +14,6 @@ Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.TypeCat.
 Require Import TypeTheory.ALV1.TypeCat_Reassoc.
 
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
 Section SplitTypeCat_Cat_Simple.

@@ -35,7 +35,6 @@ Require Import TypeTheory.ALV2.CwF_Cats.
 Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Cats.
 Require Import UniMath.CategoryTheory.catiso.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.

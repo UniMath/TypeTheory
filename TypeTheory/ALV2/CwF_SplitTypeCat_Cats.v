@@ -22,7 +22,6 @@ Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 
-Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 
