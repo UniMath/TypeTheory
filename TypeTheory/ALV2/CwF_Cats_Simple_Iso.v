@@ -21,7 +21,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
-Require Import TypeTheory.ALV1.CwF_def.
+Require Import TypeTheory.CwF.CwF_def.
 Require Import TypeTheory.ALV2.CwF_Cats.
 Require TypeTheory.ALV2.CwF_Cats_Simple.
 Require Import UniMath.CategoryTheory.catiso.

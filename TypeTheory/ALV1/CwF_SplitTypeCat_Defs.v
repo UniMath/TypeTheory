@@ -424,7 +424,7 @@ Proof.
   apply id_left.
 Qed.
 
-(* Note: essentially a duplicate of [TypeTheory.ALV1.CwF_def.cwf_square_comm].
+(* Note: essentially a duplicate of [TypeTheory.CwF.CwF_def.cwf_square_comm].
   However, using that here would add [CwF_def] as a dependency for this and all subsequent files, which is otherwise not needed; so we repeat the (short) proof to avoid the dependency.  *)
 Lemma term_fun_str_square_comm {Y : term_fun_structure_data}
     {Γ : C} {A : Ty X Γ}

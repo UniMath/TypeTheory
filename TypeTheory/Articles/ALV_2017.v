@@ -25,7 +25,7 @@ Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Cats_Standalone.
-Require Import TypeTheory.ALV1.CwF_def.
+Require Import TypeTheory.CwF.CwF_def.
 Require Import TypeTheory.TypeCat.TypeCat.
 Require Import TypeTheory.ALV1.TypeCat_Reassoc.
 Require Import TypeTheory.ALV1.CwF_Defs_Equiv.

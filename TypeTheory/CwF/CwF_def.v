@@ -1,5 +1,5 @@
 (**
-  [TypeTheory.ALV1.CwF_def]
+  [TypeTheory.CwF.CwF_def]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)

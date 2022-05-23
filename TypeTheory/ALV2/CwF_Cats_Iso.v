@@ -28,7 +28,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
 
-Require Import TypeTheory.ALV1.CwF_def.
+Require Import TypeTheory.CwF.CwF_def.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 
 Require Import TypeTheory.ALV2.CwF_Cats.

@@ -1,5 +1,5 @@
 (**
-  [TypeTheory.ALV1.CwF_def]
+  [TypeTheory.CwF.CwF_def]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
@@ -23,7 +23,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
-Require Import TypeTheory.ALV1.CwF_def.
+Require Import TypeTheory.CwF.CwF_def.
 Require Import TypeTheory.ALV1.RelativeUniverses.
 Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
 Require Import TypeTheory.ALV1.Transport_along_Equivs.
