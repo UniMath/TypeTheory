@@ -22,7 +22,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
-Require Import TypeTheory.Displayed_Cats.DisplayedCatFromCwDM.
+Require Import TypeTheory.CwDM.DispCat_of_CwDM.
 Require Import TypeTheory.OtherDefs.DM.
 
 

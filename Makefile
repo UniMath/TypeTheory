@@ -10,7 +10,7 @@ endif
 # The packages, listed in order by dependency:
 PACKAGES += Auxiliary
 PACKAGES += ALV1
-PACKAGES += Displayed_Cats
+PACKAGES += CwDM
 PACKAGES += ALV2
 PACKAGES += OtherDefs
 PACKAGES += Categories
