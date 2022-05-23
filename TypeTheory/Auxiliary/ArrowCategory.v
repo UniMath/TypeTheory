@@ -10,28 +10,6 @@ Require Import TypeTheory.Auxiliary.CategoryTheory.
 (** * Arrow categories *)
 Section ArrowCategory.
 
-(* TODO: perhaps this lemma belongs further upstream; but where? can it be generalized to something clearer and more natural? *)
-Lemma transportf_dirprod_path' {C : category}
-           {a b c d : C}
-           (e : (a, b) = (c, d))
-           (f : C ⟦ a, b ⟧)
-  : transportf (λ x : C × C, C ⟦ dirprod_pr1 x, dirprod_pr2 x ⟧) e f
-    = idtoiso (! pr1 (WeakEquivalences.pathsdirprodweq e)) ;; f
-      ;; idtoiso (dirprod_pr2 (WeakEquivalences.pathsdirprodweq e)).
-Proof.
-  use (paths_rect (C × C) (a, b)
-    (λ xy exy, transportf (λ uv, C ⟦ pr1 uv, pr2 uv ⟧) exy f
-     = idtoiso (! pr1 (WeakEquivalences.pathsdirprodweq exy)) ;; f
-       ;; idtoiso (pr2 (WeakEquivalences.pathsdirprodweq exy))) _ _ e).
-  simpl.
-  etrans.
-  apply (@idpath_transportf _ (λ xy, C ⟦ pr1 xy, pr2 xy ⟧ ) (a, b)).
-  apply pathsinv0.
-  etrans. apply assoc'.
-  etrans. apply id_left.
-  apply id_right.
-Defined.
-
 Definition arrow_category_ids {C : category}
            (abf cdg : arrow_category C)
   : UU
@@ -43,36 +21,14 @@ Lemma arrow_category_id_to_ids {C : category}
            {abf cdg : arrow_category C}
   : (abf = cdg) ≃ arrow_category_ids abf cdg.
 Proof.
-  eapply weqcomp. apply total2_paths_equiv.
-  use (PartA.weqtotal2 WeakEquivalences.pathsdirprodweq).
+  eapply weqcomp. { apply total2_paths_equiv. }
+  use (weqtotal2 pathsdirprodweq).
   intros e.
-  eapply weqcomp. apply invweq.
-  apply (weqpathscomp0l _ (transportf_dirprod_path' _ _)).
-  use weqimplimpl.
-  - intros p.
-    etrans. apply pathsinv0, id_left.
-    etrans. apply maponpaths_2, pathsinv0.
-    apply (iso_inv_after_iso (idtoiso (pr1 (pathsdirprodweq e)))).
-    etrans. apply assoc'.
-    apply maponpaths.
-    etrans. apply maponpaths_2, pathsinv0.
-    apply (maponpaths pr1 (idtoiso_inv _ _ _ _)).
-    etrans. apply assoc.
-    apply p.
-  - intros p.
-    apply pathsinv0.
-    etrans. apply pathsinv0, id_left.
-    etrans. apply maponpaths_2, pathsinv0.
-    apply (iso_after_iso_inv (idtoiso (pr1 (pathsdirprodweq e)))).
-    etrans. apply assoc'.
-    etrans. apply maponpaths_2, pathsinv0.
-    apply (maponpaths pr1 (idtoiso_inv _ _ _ _)).
-    apply pathsinv0.
-    etrans. apply assoc'.
-    apply maponpaths.
-    apply p.
-  - apply homset_property.
-  - apply homset_property.
+  destruct abf as [ab f], cdg as [cd g].
+  set (e' := e : ab = cd). clearbody e'; clear e.
+  destruct e'. cbn.
+  eapply weqcomp. { eapply weqpathscomp0l. apply id_right. }
+  apply weqpathscomp0r. apply pathsinv0, id_left.
 Defined.
 
 Definition arrow_category_is_iso {C : category}

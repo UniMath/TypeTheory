@@ -867,10 +867,10 @@ Proof.
         rewrite iso_after_iso_inv.
         rewrite functor_id.
         apply id_left.
-  - intros. apply proofirrelevance. 
-    do 2 (apply impred; intro); apply propproperty.
-  - intros. apply proofirrelevance. 
-    do 2 (apply impred; intro); apply propproperty.
+  - intros.
+    do 2 (apply impred_isaprop; intro); apply propproperty.
+  - intros.
+    do 2 (apply impred_isaprop; intro); apply propproperty.
 Defined.
 
 End fix_a_morphism.
@@ -929,10 +929,7 @@ Section Weak_RelU_Comm_Square.
     intros u.
     use total2_paths_f.
     - apply idpath.
-    - apply proofirrelevance.
-      apply impred. intros c'.
-      apply impred. intros d'.
-      apply isapropishinh.
+    - do 2 (apply impred_isaprop; intro); apply propproperty.
   Defined.
 
 End Weak_RelU_Comm_Square.

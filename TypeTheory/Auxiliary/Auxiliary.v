@@ -60,14 +60,7 @@ Proof.
   apply idpath.
 Defined.
 
-(* Note: a common and useful special case of [transport_map]. *)
-Lemma pr1_transportf (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
-   {a a' : A} (e : a = a') (xs : ∑ b : B a, P _ b):
-   pr1 (transportf (fun x => ∑ b : B x, P _ b) e xs) = 
-     transportf (fun x => B x) e (pr1 xs).
-Proof.
-  apply pathsinv0, (transport_map (fun a => pr1)).
-Defined.
+Arguments pr1_transportf _ _ _ _ _ _ _ : clear implicits.
 
 (* Included for searchability, but can always be replaced by [pr1_transportf]. *)
 Definition pr1_transportb
@@ -96,10 +89,20 @@ Proof.
   induction p; apply idpath.
 Defined.
 
+(* generalisation of the slightly overspecialised [MoreFoundations.PartA.transportf_pair] *)
+Lemma transportf_paireq {A B} (P : A × B -> UU) {ab ab' : A × B}
+      (e : ab = ab') (p : P ab)
+      : transportf P e p =
+          transportf (λ b, P(pr1 ab',,b) ) (maponpaths _ e)
+            (transportf (λ a, P(a,,pr2 ab)) (maponpaths _ e) p).
+Proof.
+  destruct e. apply idpath.
+Defined.
 
 (* TODO: systematise these variants of [transportf_forall]:
 - probably make [transportf_forall] the most general form, where [B] depends on [A] and [C] depends on both
 - and then give the partly-reduced variants some systematic names, if possible. *)
+(* TODO: this [transportf_forall] is redundant with [MoreFoundations.PartA.transportf_sec_constant]. Upstream; consider naming there? *)
 Lemma transportf_forall {A B} (C : A -> B -> UU)
   {x0 x1 : A} (e : x0 = x1) (f : forall y:B, C x0 y)
   : transportf (fun x => forall y, C x y) e f
@@ -179,16 +182,6 @@ Proof.
     apply hs.
   - exact ex.
 Qed.
-
-Lemma transportf_pair {A B} (P : A × B -> UU)
-    {a a' : A} {b b' : B}
-    (eA : a = a') (eB : b = b') (p : P (a,,b)) 
-  : transportf P (pathsdirprod eA eB) p
-    = transportf (fun bb => P(a',,bb)) eB
-       (transportf (fun aa => P(aa,,b)) eA p).
-Proof.
-  induction eA. induction eB. apply idpath.
-Defined.
 
 (* variant of UniMath’s [transportf_dirprod], easier to apply: paired hypotheses are split up, and one redundant component removed *)
 Lemma transportf_dirprod' {A : UU} (B C : A → UU)
@@ -538,7 +531,6 @@ Proof.
   unsquash from a as aa.
   apply hinhpr.
   exists aa.
-  apply proofirrelevance.
   apply propproperty.
 Defined.
 
@@ -575,13 +567,12 @@ Lemma isaprop_fiber_if_isinclpr1
       (∏ x : X, isaprop (P x)) <- isincl (pr1 : (∑ x, P x) -> X).
 Proof.
   intros X isasetX P H x.
-  unfold isincl in H. unfold isofhlevelf in H.
   apply invproofirrelevance.
   intros p p'.
   assert (X0 :  x,,p = x,,p').
   { specialize (H x).
     assert (H1 :  (x,,p),, idpath _ = ((x,,p'),,idpath _ : hfiber pr1 x)).
-    { apply proofirrelevance. apply H. }
+    { apply H. }
     apply (base_paths _ _ H1).
   }
   set (XR := fiber_paths X0). cbn in XR.

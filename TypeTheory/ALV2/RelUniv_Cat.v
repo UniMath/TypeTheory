@@ -347,8 +347,7 @@ Section RelUniv_ϕ_Cat.
     - use gen_reluniv_mor_eq.
       + apply e_Ũ.
       + apply e_U.
-    - apply proofirrelevance.
-      apply impred_isaprop. intros X.
+    - apply impred_isaprop. intros X.
       apply impred_isaprop. intros f.
       apply isaprop_reluniv_mor_ϕ.
       apply f_J.
