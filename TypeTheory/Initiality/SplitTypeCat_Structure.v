@@ -9,7 +9,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 
-Require Import TypeTheory.ALV1.TypeCat.
+Require Import TypeTheory.TypeCat.TypeCat.
 Require Import TypeTheory.Initiality.SplitTypeCat_General.
 Require Import TypeTheory.Initiality.SplitTypeCat_Maps.
 

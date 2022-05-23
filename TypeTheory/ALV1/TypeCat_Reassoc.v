@@ -24,7 +24,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
-Require Import TypeTheory.ALV1.TypeCat.
+Require Import TypeTheory.TypeCat.TypeCat.
 
 (** ** Structural permutation/reassociation lemma
 

@@ -26,7 +26,7 @@ Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Cats_Standalone.
 Require Import TypeTheory.ALV1.CwF_def.
-Require Import TypeTheory.ALV1.TypeCat.
+Require Import TypeTheory.TypeCat.TypeCat.
 Require Import TypeTheory.ALV1.TypeCat_Reassoc.
 Require Import TypeTheory.ALV1.CwF_Defs_Equiv.
 Require Import TypeTheory.ALV1.RepMaps.

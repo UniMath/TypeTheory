@@ -9,6 +9,7 @@ endif
 ############################################
 # The packages, listed in order by dependency:
 PACKAGES += Auxiliary
+PACKAGES += TypeCat
 PACKAGES += ALV1
 PACKAGES += CwDM
 PACKAGES += ALV2

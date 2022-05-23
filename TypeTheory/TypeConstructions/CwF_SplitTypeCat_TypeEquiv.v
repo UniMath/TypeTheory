@@ -19,7 +19,7 @@ Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
 Require Import TypeTheory.ALV1.CwF_def.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
-Require Import TypeTheory.ALV1.TypeCat.
+Require Import TypeTheory.TypeCat.TypeCat.
 
 Require Import TypeTheory.Initiality.SplitTypeCat_General.
 Require Import TypeTheory.Initiality.SplitTypeCat_Structure.

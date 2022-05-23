@@ -12,7 +12,7 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 
 Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
-Require Import TypeTheory.ALV1.TypeCat.
+Require Import TypeTheory.TypeCat.TypeCat.
 Require Import TypeTheory.ALV1.TypeCat_Reassoc.
 Require Import TypeTheory.ALV2.SplitTypeCat_Cat_Simple.
 Require Import TypeTheory.ALV2.DiscCompCatDef_Cat.

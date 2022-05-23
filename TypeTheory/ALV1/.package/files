@@ -8,5 +8,4 @@ RelUnivYonedaCompletion.v
 CwF_SplitTypeCat_Defs.v
 CwF_Defs_Equiv.v
 Transport_along_Equivs.v
-TypeCat.v
 TypeCat_Reassoc.v

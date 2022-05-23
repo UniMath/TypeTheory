@@ -17,7 +17,7 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.Pullbacks.
 
-Require Import TypeTheory.ALV1.TypeCat.
+Require Import TypeTheory.TypeCat.TypeCat.
 Require Import TypeTheory.OtherDefs.CwF_Pitts.
 
 (** * CwF structure from split type-category structure on a category 
