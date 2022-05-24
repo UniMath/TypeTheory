@@ -1,5 +1,5 @@
 (**
-  [TypeTheory.ALV2.CwF_SplitTypeCat_Equiv_Comparison]
+  [TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Equiv_Comparison]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
@@ -25,9 +25,9 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
-Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Cats.
-Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Univalent_Cats.
-Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Equiv_Cats.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Cats.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Univalent_Cats.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Equiv_Cats.
 
 
 Section Auxiliary.

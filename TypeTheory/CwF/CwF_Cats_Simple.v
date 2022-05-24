@@ -1,5 +1,5 @@
 (**
-  [TypeTheory.ALV2.CwF_Cats_Simple]
+  [TypeTheory.CwF.CwF_Cats_Simple]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
@@ -11,7 +11,7 @@ Objects come from [cwf_structure].
 Morphisms are defined simply as a pair of natural transformations
 for Tm and Ty components of CwF structure.
 
-The main difference from definition in TypeTheory.ALV2.CwF_Cats
+The main difference from definition in TypeTheory.CwF.CwF_Cats
 is that here we do not have a ϕ component (and corresponding axioms)
 as it is completely derived from CwF pullback and the simple morphism.
 

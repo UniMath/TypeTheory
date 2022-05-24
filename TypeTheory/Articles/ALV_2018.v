@@ -22,7 +22,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 
-Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Cats.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Cats.
 
 (** * Categories of the structures under consideration *)
 

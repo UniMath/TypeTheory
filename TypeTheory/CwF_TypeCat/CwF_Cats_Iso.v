@@ -31,8 +31,8 @@ Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
 Require Import TypeTheory.CwF.CwF_def.
 Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Defs.
 
-Require Import TypeTheory.ALV2.CwF_Cats.
-Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Cats.
+Require Import TypeTheory.CwF.CwF_Cats.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Cats.
 Require Import UniMath.CategoryTheory.catiso.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.

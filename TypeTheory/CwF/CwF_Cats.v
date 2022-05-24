@@ -1,5 +1,5 @@
 (**
-  [TypeTheory.ALV2.CwF_Cats]
+  [TypeTheory.CwF.CwF_Cats]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
@@ -19,8 +19,8 @@ is how components are packaged in both objects and morphisms.
 It turns out though that ϕ (together with axioms)
 is completely determined by the pullback in CwF structure.
 So there exists a simpler (yet equivalent) formulation.
-See TypeTheory.ALV2.CwF_Cats_Simple for the alternative definition
-and TypeTheory.ALV2.CwF_Cats_Simple_Iso for the proof of isomorphism
+See TypeTheory.CwF.CwF_Cats_Simple for the alternative definition
+and TypeTheory.CwF.CwF_Cats_Simple_Iso for the proof of isomorphism
 of the corresponding categories.
 
 Main definition here is

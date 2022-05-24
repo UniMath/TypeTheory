@@ -1,5 +1,5 @@
 (**
-  [TypeTheory.ALV2.CwF_SplitTypeCat_Cats]
+  [TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Cats]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)

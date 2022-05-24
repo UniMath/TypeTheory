@@ -1,5 +1,5 @@
 (**
-  [TypeTheory.ALV2.CwF_SplitTypeCat_Univalent_Cats]
+  [TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Univalent_Cats]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
@@ -21,8 +21,8 @@ Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
 Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Defs.
-Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Cats.
-Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Equiv_Cats.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Cats.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Equiv_Cats.
 
 
 Section Auxiliary.

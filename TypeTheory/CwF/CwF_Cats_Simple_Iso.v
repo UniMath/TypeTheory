@@ -1,5 +1,5 @@
 (**
-  [TypeTheory.ALV2.CwF_Cats_Simple_Iso]
+  [TypeTheory.CwF.CwF_Cats_Simple_Iso]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
@@ -22,8 +22,8 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.CwF.CwF_def.
-Require Import TypeTheory.ALV2.CwF_Cats.
-Require TypeTheory.ALV2.CwF_Cats_Simple.
+Require Import TypeTheory.CwF.CwF_Cats.
+Require TypeTheory.CwF.CwF_Cats_Simple.
 Require Import UniMath.CategoryTheory.catiso.
 
 
