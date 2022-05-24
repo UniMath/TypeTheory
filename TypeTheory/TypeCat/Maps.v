@@ -8,7 +8,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
 Require Import TypeTheory.TypeCat.TypeCat.
-Require Import TypeTheory.Initiality.SplitTypeCat_General.
+Require Import TypeTheory.TypeCat.General.
 
 Local Open Scope cat.
 

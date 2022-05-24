@@ -4,8 +4,8 @@ Require Import UniMath.CategoryTheory.All.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.TypeCat.TypeCat.
-Require Import TypeTheory.Initiality.SplitTypeCat_General.
-Require Import TypeTheory.Initiality.SplitTypeCat_Structure.
+Require Import TypeTheory.TypeCat.General.
+Require Import TypeTheory.TypeCat.Structure.
 Require Import TypeTheory.Initiality.Syntax.
 Require Import TypeTheory.Initiality.SyntaxLemmas.
 Require Import TypeTheory.Initiality.Typing.

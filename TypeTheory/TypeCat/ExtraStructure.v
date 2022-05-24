@@ -9,8 +9,8 @@ Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.Pullbacks.
 
 Require Import TypeTheory.TypeCat.TypeCat.
-Require Import TypeTheory.Initiality.SplitTypeCat_General.
-Require Import TypeTheory.Initiality.SplitTypeCat_Structure.
+Require Import TypeTheory.TypeCat.General.
+Require Import TypeTheory.TypeCat.Structure.
 
 Section Pi_eta_structure.
 

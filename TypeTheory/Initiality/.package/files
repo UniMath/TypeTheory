@@ -1,8 +1,3 @@
-SplitTypeCat_General.v
-SplitTypeCat_Maps.v
-SplitTypeCat_Structure.v
-SplitTypeCat_ExtraStructure.v
-SplitTypeCat_Contextual.v
 Syntax.v
 SyntaxLemmas.v
 Typing.v

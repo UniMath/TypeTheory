@@ -10,8 +10,8 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 
 Require Import TypeTheory.TypeCat.TypeCat.
-Require Import TypeTheory.Initiality.SplitTypeCat_General.
-Require Import TypeTheory.Initiality.SplitTypeCat_Maps.
+Require Import TypeTheory.TypeCat.General.
+Require Import TypeTheory.TypeCat.Maps.
 
 Section Bare_Universe_Structure.
 (** The structure of a “bare à-la-Tarski universe” in a split type-cat: a base type (the universe) with a family of types over it (the “El” family).  *)

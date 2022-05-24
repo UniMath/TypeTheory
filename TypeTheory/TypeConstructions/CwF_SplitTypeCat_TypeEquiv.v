@@ -21,8 +21,8 @@ Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Maps.
 Require Import TypeTheory.TypeCat.TypeCat.
 
-Require Import TypeTheory.Initiality.SplitTypeCat_General.
-Require Import TypeTheory.Initiality.SplitTypeCat_Structure.
+Require Import TypeTheory.TypeCat.General.
+Require Import TypeTheory.TypeCat.Structure.
 Require Import TypeTheory.Articles.ALV_2017.
 
 Section CwF.

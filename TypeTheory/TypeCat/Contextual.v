@@ -8,7 +8,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.Partial.
 Require Import TypeTheory.TypeCat.TypeCat.
 
-Require Import TypeTheory.Initiality.SplitTypeCat_General.
+Require Import TypeTheory.TypeCat.General.
 
 Section Extensions.
 (** Context extensions in type-categories, i.e. suitable sequences of types *)

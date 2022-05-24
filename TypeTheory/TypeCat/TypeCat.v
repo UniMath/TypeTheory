@@ -272,7 +272,7 @@ Notation "A {{ f }}" := (reind_typecat A f) (at level 30).
 
 (** * Lemmas about type-(pre)categories *)
 
-(* TODO: unify this section with the material of [Initiality.SplitTypeCat.General]. *)
+(* TODO: unify this section with the material of [TypeCat.General]. *)
 
 Section lemmas.
 
