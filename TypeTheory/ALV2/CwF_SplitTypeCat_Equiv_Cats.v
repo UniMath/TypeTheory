@@ -22,10 +22,10 @@ Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 Require Import TypeTheory.Auxiliary.DisplayedCategories.
 
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Defs.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Maps.
 Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Cats.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence. (* TODO: needed for some natural transformations. *)
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Equivalence. (* TODO: needed for some natural transformations. *)
 
 Section Fix_Context.
 
@@ -202,7 +202,7 @@ Abort.
 (* TODO: rename and upstream this section! *)
 Section Rename_me.
 
-(* TODO: naming conventions in this section clash rather with those of [ALV1.CwF_SplitTypeCat_Equivalence]. Consider! *)
+(* TODO: naming conventions in this section clash rather with those of [CwF_TypeCat.CwF_SplitTypeCat_Equivalence]. Consider! *)
 Lemma tm_from_qq_mor_data {X X' : obj_ext_cat C} {F : X --> X'}
     {Z : qq_structure_disp_cat C X} {Z'} (FZ : Z -->[F] Z')
   : nat_trans_data (tm_from_qq Z) (tm_from_qq Z').

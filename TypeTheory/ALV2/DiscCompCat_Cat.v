@@ -8,7 +8,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.TypeCat.TypeCat.
 Require Import TypeTheory.ALV2.DiscreteComprehensionCat.
 

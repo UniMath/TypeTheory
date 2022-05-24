@@ -1,5 +1,5 @@
 (**
-  [TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence]
+  [TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Equivalence]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
@@ -12,8 +12,8 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Defs.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Maps.
 
 
 Section Fix_Context.

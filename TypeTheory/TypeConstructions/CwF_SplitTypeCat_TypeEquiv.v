@@ -17,8 +17,8 @@ Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
 
 Require Import TypeTheory.CwF.CwF_def.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Defs.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Maps.
 Require Import TypeTheory.TypeCat.TypeCat.
 
 Require Import TypeTheory.Initiality.SplitTypeCat_General.

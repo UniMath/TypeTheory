@@ -1,5 +1,5 @@
 (**
-  [TypeTheory.ALV1.CwF_Defs_Equiv]
+  [TypeTheory.CwF_TypeCat.CwF_Defs_Equiv]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
@@ -40,7 +40,7 @@ Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
 
 Require Import TypeTheory.CwF.CwF_def.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Defs.
 
 Section Fix_Category.
 

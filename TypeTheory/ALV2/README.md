@@ -31,7 +31,7 @@ The files of this package provide:
   - Comparison of the two equivalences constructed between the types of term structures
     and _q_-morphism structures over a given object-extension structure:
 
-    - one given directly, in [`TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence`](/TypeTheory/ALV1/CwF_SplitTypeCat_Equivalence.v);
+    - one given directly, in [`TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Equivalence`](/TypeTheory/CwF_TypeCat.CwF_SplitTypeCat_Equivalence.v);
     - one deduced from an equivalence of categories, in [`CwF_SplitTypeCat_Equiv_Cats`](CwF_SplitTypeCat_Equiv_Cats.v)
 
     Main result: [`compare_term_qq_equivs`][compare_term_qq_equivs].

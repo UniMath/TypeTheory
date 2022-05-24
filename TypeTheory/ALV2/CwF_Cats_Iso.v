@@ -1,5 +1,5 @@
 (**
-  [TypeTheory.ALV1.CwF_Cats]
+  [TypeTheory.CwF_TypeCat.CwF_Cats]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
@@ -29,7 +29,7 @@ Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
 
 Require Import TypeTheory.CwF.CwF_def.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Defs.
 
 Require Import TypeTheory.ALV2.CwF_Cats.
 Require Import TypeTheory.ALV2.CwF_SplitTypeCat_Cats.

@@ -11,6 +11,7 @@ endif
 PACKAGES += Auxiliary
 PACKAGES += TypeCat
 PACKAGES += CwF
+PACKAGES += CwF_TypeCat
 PACKAGES += ALV1
 PACKAGES += CwDM
 PACKAGES += ALV2

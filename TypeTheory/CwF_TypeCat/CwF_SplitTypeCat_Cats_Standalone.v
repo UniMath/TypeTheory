@@ -1,5 +1,5 @@
 (**
-  [TypeTheory.ALV1.CwF_SplitTypeCat_Cats_Standalone]
+  [TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Cats_Standalone]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
@@ -32,9 +32,9 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Defs.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Maps.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Equivalence.
 
 
 (** Some local notations, *)
@@ -380,7 +380,7 @@ Abort.
 
 (* TODO: rename and upstream this section! *)
 Section Rename_me.
-(* TODO: naming conventions in this section clash rather with those of [ALV1.CwF_SplitTypeCat_Equivalence]. Consider! *)
+(* TODO: naming conventions in this section clash rather with those of [CwF_TypeCat.CwF_SplitTypeCat_Equivalence]. Consider! *)
 Lemma tm_from_qq_mor_data {Z Z' : qq_structure_precategory} (FZ : Z --> Z')
   : nat_trans_data (tm_from_qq Z) (tm_from_qq Z').
 Proof.

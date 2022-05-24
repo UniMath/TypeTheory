@@ -12,7 +12,7 @@ Require Import TypeTheory.Initiality.SplitTypeCat_General.
 
 Local Open Scope cat.
 
-(** We base our models on _split type-categories_, i.e. [split_typecat] as defined in [TypeTheory.ALV1.TypeCat] following Pitts and van den Berg–Garner.
+(** We base our models on _split type-categories_, i.e. [split_typecat] as defined in [TypeTheory.CwF_TypeCat.TypeCat] following Pitts and van den Berg–Garner.
 (Roughly the same as what Hofmann calls CwA’s.) *)
 
 Section morphisms.

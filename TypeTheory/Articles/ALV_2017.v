@@ -20,15 +20,15 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 
 Require Import TypeTheory.ALV1.RelativeUniverses.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Defs.
 Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Cats_Standalone.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Maps.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Equivalence.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Cats_Standalone.
 Require Import TypeTheory.CwF.CwF_def.
 Require Import TypeTheory.TypeCat.TypeCat.
-Require Import TypeTheory.ALV1.TypeCat_Reassoc.
-Require Import TypeTheory.ALV1.CwF_Defs_Equiv.
+Require Import TypeTheory.CwF_TypeCat.TypeCat_Reassoc.
+Require Import TypeTheory.CwF_TypeCat.CwF_Defs_Equiv.
 Require Import TypeTheory.ALV1.RepMaps.
 
 
