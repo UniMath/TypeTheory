@@ -46,35 +46,39 @@ We give an overview of the packages and refer to each package's README for detai
 
 NOTE: this table of contents is not automatically updated, and may often be out of sync with the development.
 
-* *Articles/*
-  * currently only two .v files with little content concerning ALV
-* *Auxiliary/*
-  * General background definitions and results that might be upstreamed into UniMath/UniMath
-* *Categories/*
-  * Background constructions and results on categories; might be upstreamed to UniMath/CategoryTheory
-* *ALV1/*
-  * Definition of CwF’s (a la Fiore) and Split Type-Categories
-  * Construction of an equivalence of types between families structures and split type structures
-  * Construction of an equivalence of categories between families structures and split type structures
-  * Definition of relative universe structures
-  * Construction of an equivalence between families structures and relative universe structures on Yoneda
-  * Construction of a function from families structures on a category to families structures on its Rezk completion
-* *Displayed_Cats/*
-  * Library on displayed categories: a toolbox for constructing and working with categories of multi-component structures
-  * after the integration into UniMath of most of the material, only very little remains
-* *ALV2/*
-  * Construction of equivalences of categories between families structures and split type structures, using
-    displayed categories
-* *Instances/*
-  * for the time being, only the result that presheaves form a type category (providing an "instance" of the concept)
-* *Bsystems/*
-  * the implementation of Vladimir Voevodsky's notion of B system
-* *Csystems/*
+- *Auxiliary/*
+  - General background definitions and results, that could be upstreamed into UniMath/UniMath
+- *RelUniv/*
+  - Definition and basic development of *relative universe structures*
+- *CompCats/*
+  - Basic development of *comprehension categories* (though UniMath itself contains the basic definition)
+- *TypeCat/*
+  - Definition and basic development of *type-categories*, including splitness, the (2-)category of type-categories, and extra logical structure on them
+- *CwF/*
+  - Definition and basic development of *categories with families*, using the Fiore–Aowdey approach with representable (more precisely, *represented*) maps
+  - An equivalence between families structures and relative universe structures on Yoneda
+  - Construction of a function from families structures on a category to families structures on its Rezk completion
+- *CwF_TypeCat/*
+  - Comparisons between CwF’s and split type-categories; specifically:
+    - equivalence of types between families structures and split type structures, as presented in Ahrens–Lumsdaine–Voevodsky 2017
+	- equivalence of categories between families structures and split type structures
+- *OtherDefs/*
+  - Various other categorical structures used in the study of type theory, not yet developed here enough to warrant separate packages
+- *Categories/*
+  - Background constructions and results on categories; might be upstreamed to UniMath/CategoryTheory
+- *Instances/*
+  - concrete examples of the categorical structures considered
+  - so far, only the result that presheaves form a type-category
+- *Csystems/*
   * the implementation of Vladimir Voevodsky's notion of C system
-* *Initiality/*
-  * the interpretation from the syntax of a small type theory into suitably-structured CwA’s
-  * (incomplete) the syntactic CwA of the type theory, and its initiality
-* *OtherDefs/*
-  * Various other categorical structures used in the study of type theory
-
-  *WARNING: many files in this subdirectory are in a very rough state; use at your own risk.*
+- *Bsystems/*
+  * the implementation of Vladimir Voevodsky's notion of B system
+- *Cubical/*
+  - To be documented
+- *Initiality/*
+  - the interpretation from the syntax of a small type theory into suitably-structured CwA’s
+  - (incomplete) the syntactic CwA of the type theory, and its initiality
+- *TypeConstructions/*
+  - To be documented
+- *Articles/*
+  - files corresponding to articles whose content is formalised here, linking results named in the articles to their formalisation in this development

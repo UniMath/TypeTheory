@@ -18,13 +18,13 @@ PACKAGES += CwDM
 PACKAGES += TypeCat_CompCat
 PACKAGES += OtherDefs
 PACKAGES += Categories
-PACKAGES += Articles
 PACKAGES += Instances
 PACKAGES += Csystems
 PACKAGES += Bsystems
 PACKAGES += Cubical
 PACKAGES += Initiality
 PACKAGES += TypeConstructions
+PACKAGES += Articles
 ############################################
 # other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= no 
