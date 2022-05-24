@@ -1,4 +1,4 @@
-Package *ALV2*
+Package *TypeCat_CompCat*
 ===================================================
 
 Authors: Benedikt Ahrens, Peter LeFanu Lumsdaine, Vladimir Voevodsky
@@ -40,5 +40,5 @@ The files of this package provide:
 
   - Functors of relative universe categories.
 
-[compare_term_qq_equivs]: https://github.com/UniMath/TypeTheory/blob/master/TypeTheory/ALV2/CwF_SplitTypeCat_Equiv_Comparison.v#L69-L73
+[compare_term_qq_equivs]: https://github.com/UniMath/TypeTheory/blob/master/TypeTheory/TypeCat_CompCat/CwF_SplitTypeCat_Equiv_Comparison.v#L69-L73
 

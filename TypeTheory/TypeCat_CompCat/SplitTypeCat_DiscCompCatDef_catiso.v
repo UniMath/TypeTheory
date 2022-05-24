@@ -17,7 +17,7 @@ Require Import TypeTheory.CwF_TypeCat.TypeCat_Reassoc.
 Require Import TypeTheory.CwF_TypeCat.SplitTypeCat_Cat_Simple.
 Require Import TypeTheory.CompCats.DiscCompCatDef_Cat.
 Require Import TypeTheory.CompCats.DiscreteComprehensionCat.
-Require Import TypeTheory.ALV2.SplitTypeCat_ComprehensionCat.
+Require Import TypeTheory.TypeCat_CompCat.SplitTypeCat_ComprehensionCat.
 
 Section SplitTypeCat_DiscCompCatDef_catiso.
 

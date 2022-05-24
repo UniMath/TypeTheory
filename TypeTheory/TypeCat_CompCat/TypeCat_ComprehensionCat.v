@@ -1,5 +1,5 @@
 (*
-  [TypeTheory.ALV2.TypeCat_ComprehensionCat]
+  [TypeTheory.TypeCat_CompCat.TypeCat_ComprehensionCat]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
