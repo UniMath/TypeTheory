@@ -1,5 +1,5 @@
 (**
-  [TypeTheory.ALV2.RelUniv_Cat]
+  [TypeTheory.RelUniv.RelUniv_Cat]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
@@ -11,11 +11,11 @@ This module defines two categories of relative J-universe structures:
 
 ϕ component is completely determined by the remaining parts of a morphisms when J is fully faithful.
 This result is reflected in [reluniv_mor_ϕ_of] and futher developed into an isomorphism of
-categories in [TypeTheory.ALV2.RelUniv_Cat_Iso].
+categories in [TypeTheory.RelUniv.RelUniv_Cat_Iso].
 
 An isomorphism between a (simple) category of CwF structures and
 (simple) category of relative universe structures over the Yoneda embedding functor
-is also demonstrated in [TypeTheory.ALV2.RelUniv_Cat_Yo_CwF_Iso].
+is also demonstrated in [TypeTheory.CwF_RelUniv_Cat_Yo_CwF_Iso].
 
 Other important definitions:
 - [iscontr_reluniv_mor_ϕ] — proof that ϕ component is contractible when J is fully faithful;

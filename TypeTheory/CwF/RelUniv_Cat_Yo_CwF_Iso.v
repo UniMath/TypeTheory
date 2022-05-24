@@ -1,5 +1,5 @@
 (**
-  [TypeTheory.ALV2.RelUniv_Cat_Yo_CwF_Iso]
+  [TypeTheory.CwF_RelUniv_Cat_Yo_CwF_Iso]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
@@ -26,8 +26,8 @@ Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 Require Import TypeTheory.CwF.CwF_def.
 Require Import TypeTheory.RelUniv.RelativeUniverses.
 Require Import TypeTheory.CwF.CwF_Cats_Simple.
-Require Import TypeTheory.ALV2.RelUniv_Cat_Simple.
-Require Import TypeTheory.ALV2.RelUniv_Cat.
+Require Import TypeTheory.RelUniv.RelUniv_Cat_Simple.
+Require Import TypeTheory.RelUniv.RelUniv_Cat.
 Require Import UniMath.CategoryTheory.catiso.
 
 Section Cat_Equiv.

@@ -1,5 +1,5 @@
 (**
-  [TypeTheory.ALV2.RelUniv_Cat_Iso]
+  [TypeTheory.RelUniv.RelUniv_Cat_Iso]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
@@ -23,8 +23,8 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.RelUniv.RelativeUniverses.
-Require Import TypeTheory.ALV2.RelUniv_Cat_Simple.
-Require Import TypeTheory.ALV2.RelUniv_Cat.
+Require Import TypeTheory.RelUniv.RelUniv_Cat_Simple.
+Require Import TypeTheory.RelUniv.RelUniv_Cat.
 Require Import UniMath.CategoryTheory.catiso.
 
 Section Cat_Iso.

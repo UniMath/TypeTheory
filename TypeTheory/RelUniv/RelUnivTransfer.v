@@ -1,11 +1,11 @@
 (**
-  [TypeTheory.ALV2.RelUnivTransfer]
+  [TypeTheory.RelUniv.RelUnivTransfer]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
 
 (**
-Transfer constructions from [TypeTheory.RelUniv.RelativeUniverses] lifted to functors.
+Transfer constructions from [TypeTheory.RelUniv.Transport_along_Equivs] lifted to functors.
 
 Current observation: for simple category of relative J-universe structures
 transfer constructions are lifted "trivially" and the resulting functor
@@ -30,8 +30,8 @@ Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
 
 Require Import TypeTheory.RelUniv.RelativeUniverses.
 Require Import TypeTheory.RelUniv.Transport_along_Equivs.
-Require Import TypeTheory.ALV2.RelUniv_Cat_Simple.
-Require Import TypeTheory.ALV2.RelUniv_Cat.
+Require Import TypeTheory.RelUniv.RelUniv_Cat_Simple.
+Require Import TypeTheory.RelUniv.RelUniv_Cat.
 Require Import UniMath.CategoryTheory.catiso.
 
 Section RelUniv_Transfer.

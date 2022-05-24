@@ -1,8 +1,3 @@
-RelUniv_Cat_Simple.v
-RelUniv_Cat.v
-RelUniv_Cat_Iso.v
-RelUniv_Cat_Yo_CwF_Iso.v
-RelUnivTransfer.v
 TypeCat_ComprehensionCat.v
 TypeCat_ComprehensionCat_Equiv.v
 FullyFaithfulDispFunctor.v
