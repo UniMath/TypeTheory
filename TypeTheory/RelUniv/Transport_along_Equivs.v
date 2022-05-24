@@ -21,7 +21,7 @@
   in the direction of the underlying functor if the target category is univalent.
 
   The results of this file could (should, actually) be instantiated 
-  in order to obtain the result of ALV1.RelUnivYonedaCompletion.
+  in order to obtain the result of RelUniv.RelUnivYonedaCompletion.
 
 *)
 

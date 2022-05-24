@@ -44,12 +44,12 @@ Contents
 The contents of this library are split into several "packages" (subdirectories).
 We give an overview of the packages and refer to each package's README for details.
 
+NOTE: this table of contents is not automatically updated, and may often be out of sync with the development.
+
 * *Articles/*
   * currently only two .v files with little content concerning ALV
 * *Auxiliary/*
   * General background definitions and results that might be upstreamed into UniMath/UniMath
-  * Notations for the library
-  * currently only two .v files
 * *Categories/*
   * Background constructions and results on categories; might be upstreamed to UniMath/CategoryTheory
 * *ALV1/*
