@@ -143,7 +143,7 @@ build/CoqMakefile.make: .coq_makefile_input
 # "clean::" occurs also in build/CoqMakefile.make, hence both colons
 clean::
 	rm -f .coq_makefile_input .coq_makefile_output build/CoqMakefile.make
-	find TypeTheory \( -name .\*.aux -o -name \*.glob -o -name \*.v.d -o -name \*.vo \) -delete
+	find TypeTheory \( -name .\*.aux -o -name \*.glob -o -name \*.v.d -o -name \*.vo -o -name \*.vos -o -name \*.vok \) -delete
 	find TypeTheory -type d -empty -delete
 clean::; rm -rf $(ENHANCEDDOCTARGET)
 latex-clean clean::; rm -rf $(LATEXDIR)
