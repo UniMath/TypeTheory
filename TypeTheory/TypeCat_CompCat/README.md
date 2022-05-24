@@ -35,10 +35,3 @@ The files of this package provide:
     - one deduced from an equivalence of categories, in [`CwF_SplitTypeCat_Equiv_Cats`](CwF_SplitTypeCat_Equiv_Cats.v)
 
     Main result: [`compare_term_qq_equivs`][compare_term_qq_equivs].
-
-- [RelUniv_Cat.v](RelUniv_Cat.v)
-
-  - Functors of relative universe categories.
-
-[compare_term_qq_equivs]: https://github.com/UniMath/TypeTheory/blob/master/TypeTheory/TypeCat_CompCat/CwF_SplitTypeCat_Equiv_Comparison.v#L69-L73
-
