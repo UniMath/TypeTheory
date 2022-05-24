@@ -15,7 +15,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 
-Require Import TypeTheory.ALV1.TypeCat.
+Require Import TypeTheory.TypeCat.TypeCat.
 Require Import TypeTheory.OtherDefs.CwF_Pitts.
 Require Import TypeTheory.OtherDefs.DM.
 Require Import TypeTheory.OtherDefs.CwF_Pitts_to_TypeCat.

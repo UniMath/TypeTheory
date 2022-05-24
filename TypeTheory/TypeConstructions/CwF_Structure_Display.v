@@ -16,7 +16,7 @@ Require Import TypeTheory.Auxiliary.Pullbacks.
 Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
-Require Import TypeTheory.ALV1.CwF_def.
+Require Import TypeTheory.CwF.CwF_def.
 
 
 Section Fix_Category.

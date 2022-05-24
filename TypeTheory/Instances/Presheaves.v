@@ -122,7 +122,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.Pullbacks.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
-Require Import TypeTheory.ALV1.TypeCat.
+Require Import TypeTheory.TypeCat.TypeCat.
 
 Local Open Scope cat.
 

@@ -1,0 +1,12 @@
+CwF_SplitTypeCat_Defs.v
+CwF_Defs_Equiv.v
+TypeCat_Reassoc.v
+SplitTypeCat_Cat_Simple.v
+CwF_SplitTypeCat_Maps.v
+CwF_SplitTypeCat_Equivalence.v
+CwF_SplitTypeCat_Cats_Standalone.v
+CwF_SplitTypeCat_Cats.v
+CwF_Cats_Iso.v
+CwF_SplitTypeCat_Equiv_Cats.v
+CwF_SplitTypeCat_Equiv_Comparison.v
+CwF_SplitTypeCat_Univalent_Cats.v

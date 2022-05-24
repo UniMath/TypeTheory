@@ -5,10 +5,10 @@ Require Import UniMath.CategoryTheory.All.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.Partial.
-Require Import TypeTheory.ALV1.TypeCat.
-Require Import TypeTheory.Initiality.SplitTypeCat_General.
-Require Import TypeTheory.Initiality.SplitTypeCat_Contextual.
-Require Import TypeTheory.Initiality.SplitTypeCat_Maps.
+Require Import TypeTheory.TypeCat.TypeCat.
+Require Import TypeTheory.TypeCat.General.
+Require Import TypeTheory.TypeCat.Contextual.
+Require Import TypeTheory.TypeCat.Maps.
 Require Import TypeTheory.Initiality.Syntax.
 
 Section Environments.

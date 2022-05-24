@@ -7,9 +7,9 @@ Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.Pullbacks.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Defs.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Maps.
-Require Import TypeTheory.ALV1.CwF_SplitTypeCat_Equivalence.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Defs.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Maps.
+Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Equivalence.
 
 Definition splTCwF_structure (C : category) : UU
 := ∑ (O : obj_ext_structure C) (TQ : term_fun_structure C O × qq_morphism_structure O),

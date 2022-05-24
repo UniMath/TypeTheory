@@ -13,7 +13,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 
-Require Import TypeTheory.ALV1.TypeCat.
+Require Import TypeTheory.TypeCat.TypeCat.
 Require Import TypeTheory.OtherDefs.DM.
 Require Import TypeTheory.OtherDefs.DM_to_TypeCat.
 Require Import TypeTheory.OtherDefs.TypeCat_to_DM.
