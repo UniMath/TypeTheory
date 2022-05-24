@@ -1,5 +1,5 @@
 (**
-  [TypeTheory.ALV1.RelativeUniverses]
+  [TypeTheory.RelUniv.RelativeUniverses]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)

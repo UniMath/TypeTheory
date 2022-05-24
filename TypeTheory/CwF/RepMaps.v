@@ -24,9 +24,9 @@ Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
 Require Import TypeTheory.CwF.CwF_def.
-Require Import TypeTheory.ALV1.RelativeUniverses.
-Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
-Require Import TypeTheory.ALV1.Transport_along_Equivs.
+Require Import TypeTheory.RelUniv.RelativeUniverses.
+Require Import TypeTheory.RelUniv.RelUnivYonedaCompletion.
+Require Import TypeTheory.RelUniv.Transport_along_Equivs.
 
 (** * Definition of a representable map of presheaves
 

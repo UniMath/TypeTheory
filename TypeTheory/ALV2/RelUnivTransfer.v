@@ -5,7 +5,7 @@
 *)
 
 (**
-Transfer constructions from [TypeTheory.ALV1.RelativeUniverses] lifted to functors.
+Transfer constructions from [TypeTheory.RelUniv.RelativeUniverses] lifted to functors.
 
 Current observation: for simple category of relative J-universe structures
 transfer constructions are lifted "trivially" and the resulting functor
@@ -28,8 +28,8 @@ Require Import TypeTheory.Auxiliary.Pullbacks.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
 
-Require Import TypeTheory.ALV1.RelativeUniverses.
-Require Import TypeTheory.ALV1.Transport_along_Equivs.
+Require Import TypeTheory.RelUniv.RelativeUniverses.
+Require Import TypeTheory.RelUniv.Transport_along_Equivs.
 Require Import TypeTheory.ALV2.RelUniv_Cat_Simple.
 Require Import TypeTheory.ALV2.RelUniv_Cat.
 Require Import UniMath.CategoryTheory.catiso.

@@ -22,7 +22,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
-Require Import TypeTheory.ALV1.RelativeUniverses.
+Require Import TypeTheory.RelUniv.RelativeUniverses.
 Require Import TypeTheory.ALV2.RelUniv_Cat_Simple.
 Require Import TypeTheory.ALV2.RelUniv_Cat.
 Require Import UniMath.CategoryTheory.catiso.

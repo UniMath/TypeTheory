@@ -24,7 +24,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
 Require Import TypeTheory.CwF.CwF_def.
-Require Import TypeTheory.ALV1.RelativeUniverses.
+Require Import TypeTheory.RelUniv.RelativeUniverses.
 Require Import TypeTheory.ALV2.CwF_Cats_Simple.
 Require Import TypeTheory.ALV2.RelUniv_Cat_Simple.
 Require Import TypeTheory.ALV2.RelUniv_Cat.

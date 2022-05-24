@@ -37,7 +37,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.ArrowCategory.
 Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
 
-Require Import TypeTheory.ALV1.RelativeUniverses.
+Require Import TypeTheory.RelUniv.RelativeUniverses.
 
 Require Import UniMath.CategoryTheory.catiso.
 

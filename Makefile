@@ -9,10 +9,10 @@ endif
 ############################################
 # The packages, listed in order by dependency:
 PACKAGES += Auxiliary
+PACKAGES += RelUniv
 PACKAGES += TypeCat
 PACKAGES += CwF
 PACKAGES += CwF_TypeCat
-PACKAGES += ALV1
 PACKAGES += CwDM
 PACKAGES += ALV2
 PACKAGES += OtherDefs

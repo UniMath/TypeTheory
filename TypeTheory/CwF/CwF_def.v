@@ -23,9 +23,9 @@ Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 Require Import TypeTheory.Auxiliary.TypeOfMorphisms.
 
-Require Import TypeTheory.ALV1.RelativeUniverses.
-Require Import TypeTheory.ALV1.Transport_along_Equivs.
-Require Import TypeTheory.ALV1.RelUnivYonedaCompletion.
+Require Import TypeTheory.RelUniv.RelativeUniverses.
+Require Import TypeTheory.RelUniv.Transport_along_Equivs.
+Require Import TypeTheory.RelUniv.RelUnivYonedaCompletion.
 
 (** * Definition of a CwF 
 

@@ -1,5 +1,5 @@
 (**
-  [TypeTheory.ALV1.RelUnivYonedaCompletion]
+  [TypeTheory.RelUniv.RelUnivYonedaCompletion]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
@@ -12,8 +12,8 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
-Require Import TypeTheory.ALV1.RelativeUniverses.
-Require Import TypeTheory.ALV1.Transport_along_Equivs.
+Require Import TypeTheory.RelUniv.RelativeUniverses.
+Require Import TypeTheory.RelUniv.Transport_along_Equivs.
 
 (** * Instantiating the hypotheses of transfer of relative universes to Yoneda *)
 

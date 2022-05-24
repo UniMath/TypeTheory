@@ -1,5 +1,5 @@
 (**
-  [TypeTheory.ALV1.Transport_Along_Equivs]
+  [TypeTheory.RelUniv.Transport_Along_Equivs]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
@@ -33,7 +33,7 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
-Require Import TypeTheory.ALV1.RelativeUniverses.
+Require Import TypeTheory.RelUniv.RelativeUniverses.
 
 
 (** * Transfer of relative universes to Yoneda along weak equivalence *)
