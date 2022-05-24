@@ -10,6 +10,7 @@ endif
 # The packages, listed in order by dependency:
 PACKAGES += Auxiliary
 PACKAGES += RelUniv
+PACKAGES += CompCats
 PACKAGES += TypeCat
 PACKAGES += CwF
 PACKAGES += CwF_TypeCat

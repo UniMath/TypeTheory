@@ -1,5 +1,5 @@
 (*
-  [TypeTheory.ALV2.FullyFaithfulDispFunctor]
+  [TypeTheory.CompCats.FullyFaithfulDispFunctor]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)

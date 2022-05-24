@@ -24,7 +24,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.TypeCat.TypeCat.
-Require Import TypeTheory.ALV2.FullyFaithfulDispFunctor.
+Require Import TypeTheory.CompCats.FullyFaithfulDispFunctor.
 Require Import TypeTheory.ALV2.TypeCat_ComprehensionCat.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.

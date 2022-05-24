@@ -55,8 +55,8 @@ Require Import TypeTheory.Auxiliary.DisplayedCategories.
 Require Import TypeTheory.Auxiliary.Pullbacks.
 
 Require Import TypeTheory.TypeCat.TypeCat.
-Require Import TypeTheory.ALV2.FullyFaithfulDispFunctor.
-Require Import TypeTheory.ALV2.DiscreteComprehensionCat.
+Require Import TypeTheory.CompCats.FullyFaithfulDispFunctor.
+Require Import TypeTheory.CompCats.DiscreteComprehensionCat.
 
 Section DiscreteComprehensionCatWithDefaultMor.
 

@@ -10,10 +10,9 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 
-Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Defs.
-Require Import TypeTheory.ALV2.DiscCompCat_Cat.
-Require Import TypeTheory.ALV2.DiscCompCatDef_Cat.
-Require Import TypeTheory.ALV2.DiscreteComprehensionCat.
+Require Import TypeTheory.CompCats.DiscCompCat_Cat.
+Require Import TypeTheory.CompCats.DiscCompCatDef_Cat.
+Require Import TypeTheory.CompCats.DiscreteComprehensionCat.
 
 Section SplitTypeCat_DiscCompCat_catiso.
 

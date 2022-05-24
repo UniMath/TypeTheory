@@ -1,9 +1,4 @@
 TypeCat_ComprehensionCat.v
 TypeCat_ComprehensionCat_Equiv.v
-FullyFaithfulDispFunctor.v
-DiscreteComprehensionCat.v
 SplitTypeCat_ComprehensionCat.v
-DiscCompCat_Cat.v
-DiscCompCatDef_Cat.v
-DiscCompCatDef_DiscCompCat_catiso.v
 SplitTypeCat_DiscCompCatDef_catiso.v

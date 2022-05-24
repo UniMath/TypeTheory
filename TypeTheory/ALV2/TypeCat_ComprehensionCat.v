@@ -31,7 +31,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.Pullbacks.
 
 Require Import TypeTheory.TypeCat.TypeCat.
-Require Import TypeTheory.ALV2.FullyFaithfulDispFunctor.
+Require Import TypeTheory.CompCats.FullyFaithfulDispFunctor.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.

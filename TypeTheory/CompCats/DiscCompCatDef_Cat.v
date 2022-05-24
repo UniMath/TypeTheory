@@ -10,9 +10,7 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.SetsAndPresheaves.
 
-Require Import TypeTheory.CwF_TypeCat.CwF_SplitTypeCat_Defs.
-Require Import TypeTheory.TypeCat.TypeCat.
-Require Import TypeTheory.ALV2.DiscreteComprehensionCat.
+Require Import TypeTheory.CompCats.DiscreteComprehensionCat.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.

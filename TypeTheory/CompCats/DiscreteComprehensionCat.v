@@ -1,5 +1,5 @@
 (*
-  [TypeTheory.ALV2.DiscreteComprehensionCat]
+  [TypeTheory.CompCats.DiscreteComprehensionCat]
 
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
@@ -38,8 +38,7 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.DisplayedCategories.
 
-Require Import TypeTheory.TypeCat.TypeCat.
-Require Import TypeTheory.ALV2.FullyFaithfulDispFunctor.
+Require Import TypeTheory.CompCats.FullyFaithfulDispFunctor.
 
 
 Section Auxiliary.
