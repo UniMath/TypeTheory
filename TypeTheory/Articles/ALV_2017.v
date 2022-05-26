@@ -6,11 +6,9 @@
 
 (**
 
-Contents:
+This file accompanies the article _Categorical structures for type theory in univalent foundations_, Ahrens, Lumsdaine, Voevodsky, 2017, Logical Methods in Computer Science 14(3), https://arxiv.org/abs/1705.04310
 
-- Import of all the files containing important results
-- Checking the types of main constructions and 
-  of their assumptions
+This file should contain _no substantial formalisation_, and should not be imported.  Its aim is to provide an index from the results of the article ALV 2017 to their locations in the actual formalisation, so that they remain easily available and checkable for readers of the article, even as the library continues to evolve.
 
 *)
 
