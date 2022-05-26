@@ -6,13 +6,7 @@
 
 (**
 
-Eventual contents:
-
-- Import the files containing results of the paper 
-- Give statements/types of main results/constructions,
-  in order to type-check the exported versions.
-
-While the formalisation is work in progress, this file contains placeholder results and statements, with [Admitted.], giving a roadmap of the paper.
+This file is intended to accompany a sequel article to ALV-2017, currently in (delayed) preparation.  Eventually, it should provide an index to the results of the paper, similar to that of [Articles.ALV_2017].  For now, this file contains placeholder results and statements, with [Admitted.], giving a roadmap of the planned paper.
 
 *)
 
