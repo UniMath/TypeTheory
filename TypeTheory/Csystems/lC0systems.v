@@ -22,7 +22,7 @@ Require Export TypeTheory.Csystems.hSet_ltowers.
 Section Upstream.
 
 Lemma idtoiso_inv0 (C : precategory) (a a' : ob C) (p : a = a'):
-  morphism_from_iso (idtoiso (!p)) = inv_from_iso (idtoiso p).
+  morphism_from_z_iso _ _ (idtoiso (!p)) = inv_from_z_iso (idtoiso p).
 Proof.
   destruct p.
   simpl.
@@ -30,13 +30,13 @@ Proof.
 Defined.
 
 Lemma idtoiso_idpath {C : precategory} (a : ob C):
-  idtoiso (idpath a) = identity_iso a.
+  idtoiso (idpath a) = identity_z_iso a.
 Proof.
   apply idpath.
 Qed.
 
 Lemma idtoiso_idpath0 {C : precategory} (a : ob C):
-  morphism_from_iso (idtoiso (idpath a)) = identity a.
+  morphism_from_z_iso _ _ (idtoiso (idpath a)) = identity a.
 Proof.
   apply idpath.
 Qed.
@@ -51,8 +51,8 @@ Qed.
 
 Lemma idtoiso_concat0 (C : precategory) (a a' a'' : ob C)
   (p : a = a') (q : a' = a'') :
-  morphism_from_iso (idtoiso (p @ q)) =
-  morphism_from_iso (idtoiso p) · (morphism_from_iso (idtoiso q)).
+  morphism_from_z_iso _ _ (idtoiso (p @ q)) =
+  morphism_from_z_iso _ _ (idtoiso p) · (morphism_from_z_iso _ _ (idtoiso q)).
 Proof.
   destruct p.
   destruct q.
@@ -96,9 +96,9 @@ Corollary eq_par_arrow_cor {CC: precategory}{T: UU}
       ( par: forall h: T, CC ⟦ s h , t h ⟧)
       { g g': T}(e : g = g'):
   par g = idtoiso (maponpaths s e) · par g' ·
-                  iso_inv_from_iso (idtoiso (maponpaths t e)).
+                  z_iso_inv_from_z_iso (idtoiso (maponpaths t e)).
 Proof.
-  apply iso_inv_on_left.
+  apply z_iso_inv_on_left.
   apply pathsinv0.
   apply eq_par_arrow.
 Qed.
@@ -107,12 +107,12 @@ Corollary eq_par_arrow_cor2 {CC: precategory}{T: UU}
       ( s t: T -> ob CC )
       ( par: forall h: T, CC ⟦ s h , t h ⟧)
       { g g': T}(e : g = g'):
-  par g' = iso_inv_from_iso (idtoiso (maponpaths s e)) ·
+  par g' = z_iso_inv_from_z_iso (idtoiso (maponpaths s e)) ·
                             par g · idtoiso (maponpaths t e).
 Proof.
   apply pathsinv0.
   rewrite <- assoc.
-  apply iso_inv_on_right.
+  apply z_iso_inv_on_right.
   apply eq_par_arrow.
 Qed.
 
@@ -122,7 +122,7 @@ Lemma transportf_source_target_simple {CC: precategory}{T: UU}
       ( s t: T -> ob CC )
       { g g': T}(e : g = g')( m: CC ⟦ s g , t g ⟧):
   transportf (fun h: T => CC ⟦ s h , t h ⟧) e m =
-  iso_inv_from_iso (idtoiso (maponpaths s e)) · m · idtoiso (maponpaths t e).
+  z_iso_inv_from_z_iso (idtoiso (maponpaths s e)) · m · idtoiso (maponpaths t e).
 Proof.
   induction e.
   simpl.
@@ -135,7 +135,7 @@ Lemma transportb_source_target_simple {CC: precategory}{T: UU}
       ( s t: T -> ob CC )
       { g g': T}(e : g' = g)( m: CC ⟦ s g , t g ⟧):
   transportb (fun h: T => CC ⟦ s h , t h ⟧) e m =
-  idtoiso (maponpaths s e) · m · iso_inv_from_iso (idtoiso (maponpaths t e)).
+  idtoiso (maponpaths s e) · m · z_iso_inv_from_z_iso (idtoiso (maponpaths t e)).
 Proof.
   induction e.
   simpl.
@@ -148,7 +148,7 @@ Qed.
 (** [eq_par_arrow] expressed with isomorphisms as results *)
 Corollary eq_par_iso {CC: precategory}{T: UU}
       ( s t: T -> ob CC )
-      ( piso: forall h: T, iso (s h) (t h) )
+      ( piso: forall h: T, z_iso (s h) (t h) )
       { g g': T }(e : g = g'):
   piso g · idtoiso (maponpaths t e) = idtoiso (maponpaths s e) · piso g'.
 Proof.
@@ -157,16 +157,16 @@ Proof.
 Qed.
 
 (** with an isolated isomorphism *)
-Corollary eq_par_iso_cor {CC: precategory}{T: UU}
+Corollary eq_par_iso_cor {CC: category}{T: UU}
       ( s t: T -> ob CC )
-      ( piso: forall h: T, iso (s h) (t h) )
+      ( piso: forall h: T, z_iso (s h) (t h) )
       { g g': T }(e : g = g'):
-  piso g = iso_comp (iso_comp (idtoiso (maponpaths s e)) (piso g'))
-                      (iso_inv_from_iso (idtoiso (maponpaths t e))).
+  piso g = z_iso_comp (z_iso_comp (idtoiso (maponpaths s e)) (piso g'))
+                      (z_iso_inv_from_z_iso (idtoiso (maponpaths t e))).
 Proof.
-  apply eq_iso.
+  apply eq_z_iso.
   simpl.
-  apply iso_inv_on_left.
+  apply z_iso_inv_on_left.
   apply pathsinv0.
   apply eq_par_iso.
 Qed.
@@ -195,14 +195,16 @@ Lemma cancelidtoiso_left {CC: precategory}(is: isaset (ob CC)) {a b c: CC}
   m1 = m2 -> idtoiso p1 · m1  = idtoiso p2 · m2.
 Proof.
   intro Hyp.
-  assert (H1: morphism_from_iso (idtoiso p1) =
-              morphism_from_iso (idtoiso p2)).
+  assert (H1: morphism_from_z_iso _ _ (idtoiso p1) =
+              morphism_from_z_iso _ _ (idtoiso p2)).
   apply maponpaths.
   apply maponpaths.
   apply is.
-  rewrite H1.
-  rewrite Hyp.
-  apply idpath.
+  cbn.
+  etrans.
+  { apply maponpaths. exact Hyp. }
+  apply cancel_postcomposition.
+  assumption.
 Qed.
 
 Lemma cancelidtoiso_left_cor {CC: precategory}(is: isaset (ob CC)) {a b: CC}
@@ -221,14 +223,15 @@ Lemma cancelidtoiso_right {CC: precategory}(is: isaset (ob CC)) {a b c: CC}
   m1 = m2 -> m1 · idtoiso q1  =  m2 · idtoiso q2.
 Proof.
   intro Hyp.
-  assert (H1: morphism_from_iso (idtoiso q1) =
-              morphism_from_iso (idtoiso q2)).
+  assert (H1: morphism_from_z_iso _ _ (idtoiso q1) =
+              morphism_from_z_iso _ _ (idtoiso q2)).
   apply maponpaths.
   apply maponpaths.
   apply is.
-  rewrite H1.
-  rewrite Hyp.
-  apply idpath.
+  etrans.
+  { apply maponpaths. exact H1. }
+  apply cancel_postcomposition.
+  assumption.
 Qed.
 
 Lemma cancelidtoiso_right_cor {CC: precategory}(is: isaset (ob CC)) {a b: CC}
@@ -315,13 +318,13 @@ Corollary eq_p_to_mor_cor {CC: precategory}{T: UU}
       { g g': T }(e : g = g')
   : pmorto g =
     mor_to_constr (idtoiso (maponpaths (fun h => pr1 (pmorto h)) e) ·
-           pmorto g' · iso_inv_from_iso (idtoiso (maponpaths t e))).
+           pmorto g' · z_iso_inv_from_z_iso (idtoiso (maponpaths t e))).
 Proof.
   use total2_paths_f.
   apply idpath.
   rewrite idpath_transportf.
   simpl.
-  apply iso_inv_on_left.
+  apply z_iso_inv_on_left.
   apply pathsinv0.
   apply eq_p_to_mor.
 Qed.
@@ -430,10 +433,10 @@ Qed.
 Lemma eq_p_sec_pnX_cor_aux {CC: ltower_precat_and_p}{n: nat}{T: UU}
       ( t : T -> CC )
       { g g' : T }(e : g = g')
-  : inv_from_iso (idtoiso (maponpaths t e)) · pnX n (t g) =
-    pnX n (t g') · inv_from_iso (idtoiso (maponpaths (fun h => ftn n (t h)) e)).
+  : inv_from_z_iso (idtoiso (maponpaths t e)) · pnX n (t g) =
+    pnX n (t g') · inv_from_z_iso (idtoiso (maponpaths (fun h => ftn n (t h)) e)).
 Proof.
-  apply iso_inv_on_right.
+  apply z_iso_inv_on_right.
   rewrite assoc.
   set (par := fun h: T => pnX n (t h)).
   apply (eq_par_arrow_cor _ _ par e).
@@ -448,7 +451,7 @@ Definition eq_p_sec_pnX_cor_rhs {CC: ltower_precat_and_p}{n: nat}{T: UU}
 Proof.
   use tpair.
   - exact (idtoiso (maponpaths (fun h => ftn n (t h)) e) · psecpnX g'
-                   · iso_inv_from_iso (idtoiso (maponpaths t e))).
+                   · z_iso_inv_from_z_iso (idtoiso (maponpaths t e))).
   - cbn.
     etrans. {apply (!assoc _ _ _ ). }
     etrans.
@@ -467,7 +470,7 @@ Proof.
       apply id_left.
     }
     apply pathsinv0.
-    apply iso_inv_on_left.
+    apply z_iso_inv_on_left.
     apply (! id_left _).
 Defined.
 
@@ -479,7 +482,7 @@ Corollary eq_p_sec_pnX_cor {CC: ltower_precat_and_p}{n: nat}{T: UU}
 Proof.
   apply eq_sec_pnX.
   { apply isaset_mor. }
-  apply iso_inv_on_left.
+  apply z_iso_inv_on_left.
   apply pathsinv0, eq_p_sec_pnX.
 Qed.
 
@@ -601,21 +604,21 @@ Definition C0ax5b_type ( CC : lC0system_data )
 
 (** A construction needed to formulate further properties of the C0-system data. *)
 
-Definition C0ax5b_iso { CC : lC0system_data } ( ax5b : C0ax5b_type CC )
+Definition C0ax5b_z_iso { CC : lC0system_data } ( ax5b : C0ax5b_type CC )
            { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X )
-  : iso (ft ( f_star gt0 f )) Y := idtoiso ( ax5b X Y gt0 f ).
+  : z_iso (ft ( f_star gt0 f )) Y := idtoiso ( ax5b X Y gt0 f ).
 
 (** the following definition is only used for work with the definitions *)
-Definition C0ax5b_iso_inv { CC : lC0system_data } ( ax5b : C0ax5b_type CC )
+Definition C0ax5b_z_iso_inv { CC : lC0system_data } ( ax5b : C0ax5b_type CC )
            { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X )
-  : iso Y (ft(f_star gt0 f)) := iso_inv_from_iso (C0ax5b_iso ax5b gt0 f).
+  : z_iso Y (ft(f_star gt0 f)) := z_iso_inv_from_z_iso (C0ax5b_z_iso ax5b gt0 f).
 
 
 (** The description of properties continues *)
 
 Definition C0ax5c_type { CC : lC0system_data } ( ax5b : C0ax5b_type CC )
   := ∏ ( X Y : CC ) ( gt0 : ll X > 0 ) ( f : Y --> ft X ), 
-     pX ( f_star gt0 f ) · ( ( C0ax5b_iso ax5b gt0 f ) · f ) =
+     pX ( f_star gt0 f ) · ( ( C0ax5b_z_iso ax5b gt0 f ) · f ) =
      ( q_of_f gt0 f ) · ( pX X ).
 
 Definition C0ax6_type ( CC : lC0system_data )
@@ -626,7 +629,7 @@ Definition C0ax7_type { CC : lC0system_data }
            ( ax5a : C0ax5a_type CC ) ( ax5b : C0ax5b_type CC )
   := ∏ ( X Y Z : CC ) ( gt0 : ll X > 0 ) ( f : Y --> ft X ) ( g : Z --> ft(f_star gt0 f) ),
      mor_to_constr ( ( q_of_f ( ax5a _ _ gt0 f ) g ) · ( q_of_f gt0 f ) ) =
-     q_of_f gt0 ( g · ( ( C0ax5b_iso ax5b gt0 f ) · f ) ).
+     q_of_f gt0 ( g · ( ( C0ax5b_z_iso ax5b gt0 f ) · f ) ).
 
 
 
@@ -661,13 +664,13 @@ Definition C0ax5b { CC : lC0system } { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y -->
 Notation ft_f_star := C0ax5b. 
 
 Definition C0eiso { CC : lC0system } { X Y : CC } ( gt0 : ll X > 0 ) ( f : Y --> ft X )
-  : iso (ft(f_star gt0 f)) Y
-  := C0ax5b_iso ( @C0ax5b CC ) gt0 f.
+  : z_iso (ft(f_star gt0 f)) Y
+  := C0ax5b_z_iso ( @C0ax5b CC ) gt0 f.
 
 Definition C0eiso_inv { CC : lC0system } { X Y : CC }
            ( gt0 : ll X > 0 ) ( f : Y --> ft X )
-  : iso Y (ft(f_star gt0 f))
-  := C0ax5b_iso_inv ( @C0ax5b CC ) gt0 f.
+  : z_iso Y (ft(f_star gt0 f))
+  := C0ax5b_z_iso_inv ( @C0ax5b CC ) gt0 f.
 
 
 Definition C0ax5c { CC : lC0system }

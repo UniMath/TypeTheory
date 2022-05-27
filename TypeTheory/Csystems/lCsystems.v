@@ -383,7 +383,7 @@ Proof.
   rewrite <- assoc.
   simpl.
   apply pathsinv0.
-  apply iso_inv_on_right.
+  apply z_iso_inv_on_right.
   apply pathsinv0.
   etrans.
   - eapply (sf_ax1 (C0ax5a gt0 f) g).
@@ -427,7 +427,7 @@ Proof.
   rewrite maponpaths_for_constant_function.
   rewrite id_right.
   rewrite <- assoc.
-  apply iso_inv_on_right.
+  apply z_iso_inv_on_right.
 
   do 2 rewrite assoc.
   apply cancel_postcomposition.
@@ -462,7 +462,7 @@ Proof.
 
   apply pathsinv0.
   do 4 rewrite assoc.
-  apply iso_inv_on_left.
+  apply z_iso_inv_on_left.
   do 2 rewrite <- idtoiso_inv0.
 
   rewrite <- idtoiso_concat0.
@@ -484,8 +484,8 @@ Definition pullback_to_q_of_f {CC: lCsystem}{X Y Z: CC}
   (pbeq: g1 · (C0eiso gt0 f · f) = g2 · pnX 1 X): Z --> f_star gt0 f :=
   C0eiso_inv gt0 (ftf(g2)) ·
   (sf gt0 g2) ·
-  iso_inv_from_iso (idtoiso (maponpaths (f_star gt0) pbeq)) ·
-  iso_inv_from_iso (idtoiso (C0ax7a gt0 f g1)) ·
+  z_iso_inv_from_z_iso (idtoiso (maponpaths (f_star gt0) pbeq)) ·
+  z_iso_inv_from_z_iso (idtoiso (C0ax7a gt0 f g1)) ·
   (q_of_f (C0ax5a gt0 f) g1).
 
 
@@ -503,7 +503,7 @@ Proof.
       apply pathsinv0.
       apply C0ax5c.
     }
-    apply iso_inv_on_right.
+    apply z_iso_inv_on_right.
     do 4 rewrite assoc.
     apply cancel_postcomposition.
 
@@ -511,7 +511,7 @@ Proof.
     etrans.
     { apply pathsinv0.
       apply id_left. }
-    apply iso_inv_to_right.
+    apply z_iso_inv_to_right.
     etrans.
     { apply pathsinv0.
       apply (sec_pnX_eq (sf gt0 g2)). }
@@ -529,10 +529,10 @@ Proof.
     do 2 rewrite <- assoc.
     etrans.
     { do 2 apply cancel_precomposition.
-      unfold C0ax5b_iso.
+      unfold C0ax5b_z_iso.
       rewrite <- idtoiso_inv0.
       unfold C0eiso.
-      unfold C0ax5b_iso.
+      unfold C0ax5b_z_iso.
       apply pathsinv0.
       apply idtoiso_concat0.
     }
@@ -541,17 +541,16 @@ Proof.
     assert (e: f_star gt0 (ftf g2) = f_star (C0ax5a gt0 f) g1)
     by exact (! maponpaths (f_star gt0) pbeq @ ! C0ax7a gt0 f g1).
     apply (eq_par_arrow_cor_objirr (isaset_ob CC) _ _ (pnX 1) e).
-  - apply (pre_comp_with_iso_is_inj _ _ _ (C0eiso gt0 (ftf g2))).
-    { apply iso_is_iso. }
+  - apply (pre_comp_with_z_iso_is_inj (C0eiso gt0 (ftf g2))).
     apply pathsinv0.
     etrans.
     { apply sf_ax1. }
     repeat rewrite <- assoc.
-    apply iso_inv_to_left.
+    apply z_iso_inv_to_left.
     apply cancel_precomposition.
     apply cancel_precomposition.
     apply pathsinv0.
-    apply iso_inv_on_right.
+    apply z_iso_inv_on_right.
     change (g1 · (C0eiso gt0 f · f) = ftf g2) in pbeq.
     apply pathsinv0.
     etrans.
@@ -571,7 +570,7 @@ Proof.
     do 2 rewrite maponpaths_for_constant_function.
     rewrite idtoiso_idpath.
     do 2 rewrite id_right.
-    apply iso_inv_on_right.
+    apply z_iso_inv_on_right.
     rewrite <- idtoiso_inv0.
     rewrite assoc.
     rewrite <- idtoiso_concat0.
@@ -733,7 +732,7 @@ Proof.
         }
         rewrite transportf_source_target_simple.
         repeat rewrite <- assoc.
-        apply iso_inv_on_right.
+        apply z_iso_inv_on_right.
         rewrite <- idtoiso_inv0.
         repeat rewrite assoc.
         etrans.
@@ -748,7 +747,7 @@ Proof.
         etrans.
         { exact s_f_ok. }
         unfold C0eiso.
-        unfold C0ax5b_iso.
+        unfold C0ax5b_z_iso.
         rewrite <- idtoiso_concat0.
         apply cancelidtoiso_left.
         { apply (isaset_ob CC). }
