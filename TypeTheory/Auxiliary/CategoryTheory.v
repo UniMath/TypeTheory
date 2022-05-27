@@ -29,27 +29,19 @@ Open Scope cat_deprecated.
 
 (** * Isomorphism lemmas *)
 
-Lemma is_iso_comp_is_iso {C : precategory} {a b c : ob C}
-  (f : C⟦a, b⟧) (g : C⟦b, c⟧) 
-  : is_iso f -> is_iso g -> is_iso (f ;; g).
-Proof.
-  intros Hf Hg.
-  apply (is_iso_comp_of_isos (make_iso f Hf) (make_iso g Hg)).
-Defined.
-
 (* TODO: check more thoroughly if this is provided in the library; if so, use the library version, otherwise move this upstream.  Cf. also https://github.com/UniMath/UniMath/issues/279 *)
-Lemma inv_from_iso_from_is_z_iso {D: precategory} {a b : D}
+Lemma inv_from_z_iso_from_is_z_iso {D: precategory} {a b : D}
   (f: a --> b) (g : b --> a) (H : is_inverse_in_precat f g)
-: inv_from_iso (f ,, (is_iso_from_is_z_iso _ (g ,, H))) 
+: inv_from_z_iso (f ,,  (g ,, H)) 
   = g.
 Proof.
-  cbn. apply id_right.
+  apply idpath.
 Qed.
 
 (** * Idtoiso and isotoid *)
 
-Lemma idtoiso_identity_iso {C : precategory} (a : C)
-  : idtoiso (idpath a) = identity_iso a.
+Lemma idtoiso_identity_z_iso {C : precategory} (a : C)
+  : idtoiso (idpath a) = identity_z_iso a.
 Proof.
   apply idpath.
 Defined.
@@ -61,7 +53,7 @@ Proof.
 Defined.
 
 Lemma forall_isotid (A : category) (a_is : is_univalent A) 
-      (a a' : A) (P : iso a a' -> UU) :
+      (a a' : A) (P : z_iso a a' -> UU) :
   (∏ e, P (idtoiso e)) → ∏ i, P i.
 Proof.
   intros H i.
@@ -72,11 +64,10 @@ Defined.
 Lemma transportf_isotoid_functor 
   (A X : category) (H : is_univalent A)
   (K : functor A X)
-   (a a' : A) (p : iso a a') (b : X) (f : K a --> b) :
- transportf (fun a0 => K a0 --> b) (isotoid _ H p) f = #K (inv_from_iso p) ;; f.
+   (a a' : A) (p : z_iso a a') (b : X) (f : K a --> b) :
+ transportf (fun a0 => K a0 --> b) (isotoid _ H p) f = #K (inv_from_z_iso p) ;; f.
 Proof.
-  rewrite functor_on_inv_from_iso. simpl. cbn.
-  unfold precomp_with. rewrite id_right.
+  rewrite functor_on_inv_from_z_iso. simpl. cbn.
   generalize p.
   apply forall_isotid.
   - apply H.
@@ -109,12 +100,17 @@ Lemma idtoiso_concat_pr (C : precategory) (a a' a'' : ob C)
   (p : a = a') (q : a' = a'') :
   (idtoiso (p @ q) : _ --> _) = idtoiso p ;; idtoiso q.
 Proof.
-  apply (base_paths _ _ (idtoiso_concat _ _ _ _ _ _ )).
+  cbn.
+  induction q.
+  rewrite idtoiso_identity_z_iso.
+  rewrite id_right.
+  induction p.
+  apply idpath.
 Defined.
 
 Lemma idtoiso_eq_idpath (C : precategory) (a : C) (e : a = a)
     (H : e = idpath _ )
-  : (idtoiso e : _ --> _) = identity_iso _.
+  : (idtoiso e : _ --> _) = identity_z_iso _.
 Proof.
   apply maponpaths, (maponpaths idtoiso H).
 Qed.
@@ -141,7 +137,7 @@ Qed.
 
   TODO: look for dupes in library; move; consider naming conventions; rename D to C. *)
 Lemma postwhisker_isotoid {D : category} (H : is_univalent D)
-    {a b b' : D} (f : a --> b) (p : iso b b')
+    {a b b' : D} (f : a --> b) (p : z_iso b b')
   : transportf (fun b0 => a --> b0) (isotoid _ H p) f
   = f ;; p.
 Proof.
@@ -173,33 +169,33 @@ Definition constant_functor_functor {C1 C2 : category}
   : [C2,[C1,C2]]
 := make_functor _ (constant_functor_functor_is_functor C1 C2).
 
-Lemma constant_nat_trans_is_iso
+Lemma constant_nat_trans_is_z_iso
     {C1 C2 : category} {x y : C2} (f : x --> y )
-  : is_iso f -> @is_iso [C1,C2] _ _ (constant_nat_trans C1 f).
+  : is_z_isomorphism f -> @is_z_isomorphism [C1,C2] _ _ (constant_nat_trans C1 f).
 Proof.
-  intro f_iso. use functor_iso_if_pointwise_iso.
+  intro f_iso. use nat_trafo_z_iso_if_pointwise_z_iso.
   intro; apply f_iso.
 Defined.
 
-Lemma constant_nat_iso
-    {C1 C2 : category} {x y : C2} (f : iso x y )
-  : @iso [C1,C2] (constant_functor C1 _ x) (constant_functor C1 _ y).
+Lemma constant_nat_z_iso
+    {C1 C2 : category} {x y : C2} (f : z_iso x y )
+  : @z_iso [C1,C2] (constant_functor C1 _ x) (constant_functor C1 _ y).
 Proof.
   exists (constant_nat_trans _ f).
-  apply constant_nat_trans_is_iso, iso_is_iso.
+  apply constant_nat_trans_is_z_iso, z_iso_is_z_isomorphism.
 Defined.
 
-Definition nat_trans_from_nat_iso
-    {C D : category} {F G : functor C D} (α : nat_iso F G)
+Definition nat_trans_from_nat_z_iso
+    {C D : category} {F G : functor C D} (α : nat_z_iso F G)
   : nat_trans F G
 := pr1 α.
-Coercion nat_trans_from_nat_iso : nat_iso >-> nat_trans.
+Coercion nat_trans_from_nat_z_iso : nat_z_iso >-> nat_trans.
 
 (** * Properties of functors *)
 
 Definition split_ess_surj {A B : precategory}
   (F : functor A B) 
-  := ∏ b : B, ∑ a : A, iso (F a) b.
+  := ∏ b : B, ∑ a : A, z_iso (F a) b.
 
 Definition split_full {C D : precategory} (F : functor C D) : UU
   := ∏ c c' (f : F c --> F c'), hfiber (#F) f.
@@ -234,11 +230,11 @@ Proof.
 Qed.
 
 
-Definition ff_on_isos {C D : precategory} (F : functor C D) : UU
-  := ∏ c c', isweq (@functor_on_iso _ _ F c c').
+Definition ff_on_z_isos {C D : precategory} (F : functor C D) : UU
+  := ∏ c c', isweq (@functor_on_z_iso _ _ F c c').
 
-Lemma fully_faithful_impl_ff_on_isos {C D : precategory} (F : functor C D) 
-      : fully_faithful F -> ff_on_isos F.
+Lemma fully_faithful_impl_ff_on_isos {C D : category} (F : functor C D) 
+      : fully_faithful F -> ff_on_z_isos F.
 Proof.
   intros Fff c c'.
   use gradth.
@@ -246,11 +242,11 @@ Proof.
     apply (ff_reflects_is_iso _ _ _ Fff).
     assert (XT := homotweqinvweq (make_weq _ (Fff c c' ))).
     cbn in *.
-    apply (transportb (λ i : _ --> _, is_iso i) (XT (pr1 XR) )).
+    apply (transportb (λ i : _ --> _, is_z_isomorphism i) (XT (pr1 XR) )).
     apply XR.
-  - cbn. intro i. apply eq_iso. cbn.
+  - cbn. intro i. apply eq_z_iso. cbn.
     apply (homotinvweqweq (make_weq _ (Fff _ _ ))).
-  - cbn. intro i. apply eq_iso. cbn.
+  - cbn. intro i. apply eq_z_iso. cbn.
     apply (homotweqinvweq (make_weq _ (Fff _ _ ))).
 Defined.
 
@@ -272,15 +268,11 @@ Defined.
 
 Section Adjoint_Equivalences.
 
-(* TODO: remove this once renamed to this upstream (from erroneous “…precats…”) *)
-Coercion adj_equiv_of_cats_from_adj {A B : category} (E : adj_equiv A B)
-  : adj_equivalence_of_cats E := pr2 E.
-
 Definition adj_equiv_from_adjunction
     {C D : category}
     (FG : adjunction C D)
-    (unit_iso : forall c:C, is_iso (adjunit FG c))
-    (counit_iso : forall d:D, is_iso (adjcounit FG d))
+    (unit_iso : forall c:C, is_z_isomorphism (adjunit FG c))
+    (counit_iso : forall d:D, is_z_isomorphism (adjcounit FG d))
   : adj_equiv C D.
 Proof.
   exists (left_functor FG).
@@ -334,7 +326,7 @@ Proof.
   - intro b. exact (pr1 (Fses b)).
   - intros b b' f'; cbn.
     apply Finv.
-    exact (pr2 (Fses b) ;; f' ;; inv_from_iso (pr2 (Fses b'))).
+    exact (pr2 (Fses b) ;; f' ;; inv_from_z_iso (pr2 (Fses b'))).
 Defined.
 
 Definition G_ff_split_ax : is_functor G_ff_split_data.
@@ -342,7 +334,7 @@ Proof.
   split.
   - intro b. cbn. rewrite id_right. simpl.
     apply invmap_eq. cbn.
-    etrans. apply iso_inv_after_iso.
+    etrans. apply z_iso_inv_after_z_iso.
     apply pathsinv0, functor_id.
   - intros b b1 b2 f g.
     apply invmap_eq; cbn.
@@ -354,7 +346,7 @@ Proof.
        apply (homotweqinvweq (make_weq _ (Fff _ _ ))).
     repeat rewrite <- assoc. apply maponpaths. apply maponpaths.
     repeat rewrite assoc. apply maponpaths_2.
-    etrans. apply maponpaths_2.  apply iso_after_iso_inv.
+    etrans. apply maponpaths_2.  apply z_iso_after_z_iso_inv.
     apply id_left.
 Qed.
 
@@ -369,7 +361,7 @@ Proof.
   etrans; [ apply maponpaths_2 ; use homotweqinvweq |];
   repeat rewrite <- assoc; 
   apply maponpaths;
-  rewrite iso_after_iso_inv;
+  rewrite z_iso_after_z_iso_inv;
   apply id_right.
 Qed.
 
@@ -385,7 +377,7 @@ Defined.
 Lemma is_nat_trans_η_ff_split : 
  is_nat_trans (functor_identity_data A)
     (functor_composite_data F G_ff_split_data)
-    (λ a : A, Finv (inv_from_iso (pr2 (Fses (F ((functor_identity A) a)))))).
+    (λ a : A, Finv (inv_from_z_iso (pr2 (Fses (F ((functor_identity A) a)))))).
 Proof.
   intros a a' f;
   apply (invmaponpathsweq (make_weq _ (Fff _ _ )));
@@ -397,7 +389,7 @@ Proof.
   etrans; [ apply maponpaths; use homotweqinvweq |];
   etrans; [ apply maponpaths_2; use homotweqinvweq |];
   repeat rewrite assoc;
-  rewrite iso_after_iso_inv;
+  rewrite z_iso_after_z_iso_inv;
   rewrite id_left ;
   apply idpath.
 Qed.
@@ -409,7 +401,7 @@ Proof.
   use tpair.
   -  intro a.
      apply Finv.
-     apply (inv_from_iso (pr2 (Fses _ ))).
+     apply (inv_from_z_iso (pr2 (Fses _ ))).
   - apply is_nat_trans_η_ff_split. 
 Defined.
     
@@ -419,7 +411,7 @@ Lemma form_adjunction_ff_split
   * intro a.
     cbn. 
     etrans. apply maponpaths_2. use homotweqinvweq. 
-    apply iso_after_iso_inv.
+    apply z_iso_after_z_iso_inv.
   * intro b.
     cbn. 
     apply (invmaponpathsweq (make_weq _ (Fff _ _ ))).
@@ -429,9 +421,9 @@ Lemma form_adjunction_ff_split
     etrans. apply maponpaths. use homotweqinvweq.
     etrans. apply maponpaths_2. use homotweqinvweq.
     repeat rewrite assoc.
-    rewrite iso_after_iso_inv.
+    rewrite z_iso_after_z_iso_inv.
     rewrite id_left.
-    apply iso_inv_after_iso.
+    apply z_iso_inv_after_z_iso.
 Qed.
 
 Definition adj_equivalence_of_cats_ff_split : adj_equivalence_of_cats F.
@@ -444,8 +436,8 @@ Proof.
     + apply form_adjunction_ff_split. 
   - split; cbn.
     + intro a. 
-      use (fully_faithful_reflects_iso_proof _ _ _ Fff _ _ (make_iso _ _ )).
-      apply is_iso_inv_from_iso. 
+      use (fully_faithful_reflects_iso_proof _ _ _ Fff _ _ (make_z_iso' _ _ )).
+      apply is_z_iso_inv_from_z_iso. 
     + intro b. apply pr2.
 Defined.
 
@@ -489,59 +481,51 @@ Proof.
 Defined.
 
 (** * Functors and isomorphisms *)
-
-Lemma functor_is_iso_is_iso {C C' : precategory} (F : functor C C')
-    {a b : ob C} (f : C ⟦a,b⟧) (fH : is_iso f) : is_iso (#F f).
-Proof.
-  apply (functor_on_iso_is_iso _ _ F _ _ (make_iso f fH)).
-Defined.
-
-Definition iso_ob {C : precategory} {D : category}
-          {F G : functor C D} (a : iso (C:= [C, D]) F G)
-  : ∏ c, iso (F c) (G c).
+Definition z_iso_ob {C : precategory} {D : category}
+          {F G : functor C D} (a : z_iso (C:= [C, D]) F G)
+  : ∏ c, z_iso (F c) (G c).
 Proof.
   intro c.
-  use make_iso.
+  use make_z_iso'.
   - cbn. apply ((pr1 a : nat_trans _ _ ) c).
-  - apply is_functor_iso_pointwise_if_iso. apply (pr2 a).
+  - apply nat_trafo_pointwise_z_iso_if_z_iso. apply (pr2 a).
 Defined.
 
-Lemma inv_from_iso_iso_from_fully_faithful_reflection {C D : precategory}
-      (F : functor C D) (HF : fully_faithful F) (a b : C) (i : iso (F a) (F b))
-      : inv_from_iso
+Lemma inv_from_z_iso_z_iso_from_fully_faithful_reflection {C D : precategory}
+      (F : functor C D) (HF : fully_faithful F) (a b : C) (i : z_iso (F a) (F b))
+      : inv_from_z_iso
        (iso_from_fully_faithful_reflection HF i) = 
- iso_from_fully_faithful_reflection HF (iso_inv_from_iso i).
+ iso_from_fully_faithful_reflection HF (z_iso_inv_from_z_iso i).
 Proof.
-  cbn.
-  unfold precomp_with.
-  apply id_right.
+  apply idpath.
 Defined.
 
-Definition nat_iso_from_pointwise_iso (D : precategory) (E : category)
+Definition nat_z_iso_from_pointwise_z_iso (D : precategory) (E : category)
   (F G : [D, E])
-  (a : ∏ d, iso ((F : functor _ _) d) ((G : functor _ _) d))
+  (a : ∏ d, z_iso ((F : functor _ _) d) ((G : functor _ _) d))
   (H : is_nat_trans _ _ a)
-  : iso F G.
+  : z_iso F G.
 Proof.
-  use functor_iso_from_pointwise_iso .
+  use z_iso_from_z_nat_iso.
   use tpair.
-  - intro d. apply a.
-  - apply H.
+  - use tpair.
+    + intro d. apply a.
+    +  apply H.
   - intro d. apply (pr2 (a d)).
 Defined.
 
-Lemma iso_from_iso_with_postcomp (D E E' : category)
+Lemma z_iso_from_z_iso_with_postcomp (D E E' : category)
   (F G : functor D E) (H : functor E E')
   (Hff : fully_faithful H) : 
-  iso (C:=[D, E']) (functor_composite F H) (functor_composite G H)
+  z_iso (C:=[D, E']) (functor_composite F H) (functor_composite G H)
   ->
-  iso (C:=[D, E]) F G.
+  z_iso (C:=[D, E]) F G.
 Proof.
   intro a.
-  use nat_iso_from_pointwise_iso.
+  use nat_z_iso_from_pointwise_z_iso.
   - intro d. simpl.
     apply (iso_from_fully_faithful_reflection Hff).
-    apply (functor_iso_pointwise_if_iso _ _ _ _ _ a (pr2 a)).
+    apply (functor_z_iso_pointwise_if_z_iso _ _ _ _ _ a (pr2 a)).
   - abstract (
     simpl; intros d d' f;
     assert (XR := nat_trans_ax (pr1 a : nat_trans _ _ ));
@@ -559,14 +543,14 @@ Proof.
     ).
 Defined.
 
-Definition functor_assoc_iso (D1 D2 D3 : precategory) (D4 : category)
+Definition functor_assoc_z_iso (D1 D2 D3 : precategory) (D4 : category)
      (F : functor D1 D2) (G : functor D2 D3) (H : functor D3 D4) :
-    iso (C:=[D1,D4])
+    z_iso (C:=[D1,D4])
          (functor_composite (functor_composite F G) H)
          (functor_composite F (functor_composite G H)).
 Proof.
-  use nat_iso_from_pointwise_iso.
-  - intro d. apply identity_iso.
+  use nat_z_iso_from_pointwise_z_iso.
+  - intro d. apply identity_z_iso.
   - abstract (
         intros x x' f;
         rewrite id_left;
@@ -575,12 +559,12 @@ Proof.
      ).
 Defined.
 
-Definition functor_comp_id_iso (D1 : precategory) (D2 : category)
+Definition functor_comp_id_z_iso (D1 : precategory) (D2 : category)
      (F : functor D1 D2) :
-  iso (C:=[D1,D2]) (functor_composite F (functor_identity _ )) F.
+  z_iso (C:=[D1,D2]) (functor_composite F (functor_identity _ )) F.
 Proof.
-  use nat_iso_from_pointwise_iso.
-  - intro. apply identity_iso.
+  use nat_z_iso_from_pointwise_z_iso.
+  - intro. apply identity_z_iso.
   - abstract (
        intros x x' f;
        rewrite id_left;
@@ -589,15 +573,15 @@ Proof.
     ).
 Defined.
 
-Definition functor_precomp_iso (D1 D2 : precategory) (D3 : category)
+Definition functor_precomp_z_iso (D1 D2 : precategory) (D3 : category)
     (F : functor D1 D2) (G H : functor D2 D3) :
-    iso (C:=[D2,D3]) G H ->
-    iso (C:=[D1,D3]) (functor_composite F G)
+    z_iso (C:=[D2,D3]) G H ->
+    z_iso (C:=[D1,D3]) (functor_composite F G)
                           (functor_composite F H).
 Proof.
   intro a.
-  use nat_iso_from_pointwise_iso.
-  - intro d. apply (functor_iso_pointwise_if_iso _ _ _ _ _ a (pr2 a)).
+  use nat_z_iso_from_pointwise_z_iso.
+  - intro d. apply (functor_z_iso_pointwise_if_z_iso _ _ _ _ _ a (pr2 a)).
   - abstract (intros x x' f; apply (nat_trans_ax (pr1 a))).
 Defined.
 
