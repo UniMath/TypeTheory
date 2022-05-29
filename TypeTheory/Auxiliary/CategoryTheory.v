@@ -49,7 +49,7 @@ Qed.
 (** * Idtoiso and isotoid *)
 
 Lemma idtoiso_identity_iso {C : precategory} (a : C)
-  : idtoiso (idpath a) = identity_iso a.
+  : idtoiso (idpath a) = identity_z_iso a.
 Proof.
   apply idpath.
 Defined.
@@ -61,7 +61,7 @@ Proof.
 Defined.
 
 Lemma forall_isotid (A : category) (a_is : is_univalent A) 
-      (a a' : A) (P : iso a a' -> UU) :
+      (a a' : A) (P : z_iso a a' -> UU) :
   (∏ e, P (idtoiso e)) → ∏ i, P i.
 Proof.
   intros H i.
@@ -72,11 +72,10 @@ Defined.
 Lemma transportf_isotoid_functor 
   (A X : category) (H : is_univalent A)
   (K : functor A X)
-   (a a' : A) (p : iso a a') (b : X) (f : K a --> b) :
- transportf (fun a0 => K a0 --> b) (isotoid _ H p) f = #K (inv_from_iso p) ;; f.
+   (a a' : A) (p : z_iso a a') (b : X) (f : K a --> b) :
+ transportf (fun a0 => K a0 --> b) (isotoid _ H p) f = #K (inv_from_z_iso p) ;; f.
 Proof.
-  rewrite functor_on_inv_from_iso. simpl. cbn.
-  unfold precomp_with. rewrite id_right.
+  rewrite functor_on_inv_from_z_iso. simpl. cbn.
   generalize p.
   apply forall_isotid.
   - apply H.
@@ -105,16 +104,16 @@ Proof.
   apply id_right.
 Qed.
 
-Lemma idtoiso_concat_pr (C : precategory) (a a' a'' : ob C)
+Lemma idtoiso_concat_pr (C : category) (a a' a'' : ob C)
   (p : a = a') (q : a' = a'') :
   (idtoiso (p @ q) : _ --> _) = idtoiso p ;; idtoiso q.
 Proof.
   apply (base_paths _ _ (idtoiso_concat _ _ _ _ _ _ )).
 Defined.
 
-Lemma idtoiso_eq_idpath (C : precategory) (a : C) (e : a = a)
+Lemma idtoiso_eq_idpath (C : category) (a : C) (e : a = a)
     (H : e = idpath _ )
-  : (idtoiso e : _ --> _) = identity_iso _.
+  : (idtoiso e : _ --> _) = identity_z_iso _.
 Proof.
   apply maponpaths, (maponpaths idtoiso H).
 Qed.
@@ -141,7 +140,7 @@ Qed.
 
   TODO: look for dupes in library; move; consider naming conventions; rename D to C. *)
 Lemma postwhisker_isotoid {D : category} (H : is_univalent D)
-    {a b b' : D} (f : a --> b) (p : iso b b')
+    {a b b' : D} (f : a --> b) (p : z_iso b b')
   : transportf (fun b0 => a --> b0) (isotoid _ H p) f
   = f ;; p.
 Proof.
@@ -234,11 +233,12 @@ Proof.
 Qed.
 
 
-Definition ff_on_isos {C D : precategory} (F : functor C D) : UU
-  := ∏ c c', isweq (@functor_on_iso _ _ F c c').
+Definition ff_on_z_isos {C D : precategory} (F : functor C D) : UU
+  := ∏ c c', isweq (@functor_on_z_iso _ _ F c c').
 
-Lemma fully_faithful_impl_ff_on_isos {C D : precategory} (F : functor C D) 
-      : fully_faithful F -> ff_on_isos F.
+
+Lemma fully_faithful_impl_ff_on_isos {C D : category} (F : functor C D) 
+      : fully_faithful F -> ff_on_z_isos F.
 Proof.
   intros Fff c c'.
   use gradth.
@@ -246,11 +246,11 @@ Proof.
     apply (ff_reflects_is_iso _ _ _ Fff).
     assert (XT := homotweqinvweq (make_weq _ (Fff c c' ))).
     cbn in *.
-    apply (transportb (λ i : _ --> _, is_iso i) (XT (pr1 XR) )).
+    apply (transportb (λ i : _ --> _, is_z_isomorphism i) (XT (pr1 XR) )).
     apply XR.
-  - cbn. intro i. apply eq_iso. cbn.
+  - cbn. intro i. apply z_iso_eq. cbn.
     apply (homotinvweqweq (make_weq _ (Fff _ _ ))).
-  - cbn. intro i. apply eq_iso. cbn.
+  - cbn. intro i. apply z_iso_eq. cbn.
     apply (homotweqinvweq (make_weq _ (Fff _ _ ))).
 Defined.
 
@@ -279,8 +279,8 @@ Coercion adj_equiv_of_cats_from_adj {A B : category} (E : adj_equiv A B)
 Definition adj_equiv_from_adjunction
     {C D : category}
     (FG : adjunction C D)
-    (unit_iso : forall c:C, is_iso (adjunit FG c))
-    (counit_iso : forall d:D, is_iso (adjcounit FG d))
+    (unit_iso : forall c:C, is_z_isomorphism (adjunit FG c))
+    (counit_iso : forall d:D, is_z_isomorphism (adjcounit FG d))
   : adj_equiv C D.
 Proof.
   exists (left_functor FG).
@@ -444,7 +444,7 @@ Proof.
     + apply form_adjunction_ff_split. 
   - split; cbn.
     + intro a. 
-      use (fully_faithful_reflects_iso_proof _ _ _ Fff _ _ (make_iso _ _ )).
+      use (fully_faithful_reflects_iso_proof _ _ _ Fff _ _ (make_z_iso _ _ _)).
       apply is_iso_inv_from_iso. 
     + intro b. apply pr2.
 Defined.
