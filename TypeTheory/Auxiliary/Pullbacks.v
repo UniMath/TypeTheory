@@ -290,20 +290,22 @@ Proof.
   - intro; apply isofhleveltotal2.
     + apply homset_property.
     + intros; apply isaprop_isPullback.
-  - apply (total2_paths_f (isotoid _ H (iso_from_Pullback_to_Pullback _ _))).
+  - apply (total2_paths_f (isotoid _ H (z_iso_from_Pullback_to_Pullback _ _))).
     rewrite transportf_dirprod, transportf_isotoid.
-    rewrite inv_from_iso_iso_from_Pullback.
+    (*rewrite inv_from_iso_iso_from_Pullback. *)
     rewrite transportf_isotoid.
-    rewrite inv_from_iso_iso_from_Pullback.
-    destruct Pb as [Cone bla];
-    destruct Pb' as [Cone' bla'];
+    (*rewrite inv_from_iso_iso_from_Pullback.*)
+    destruct Pb as [Cone [bla foo]];
+    destruct Pb' as [Cone' [bla' foo']];
     simpl in *.
     destruct Cone as [p [h k]];
     destruct Cone' as [p' [h' k']];
     simpl in *. 
-    unfold from_Pullback_to_Pullback;
-    rewrite PullbackArrow_PullbackPr2, PullbackArrow_PullbackPr1.
-    apply idpath.
+    unfold from_Pullback_to_Pullback.
+    simpl. cbn.
+    apply total2_paths2.
+    + apply (PullbackArrow_PullbackPr1  (make_Pullback _ foo)).
+    + apply (PullbackArrow_PullbackPr2 (make_Pullback _ foo)).
 Qed.
 
 (* TODO: check for results of the following section upstream *)
@@ -404,5 +406,15 @@ Section Pullback_Unique_Up_To_Iso.
     - apply inv2.
   Defined.
 
+  Definition z_iso_to_second_pb : z_iso A A'.
+  Proof.
+    exists map_to_2nd_pb.
+    exists map_to_1st_pb.
+    split.
+    - apply inv1.
+    - apply inv2.
+  Defined.
+
+  
 End Pullback_Unique_Up_To_Iso.
 
