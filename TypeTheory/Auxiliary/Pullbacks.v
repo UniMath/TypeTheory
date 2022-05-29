@@ -292,9 +292,7 @@ Proof.
     + intros; apply isaprop_isPullback.
   - apply (total2_paths_f (isotoid _ H (z_iso_from_Pullback_to_Pullback _ _))).
     rewrite transportf_dirprod, transportf_isotoid.
-    (*rewrite inv_from_iso_iso_from_Pullback. *)
     rewrite transportf_isotoid.
-    (*rewrite inv_from_iso_iso_from_Pullback.*)
     destruct Pb as [Cone [bla foo]];
     destruct Pb' as [Cone' [bla' foo']];
     simpl in *.
