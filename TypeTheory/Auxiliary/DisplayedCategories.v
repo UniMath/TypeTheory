@@ -35,7 +35,7 @@ Definition disp_functor_id_composite
 
 Section Displayed_Equivalences.
 (** The total equivalence of a displayed equivalence *)
-
+(*
 Definition total_functor_comp
     {C D E : category} {F : functor C D} {G : functor D E} 
     {CC} {DD} {EE} (FF : disp_functor F CC DD) (GG : disp_functor G DD EE)
@@ -51,7 +51,8 @@ Proof.
       apply pathsinv0, id_left.
   - intros a. apply identity_is_iso.
 Defined.
-
+ *)
+  (*
 Definition total_functor_id
     {C : category}
     {CC : disp_cat C}
@@ -67,7 +68,7 @@ Proof.
       apply pathsinv0, id_left.
   - intros a. apply identity_is_iso.
 Defined.
-
+*)
 Definition total_nat_trans
     {C D : category} {F G : functor C D} {α : nat_trans F G}
     {CC} {DD} {FF : disp_functor F CC DD} {GG : disp_functor G CC DD}
@@ -123,11 +124,11 @@ Proof.
   use adj_equiv_from_adjunction.
   - exact (total_adjunction_over_id (adjunction_of_equiv_over_id E)).
   - intros c. simpl.
-    use is_iso_total. { apply identity_is_iso. }
-    apply is_iso_unit_over_id, axioms_of_equiv_over_id.
+    use is_z_iso_total. { apply identity_is_z_iso. }
+    apply is_z_iso_unit_over_id, axioms_of_equiv_over_id.
   - intros c. simpl.
-    use is_iso_total. { apply identity_is_iso. }
-    apply is_iso_counit_over_id, axioms_of_equiv_over_id.
+    use is_z_iso_total. { apply identity_is_z_iso. }
+    apply is_z_iso_counit_over_id, axioms_of_equiv_over_id.
 Defined.
 
 End Displayed_Equivalences.
