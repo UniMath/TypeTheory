@@ -122,8 +122,8 @@ Proof.
   - unfold fpullback_data in *.
     use total2_paths_f; simpl.
     + apply isotoid. { assumption. }
-      apply (invmap (weq_ff_functor_on_iso HJ _ _)).
-      refine (iso_from_Pullback_to_Pullback
+      apply (invmap (weq_ff_functor_on_z_iso HJ _ _)).
+      refine (z_iso_from_Pullback_to_Pullback
                 (make_Pullback _ (isPullback_fpullback _))
                 (make_Pullback _ (isPullback_fpullback _))).
     + etrans. { apply (transportf_dirprod'
@@ -131,7 +131,6 @@ Proof.
       apply pathsdirprod.
       * rewrite transportf_isotoid.
         cbn; unfold precomp_with.
-        rewrite 2 id_right.
         unfold from_Pullback_to_Pullback.
         apply (invmaponpathsweq (weq_from_fully_faithful HJ _ _ )).
         cbn. rewrite functor_comp.
@@ -140,7 +139,6 @@ Proof.
         apply (PullbackArrow_PullbackPr1 (make_Pullback _ _)).
       * etrans. { apply (transportf_isotoid_functor). }
         cbn; unfold precomp_with.
-        rewrite 2 id_right.
         etrans. { apply maponpaths_2,
                     (homotweqinvweq (weq_from_fully_faithful HJ _ _)). }
         apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)).
@@ -589,7 +587,7 @@ Proof.
   cbn. unfold fpullback_prop.
   use (commutes_and_is_pullback_transfer_iso _ _ _ _ _ Sfp).
   - apply identity_iso.
-  - refine (iso_comp _ (functor_on_iso J' i)).
+  - refine (z_iso_comp _ (functor_on_z_iso J' i)).
     exists (α _); apply α_iso.
   - apply identity_iso.
   - cbn. exists (α _); apply α_iso.
