@@ -127,7 +127,7 @@ Section Obj_Ext_Structures_Disp_Utility_Lemmas.
   Definition comp_ext_compare_iso
       {Ty} {X : obj_ext_ob_mor Ty}
       {Γ : C} {A A' : Ty $p Γ} (e : A = A')
-    : iso (comp_ext_disp X Γ A) (comp_ext_disp X Γ A')
+    : z_iso (comp_ext_disp X Γ A) (comp_ext_disp X Γ A')
   := idtoiso (maponpaths _ e).
 
   Definition comp_ext_compare
@@ -176,7 +176,7 @@ Section Obj_Ext_Structures_Disp_Utility_Lemmas.
   Lemma comp_ext_compare_inv
       {Ty : PreShv C} {X : obj_ext_ob_mor Ty}
       {Γ : C} {A A' : Ty $p Γ} (e : A = A')
-    : Δ (!e) = inv_from_iso (@comp_ext_compare_iso _ X _ _ _ e).
+    : Δ (!e) = inv_from_z_iso (@comp_ext_compare_iso _ X _ _ _ e).
   Proof.
     destruct e; apply idpath.
   Defined.
