@@ -130,18 +130,19 @@ Proof.
 Qed.
 
 Lemma canonical_TM_to_given_pointwise_iso Γ
-  : is_iso ((canonical_TM_to_given : nat_trans _ _) Γ).
+  : is_z_isomorphism ((canonical_TM_to_given : nat_trans _ _) Γ).
 Proof.
-  apply (is_iso_qinv _ (given_TM_to_canonical_data Γ) ).
+  exists (given_TM_to_canonical_data Γ).
   split.
   - apply canonical_to_given_to_canonical.
   - apply given_to_canonical_to_given.
 Defined.
 
 Definition canonical_TM_to_given_iso
-  : @iso (preShv C) (tm_from_qq Z) (TM (pr1 Y)).
+  : @z_iso (preShv C) (tm_from_qq Z) (TM (pr1 Y)).
 Proof.
   exists canonical_TM_to_given.
+  apply (is_functor_z_iso_pointwise_if_z_iso).
   apply functor_iso_if_pointwise_iso.
   intro Γ. 
   apply (canonical_TM_to_given_pointwise_iso).
