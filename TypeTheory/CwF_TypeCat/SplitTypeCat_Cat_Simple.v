@@ -72,14 +72,14 @@ Section SplitTypeCat_Cat_Simple.
   Definition reind_ext_compare
              {X : split_typecat_structure C}
              {Γ : C} {A A' : TY' X $p Γ} (e : A = A')
-    : iso (Γ ◂ A) (Γ ◂ A').
+    : z_iso (Γ ◂ A) (Γ ◂ A').
   Proof.
     apply idtoiso, maponpaths, e.
   Defined.
 
   Lemma reind_ext_compare_id {X : split_typecat_structure C}
         {Γ : C} (A : TY' X $p Γ)
-    : reind_ext_compare (idpath A) = identity_iso (Γ ◂ A).
+    : reind_ext_compare (idpath A) = identity_z_iso (Γ ◂ A).
   Proof.
     apply idpath.
   Qed.
@@ -87,7 +87,7 @@ Section SplitTypeCat_Cat_Simple.
   Lemma reind_ext_compare_id_general {X : split_typecat_structure C}
         {Γ : C} {A : TY' X $p Γ}
         (e : A = A)
-    : reind_ext_compare e = identity_iso (Γ ◂ A).
+    : reind_ext_compare e = identity_z_iso (Γ ◂ A).
   Proof.
     apply @pathscomp0 with (reind_ext_compare (idpath _)). 
     apply maponpaths, setproperty.
@@ -129,7 +129,7 @@ Section SplitTypeCat_Cat_Simple.
              (mor : SplitTy_mor_data X Y)
              (F_TY_ax : SplitTy_mor_axiom_F_TY mor)
     : ∏ (Γ : C) (A : X Γ) (Γ' : C) (f : Γ' --> Γ),
-      iso (Γ' ◂ pr1 mor _ (A {{f}}))
+      z_iso (Γ' ◂ pr1 mor _ (A {{f}}))
           (Γ' ◂ (pr1 mor _ A) {{f}}).
   Proof.
     intros Γ Γ' f A.
