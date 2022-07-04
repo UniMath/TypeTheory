@@ -130,23 +130,24 @@ Proof.
 Qed.
 
 Lemma canonical_TM_to_given_pointwise_iso Γ
-  : is_iso ((canonical_TM_to_given : nat_trans _ _) Γ).
+  : is_z_isomorphism ((canonical_TM_to_given : nat_trans _ _) Γ).
 Proof.
-  apply (is_iso_qinv _ (given_TM_to_canonical_data Γ) ).
+  exists (given_TM_to_canonical_data Γ).
   split.
   - apply canonical_to_given_to_canonical.
   - apply given_to_canonical_to_given.
 Defined.
 
 Definition canonical_TM_to_given_iso
-  : @iso (preShv C) (tm_from_qq Z) (TM (pr1 Y)).
+  : @z_iso (preShv C) (tm_from_qq Z) (TM (pr1 Y)).
 Proof.
   exists canonical_TM_to_given.
-  apply functor_iso_if_pointwise_iso.
+  apply nat_trafo_z_iso_if_pointwise_z_iso.
   intro Γ. 
   apply (canonical_TM_to_given_pointwise_iso).
 Defined.
 
+(*
 Definition given_TM_to_canonical_naturality
   : is_nat_trans (TM Y : functor _ _) (tm_from_qq Z) 
       (@given_TM_to_canonical_data).
@@ -155,11 +156,12 @@ Proof.
            canonical_TM_to_given_pointwise_iso).
   apply homset_property.
 Qed.
+*)
 (* TODO: perhaps reorganise the above a little?  Under the current definitions, [iso_inv_from_iso canonical_TM_to_given_iso] is *not* definitionally equal to [given_TM_to_canonical], which is a little annoying downstream (lemmas about [given_TM_to_canonical] can’t be applied). *)  
 
 Definition given_TM_to_canonical
-  : (TM Y) --> (tm_from_qq Z)
-:= (_ ,, given_TM_to_canonical_naturality).
+  : (TM Y) --> (tm_from_qq Z) := pr12 canonical_TM_to_given_iso.
+(*  (_ ,, given_TM_to_canonical_naturality). *)
 
 Lemma pp_given_TM_to_canonical
   : given_TM_to_canonical ;; pp_from_qq Z

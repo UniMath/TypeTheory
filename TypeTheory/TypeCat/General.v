@@ -24,7 +24,7 @@ Section Comp_Ext_Compare.
 
   Definition comp_ext_compare {C : typecat}
       {Γ : C} {A A' : C Γ} (e : A = A')
-    : iso (Γ ◂ A) (Γ ◂ A')
+    : z_iso (Γ ◂ A) (Γ ◂ A')
   := idtoiso (maponpaths (ext_typecat Γ) e).
 
   Lemma comp_ext_compare_id {C : typecat}
@@ -55,7 +55,7 @@ Section Comp_Ext_Compare.
 
   Lemma comp_ext_compare_inv {C : typecat}
       {Γ : C} {A A' : C Γ} (e : A = A')
-    : (comp_ext_compare (!e) : _ --> _) = inv_from_iso (comp_ext_compare e).
+    : (comp_ext_compare (!e) : _ --> _) = inv_from_z_iso (comp_ext_compare e).
   Proof.
     destruct e; apply idpath.
   Qed.
