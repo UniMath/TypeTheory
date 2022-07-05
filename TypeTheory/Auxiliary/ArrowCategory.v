@@ -220,7 +220,7 @@ Proof.
   + apply arrow_category_id_weq_iso.
     apply C_univ.
   + intros p. induction p.
-      apply z_iso_eq. 
+      apply eq_z_iso.
     apply arrow_category_mor_eq.
     * apply idpath.
       * apply idpath.
