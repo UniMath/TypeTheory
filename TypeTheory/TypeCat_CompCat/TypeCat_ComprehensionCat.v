@@ -259,8 +259,7 @@ Section TypeCat_Disp.
 
       repeat use tpair.
       - exact i.
-      - 
-        apply inv_i.
+      - apply inv_i.
       - etrans. apply i_inv_i.
         etrans.
         { apply pathsinv0. use (transport_map (fun a : C⟦_,_⟧ => pr1)). }

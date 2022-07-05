@@ -76,7 +76,7 @@ Proof.
       cbn.
       rewrite transportf_isotoid.
       rewrite transportf_isotoid'.
-      cbn. unfold precomp_with. 
+      cbn.
       assert (XR := nat_trans_ax (counit_from_are_adjoints (pr2 (pr1 H)))).
       cbn in XR. rewrite XR. clear XR.
       rewrite assoc. 
@@ -111,12 +111,8 @@ Proof.
       rewrite assoc. assert (XR := nat_trans_ax (pr1 eta)).
       cbn in XR. rewrite <- XR.
       rewrite <- assoc.
-(*      rewrite id_right. *)
-      etrans. { apply maponpaths.
-                admit.
-                (*
-                apply (nat_trans_inv_pointwise_inv_after _ _ C _ _ (pr1 eta)).
-                 *) } 
+      etrans. apply maponpaths.
+      apply (nat_trans_inv_pointwise_inv_after_z_iso _ _ C _ _ (pr1 eta)).
       apply id_right.
   - intro p.
     use total2_paths_f.
@@ -135,12 +131,10 @@ Proof.
       assert (XR := nat_trans_ax (pr1 eps)).
       cbn in XR. rewrite XR. clear XR.
       rewrite assoc. 
-      etrans. { apply maponpaths_2.
-                (* apply (nat_trans_inv_pointwise_inv_before _ _ D  _ _ (pr1 eps)). *)
-                admit.
-      }
+      etrans. apply maponpaths_2.
+      apply (nat_trans_inv_pointwise_inv_before_z_iso _ _ D  _ _ (pr1 eps)).
       apply id_left.
-Admitted.
+Defined.
 
 End Mor_Total.
 

@@ -362,9 +362,7 @@ Proof.
                          (homotweqinvweq (make_weq f1 H1) b))
     with (transportf (λ b0 : B ₁, B ₂ b --> B ₂ b0) p).
     set (a := (invmap (make_weq f1 H1) b)) in *. clearbody p. clearbody a.
-    destruct p. cbn. unfold idfun; simpl.
-    set (T:= z_iso_after_z_iso_inv (make_z_iso _ _ (H2 a))).
-    apply T.
+    destruct p. cbn. unfold idfun; simpl. apply z_iso_after_z_iso_inv.
 Qed.
 
 

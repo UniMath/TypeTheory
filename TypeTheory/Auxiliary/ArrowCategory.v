@@ -69,8 +69,7 @@ Proof.
   set (comm_square := dirprod_pr2 (dirprod_pr2 h)).
   use tpair.
   - apply comm_square.
-  - cbn. 
-    unfold is_z_isomorphism.
+  - unfold is_z_isomorphism.
     use tpair.
     + use tpair.
       * use make_dirprod.
