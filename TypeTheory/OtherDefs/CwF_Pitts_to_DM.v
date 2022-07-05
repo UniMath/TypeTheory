@@ -40,7 +40,7 @@ Context (CC : category) (C : cwf_struct CC) (H : is_univalent CC).
 
 (** Being isomorphic to a dependent projection *)
 Definition iso_to_dpr {Γ Γ'} (γ : Γ --> Γ') : UU
-  := ∑ (A : C⟨Γ'⟩) (f : iso (Γ'∙A) Γ),
+  := ∑ (A : C⟨Γ'⟩) (f : z_iso (Γ'∙A) Γ),
         π _ = f ;; γ .
 
 Definition dm_sub_struct_of_CwF : dm_sub_struct CC.
@@ -63,7 +63,7 @@ Proof.
   destruct A' as [A [f TH]].
   unfold iso_to_dpr.
   exists A.
-  set (T:= iso_comp f h).
+  set (T:= z_iso_comp f h).
   exists T.
   unfold T. simpl.
   rewrite TH; clear TH.
@@ -95,7 +95,7 @@ Proof.
   clear B.
   unshelve refine (tpair _ _ _ ).
   - unshelve refine (make_Pullback _ _).
-    5: use postcomp_pb_with_iso.
+    5: use postcomp_pb_with_z_iso.
     7: eapply is_pullback_reindx_cwf.
     + eassumption. 
     + sym. assumption.
@@ -103,7 +103,7 @@ Proof.
     apply hinhpr.
     unfold iso_to_dpr.
     exists (A{{f}}).
-    exists (identity_iso _ ).
+    exists (identity_z_iso _ ).
     sym. apply id_left.
 Defined.
 

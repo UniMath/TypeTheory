@@ -375,7 +375,7 @@ Proof.
   unfold essentially_surjective.
   intros XY; destruct XY as [X Y]; apply hinhpr.
   exists ((X,,(Y,, qq_from_term Y)),,iscompatible_qq_from_term Y).
-  apply identity_iso.
+  apply identity_z_iso.
 Qed.
 
 Lemma compat_structures_pr1_fully_faithful
@@ -437,7 +437,7 @@ Proof.
   unfold essentially_surjective.
   intros XZ; destruct XZ as [X Z]; apply hinhpr.
   exists ((X,,(term_from_qq Z,, Z)),,iscompatible_term_from_qq Z).
-  apply identity_iso.
+  apply identity_z_iso.
 Qed.
 
 Lemma compat_structures_pr2_fully_faithful
@@ -481,7 +481,7 @@ Proof.
   unfold disp_functor_disp_ess_split_surj.
   intros X Y.
   exists ((Y,, qq_from_term Y),,iscompatible_qq_from_term Y).
-  apply identity_iso_disp.
+  apply identity_z_iso_disp.
 Defined.
 
 Lemma compat_structures_pr1_ff
@@ -540,7 +540,7 @@ Proof.
   unfold disp_functor_disp_ess_split_surj.
   intros X Z.
   exists ((term_from_qq Z,, Z),,iscompatible_term_from_qq Z).
-  apply identity_iso_disp.
+  apply identity_z_iso_disp.
 Defined.
 
 Lemma compat_structures_pr2_ff

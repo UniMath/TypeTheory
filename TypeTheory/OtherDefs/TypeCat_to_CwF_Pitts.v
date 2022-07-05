@@ -261,7 +261,7 @@ Proof.
     etrans. 2: { apply pathsinv0, id_right. }
     cbn. etrans. { apply assoc'. }
     etrans. { apply maponpaths, pathsinv0. 
-      eapply iso_inv_on_right.
+      eapply z_iso_inv_on_right.
       etrans. 2: { apply assoc'. }
       apply (@q_comp_typecat C_sptc). }
     etrans. { apply maponpaths, maponpaths_2, pathsinv0.

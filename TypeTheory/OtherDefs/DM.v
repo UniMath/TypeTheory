@@ -104,7 +104,7 @@ Definition dm_sub_closed_under_iso {CC : precategory} (C : dm_sub_struct CC)
   : UU
   := ∏ Δ Γ (γ : DM C Δ Γ),
                           ∏ Δ' (δ : Δ' --> Γ), 
-                          ∏ (h : iso Δ Δ'), h ;; δ = γ → DM_type C δ.
+                          ∏ (h : z_iso Δ Δ'), h ;; δ = γ → DM_type C δ.
 
 
 (** ** Display maps are closed under pullback *)
