@@ -35,40 +35,39 @@ Definition disp_functor_id_composite
 
 Section Displayed_Equivalences.
 (** The total equivalence of a displayed equivalence *)
-(*
+
 Definition total_functor_comp
     {C D E : category} {F : functor C D} {G : functor D E} 
     {CC} {DD} {EE} (FF : disp_functor F CC DD) (GG : disp_functor G DD EE)
-  : nat_iso
+  : nat_z_iso
       (total_functor (disp_functor_composite FF GG))
       (functor_composite (total_functor FF) (total_functor GG)).
 Proof.
-  simple refine (functor_iso_from_pointwise_iso _ _ _ _ _ _ _).
+  use tpair.
   - use tpair.
     + intros c. apply identity.
     + intros c c' f.
       etrans. { apply id_right. }
       apply pathsinv0, id_left.
-  - intros a. apply identity_is_iso.
+  - intros a. apply identity_is_z_iso.
 Defined.
- *)
-  (*
+
 Definition total_functor_id
     {C : category}
     {CC : disp_cat C}
-  : nat_iso
+  : nat_z_iso
       (total_functor (disp_functor_identity CC))
       (functor_identity _).
 Proof.
-  use functor_iso_from_pointwise_iso.
+  use tpair.
   - use tpair.
     + intros c. apply identity.
     + intros c c' f.
       etrans. { apply id_right. }
       apply pathsinv0, id_left.
-  - intros a. apply identity_is_iso.
+  - intros a. apply identity_is_z_iso.
 Defined.
-*)
+
 Definition total_nat_trans
     {C D : category} {F G : functor C D} {α : nat_trans F G}
     {CC} {DD} {FF : disp_functor F CC DD} {GG : disp_functor G CC DD}
