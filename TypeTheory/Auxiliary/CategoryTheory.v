@@ -244,9 +244,9 @@ Proof.
     cbn in *.
     apply (transportb (λ i : _ --> _, is_z_isomorphism i) (XT (pr1 XR) )).
     apply XR.
-  - cbn. intro i. apply eq_z_iso. cbn.
+  - cbn. intro i. apply z_iso_eq. cbn.
     apply (homotinvweqweq (make_weq _ (Fff _ _ ))).
-  - cbn. intro i. apply eq_z_iso. cbn.
+  - cbn. intro i. apply z_iso_eq. cbn.
     apply (homotweqinvweq (make_weq _ (Fff _ _ ))).
 Defined.
 

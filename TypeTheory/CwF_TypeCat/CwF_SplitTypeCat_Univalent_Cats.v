@@ -137,7 +137,7 @@ Section Is_Univalent_Obj_Ext_Disp.
     - intros I.
       apply funextsec; intros Γ.
       apply funextsec; intros A.
-      apply eq_z_iso.
+      apply z_iso_eq.
       apply subtypePath. { intros ?; apply homset_property. }
       apply idpath.
     - intros I.

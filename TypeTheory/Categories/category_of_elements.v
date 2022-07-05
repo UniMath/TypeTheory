@@ -175,7 +175,7 @@ Proof.
   exists (Elem_cov_iso_to_Elem_cov_iso_type _ _ ).
   apply (gradth _ (Elem_cov_iso_type_to_Elem_cov_iso _ _ )).
   - intro.
-    apply eq_z_iso. simpl.
+    apply z_iso_eq. simpl.
     apply subtypePath.
     + intro; apply setproperty.
     + apply idpath.
@@ -216,7 +216,7 @@ Proof.
   intros a b.
   use weqhomot. { apply elem_eq_weq_2, H. }
   intro p; destruct p.
-  apply eq_z_iso.
+  apply z_iso_eq.
   apply subtypePath. { intro; apply setproperty. }
   cbn. apply idpath.
 Defined.

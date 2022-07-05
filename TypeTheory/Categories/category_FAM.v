@@ -551,7 +551,7 @@ Proof.
   apply FAM_obj_weq_2_id.
   apply FAM_obj_weq_3_id.
   apply FAM_obj_weq_4_id.
-  apply eq_z_iso, FAM_obj_weq_5_id.
+  apply z_iso_eq, FAM_obj_weq_5_id.
 Qed.
 
 Theorem FAM_is_univalent : is_univalent C -> is_univalent (FAM C).

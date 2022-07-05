@@ -279,7 +279,7 @@ Section TypeCat_Disp.
       - apply idtoiso_fiber_disp_to_typecat_is_triangle.
       - intros tr.
         use total2_paths_f.
-        + apply eq_z_iso, idpath.
+        + apply z_iso_eq, idpath.
         + apply homset_property.
       - intros tr.
         apply eq_z_iso_disp.
@@ -322,7 +322,7 @@ Section TypeCat_Disp.
       { exact (weqcomp g (invweq f)). }
       intros p. induction p.
       use total2_paths_f.
-      - apply eq_z_iso, idpath.
+      - apply z_iso_eq, idpath.
       - apply homset_property.
     Defined.
 

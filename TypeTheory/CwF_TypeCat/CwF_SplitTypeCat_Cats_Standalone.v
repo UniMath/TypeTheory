@@ -629,7 +629,7 @@ Theorem is_univalent_term_fun_structure
 Proof.
   use eq_equiv_from_retraction.
   - apply iso_to_id_term_fun_precategory.
-  - intros. apply eq_z_iso. apply isaprop_term_fun_mor.
+  - intros. apply z_iso_eq. apply isaprop_term_fun_mor.
 Qed.
 
 End Is_Univalent_Families_Strucs.
