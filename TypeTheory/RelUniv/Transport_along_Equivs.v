@@ -113,26 +113,26 @@ Proof.
 Defined.
 
 
-Definition epsinv : iso (C:=[_ , _])
+Definition epsinv : z_iso (C:=[_ , _])
                         (functor_identity (preShv C)) (ext ∙ Fop_precomp).
 Proof.
-  set (XR':= (counit_iso_from_adj_equivalence_of_cats equiv_Fcomp)).
-  apply iso_inv_from_iso.
+  set (XR':= (counit_z_iso_from_adj_equivalence_of_cats equiv_Fcomp)).
+  apply z_iso_inv_from_z_iso.
   apply XR'.
 Defined.
 
 
-Definition etainv : iso (C:=[ _ , _]) 
+Definition etainv : z_iso (C:=[ _ , _]) 
                         (Fop_precomp ∙ ext) (functor_identity (preShv D)).
 Proof.
-  set (XR := (unit_iso_from_adj_equivalence_of_cats equiv_Fcomp)).
-  apply iso_inv_from_iso.
+  set (XR := (unit_z_iso_from_adj_equivalence_of_cats equiv_Fcomp)).
+  apply z_iso_inv_from_z_iso.
   apply XR.
 Defined.
 
 (** *** The natural isomorphism *)
 
-Definition fi : iso (C:=[C, preShv D])
+Definition fi : z_iso (C:=[C, preShv D])
           (functor_composite Yo ext)
           (functor_composite F Yo).
 Proof.
@@ -142,19 +142,19 @@ Proof.
 
   set (XTT := ff_Fop_precomp).
   specialize (T XTT).
-  set (XR := iso_from_iso_with_postcomp).
+  set (XR := z_iso_from_z_iso_with_postcomp).
   apply (XR _ _ _ _ _ _ XTT).
-  eapply iso_comp.
-     apply functor_assoc_iso.
-  eapply iso_comp.
-     eapply functor_precomp_iso.
-     apply (counit_iso_from_adj_equivalence_of_cats equiv_Fcomp).
-  eapply iso_comp.
-    apply functor_comp_id_iso.
+  eapply z_iso_comp.
+     apply functor_assoc_z_iso.
+  eapply z_iso_comp.
+     eapply functor_precomp_z_iso.
+     apply (counit_z_iso_from_adj_equivalence_of_cats equiv_Fcomp).
+  eapply z_iso_comp.
+    apply functor_comp_id_z_iso.
 
   exists (yoneda_functor_precomp_nat_trans _ _ _ ).
-  apply functor_iso_if_pointwise_iso.
-    intro c. apply is_iso_yoneda_functor_precomp.
+  apply nat_trafo_z_iso_if_pointwise_z_iso.
+    intro c. apply is_z_iso_yoneda_functor_precomp.
     apply F_ff.
 Defined.
 

@@ -181,8 +181,8 @@ Proof.
   }
   use total2_paths_f; simpl.
   { apply isotoid. { assumption. }
-    apply (invmap (weq_ff_functor_on_iso (yoneda_fully_faithful _) _ _)).
-    refine (iso_from_Pullback_to_Pullback
+    apply (invmap (weq_ff_functor_on_z_iso (yoneda_fully_faithful _) _ _)).
+    refine (z_iso_from_Pullback_to_Pullback
                 (make_Pullback _ (pr22 x))
                 (make_Pullback _ (pr22 x'))).
   }
@@ -190,8 +190,7 @@ Proof.
                        (λ a', C ⟦ a', _ ⟧) (λ a', (Tm pp a' : hSet))). }
   apply pathsdirprod.
   - rewrite transportf_isotoid.
-    cbn; unfold precomp_with.
-    rewrite id_right.
+    cbn.
     etrans. { apply yoneda_postcompose. }
     etrans. {
       refine (toforallpaths _ (identity _)). 
@@ -204,9 +203,8 @@ Proof.
   - etrans. { apply transportf_pshf'. }
     rewrite idtoiso_inv.
     rewrite idtoiso_isotoid.
-    cbn; unfold precomp_with.
-    rewrite id_right.
-    match goal with | [ |- (_ ((_ ?f) _ _)) _ = _ ]
+    cbn.
+    match goal with | [ |- _ (_ ?f) _ = _]
                       => set (i := f :  preShv C ⟦ _, _ ⟧) end.
     refine (@pathscomp0 _ _
                  ((i ;; yy _) $nt (identity _)) _ _ _).
@@ -405,14 +403,14 @@ Proof.
   apply (# ηη pp').
 Defined.
 
-Definition Tm_iso : iso (ηη TM') TM.
+Definition Tm_iso : z_iso (ηη TM') TM.
 Proof.
-  apply (counit_pointwise_iso_from_adj_equivalence Fopequiv TM).
+  apply (counit_pointwise_z_iso_from_adj_equivalence Fopequiv TM).
 Defined.
 
-Definition Ty_iso : iso (ηη TY') TY.
+Definition Ty_iso : z_iso (ηη TY') TY.
 Proof.
-  apply (counit_pointwise_iso_from_adj_equivalence Fopequiv TY).
+  apply (counit_pointwise_z_iso_from_adj_equivalence Fopequiv TY).
 Defined.
 
 Lemma Morphism_of_presheaves_transfer_recover
@@ -488,15 +486,15 @@ Proof.
   apply (# ηη pp').
 Defined.
 
-Definition RC_Tm_iso : iso (ηη TM') TM.
+Definition RC_Tm_iso : z_iso (ηη TM') TM.
 Proof.
-  set (XR':=  counit_pointwise_iso_from_adj_equivalence RCequiv TM).
+  set (XR':=  counit_pointwise_z_iso_from_adj_equivalence RCequiv TM).
   apply XR'.
 Defined.
 
-Definition RC_Ty_iso : iso (ηη TY') TY.
+Definition RC_Ty_iso : z_iso (ηη TY') TY.
 Proof.
-  set (XR':=  counit_pointwise_iso_from_adj_equivalence RCequiv TY).
+  set (XR':=  counit_pointwise_z_iso_from_adj_equivalence RCequiv TY).
   apply XR'.
 Defined.
 

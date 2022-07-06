@@ -86,10 +86,10 @@ Section TypeCat_Comp_Ext_Compare.
 
   Definition typecat_comp_ext_compare
              {Γ : C} {A B : TC Γ}
-    : (A = B) → iso (obj_ext_typecat Γ A) (obj_ext_typecat Γ B).
+    : (A = B) → z_iso (obj_ext_typecat Γ A) (obj_ext_typecat Γ B).
   Proof.
     intros p. induction p.
-    apply identity_iso.
+    apply identity_z_iso.
   Defined.
 
   Definition typecat_idtoiso_dpr
@@ -102,7 +102,7 @@ Section TypeCat_Comp_Ext_Compare.
 
   Definition typecat_iso_triangle
              {Γ : C} (A B : TC Γ)
-    := ∑ (i : iso (obj_ext_typecat Γ A) (obj_ext_typecat Γ B)),
+    := ∑ (i : z_iso (obj_ext_typecat Γ A) (obj_ext_typecat Γ B)),
        i ;; π B = π A.
 
   Definition typecat_iso_triangle_swap
@@ -110,10 +110,10 @@ Section TypeCat_Comp_Ext_Compare.
     : typecat_iso_triangle A B → typecat_iso_triangle B A.
   Proof.
     intros tr.
-    exists (iso_inv_from_iso (pr1 tr)).
+    exists (z_iso_inv_from_z_iso (pr1 tr)).
     etrans. apply maponpaths, pathsinv0, (pr2 tr).
     etrans. apply assoc.
-    etrans. apply maponpaths_2, iso_after_iso_inv.
+    etrans. apply maponpaths_2, z_iso_after_z_iso_inv.
     apply id_left.
   Defined.
 
@@ -214,7 +214,7 @@ Section TypeCat_Disp.
 
     Definition typecat_is_triangle_to_idtoiso_fiber_disp
                {Γ : C} (A B : TC Γ)
-      : typecat_iso_triangle _ A B → @iso_disp C (typecat_disp TC) _ _ (identity_iso Γ) A B.
+      : typecat_iso_triangle _ A B → @z_iso_disp C (typecat_disp TC) _ _ (identity_z_iso Γ) A B.
     Proof.
       intros tr.
       set (i        := pr1 (pr1 tr) : C ⟦ obj_ext_typecat Γ A, obj_ext_typecat Γ B ⟧ ).
@@ -224,8 +224,8 @@ Section TypeCat_Disp.
       set (inv_i    := pr1 (pr1 tr') : C ⟦ obj_ext_typecat Γ B, obj_ext_typecat Γ A ⟧).
       set (inv_iA_B := pr2 tr' : inv_i ;; π A = π B).
 
-      set (i_inv_i  := iso_inv_after_iso (pr1 tr) : i ;; inv_i = identity _).
-      set (inv_i_i  := iso_after_iso_inv (pr1 tr) : inv_i ;; i = identity _).
+      set (i_inv_i  := z_iso_inv_after_z_iso (pr1 tr) : i ;; inv_i = identity _).
+      set (inv_i_i  := z_iso_after_z_iso_inv (pr1 tr) : inv_i ;; i = identity _).
 
       repeat use tpair.
       - exact i.
@@ -246,7 +246,7 @@ Section TypeCat_Disp.
 
     Definition idtoiso_fiber_disp_to_typecat_is_triangle
                {Γ : C} (A B : TC Γ)
-      : @iso_disp C (typecat_disp TC) _ _ (identity_iso Γ) A B → typecat_iso_triangle _ A B.
+      : @z_iso_disp C (typecat_disp TC) _ _ (identity_z_iso Γ) A B → typecat_iso_triangle _ A B.
     Proof.
       intros tr.
       set (i        := pr1 (pr1 tr) : C ⟦ obj_ext_typecat Γ A, obj_ext_typecat Γ B ⟧ ).
@@ -259,20 +259,18 @@ Section TypeCat_Disp.
 
       repeat use tpair.
       - exact i.
-      - apply is_iso_from_is_z_iso.
-        repeat use tpair.
-        + apply inv_i.
-        + etrans. apply i_inv_i.
-          etrans.
-          { apply pathsinv0. use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
-          apply transportf_const'.
-        + etrans. apply inv_i_i.
-          etrans.
-          { apply pathsinv0. use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
-          apply transportf_const'.
+      - apply inv_i.
+      - etrans. apply i_inv_i.
+        etrans.
+        { apply pathsinv0. use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
+        apply transportf_const'.
+      - etrans. apply inv_i_i.
+        etrans.
+        { apply pathsinv0. use (transport_map (fun a : C⟦_,_⟧ => pr1)). }
+        apply transportf_const'.
       - etrans. apply iB_A. apply id_right.
     Defined.
-
+    
     Definition typecat_is_triangle_idtoiso_fiber_disp_isweq
                {Γ : C} (A B : TC Γ)
       : isweq (typecat_is_triangle_to_idtoiso_fiber_disp A B).
@@ -281,10 +279,10 @@ Section TypeCat_Disp.
       - apply idtoiso_fiber_disp_to_typecat_is_triangle.
       - intros tr.
         use total2_paths_f.
-        + apply eq_iso, idpath.
+        + apply z_iso_eq, idpath.
         + apply homset_property.
       - intros tr.
-        apply eq_iso_disp.
+        apply eq_z_iso_disp.
         use total2_paths_f.
         + apply idpath.
         + apply homset_property.
@@ -292,7 +290,7 @@ Section TypeCat_Disp.
 
     Definition typecat_is_triangle_idtoiso_fiber_disp_weq
                {Γ : C} (A B : TC Γ)
-      : typecat_iso_triangle _ A B ≃ @iso_disp C (typecat_disp TC) _ _ (identity_iso Γ) A B
+      : typecat_iso_triangle _ A B ≃ @z_iso_disp C (typecat_disp TC) _ _ (identity_z_iso Γ) A B
     := (_,, typecat_is_triangle_idtoiso_fiber_disp_isweq A B).
 
     Definition typecat_disp_is_disp_univalent
@@ -310,7 +308,7 @@ Section TypeCat_Disp.
       - use total2_paths_f.
         + apply idpath.
         + apply homset_property.
-      - apply isaprop_is_iso_disp.
+      - apply isaprop_is_z_iso_disp.
     Defined.
 
     Definition typecat_disp_is_disp_univalent_implies_typecat_idtoiso_triangle_isweq
@@ -324,7 +322,7 @@ Section TypeCat_Disp.
       { exact (weqcomp g (invweq f)). }
       intros p. induction p.
       use total2_paths_f.
-      - apply eq_iso, idpath.
+      - apply z_iso_eq, idpath.
       - apply homset_property.
     Defined.
 

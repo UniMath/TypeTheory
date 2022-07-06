@@ -101,7 +101,7 @@ Local Notation "∫" := category_of_elements.
 (* written \int in agda input mode *)
 
 Definition Elem_cov_iso_type (ac bd : ∫) : UU
-  := ∑ (f : iso (pr1 ac) (pr1 bd)), #F f (pr2 ac) = pr2 bd.
+  := ∑ (f : z_iso (pr1 ac) (pr1 bd)), #F f (pr2 ac) = pr2 bd.
 
 Definition Elem_cov_iso_type_eq {ac bd : ∫} (T T' : Elem_cov_iso_type ac bd)
   : T = T' ≃ (pr1 (pr1 T)) = (pr1 (pr1 T')).
@@ -110,75 +110,72 @@ Proof.
     apply subtypeInjectivity. (*total2_paths_isaprop_equiv.*)
     intro. apply setproperty.
   apply subtypeInjectivity.
-  intro. apply isaprop_is_iso.
+  intro. apply isaprop_is_z_isomorphism.
 Defined.
 
 
-Definition Elem_cov_iso_gives_iso (ac bd : ∫) :
-  iso ac bd → iso (pr1 ac) (pr1 bd).
+Definition Elem_cov_iso_gives_z_iso (ac bd : ∫) :
+  z_iso ac bd → z_iso (pr1 ac) (pr1 bd).
 Proof.
-  intro H.
-  set (H':=is_z_iso_from_is_iso H (pr2 H)).
-  exists (pr1 (pr1 H)).
-  apply is_iso_from_is_z_iso.
-  exists (pr1 (pr1 H')).
+  intros [[f b] [[g c] [h1 h2]]].
+  exists f.
+  exists g.
   split.
-  - set (T:= pr1 (pr2 H')).
-    apply (maponpaths pr1 T).
-  - apply (maponpaths pr1 (pr2 (pr2 H'))).
+  - apply (maponpaths pr1 h1).
+  - apply (maponpaths pr1 h2).
 Defined.
 
 Definition Elem_cov_iso_to_Elem_cov_iso_type (ac bd : ∫) :
-  iso ac bd → Elem_cov_iso_type ac bd.
+  z_iso ac bd → Elem_cov_iso_type ac bd.
 Proof.
   intro H.
-  exists (Elem_cov_iso_gives_iso _ _ H).
+  exists (Elem_cov_iso_gives_z_iso _ _ H).
   simpl.
   exact (pr2 (pr1 H)).
 Defined.
 
-Lemma iso_in_HSET (A B : HSET) (f : iso A B) (Y : pr1 B) (X : pr1 A) :
-  pr1 f X = Y → inv_from_iso f Y = X.
+Lemma iso_in_HSET (A B : HSET) (f : z_iso A B) (Y : pr1 B) (X : pr1 A) :
+  pr1 f X = Y → inv_from_z_iso f Y = X.
 Proof.
   intro H.
   etrans. { apply maponpaths, pathsinv0, H. }
-  apply (toforallpaths (iso_inv_after_iso f)).
+  apply (toforallpaths (z_iso_inv_after_z_iso f)).
 Qed.
 
 Lemma Elem_cov_iso_inv (ac bd : ∫) (H : Elem_cov_iso_type ac bd) :
-  # F (inv_from_iso (pr1 H)) (pr2 bd) = pr2 ac.
+  # F (inv_from_z_iso (pr1 H)) (pr2 bd) = pr2 ac.
 Proof.
   destruct ac as [a c].
   destruct bd as [b d].
   destruct H as [t p]; simpl in t, p |- *.
-  etrans. { apply (toforallpaths (functor_on_inv_from_iso F t)). }
+  etrans. { apply (toforallpaths (functor_on_inv_from_z_iso F t)). }
   apply iso_in_HSET, p.
 Qed.
 
 Definition Elem_cov_iso_type_to_Elem_cov_iso (ac bd : ∫) :
-  Elem_cov_iso_type ac bd → iso ac bd .
+  Elem_cov_iso_type ac bd → z_iso ac bd .
 Proof.
   intro H.
-  use tpair; [ | apply is_iso_from_is_z_iso]; use tpair.
+  use tpair; use tpair.
   - exact (pr1 H).
   - exact (pr2 H).
-  - exists (inv_from_iso (pr1 H)).
+  - exists (inv_from_z_iso (pr1 H)).
     apply Elem_cov_iso_inv.
   - split; apply subtypePath; simpl.
     + intro; apply setproperty.
-    + apply iso_inv_after_iso.
+    + apply z_iso_inv_after_z_iso.
     + intro; apply setproperty.
-    + apply iso_after_iso_inv.
+    + apply z_iso_after_z_iso_inv.
 Defined.
 
 (* opacify the proof components *)
 Definition Elem_cov_iso_type_equiv_Elem_cov_iso (ac bd : ∫) :
-  iso ac bd ≃ Elem_cov_iso_type ac bd.
+  z_iso ac bd ≃ Elem_cov_iso_type ac bd.
 Proof.
   exists (Elem_cov_iso_to_Elem_cov_iso_type _ _ ).
   apply (gradth _ (Elem_cov_iso_type_to_Elem_cov_iso _ _ )).
   - intro.
-    apply eq_iso. simpl.
+    apply z_iso_eq. simpl.
     apply subtypePath.
     + intro; apply setproperty.
     + apply idpath.
@@ -188,7 +185,7 @@ Proof.
 Defined.
 
 Lemma elem_eq_weq_1 (H : is_univalent C) (ac bd : ∫) :
-  ac = bd ≃ ∑ p : iso (pr1 ac) (pr1 bd), #F p (pr2 ac) = pr2 bd. 
+  ac = bd ≃ ∑ p : z_iso (pr1 ac) (pr1 bd), #F p (pr2 ac) = pr2 bd. 
 Proof.
   eapply weqcomp.
   apply total2_paths_equiv.
@@ -203,7 +200,7 @@ Proof.
 Defined.
 
 Definition elem_eq_weq_2 (H : is_univalent C) (ac bd : ∫) :
-  ac = bd ≃ iso ac bd.
+  ac = bd ≃ z_iso ac bd.
 Proof.
   eapply weqcomp.
   apply elem_eq_weq_1.
@@ -219,7 +216,7 @@ Proof.
   intros a b.
   use weqhomot. { apply elem_eq_weq_2, H. }
   intro p; destruct p.
-  apply eq_iso.
+  apply z_iso_eq.
   apply subtypePath. { intro; apply setproperty. }
   cbn. apply idpath.
 Defined.

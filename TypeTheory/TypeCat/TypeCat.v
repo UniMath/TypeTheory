@@ -253,7 +253,7 @@ Definition q_q_typecat
     = idtoiso (maponpaths _ (!reind_comp_typecat A f g))
       ;; q_typecat A (g ;; f).
 Proof.
-  intros. apply iso_inv_to_left, pathsinv0. 
+  intros. apply z_iso_inv_to_left, pathsinv0. 
   etrans. { apply q_comp_typecat. }
   repeat rewrite <- assoc; apply maponpaths_2.
   generalize (reind_comp_typecat A f g).

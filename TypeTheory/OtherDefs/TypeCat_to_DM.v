@@ -26,7 +26,7 @@ Variable H : is_univalent CC.
 Variable C : typecat_structure CC.
 
 Definition iso_to_dpr {Γ Γ'} (γ : Γ --> Γ') : UU
-  := ∑ (A : C Γ') (f : iso (Γ'◂ A) Γ),
+  := ∑ (A : C Γ') (f : z_iso (Γ'◂ A) Γ),
         dpr_typecat _ = f ;; γ .
 
 Definition dm_sub_struct_of_TypeCat : dm_sub_struct CC.
@@ -49,7 +49,7 @@ Proof.
   destruct A' as [A [f TH]].
   unfold iso_to_dpr.
   exists A.
-  set (T:= iso_comp f h).
+  set (T:= z_iso_comp f h).
   exists T.
   unfold T. simpl.
   rewrite TH; clear TH.
@@ -80,7 +80,7 @@ Proof.
   clear B.
   unshelve refine (tpair _ _ _ ).
   - unshelve refine (make_Pullback _ _).
-    5: use postcomp_pb_with_iso.
+    5: use postcomp_pb_with_z_iso.
     7: eapply is_symmetric_isPullback, reind_pb_typecat.
     + eassumption. 
     + sym. assumption.
@@ -88,7 +88,7 @@ Proof.
     apply hinhpr.
     unfold iso_to_dpr.
     exists (A{{f}}).
-    exists (identity_iso _ ).
+    exists (identity_z_iso _ ).
     sym. apply id_left.
 Defined.
 

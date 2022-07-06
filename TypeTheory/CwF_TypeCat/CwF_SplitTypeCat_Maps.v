@@ -413,10 +413,10 @@ Proof.
         { use (qq Z _ _ ;; qq Z _ _). }
         -- etrans.
           2: {
-            eapply iso_inv_on_right.
+            eapply z_iso_inv_on_right.
             etrans. 2: { apply @pathsinv0, assoc. }
             apply qq_comp. }
-          apply @pathsinv0, iso_inv_on_right.
+          apply @pathsinv0, z_iso_inv_on_right.
           apply @pathsinv0.
           etrans. apply assoc.
           etrans. apply maponpaths_2, @pathsinv0, comp_ext_compare_comp.
@@ -442,7 +442,7 @@ Proof.
     etrans. apply @pathsinv0, assoc.
     apply maponpaths.
     etrans. apply maponpaths.
-      apply @pathsinv0, iso_inv_on_right.
+      apply @pathsinv0, z_iso_inv_on_right.
       use (_ @ !assoc _ _ _).
       apply qq_comp.
     etrans. 2: { exact (comp_ext_compare_qq Z (!e1) _). }

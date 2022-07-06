@@ -36,8 +36,8 @@ Definition arrow_category_is_iso {C : category}
            (a_to_c : C ⟦ pr1 (pr1 abf), pr1 (pr1 cdg) ⟧)
            (b_to_d : C ⟦ dirprod_pr2 (pr1 abf), dirprod_pr2 (pr1 cdg) ⟧)
   : UU
-  := is_iso b_to_d ×
-     is_iso a_to_c ×
+  := is_z_isomorphism b_to_d ×
+     is_z_isomorphism a_to_c ×
      (pr2 abf ;; b_to_d = a_to_c ;; pr2 cdg).
 
 Lemma isaprop_arrow_category_is_iso {C : category}
@@ -47,9 +47,9 @@ Lemma isaprop_arrow_category_is_iso {C : category}
   : isaprop (arrow_category_is_iso a_to_c b_to_d).
 Proof.
   use isapropdirprod.
-  - apply isaprop_is_iso.
+  - apply isaprop_is_z_isomorphism.
   - use isapropdirprod.
-    + apply isaprop_is_iso.
+    + apply isaprop_is_z_isomorphism.
     + apply homset_property.
 Defined.
 
@@ -59,7 +59,7 @@ Definition arrow_category_is_iso_to_is_iso {C : category}
            (b_to_d : C ⟦ dirprod_pr2 (pr1 abf), dirprod_pr2 (pr1 cdg) ⟧)
   : arrow_category_is_iso a_to_c b_to_d
     → ∑ (p : pr2 abf ;; b_to_d = a_to_c ;; pr2 cdg)
-    , is_iso (((a_to_c,, b_to_d),,p) : arrow_category C ⟦ abf, cdg ⟧).
+    , is_z_isomorphism (((a_to_c,, b_to_d),,p) : arrow_category C ⟦ abf, cdg ⟧).
 Proof.
   intros h.
   set (is_iso_a_to_c := pr1 (dirprod_pr2 h)).
@@ -69,35 +69,34 @@ Proof.
   set (comm_square := dirprod_pr2 (dirprod_pr2 h)).
   use tpair.
   - apply comm_square.
-  - use is_iso_from_is_z_iso.
-    unfold is_z_isomorphism.
+  - unfold is_z_isomorphism.
     use tpair.
     + use tpair.
       * use make_dirprod.
-        -- apply (inv_from_iso iso_a_to_c).
-        -- apply (inv_from_iso iso_b_to_d).
+        -- apply (inv_from_z_iso iso_a_to_c).
+        -- apply (inv_from_z_iso iso_b_to_d).
       * simpl.
         apply pathsinv0.
         etrans. apply pathsinv0, id_right.
-        etrans. apply maponpaths, pathsinv0, (iso_inv_after_iso iso_b_to_d).
+        etrans. apply maponpaths, pathsinv0, (z_iso_inv_after_z_iso iso_b_to_d).
         etrans. apply assoc'.
         etrans. apply maponpaths, assoc.
         etrans. apply maponpaths, maponpaths_2, comm_square.
         etrans. apply assoc.
         etrans. apply maponpaths_2, assoc.
-        etrans. apply maponpaths_2, maponpaths_2, iso_after_iso_inv.
+        etrans. apply maponpaths_2, maponpaths_2, z_iso_after_z_iso_inv.
         etrans. apply maponpaths_2, id_left.
         apply idpath.
     + use make_dirprod.
       * use total2_paths_f.
         -- use dirprod_paths.
-           ++ apply (iso_inv_after_iso iso_a_to_c).
-           ++ apply (iso_inv_after_iso iso_b_to_d).
+           ++ apply (z_iso_inv_after_z_iso iso_a_to_c).
+           ++ apply (z_iso_inv_after_z_iso iso_b_to_d).
         -- apply homset_property.
       * use total2_paths_f.
         -- use dirprod_paths.
-           ++ apply (iso_after_iso_inv iso_a_to_c).
-           ++ apply (iso_after_iso_inv iso_b_to_d).
+           ++ apply (z_iso_after_z_iso_inv iso_a_to_c).
+           ++ apply (z_iso_after_z_iso_inv iso_b_to_d).
         -- apply homset_property.
 Defined.
 
@@ -106,27 +105,25 @@ Definition is_iso_to_arrow_category_is_iso {C : category}
            (a_to_c : C ⟦ pr1 (pr1 abf), pr1 (pr1 cdg) ⟧)
            (b_to_d : C ⟦ dirprod_pr2 (pr1 abf), dirprod_pr2 (pr1 cdg) ⟧)
   : (∑ (p : pr2 abf ;; b_to_d = a_to_c ;; pr2 cdg)
-    , is_iso (((a_to_c,, b_to_d),,p) : arrow_category C ⟦ abf, cdg ⟧))
+    , is_z_isomorphism (((a_to_c,, b_to_d),,p) : arrow_category C ⟦ abf, cdg ⟧))
     → arrow_category_is_iso a_to_c b_to_d.
 Proof.
   intros hp.
   set (abf_to_cdg := ((a_to_c,, b_to_d),,pr1 hp) : arrow_category C ⟦ _ , _ ⟧).
-  set (h := pr2 hp : is_iso abf_to_cdg).
-  set (c_to_a := pr1 (pr1 (inv_from_iso (abf_to_cdg,,h)))).
-  set (d_to_b := dirprod_pr2 (pr1 (inv_from_iso (abf_to_cdg,,h)))).
+  set (h := pr2 hp : is_z_isomorphism abf_to_cdg).
+  set (c_to_a := pr1 (pr1 (inv_from_z_iso (abf_to_cdg,,h)))).
+  set (d_to_b := dirprod_pr2 (pr1 (inv_from_z_iso (abf_to_cdg,,h)))).
 
   use make_dirprod.
-  - use is_iso_from_is_z_iso.
-    use tpair. { apply d_to_b. }
+  - use tpair. { apply d_to_b. }
     use make_dirprod.
-    * apply (maponpaths (λ k, dirprod_pr2 (pr1 k)) (iso_inv_after_iso (_,,h))).
-    * apply (maponpaths (λ k, dirprod_pr2 (pr1 k)) (iso_after_iso_inv (_,,h))).
+    * apply (maponpaths (λ k, dirprod_pr2 (pr1 k)) (z_iso_inv_after_z_iso (_,,h))).
+    * apply (maponpaths (λ k, dirprod_pr2 (pr1 k)) (z_iso_after_z_iso_inv (_,,h))).
   - use make_dirprod.
-    + use is_iso_from_is_z_iso.
-      use tpair. { apply c_to_a. }
+    + use tpair. { apply c_to_a. }
       use make_dirprod.
-      * apply (maponpaths (λ k, pr1 (pr1 k)) (iso_inv_after_iso (_,,h))).
-      * apply (maponpaths (λ k, pr1 (pr1 k)) (iso_after_iso_inv (_,,h))).
+      * apply (maponpaths (λ k, pr1 (pr1 k)) (z_iso_inv_after_z_iso (_,,h))).
+      * apply (maponpaths (λ k, pr1 (pr1 k)) (z_iso_after_z_iso_inv (_,,h))).
     + apply (pr2 abf_to_cdg).
 Defined.
 
@@ -137,7 +134,7 @@ Definition arrow_category_weq_is_iso {C : category}
   : arrow_category_is_iso a_to_c b_to_d
                           ≃
     ∑ (p : pr2 abf ;; b_to_d = a_to_c ;; pr2 cdg)
-    , is_iso (((a_to_c,, b_to_d),,p) : arrow_category C ⟦ abf, cdg ⟧).
+    , is_z_isomorphism (((a_to_c,, b_to_d),,p) : arrow_category C ⟦ abf, cdg ⟧).
 Proof.
   use weq_iso.
   - apply arrow_category_is_iso_to_is_iso.
@@ -146,13 +143,13 @@ Proof.
   - intros h.
     use total2_paths_f.
     + apply homset_property.
-    + apply isaprop_is_iso.
+    + apply isaprop_is_z_isomorphism.
 Defined.
 
 Definition arrow_category_id_weq_iso {C : category}
            (C_univ : is_univalent C)
            (abf cdg : arrow_category C)
-  : (abf = cdg) ≃ iso abf cdg.
+  : (abf = cdg) ≃ z_iso abf cdg.
 Proof.
   eapply weqcomp.
   apply arrow_category_id_to_ids.
@@ -168,7 +165,7 @@ Proof.
   (∑ hk : a = c × b = d,
     pr2 abf;; idtoiso (dirprod_pr2 hk) = idtoiso (pr1 hk) ;; pr2 cdg)
     ≃
-  (∑ hk : iso a c × iso b d,
+  (∑ hk : z_iso a c × z_iso b d,
    pr2 abf;; dirprod_pr2 hk = pr1 hk ;; pr2 cdg)).
   eapply weqcomp. apply weqtotal2asstor.
   apply invweq.
@@ -196,7 +193,7 @@ Proof.
       use PartA.weqtotal2.
       * apply idweq.
       * intros b_to_d. simpl.
-        apply arrow_category_weq_is_iso.
+        apply arrow_category_weq_is_iso. 
 Defined. 
 
 Definition arrow_category_mor_eq {C : category}
@@ -223,7 +220,7 @@ Proof.
   + apply arrow_category_id_weq_iso.
     apply C_univ.
   + intros p. induction p.
-      apply eq_iso. 
+      apply z_iso_eq.
     apply arrow_category_mor_eq.
     * apply idpath.
       * apply idpath.

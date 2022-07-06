@@ -82,7 +82,7 @@ Proof.
 Qed.
 
 Lemma transportf_isotoid_pshf {C : category}
-    {P P' : preShv C} (i : iso P P')
+    {P P' : preShv C} (i : z_iso P P')
     {c : C} (x : P $p c)
   : transportf (fun Q => Q $p c)
       (isotoid _ (univalent_category_is_univalent (preShv C)) i) x

@@ -363,7 +363,7 @@ Section comp_ext.
 
 Definition comp_ext_compare 
 {Γ : C} {A A' : Ty Γ : hSet} (e : A = A')
-: iso (Γ ¤ A) (Γ ¤ A')
+: z_iso (Γ ¤ A) (Γ ¤ A')
 := idtoiso (maponpaths (ext Γ) e).
 
 Lemma comp_ext_compare_id 
@@ -441,7 +441,7 @@ Definition q_q'
   = idtoiso (maponpaths (fun b => Γ''¤b) (! Ty_composition _ _ _))
     ;; q A (f;;g).
 Proof.
-intros. apply iso_inv_to_left, pathsinv0. 
+intros. apply z_iso_inv_to_left, pathsinv0. 
 etrans. { apply q_q. }
 repeat rewrite <- assoc; apply maponpaths_2.
 etrans. 2: { apply comp_ext_compare_inv. }

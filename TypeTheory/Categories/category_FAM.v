@@ -237,7 +237,7 @@ Context {C : category}.
   
 Definition FAM_obj_eq_type_2 (A B : obj_UU C) : UU 
   := 
-  ∑ f : pr1 A ≃ pr1 B, ∏ a : pr1 A, iso (pr2 A a) (pr2 B (f a)).
+  ∑ f : pr1 A ≃ pr1 B, ∏ a : pr1 A, z_iso (pr2 A a) (pr2 B (f a)).
 
 Lemma FAM_obj_weq_2 (A B : obj C) (H : is_univalent C) :
   FAM_obj_eq_type A B ≃ FAM_obj_eq_type_2 A B.
@@ -254,7 +254,7 @@ Defined.
 Lemma FAM_obj_weq_3 (A B : obj C) : 
   FAM_obj_eq_type_2 A B ≃
           ∑ f : pr1 (pr1 A) → pr1 (pr1 B), 
-             ∑ i : ∏ a : pr1 (pr1 A), pr2 (pr1 A) a --> pr2 (pr1 B) (f a), isweq f × ∏ a, is_iso (i a).
+             ∑ i : ∏ a : pr1 (pr1 A), pr2 (pr1 A) a --> pr2 (pr1 B) (f a), isweq f × ∏ a, is_z_isomorphism (i a).
 Proof.
   unfold FAM_obj_eq_type_2.
   simpl.
@@ -287,18 +287,18 @@ Defined.
 
 Section isos.
 
-Definition isweq_from_is_iso {A B : FAM C} (f : A --> B) : is_iso f → isweq (pr1 f). 
+Definition isweq_from_is_iso {A B : FAM C} (f : A --> B) : is_z_isomorphism f → isweq (pr1 f). 
 Proof.
   intro H.
-  apply (gradth _ (pr1 (inv_from_iso (make_iso f H)))).
+  apply (gradth _ (pr1 (inv_from_z_iso (make_z_iso f _ H)))).
   - intro x. 
-    apply (toforallpaths (maponpaths pr1 (iso_inv_after_iso (make_iso f H)))).
+    apply (toforallpaths (maponpaths pr1 (z_iso_inv_after_z_iso (make_z_iso f _ H)))).
   - intro x.
-    apply (toforallpaths (maponpaths pr1 (iso_after_iso_inv (make_iso f H)))).
+    apply (toforallpaths (maponpaths pr1 (z_iso_after_z_iso_inv (make_z_iso f _ H)))).
 Defined.
 
 Definition FAM_is_iso {A B : FAM C} (f : A --> B) : UU := 
-   isweq (pr1 f) × (∏ x, is_iso (pr2 f x)).
+   isweq (pr1 f) × (∏ x, is_z_isomorphism (pr2 f x)).
 
 Definition inv_from_FAM_is_iso {A B : FAM C} {f : A --> B} (H : FAM_is_iso f) : B --> A.
 Proof.
@@ -306,8 +306,8 @@ Proof.
   exists finv.
   intro b.
   set (H' := pr2 H (finv b)). simpl in H'.
-  set (x  := make_iso _ H': iso (A ₂ (finv b)) (B ₂ (pr1 f (finv b)))).
-  set (xinv := inv_from_iso x).
+  set (x  := make_z_iso _ _ H': z_iso (A ₂ (finv b)) (B ₂ (pr1 f (finv b)))).
+  set (xinv := inv_from_z_iso x).
   cbn in *.
   use (transportf (λ b', B ₂ b' --> A ₂ (finv b)) (homotweqinvweq (make_weq _ (pr1 H)) _ )).
   apply xinv.
@@ -325,10 +325,9 @@ Proof.
 Qed.
     
 
-Lemma is_iso_from_FAM_is_iso (A B : FAM C) (f : A --> B) : FAM_is_iso f → is_iso f.
+Lemma is_iso_from_FAM_is_iso (A B : FAM C) (f : A --> B) : FAM_is_iso f → is_z_isomorphism f.
 Proof.
   intros H.
-  apply is_iso_from_is_z_iso.
   exists (inv_from_FAM_is_iso H).
   destruct f as [f1 f2], H as [H1 H2]. simpl in *.
   split.
@@ -347,10 +346,12 @@ Proof.
         transportf
           (λ b' : B ₁, B ₂ b' --> A ₂ a2)
           (maponpaths f1 q)
-          (inv_from_iso (make_iso (f2 a2) (H2 a2))))
+          (inv_from_z_iso (make_z_iso (f2 a2) _ (H2 a2))))
       = identity (A ₂ a1)).
+    {
       intros. destruct q; cbn.
-      apply (iso_inv_after_iso (make_iso _ _)).
+      apply (z_iso_inv_after_z_iso (make_z_iso _ _ _)).
+    }
     apply transp_lem.
 
   - apply (invmap (FAM_mor_equiv _ _ )).
@@ -361,18 +362,19 @@ Proof.
                          (homotweqinvweq (make_weq f1 H1) b))
     with (transportf (λ b0 : B ₁, B ₂ b --> B ₂ b0) p).
     set (a := (invmap (make_weq f1 H1) b)) in *. clearbody p. clearbody a.
-    destruct p. cbn. unfold idfun; simpl. apply iso_after_iso_inv.
+    destruct p. cbn. unfold idfun; simpl. set (T:= z_iso_after_z_iso_inv (make_z_iso _ _ (H2 a))).
+    apply T.
 Qed.
 
 
-Lemma FAM_is_iso_from_is_iso (A B : FAM C) (f : A --> B) : is_iso f → FAM_is_iso f.
+Lemma FAM_is_iso_from_is_iso (A B : FAM C) (f : A --> B) : is_z_isomorphism f → FAM_is_iso f.
 Proof.
   intro f_iso.
   split.
   - apply isweq_from_is_iso. assumption.
-  - set (g := iso_inv_from_iso (make_iso f f_iso) : B --> A).
-    set (fg' := iso_inv_after_iso _ : f ;; g = identity A).
-    set (gf' := iso_after_iso_inv _ : g ;; f = identity B).
+  - set (g := z_iso_inv_from_z_iso (make_z_iso f _ f_iso) : B --> A).
+    set (fg' := z_iso_inv_after_z_iso _ : f ;; g = identity A).
+    set (gf' := z_iso_after_z_iso_inv _ : g ;; f = identity B).
     set (fg:= FAM_mor_equiv _ _ fg'). clearbody fg; clear fg'.
     set (gf:= FAM_mor_equiv _ _ gf'). clearbody gf; clear gf'.
     clearbody g; clear f_iso.
@@ -380,7 +382,7 @@ Proof.
     destruct f as [f1 f2], g as [g1 g2],
              fg as [fg1 fg2], gf as [gf1 gf2]; simpl in *.
     intro a. 
-    apply is_iso_from_is_z_iso.
+
     set (inv := transportf (λ a', B ₂ _  --> A ₂ a') (fg1 a) (g2 (f1 a))).
     exists inv. subst inv.
     split.
@@ -417,17 +419,17 @@ Lemma isaprop_FAM_is_iso {A B : FAM C} (f : A --> B) : isaprop (FAM_is_iso f).
 Proof.
   apply isofhleveltotal2.
   - apply isapropisweq.
-  - intros _. apply impred. intros. apply isaprop_is_iso.
+  - intros _. apply impred. intros. apply isaprop_is_z_isomorphism.
 Qed.
 
   
 Lemma FAM_is_iso_weq {A B : FAM C} (f : A --> B)
-  : is_iso f ≃ FAM_is_iso f.
+  : is_z_isomorphism f ≃ FAM_is_iso f.
 Proof.
   apply weqimplimpl.
   - apply FAM_is_iso_from_is_iso.
   - apply is_iso_from_FAM_is_iso.
-  - apply isaprop_is_iso.
+  - apply isaprop_is_z_isomorphism.
   - apply isaprop_FAM_is_iso.
 Defined.
 
@@ -436,7 +438,7 @@ End isos.
 Lemma FAM_obj_weq_4 (A B : FAM C) : 
   (∑ f1 : pr1 (pr1 A) → pr1 (pr1 B), 
    ∑ f2 : ∏ a : pr1 (pr1 A), pr2 (pr1 A) a --> pr2 (pr1 B) (f1 a),
-     isweq f1 × ∏ a, is_iso (f2 a))
+     isweq f1 × ∏ a, is_z_isomorphism (f2 a))
   ≃ ∑ (f : A --> B), FAM_is_iso f.
 Proof.
   use weq_iso.
@@ -448,7 +450,7 @@ Defined.
 
 Lemma FAM_obj_weq_5 (A B : FAM C) 
   : (∑ (f : A --> B), FAM_is_iso f)
-  ≃ ∑ (f : A --> B), is_iso f.
+  ≃ ∑ (f : A --> B), is_z_isomorphism f.
 Proof.
   unshelve refine (weqbandf _ _ _ _).
   - apply idweq.
@@ -456,7 +458,7 @@ Proof.
 Defined.
 
 Definition FAM_obj_weq (A B : FAM C) (H : is_univalent C)
-: (A = B) ≃ ∑ (f : A --> B), is_iso f.
+: (A = B) ≃ ∑ (f : A --> B), is_z_isomorphism f.
 Proof.
   apply (weqcomp (FAM_obj_weq_1 A B)).
   apply (weqcomp (FAM_obj_weq_2 A B H)).
@@ -485,7 +487,7 @@ Qed.
 
 Definition FAM_id2 (A : FAM C) : FAM_obj_eq_type_2 (pr1 A) (pr1 A).
 Proof.
-  exists (idweq _). intros; apply identity_iso.
+  exists (idweq _). intros; apply identity_z_iso.
 Defined.
 
 Lemma FAM_obj_weq_2_id (A : FAM C) (H : is_univalent C)
@@ -497,10 +499,10 @@ Qed.
 
 Definition FAM_id3 (A : FAM C)
   : ∑ (f : A ₁ → A ₁) (i : ∏ a : A ₁, A ₂ a --> A ₂ (f a)),
-          isweq f × (∏ a : A ₁, is_iso (i a)).
+          isweq f × (∏ a : A ₁, is_z_isomorphism (i a)).
 Proof.
   exists (idfun _). exists (fun a => identity _).
-  split. apply idisweq. intros; apply identity_is_iso.
+  split. apply idisweq. intros; apply identity_is_z_iso.
 Defined.
 
 Lemma FAM_obj_weq_3_id (A : FAM C)
@@ -515,14 +517,14 @@ Proof.
   - apply proofirrelevance.
     apply isofhleveltotal2.
     + apply isapropisweq.
-    + intros _. apply impred; intros. apply isaprop_is_iso.
+    + intros _. apply impred; intros. apply isaprop_is_z_isomorphism.
 Qed.
 
 Definition FAM_id4 (A : FAM C)
   : (∑ f : A --> A, FAM_is_iso f).
 Proof.
   exists (identity _).
-  split; simpl. apply idisweq. intros; apply identity_is_iso.
+  split; simpl. apply idisweq. intros; apply identity_is_z_iso.
 Defined.
 
 Lemma FAM_obj_weq_4_id (A : FAM C)
@@ -538,7 +540,7 @@ Proof.
 Qed.
 
 Lemma FAM_obj_weq_idpath (A : FAM C) (H : is_univalent C)
-  : (FAM_obj_weq A A H (idpath A)) = identity_iso A.
+  : (FAM_obj_weq A A H (idpath A)) = identity_z_iso A.
 Proof.
   unfold FAM_obj_weq.
   eapply pathscomp0. eapply (maponpaths (FAM_obj_weq_5 A A)).
@@ -549,7 +551,7 @@ Proof.
   apply FAM_obj_weq_2_id.
   apply FAM_obj_weq_3_id.
   apply FAM_obj_weq_4_id.
-  apply eq_iso, FAM_obj_weq_5_id.
+  apply z_iso_eq, FAM_obj_weq_5_id.
 Qed.
 
 Theorem FAM_is_univalent : is_univalent C -> is_univalent (FAM C).

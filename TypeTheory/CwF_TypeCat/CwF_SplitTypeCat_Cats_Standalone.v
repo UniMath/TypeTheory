@@ -491,7 +491,7 @@ Lemma compat_structures_pr1_split_ess_surj
 Proof.
   intro Y.
   exists (((Y,, qq_from_term Y)),,iscompatible_qq_from_term Y).
-  apply identity_iso.
+  apply identity_z_iso.
 Defined.
 
 Lemma compat_structures_pr1_fully_faithful
@@ -515,7 +515,7 @@ Lemma compat_structures_pr2_split_ess_surj
 Proof.
   intros Z.
   exists (((term_from_qq Z,, Z)),,iscompatible_term_from_qq Z).
-  apply identity_iso.
+  apply identity_z_iso.
 Defined.
 
 Lemma compat_structures_pr2_fully_faithful
@@ -543,35 +543,34 @@ Section Is_Univalent_Families_Strucs.
 
 Definition iso_to_TM_eq
   (Y Y' : term_fun_precategory)
-  : iso Y Y' 
+  : z_iso Y Y' 
   -> TM (Y : term_fun_structure _ X) = TM (Y' : term_fun_structure _ X).
 Proof.
   intro i.
   use isotoid.
   - apply univalent_category_is_univalent.
   - exists (term_fun_mor_TM (i : _ --> _)).
-    apply is_iso_from_is_z_iso.
-    exists (term_fun_mor_TM (inv_from_iso i)).
+    exists (term_fun_mor_TM (inv_from_z_iso i)).
     split.
-    + exact (maponpaths term_fun_mor_TM (iso_inv_after_iso i)).
-    + exact (maponpaths term_fun_mor_TM (iso_after_iso_inv i)).
+    + exact (maponpaths term_fun_mor_TM (z_iso_inv_after_z_iso i)).
+    + exact (maponpaths term_fun_mor_TM (z_iso_after_z_iso_inv i)).
 Defined.
 
 Lemma prewhisker_iso_to_TM_eq 
   {Y Y' : term_fun_precategory}
-  (FG : iso Y Y')
+  (FG : z_iso Y Y')
   {P : preShv C} (α : TM (Y : term_fun_structure _ X) --> P)
 : transportf (λ P' : preShv C, P' --> P) (iso_to_TM_eq  _ _ FG) α
-  = term_fun_mor_TM (inv_from_iso FG) ;; α.
+  = term_fun_mor_TM (inv_from_z_iso FG) ;; α.
 Proof.
   etrans. apply transportf_isotoid.
   apply maponpaths_2.
-  apply inv_from_iso_from_is_z_iso.
+  apply inv_from_z_iso_from_is_z_iso.
 Qed.
 
 Lemma postwhisker_iso_to_TM_eq 
   {Y Y' : term_fun_precategory}
-  (FG : iso Y Y')
+  (FG : z_iso Y Y')
   {P : preShv C} (α : P --> TM (Y : term_fun_structure _ X))
 : transportf (λ P' : preShv C, P --> P') (iso_to_TM_eq _ _ FG) α
   = α ;; term_fun_mor_TM (pr1 FG).
@@ -581,7 +580,7 @@ Qed.
 
 Lemma idtoiso_iso_to_TM_eq 
   {Y Y' : term_fun_precategory}
-  (FG : iso Y Y')
+  (FG : z_iso Y Y')
 : (idtoiso (iso_to_TM_eq _ _ FG) : _ --> _)
   = term_fun_mor_TM (FG : _ --> _).
 Proof.
@@ -590,7 +589,7 @@ Qed.
 
 Definition iso_to_id_term_fun_precategory
   (Y Y' : term_fun_precategory)
-  : iso Y Y' -> Y = Y'.
+  : z_iso Y Y' -> Y = Y'.
 Proof.
   intros i.
   apply subtypePath. { intro. apply isaprop_term_fun_structure_axioms. }
@@ -630,7 +629,7 @@ Theorem is_univalent_term_fun_structure
 Proof.
   use eq_equiv_from_retraction.
   - apply iso_to_id_term_fun_precategory.
-  - intros. apply eq_iso. apply isaprop_term_fun_mor.
+  - intros. apply z_iso_eq. apply isaprop_term_fun_mor.
 Qed.
 
 End Is_Univalent_Families_Strucs.
@@ -658,16 +657,26 @@ Proof.
     + do 6 (apply impred; intro).
       apply hlevelntosn.
       apply homset_property.
-Qed. 
+Qed.
+
+Lemma has_homsets_qq_structure_precategory
+  : has_homsets qq_structure_precategory.
+Proof.
+  intros a b. apply isasetaprop. apply isaprop_qq_structure_mor.
+Qed.
+
+Definition qq_structure_category : category
+  := make_category _ has_homsets_qq_structure_precategory.
+
 
 Lemma isaprop_iso_qq_morphism_structure 
-  (d d' : qq_structure_precategory)
-  : isaprop (iso d d').
+  (d d' : qq_structure_category)
+  : isaprop (z_iso d d').
 Proof.
   apply (isofhleveltotal2 1).
   - do 4 (apply impred; intro).
     apply homset_property.
-  - intro. apply isaprop_is_iso.
+  - intro. apply isaprop_is_z_isomorphism.
 Qed.
 
 Lemma qq_structure_eq 
@@ -691,22 +700,13 @@ Defined.
 
 Definition qq_structure_iso_to_id
   (d d' : qq_structure_precategory)
-  : iso d d' → d = d'.
+  : z_iso d d' → d = d'.
 Proof.
   intro H. 
   apply qq_structure_eq.
   intros Γ Γ' f A.
   use (pr1 H).
 Defined.  
-  
-Lemma has_homsets_qq_structure_precategory
-  : has_homsets qq_structure_precategory.
-Proof.
-  intros a b. apply isasetaprop. apply isaprop_qq_structure_mor.
-Qed.
-
-Definition qq_structure_category : category
-  := make_category _ has_homsets_qq_structure_precategory.
 
 Theorem is_univalent_qq_morphism
   : is_univalent qq_structure_category.

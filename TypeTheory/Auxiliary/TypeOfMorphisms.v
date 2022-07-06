@@ -47,49 +47,49 @@ Proof.
     + cbn. destruct p as [[a b] f].
       apply pathsdirprod; cbn. 
       * apply (isotoid _ isC). 
-        apply iso_inv_from_iso, (unit_pointwise_iso_from_adj_equivalence H).
+        apply z_iso_inv_from_z_iso, (unit_pointwise_z_iso_from_adj_equivalence H).
       * apply (isotoid _ isC).
-        apply iso_inv_from_iso, (unit_pointwise_iso_from_adj_equivalence H).
+        apply z_iso_inv_from_z_iso, (unit_pointwise_z_iso_from_adj_equivalence H).
     + cbn. destruct p as [[a b] f]. cbn in *.
       etrans. apply (transportf_pair (λ x : C × C, C ⟦ pr2 x, pr1 x ⟧)).
       cbn.
       rewrite transportf_isotoid.
       rewrite transportf_isotoid'.
-      cbn. unfold precomp_with. rewrite id_right.
+      cbn. (*unfold precomp_with. rewrite id_right.*)
       rewrite assoc.
       assert (XR := nat_trans_ax (unit_from_are_adjoints (pr2 (pr1 H)))).
       cbn in XR. rewrite <- XR.
       rewrite <- assoc. 
       etrans. apply maponpaths.
-      apply (iso_inv_after_iso (unit_pointwise_iso_from_adj_equivalence H a)).
+      apply (z_iso_inv_after_z_iso (unit_pointwise_z_iso_from_adj_equivalence H a)).
       apply id_right.
     - intro p.
     use total2_paths_f.
     + cbn. destruct p as [[a b] f].
       apply pathsdirprod; cbn. 
       * apply (isotoid _ isD). 
-        apply (counit_pointwise_iso_from_adj_equivalence H).
+        apply (counit_pointwise_z_iso_from_adj_equivalence H).
       * apply (isotoid _ isD).
-        apply (counit_pointwise_iso_from_adj_equivalence H).
+        apply (counit_pointwise_z_iso_from_adj_equivalence H).
     + cbn. destruct p as [[a b] f]. cbn in *.
       etrans. apply (transportf_pair (λ x : D × D, D ⟦ pr2 x, pr1 x ⟧)).
       cbn.
       rewrite transportf_isotoid.
       rewrite transportf_isotoid'.
-      cbn. unfold precomp_with. 
+      cbn.
       assert (XR := nat_trans_ax (counit_from_are_adjoints (pr2 (pr1 H)))).
       cbn in XR. rewrite XR. clear XR.
       rewrite assoc. 
       etrans. apply maponpaths_2.
-      apply (iso_after_iso_inv (counit_pointwise_iso_from_adj_equivalence H _)).
+      apply (z_iso_after_z_iso_inv (counit_pointwise_z_iso_from_adj_equivalence H _)).
       apply id_left.
 Defined.
 
 Definition isweq_equivalence_on_mor_total {C D : category}
            (isC : is_univalent C) (isD : is_univalent D)
            (F : functor C D) (G : functor D C)
-           (eta : iso (C:= [_ , _ ]) (functor_identity C) (F ∙ G))
-           (eps : iso (C:= [_ , _ ]) (G ∙ F) (functor_identity D))
+           (eta : z_iso (C:= [_ , _ ]) (functor_identity C) (F ∙ G))
+           (eps : z_iso (C:= [_ , _ ]) (G ∙ F) (functor_identity D))
 : isweq (functor_on_mor_total F).
 Proof.
   use (gradth _ _ _ _ ).
@@ -99,30 +99,29 @@ Proof.
     + cbn. destruct p as [[a b] f].
       apply pathsdirprod; cbn. 
       * apply (isotoid _ isC). 
-        apply iso_inv_from_iso. apply (iso_ob eta).
+        apply z_iso_inv_from_z_iso. apply (z_iso_ob eta).
       * apply (isotoid _ isC).
-        apply iso_inv_from_iso. apply (iso_ob eta).
+        apply z_iso_inv_from_z_iso. apply (z_iso_ob eta).
     + cbn. destruct p as [[a b] f]. cbn in *.
       etrans. apply (transportf_pair (λ x : C × C, C ⟦ pr2 x, pr1 x ⟧)).
       cbn.
       rewrite transportf_isotoid.
       rewrite transportf_isotoid'.
-      cbn. unfold precomp_with. rewrite id_right.
+(*      cbn. unfold precomp_with. rewrite id_right. *)
       rewrite assoc. assert (XR := nat_trans_ax (pr1 eta)).
       cbn in XR. rewrite <- XR.
       rewrite <- assoc.
-      rewrite id_right.
       etrans. apply maponpaths.
-      apply (nat_trans_inv_pointwise_inv_after _ _ C _ _ (pr1 eta)).
+      apply (nat_trans_inv_pointwise_inv_after_z_iso _ _ C _ _ (pr1 eta)).
       apply id_right.
   - intro p.
     use total2_paths_f.
     + cbn. destruct p as [[a b] f].
       apply pathsdirprod; cbn. 
       * apply (isotoid _ isD). 
-        apply (iso_ob eps).
+        apply (z_iso_ob eps).
       * apply (isotoid _ isD).
-        apply (iso_ob eps).
+        apply (z_iso_ob eps).
     + cbn. destruct p as [[a b] f]. cbn in *.
       etrans. apply (transportf_pair (λ x : D × D, D ⟦ pr2 x, pr1 x ⟧)).
       cbn.
@@ -132,9 +131,8 @@ Proof.
       assert (XR := nat_trans_ax (pr1 eps)).
       cbn in XR. rewrite XR. clear XR.
       rewrite assoc. 
-      rewrite id_right.
       etrans. apply maponpaths_2.
-      apply (nat_trans_inv_pointwise_inv_before _ _ D  _ _ (pr1 eps)).
+      apply (nat_trans_inv_pointwise_inv_before_z_iso _ _ D  _ _ (pr1 eps)).
       apply id_left.
 Defined.
 

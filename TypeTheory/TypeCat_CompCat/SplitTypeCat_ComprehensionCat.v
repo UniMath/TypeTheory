@@ -154,7 +154,7 @@ Section DiscreteComprehensionCatWithDefaultMor.
           etrans. apply pathsinv0, idtoiso_precompose.
           etrans. apply maponpaths_2, maponpaths, idtoiso_inv.
           etrans. apply assoc.
-          etrans. apply maponpaths_2, iso_after_iso_inv.
+          etrans. apply maponpaths_2, z_iso_after_z_iso_inv.
           apply id_left.
     Qed.
 
@@ -277,7 +277,7 @@ Section DiscreteComprehensionCat_from_SplitTypeCat.
     - intros i.
       use total2_paths_f.
       + apply (pr1 (pr2 TC) Γ).
-      + apply isaprop_is_iso_disp.
+      + apply isaprop_is_z_iso_disp.
   Defined.
   
   Definition is_discrete_fibration_disp_cat_from_split_typecat_structure
@@ -338,7 +338,7 @@ Section DiscreteComprehensionCat_from_SplitTypeCat.
         etrans. apply pathsinv0, idtoiso_precompose.
         etrans. apply maponpaths_2, maponpaths, idtoiso_inv.
         etrans. apply assoc.
-        etrans. apply maponpaths_2, iso_after_iso_inv.
+        etrans. apply maponpaths_2, z_iso_after_z_iso_inv.
         apply id_left.
   Qed.
 

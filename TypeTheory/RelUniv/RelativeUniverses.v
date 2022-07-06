@@ -122,16 +122,15 @@ Proof.
   - unfold fpullback_data in *.
     use total2_paths_f; simpl.
     + apply isotoid. { assumption. }
-      apply (invmap (weq_ff_functor_on_iso HJ _ _)).
-      refine (iso_from_Pullback_to_Pullback
+      apply (invmap (weq_ff_functor_on_z_iso HJ _ _)).
+      refine (z_iso_from_Pullback_to_Pullback
                 (make_Pullback _ (isPullback_fpullback _))
                 (make_Pullback _ (isPullback_fpullback _))).
     + etrans. { apply (transportf_dirprod'
                          (λ a', C ⟦ a', _ ⟧) (λ a', D ⟦ J a', _ ⟧)). }
       apply pathsdirprod.
       * rewrite transportf_isotoid.
-        cbn; unfold precomp_with.
-        rewrite 2 id_right.
+        cbn.
         unfold from_Pullback_to_Pullback.
         apply (invmaponpathsweq (weq_from_fully_faithful HJ _ _ )).
         cbn. rewrite functor_comp.
@@ -139,8 +138,7 @@ Proof.
                     (homotweqinvweq (weq_from_fully_faithful HJ _ _)). }
         apply (PullbackArrow_PullbackPr1 (make_Pullback _ _)).
       * etrans. { apply (transportf_isotoid_functor). }
-        cbn; unfold precomp_with.
-        rewrite 2 id_right.
+        cbn.
         etrans. { apply maponpaths_2,
                     (homotweqinvweq (weq_from_fully_faithful HJ _ _)). }
         apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)).
@@ -527,7 +525,7 @@ Context
    (R : functor C C') (S : functor D D')
 
    (α : [C, D'] ⟦functor_composite J S , functor_composite R J'⟧)
-   (is_iso_α : is_iso α)
+   (is_iso_α : is_z_isomorphism α)
 
    (S_pb : maps_pb_squares_to_pb_squares _ _ S).
 
@@ -540,23 +538,23 @@ Context
      surjectivity assumptions. 
 *)
 
-Let αiso := make_iso α is_iso_α.
-Let α' := inv_from_iso αiso. 
-Let α'_α := nat_trans_eq_pointwise (iso_after_iso_inv αiso).
-Let α_α' := nat_trans_eq_pointwise (iso_inv_after_iso αiso).
+Let αiso := α,, is_iso_α.
+Let α' := inv_from_z_iso αiso. 
+Let α'_α := nat_trans_eq_pointwise (z_iso_after_z_iso_inv αiso).
+Let α_α' := nat_trans_eq_pointwise (z_iso_inv_after_z_iso αiso).
 
-Local Definition α_iso : forall X, is_iso (pr1 α X).
+Local Definition α_iso : forall X, is_z_isomorphism (pr1 α X).
 Proof.
   intros.
-  apply is_functor_iso_pointwise_if_iso.
+  apply is_functor_z_iso_pointwise_if_z_iso.
   assumption.
 Qed.
 
-Local Definition α'_iso : forall X, is_iso (pr1 α' X).
+Local Definition α'_iso : forall X, is_z_isomorphism (pr1 α' X).
 Proof.
   intros.
-  apply is_functor_iso_pointwise_if_iso.
-  apply is_iso_inv_from_iso.
+  apply is_functor_z_iso_pointwise_if_z_iso.
+  apply is_z_iso_inv_from_z_iso.
 Qed.
 
 Local Notation tU := (source (pr1 RUJ)).
@@ -587,11 +585,11 @@ Proof.
     - refine (α' Xf ;; #S q).
   }
   cbn. unfold fpullback_prop.
-  use (commutes_and_is_pullback_transfer_iso _ _ _ _ _ Sfp).
-  - apply identity_iso.
-  - refine (iso_comp _ (functor_on_iso J' i)).
+  use (commutes_and_is_pullback_transfer_z_iso _ _ _ _ _ Sfp).
+  - apply identity_z_iso.
+  - refine (z_iso_comp _ (functor_on_z_iso J' i)).
     exists (α _); apply α_iso.
-  - apply identity_iso.
+  - apply identity_z_iso.
   - cbn. exists (α _); apply α_iso.
   - cbn. rewrite id_right.
     apply e_Sf_f'.
@@ -642,11 +640,11 @@ Proof.
     - refine (α' Xf ;; #S q).
   }
   cbn. unfold fpullback_prop.
-  use (commutes_and_is_pullback_transfer_iso _ _ _ _ _ Sfp).
-  - apply identity_iso.
-  - refine (iso_comp _ (functor_on_iso J' i)).
+  use (commutes_and_is_pullback_transfer_z_iso _ _ _ _ _ Sfp).
+  - apply identity_z_iso.
+  - refine (z_iso_comp _ (functor_on_z_iso J' i)).
     exists (α _); apply α_iso.
-  - apply identity_iso.
+  - apply identity_z_iso.
   - cbn. exists (α _); apply α_iso.
   - cbn. rewrite id_right.
     apply e_Sf_f'.
@@ -710,14 +708,14 @@ Context
    (R : functor C C') (S : functor D D')
 
    (α : [C, D'] ⟦functor_composite J S , functor_composite R J'⟧)
-   (is_iso_α : is_iso α)
+   (is_iso_α : is_z_isomorphism α)
 
    (S_pb : maps_pb_squares_to_pb_squares _ _ S).
 
-Let αiso := make_iso α is_iso_α.
-Let α' := inv_from_iso αiso. 
-Let α'_α := nat_trans_eq_pointwise (iso_after_iso_inv αiso).
-Let α_α' := nat_trans_eq_pointwise (iso_inv_after_iso αiso).
+Let αiso := α,, is_iso_α.
+Let α' := inv_from_z_iso αiso. 
+Let α'_α := nat_trans_eq_pointwise (z_iso_after_z_iso_inv αiso).
+Let α_α' := nat_trans_eq_pointwise (z_iso_inv_after_z_iso αiso).
 
 
 Context
@@ -753,11 +751,11 @@ Proof.
     - refine (α' Xf ;; #S q).
   }
   cbn. unfold fpullback_prop.
-  use (commutes_and_is_pullback_transfer_iso _ _ _ _ _ Sfp).
-  - apply identity_iso.
-  - refine (iso_comp _ (functor_on_iso J' i)).
+  use (commutes_and_is_pullback_transfer_z_iso _ _ _ _ _ Sfp).
+  - apply identity_z_iso.
+  - refine (z_iso_comp _ (functor_on_z_iso J' i)).
     exists (α _). apply α_iso. apply is_iso_α.
-  - apply identity_iso.
+  - apply identity_z_iso.
   - cbn. exists (α _). apply α_iso. apply is_iso_α.
   - cbn. rewrite id_right.
     apply e_Sf_f'.
@@ -778,8 +776,8 @@ Defined.
 
 End map_on_is_universe_relativ_to.
 
-Definition αpwiso X : iso (S (J X)) (J' (R X))
-  := functor_iso_pointwise_if_iso _ _ _ _ _ α is_iso_α X.
+Definition αpwiso X : z_iso (S (J X)) (J' (R X))
+  := functor_z_iso_pointwise_if_z_iso _ _ _ _ _ α is_iso_α X.
 
 
 Definition isweq_is_universe_transfer 
@@ -805,7 +803,7 @@ Proof.
     + apply Xf.
     + exact ip'.
     + set (hi := (α : nat_trans _ _ ) Xf). cbn in hi.
-      set (XR := hi ;; functor_on_iso J' i ;; q'). 
+      set (XR := hi ;; functor_on_z_iso J' i ;; q'). 
       exact (invmap (weq_from_fully_faithful S_ff _ _ ) XR).
     + cbn. apply (invmaponpathsweq (weq_from_fully_faithful S_ff _ _ )).
       cbn. apply pathsinv0.
@@ -817,8 +815,8 @@ Proof.
       rewrite functor_comp.
       repeat rewrite assoc. apply maponpaths_2.
       apply pathsinv0. rewrite <- assoc. rewrite <- assoc.
-      apply (iso_inv_to_left (C:=D') _ _ _ (αpwiso Xf )).
-      cbn. unfold precomp_with. rewrite id_right.
+      apply (z_iso_inv_to_left (C:=D') _ _ _ (αpwiso Xf )).
+      cbn.
       etrans. { apply pathsinv0, (nat_trans_ax α'). }
       cbn.
       etrans. { apply maponpaths_2, maponpaths, Hip'. }
@@ -834,17 +832,16 @@ Proof.
       simpl in XR. rewrite XR.
       clear HH XR.
       intro HH.
-      use (isPullback_transfer_iso _ _ _ _ _ _ H2).
-      * exact (identity_iso _ ).
-      * exact (iso_inv_from_iso (αpwiso _ )).
-      * exact (identity_iso _ ).
-      * apply (iso_comp (functor_on_iso J' (iso_inv_from_iso i)) 
-                        (iso_inv_from_iso (αpwiso _ ))).
+      use (isPullback_transfer_z_iso _ _ _ _ _ _ H2).
+      * exact (identity_z_iso _ ).
+      * exact (z_iso_inv_from_z_iso (αpwiso _ )).
+      * exact (identity_z_iso _ ).
+      * apply (z_iso_comp (functor_on_z_iso J' (z_iso_inv_from_z_iso i)) 
+                        (z_iso_inv_from_z_iso (αpwiso _ ))).
       * cbn. rewrite id_right. 
-        unfold precomp_with. rewrite id_right.
         unfold f'. apply idpath.
       * rewrite id_left. rewrite id_right. apply idpath.
-      * cbn. unfold precomp_with. rewrite id_right. rewrite id_right.
+      * cbn.
         etrans. 2: { apply assoc. }
         etrans. 2: { apply maponpaths, (nat_trans_ax α'). }
         rewrite assoc.
@@ -854,17 +851,16 @@ Proof.
         apply pathsinv0.
         etrans. { apply maponpaths, Hip'. }
         rewrite assoc.
-        rewrite iso_after_iso_inv.
+        rewrite z_iso_after_z_iso_inv.
         apply id_left.
       * cbn. rewrite id_right.
-        unfold precomp_with. rewrite id_right.
         apply pathsinv0.
         do 2 rewrite assoc.
         etrans. { apply maponpaths_2, assoc4. }
         etrans. { apply maponpaths_2, maponpaths_2, maponpaths, α'_α. }
         rewrite id_right.
         rewrite <- functor_comp.
-        rewrite iso_after_iso_inv.
+        rewrite z_iso_after_z_iso_inv.
         rewrite functor_id.
         apply id_left.
   - intros.
@@ -889,8 +885,8 @@ Definition isweq_weak_relative_universe_transfer
            (R_full : full R)
            (isD : is_univalent D) (isD' : is_univalent D')
            (T : functor D' D)
-           (eta : iso (C:=[D, D]) (functor_identity D) (S ∙ T))
-           (eps : iso (C:=[D', D']) (T ∙ S) (functor_identity D'))
+           (eta : z_iso (C:=[D, D]) (functor_identity D) (S ∙ T))
+           (eps : z_iso (C:=[D', D']) (T ∙ S) (functor_identity D'))
            (S_faithful : faithful S) 
   : isweq weak_relative_universe_transfer.
 Proof.
@@ -911,8 +907,8 @@ Definition weq_weak_relative_universe_transfer
            (R_full : full R)
            (isD : is_univalent D) (isD' : is_univalent D')
            (T : functor D' D)
-           (eta : iso (C:=[D, D]) (functor_identity D) (S ∙ T))
-           (eps : iso (C:=[D', D']) (T ∙ S) (functor_identity D'))
+           (eta : z_iso (C:=[D, D]) (functor_identity D) (S ∙ T))
+           (eps : z_iso (C:=[D', D']) (T ∙ S) (functor_identity D'))
            (S_ff : fully_faithful S)
   : weak_relative_universe J ≃ weak_relative_universe J'
 := make_weq _

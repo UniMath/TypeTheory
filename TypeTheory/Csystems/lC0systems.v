@@ -164,7 +164,7 @@ Corollary eq_par_iso_cor {CC: category}{T: UU}
   piso g = z_iso_comp (z_iso_comp (idtoiso (maponpaths s e)) (piso g'))
                       (z_iso_inv_from_z_iso (idtoiso (maponpaths t e))).
 Proof.
-  apply eq_z_iso.
+  apply z_iso_eq.
   simpl.
   apply z_iso_inv_on_left.
   apply pathsinv0.

@@ -138,20 +138,19 @@ Definition commutes_and_is_pullback {C : category} {a b c d : C}
 := ∑ (H : p1 ;; f = p2 ;; g), isPullback H.
 
 (* Note: should have a dual version where [i_a], instead of [i_d], is assumed iso (and using [post_comp_with_iso_is_inj] in the proof). *)
-Lemma commuting_square_transfer_iso {C : precategory}
+Lemma commuting_square_transfer_z_iso {C : precategory}
       {a b c d : C}
       {f : b --> a} {g : c --> a} {p1 : d --> b} {p2 : d --> c}
       {a' b' c' d' : C}
       {f' : b' --> a'} {g' : c' --> a'} {p1' : d' --> b'} {p2' : d' --> c'}
-      {i_a : a --> a'} {i_b : b --> b'} {i_c : c --> c'} {i_d : iso d d'}
+      {i_a : a --> a'} {i_b : b --> b'} {i_c : c --> c'} {i_d : z_iso d d'}
       (i_f : f ;; i_a = i_b ;; f') (i_g : g ;; i_a = i_c ;; g')
       (i_p1 : p1 ;; i_b = i_d ;; p1') (i_p2 : p2 ;; i_c = i_d ;; p2')
    : p1 ;; f = p2;; g
    -> p1' ;; f' = p2' ;; g'.
 Proof.
   intro H.
-  refine (pre_comp_with_iso_is_inj _ _ _ i_d _ _ _ _).
-  exact (pr2 i_d).  (* TODO: access function [is_iso_from_iso]? *)
+  refine (pre_comp_with_z_iso_is_inj i_d _ _ _).
   rewrite 2 assoc.
   rewrite <- i_p1, <- i_p2.
   rewrite <- 2 assoc.
@@ -162,14 +161,14 @@ Qed.
 
 (* Generalisation of [isPulback_iso_of_morphisms].
 TODO: This probably should work in an arbitrary precategory, i.e. not requiring the hom-sets assumption.  Try upgrading proof to show that? *)
-Lemma isPullback_transfer_iso {C : category}
+Lemma isPullback_transfer_z_iso {C : category}
       {a b c d : C}
       {f : b --> a} {g : c --> a} {p1 : d --> b} {p2 : d --> c}
       (H : p1 ;; f = p2;; g)
       {a' b' c' d' : C}
       {f' : b' --> a'} {g' : c' --> a'} {p1' : d' --> b'} {p2' : d' --> c'}
       (H' : p1' ;; f' = p2' ;; g')
-      {i_a : iso a a'} {i_b : iso b b'} {i_c : iso c c'} {i_d : iso d d'}
+      {i_a : z_iso a a'} {i_b : z_iso b b'} {i_c : z_iso c c'} {i_d : z_iso d d'}
       (i_f : f ;; i_a = i_b ;; f') (i_g : g ;; i_a = i_c ;; g')
       (i_p1 : p1 ;; i_b = i_d ;; p1') (i_p2 : p2 ;; i_c = i_d ;; p2')
    : isPullback H
@@ -182,18 +181,18 @@ Proof.
   - simple refine (tpair _ _ _ ).
     { refine ( _ ;; i_d ).
       simple refine (PullbackArrow (make_Pullback _ Hpb) _ _ _ _).
-      + exact (h ;; iso_inv_from_iso i_b).
-      + exact (k ;; iso_inv_from_iso i_c).
+      + exact (h ;; z_iso_inv_from_z_iso i_b).
+      + exact (k ;; z_iso_inv_from_z_iso i_c).
       + abstract (
-          apply (post_comp_with_iso_is_inj _ _ i_a (pr2 _));
+          apply (post_comp_with_z_iso_is_inj i_a _);
           repeat rewrite <- assoc;
           rewrite i_f, i_g;
           eapply @pathscomp0;
           [ apply maponpaths; rewrite assoc;
-            apply maponpaths_2, iso_after_iso_inv
+            apply maponpaths_2, z_iso_after_z_iso_inv
           | eapply @pathsinv0, @pathscomp0;
           [ apply maponpaths; rewrite assoc;
-            apply maponpaths_2, iso_after_iso_inv
+            apply maponpaths_2, z_iso_after_z_iso_inv
           | rewrite 2 id_left; apply @pathsinv0, H''
           ]]
         ).
@@ -209,70 +208,70 @@ Proof.
       [ apply maponpaths_2;
         try apply (PullbackArrow_PullbackPr2 (make_Pullback _ _));
         try apply (PullbackArrow_PullbackPr1 (make_Pullback _ _))
-      | rewrite <- assoc, iso_after_iso_inv; apply id_right]] ).
+      | rewrite <- assoc, z_iso_after_z_iso_inv; apply id_right]] ).
   - intros hk'.
     apply subtypePath.
       intro; apply isapropdirprod; apply homset_property.
     cbn.
-    apply (post_comp_with_iso_is_inj _ _ (iso_inv_from_iso i_d) (pr2 _)).
+    apply (post_comp_with_z_iso_is_inj (z_iso_inv_from_z_iso i_d)).
     eapply @pathscomp0.
-    2: { rewrite <- assoc. cbn. rewrite iso_inv_after_iso.
+    2: { rewrite <- assoc. cbn. rewrite z_iso_inv_after_z_iso.
          eapply pathsinv0, id_right. }
     apply PullbackArrowUnique; cbn.
-    + apply (post_comp_with_iso_is_inj _ _ i_b (pr2 _)).
+    + apply (post_comp_with_z_iso_is_inj i_b).
       repeat rewrite <- assoc.
-      rewrite i_p1, iso_after_iso_inv, id_right.
+      rewrite i_p1, z_iso_after_z_iso_inv, id_right.
       eapply @pathscomp0.
-        apply maponpaths. rewrite assoc, iso_after_iso_inv. apply id_left.
+        apply maponpaths. rewrite assoc, z_iso_after_z_iso_inv. apply id_left.
       apply (pr1 (pr2 hk')).
-    + apply (post_comp_with_iso_is_inj _ _ i_c (pr2 _)).
+    + apply (post_comp_with_z_iso_is_inj i_c).
       repeat rewrite <- assoc.
-      rewrite i_p2, iso_after_iso_inv, id_right.
+      rewrite i_p2, z_iso_after_z_iso_inv, id_right.
       eapply @pathscomp0.
-        apply maponpaths. rewrite assoc, iso_after_iso_inv. apply id_left.
+        apply maponpaths. rewrite assoc, z_iso_after_z_iso_inv. apply id_left.
       apply (pr2 (pr2 hk')).
   Qed.
 
 (* Generalisation of [isPulback_iso_of_morphisms]. *)
-Lemma commutes_and_is_pullback_transfer_iso {C : category}
+Lemma commutes_and_is_pullback_transfer_z_iso {C : category}
       {a b c d : C}
       {f : b --> a} {g : c --> a} {p1 : d --> b} {p2 : d --> c}
       {a' b' c' d' : C}
       {f' : b' --> a'} {g' : c' --> a'} {p1' : d' --> b'} {p2' : d' --> c'}
-      {i_a : iso a a'} {i_b : iso b b'} {i_c : iso c c'} {i_d : iso d d'}
+      {i_a : z_iso a a'} {i_b : z_iso b b'} {i_c : z_iso c c'} {i_d : z_iso d d'}
       (i_f : f ;; i_a = i_b ;; f') (i_g : g ;; i_a = i_c ;; g')
       (i_p1 : p1 ;; i_b = i_d ;; p1') (i_p2 : p2 ;; i_c = i_d ;; p2')
       (H : p1 ;; f = p2 ;; g) (P : isPullback H)
    : commutes_and_is_pullback f' g' p1' p2'.
 Proof.
-  exists (commuting_square_transfer_iso i_f i_g i_p1 i_p2 H).
-  exact (isPullback_transfer_iso _ _ i_f i_g i_p1 i_p2 P).
+  exists (commuting_square_transfer_z_iso i_f i_g i_p1 i_p2 H).
+  exact (isPullback_transfer_z_iso _ _ i_f i_g i_p1 i_p2 P).
 Qed.
 
-Lemma postcomp_commutes_and_is_pb_with_iso
+Lemma postcomp_commutes_and_is_pb_with_z_iso
     {C : category} {a b c d : C}
     {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
     (sqr_comm : f ;; k = g ;; h)
     (Pb : isPullback sqr_comm)
-    {y : C} (r : y --> d) (i : iso b y) (Hi : i ;; r = k)
+    {y : C} (r : y --> d) (i : z_iso b y) (Hi : i ;; r = k)
   : ∑ H : f ;; i ;; r = g ;; h, isPullback H.
 Proof.
-  simple refine (commutes_and_is_pullback_transfer_iso _ _ _ _ _ Pb);
-    try apply identity_iso;
+  simple refine (commutes_and_is_pullback_transfer_z_iso _ _ _ _ _ Pb);
+    try apply identity_z_iso;
     try rewrite id_left;
     try rewrite id_right;
     try apply idpath.
   apply pathsinv0, Hi.
 Qed.
 
-Definition postcomp_pb_with_iso
+Definition postcomp_pb_with_z_iso
     {C : category} {a b c d : C}
     {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
     (sqr_comm : f ;; k = g ;; h)
     (Pb : isPullback sqr_comm)
-    {y : C} (r : y --> d) (i : iso b y) (Hi : i ;; r = k)
+    {y : C} (r : y --> d) (i : z_iso b y) (Hi : i ;; r = k)
   : isPullback _
-:= pr2 (postcomp_commutes_and_is_pb_with_iso _ Pb _ i Hi).
+:= pr2 (postcomp_commutes_and_is_pb_with_z_iso _ Pb _ i Hi).
 
 End Pullback_transfers.
 
@@ -290,11 +289,11 @@ Proof.
   - intro; apply isofhleveltotal2.
     + apply homset_property.
     + intros; apply isaprop_isPullback.
-  - apply (total2_paths_f (isotoid _ H (iso_from_Pullback_to_Pullback _ _))).
+  - apply (total2_paths_f (isotoid _ H (z_iso_from_Pullback_to_Pullback _ _))).
     rewrite transportf_dirprod, transportf_isotoid.
-    rewrite inv_from_iso_iso_from_Pullback.
+    rewrite inv_from_z_iso_z_iso_from_Pullback.
     rewrite transportf_isotoid.
-    rewrite inv_from_iso_iso_from_Pullback.
+    rewrite inv_from_z_iso_z_iso_from_Pullback.
     destruct Pb as [Cone bla];
     destruct Pb' as [Cone' bla'];
     simpl in *.
@@ -328,7 +327,7 @@ Section Pullback_Unique_Up_To_Iso.
   Variables A B C D A' B' : CC.
   Variables (f : A --> B) (g : A --> C) (k : B --> D) (j : C --> D)
             (H : f ;; k = g ;; j) (pb : isPullback H).
-  Variables (f' : A' --> B') (g' : A' --> C) (r : B' --> D) (h : iso B B').
+  Variables (f' : A' --> B') (g' : A' --> C) (r : B' --> D) (h : z_iso B B').
   Variable (H' : f' ;; r = g' ;; j).
   Variable (pb' : isPullback H').
   Variable (T : h ;; r = k).
@@ -346,11 +345,11 @@ Section Pullback_Unique_Up_To_Iso.
   Definition map_to_1st_pb : A' --> A.
   Proof.
     use (map_into_Pb pb).
-    - exact (f';; inv_from_iso h).
+    - exact (f';; inv_from_z_iso h).
     - exact g'.
     - eapply pathscomp0; [| apply H'].
       eapply pathscomp0; [ apply (!assoc _ _ _ ) |].
-      apply maponpaths. apply iso_inv_on_right.
+      apply maponpaths. apply z_iso_inv_on_right.
       apply (!T).
   Defined.
 
@@ -363,7 +362,7 @@ Section Pullback_Unique_Up_To_Iso.
       rewrite Pb_map_commutes_1.
       rewrite assoc.
       apply pathsinv0.
-      apply iso_inv_on_left.
+      apply z_iso_inv_on_left.
       unfold map_to_2nd_pb.
       use Pb_map_commutes_1.
     - rewrite id_left.
@@ -385,7 +384,7 @@ Section Pullback_Unique_Up_To_Iso.
       unfold map_to_1st_pb.
       rewrite Pb_map_commutes_1.
       rewrite <- assoc.
-      rewrite iso_after_iso_inv.
+      rewrite z_iso_after_z_iso_inv.
       apply id_right.
     - rewrite id_left.
       rewrite <- assoc.
@@ -395,10 +394,10 @@ Section Pullback_Unique_Up_To_Iso.
       apply Pb_map_commutes_2.
   Qed.
 
-  Definition iso_to_second_pb : iso A A'.
+  Definition z_iso_to_second_pb : z_iso A A'.
   Proof.
     exists map_to_2nd_pb.
-    simple refine (is_iso_qinv _ map_to_1st_pb _ ).
+    exists map_to_1st_pb.
     split.
     - apply inv1.
     - apply inv2.

@@ -96,14 +96,14 @@ Section DiscCompCat_mor.
   Definition F_ob_compare
              {X : discrete_comprehension_cat_structure_with_default_mor C}
              {Γ : C} {A A' : D_ob X Γ} (e : A = A')
-    : iso (pr1 (F_ob X Γ A)) (pr1 (F_ob X Γ A')).
+    : z_iso (pr1 (F_ob X Γ A)) (pr1 (F_ob X Γ A')).
   Proof.
     apply idtoiso, maponpaths, maponpaths, e.
   Defined.
 
   Lemma F_ob_compare_id {X : discrete_comprehension_cat_structure_with_default_mor C}
         {Γ : C} (A : D_ob X Γ)
-    : F_ob_compare (idpath A) = identity_iso (pr1 (F_ob X Γ A)).
+    : F_ob_compare (idpath A) = identity_z_iso (pr1 (F_ob X Γ A)).
   Proof.
     apply idpath.
   Qed.
@@ -111,7 +111,7 @@ Section DiscCompCat_mor.
   Lemma F_ob_compare_id_general {X : discrete_comprehension_cat_structure_with_default_mor C}
         {Γ : C} {A : D_ob X Γ}
         (e : A = A)
-    : F_ob_compare e = identity_iso (pr1 (F_ob X Γ A)).
+    : F_ob_compare e = identity_z_iso (pr1 (F_ob X Γ A)).
   Proof.
     apply @pathscomp0 with (F_ob_compare (idpath _)). 
     apply maponpaths, D_ob_isaset.
