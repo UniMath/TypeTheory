@@ -506,7 +506,7 @@ Definition nat_z_iso_from_pointwise_z_iso (D : precategory) (E : category)
   (H : is_nat_trans _ _ a)
   : z_iso F G.
 Proof.
-  use z_iso_from_z_nat_iso.
+  use z_iso_from_nat_z_iso.
   use tpair.
   - use tpair.
     + intro d. apply a.
