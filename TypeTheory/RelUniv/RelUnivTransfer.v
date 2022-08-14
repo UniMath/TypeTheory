@@ -352,10 +352,10 @@ Section RelUniv_Transfer.
     Let AE := adjointificiation E.
     Let η' := pr1 (pr121 AE) : nat_trans (functor_identity _) (S ∙ invS).
     Let ε' := pr2 (pr121 AE) : nat_trans (invS ∙ S) (functor_identity _).
-    Let η := z_iso_from_z_nat_iso
+    Let η := z_iso_from_nat_z_iso
                _ (η',,pr12 (adjointificiation E))
             : z_iso (C:=[D, D]) (functor_identity D) (S ∙ invS).
-    Let ε := z_iso_from_z_nat_iso
+    Let ε := z_iso_from_nat_z_iso
                 _ (ε',,pr22 (adjointificiation E))
             : z_iso (C:=[D', D']) (invS ∙ S) (functor_identity D').
 
@@ -832,7 +832,7 @@ Section WeakRelUniv_Transfer.
     use (isotoid _ (is_univalent_functor_category _ _ _)).
     apply weak_reluniv_cat_is_univalent.
     apply D'cat.
-    apply z_iso_from_z_nat_iso.
+    apply z_iso_from_nat_z_iso.
     apply weak_relu_square_commutes.
   Defined.
 
