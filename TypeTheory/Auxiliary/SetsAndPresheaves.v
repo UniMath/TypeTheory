@@ -167,7 +167,7 @@ Proof.
   apply iscontraprop1.
   - apply invproofirrelevance.
     intros hk hk'.
-    apply subtypePath. { intro. apply isapropdirprod; apply setproperty. }
+    apply subtypePath. { intro. apply isapropdirprod; apply homset_property. }
     destruct hk as [hk [eh ek]], hk' as [hk' [eh' ek']]; simpl.
     apply funextsec; intro x.
     refine (H_uniqueness (h x) (k x) _ (_,,_) (_,,_));
