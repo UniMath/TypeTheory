@@ -18,7 +18,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -30,7 +30,7 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev emacs
+          sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev emacs ocaml-dune libzarith-ocaml-dev
 
       # Change into UniMath directory and build UniMath
       - name: Build UniMath and TypeTheory
