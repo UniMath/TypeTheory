@@ -4,7 +4,7 @@ As a matter of organisation: all concrete lemmas involving derivations should li
 
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.All.
-Require Import UniMath.PAdics.lemmas. (* just for [setquotprpathsandR] *)
+Require UniMath.PAdics.lemmas. (* just for [setquotprpathsandR] *)
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -273,7 +273,7 @@ Section Contexts_Modulo_Equality.
       {ΓΓ : context_mod_eq} (Γ Γ' : context_representative ΓΓ)
     : ∥ derivation_flat_cxteq Γ Γ' ∥.
   Proof.
-    refine (setquotprpathsandR (derivable_cxteq) Γ Γ' _).
+    refine (UniMath.PAdics.lemmas.setquotprpathsandR (derivable_cxteq) Γ Γ' _).
     exact (pr2 Γ @ ! pr2 Γ').
   Defined.
 
@@ -609,7 +609,7 @@ Section Syntactic_Types.
       {n} {ΓΓ : _ n} {AA : type_mod_eq ΓΓ} (A A' : type_representative AA)
     : typeeq_eqrel A A'.
   Proof.
-    refine (setquotprpathsandR typeeq_eqrel A A' _).
+    refine (UniMath.PAdics.lemmas.setquotprpathsandR typeeq_eqrel A A' _).
     exact (pr2 A @ ! pr2 A').
   Defined.
 
