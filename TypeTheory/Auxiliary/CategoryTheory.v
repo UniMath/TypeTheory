@@ -1,11 +1,16 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
-Require Import UniMath.CategoryTheory.All.
+Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+Require Import UniMath.CategoryTheory.CategoryEquality.
+Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
+
 (* a few libraries need to be reloaded after “All”,
    to claim precedence on overloaded names *)
+
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.limits.graphs.terminal.
+Require Import UniMath.CategoryTheory.limits.graphs.initial.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
@@ -13,6 +18,7 @@ Require Import TypeTheory.Auxiliary.Auxiliary.
 (** * General notations and scopes *)
 
 (** We redeclare this notation, along with a new scope . *)
+Declare Scope mor_scope.
 Notation "ff ;; gg" := (compose ff gg)
   (at level 50, left associativity, format "ff  ;;  gg")
   : mor_scope.

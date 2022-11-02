@@ -1,8 +1,8 @@
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.MoreFoundations.Propositions.
 (* [MoreFoundations.Propositions] seems to need individual importing to provide notation [∃!] as [iscontr_hProp] instead of just [iscontr]. TODO: figure out why; perhaps raise issue upstream? *)
-Require Import UniMath.CategoryTheory.All.
 
+Require Import UniMath.CategoryTheory.Core.Prelude.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.

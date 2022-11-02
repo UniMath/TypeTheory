@@ -33,6 +33,7 @@ Require Import TypeTheory.RelUniv.Transport_along_Equivs.
 Require Import TypeTheory.RelUniv.RelUniv_Cat_Simple.
 Require Import TypeTheory.RelUniv.RelUniv_Cat.
 Require Import UniMath.CategoryTheory.catiso.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 Section RelUniv_Transfer.
 
@@ -345,8 +346,8 @@ Section RelUniv_Transfer.
             (S_ff : fully_faithful S).
 
     Let E := ((S,, (invS,, (pr1 eta, pr1 eps)))
-                ,, ((λ d,  (pr2 (Constructions.pointwise_z_iso_from_nat_z_iso eta d )))
-                    , (λ d', (pr2 (Constructions.pointwise_z_iso_from_nat_z_iso eps d')))))
+                ,, ((λ d,  (pr2 (pointwise_z_iso_from_nat_z_iso eta d )))
+                    , (λ d', (pr2 (pointwise_z_iso_from_nat_z_iso eps d')))))
             : equivalence_of_cats D D'.
 
     Let AE := adjointificiation E.
@@ -359,8 +360,8 @@ Section RelUniv_Transfer.
                 _ (ε',,pr22 (adjointificiation E))
             : z_iso (C:=[D', D']) (invS ∙ S) (functor_identity D').
 
-    Let ηx := Constructions.pointwise_z_iso_from_nat_z_iso (z_iso_inv_from_z_iso η).
-    Let αx := Constructions.pointwise_z_iso_from_nat_z_iso (α,,α_is_iso).
+    Let ηx := pointwise_z_iso_from_nat_z_iso (z_iso_inv_from_z_iso η).
+    Let αx := pointwise_z_iso_from_nat_z_iso (α,,α_is_iso).
 
   Section Helpers.
 
@@ -565,8 +566,8 @@ Section RelUniv_Transfer.
       : z_iso u'
             (reluniv_functor_with_ess_surj (inv_reluniv_with_ess_surj u')).
     Proof.
-      set (εx := Constructions.pointwise_z_iso_from_nat_z_iso ε).
-      set (εx' := Constructions.pointwise_z_iso_from_nat_z_iso
+      set (εx := pointwise_z_iso_from_nat_z_iso ε).
+      set (εx' := pointwise_z_iso_from_nat_z_iso
                    (z_iso_inv_from_z_iso ε)).
       use make_z_iso.
       - use tpair.

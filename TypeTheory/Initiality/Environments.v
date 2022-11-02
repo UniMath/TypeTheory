@@ -1,6 +1,6 @@
 
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.All.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -66,7 +66,7 @@ Section Environments.
 
   Definition reind_idmap_environment {C : split_typecat}
       {Γ : C} {n} (E : environment Γ n)
-    : reind_environment (id _) E = E.
+    : reind_environment (identity _) E = E.
   Proof.
     apply funextfun; intros i; apply reind_idmap_type_with_term.
   Qed.

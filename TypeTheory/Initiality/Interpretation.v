@@ -1,7 +1,7 @@
 (** This file defines the interpretation function, from the syntax of our toy type theory into any split type-cat with suitable structure. *)
 
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.All.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 
 (* TODO: raise issue upstream: notation "_ ∘ _" is used for function-order composition of functions, but for diagrammatic-order composition of morphisms in categories! *)
 

@@ -103,20 +103,11 @@ Written by: Anders Mörtberg, 2017
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
-Require Import UniMath.CategoryTheory.All.
-(*
-Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Adjunctions.Core.
-Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import UniMath.CategoryTheory.RightKanExtension.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.eqdiag.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.Presheaf.
+Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.ElementsOp.
- *)
+
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 Require Import TypeTheory.Auxiliary.Pullbacks.

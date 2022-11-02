@@ -1,7 +1,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
-Require Import UniMath.CategoryTheory.All.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 (* a few libraries need to be reloaded after “All”,
    to claim precedence on overloaded names *)
 Require Import UniMath.CategoryTheory.limits.pullbacks.
