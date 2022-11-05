@@ -2,7 +2,17 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
-Require Import UniMath.CategoryTheory.All.
+Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
+Require Import UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Adjunctions.
+Require Import UniMath.CategoryTheory.DisplayedCats.Equivalences.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -268,7 +278,7 @@ Section Discrete_Fibrations.
              (f : c' --> c) (d : D c) (d' : D c')
     : (d' -->[f] d) = (lift_source is_discrete_fibration_D f d = d').
   Proof.
-    apply univalenceweq.
+    apply univalence.
     apply discrete_fibration_mor_weq.
   Defined.
 

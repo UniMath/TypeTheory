@@ -24,7 +24,9 @@ NB: we follow UniMath’s convention that _category_ does not assume saturation/
 
 
 Require Import UniMath.Foundations.Sets.
-Require Import UniMath.CategoryTheory.All. (* TODO: work out what’s actually needed and move into [CategoryTheoryImports]. *)
+Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.

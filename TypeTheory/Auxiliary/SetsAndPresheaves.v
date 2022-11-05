@@ -1,16 +1,19 @@
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-Require Import UniMath.CategoryTheory.All.
 (* a few libraries need to be reloaded after “All”,
    to claim precedence on overloaded names *)
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
+Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 (** * Presheaf generalities *)
 

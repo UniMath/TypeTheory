@@ -35,7 +35,10 @@ Accessors for [ff_disp_functor]:
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.All.
+Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.CategoryEquality.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -130,7 +133,7 @@ Section FullyFaithfulDispFunctor.
       apply impred_iscontr. intros A'.
       apply impred_iscontr. intros f.
       use (@iscontrweqf (∑ mord : UU, mord = pr2 D Γ A -->[f] pr2 D Γ' A')).
-      - use (weqtotal2 (idweq _)). intros mord. apply univalenceweq.
+      - use (weqtotal2 (idweq _)). intros mord. apply univalence.
       - apply iscontrcoconustot.
     Defined.
 

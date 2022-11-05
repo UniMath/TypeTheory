@@ -1,5 +1,5 @@
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.All.
+Require Import UniMath.CategoryTheory.Core.Categories.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.

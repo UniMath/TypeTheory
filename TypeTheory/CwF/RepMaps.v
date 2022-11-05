@@ -17,6 +17,7 @@ Contents:
 
 Require Import UniMath.Foundations.Sets.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+Require Import UniMath.CategoryTheory.rezk_completion.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.

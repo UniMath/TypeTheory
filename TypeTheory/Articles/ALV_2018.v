@@ -12,6 +12,7 @@ This file is intended to accompany a sequel article to ALV-2017, currently in (d
 
 Require Import UniMath.Foundations.Sets.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
+Require Import UniMath.CategoryTheory.rezk_completion.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
