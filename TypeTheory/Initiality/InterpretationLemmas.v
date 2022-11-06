@@ -1,7 +1,6 @@
 (** Further lemmas on the interpretation function, separated here in order to keep [TypeTheory.Initiality.Interpretation] itself reasonably streamlined *)
 
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.PAdics.lemmas. (* just for [setquotprpathsandR] *)
 
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
@@ -375,7 +374,7 @@ Section Trivial_Interpretation.
         use show_return_leq_partial.
         * cbn.
           assert (isd_Γi_T : ∥ [! Γ |- Γ i === T !] ∥).
-          { refine (setquotprpathsandR _ _ _ e_Γi_T
+          { refine (invmap (weqpathsinsetquot _ _ _) e_Γi_T
                                        (context_as_context_representative Γ)). }
           refine (hinhfun3 _ (context_derivable Γ) isd_T isd_Γi_T);
             intros d_Γ d_T d_Γi_T.
