@@ -110,19 +110,43 @@ Proof.
   apply invweq.
   apply yoneda_weq.
 Defined.
+Search yoneda.
 
+Lemma yy_natural_type {C : category} 
+    (F : preShv C) (c : C) (A : F $p c) 
+    (c' : C) (f : C⟦c', c⟧) : UU.
+Proof.
+  refine ( _ = _).
+  - exact (yy (#p F f A)).
+  - exact (#(yoneda _ ) f ;; yy A).
+Defined.
+  
 Lemma yy_natural {C : category} 
     (F : preShv C) (c : C) (A : F $p c) 
-    c' (f : C⟦c', c⟧)
-  : yy (#p F f A) = # (yoneda _ ) f ;; yy A.
+    (c' : C) (f : C⟦c', c⟧)
+(*  : yy (# (F : functor _ _ ) f A : pr1hSet((F : functor _ _ ) c' : HSET)) = # (yoneda C) f · yy A.*)
+  : yy_natural_type F c A c' f.  (*yy (#p F f A) = # (yoneda _ ) f ;; yy A.*)
 Proof.
+  unfold yy_natural_type.
   apply (toforallpaths (is_natural_yoneda_iso_inv _ F _ _ f)).
 Qed.
+
+
+Lemma yy_comp_nat_trans_type {C : category}
+      (F F' : preShv C) (p : _ ⟦F, F'⟧)
+      A (v : F $p A)
+  : UU.
+Proof.
+  refine (_ = _).
+  - exact (yy v ;; p).
+  - exact (yy (p $nt v)).
+Defined.
 
 Lemma yy_comp_nat_trans {C : category}
       (F F' : preShv C) (p : _ ⟦F, F'⟧)
       A (v : F $p A)
-  : yy v ;; p = yy (p $nt v).
+  : yy_comp_nat_trans_type F F' p A v.
+  (* : yy v ;; p = yy (p $nt v). *)
 Proof.
   apply nat_trans_eq.
   - apply homset_property.
