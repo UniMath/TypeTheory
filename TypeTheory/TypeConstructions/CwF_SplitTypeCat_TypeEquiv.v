@@ -85,19 +85,24 @@ Proof.
   -  intro a; apply isasetaprop, (setproperty (Ty Γ : hSet)). 
 Qed.
 
-Lemma Subproof_γ {Γ : C} {A : Ty Γ : hSet} (a : CwF_tm A) 
-: (identity (Yo Γ)) ;; yy A = (yy a ;;pp).
+Lemma Subproof_γ {Γ : C} {A : Ty Γ : hSet} (a : CwF_tm A)
+  : (@identity (preShv C) ((yoneda C) Γ) ;; (@yy C Ty Γ) A) = ((@yy C Tm Γ) a ;; pp).
 Proof.
   apply pathsinv0, (pathscomp0(yy_comp_nat_trans Tm Ty pp Γ a)) ,pathsinv0,
   (pathscomp0(@id_left _  (Yo Γ) Ty  (yy A))) ,
   (maponpaths yy (!(pr2 a))).
 Qed.
 
-Definition γ {Γ : C} {A : Ty Γ : hSet} (a : CwF_tm A) : (preShv C)⟦Yo Γ,Yo (Γ.:A)⟧
-:= pr11( (CwF_Pullback A) (Yo Γ) (identity _) (yy a) (Subproof_γ a)).
+Definition γ {Γ : C} {A : Ty Γ : hSet} (a : CwF_tm A) : (preShv C)⟦Yo Γ,Yo (Γ.:A)⟧.
+Proof.
+  apply ((CwF_Pullback A) (Yo Γ) (identity _) (yy a) (Subproof_γ a)).
+Defined.
 
 Definition DepTypesType {Γ : C} {A : Ty Γ : hSet} (B : Ty(Γ.:A) : hSet) (a : CwF_tm A)
-: Ty Γ : hSet :=  (γ a;;yy B : nat_trans _ _)  Γ (identity Γ).
+  : Ty Γ : hSet.
+Proof.
+  exact((γ a;;yy B : nat_trans _ _)  Γ (identity Γ)).
+Defined.
 
 (** Unit Types *)
 Section Unit.
