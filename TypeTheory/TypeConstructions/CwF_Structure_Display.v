@@ -254,7 +254,7 @@ Proof.
 Qed.
 
 Lemma qq_yoneda_commutes {Γ Δ : C} (A : Ty Γ : hSet) (f : C^op ⟦Γ,Δ⟧)
-: (qq_yoneda A f) ;; yy (te A) = yy (te (#Ty f A)).
+  : (@qq_yoneda Γ Δ A f ;; (@yy C Tm (Γ .: A)) (@te Γ A)) = (@yy C Tm (Δ .: # Ty f A)) (@te Δ (# Ty f A)).
 Proof.
   apply (PullbackArrow_PullbackPr2 (CwF_Pullback A)).
 Qed.
@@ -298,17 +298,20 @@ Qed.
 Section Familly_Of_Types.
 (** Famillies of types in a Category with famillies**)
 Lemma Subproof_γ {Γ : C} {A : Ty Γ : hSet} (a : tm A)
-: identity (Yo Γ) ;; yy A = yy a ;;pp.
+  : (@identity (preShv C) ((yoneda C) Γ) ;; (@yy C Ty Γ) A) =
+      ((@yy C Tm Γ) a ;; pp).
 Proof.
   apply pathsinv0, (pathscomp0(yy_comp_nat_trans Tm Ty pp Γ a)) ,pathsinv0,
   (pathscomp0(id_left _ )), ((maponpaths yy) (!(pr2 a))).
 Qed.
 
-Definition γ {Γ : C} {A : Ty Γ : hSet} (a : tm A) : (preShv C)⟦Yo Γ,Yo (Γ.:A)⟧
-:= map_into_Pb (CwF_isPullback A) (identity _) (yy a) (Subproof_γ a).
+Definition γ {Γ : C} {A : Ty Γ : hSet} (a : tm A) : (preShv C)⟦Yo Γ,Yo (Γ.:A)⟧.
+Proof.
+  exact(map_into_Pb (CwF_isPullback A) (identity _) (yy a) (Subproof_γ a)).
+Defined.
 
 Lemma  γ_pull {Γ : C} (A : Ty Γ : hSet) (a : tm A)
-: γ a ;; yy (te _) = yy a.
+  : (@γ Γ A a ;; (@yy C Tm (Γ .: A)) (@te Γ A)) = (@yy C Tm Γ) a.
 Proof.
   apply Pb_map_commutes_2.
 Qed.
@@ -349,7 +352,10 @@ Proof.
 Qed.
 
 Lemma γPullback1 {Γ : C} (A : Ty Γ : hSet)
-: γ (te A) ;; #Yo (qq_term A (pi A)) ;; yy(te A) = identity _;; yy (te A).
+  : (@γ (Γ .: A) (# Ty (@pi Γ A) A) (@te Γ A) ;;
+     # (yoneda C : C ⟶ preShv C) (@qq_term Γ (Γ .: A) A (@pi Γ A)) ;; (@yy C Tm (Γ .: A)) (@te Γ A))
+    =
+      (@identity [C^op, SET] (yoneda C (Γ .: A)) ;; (@yy C Tm (Γ .: A)) (@te Γ A)).
 Proof.
   rewrite id_left.
   rewrite (qq_yoneda_compatibility A (pi A)), <- assoc.
@@ -413,13 +419,21 @@ Proof.
   apply functor_id_pshf.
 Qed.
 
-Definition DepTypesType {Γ : C} {A : Ty Γ : hSet} (B : Ty(Γ.:A) : hSet)
-(a : tm A)
-: Ty Γ : hSet := ( γ a;;yy B : nat_trans _ _) Γ (identity Γ).
+Definition DepTypesType {Γ : C} {A : Ty Γ : hSet}
+  (B : Ty(Γ.:A) : hSet)
+  (a : tm A)
+  : Ty Γ : hSet.
+Proof.
+  exact((γ a;;yy B : nat_trans _ _) Γ (identity Γ)).
+Defined.
 
 Definition DepTypesElem_pr1 {Γ : C} {A : Ty Γ : hSet} {B : Ty(Γ.:A) : hSet}
-(b : tm B) (a : tm A) 
-: Tm Γ : hSet := (γ a;;yy b : nat_trans _ _) Γ (identity Γ).
+  (b : tm B)
+  (a : tm A)
+  : Tm Γ : hSet.
+Proof.
+  exact((γ a;;yy b : nat_trans _ _) Γ (identity Γ)).
+Defined.
 
 Lemma DepTypesComp {Γ : C} { A : Ty Γ : hSet} {B : Ty(Γ.:A) : hSet}
 (b : tm B) (a : tm A)
