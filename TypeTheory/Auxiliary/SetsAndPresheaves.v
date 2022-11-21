@@ -119,22 +119,11 @@ Proof.
   apply (toforallpaths (is_natural_yoneda_iso_inv _ F _ _ f)).
 Qed.
 
-
-Lemma yy_comp_nat_trans_type {C : category}
-      (F F' : preShv C) (p : _ ⟦F, F'⟧)
-      A (v : F $p A)
-  : UU.
-Proof.
-  refine (_ = _).
-  - exact (yy v ;; p).
-  - exact (yy (p $nt v)).
-Defined.
-
 Lemma yy_comp_nat_trans {C : category}
-      (F F' : preShv C) (p : _ ⟦F, F'⟧)
-      A (v : F $p A)
-  : yy_comp_nat_trans_type F F' p A v.
-  (* : yy v ;; p = yy (p $nt v). *)
+      (F F' : preShv C) (p : preShv C ⟦F, F'⟧)
+      (A : C^op)
+      (v : F $p A)
+  : (@yy C F A) v · p = (@yy C F' A) (p $nt v).
 Proof.
   apply nat_trans_eq.
   - apply homset_property.

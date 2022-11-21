@@ -72,7 +72,7 @@ Definition cwf_tm_of_ty {Γ : C} (A : Ty Γ : hSet) : UU
 Lemma cwf_square_comm {Γ} {A}
   {ΓA : C} {π : ΓA --> Γ}
   {t : Tm ΓA : hSet} (e : pp $nt t = # Ty π A)
-  : (# (yoneda C) π ;; (@yy C Ty Γ) A) = ((@yy C Tm ΓA) t ;; pp).
+  : #Yo π ;; (@yy C Ty Γ) A = (@yy C Tm ΓA) t ;; pp.
 Proof.
   apply pathsinv0.
   etrans. 2: { apply yy_natural. }
@@ -112,7 +112,7 @@ Context {C : category} (pp : mor_total (preShv C)).
 Lemma cwf_square_comm_converse {Γ : C} {A : Ty pp Γ : hSet}
     {ΓA : C} {π : ΓA --> Γ}
     {t : Tm pp ΓA : hSet}
-    (e : (# (yoneda C) π ;; (@yy C (@Ty C pp) Γ) A)%mor = ((@yy C (@Tm C pp) ΓA) t ;; pp))
+    (e : #Yo π ;; (@yy C (Ty pp) Γ) A = (@yy C (Tm pp) ΓA) t ;; pp)
   : pp $nt t = # (Ty pp) π A.
 Proof.
   etrans.
@@ -245,11 +245,7 @@ Context (pp : mor_total (preShv C)).
 (* TODO: there is considerable redundancy between this and [cwf_fiber_representation_weq] above; in particular, the same reassociation is used. Try to consolidate? *)
 Definition weq_cwf_fiber_representation_fpullback {Γ : C} (A : Ty pp Γ : hSet)
   : cwf_fiber_representation pp A
-      ≃
-      @fpullback C [C^op, SET] (yoneda C)
-      (@target (preShv C) pp)
-      (@source (preShv C) pp)
-      pp Γ ((@yy C (@Ty C pp) Γ) A).
+      ≃ fpullback (yoneda C) pp ((@yy C (Ty pp) Γ) A).
 Proof.
   unfold cwf_fiber_representation, fpullback.
   (* reassociate the RHS to match the LHS:
