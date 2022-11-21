@@ -114,7 +114,7 @@ Defined.
 Lemma yy_natural {C : category} 
     (F : preShv C) (c : C) (A : F $p c) 
     (c' : C) (f : C⟦c', c⟧)
-  : (@yy C F c') (# (F : C^op ⟶ HSET_univalent_category) f A) = # (yoneda C) f · (@yy C F c) A.
+  : (@yy C F c') (#p F f A) = # (yoneda C) f · (@yy C F c) A.
 Proof.
   apply (toforallpaths (is_natural_yoneda_iso_inv _ F _ _ f)).
 Qed.
@@ -144,10 +144,8 @@ Defined.
 Lemma transportf_yy {C : category}
       (F : preShv C) (c c' : C) (A : F $p c)
       (e : c = c')
-  : (@yy C F c')
-      (@transportf C^op (λ d : C^op, ((F : preShv C) : C^op ⟶ HSET_univalent_category) d : hSet)
-                       c c' e A) =
-      @transportf C (λ d : C, preShv C ⟦ yoneda C d, F ⟧) c c' e ((@yy C F c) A).
+  : (@yy C F c') (transportf (fun d => F $p d) e A)
+    = transportf (fun d => preShv C ⟦ yoneda _ d, F⟧) e (@yy C F c A).
 Proof.
   induction e.
   apply idpath.

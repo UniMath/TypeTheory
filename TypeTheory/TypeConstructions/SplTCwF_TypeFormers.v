@@ -85,7 +85,7 @@ Definition var_commut {Γ} (A : Ty Γ : hSet) : p _ (var' A) = A ⌊pi A⌋:= pp
 Definition var {Γ} (A : Ty Γ : hSet) : tm (A⌊pi A⌋) := (var' A,, var_commut A).
 
 Definition Yo_var_commut {Γ} (A : Ty Γ : hSet)
-  : (# (yoneda C) (@pi Γ A) ;; (@yy C Ty Γ) A) = ((@yy C Tm (ext Γ A)) (@var Γ A) ;; p)
+  : (# Yo (pi A) ;; (@yy C Ty Γ) A) = ((@yy C Tm (ext Γ A)) (var A) ;; p)
   := term_fun_str_square_comm (var A).
 Definition term_pullback {Γ} (A : Ty Γ : hSet)
 : isPullback (Yo_var_commut A)
@@ -173,19 +173,17 @@ End Ty_Tm_lemmas.
 Section term_substitution.
 
 Lemma Subproof_γ {Γ : C} {A : Ty Γ : hSet} (a : tm A)
-  : (@identity (preShv C) ((yoneda C) Γ) ;; (@yy C Ty Γ) A) = ((@yy C Tm Γ) a ;; p).
+  : (identity (Yo Γ) ;; (@yy C Ty Γ) A) = ((@yy C Tm Γ) a ;; p).
 Proof.
   apply pathsinv0, (pathscomp0(yy_comp_nat_trans Tm Ty p Γ a)) ,pathsinv0,
   (pathscomp0(id_left _ )), ((maponpaths yy) (!(pr2 a))).
 Qed.
 
-Definition γ {Γ : C} {A : Ty Γ : hSet} (a : tm A) : (preShv C)⟦Yo Γ,Yo (Γ¤A)⟧.
-Proof.
-  exact(map_into_Pb (term_pullback A) (identity _) (yy a) (Subproof_γ a)).
-Defined.
+Definition γ {Γ : C} {A : Ty Γ : hSet} (a : tm A) : (preShv C)⟦Yo Γ,Yo (Γ¤A)⟧
+  := map_into_Pb (term_pullback A) (identity _) (@yy C Tm Γ a) (Subproof_γ a).
 
 Lemma  γ_pull {Γ : C} {A : Ty Γ : hSet} (a : tm A)
-  : (@γ Γ A a ;; (@yy C Tm (ext Γ A)) (@var Γ A)) = (@yy C Tm Γ) a.
+  : (γ a ;; (@yy C Tm (ext Γ A)) (var A)) = (@yy C Tm Γ) a.
 Proof.
   apply Pb_map_commutes_2.
 Qed.
@@ -238,11 +236,10 @@ Proof.
 Qed.
 
 Lemma γPullback1 {Γ : C} (A : Ty Γ : hSet)
-  : (@γ (ext Γ A) (@reind_ty Γ (ext Γ A) A (@pi Γ A)) (@var Γ A) ;;
-     # (yoneda C : C ⟶ preShv C) (@q Γ (ext Γ A) A (@pi Γ A)) ;;
-     (@yy C Tm (ext Γ A)) (@var Γ A)) =
-      (@identity [C^op, SET] (yoneda C (ext Γ A)) ;; (@yy C Tm (ext Γ A))
-                                                       (@var Γ A)).
+  : (@γ (ext Γ A) (reind_ty A (pi A)) (var A)
+     ;; # Yo (q A (pi A))
+     ;; (@yy C Tm (ext Γ A)) (var A))
+    = (identity _) ;; (@yy C Tm (ext Γ A)) (var A).
 Proof.
   rewrite id_left.
   assert (γ (var A) ;; yy (var (A ⌊pi A⌋)) = yy(var A)) by apply (γ_pull (var A)).
@@ -662,10 +659,8 @@ Section Familly_Of_Types.
 Definition DepTypesType {Γ : C} {A : Ty Γ : hSet}
   (B : Ty(Γ¤A) : hSet)
   (a : tm A)
-  : Ty Γ : hSet.
-Proof.
-  exact((γ a;;yy B : nat_trans _ _) Γ (identity Γ)).
-Defined.
+  : Ty Γ : hSet
+  := (γ a ;; (@yy C Ty (ext Γ A) B) : nat_trans _ _) Γ (identity Γ).
 
 Lemma DepTypesType_eq {Γ : C} {A : Ty Γ : hSet} (B : Ty(Γ¤A) : hSet)
 (a : tm A) : DepTypesType B a =  B ⌊a⌋.
@@ -675,10 +670,8 @@ Qed.
 
 Definition DepTypesElem_pr1 {Γ : C} {A : Ty Γ : hSet} {B : Ty(Γ¤A) : hSet}
   (b : tm B) (a : tm A)
-  : Tm Γ : hSet.
-Proof.
-  exact((γ a;;yy b : nat_trans _ _) Γ (identity Γ)).
-Defined.
+  : Tm Γ : hSet
+  := (γ a ;; (@yy C Tm (ext Γ A)) b : nat_trans _ _) Γ (identity Γ).
 
 Lemma DepTypesComp {Γ : C} { A : Ty Γ : hSet} {B : Ty(Γ¤A) : hSet}
 (b : tm B) (a : tm A)
