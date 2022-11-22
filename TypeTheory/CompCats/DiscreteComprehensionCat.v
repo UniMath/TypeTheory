@@ -26,8 +26,6 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
-Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
-
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
@@ -238,7 +236,7 @@ Section MorWithUniqueLift.
     apply funextsec; intros A.
     apply funextsec; intros A'.
     apply funextsec; intros f.
-    apply univalenceweq.
+    apply univalence.
     apply (pr2 D_mor).
   Defined.
 
@@ -252,7 +250,7 @@ Section MorWithUniqueLift.
       apply funextsec; intros A.
       apply funextsec; intros A'.
       apply funextsec; intros f.
-      apply univalenceweq.
+      apply univalence.
       apply (pr2 D_mor).
     - apply funextsec; intros Γ.
       apply funextsec; intros Γ'.
