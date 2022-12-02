@@ -31,7 +31,6 @@ Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op") : precat.
 Delimit Scope precat with precat.
 
 Open Scope cat.
-Open Scope cat_deprecated.
 
 (** * Isomorphism lemmas *)
 
