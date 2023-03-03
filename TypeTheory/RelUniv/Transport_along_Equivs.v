@@ -172,7 +172,6 @@ Lemma preserves_pullbacks_ext
 Proof.
   intros ? ? ? ? ? ? ? ? ? ?.
   apply isPullback_image_square.
-  apply functor_category_has_homsets.
   apply right_adj_equiv_is_ff.
   apply right_adj_equiv_is_ess_sur.
   assumption.

@@ -48,7 +48,7 @@ Reserved Notation "A {{ f }}" (at level 30).
 Reserved Notation "'π' A" (at level 5).
 
 Record type_precat_record : Type := {
-  C : precategory ;
+  C : category ;
   ty : C -> Type                       where "C ⟨ Γ ⟩" := (ty Γ);
   ext : ∏ Γ, C⟨Γ⟩ -> C                  where "Γ ◂ A" := (ext Γ A);
   dpr : ∏ Γ (A : C⟨Γ⟩), Γ ◂ A --> Γ     where "'π' A" := (dpr _ A);
@@ -124,7 +124,7 @@ Notation "A {{ f }}" := (reind_typecat A f) (at level 30).
 
 (** * Pullback of dependent projections *)
 
-Definition typecat_structure2 {CC : precategory} (C : typecat_structure1 CC) :=
+Definition typecat_structure2 {CC : category} (C : typecat_structure1 CC) :=
   ∑ (dpr : ∏ Γ (A : C Γ), Γ◂A --> Γ)
     (q : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ), (Γ'◂A{{f}}) --> Γ◂A )
     (dpr_q : ∏ Γ (A : C Γ) Γ' (f : Γ' --> Γ), 
@@ -133,31 +133,31 @@ Definition typecat_structure2 {CC : precategory} (C : typecat_structure1 CC) :=
       isPullback (!dpr_q _ A _ f).
 (* TODO: change name [dpr_q] to [q_dpr] throughout, now that composition is diagrammatic order? *)
 
-Definition typecat_structure (CC : precategory) 
+Definition typecat_structure (CC : category) 
   := ∑ C : typecat_structure1 CC , typecat_structure2 C.
 
-Definition typecat1_from_typecat (CC : precategory)(C : typecat_structure CC) 
+Definition typecat1_from_typecat (CC : category)(C : typecat_structure CC) 
   : typecat_structure1 _  := pr1 C.
 Coercion typecat1_from_typecat : typecat_structure >-> typecat_structure1.
 
-Definition dpr_typecat {CC : precategory}
+Definition dpr_typecat {CC : category}
     {C : typecat_structure CC} {Γ} (A : C Γ)
   : (Γ◂A) --> Γ
 := pr1 (pr2 C) Γ A.
 
-Definition q_typecat {CC : precategory}
+Definition q_typecat {CC : category}
     {C : typecat_structure CC} {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ)
   : (Γ' ◂ A{{f}}) --> (Γ ◂ A) 
 :=
   pr1 (pr2 (pr2 C)) _ A _ f.
 
-Definition dpr_q_typecat {CC : precategory}
+Definition dpr_q_typecat {CC : category}
     {C : typecat_structure CC} {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ)
   : (q_typecat A f) ;; (dpr_typecat A) = (dpr_typecat (A{{f}})) ;; f
 :=
   pr1 (pr2 (pr2 (pr2 C))) _ A _ f.
 
-Definition reind_pb_typecat {CC : precategory}
+Definition reind_pb_typecat {CC : category}
     {C : typecat_structure CC} {Γ} (A : C Γ) {Γ'} (f : Γ' --> Γ)
   : isPullback (!dpr_q_typecat A f)
 :=
@@ -165,7 +165,7 @@ Definition reind_pb_typecat {CC : precategory}
 
 (** * Type-saturation *)
 
-Definition is_type_saturated_typecat {CC : precategory}
+Definition is_type_saturated_typecat {CC : category}
     (C : typecat_structure CC) : UU
 := ∏ Γ, isincl (λ A : C Γ, tpair (λ X, X --> Γ) (Γ ◂ A) (dpr_typecat A)).
 
@@ -276,7 +276,7 @@ Notation "A {{ f }}" := (reind_typecat A f) (at level 30).
 
 Section lemmas.
 
-Context {CC : precategory} {C : typecat_structure CC}.
+Context {CC : category} {C : typecat_structure CC}.
 
 Lemma transportf_dpr_typecat
     {Γ : CC} {A B : C Γ} (p : A = B)

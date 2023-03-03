@@ -71,7 +71,7 @@ Section TypeCat_ObjExt.
     : obj_ext_typecat Γ A --> Γ
     := pr2 (pr2 TC) Γ A.
   
-  Definition typecat_obj_ext_from_typecat (C : precategory) (TC : typecat_structure C) 
+  Definition typecat_obj_ext_from_typecat (C : category) (TC : typecat_structure C) 
     : typecat_obj_ext_structure _  := (_ ,, _ ,, @dpr_typecat _ TC).
   Coercion typecat_obj_ext_from_typecat : typecat_structure >-> typecat_obj_ext_structure.
 
