@@ -264,8 +264,7 @@ Lemma ff_reflects_pullbacks {C D : category} {F : functor C D}
       (F_ff : fully_faithful F) : reflects_pullbacks F.
 Proof.
   do 10 intro.
-  use (isPullback_preimage_square _ _ _ _ _ _ X).
-  - apply homset_property.
+  use (isPullback_preimage_square _ _ _ _ _ X).
   - apply F_ff.
 Defined.
 

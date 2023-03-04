@@ -825,8 +825,7 @@ Proof.
     + cbn. 
       match goal with |[|- isPullback (?HH)] => generalize HH end.
       intro HH.
-      use (isPullback_preimage_square _ _ _ _ S_ff). 
-      { apply homset_property. }
+      use (isPullback_preimage_square _ _ _ S_ff). 
       match goal with |[|- isPullback (?HH)] => generalize HH end.
       assert (XR := homotweqinvweq (weq_from_fully_faithful S_ff (J Xf) tU )).
       simpl in XR. rewrite XR.

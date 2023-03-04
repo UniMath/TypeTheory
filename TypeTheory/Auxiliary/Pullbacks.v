@@ -14,7 +14,7 @@ Require Import TypeTheory.Auxiliary.CategoryTheory.
 Section Pullback_Basics.
 
 Definition map_into_Pb
-    {C : precategory} {a b c d : C}
+    {C : category} {a b c d : C}
     {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
     {sqr_comm : f ;; k = g ;; h}
     (Pb : isPullback sqr_comm)
@@ -26,7 +26,7 @@ Proof.
 Defined.
 
 Definition Pb_map_commutes_1
-    {C : precategory} {a b c d : C}
+    {C : category} {a b c d : C}
     {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
     {sqr_comm : f ;; k = g ;; h}
     (Pb : isPullback sqr_comm)
@@ -37,7 +37,7 @@ Proof.
 Qed.
 
 Definition Pb_map_commutes_2
-    {C : precategory} {a b c d : C}
+    {C : category} {a b c d : C}
     {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
     {sqr_comm : f ;; k = g ;; h}
     (Pb : isPullback sqr_comm)
@@ -48,7 +48,7 @@ Proof.
 Qed.
 
 Lemma map_into_Pb_unique
-    {C : precategory} {a b c d : C}
+    {C : category} {a b c d : C}
     {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
     {sqr_comm : f ;; k = g ;; h}
     (Pb : isPullback sqr_comm)
@@ -64,7 +64,7 @@ Qed.
 
 (* In fact this is trivial, since the equality doesn’t appear in the type of the pullback. However, it’s convenient for proof scripts. *)
 Lemma isPullback_indepdent_of_path
-    {C : precategory} {a b c d : C}
+    {C : category} {a b c d : C}
     {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
     {sqr_comm : f ;; k = g ;; h}
     (Pb : isPullback sqr_comm)
@@ -76,7 +76,7 @@ Defined.
 
 (* Duplicate of [is_symmetric_isPullback] from UniMath, but without the un-needed [has_homsets]/[category] assumption *)
 Lemma is_symmetric_isPullback
-    {C : precategory}
+    {C : category}
     {a b c d : C} {f : b --> a} {g : c --> a}
     {p1 : d --> b} {p2 : d --> c} {H : p1 · f = p2 · g}
     (pb : isPullback H)
@@ -91,7 +91,7 @@ Defined.
 
 (* Variant of [is_symmetric_isPullback], more convenient for applying when reasoning bottom-up. *)
 Lemma is_symmetric'_isPullback
-    {C : precategory}
+    {C : category}
     {a b c d : C} {f : b --> a} {g : c --> a}
     {p1 : d --> b} {p2 : d --> c} {H : p1 · f = p2 · g}
     (pb : isPullback (! H))
@@ -109,7 +109,7 @@ Section Pullback_transfers.
 (* Various results, generally showing that perturbing a pullback squares by equalities and/or isos is still a pullback. *)
 
 Lemma square_morphism_equal
-    {C : precategory} {a b c d : C}
+    {C : category} {a b c d : C}
     {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
     (sqr_comm : f ;; k = g ;; h)
     {k'} (e : k' = k)
@@ -119,7 +119,7 @@ Proof.
 Defined.
 
 Lemma isPb_morphism_equal
-    {C : precategory} {a b c d : C}
+    {C : category} {a b c d : C}
     {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
     (sqr_comm : f ;; k = g ;; h)
     (Pb : isPullback sqr_comm)

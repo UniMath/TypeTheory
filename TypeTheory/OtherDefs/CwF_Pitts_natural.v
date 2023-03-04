@@ -98,7 +98,7 @@ Definition pullback_structure {X : tt_structure} (Y : comp_structure X) : UU
           invmap (yoneda_weq C _ (Tm X)) (q Y Γ A) ;; p X 
           =
           #(yoneda _ ) (pi Y Γ A) ;; invmap (yoneda_weq _ _ (Ty X)) A , 
-         isPullback H.
+         isPullback(C:=[(C^op)%Cat, SET]) H.
 
 Definition comp_comm {X : tt_structure } {Y : comp_structure X} (Z : pullback_structure Y) 
   : forall Γ (A : Ty X $p Γ),
@@ -109,7 +109,7 @@ Definition comp_comm {X : tt_structure } {Y : comp_structure X} (Z : pullback_st
 
 Definition is_Pullback_comp {X : tt_structure } {Y : comp_structure X} (Z : pullback_structure Y) 
   : forall Γ (A : Ty X $p Γ),
-      isPullback (comp_comm Z _ _ ) 
+      isPullback(C:=[(C^op)%Cat, SET]) (comp_comm Z _ _ ) 
   := fun Γ A => pr2 (Z Γ A).
 
 Definition is_natural_CwF : UU 

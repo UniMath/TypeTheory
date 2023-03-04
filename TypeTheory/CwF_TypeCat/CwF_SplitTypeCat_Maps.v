@@ -592,8 +592,7 @@ Qed.
 
 Lemma isPullback_Yo_of_qq : isPullback Yo_of_qq_commutes_1.
 Proof.
-  simple refine (isPullback_two_pullback _ _ _ _ _ _ _ _ _ _ ).
-  - apply homset_property.
+  simple refine (isPullback_two_pullback _ _ _ _ _ _ _ _ _ ).
   - apply (TY X).
   - apply (TM Y).
   - apply (yy A).
@@ -634,8 +633,7 @@ Qed.
 
 Definition isPullback_qq : isPullback (!qq_commutes_1).
 Proof.
-  use (isPullback_preimage_square _ _ _ Yo).
-  - apply homset_property.
+  use (isPullback_preimage_square _ _ Yo).
   - apply yoneda_fully_faithful.
   - assert (XT:= isPullback_Yo_of_qq).
     match goal with |[|- isPullback ?HHH] => generalize HHH end.

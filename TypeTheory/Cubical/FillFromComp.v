@@ -290,7 +290,7 @@ Lemma isPullback_pF_e₀ I J (f : J --> I) :
   isPullback (nat_trans_ax p_F f) → isPullback (nat_trans_ax e₀ f).
 Proof.
 intros H.
-apply (isPullback_two_pullback (homset_property _) _ _ _ _ _ _ H).
+apply (isPullback_two_pullback _ _ _ _ _ _ H).
 intros K g h Hgh.
 use (unique_exists h); simpl in *.
 - rewrite <- Hgh.
@@ -528,7 +528,6 @@ Defined.
 Lemma glued_square_pb {I J} (f : J --> I) : isPullback (glued_square f).
 Proof.
 apply isPullbackGluedSquare.
-- apply functor_category_has_homsets.
 - apply Hδ₀_pb.
 - apply e₀_f_pb.
 Qed.
@@ -547,7 +546,6 @@ Proof.
 use Hδ₀_unique.
 - apply plus_δ₀_prf.
 - use (isPullback_mor_paths _ _ _ _ _ (plus_δ₀_prf f) (glued_square_pb f)); trivial.
-  + apply functor_category_has_homsets.
   + apply TerminalArrowUnique.
 Qed.
 

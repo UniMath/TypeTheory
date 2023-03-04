@@ -538,7 +538,6 @@ Section RelUniv_Transfer.
         apply id_left.
 
      - use (isPullback_image_square _ _ invS).
-       + apply homset_property.
        + apply (right_adj_equiv_is_ff _ _ S AE).
        + apply (right_adj_equiv_is_ess_sur _ _ S AE).
        + apply pb'_isPullback.
