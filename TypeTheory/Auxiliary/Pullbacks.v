@@ -109,7 +109,7 @@ Section Pullback_transfers.
 (* Various results, generally showing that perturbing a pullback squares by equalities and/or isos is still a pullback. *)
 
 Lemma square_morphism_equal
-    {C : precategory} {a b c d : C}
+    {C : category} {a b c d : C}
     {f : a --> b} {g : a --> c} {k : b --> d} {h : c --> d}
     (sqr_comm : f ;; k = g ;; h)
     {k'} (e : k' = k)
