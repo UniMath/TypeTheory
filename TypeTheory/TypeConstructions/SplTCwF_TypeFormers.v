@@ -84,8 +84,9 @@ Definition var' {Γ} (A : Ty Γ : hSet) : Tm (Γ¤A) : hSet := te C A.
 Definition var_commut {Γ} (A : Ty Γ : hSet) : p _ (var' A) = A ⌊pi A⌋:= pp_te C A.
 Definition var {Γ} (A : Ty Γ : hSet) : tm (A⌊pi A⌋) := (var' A,, var_commut A).
 
-Definition Yo_var_commut {Γ} (A : Ty Γ : hSet) : #Yo (pi A) ;; yy A = yy(var A) ;; p
-:= term_fun_str_square_comm (var A).
+Definition Yo_var_commut {Γ} (A : Ty Γ : hSet)
+  : (# Yo (pi A) ;; (@yy C Ty Γ) A) = ((@yy C Tm (ext Γ A)) (var A) ;; p)
+  := term_fun_str_square_comm (var A).
 Definition term_pullback {Γ} (A : Ty Γ : hSet)
 : isPullback (Yo_var_commut A)
 := isPullback_Q_pp C A.
@@ -172,17 +173,17 @@ End Ty_Tm_lemmas.
 Section term_substitution.
 
 Lemma Subproof_γ {Γ : C} {A : Ty Γ : hSet} (a : tm A)
-: identity (Yo Γ) ;; yy A = yy a ;;p.
+  : (identity (Yo Γ) ;; (@yy C Ty Γ) A) = ((@yy C Tm Γ) a ;; p).
 Proof.
   apply pathsinv0, (pathscomp0(yy_comp_nat_trans Tm Ty p Γ a)) ,pathsinv0,
   (pathscomp0(id_left _ )), ((maponpaths yy) (!(pr2 a))).
 Qed.
 
 Definition γ {Γ : C} {A : Ty Γ : hSet} (a : tm A) : (preShv C)⟦Yo Γ,Yo (Γ¤A)⟧
-:= map_into_Pb (term_pullback A) (identity _) (yy a) (Subproof_γ a).
+  := map_into_Pb (term_pullback A) (identity _) (@yy C Tm Γ a) (Subproof_γ a).
 
 Lemma  γ_pull {Γ : C} {A : Ty Γ : hSet} (a : tm A)
-: γ a ;; yy (var A) = yy a.
+  : (γ a ;; (@yy C Tm (ext Γ A)) (var A)) = (@yy C Tm Γ) a.
 Proof.
   apply Pb_map_commutes_2.
 Qed.
@@ -235,7 +236,10 @@ Proof.
 Qed.
 
 Lemma γPullback1 {Γ : C} (A : Ty Γ : hSet)
-: γ (var A) ;; #Yo (q A (pi A)) ;; yy(var A) = identity _;; yy (var A).
+  : (@γ (ext Γ A) (reind_ty A (pi A)) (var A)
+     ;; # Yo (q A (pi A))
+     ;; (@yy C Tm (ext Γ A)) (var A))
+    = (identity _) ;; (@yy C Tm (ext Γ A)) (var A).
 Proof.
   rewrite id_left.
   assert (γ (var A) ;; yy (var (A ⌊pi A⌋)) = yy(var A)) by apply (γ_pull (var A)).
@@ -249,7 +253,7 @@ Qed.
 
 Lemma  γPullback2 {Γ : C} (A : Ty Γ : hSet)
 : γ (var A) ;; #Yo (q A (pi A)) ;; #Yo (pi A) = identity _;;(#Yo (pi A)).
-Proof.       
+Proof.
   rewrite <- assoc.
   etrans. { apply pathsinv0, maponpaths, q_eq_yoneda. }
   rewrite assoc.
@@ -652,19 +656,22 @@ End tm_lemmas.
 
 Section Familly_Of_Types.
 
-Definition DepTypesType {Γ : C} {A : Ty Γ : hSet} (B : Ty(Γ¤A) : hSet)
-(a : tm A)
-: Ty Γ : hSet := ( γ a;;yy B : nat_trans _ _) Γ (identity Γ).
+Definition DepTypesType {Γ : C} {A : Ty Γ : hSet}
+  (B : Ty(Γ¤A) : hSet)
+  (a : tm A)
+  : Ty Γ : hSet
+  := (γ a ;; (@yy C Ty (ext Γ A) B) : nat_trans _ _) Γ (identity Γ).
 
 Lemma DepTypesType_eq {Γ : C} {A : Ty Γ : hSet} (B : Ty(Γ¤A) : hSet)
 (a : tm A) : DepTypesType B a =  B ⌊a⌋.
-Proof. 
+Proof.
   reflexivity.
 Qed.
 
 Definition DepTypesElem_pr1 {Γ : C} {A : Ty Γ : hSet} {B : Ty(Γ¤A) : hSet}
-(b : tm B) (a : tm A) 
-: Tm Γ : hSet := (γ a;;yy b : nat_trans _ _) Γ (identity Γ).
+  (b : tm B) (a : tm A)
+  : Tm Γ : hSet
+  := (γ a ;; (@yy C Tm (ext Γ A)) b : nat_trans _ _) Γ (identity Γ).
 
 Lemma DepTypesComp {Γ : C} { A : Ty Γ : hSet} {B : Ty(Γ¤A) : hSet}
 (b : tm B) (a : tm A)

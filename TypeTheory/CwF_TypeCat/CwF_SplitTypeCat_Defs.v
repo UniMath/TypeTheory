@@ -416,7 +416,7 @@ Definition te Y {Γ:C} A : Tm Y (Γ ◂ A)
   := pr2 (pr2 Y) Γ A.
 
 Definition Q Y {Γ:C} (A:Ty X Γ) : Yo (Γ ◂ A) --> TM Y
-  := yy (te Y A).
+  := (@yy C (TM Y) (Γ ◂ A)) (te Y A).
 
 Lemma comp_ext_compare_Q Y Γ (A A' : Ty X Γ) (e : A = A') : 
   #Yo (Δ e) ;; Q Y A' = Q Y A . 
@@ -431,7 +431,7 @@ Qed.
 Lemma term_fun_str_square_comm {Y : term_fun_structure_data}
     {Γ : C} {A : Ty X Γ}
     (e : (pp Y) $nt (te Y A) = A [ π A ])
-  : #Yo (π A) ;; yy A = Q Y A ;; pp Y.
+  : (#Yo (π A) ;; (@yy C (TY X) Γ) A) = (Q Y A ;; pp Y).
 Proof.
   apply pathsinv0.
   etrans. 2: { apply yy_natural. }
@@ -463,9 +463,9 @@ Definition pp_te (Y : term_fun_structure) {Γ} (A : Ty X Γ)
     = A [ π A ]
 := pr1 (pr2 Y _ A).
 
-Definition Q_pp (Y : term_fun_structure) {Γ} (A : Ty X Γ) 
-  : #Yo (π A) ;; yy A = Q Y A ;; pp Y
-:= term_fun_str_square_comm (pp_te Y A).
+Definition Q_pp (Y : term_fun_structure) {Γ} (A : Ty X Γ)
+  : (#Yo (π A) ;; (@yy C (TY X) Γ) A) = (Q Y A ;; pp Y)
+  := term_fun_str_square_comm (pp_te Y A).
 
 (* TODO: rename this to [Q_pp_Pb], or [qq_π_Pb] to [isPullback_qq_π]? *)
 Definition isPullback_Q_pp (Y : term_fun_structure) {Γ} (A : Ty X Γ)

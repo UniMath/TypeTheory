@@ -1,53 +1,77 @@
-# This is a basic workflow to help you get started with Actions
+name: Build TypeTheory
 
-name: CI
-
-# Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
-
+    branches: [master]
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+  schedule:
+    # Based on https://github.com/marketplace/actions/set-up-ocaml
+    # Prime the caches every Monday
+    - cron: '0 3 * * MON'
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+env:
+  DUNE_CACHE_STORAGE_MODE: copy
+
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  build-typetheory:
+    strategy:
+      fail-fast: false
+      matrix:
+        coq-version: [latest, 8.16, 8.15]
+        ocaml-version: [4.14-flambda]
+    name: Build with ${{ matrix.coq-version }}
     runs-on: ubuntu-22.04
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      # Checkout UniMath in the current directory.
+      - name: Checkout UniMath
+        uses: actions/checkout@v3
+        with:
+          repository: UniMath/UniMath
+          path: .
+          clean: false
 
-      
-      # Install everything needed for building UniMath (and more)
-      - name: Install build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev emacs ocaml-dune libzarith-ocaml-dev
+      # Checkout TypeTheory in TypeTheory/
+      - name: Checkout TypeTheory
+        uses: actions/checkout@v3
+        with:
+          path: TypeTheory
 
-      # Change into UniMath directory and build UniMath
-      - name: Build UniMath and TypeTheory
-        run: |
-          pushd ..
-          git clone --no-checkout https://github.com/UniMath/UniMath
-          cd UniMath
-          pwd
-          git checkout master
-          git show
-          make BUILD_COQ=yes PACKAGES="Foundations MoreFoundations Combinatorics Algebra NumberSystems PAdics CategoryTheory Ktheory Topology Tactics" install
-          export PATH=$PATH:$PWD/sub/coq/bin/
-          echo $PATH
-          popd
-          cd $GITHUB_WORKSPACE
-          echo $PATH
-          time make
+      # Grab the cache if available. We tell dune to use $(pwd)/dune-cache/ in
+      # the custom_script below.
+      - uses: actions/cache@v3
+        with:
+          path: dune-cache
+          key: TypeTheory-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
+          restore-keys: |
+            TypeTheory-coq-${{ matrix.coq-version }}-${{ github.run_id }}
+            TypeTheory-coq-${{ matrix.coq-version }}
+            TypeTheory-coq
 
+      - name: Build TypeTheory
+        uses: coq-community/docker-coq-action@v1
+        with:
+          coq_version: ${{ matrix.coq-version }}
+          ocaml_version: ${{ matrix.ocaml-version }}
+          custom_script: |
+            startGroup "Workaround permission issue"
+            sudo chown -R coq:coq .
+            endGroup
 
+            startGroup "Print versions"
+            opam --version
+            opam exec -- dune --version
+            opam exec -- coqc --version
+            endGroup
 
+            startGroup "Build TypeTheory"
+            export DUNE_CACHE_ROOT=$(pwd)/dune-cache/
+            opam exec -- dune build TypeTheory --display=short \
+                         --cache=enabled --error-reporting=twice
+            endGroup
+      - name: Revert permissions
+        if: ${{ always() }}
+        run: sudo chown -R 1001:116 .
