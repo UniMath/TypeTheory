@@ -113,16 +113,17 @@ Defined.
 
 Lemma yy_natural {C : category} 
     (F : preShv C) (c : C) (A : F $p c) 
-    c' (f : C⟦c', c⟧)
-  : yy (#p F f A) = # (yoneda _ ) f ;; yy A.
+    (c' : C) (f : C⟦c', c⟧)
+  : (@yy C F c') (#p F f A) = # (yoneda C) f · (@yy C F c) A.
 Proof.
   apply (toforallpaths (is_natural_yoneda_iso_inv _ F _ _ f)).
 Qed.
 
 Lemma yy_comp_nat_trans {C : category}
-      (F F' : preShv C) (p : _ ⟦F, F'⟧)
-      A (v : F $p A)
-  : yy v ;; p = yy (p $nt v).
+      (F F' : preShv C) (p : preShv C ⟦F, F'⟧)
+      (A : C^op)
+      (v : F $p A)
+  : (@yy C F A) v · p = (@yy C F' A) (p $nt v).
 Proof.
   apply nat_trans_eq.
   - apply homset_property.
@@ -143,8 +144,8 @@ Defined.
 Lemma transportf_yy {C : category}
       (F : preShv C) (c c' : C) (A : F $p c)
       (e : c = c')
-  : yy (transportf (fun d => F $p d) e A) 
-    = transportf (fun d => preShv C ⟦ yoneda _ d, F⟧) e (yy A).
+  : (@yy C F c') (transportf (fun d => F $p d) e A)
+    = transportf (fun d => preShv C ⟦ yoneda _ d, F⟧) e (@yy C F c A).
 Proof.
   induction e.
   apply idpath.
