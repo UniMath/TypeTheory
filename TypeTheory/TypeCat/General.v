@@ -5,6 +5,14 @@ Note: much of this essentially duplicates material given already in the [CwF_Spl
 
 Probably much of this really should belong in a different package. *)
 
+(** * NOTE: This file depends on Coq.Init.Logic.
+    Removing the following line causes the error:
+
+    File "./TypeTheory/TypeTheory/TypeCat/General.v", line 365, characters 6-115:
+    Error: not found in table: core.eq.type
+ *)
+Require Import Coq.Init.Logic.
+
 Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
