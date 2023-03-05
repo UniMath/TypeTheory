@@ -1,7 +1,7 @@
 (** This file defines the interpretation function, from the syntax of our toy type theory into any split type-cat with suitable structure. *)
 
 
-(** * NOTE: This file depends on Coq.Init.Logic.
+(** * TODO NOTE: This file depends on Coq.Init.Logic.
     Removing the following line causes the error:
 
     File "./TypeTheory/TypeTheory/Initiality/Interpretation.v", line 366, characters 4-5:
