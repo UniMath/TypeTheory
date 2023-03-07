@@ -287,7 +287,7 @@ Section Contexts_Modulo_Equality.
     destruct ΓΓ as [n ΓΓ]. generalize ΓΓ.
     apply setquotunivprop'.
     { intros; apply isapropishinh. }
-    intros Γ; apply hinhpr. exists Γ; auto.
+    intros Γ; apply hinhpr. exists Γ; apply idpath.
   Defined.
 
 End Contexts_Modulo_Equality.

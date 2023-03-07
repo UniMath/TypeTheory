@@ -699,11 +699,11 @@ Proof.
           exact eq.
         }
         clear eq0.
-        remember (transportf (isover X) (! eq) (isover_X_ftnX X (S n))) as H''.
+        set (H'' := transportf (isover X) (! eq) (isover_X_ftnX X (S n))).
         set (H3 := transportf (isover X) (! eq') (isover_XX X)).
         assert (eq'' : H'' = H3) by (apply isaprop_isover).
         rewrite eq''.
-        clear HeqH'' H'' eq'' eq.
+        clear H'' eq'' eq.
         induction eq'.
         cbn in H3.
         unfold H3.

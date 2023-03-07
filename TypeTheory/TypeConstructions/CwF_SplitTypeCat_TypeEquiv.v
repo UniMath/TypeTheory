@@ -362,11 +362,11 @@ Lemma unit_equiv_inv1 : ∏ x : unit_structure Sc, unit_equiv_2(unit_equiv_1 x) 
 Proof.
   intro Unit.
   apply pair_path_in2.
-  assert (prj : pr2 Unit = pr12 Unit ,, pr22 Unit) by auto.
+  assert (prj : pr2 Unit = pr12 Unit ,, pr22 Unit) by apply idpath.
   apply pathsinv0.
   apply (pathscomp0 prj).
   refine (subtypePairEquality' _ _ ).
-  -  assert (func:  pr12 Unit = λ Γ : C , pr12 Unit Γ) by auto.
+  -  assert (func:  pr12 Unit = λ Γ : C , pr12 Unit Γ) by apply idpath.
      apply (pathscomp0 func).
      apply funextsec2.
      intro Γ.
@@ -378,11 +378,11 @@ Lemma unit_equiv_inv2 : ∏ x : CwF_unit_structure CWF, unit_equiv_1(unit_equiv_
 Proof.
   intro Unit.
   apply pair_path_in2.
-  assert (prj : pr2 Unit = (pr12 Unit ,, pr22 Unit)) by auto.
+  assert (prj : pr2 Unit = (pr12 Unit ,, pr22 Unit)) by apply idpath.
   apply pathsinv0.
   apply (pathscomp0 prj).
   refine (subtypePairEquality' _ _ ).
-  -  assert (func:  pr12 Unit = λ Γ : C , pr12 Unit Γ) by auto.
+  -  assert (func:  pr12 Unit = λ Γ : C , pr12 Unit Γ) by apply idpath.
      apply (pathscomp0 func).
      apply funextsec2.
      intro Γ.
@@ -434,15 +434,15 @@ Lemma universe_equiv_inv1
 Proof.
   intro Universe.
   apply pair_path_in2.
-  assert (prj : pr2 Universe = pr12 Universe ,, pr22 Universe) by auto.
+  assert (prj : pr2 Universe = pr12 Universe ,, pr22 Universe) by apply idpath.
   apply pathsinv0.
   apply (pathscomp0 prj).
   refine (subtypePairEquality' _ _ ).
-  -  assert (func : pr12 Universe = λ Γ : C , pr12 Universe Γ) by auto.
+  -  assert (func : pr12 Universe = λ Γ : C , pr12 Universe Γ) by apply idpath.
      apply (pathscomp0 func).
      apply funextsec2.
      intro Γ.
-     assert (simplman : pr12 Universe Γ  =  λ a : _, pr12 Universe Γ a) by auto.
+     assert (simplman : pr12 Universe Γ  =  λ a : _, pr12 Universe Γ a) by apply idpath.
      rewrite simplman.
      reflexivity.
   -  do 4 (apply impred_isaprop; intro); exact (pr12 Split _ _ _).
@@ -453,15 +453,15 @@ Lemma universe_equiv_inv2
 Proof.
   intro Universe.
   apply pair_path_in2.
-  assert (prj : pr2 Universe = pr12 Universe ,, pr22 Universe) by auto.
+  assert (prj : pr2 Universe = pr12 Universe ,, pr22 Universe) by apply idpath.
   apply pathsinv0.
   apply (pathscomp0 prj).
   refine (subtypePairEquality' _ _ ).
-  -  assert (func : pr12 Universe = λ Γ : C , pr12 Universe Γ) by auto.
+  -  assert (func : pr12 Universe = λ Γ : C , pr12 Universe Γ) by apply idpath.
      apply (pathscomp0 func).
      apply funextsec2.
      intro Γ.
-     assert (simplman : pr12 Universe Γ  =  λ a : _, pr12 Universe Γ a) by auto.
+     assert (simplman : pr12 Universe Γ  =  λ a : _, pr12 Universe Γ a) by apply idpath.
      rewrite simplman.
      cbn; apply funextsec; intro a; rewrite tm_equiv_inter_21; reflexivity.
   -  do 4 (apply impred_isaprop; intro); exact (setproperty (Ty CWF _) _ _).
