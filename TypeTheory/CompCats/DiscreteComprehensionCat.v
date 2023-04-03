@@ -550,8 +550,8 @@ Section DiscreteComprehensionCats.
       exists (_ ,, FF_axioms).
       exact is_cartesian_FF.
 
-    - apply idpath.
-    - apply idpath.
+    - exact idpath.
+    - exact idpath.
   Defined.
 
   (* A variation of [discrete_comprehension_cat_structure] with a convenient rearrangement of fields *)

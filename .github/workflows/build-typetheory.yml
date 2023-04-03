@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        coq-version: [latest, 8.16, 8.15]
+        coq-version: [dev, latest, 8.16, 8.15]
         ocaml-version: [4.14-flambda]
     name: Build with ${{ matrix.coq-version }}
     runs-on: ubuntu-22.04
