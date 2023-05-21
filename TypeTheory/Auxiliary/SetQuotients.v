@@ -2,6 +2,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
+Unset Universe Checking.
 
   (* Upstream issues to possibly raise about [setquot]:
   - should [pr1] of [eqrel] coerce to [hrel], not directly to [Funclass]?

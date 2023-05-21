@@ -22,3 +22,5 @@ Require Export UniMath.CategoryTheory.Presheaf.
 Require Export UniMath.CategoryTheory.catiso.
 Require Export UniMath.CategoryTheory.ArrowCategory.
 Require Export UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+
+Export Unset Universe Checking.

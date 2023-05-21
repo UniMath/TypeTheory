@@ -5,6 +5,7 @@ by Vladimir Voevodsky, file created on Jan. 6, 2015 *)
 Require Import UniMath.Foundations.All.
 Require Export UniMath.Combinatorics.StandardFiniteSets.
 
+Export Unset Universe Checking.
 
 (* To upsetream files *)
 

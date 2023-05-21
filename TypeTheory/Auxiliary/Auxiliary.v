@@ -15,6 +15,8 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
+Export Unset Universe Checking.
+
 (** * Notation scopes
 
 We open a few scopes that are used throughout the development, and add/tweak a few of UniMath’s notations.
