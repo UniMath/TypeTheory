@@ -57,7 +57,7 @@ include build/CoqMakefile.make
 endif
 everything: all html install
 OTHERFLAGS += $(MOREFLAGS)
-OTHERFLAGS += -noinit -indices-matter -type-in-type -w none
+OTHERFLAGS += -noinit -indices-matter -w none
 ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
 endif
@@ -206,7 +206,6 @@ isolate-bug: sub/coq-tools/find-bug.py
 	rm -f $(ISOLATED_BUG_FILE) && \
 	../sub/coq-tools/find-bug.py --coqbin ../sub/coq/bin -R . UniMath \
 		--arg " -indices-matter" \
-		--arg " -type-in-type" \
 		$(BUGGY_FILE) $(ISOLATED_BUG_FILE)
 	@ echo "==="
 	@ echo "=== the isolated bug has been deposited in the file UniMath/$(ISOLATED_BUG_FILE)"

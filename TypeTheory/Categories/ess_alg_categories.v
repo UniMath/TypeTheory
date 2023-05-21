@@ -11,6 +11,7 @@
 
 Require Import UniMath.Foundations.Sets.
 
+Unset Universe Checking.
 
 (** * Definition of a [graph] as two types with source and target maps *)
 
