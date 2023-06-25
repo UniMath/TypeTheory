@@ -1,14 +1,6 @@
 (** This file defines the interpretation function, from the syntax of our toy type theory into any split type-cat with suitable structure. *)
 
 
-(** * TODO NOTE: This file depends on Coq.Init.Logic.
-    Removing the following line causes the error:
-
-    File "./TypeTheory/TypeTheory/Initiality/Interpretation.v", line 366, characters 4-5:
-    Error: [Focus] Wrong bullet -: Current bullet + is not finished.
- *)
-Require Import Coq.Init.Logic.
-
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 
@@ -362,7 +354,7 @@ Section Partial_Interpretation.
         apply funextfun; intros i. apply maponpaths_2. 
         eapply pathscomp0. 2: { apply partial_interpretation_rename_ty. }
         apply maponpaths_2, funextfun.
-        refine (dB_Sn_rect _ _ _); auto.
+        refine (dB_Sn_rect _ _ _); reflexivity.
     - (* term expressions *)
       destruct e as [ m i | m A B b | m A B t a ].
       + (* [var_expr i] *)
@@ -373,7 +365,7 @@ Section Partial_Interpretation.
         apply funextfun; intros A_interp.
         assert (e_EA : (extend_environment (E ∘ f) A_interp
                       = extend_environment E A_interp ∘ fmap_dB_S f)).
-        { apply funextfun. refine (dB_Sn_rect _ _ _); auto. }
+        { apply funextfun. refine (dB_Sn_rect _ _ _); reflexivity. }
         apply maponpaths_12.
         { eapply pathscomp0. 2: { apply partial_interpretation_rename_ty. }
           apply maponpaths_2, e_EA. }
@@ -386,7 +378,7 @@ Section Partial_Interpretation.
         apply funextfun; intros A_interp.
         assert (e_EA : (extend_environment (E ∘ f) A_interp
                       = extend_environment E A_interp ∘ fmap_dB_S f)).
-        { apply funextfun. refine (dB_Sn_rect _ _ _); auto. }
+        { apply funextfun. refine (dB_Sn_rect _ _ _); reflexivity. }
         apply maponpaths_12.
         { eapply pathscomp0. 2: { apply partial_interpretation_rename_ty. }
           apply maponpaths_2, e_EA. }
@@ -514,7 +506,7 @@ a little more work to state. *)
     apply make_leq_partial'; cbn; intros [f_def b_def].
     use tpair.
     - refine (dB_Sn_rect _ _ _); assumption.
-    - apply funextfun. refine (dB_Sn_rect _ _ _); auto.
+    - apply funextfun. refine (dB_Sn_rect _ _ _); reflexivity.
   Defined.
 
   Definition partial_interpretation_tm_as_raw_context_map
