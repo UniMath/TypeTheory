@@ -351,14 +351,14 @@ Section RelUniv_Transfer.
                     , (λ d', (pr2 (pointwise_z_iso_from_nat_z_iso eps d')))))
             : equivalence_of_cats D D'.
 
-    Let AE := adjointificiation E.
+    Let AE := adjointification E.
     Let η' := pr1 (pr121 AE) : nat_trans (functor_identity _) (S ∙ invS).
     Let ε' := pr2 (pr121 AE) : nat_trans (invS ∙ S) (functor_identity _).
     Let η := z_iso_from_nat_z_iso
-               _ (η',,pr12 (adjointificiation E))
+               _ (η',,pr12 (adjointification E))
             : z_iso (C:=[D, D]) (functor_identity D) (S ∙ invS).
     Let ε := z_iso_from_nat_z_iso
-                _ (ε',,pr22 (adjointificiation E))
+                _ (ε',,pr22 (adjointification E))
             : z_iso (C:=[D', D']) (invS ∙ S) (functor_identity D').
 
     Let ηx := pointwise_z_iso_from_nat_z_iso (z_iso_inv_from_z_iso η).
