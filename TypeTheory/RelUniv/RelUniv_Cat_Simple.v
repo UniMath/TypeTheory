@@ -310,7 +310,7 @@ Section WeakRelUniv_is_univalent.
       : is_univalent weak_reluniv_cat.
     Proof.
       use (catiso_univalent _ _ weak_reluniv_cat_to_full_subcat).
-      apply (is_univalent_full_subcat
+      apply (is_univalent_full_sub_category
                (arrow_category D)
                is_weak_reluniv_ob
                (arrow_category_is_univalent D_univ)
