@@ -9,16 +9,16 @@
     - Proof that reindexing forms a pullback
 
   The definition is based on Pitts, *Nominal Presentations of the Cubical Sets
-  Model of Type Theory*, Def. 3.1: 
+  Model of Type Theory*, Def. 3.1:
   http://www.cl.cam.ac.uk/~amp12/papers/nompcs/nompcs.pdf (page=9)
 
-  This file is very similar to [TypeTheory.OtherDefs.CwF_1]; the main difference is that here the functor of types is split up into its separate components, whereas there it is bundled into an actual functor. 
+  This file is very similar to [TypeTheory.OtherDefs.CwF_1]; the main difference is that here the functor of types is split up into its separate components, whereas there it is bundled into an actual functor.
 
 *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
@@ -43,35 +43,35 @@ Record cwf_record : Type := {
   type : C → UU     where "C ⟨ Γ ⟩" := (type Γ) ;
   term : ∏ Γ : C, C⟨Γ⟩ → UU     where "C ⟨ Γ ⊢ A ⟩" := (term Γ A) ;
   rtype : ∏ {Γ Γ' : C} (A : C⟨Γ⟩) (γ : Γ' --> Γ), C⟨Γ'⟩ where "A {{ γ }}" := (rtype A γ) ;
-  rterm : ∏ {Γ Γ' : C} {A : C⟨Γ⟩} (a : C⟨Γ⊢A⟩) (γ : Γ' --> Γ), 
+  rterm : ∏ {Γ Γ' : C} {A : C⟨Γ⟩} (a : C⟨Γ⊢A⟩) (γ : Γ' --> Γ),
           C⟨Γ'⊢ (A{{γ}})⟩   where "a ⟦ γ ⟧" := (rterm a γ) ;
   reindx_type_id : ∏ Γ (A : C⟨Γ⟩), A {{identity Γ}} = A ;
-  reindx_type_comp : ∏  {Γ Γ' Γ''} (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') (A : C⟨Γ⟩), 
-          A {{γ';;γ}} 
-          =  
+  reindx_type_comp : ∏  {Γ Γ' Γ''} (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') (A : C⟨Γ⟩),
+          A {{γ';;γ}}
+          =
           A{{γ}}{{γ'}} ;
-  reindx_term_id : ∏ Γ (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩), 
-          a⟦identity Γ⟧ 
+  reindx_term_id : ∏ Γ (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩),
+          a⟦identity Γ⟧
           =
           transportf (λ B, C⟨Γ ⊢ B⟩) (! (reindx_type_id _ _)) a ;
   reindx_term_comp : ∏ {Γ Γ' Γ''} (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') {A : C⟨Γ⟩} (a : C⟨Γ⊢A⟩),
-          a⟦γ';;γ⟧ 
+          a⟦γ';;γ⟧
           =
           transportf (λ B, C⟨Γ'' ⊢ B⟩) (!(reindx_type_comp  _ _ _ )) (a⟦γ⟧⟦γ'⟧) ;
   comp_obj : ∏ Γ (A : C⟨Γ⟩), C where "Γ ∙ A" := (comp_obj Γ A) ;
   proj_mor : ∏ Γ (A : C⟨Γ⟩), Γ ∙ A --> Γ where "'π' A" := (proj_mor _ A) ;
   gen_element : ∏ Γ (A : C⟨Γ⟩), C⟨Γ∙A ⊢ A{{π _ }}⟩ where "'ν' A" := (gen_element _ A) ;
-  pairing : ∏ Γ (A : C⟨Γ⟩) Γ' (γ : Γ' --> Γ)(a : C⟨Γ'⊢ A{{γ}}⟩), Γ' --> Γ∙A 
+  pairing : ∏ Γ (A : C⟨Γ⟩) Γ' (γ : Γ' --> Γ)(a : C⟨Γ'⊢ A{{γ}}⟩), Γ' --> Γ∙A
      where "γ ♯ a" := (pairing _ _ _  γ a) ;
-  cwf_law_1 : ∏ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A{{γ}}⟩), 
-          (γ ♯ a) ;; (π _) 
-          = 
+  cwf_law_1 : ∏ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A{{γ}}⟩),
+          (γ ♯ a) ;; (π _)
+          =
           γ ;
   cwf_law_2 : ∏ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A{{γ}}⟩),
           transportf (λ ι, C⟨Γ'⊢ A {{ι}}⟩) (cwf_law_1 Γ A Γ' γ a)
              (transportf (λ B, C⟨Γ'⊢ B⟩) (!reindx_type_comp (π _ )(γ ♯ a) _ )
                 ((ν A) ⟦γ ♯ a⟧))
-          = 
+          =
           a
 }.
 
@@ -79,9 +79,9 @@ End Record_Preview.
 
 
 (** * Type and terms of a [CwF] *)
-(** 
- A [tt_category] comes with a types, written [C⟨Γ⟩], 
-   and terms [C⟨Γ ⊢ A⟩] 
+(**
+ A [tt_category] comes with a types, written [C⟨Γ⟩],
+   and terms [C⟨Γ ⊢ A⟩]
 *)
 
 Definition tt_structure (C : category) :=
@@ -100,11 +100,11 @@ Notation "C ⟨ Γ ⊢ A ⟩" := (term C Γ A) (at level 60).
 
 (** * Reindexing of types [A{{γ]] and terms [a⟦γ⟧] along a morphism [γ : Γ' --> Γ] *)
 
-Definition reindx_structure {CC : category}(C : tt_structure CC) := 
+Definition reindx_structure {CC : category}(C : tt_structure CC) :=
    ∑ (rtype : ∏ {Γ Γ' : CC} (A : C⟨Γ⟩) (γ : Γ' --> Γ), C⟨Γ'⟩),
         ∏ (Γ Γ' : CC) (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩) (γ : Γ' --> Γ), C⟨Γ'⊢rtype A γ⟩.
 
-Definition tt_reindx_struct (CC : category) : UU 
+Definition tt_reindx_struct (CC : category) : UU
  :=
    ∑ C : tt_structure CC, reindx_structure C.
 
@@ -112,16 +112,16 @@ Coercion tt_from_tt_reindx CC (C : tt_reindx_struct CC) : tt_structure _ := pr1 
 Coercion reindx_from_tt_reindx CC (C : tt_reindx_struct CC) : reindx_structure _ := pr2 C.
 
 
-Definition rtype {CC : category}{C : tt_reindx_struct CC} 
-  : ∏ {Γ Γ' : CC} (A : C⟨Γ⟩) (γ : Γ' --> Γ), C⟨Γ'⟩ 
-:= 
+Definition rtype {CC : category}{C : tt_reindx_struct CC}
+  : ∏ {Γ Γ' : CC} (A : C⟨Γ⟩) (γ : Γ' --> Γ), C⟨Γ'⟩
+:=
    pr1 (pr2 C).
 
 Notation "A {{ γ }}" := (rtype A γ) (at level 30).
 
-Definition rterm {CC : category}{C : tt_reindx_struct CC}  
-  : ∏ {Γ Γ' : CC} {A : C⟨Γ⟩}  (a : C⟨Γ⊢A⟩) (γ : Γ' --> Γ), C⟨Γ'⊢ A {{γ}} ⟩ 
-:= 
+Definition rterm {CC : category}{C : tt_reindx_struct CC}
+  : ∏ {Γ Γ' : CC} {A : C⟨Γ⟩}  (a : C⟨Γ⊢A⟩) (γ : Γ' --> Γ), C⟨Γ'⊢ A {{γ}} ⟩
+:=
     pr2 (pr2 C).
 
 Notation "a ⟦ γ ⟧" := (rterm a γ) (at level 40).
@@ -131,160 +131,160 @@ Notation "a ⟦ γ ⟧" := (rterm a γ) (at level 40).
 (** Reindexing for types *)
 Definition reindx_laws_type {CC : category}(C : tt_reindx_struct CC) : UU :=
     (∏ Γ (A : C⟨Γ⟩), A {{identity Γ}} = A) ×
-    (∏ Γ Γ' Γ'' (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') (A : C⟨Γ⟩), A {{γ';;γ}} = A{{γ}}{{γ'}}). 
+    (∏ Γ Γ' Γ'' (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') (A : C⟨Γ⟩), A {{γ';;γ}} = A{{γ}}{{γ'}}).
 
-(** Reindexing for terms needs transport along reindexing for types *) 
-Definition reindx_laws_terms {CC : category} {C : tt_reindx_struct CC} 
+(** Reindexing for terms needs transport along reindexing for types *)
+Definition reindx_laws_terms {CC : category} {C : tt_reindx_struct CC}
     (T : reindx_laws_type C) :=
-    (∏ Γ (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩), a⟦identity Γ⟧ = 
+    (∏ Γ (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩), a⟦identity Γ⟧ =
           transportf (λ B, C⟨Γ ⊢ B⟩) (!pr1 T _ _) a) ×
     (∏ Γ Γ' Γ'' (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩),
-            a⟦γ';;γ⟧ = 
+            a⟦γ';;γ⟧ =
           transportf (λ B, C⟨Γ'' ⊢ B⟩) (!pr2 T _ _ _ _ _ _ )  (a⟦γ⟧⟦γ'⟧)).
-          
+
 (** Package of reindexing for types and terms *)
-Definition reindx_laws {CC : category} (C : tt_reindx_struct CC)  : UU := 
+Definition reindx_laws {CC : category} (C : tt_reindx_struct CC)  : UU :=
    ∑ T : reindx_laws_type C, reindx_laws_terms T.
-     
-Definition reindx_type_id {CC : category} {C : tt_reindx_struct CC} 
+
+Definition reindx_type_id {CC : category} {C : tt_reindx_struct CC}
     (T : reindx_laws C)
-  : ∏ Γ (A : C⟨Γ⟩), A {{identity Γ}} = A 
-:= 
+  : ∏ Γ (A : C⟨Γ⟩), A {{identity Γ}} = A
+:=
   pr1 (pr1 T).
 
-Definition reindx_type_comp {CC : category} {C : tt_reindx_struct CC} 
-    (T : reindx_laws C) 
-   {Γ Γ' Γ''} (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') (A : C⟨Γ⟩) 
-  : A {{γ';;γ}} = A{{γ}}{{γ'}} 
+Definition reindx_type_comp {CC : category} {C : tt_reindx_struct CC}
+    (T : reindx_laws C)
+   {Γ Γ' Γ''} (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') (A : C⟨Γ⟩)
+  : A {{γ';;γ}} = A{{γ}}{{γ'}}
 :=
    pr2 (pr1 T) _ _ _ _ _ _ .
 
 Definition reindx_term_id {CC : category} {C : tt_reindx_struct CC}
-   (T : reindx_laws C) 
-  : ∏ Γ (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩), a⟦identity Γ⟧ = 
-          transportf (λ B, C⟨Γ ⊢ B⟩) (!pr1 (pr1 T) _ _) a 
+   (T : reindx_laws C)
+  : ∏ Γ (A : C⟨Γ⟩) (a : C⟨Γ⊢A⟩), a⟦identity Γ⟧ =
+          transportf (λ B, C⟨Γ ⊢ B⟩) (!pr1 (pr1 T) _ _) a
 := pr1 (pr2 T).
 
 Definition reindx_term_comp {CC : category} {C : tt_reindx_struct CC}
-    (T : reindx_laws C) 
+    (T : reindx_laws C)
   : ∏ {Γ Γ' Γ''} (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') {A : C⟨Γ⟩} (a : C⟨Γ⊢A⟩),
-            a⟦γ';;γ⟧ = 
-          transportf (λ B, C⟨Γ'' ⊢ B⟩) (!pr2 (pr1 T) _ _ _ _ _ _ )  (a⟦γ⟧⟦γ'⟧) 
-:= 
+            a⟦γ';;γ⟧ =
+          transportf (λ B, C⟨Γ'' ⊢ B⟩) (!pr2 (pr1 T) _ _ _ _ _ _ )  (a⟦γ⟧⟦γ'⟧)
+:=
    pr2 (pr2 T).
-    
+
 
 (** * Comprehension structure *)
 
 (** ** Comprehension object and projection *)
 
-Definition comp_1_struct {CC : category} (C : tt_reindx_struct CC) : UU 
+Definition comp_1_struct {CC : category} (C : tt_reindx_struct CC) : UU
 :=
   ∏ Γ (A : C⟨Γ⟩), ∑ ΓA, ΓA --> Γ.
 
 
-Definition tt_reindx_comp_1_struct (CC : category) : UU 
-  := 
+Definition tt_reindx_comp_1_struct (CC : category) : UU
+  :=
      ∑ C : tt_reindx_struct CC, comp_1_struct C.
 
-Coercion tt_reindx_from_tt_reindx_comp_1 (CC : category) (C : tt_reindx_comp_1_struct CC) 
+Coercion tt_reindx_from_tt_reindx_comp_1 (CC : category) (C : tt_reindx_comp_1_struct CC)
   : tt_reindx_struct _ := pr1 C.
 
-Definition comp_obj {CC : category} {C : tt_reindx_comp_1_struct CC} (Γ : CC) (A : C⟨Γ⟩) 
-  : CC 
+Definition comp_obj {CC : category} {C : tt_reindx_comp_1_struct CC} (Γ : CC) (A : C⟨Γ⟩)
+  : CC
 :=  (pr1 (pr2 C Γ A)).
 Notation "Γ ∙ A" := (comp_obj Γ A) (at level 35).
   (* \. in Adga mode *)
 
 Definition proj_mor {CC : category} {C : tt_reindx_comp_1_struct CC}
-      {Γ : CC} (A : C⟨Γ⟩) 
-  : Γ ∙ A  --> Γ 
+      {Γ : CC} (A : C⟨Γ⟩)
+  : Γ ∙ A  --> Γ
 := (pr2 (pr2 C Γ A)).
 
 Notation "'π' A" := (proj_mor A) (at level 20).
 
 (** ** Generic element and pairing *)
 Definition comp_2_struct {CC : category} (C : tt_reindx_comp_1_struct CC) : UU
-:= 
-   ∏ Γ (A : C⟨Γ⟩), 
-     C⟨(Γ∙A) ⊢ (A {{π A}}) ⟩ × 
+:=
+   ∏ Γ (A : C⟨Γ⟩),
+     C⟨(Γ∙A) ⊢ (A {{π A}}) ⟩ ×
      (∏ Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢A{{γ}}⟩), Γ' --> Γ∙A).
 
-Definition tt_reindx_type_struct (CC : category) : UU 
+Definition tt_reindx_type_struct (CC : category) : UU
 :=
    ∑ C : tt_reindx_comp_1_struct CC, comp_2_struct C.
 
-Coercion tt_reindx_comp_1_from_tt_reindx_comp (CC : category) (C : tt_reindx_type_struct CC) 
+Coercion tt_reindx_comp_1_from_tt_reindx_comp (CC : category) (C : tt_reindx_type_struct CC)
   : tt_reindx_comp_1_struct _ := pr1 C.
 
 
-Definition gen_elem  {CC : category} {C : tt_reindx_type_struct CC} 
-    {Γ : CC} (A : C⟨Γ⟩) 
-  : C⟨Γ∙A  ⊢ A{{π _ }}⟩ 
- := 
+Definition gen_elem  {CC : category} {C : tt_reindx_type_struct CC}
+    {Γ : CC} (A : C⟨Γ⟩)
+  : C⟨Γ∙A  ⊢ A{{π _ }}⟩
+ :=
    pr1 (pr2 C Γ A).
 
 Notation "'ν' A" := (gen_elem A) (at level 15).
 
-Definition pairing  {CC : category} {C : tt_reindx_type_struct CC} 
-    {Γ : CC} {A : C⟨Γ⟩} {Γ'} (γ : Γ' --> Γ) (a : C⟨Γ'⊢A{{γ}}⟩) 
-  : Γ' --> Γ∙A  
+Definition pairing  {CC : category} {C : tt_reindx_type_struct CC}
+    {Γ : CC} {A : C⟨Γ⟩} {Γ'} (γ : Γ' --> Γ) (a : C⟨Γ'⊢A{{γ}}⟩)
+  : Γ' --> Γ∙A
 := pr2 (pr2 C Γ A) Γ' γ a.
 
 Notation "γ ♯ a" := (pairing γ a) (at level 25).
   (* \# in Adga mode *)
- 
+
 
 (** ** Laws satisfied by the comprehension structure *)
 
-Definition comp_laws_1_2  {CC : category} {C : tt_reindx_type_struct CC} 
-   (L : reindx_laws C) : UU := 
+Definition comp_laws_1_2  {CC : category} {C : tt_reindx_type_struct CC}
+   (L : reindx_laws C) : UU :=
    ∏ Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A{{γ}}⟩),
         ∑ h : (γ ♯ a) ;; (π _ ) = γ,
-           transportf (λ ι, C⟨Γ'⊢ A {{ι}}⟩) h   
+           transportf (λ ι, C⟨Γ'⊢ A {{ι}}⟩) h
              (transportf (λ B, C⟨Γ'⊢ B⟩) (!reindx_type_comp L (π _ )(γ ♯ a) _ )
                ((ν _ ) ⟦γ ♯ a⟧)) = a.
 
 Definition comp_law_3  {CC : category} {C : tt_reindx_type_struct CC}
-     (L : reindx_laws C) : UU 
-:= 
+     (L : reindx_laws C) : UU
+:=
    ∏ Γ (A : C ⟨Γ⟩) Γ' Γ'' (γ : Γ' --> Γ) (γ' : Γ'' --> Γ') (a : C⟨Γ'⊢ A{{γ}}⟩),
-    γ' ;; (γ ♯ a) 
-    =  
+    γ' ;; (γ ♯ a)
+    =
     (γ' ;; γ) ♯ (transportf (λ B, C⟨Γ''⊢ B⟩) (!reindx_type_comp L γ γ' _ ) (a⟦γ'⟧)).
 
 Definition comp_law_4  {CC : category} {C : tt_reindx_type_struct CC}
     (L : reindx_laws C) : UU
 :=
-   ∏ Γ (A : C⟨Γ⟩), π A ♯ ν A = identity _ . 
+   ∏ Γ (A : C⟨Γ⟩), π A ♯ ν A = identity _ .
 
 
 
 
-Definition cwf_laws {CC : category} (C : tt_reindx_type_struct CC) 
+Definition cwf_laws {CC : category} (C : tt_reindx_type_struct CC)
    :=
     (∑ T : reindx_laws C,
        (comp_laws_1_2 T × comp_law_3 T × comp_law_4 T))
     × (∏ Γ, isaset (C⟨Γ⟩))
-    × ∏ Γ (A : C⟨Γ⟩), isaset (C⟨Γ⊢ A⟩). 
+    × ∏ Γ (A : C⟨Γ⟩), isaset (C⟨Γ⊢ A⟩).
 
 (** * Definition of category with families *)
-(** A category with families [cwf] is 
+(** A category with families [cwf] is
   - a category
-  - with type-and-term structure 
-  - with reindexing 
+  - with type-and-term structure
+  - with reindexing
   - with comprehension structure
   - satisfying the comprehension laws
   - where types and terms are hsets
 *)
 
 
-Definition cwf_struct (CC : category) : UU 
+Definition cwf_struct (CC : category) : UU
   := ∑ C : tt_reindx_type_struct CC, cwf_laws C.
 
 (** * Various access functions to the components *)
-(** Also a few generalizations are proved, providing variants with 
-    generalized proofs of identity of types, terms (which form hsets) 
+(** Also a few generalizations are proved, providing variants with
+    generalized proofs of identity of types, terms (which form hsets)
 *)
 
 Coercion cwf_data_from_cwf_struct (CC : category) (C : cwf_struct CC) : _ CC := pr1 C.
@@ -307,20 +307,20 @@ Definition cwf_terms_isaset  {CC : category} (C : cwf_struct CC) : ∏ Γ A, isa
   := pr2 (pr2 (pr2 C)).
 
 
-Definition cwf_law_1 {CC : category} (C : cwf_struct CC) 
+Definition cwf_law_1 {CC : category} (C : cwf_struct CC)
   Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A{{γ}}⟩)
   : (γ ♯ a) ;; (π _) = γ
   :=  pr1 (pr1 (cwf_comp_laws C) Γ A Γ' γ a).
 
-Definition cwf_law_2 {CC : category} (C : cwf_struct CC) 
+Definition cwf_law_2 {CC : category} (C : cwf_struct CC)
   Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A{{γ}}⟩)
   : transportf (λ ι, C⟨Γ'⊢ A {{ι}}⟩) (cwf_law_1 C Γ A Γ' γ a)
-    (transportf (λ B, C⟨Γ'⊢ B⟩) (!reindx_type_comp C (π _)(γ ♯ a) _ ) 
+    (transportf (λ B, C⟨Γ'⊢ B⟩) (!reindx_type_comp C (π _)(γ ♯ a) _ )
       ((ν A) ⟦γ ♯ a⟧))
     = a
   := pr2 ((pr1 (cwf_comp_laws C)) Γ A Γ' γ a).
 
-Definition cwf_law_2_gen {CC : category} (C : cwf_struct CC) 
+Definition cwf_law_2_gen {CC : category} (C : cwf_struct CC)
   Γ (A : C ⟨Γ⟩) Γ' (γ : Γ' --> Γ) (a : C⟨Γ'⊢ A{{γ}}⟩)
   :  ∏ (p : (A {{π A}}) {{γ ♯ a}} = A {{γ ♯ a;; π A}}) (p0 : γ ♯ a;; π A = γ),
    transportf (λ ι : Γ' --> Γ, C ⟨ Γ' ⊢ A {{ι}} ⟩) p0
@@ -328,18 +328,18 @@ Definition cwf_law_2_gen {CC : category} (C : cwf_struct CC)
 Proof.
   intros p p'.
   etrans; [ | apply cwf_law_2].
-  match goal with | [ |- _ = transportf _ ?p1 _ ] => assert (T : p' = p1) end. 
+  match goal with | [ |- _ = transportf _ ?p1 _ ] => assert (T : p' = p1) end.
   { apply homset_property. }
   rewrite T; clear T. apply maponpaths.
   match goal with | [ |- _ = transportf _ ?p1 _ ] => assert (T : p = p1) end.
   { apply (cwf_types_isaset C). }
   rewrite T; apply idpath.
-Qed.  
+Qed.
 
 Definition cwf_law_3 {CC : category} (C : cwf_struct CC) : comp_law_3 C
   :=  pr1 (pr2 (cwf_comp_laws C)).
 
-Definition cwf_law_3_gen {CC : category} (C : cwf_struct CC) 
+Definition cwf_law_3_gen {CC : category} (C : cwf_struct CC)
   (Γ : CC) (A : C ⟨ Γ ⟩) (Γ' Γ'' : CC) (γ : Γ' --> Γ) (γ' : Γ'' --> Γ')
   (a : C ⟨ Γ' ⊢ A {{γ}} ⟩) (p : (A {{γ}}) {{γ'}} = A {{γ';; γ}}):
    γ';; γ ♯ a =
@@ -377,7 +377,7 @@ Proof.
             do 6 imp. apply (cwf_types_isaset X).
         }
       * intros.
-        { 
+        {
           apply isofhleveltotal2.
           - do 3 imp.
             apply (cwf_terms_isaset X).
@@ -400,7 +400,7 @@ Proof.
     + do 1 imp. apply isapropisaset.
     + do 2 imp. apply isapropisaset.
 Qed.
-        
+
 (** * Lemmas about CwFs, in particular that reindexing forms pullback *)
 
 Section CwF_lemmas.
@@ -410,7 +410,7 @@ Context `{C : cwf_struct CC}.
 
 Lemma map_to_comp_as_pair_cwf {Γ} {A : C⟨Γ⟩} {Γ'} (f : Γ' --> Γ∙A)
   :   (f ;; π A) ♯ (transportb _ (reindx_type_comp C _ _ _) ((gen_elem A)⟦f⟧))
-      = 
+      =
       f.
 Proof.
   sym.
@@ -436,16 +436,16 @@ Defined.
 Lemma pairing_mapeq {Γ} {A : C⟨Γ⟩} {Γ'} (f f' : Γ' --> Γ) (e : f = f')
                      (a : C ⟨ Γ' ⊢ A {{f}} ⟩)
   : f ♯ a
-    = 
+    =
     f' ♯ (transportf (fun B => C⟨Γ' ⊢ B⟩ ) (maponpaths _ e) a).
 Proof.
   destruct e. apply idpath.
 Qed.
 
-Lemma pairing_mapeq_gen {Γ} {Γ'} (f f' : Γ' --> Γ) {A : C⟨Γ⟩} (a : C ⟨ Γ' ⊢ A {{f}} ⟩) 
+Lemma pairing_mapeq_gen {Γ} {Γ'} (f f' : Γ' --> Γ) {A : C⟨Γ⟩} (a : C ⟨ Γ' ⊢ A {{f}} ⟩)
          (e : f = f') (p : A {{f}} = A {{f'}})
   : f ♯ a
-    = 
+    =
     f' ♯ (transportf (fun B => C⟨Γ' ⊢ B⟩ ) p a).
 Proof.
   assert (T : p = (maponpaths _ e)).
@@ -477,7 +477,7 @@ Proof.
 Qed.
 
 (* A slightly odd statement, but very often useful.
-   
+
    TODO: consider naming!
    TODO: try to use in proofs, instead of [transport_f_f] *)
 Lemma term_typeeq_transport_lemma {Γ} {A A' A'': C ⟨ Γ ⟩} (e : A = A'') (e' : A' = A'')
@@ -504,7 +504,7 @@ Proof.
   eapply pathscomp0.
     apply maponpaths, (reindx_term_comp C).
   rew_trans_@.
-  apply term_typeeq_transport_lemma_2. 
+  apply term_typeeq_transport_lemma_2.
   apply idpath.
 Qed.
 
@@ -513,14 +513,14 @@ Definition cwf_law_2' Γ (A : C ⟨ Γ ⟩) Γ' (γ : Γ' --> Γ) (a : C ⟨ Γ'
   : (ν A) ⟦γ ♯ a⟧
   = transportf _ (reindx_type_comp C _ _ _)
       (transportb _ (maponpaths (fun g => A{{g}}) (cwf_law_1 _ _ _ _ _ _))
-        a). 
+        a).
 Proof.
   eapply pathscomp0.
   2: { apply maponpaths, maponpaths. exact (cwf_law_2 _ _ _ _ γ a). }
   apply pathsinv0.
   rew_trans_@.
   etrans. apply maponpaths, transportf_rtype_mapeq.
-  rew_trans_@.          
+  rew_trans_@.
   (* TODO: try simplyfying with [term_typeeq_transport_lemma] *)
   refine (@maponpaths _ _ (fun e => transportf _ e _) _ (idpath _) _).
   apply cwf_types_isaset.
@@ -544,7 +544,7 @@ Proof.
   apply gen_elem.
 Defined.
 
-Definition dpr_q_cwf 
+Definition dpr_q_cwf
   {Γ} (A : C ⟨ Γ ⟩)
   {Γ'} (f : Γ' --> Γ)
 : (q_cwf A f) ;; (π A) = (π (A{{f}})) ;; f.
@@ -571,13 +571,13 @@ Proof.
     apply idpath.
 Qed.
 
-(** The biggest work is in showing that the square of dependent projections/reindexings is a pullback.  
+(** The biggest work is in showing that the square of dependent projections/reindexings is a pullback.
 
-We split this up into several lemmas: 
+We split this up into several lemmas:
 
-- construction of the pullback pairing function; 
-- proof that projections applied to the pairing recover the original maps; 
-- and proof that the pairing map is the unique such map. 
+- construction of the pullback pairing function;
+- proof that projections applied to the pairing recover the original maps;
+- and proof that the pairing map is the unique such map.
 
 *)
 
@@ -604,7 +604,7 @@ Proof.
   2: { apply map_to_comp_as_pair_cwf. }
   etrans.
   { apply cwf_law_3. }
-  assert ((k ♯ (dpr_q_pbpairing_cwf_aux A f h k H)) ;; (π (A {{f}}) ;; f) 
+  assert ((k ♯ (dpr_q_pbpairing_cwf_aux A f h k H)) ;; (π (A {{f}}) ;; f)
           = h ;; π A) as e1.
     eapply pathscomp0. apply assoc.
     refine (_ @ !H).
@@ -651,11 +651,11 @@ Proof.
     apply (pairing_mapeq _ _ e1 _).
   simpl. apply maponpaths.
   eapply pathscomp0.
-    apply maponpaths, maponpaths. 
+    apply maponpaths, maponpaths.
     apply (@maponpaths (C ⟨ Γ' ∙ (A{{f}}) ⊢ A{{f}}{{π (A{{f}})}} ⟩) _ (fun t => t ⟦hk⟧)).
     apply rterm_univ.
   eapply pathscomp0.
-    apply maponpaths, maponpaths. 
+    apply maponpaths, maponpaths.
     eapply pathscomp0.
       symmetry. apply rterm_typeeq.
     apply maponpaths.
@@ -673,7 +673,7 @@ Proof.
   eapply pathscomp0. apply transport_f_f.
   eapply pathscomp0.
   2: { symmetry. apply transportf_rtype_mapeq. }
-  repeat apply term_typeeq_transport_lemma. 
+  repeat apply term_typeeq_transport_lemma.
   apply term_typeeq_transport_lemma_2.
   apply idpath.
 Qed.
@@ -686,13 +686,13 @@ Definition dpr_q_pbpairing_cwf_unique
        (hk ;; q_cwf A f = h) × (hk ;; π (A{{f}}) = k))
 : t = dpr_q_pbpairing_cwf A f h k H.
 Proof.
-  destruct t as [hk [e2 e1]]. 
-  refine (@total2_paths_f _ _ (tpair _ hk (tpair _ e2 e1)) _ 
+  destruct t as [hk [e2 e1]].
+  refine (@total2_paths_f _ _ (tpair _ hk (tpair _ e2 e1)) _
     (dpr_q_pbpairing_cwf_mapunique A f H hk e2 e1) _).
   unshelve refine (total2_paths_f _ _); apply homset_property.
 Qed.
 
-Lemma is_pullback_reindx_cwf : ∏ (Γ : CC) (A : C⟨Γ⟩) (Γ' : CC) 
+Lemma is_pullback_reindx_cwf : ∏ (Γ : CC) (A : C⟨Γ⟩) (Γ' : CC)
    (f : Γ' --> Γ),
    isPullback (dpr_q_cwf A f).
 Proof.
@@ -702,5 +702,5 @@ Proof.
   exists (dpr_q_pbpairing_cwf _ _ h k H).
   apply dpr_q_pbpairing_cwf_unique.
 Defined.
-  
+
 End CwF_lemmas.

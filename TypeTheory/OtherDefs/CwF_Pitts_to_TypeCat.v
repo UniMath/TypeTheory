@@ -1,6 +1,6 @@
 
-(** 
-  
+(**
+
  Ahrens, Lumsdaine, Voevodsky, 2015
 
 Contents:
@@ -11,7 +11,7 @@ Contents:
 *)
 
 
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -24,7 +24,7 @@ Require Import TypeTheory.TypeCat.TypeCat.
 Require Import TypeTheory.OtherDefs.CwF_Pitts.
 
 (* Locally override the notation [ γ ♯ a ], at a higher level,
-  to get more informative bracketing when pairing meets composition. *) 
+  to get more informative bracketing when pairing meets composition. *)
 Local Notation "γ ## a" := (pairing γ a) (at level 75).
 
 (** * Type-cat from cat with Families *)
@@ -44,7 +44,7 @@ Definition type_cat1_of_cwf : typecat_structure1 CC.
 Proof.
   unfold typecat_structure1.
   exists (type C).
-  exists (comp_obj ).  
+  exists (comp_obj ).
   exact (fun Γ a Γ' f => a{{f}}).
 Defined.
 
@@ -69,12 +69,12 @@ Definition issplit_type_cat_of_cwf
   : is_split_typecat type_cat_of_cwf.
 Proof.
   unfold is_split_typecat.
-  repeat split. 
+  repeat split.
   - (* Types over each object form a set *)
     apply cwf_types_isaset.
   - (* Reindexing along identities *)
     exists (reindx_type_id C).
-    intros Γ A. 
+    intros Γ A.
     unfold q_typecat; simpl. unfold q_cwf.
     eapply pathscomp0. 2: { apply id_left. }
     eapply pathscomp0. 2: apply maponpaths_2.
@@ -91,15 +91,15 @@ Proof.
   - (* Reindexing along composites *)
     exists (fun Γ A Γ' f Γ'' g => reindx_type_comp C f g A).
     intros Γ A Γ' f Γ'' g.
-    unfold q_typecat. simpl. 
+    unfold q_typecat. simpl.
     eapply pathscomp0. 2: { apply id_left. }
     rewrite 2 assoc.
     unfold ext_typecat. simpl.
     rewrite <- cwf_law_4.
     rewrite pairing_transport.
-    unfold q_cwf. 
+    unfold q_cwf.
     rewrite cwf_law_3.
-    match goal with [|- pairing ?b _ = pairing ?e _ ] => 
+    match goal with [|- pairing ?b _ = pairing ?e _ ] =>
               set (X := b); set (X' := e)  end.
     etrans.
     + refine (pairing_mapeq _ X' _ _ ).

@@ -1,6 +1,6 @@
 
 (**
-  
+
  Ahrens, Lumsdaine, Voevodsky, 2015
 
  Contents:
@@ -11,7 +11,7 @@
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -20,14 +20,14 @@ Require Import TypeTheory.Auxiliary.Pullbacks.
 Require Import TypeTheory.TypeCat.TypeCat.
 Require Import TypeTheory.OtherDefs.CwF_Pitts.
 
-(** * CwF structure from split type-category structure on a category 
+(** * CwF structure from split type-category structure on a category
 
 Every split-Comp-cat gives rise to a category with families.
 
 Since the components of the CwF structure are highly successively dependent, we construct most of them individually, before putting them together in [cwf_of_type_cat].
  *)
 
-Section CwF_of_Comp. 
+Section CwF_of_Comp.
 
 Context (CC : category) (C : split_typecat_structure CC).
 
@@ -40,7 +40,7 @@ Proof.
   unfold tt_structure.
   exists (ty_typecat C).
   intros Γ A.
-  exact (∑ f : Γ --> Γ ◂ A, f ;; dpr_typecat _  = identity _ ). 
+  exact (∑ f : Γ --> Γ ◂ A, f ;; dpr_typecat _  = identity _ ).
 Defined.
 
 (* A handy lemma for calculations with terms of reindexed types.
@@ -97,7 +97,7 @@ Proof.
     apply (@reind_comp_typecat C_sptc).
 Defined.  (* needs to be transparent for comp_law_3 at least *)
 
-Lemma reindx_term_id_typecat 
+Lemma reindx_term_id_typecat
   (Γ : CC)
   (A : tt_reindx_from_typecat ⟨ Γ ⟩)
   (a : tt_reindx_from_typecat ⟨ Γ ⊢ A ⟩) :
@@ -125,7 +125,7 @@ Proof.
 Qed.
 
 
-Lemma reindx_term_comp_typecat 
+Lemma reindx_term_comp_typecat
   (Γ Γ' Γ'' : CC)
   (γ : Γ' --> Γ)
   (γ' : Γ'' --> Γ')
@@ -135,7 +135,7 @@ Lemma reindx_term_comp_typecat
    a ⟦ γ';; γ ⟧ =
    transportf
      (λ B : C Γ'', ∑ f : Γ'' --> Γ'' ◂ B, f;; dpr_typecat B = identity Γ'')
-     (! @reind_comp_typecat C_sptc Γ A Γ' γ Γ'' γ') 
+     (! @reind_comp_typecat C_sptc Γ A Γ' γ Γ'' γ')
      ((a ⟦ γ ⟧) ⟦ γ' ⟧).
 Proof.
   intros.
@@ -167,7 +167,7 @@ Qed.
 Definition reindx_laws_terms_of_typecat : reindx_laws_terms  reindx_laws_type_of_typecat.
 Proof.
   split.
-  - apply reindx_term_id_typecat. 
+  - apply reindx_term_id_typecat.
   - intros. apply reindx_term_comp_typecat.
 Qed.
 
@@ -199,7 +199,7 @@ Proof.
   - unfold tt_reindx_comp_1_of_typecat in *.
     simpl in *.
     + unshelve refine (tpair _ _ _ ).
-      * { unfold comp_obj. simpl. 
+      * { unfold comp_obj. simpl.
           eapply map_into_Pb.
           - apply  reind_pb_typecat.
           - apply maponpaths_2.
@@ -260,7 +260,7 @@ Proof.
     etrans. 2: { eapply maponpaths, pathsinv0, Pb_map_commutes_2. }
     etrans. 2: { apply pathsinv0, id_right. }
     cbn. etrans. { apply assoc'. }
-    etrans. { apply maponpaths, pathsinv0. 
+    etrans. { apply maponpaths, pathsinv0.
       eapply z_iso_inv_on_right.
       etrans. 2: { apply assoc'. }
       apply (@q_comp_typecat C_sptc). }
@@ -315,9 +315,9 @@ Proof.
   rewrite (@q_comp_typecat ((CC,,pr1 C),,pr2 C)).
   match goal with |[ |- _ ;; ?B' ;; ?C'  = _ ]  => set (B:=B'); set (D:=C') end.
   simpl in *.
-  match goal with |[ |- @map_into_Pb _ _ _ _ _ _ ?B' ?C' ?D' ?E' ?F' ?G' ?Y' ?Z' ?W'  ;; _ ;; _  = _ ] => 
+  match goal with |[ |- @map_into_Pb _ _ _ _ _ _ ?B' ?C' ?D' ?E' ?F' ?G' ?Y' ?Z' ?W'  ;; _ ;; _  = _ ] =>
                    set (f':=B'); set (g:=C'); set (h:=D'); set (k:=E') end.
-  match goal with |[ |- @map_into_Pb _ _ _ _ _ _ _ _ _ _ ?F' ?G' ?Y' ?Z' _  ;; _ ;; _  = _ ] => 
+  match goal with |[ |- @map_into_Pb _ _ _ _ _ _ _ _ _ _ ?F' ?G' ?Y' ?Z' _  ;; _ ;; _  = _ ] =>
    set (x:=F'); set (y:=G');
                    set (Y:=Y'); set (Z:=Z')
   end.
@@ -330,7 +330,7 @@ Proof.
   rewrite <- idtoiso_concat_pr.
 
   etrans. apply maponpaths_2. apply maponpaths_2. apply maponpaths.
-  apply idtoiso_eq_idpath. 
+  apply idtoiso_eq_idpath.
   {  rewrite <- maponpathscomp0.
      apply maponpaths_eq_idpath.
      simpl.
@@ -355,8 +355,8 @@ Proof.
   repeat split.
   - exists reindx_laws_of_typecat.
     repeat split.
-    + apply comp_laws_1_2_of_typecat. 
-    + apply comp_law_3_of_typecat. 
+    + apply comp_laws_1_2_of_typecat.
+    + apply comp_law_3_of_typecat.
     + apply comp_law_4_of_typecat.
   - apply (@isaset_types_typecat C_sptc).
   - simpl.
@@ -373,6 +373,6 @@ Proof.
   exists tt_reindx_type_struct_of_typecat.
   exact cwf_laws_of_typecat.
 Defined.
-    
+
 End CwF_of_Comp.
 

@@ -3,7 +3,7 @@
 
 Definition of the displayed category of display maps over a category [C]
 
-Given a category with display maps [C], we define a displayed 
+Given a category with display maps [C], we define a displayed
 category over [C]. Objects over [c:C] are display maps into [c].
 
 *)
@@ -11,7 +11,7 @@ category over [C]. Objects over [c:C] are display maps into [c].
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -39,7 +39,7 @@ Proof.
   use tpair.
   + intros x d. cbn in *.
     exact (pr1 d).
-  + cbn. intros x y xx yy f ff. 
+  + cbn. intros x y xx yy f ff.
     exact ff.
 Defined.
 
@@ -65,7 +65,7 @@ Lemma is_cartesian_comprehension_of_dm_structure
 Proof.
   use cartesian_functor_from_cleaving.
   - apply is_fibration_DM_disp.
-  - intros c c' f d. 
+  - intros c c' f d.
     apply isPullback_cartesian_in_cod_disp.
     apply isPullback_of_dm_sub_pb.
 Qed.
@@ -77,11 +77,11 @@ Definition total_comprehension_of_dm_structure
 (** This commutativity is an instance of a general lemma about comprehension categories
     once we have produced [comp_cat_of_dm] below
 *)
-Lemma comprehension_of_dm_structure_triangle_commutes 
+Lemma comprehension_of_dm_structure_triangle_commutes
 : functor_composite total_comprehension_of_dm_structure (pr1_category _)
-  = pr1_category _ . 
-Proof. 
-  apply functor_eq. 
+  = pr1_category _ .
+Proof.
+  apply functor_eq.
   - apply homset_property.
   - apply idpath.
 Qed.
@@ -90,9 +90,9 @@ Definition comp_cat_of_dm :  comprehension_cat_structure C.
 Proof.
   use tpair.
   - apply DM_disp. apply H.
-  - use tpair. 
+  - use tpair.
     + apply is_fibration_DM_disp.
-    + use tpair. 
+    + use tpair.
       * apply comprehension_of_dm_structure.
       * apply is_cartesian_comprehension_of_dm_structure.
 Defined.

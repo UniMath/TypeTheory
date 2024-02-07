@@ -5,11 +5,11 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 (* a few libraries need to be reloaded after “All”,
    to claim precedence on overloaded names *)
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -23,13 +23,13 @@ Arguments nat_trans_comp {_ _ _ _ _} _ _.
 Definition preShv C := functor_univalent_category C^op HSET_univalent_category.
 (* Note: just like notation "PreShv" upstream, but univalent. TODO: unify these? *)
 
-(* Notations for working with presheaves and natural transformations given as objects of [preShv C], since applying them directly requires type-casts before the coercions to [Funclass] trigger. *) 
+(* Notations for working with presheaves and natural transformations given as objects of [preShv C], since applying them directly requires type-casts before the coercions to [Funclass] trigger. *)
 Notation "#p F" := (functor_on_morphisms (F : functor _ _)) (at level 3)
   : cat.
-Notation "P $p c" 
+Notation "P $p c"
   := (((P : preShv _) : functor _ _) c : hSet)
   (at level 65) : cat.
-Notation "α $nt x" 
+Notation "α $nt x"
   := (((α : preShv _ ⟦_ , _ ⟧) : nat_trans _ _) _ x)
   (at level 65) : cat.
 (* The combinations of type-casts here are chosen as they’re what seems to work for as many given types as possible *)
@@ -111,8 +111,8 @@ Proof.
   apply yoneda_weq.
 Defined.
 
-Lemma yy_natural {C : category} 
-    (F : preShv C) (c : C) (A : F $p c) 
+Lemma yy_natural {C : category}
+    (F : preShv C) (c : C) (A : F $p c)
     (c' : C) (f : C⟦c', c⟧)
   : (@yy C F c') (#p F f A) = # (yoneda C) f · (@yy C F c) A.
 Proof.
@@ -127,7 +127,7 @@ Lemma yy_comp_nat_trans {C : category}
 Proof.
   apply nat_trans_eq.
   - apply homset_property.
-  - intro c. simpl. 
+  - intro c. simpl.
     apply funextsec. intro f. cbn.
     apply nat_trans_ax_pshf.
 Qed.
@@ -177,12 +177,12 @@ Proof.
     refine (H_uniqueness (h x) (k x) _ (_,,_) (_,,_));
       try split;
     revert x; apply toforallpaths; assumption.
-  - use tpair. 
+  - use tpair.
     + intros x. refine (pr1 (H_existence (h x) (k x) _)).
       apply (toforallpaths ehk).
     + simpl.
       split; apply funextsec; intro x.
-      * apply (pr1 (pr2 (H_existence _ _ _))). 
+      * apply (pr1 (pr2 (H_existence _ _ _))).
       * apply (pr2 (pr2 (H_existence _ _ _))).
 Qed.
 
@@ -225,7 +225,7 @@ Lemma pullback_HSET_elements_unique {P A B C : HSET}
     (e1 : p1 ab = p1 ab') (e2 : p2 ab = p2 ab')
   : ab = ab'.
 Proof.
-  set (temp := proofirrelevancecontr 
+  set (temp := proofirrelevancecontr
     (pullback_HSET_univprop_elements _ pb (p1 ab') (p2 ab')
         (toforallpaths ep ab'))).
   refine (maponpaths pr1 (temp (ab,, _) (ab',, _))).
@@ -262,23 +262,23 @@ Proof.
   transparent assert
        (XH : (∏ a : C^op,
         LimCone
-          (@colimits.diagram_pointwise C^op HSET 
+          (@Colimits.diagram_pointwise C^op HSET
              pullback_graph XT1 a))).
     { intro. apply LimConeHSET.  }
     specialize (XR XH).
-    specialize (XR W). 
+    specialize (XR W).
     set (XT := PullbCone _ _ _ _ p1 p2 e).
     specialize (XR XT).
     transparent assert (XTT : (isLimCone XT1 W XT)).
     { apply @equiv_isPullback_1.
       exact pb.
     }
-    specialize (XR XTT c).    
+    specialize (XR XTT c).
     intros S h k H.
     specialize (XR S).
     simpl in XR.
     transparent assert (HC
-      :  (cone (@colimits.diagram_pointwise C^op HSET 
+      :  (cone (@Colimits.diagram_pointwise C^op HSET
                     pullback_graph (pullback_diagram (preShv C) f g) c) S)).
     { use make_cone.
       apply three_rec_dep; cbn.

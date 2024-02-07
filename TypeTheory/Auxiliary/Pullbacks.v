@@ -4,7 +4,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 (* a few libraries need to be reloaded after “All”,
    to claim precedence on overloaded names *)
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -175,7 +175,7 @@ Lemma isPullback_transfer_z_iso {C : category}
    -> isPullback H'.
 Proof.
   intros Hpb.
-  apply (make_isPullback _ ).    
+  apply (make_isPullback _ ).
   intros X h k H''.
   simple refine (tpair _ _ _ ).
   - simple refine (tpair _ _ _ ).
@@ -299,7 +299,7 @@ Proof.
     simpl in *.
     destruct Cone as [p [h k]];
     destruct Cone' as [p' [h' k']];
-    simpl in *. 
+    simpl in *.
     unfold from_Pullback_to_Pullback;
     rewrite PullbackArrow_PullbackPr2, PullbackArrow_PullbackPr1.
     apply idpath.
@@ -315,14 +315,14 @@ Section Pullback_Unique_Up_To_Iso.
  g |    | k
    |    |
    c----d
-     j 
+     j
 
    and pb square a' b' c d, and h iso
-    
+
    task: construct iso from a to a'
 
  *)
-  
+
   Variable CC : category.
   Variables A B C D A' B' : CC.
   Variables (f : A --> B) (g : A --> C) (k : B --> D) (j : C --> D)

@@ -4,8 +4,8 @@
 Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Prelude.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.terminal.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Terminal.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -23,7 +23,7 @@ Section Extensions.
   Proof.
     destruct n as [ | n'].
     - exists unit. intros e; exact Γ.
-    - set (E_R := extension_aux C Γ n'). 
+    - set (E_R := extension_aux C Γ n').
       exists (∑ (E : pr1 E_R), C (pr2 E_R E)).
       intros AA_B. exact (ext_typecat _ (pr2 AA_B)).
   Defined.
@@ -73,7 +73,7 @@ Section Extensions.
   Definition ext_extension {C:typecat}
       (Γ:C) (AA : extension Γ)
     : C
-  := ext_extension_of_length Γ AA. 
+  := ext_extension_of_length Γ AA.
   Arguments ext_extension : simpl nomatch.
 
   Fixpoint dpr_extension {C:typecat} {n:nat} {Γ:C}
@@ -104,13 +104,13 @@ Section Extensions.
   Qed.
 
   (* To define concatenation of extensions, we also need to mutually define some comparison between the extension by the concatenation (Γ + (AA + BB)) and the two-stage extension ((Γ + AA) + BB).
-     
+
    This comparison could be given as an equality; however we avoid taking that as primary, to minimise use of equality on objects, and instead give it just as the morphism required, and show afterwards that it’s an equality. *)
   Definition concat_extension_aux {C : typecat} {Γ:C}
     {n} (AA : extension_of_length n Γ)
     {m} (BB : extension_of_length m (ext_extension Γ AA))
   : ∑ (AABB : extension_of_length (m+n) Γ),
-      ext_extension Γ AABB --> ext_extension _ BB. 
+      ext_extension Γ AABB --> ext_extension _ BB.
   Proof.
     induction m as [ | m' IH]; simpl.
     - (* m = 0, BB empty *)
@@ -134,12 +134,12 @@ Section Extensions.
       {m} (BB : extension_of_length m (ext_extension Γ AA))
     : extension_of_length (m+n) Γ
   := pr1 (concat_extension_aux AA BB).
-  
+
   Definition compare_concat_extension {C : typecat} {Γ:C}
       {n} (AA : extension_of_length n Γ)
       {m} (BB : extension_of_length m (ext_extension Γ AA))
     : ext_extension Γ (concat_extension AA BB)
-      --> ext_extension (ext_extension Γ AA) BB 
+      --> ext_extension (ext_extension Γ AA) BB
   := pr2 (concat_extension_aux AA BB).
 
   Definition path_ext_typecat {C : split_typecat}
@@ -173,12 +173,12 @@ Section Extensions.
   Proof.
     induction m as [ | m' IH]; simpl.
     - (* m = 0, BB empty *)
-      use tpair; apply idpath. 
+      use tpair; apply idpath.
     - (* m = S m', BB = BB';;B *)
       set (B := extension_last BB); set (BB' := extension_rest BB) in *.
       destruct (IH BB') as [e1 e2]; clear IH.
       unfold ext_extension, ext_extension_of_length; simpl.
-      use tpair. 
+      use tpair.
       + use path_ext_typecat.
         * exact e1.
         * apply maponpaths, e2.
@@ -194,12 +194,12 @@ Section Extensions.
     : ext_extension Γ (concat_extension AA BB) = (ext_extension _ BB).
   Proof.
     exact (pr1 (ext_concat_extension_aux AA BB)).
-  Defined.  
+  Defined.
 
 End Extensions.
 
 Section Contextual_Cats.
-(** A split type-category is _contextual_ if it has some base object, such that every object arises uniquely as an extension of this base object. 
+(** A split type-category is _contextual_ if it has some base object, such that every object arises uniquely as an extension of this base object.
 
 Note that such a base object is necessarily unique: see [isaprop_is_contextual]. *)
 
@@ -262,7 +262,7 @@ Note that such a base object is necessarily unique: see [isaprop_is_contextual].
     := ∑ C : split_typecat, is_contextual C.
 
   Coercion pr1_contextual_cat := pr1 : contextual_cat -> split_typecat.
-  Coercion pr2_contextual_cat := pr2 
+  Coercion pr2_contextual_cat := pr2
     : forall C : contextual_cat, is_contextual C.
 
   Lemma isaset_ob_contextual_cat {C : contextual_cat}

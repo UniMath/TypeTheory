@@ -4,8 +4,8 @@ As a matter of organisation: all concrete lemmas involving derivations should li
 
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.limits.graphs.terminal.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Terminal.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -207,7 +207,7 @@ Section Contexts_Modulo_Equality.
     apply hinhpr.
     exact tt.
   Defined.
-  
+
   Definition derivable_cxteq_hrel {n} : hrel (wellformed_context_of_length n)
   := fun Γ Δ => ∥ derivation_flat_cxteq Γ Δ ∥.
 
@@ -383,7 +383,7 @@ Section Context_Maps.
 
   Lemma raw_mapeq_for_some_rep
       {ΓΓ ΔΔ : context_mod_eq} (f g : raw_context_map ΓΓ ΔΔ)
-      
+
     : (∃ (Γ:context_representative ΓΓ) (Δ:context_representative ΔΔ),
         ∥ [! |- f ::: Γ ---> Δ !]
           × [! |- g ::: Γ ---> Δ !]
@@ -458,11 +458,11 @@ Section Context_Map_Operations.
         [ apply isapropishinh |
           intros Δ;
           unsquash from Δ (map_derivable f Γ Δ) (map_derivable g Δ Θ)
-            as d_Δ d_f d_g; apply hinhpr; 
+            as d_Δ d_f d_g; apply hinhpr;
           eauto using (derive_comp d_f) ]).
     - (* respecting equality in [f] *)
       abstract ( intros f f' g e_f Γ Θ; cbn;
-        apply (take_context_representative ΔΔ); 
+        apply (take_context_representative ΔΔ);
         [ apply isapropishinh |
           intros Δ;
           unsquash from Γ (e_f Γ Δ) (map_derivable f Γ Δ)
@@ -622,7 +622,7 @@ Section Syntactic_Types.
     intros H Γ.
     unsquash H as [Γ' d_A].
     unsquash from Γ Γ' (cxteq_context_representatives Γ Γ') as d_Γ d_Γ' e_Γ.
-    apply hinhpr, (derive_ty_conv_cxteq Γ'); 
+    apply hinhpr, (derive_ty_conv_cxteq Γ');
       eauto using derive_flat_cxteq_sym, derive_flat_cxt_from_strat.
   Qed.
 
@@ -741,7 +741,7 @@ Section Split_Typecat.
     exact (derive_dB_next_context_map d_Γ d_A).
   Defined.
 
-  Local Definition qmor_raw 
+  Local Definition qmor_raw
       {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
       {ΓΓ' : context_mod_eq} (f : raw_context_map ΓΓ' ΓΓ)
     : raw_context_map (S ΓΓ') (S ΓΓ).
@@ -796,7 +796,7 @@ Section Split_Typecat.
         try refine (derive_weaken_raw_context_map _ _ _ d_f);
         auto using derive_flat_cxt_from_strat, (@derive_flat_cxteq_refl Γ').
     + refine (derive_weaken_raw_context_map _ _ _ d_g);
-        auto using derive_flat_cxt_from_strat.     
+        auto using derive_flat_cxt_from_strat.
     + refine (derive_weaken_raw_context_mapeq _ _ _ _ _ d_fg);
         auto using derive_flat_cxt_from_strat.
   Qed.
@@ -822,12 +822,12 @@ Section Split_Typecat.
     revert ff; use setquotunivprop'. { intros; apply isasetsetquot. } intros f.
     simpl.
     apply iscompsetquotpr.
-    use mapeq_from_path. 
+    use mapeq_from_path.
     intros i; simpl.
     apply rename_as_subst_tm.
   Qed.
 
-  Local Definition reind_pb_raw 
+  Local Definition reind_pb_raw
       {ΓΓ ΓΓ' ΔΔ: context_mod_eq}
       (g : raw_context_map ΔΔ ΓΓ') (h : raw_context_map ΔΔ (S ΓΓ))
     : raw_context_map ΔΔ (S ΓΓ').
@@ -866,7 +866,7 @@ Section Split_Typecat.
     refine (derive_extend_context_map d_g _); simpl.
     assert (d_dpr_h
          : [! |- comp_raw_context h (dB_next_context_map Γ) ::: Δ ---> Γ !]).
-    { refine (derive_comp d_h _). 
+    { refine (derive_comp d_h _).
       use derive_dB_next_context_map; auto using derive_flat_cxt_from_strat. }
     assert (d_g_f : [! |- comp_raw_context g f ::: Δ ---> Γ !]).
     { exact (derive_comp d_g d_f). }
@@ -884,7 +884,7 @@ Section Split_Typecat.
 
   (* TODO: [reind_pb_eq], analogous to [qmor_eq] *)
 
-  Local Definition reind_pb 
+  Local Definition reind_pb
       {ΓΓ : context_mod_eq} (AA : type_mod_eq ΓΓ)
       {ΓΓ' : context_mod_eq} (ff : map_mod_eq ΓΓ' ΓΓ)
     : @isPullback syntactic_category _ _ _ _
@@ -952,17 +952,17 @@ Section Split_Typecat.
       + simpl.
         admit. (* This should be provable once we know how to do the above admit *)
   Admitted. (* [is_split_syntactic_typecat_structure]: seems a bit harder than one might expect. *)
-  
+
   Definition syntactic_typecat : split_typecat
   := ((syntactic_category,, syntactic_typecat_structure),,
        is_split_syntactic_typecat_structure).
-  
+
 End Split_Typecat.
 
 Section Contextuality.
 
   (* TODO: Should some of these lemmas be upstreamed? *)
-  
+
   Local Definition empty_context : syntactic_typecat.
   Proof.
     exists 0.
@@ -981,7 +981,7 @@ Section Contextuality.
     use make_isTerminal.
     intros x.
     use tpair.
-    - apply setquotpr.     
+    - apply setquotpr.
       use tpair.
       + apply raw_context_map_0.
       + simpl.
@@ -1006,7 +1006,7 @@ Section Contextuality.
     exists (pr11 G).
     apply (hinhfun pr1 (pr2 G)).
   Defined.
-  
+
   Lemma syntactic_typecat_is_contextual : is_contextual syntactic_typecat.
   Proof.
     exists empty_context, isTerminal_empty_context.
@@ -1026,7 +1026,7 @@ Section Contextuality.
       + simpl in *.
         admit.
       + admit.
-  Admitted. (* [syntactic_typecat_is_contextual].  Self-contained, proof-irrelevant. *) 
+  Admitted. (* [syntactic_typecat_is_contextual].  Self-contained, proof-irrelevant. *)
 
   Definition syntactic_contextual_cat : contextual_cat
     := (syntactic_typecat,, syntactic_typecat_is_contextual).
@@ -1110,7 +1110,7 @@ Section Misc.
     exists (∥ [! Γ |- a ::: A !] ∥).
     apply tm_expr_as_term.
   Defined.
-  
+
   Lemma tm_transportf_tm_expr_as_term_gen
       {n} (Γ : wellformed_context_of_length n)
       {A : ty_expr n} (isd_A : ∥ [! Γ |- A !] ∥)

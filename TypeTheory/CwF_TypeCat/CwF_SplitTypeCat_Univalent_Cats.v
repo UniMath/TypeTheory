@@ -65,8 +65,8 @@ Section Is_Univalent_Obj_Ext_Disp.
     -> X -->[identity_z_iso TY] X'.
   Proof.
     intros I Γ A.
-    exists (pr1 (I Γ A)).  
-    apply pathsinv0, (pr2 (I Γ A)).  
+    exists (pr1 (I Γ A)).
+    apply pathsinv0, (pr2 (I Γ A)).
   Defined.
 
   Lemma is_iso_slice_isos_to_obj_ext_map {TY : PreShv C} {X X' : obj_ext_disp TY}
@@ -78,12 +78,12 @@ Section Is_Univalent_Obj_Ext_Disp.
     - use obj_ext_mor_disp_transportb_eq_gen.
       + cbn; intros; apply idpath.
       + cbn; intros.
-        etrans. { apply id_right. } 
+        etrans. { apply id_right. }
         exact (maponpaths pr1 (z_iso_after_z_iso_inv (I Γ A))).
     - use obj_ext_mor_disp_transportb_eq_gen.
       + cbn; intros; apply idpath.
       + cbn; intros.
-        etrans. { apply id_right. } 
+        etrans. { apply id_right. }
         exact (maponpaths pr1 (z_iso_inv_after_z_iso (I Γ A))).
   Qed.
 
@@ -101,7 +101,7 @@ Section Is_Univalent_Obj_Ext_Disp.
       -> (∏ Γ A, slice_cat C Γ ⟦ X Γ A , X' Γ A ⟧).
   Proof.
     intros I Γ A.
-    exists (pr1 (I Γ A)).  
+    exists (pr1 (I Γ A)).
     apply pathsinv0, (pr2 (I Γ A)).
   Defined.
 
@@ -118,13 +118,13 @@ Section Is_Univalent_Obj_Ext_Disp.
       etrans. { apply I_V. }
       etrans. { use obj_ext_mor_disp_transportb. }
       etrans. { apply id_left. }
-      apply comp_ext_compare_id_general. 
+      apply comp_ext_compare_id_general.
     - set (V_I := z_iso_disp_after_inv_mor I).
       apply (maponpaths (fun f => obj_ext_mor_disp_φ f A)) in V_I.
       etrans. { apply V_I. }
       etrans. { use obj_ext_mor_disp_transportb. }
       etrans. { apply id_left. }
-      apply comp_ext_compare_id_general. 
+      apply comp_ext_compare_id_general.
   Qed.
 
   Lemma isweq_slice_isos_obj_ext_iso {TY : PreShv C} (X X' : obj_ext_disp TY)
@@ -132,7 +132,7 @@ Section Is_Univalent_Obj_Ext_Disp.
   Proof.
     use gradth.
     - intros I Γ A; use tpair.
-      apply (obj_ext_map_to_slice_maps I). 
+      apply (obj_ext_map_to_slice_maps I).
       apply is_iso_obj_ext_iso_to_slice_maps.
     - intros I.
       apply funextsec; intros Γ.
@@ -158,8 +158,8 @@ Section Is_Univalent_Obj_Ext_Disp.
     : X = X' ≃ z_iso_disp (identity_z_iso TY) X X'.
   Proof.
     apply (@weqcomp _ (forall Γ A, X Γ A = X' Γ A)).
-    { refine (weqcomp _ _). { apply weqtoforallpaths. } 
-      apply weqonsecfibers; intros Γ. 
+    { refine (weqcomp _ _). { apply weqtoforallpaths. }
+      apply weqonsecfibers; intros Γ.
       apply weqtoforallpaths.
     }
     eapply weqcomp.
@@ -169,7 +169,7 @@ Section Is_Univalent_Obj_Ext_Disp.
     }
     apply weq_slice_isos_obj_ext_iso.
   Defined.
-  
+
   Lemma is_univalent_obj_ext_fibers : is_univalent_in_fibers (@obj_ext_disp C).
   Proof.
     unfold is_univalent_in_fibers.
@@ -186,7 +186,7 @@ Section Is_Univalent_Obj_Ext_Disp.
     apply is_univalent_disp_from_fibers,
           is_univalent_obj_ext_fibers.
   Defined.
-  
+
   Theorem is_univalent_obj_ext : is_univalent (obj_ext_cat C).
   Proof.
     apply is_univalent_total_category.
@@ -216,7 +216,7 @@ Proof.
       apply transportf_term_fun_mor_TM.
 Defined.
 
-Lemma prewhisker_iso_disp_to_TM_eq 
+Lemma prewhisker_iso_disp_to_TM_eq
   {X} {Y Y' : term_fun_disp_cat C X}
   (FG : z_iso_disp (identity_z_iso X) Y Y')
   {P : preShv C} (α : TM (Y : term_fun_structure _ X) --> P)
@@ -228,7 +228,7 @@ Proof.
   apply inv_from_z_iso_from_is_z_iso.
 Qed.
 
-Lemma postwhisker_iso_disp_to_TM_eq 
+Lemma postwhisker_iso_disp_to_TM_eq
   {X} {Y Y' : term_fun_disp_cat C X}
   (FG : z_iso_disp (identity_z_iso X) Y Y')
   {P : preShv C} (α : P --> TM (Y : term_fun_structure _ X))
@@ -238,7 +238,7 @@ Proof.
   apply postwhisker_isotoid.
 Qed.
 
-Lemma idtoiso_iso_disp_to_TM_eq 
+Lemma idtoiso_iso_disp_to_TM_eq
   {X} {Y Y' : term_fun_disp_cat C X}
   (FG : z_iso_disp (identity_z_iso X) Y Y')
 : (idtoiso (iso_disp_to_TM_eq _ _ _ FG) : _ --> _)
@@ -286,7 +286,7 @@ End Is_Univalent_Families_Strucs.
 
 Section Is_Univalent_qq_Strucs.
 
-Lemma isaset_qq_morphism_structure (x : obj_ext_structure C) 
+Lemma isaset_qq_morphism_structure (x : obj_ext_structure C)
   : isaset (qq_morphism_structure x).
 Proof.
   apply (isofhleveltotal2 2).
@@ -298,7 +298,7 @@ Proof.
       * apply hlevelntosn.
         apply homset_property.
       * intro. apply hlevelntosn.
-        apply pullbacks.isaprop_isPullback.
+        apply Pullbacks.isaprop_isPullback.
   - intro d. unfold qq_morphism_axioms.
     apply isofhleveldirprod.
     + do 2 (apply impred; intro).
@@ -309,7 +309,7 @@ Proof.
       apply homset_property.
 Qed.
 
-Lemma isaprop_iso_disp_qq_morphism_structure 
+Lemma isaprop_iso_disp_qq_morphism_structure
   (x : obj_ext_cat C)
   (d d' : (qq_structure_disp_cat C) x)
   : isaprop (z_iso_disp (identity_z_iso x) d d').
@@ -320,21 +320,21 @@ Proof.
   - intro. apply isaprop_is_z_iso_disp.
 Qed.
 
-Lemma qq_structure_eq 
+Lemma qq_structure_eq
   (x : obj_ext_cat C)
   (d d' : qq_morphism_structure x)
-  (H : ∏ (Γ Γ' : C) (f : Γ' --> Γ) (A : TY x $p Γ), 
+  (H : ∏ (Γ Γ' : C) (f : Γ' --> Γ) (A : TY x $p Γ),
            qq d f A = qq d' f A)
   : d = d'.
 Proof.
   apply subtypePath.
   { intro. apply isaprop_qq_morphism_axioms. }
   apply subtypePath.
-  { intro. do 4 (apply impred; intro). 
+  { intro. do 4 (apply impred; intro).
            apply isofhleveltotal2.
      + apply homset_property.
-     + intro. apply pullbacks.isaprop_isPullback.
-  } 
+     + intro. apply Pullbacks.isaprop_isPullback.
+  }
   do 4 (apply funextsec; intro).
   apply H.
 Defined.
@@ -344,7 +344,7 @@ Definition qq_structure_iso_disp_to_id
   (d d' : (qq_structure_disp_cat C) x)
   : z_iso_disp (identity_z_iso x) d d' → d = d'.
 Proof.
-  intro H. 
+  intro H.
   apply qq_structure_eq.
   intros Γ Γ' f A.
   assert (XR := pr1 H); clear H.
@@ -352,19 +352,19 @@ Proof.
   rewrite id_right in XR.
   rewrite id_left in XR.
   etrans. apply XR.
-  match goal with [|- Δ ?ee ;; _ = _ ] => set (e := ee) end.  
+  match goal with [|- Δ ?ee ;; _ = _ ] => set (e := ee) end.
   simpl in e; unfold identity in e; simpl in e.
   assert (X : e = idpath _ ).
   { apply setproperty. }
   rewrite X. apply id_left.
-Defined.  
-  
+Defined.
+
 Theorem is_univalent_qq_morphism
   : is_univalent_disp (qq_structure_disp_cat C).
 Proof.
   apply is_univalent_disp_from_fibers.
-  intros x d d'. 
-  use isweqimplimpl. 
+  intros x d d'.
+  use isweqimplimpl.
   - apply qq_structure_iso_disp_to_id.
   - apply isaset_qq_morphism_structure.
   - apply isaprop_iso_disp_qq_morphism_structure.
@@ -423,7 +423,7 @@ Section Is_Univalent_Total_Cats.
     - apply @is_univalent_obj_ext; auto.
     - apply is_univalent_term_fun_structure.
   Defined.
-  
+
   Theorem is_univalent_sty'_structure_precat
     : is_univalent (sty'_structure_precat C).
   Proof.

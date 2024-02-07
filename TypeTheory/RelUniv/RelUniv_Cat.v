@@ -4,7 +4,7 @@
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
 
-(** 
+(**
 This module defines two categories of relative J-universe structures:
 - [reluniv_cat] — with "simple" (or naive) morphisms (simple commutative squares);
 - [reluniv_with_ϕ_cat] — with "full" morphisms (with explicit ϕ component and corresponding axioms).
@@ -30,7 +30,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -95,7 +95,7 @@ Section RelUniv_ϕ_Cat.
              (X : C) (f : J X --> U u1)
     : UU
     := Xf u1 X f --> Xf u2 X (f ;; F_U mor).
-  
+
   Definition has_reluniv_mor_axiom_ϕ_π
              {u1 u2 : relative_universe J}
              (mor : relative_universe_mor u1 u2)
@@ -103,7 +103,7 @@ Section RelUniv_ϕ_Cat.
              (ϕ : reluniv_mor_ϕ_data mor X f)
     : UU
     := ϕ ;; π u2 X (F_U mor ∘ f) = π u1 X f.
-  
+
   Definition has_reluniv_mor_axiom_ϕ_Q
              {u1 u2 : relative_universe J}
              (mor : relative_universe_mor u1 u2)
@@ -383,7 +383,7 @@ Section RelUniv_ϕ_Cat.
       etrans. use transportf_forall. apply funextsec. intros f.
       use total2_paths_f.
       + etrans.
-        
+
         set (A := relative_universe_mor u1 u2).
         set (B := λ (a : A), reluniv_mor_ϕ_data a X f).
         set (P := λ (a : A) (b : B a),
@@ -399,7 +399,7 @@ Section RelUniv_ϕ_Cat.
               ).
 
         etrans. apply pathsinv0, idtoiso_postcompose.
-        
+
         apply pathsinv0.
         etrans. apply pathsinv0, e_ϕ.
         apply maponpaths.
@@ -490,7 +490,7 @@ Section RelUniv_ϕ_Cat.
         etrans. apply maponpaths, pathsinv0, idtoiso_concat_pr.
         etrans. apply assoc'.
         etrans. apply maponpaths, pathsinv0, idtoiso_concat_pr.
-        
+
         etrans. 2: apply id_right.
         apply maponpaths.
         apply idtoiso_eq_idpath.
@@ -557,7 +557,7 @@ Section RelUniv_ϕ_Cat.
            =
            k (f;g;h) ; idtoiso ; idtoiso ; compat
         *)
-        
+
         (* Step 4: get rid of idtoiso on the left of k *)
         etrans. apply maponpaths, assoc'.
         etrans. apply maponpaths, assoc'.
@@ -566,24 +566,24 @@ Section RelUniv_ϕ_Cat.
         etrans. apply maponpaths_2, idtoiso_eq_idpath.
         apply pathsinv0r.
         etrans. apply id_left.
-        
+
         (* Oversimplified version of the equation:
 
            k (f;g;h) ; (idtoiso ; idtoiso)
            =
            k (f;g;h) ; idtoiso ; idtoiso ; compat
         *)
-        
+
         (* Step 5: get rid of k *)
         apply maponpaths.
-        
+
         (* Oversimplified version of the equation:
 
            idtoiso ; idtoiso
            =
            idtoiso ; idtoiso ; compat
         *)
-        
+
         (* Step 6: reduce equality of idtoiso to equality of paths *)
         etrans. apply pathsinv0, idtoiso_concat_pr.
         etrans. 2: { apply maponpaths, idtoiso_concat_pr. }
@@ -644,11 +644,11 @@ Section Comm_Squares.
 (* TODO: perhaps it would be better to unify this with the displayed arrow category. *)
 
 Context {C : precategory}.
-  
+
 Definition comm_square
       {c c' : C} (f : c --> c')
       {d d' : C} (g : d --> d')
-  := ∑ (hk : c --> d × c' --> d'), (pr1 hk ;; g = f ;; pr2 hk). 
+  := ∑ (hk : c --> d × c' --> d'), (pr1 hk ;; g = f ;; pr2 hk).
 
 Definition dom_comm_square
       {c c' : C} {f : c --> c'}
@@ -674,23 +674,23 @@ End Comm_Squares.
 Section Functor_Squares.
 
 (* Start by defining “pre-functor-squares”, with no commutativity,
-  so that we can have a single pair of access functions [dom_functor], 
+  so that we can have a single pair of access functions [dom_functor],
   [cod_functor] which can (via coercions) be used for lax-, colax-, and
   pseudo-commutative squares alike. *)
 
-Definition pre_functor_square 
+Definition pre_functor_square
     {C D : precategory} (J : C ⟶ D)
     {C' D' : precategory} (J' : C' ⟶ D')
   : UU
 := (functor C C' × functor D D').
 
-Definition dom_functor 
+Definition dom_functor
     {C D : precategory} {J : C ⟶ D}
     {C' D' : precategory} {J' : C' ⟶ D'}
   : pre_functor_square J J' -> C ⟶ C'
 := pr1.
 
-Definition cod_functor 
+Definition cod_functor
     {C D : precategory} {J : C ⟶ D}
     {C' D' : precategory} {J' : C' ⟶ D'}
   : pre_functor_square J J' -> D ⟶ D'

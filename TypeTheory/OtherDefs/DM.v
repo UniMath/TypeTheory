@@ -16,7 +16,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -31,7 +31,7 @@ Reserved Notation "γ ⋆ f" (at level 25).
 
 
 
-(** these are approximations of the access functions implemented at the end of the file 
+(** these are approximations of the access functions implemented at the end of the file
 
   one difference is that actually DM is defined as the sigma type of another type
 
@@ -103,7 +103,7 @@ Coercion arrow_from_DM {C : precategory} (H : dm_sub_struct C)(Δ Γ : C) (δ : 
 Definition dm_sub_closed_under_iso {CC : precategory} (C : dm_sub_struct CC)
   : UU
   := ∏ Δ Γ (γ : DM C Δ Γ),
-                          ∏ Δ' (δ : Δ' --> Γ), 
+                          ∏ Δ' (δ : Δ' --> Γ),
                           ∏ (h : z_iso Δ Δ'), h ;; δ = γ → DM_type C δ.
 
 
@@ -118,7 +118,7 @@ Definition dm_sub_closed_under_iso {CC : precategory} (C : dm_sub_struct CC)
  |          |
  |          | γ ∈ DM
  |____f_____|Γ'
- Δ         
+ Δ
 
 ]]
 
@@ -143,7 +143,7 @@ Definition pb_ob_of_DM {CC : category} {C : dm_sub_pb CC}
 
 Notation "γ ⋆ f" := (pb_ob_of_DM γ f) (at level 45, format "γ ⋆ f").
 (* written "\st" in Agda input mode *)
-                        
+
 Definition pb_mor_of_DM {CC : category} {C : dm_sub_pb CC}
            {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' --> Γ)
   :  (γ⋆f) -->  Γ'.
@@ -160,7 +160,7 @@ Defined.
 
 Definition sqr_comm_of_dm_sub_pb {CC : category} {C : dm_sub_pb CC}
            {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' --> Γ)
-: _ ;; _ = _ ;; _ 
+: _ ;; _ = _ ;; _
 := PullbackSqrCommutes (pr1 (pr2 C _ _ γ _ f )).
 
 Definition isPullback_of_dm_sub_pb {CC : category} {C : dm_sub_pb CC}
@@ -186,13 +186,13 @@ Definition pb_DM_of_DM {CC} {C : dm_sub_pb CC}  {Δ Γ} (γ : DM C Δ Γ) {Γ'} 
 : DM C (γ⋆f) Γ'.
 Proof.
   exists (pb_mor_of_DM γ f).
-  apply (pr2 (pr2 C _ _ γ _ f)). 
+  apply (pr2 (pr2 C _ _ γ _ f)).
 Defined.
 
 Definition pb_DM_over_of_DM_over {CC} {C : dm_sub_pb CC}  {Γ} (γ : DM_over C Γ) {Γ'} (f : Γ' --> Γ)
 : DM_over C Γ'.
 Proof.
-  eapply DM_over_from_DM. 
+  eapply DM_over_from_DM.
   refine (pb_DM_of_DM γ f).
 Defined.
 
@@ -204,7 +204,7 @@ Defined.
 
 Definition sqr_comm_of_DM {CC : category} {C : DM_structure CC}  {Δ Γ} (γ : DM C Δ Γ) {Γ'} (f : Γ' --> Γ)
 :  pb_arrow_of_arrow _ _  ;; γ = pb_DM_of_DM γ f  ;; f.
-Proof. 
+Proof.
   apply sqr_comm_of_dm_sub_pb.
 Defined.
 
