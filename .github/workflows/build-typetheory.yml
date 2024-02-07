@@ -28,7 +28,7 @@ jobs:
     steps:
       # Checkout UniMath in the current directory.
       - name: Checkout UniMath
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: UniMath/UniMath
           path: .
@@ -36,13 +36,13 @@ jobs:
 
       # Checkout TypeTheory in TypeTheory/
       - name: Checkout TypeTheory
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: TypeTheory
 
       # Grab the cache if available. We tell dune to use $(pwd)/dune-cache/ in
       # the custom_script below.
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: dune-cache
           key: TypeTheory-coq-${{ matrix.coq-version }}-${{ github.run_id }}-${{ github.run_number }}
