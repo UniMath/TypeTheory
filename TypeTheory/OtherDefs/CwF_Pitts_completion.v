@@ -11,8 +11,8 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.rezk_completion.
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
+Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Categories.HSET.Univalence.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -24,8 +24,8 @@ Local Arguments iso: clear implicits.
 
 (** How to get a functor from RC(C) to D when having one from C to D **)
 
-Definition Rezk_functor (C : category) (D : univalent_category) 
-    (F : functor C D) 
+Definition Rezk_functor (C : category) (D : univalent_category)
+    (F : functor C D)
   :  functor (Rezk_completion C) D.
 Proof.
   set (H:=Rezk_eta_Universal_Property C D  (pr2 D)).
@@ -45,18 +45,18 @@ Context (CC : category) (C : cwf_struct CC).
     We thus obtain a "type" functor on RC(C) by univ property
 **)
 
-Definition type_hSet (Γ : CC) : hSet := make_hSet (C⟨Γ⟩) (cwf_types_isaset _ _ ). 
+Definition type_hSet (Γ : CC) : hSet := make_hSet (C⟨Γ⟩) (cwf_types_isaset _ _ ).
 
 Definition type_functor_data : functor_data CC (opp_precat HSET).
 Proof.
   exists type_hSet.
   intros Γ Γ' γ A. exact (rtype A γ).
 Defined.
-  
+
 Definition type_is_functor : is_functor type_functor_data.
 Proof.
   split; intros; simpl.
-  - intros Γ. apply funextfun; intro A. apply reindx_type_id. 
+  - intros Γ. apply funextfun; intro A. apply reindx_type_id.
     apply reindx_laws_from_cwf_struct.
   - intros Γ Γ' Γ'' f g. apply funextfun; intro A.
     apply reindx_type_comp.
@@ -66,11 +66,11 @@ Qed.
 Definition type_functor : functor _ _ := tpair _ _ type_is_functor.
 
 Definition RC_type_functor : functor (Rezk_completion CC) (opp_precat HSET).
-Proof.  
+Proof.
   apply (Rezk_functor CC (op_unicat HSET_univalent_category)).
   apply type_functor.
 Defined.
-  
+
 (** ** The "term" part of a CwF **)
 (** The "term" part is a functor from the category of elements of "type"
     into (the opposite of) sets.

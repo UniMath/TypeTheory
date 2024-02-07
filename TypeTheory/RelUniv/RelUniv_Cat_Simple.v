@@ -4,7 +4,7 @@
   Part of the [TypeTheory] library (Ahrens, Lumsdaine, Voevodsky, 2015–present).
 *)
 
-(** 
+(**
 This module defines two categories of relative J-universe structures:
 - [reluniv_cat] — with "simple" (or naive) morphisms (simple commutative squares);
 - [reluniv_with_ϕ_cat] — with "full" morphisms (with explicit ϕ component and corresponding axioms).
@@ -28,7 +28,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Subcategory.Core.
 Require Import UniMath.CategoryTheory.Subcategory.Full.
 
@@ -389,7 +389,7 @@ Section RelUniv_Functor.
   Definition weak_from_reluniv_is_functor
     : is_functor weak_from_reluniv_functor_data
     := (weak_from_reluniv_functor_idax ,, weak_from_reluniv_functor_compax).
-  
+
   Definition weak_from_reluniv_functor
     : functor (reluniv_cat J) (weak_reluniv_cat J)
     := make_functor weak_from_reluniv_functor_data
@@ -434,7 +434,7 @@ Section RelUniv_Functor.
     : catiso (reluniv_cat J) (weak_reluniv_cat J)
     := (weak_from_reluniv_functor
           ,, weak_from_reluniv_functor_is_catiso Ccat J_ff).
-  
+
   Definition reluniv_cat_is_univalent
              (Ccat : is_univalent C) (J_ff : fully_faithful J)
              (Dcat : is_univalent D)

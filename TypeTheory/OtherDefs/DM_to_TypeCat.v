@@ -1,15 +1,15 @@
-(** 
- 
+(**
+
  Ahrens, Lumsdaine, Voevodsky, 2015
 
  Contents:
 
   - Definition of a Comprehension precategory from a precategory with Display maps
-  
+
 *)
 
 
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
 Require Import TypeTheory.TypeCat.TypeCat.
@@ -91,8 +91,8 @@ Proof.
   rewrite X.
   apply isinclpr1.
   intros. apply (pr2 (pr2 C)).
-Qed.  
-  
+Qed.
+
 (* this seems to require (at least!) that the objects of the underlying category form a set *)
 (*
 Lemma is_split_type_cat_from_DM : is_split_type_cat type_cat_struct_from_DM.
@@ -103,5 +103,5 @@ Proof.
     refine (tpair _ _ _ ).
     + unfold reind_type_cat; simpl.
 *)
-    
+
 End DM_to_TypeCat.

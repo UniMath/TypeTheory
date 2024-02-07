@@ -1,5 +1,5 @@
 
-(** 
+(**
 
  Ahrens, Lumsdaine, Voevodsky, 2015–
 
@@ -18,8 +18,8 @@ The equivalence is a bit more involved than one might hope; it proceeds in two m
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.categories.HSET.All.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Categories.HSET.All.
 Require Import UniMath.CategoryTheory.opp_precat.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
@@ -46,7 +46,7 @@ Context
   (T_q_id : ∏ ty ext dpr reind,
     (T_q_etc ty ext dpr reind) -> (T_reind_id ty reind) -> UU)
   (T_reind_comp : ∏ ty, T_reind ty -> UU)
-  (T_q_comp : ∏ ty ext dpr reind, 
+  (T_q_comp : ∏ ty ext dpr reind,
     (T_q_etc ty ext dpr reind) -> (T_reind_comp ty reind) -> UU).
 
 Arguments T_dpr [_] _.
@@ -96,7 +96,7 @@ Definition obj_ext_struct
 
 Definition gen_q_mor_data (X : obj_ext_struct)
   (ext := pr1 (pr2 X)) (dpr := pr2 (pr2 X))
-  (reind := pr2 (pr1 (pr1 X))) 
+  (reind := pr2 (pr1 (pr1 X)))
 := T_q_etc dpr reind.
 
 Definition gen_q_mor_axs {X : obj_ext_struct} (q_etc : gen_q_mor_data X)
@@ -154,10 +154,10 @@ Defined.
 Theorem weq_reassoc_direct : split_struct ≃ reassoc_split_struct.
 Proof.
   use (weq_iso l_to_r_reassoc_direct r_to_l_reassoc_direct).
-  - intros [[[ty [ext reind]] [dpr q_etc]] 
+  - intros [[[ty [ext reind]] [dpr q_etc]]
               [set [[reind_id q_id] [reind_comp q_comp]]]].
     apply idpath.
-  - intros [[[[[ty set] reind] [reind_id reind_comp]] [ext dpr]] 
+  - intros [[[[[ty set] reind] [reind_id reind_comp]] [ext dpr]]
               [q_etc [q_id q_comp]]].
     apply idpath.
 Defined.
@@ -168,7 +168,7 @@ Section Fix_Category.
 
 Context {CC : category}.
 
-(** ** Equivalence between split type-cat structures and their structurally-abstracted version 
+(** ** Equivalence between split type-cat structures and their structurally-abstracted version
 
 This is in fact a judgemental equality; but recognising this in practice is rather slow, so we explicitly declare the equivalence [weq_standalone_structural] between them. *)
 
@@ -183,7 +183,7 @@ Definition T_dpr
 Definition T_reind
   := (λ ty, ∏ (Γ : CC) (A : ty Γ) (Γ' : CC), (Γ' --> Γ) -> ty Γ').
 Definition T_q_etc
-  := (λ ty ext (dpr : T_dpr ty ext) (reind : T_reind ty), 
+  := (λ ty ext (dpr : T_dpr ty ext) (reind : T_reind ty),
      ∑ (q : ∏ (Γ:CC) (A : ty Γ) Γ' (f : Γ' --> Γ),
          (ext Γ' (reind _ A _ f)) --> (ext Γ A))
        (dpr_q : ∏ Γ (A : ty Γ) Γ' (f : Γ' --> Γ),
@@ -263,7 +263,7 @@ Defined.
 
 End Split_Type_Cat_as_Structural.
 
-(** ** Equivalence between the structural and object-extension versions 
+(** ** Equivalence between the structural and object-extension versions
 
 Here we build up an equivalence [weq_structural_regrouped] between (RHS) the regrouped object-extension structure definition of split type-category structures, and (LHS) the structurally-abstracted definition, with the types of components taken from the standalone definition, but re-ordered and re-grouped to match (RHS).
 
@@ -290,15 +290,15 @@ Definition weq_structural_pshf_axioms
 Proof.
   apply weqdirprodf.
   - cbn. unfold bandfmap, weqforalltototal, maponsec.
-    cbn. unfold totaltoforall, T_reind_id, functor_idax. 
+    cbn. unfold totaltoforall, T_reind_id, functor_idax.
     apply weqonsecfibers; intro Γ.
     apply weqfunextsec.
   - cbn. unfold bandfmap, weqforalltototal, maponsec.
-    cbn. unfold totaltoforall, T_reind_comp, functor_compax. 
+    cbn. unfold totaltoforall, T_reind_comp, functor_compax.
     apply weqonsecfibers; intro Γ.
     eapply weqcomp. apply weq_exchange_args.
     apply weqonsecfibers; intro Γ'.
-    eapply weqcomp. 
+    eapply weqcomp.
       apply weqonsecfibers; intro A. apply weq_exchange_args.
     eapply weqcomp. apply weq_exchange_args.
     apply weqonsecfibers; intro Γ''.
@@ -379,7 +379,7 @@ Definition weq_structural_regrouped
       T_set T_reind_id T_q_id T_reind_comp T_q_comp
   ≃ split_typecat'_structure CC.
 Proof.
-  use weqbandf. apply weq_structural_obj_ext. intro X. 
+  use weqbandf. apply weq_structural_obj_ext. intro X.
   use weqbandf. apply weq_structural_q_mor_data. intros q_etc.
   unfold qq_morphism_axioms. cbn.
   unfold bandfmap, weqforalltototal, maponsec. cbn.
@@ -393,7 +393,7 @@ Proof.
   - apply weqonsecfibers; intro Γ.
     eapply weqcomp. apply weq_exchange_args.
     apply weqonsecfibers; intro Γ'.
-    eapply weqcomp. 
+    eapply weqcomp.
       apply weqonsecfibers; intro A. apply weq_exchange_args.
     eapply weqcomp. apply weq_exchange_args.
     apply weqonsecfibers; intro Γ''.

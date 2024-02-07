@@ -1,5 +1,5 @@
-(** 
- 
+(**
+
  Ahrens, Lumsdaine, Voevodsky, 2015
 
  Contents:
@@ -8,7 +8,7 @@
       (assumption of saturatedness needed for pullbacks forming hprop)
 *)
 
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -22,7 +22,7 @@ Require Import TypeTheory.OtherDefs.DM.
 Section TypeCat_to_DM.
 
 Variable CC : category.
-Variable H : is_univalent CC.  
+Variable H : is_univalent CC.
 Variable C : typecat_structure CC.
 
 Definition iso_to_dpr {Γ Γ'} (γ : Γ --> Γ') : UU
@@ -82,7 +82,7 @@ Proof.
   - unshelve refine (make_Pullback _ _).
     5: use postcomp_pb_with_z_iso.
     7: eapply is_symmetric_isPullback, reind_pb_typecat.
-    + eassumption. 
+    + eassumption.
     + sym. assumption.
  - simpl.
     apply hinhpr.
@@ -104,5 +104,5 @@ Proof.
   exists dm_sub_closed_under_iso_of_TypeCat.
   intros. apply isapropishinh.
 Defined.
-    
+
 End TypeCat_to_DM.

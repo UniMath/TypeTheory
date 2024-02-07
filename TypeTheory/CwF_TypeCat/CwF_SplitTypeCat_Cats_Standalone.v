@@ -54,12 +54,12 @@ Variable X : obj_ext_structure C.
 (** * category of term-structures *)
 Section Term_Fun_Structure_Precat.
 
-Definition term_fun_mor 
-    (Y Y' : term_fun_structure C X) 
+Definition term_fun_mor
+    (Y Y' : term_fun_structure C X)
   : UU
 := ∑ FF_TM : TM Y --> TM Y',
-       FF_TM ;; pp Y' = pp Y 
-     × 
+       FF_TM ;; pp Y' = pp Y
+     ×
        ∏ {Γ:C} {A : Ty X Γ},
            FF_TM $nt (te Y A) = te Y' _.
 
@@ -69,7 +69,7 @@ Definition term_fun_mor_TM {Y Y'} (FF : term_fun_mor Y Y')
 := pr1 FF.
 
 Definition term_fun_mor_pp {Y Y'} (FF : term_fun_mor Y Y')
-  : term_fun_mor_TM FF ;; pp Y' = pp Y 
+  : term_fun_mor_TM FF ;; pp Y' = pp Y
 := pr1 (pr2 FF).
 
 Definition term_fun_mor_te {Y Y'} (FF : term_fun_mor Y Y')
@@ -99,7 +99,7 @@ Proof.
   - intros x; apply isapropdirprod.
     + apply homset_property.
     + repeat (apply impred_isaprop; intro). apply setproperty.
-  - apply nat_trans_eq. apply has_homsets_HSET. 
+  - apply nat_trans_eq. apply has_homsets_HSET.
     intros Γ. apply funextsec. unfold homot. apply e_TM.
 Qed.
 
@@ -109,7 +109,7 @@ Lemma term_to_section_naturality {Y} {Y'}
   {FY : term_fun_mor Y Y'}
   {Γ : C} (t : Tm Y Γ) (A := pp Y $nt t)
   : pr1 (term_to_section (term_fun_mor_TM FY $nt t))
-  = pr1 (term_to_section t) 
+  = pr1 (term_to_section t)
    ;; Δ (!nat_trans_eq_pointwise_pshf (term_fun_mor_pp FY) _).
 Proof.
   set (t' := term_fun_mor_TM FY $nt t).
@@ -123,7 +123,7 @@ Proof.
     etrans. apply @pathsinv0, assoc.
     apply maponpaths.
     apply comp_ext_compare_π.
-  - etrans. apply term_to_section_recover. 
+  - etrans. apply term_to_section_recover.
     apply pathsinv0.
     etrans. apply Q_comp_ext_compare.
     etrans.
@@ -152,7 +152,7 @@ Proof.
 Qed.
 
 
-Definition term_fun_ob_mor : precategory_ob_mor. 
+Definition term_fun_ob_mor : precategory_ob_mor.
 Proof.
   exists (term_fun_structure C X).
   exact @term_fun_mor.
@@ -163,7 +163,7 @@ Proof.
   apply tpair.
   - intros Y. simpl; unfold term_fun_mor.
     exists (identity _). apply tpair.
-    + apply id_left. 
+    + apply id_left.
     + intros Γ A. apply idpath.
   - intros Y0 Y1 Y2 FF GG.
     exists (term_fun_mor_TM FF ;; term_fun_mor_TM GG). apply tpair.
@@ -175,7 +175,7 @@ Proof.
       apply term_fun_mor_te.
 Defined.
 
-Definition term_fun_data : precategory_data 
+Definition term_fun_data : precategory_data
   := (_ ,, term_fun_id_comp).
 
 Definition term_fun_axioms : is_precategory term_fun_data.
@@ -183,10 +183,10 @@ Proof.
   use make_is_precategory_one_assoc; intros; apply isaprop_term_fun_mor.
 Qed.
 
-Definition term_fun_precategory : precategory 
+Definition term_fun_precategory : precategory
   := (_ ,, term_fun_axioms).
 
-Lemma has_homsets_term_fun_precat 
+Lemma has_homsets_term_fun_precat
   : has_homsets term_fun_precategory.
 Proof.
   intros a b. apply isaset_total2.
@@ -215,7 +215,7 @@ Lemma isaprop_qq_structure_mor
   (Z Z' : qq_structure_ob_mor)
   : isaprop (Z --> Z').
 Proof.
-  repeat (apply impred_isaprop; intro). apply homset_property. 
+  repeat (apply impred_isaprop; intro). apply homset_property.
 Qed.
 
 Definition qq_structure_id_comp : precategory_id_comp qq_structure_ob_mor.
@@ -228,7 +228,7 @@ Proof.
     etrans. apply FF. apply GG.
 Qed.
 
-Definition qq_structure_data : precategory_data 
+Definition qq_structure_data : precategory_data
   := (_ ,, qq_structure_id_comp).
 
 Definition qq_structure_axioms : is_precategory qq_structure_data.
@@ -252,7 +252,7 @@ Definition strucs_compat_ob_mor
   : precategory_ob_mor.
 Proof.
   use tpair.
-  - exact (∑ YZ : (term_fun_precategory × qq_structure_precategory), 
+  - exact (∑ YZ : (term_fun_precategory × qq_structure_precategory),
                   iscompatible_term_qq (pr1 YZ) (pr2 YZ)).
   - intros YZ YZ'.
     exact ((pr1 (pr1 YZ)) --> (pr1 (pr1 YZ'))
@@ -262,14 +262,14 @@ Defined.
 Definition strucs_compat_id_comp
   : precategory_id_comp strucs_compat_ob_mor.
 Proof.
-  split. 
+  split.
   - intro; split; apply identity.
-  - intros a b c f g. split. 
-    eapply @compose. apply (pr1 f). apply (pr1 g). 
-    eapply @compose. apply (pr2 f). apply (pr2 g). 
+  - intros a b c f g. split.
+    eapply @compose. apply (pr1 f). apply (pr1 g).
+    eapply @compose. apply (pr2 f). apply (pr2 g).
 Defined.
 
-Definition strucs_compat_data : precategory_data 
+Definition strucs_compat_data : precategory_data
   := ( _ ,, strucs_compat_id_comp).
 
 Definition strucs_compat_axioms : is_precategory strucs_compat_data.
@@ -281,7 +281,7 @@ Proof.
 Qed.
 
 Definition compat_structures_precategory
-  : precategory 
+  : precategory
 := ( _ ,, strucs_compat_axioms).
 
 (* should this be the name of the compatible pairs category? *)
@@ -327,15 +327,15 @@ Proof.
   apply iscompatible_qq_from_term.
 Defined.
 
-Lemma qq_from_term_mor 
+Lemma qq_from_term_mor
   {Y : term_fun_precategory} {Y'} (FY : Y --> Y')
   {Z : qq_structure_precategory} {Z'}
   (W : iscompatible_term_qq Y Z)
   (W' : iscompatible_term_qq Y' Z')
-  : Z --> Z'. 
+  : Z --> Z'.
 Proof.
   intros Γ' Γ f A.
-  cbn in W, W', FY. unfold iscompatible_term_qq in *. 
+  cbn in W, W', FY. unfold iscompatible_term_qq in *.
   unfold term_fun_mor in FY.
   apply (Q_pp_Pb_unique Y'); simpl; unfold yoneda_morphisms_data.
   - etrans. apply qq_π.
@@ -348,7 +348,7 @@ Proof.
 Qed.
 
 
-Lemma qq_from_term_mor_unique 
+Lemma qq_from_term_mor_unique
   {Y : term_fun_precategory} {Y'} (FY : Y --> Y')
   {Z : qq_structure_precategory} {Z'}
   (W : iscompatible_term_qq Y Z)
@@ -400,7 +400,7 @@ Proof.
     + set (XX := (make_Pullback _ (qq_π_Pb (pr1 Z) f A))).
       apply (PullbackArrow_PullbackPr1 XX).
     + cbn; cbn in FZ. etrans. apply maponpaths, @pathsinv0, FZ.
-      apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)). 
+      apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)).
 Qed.
 
 Lemma tm_from_qq_mor_TM {Z Z' : qq_structure_precategory} (FZ : Z --> Z')
@@ -425,17 +425,17 @@ Proof.
   cbn.
   use tm_from_qq_eq.
   - apply idpath.
-  - etrans. apply id_right. 
+  - etrans. apply id_right.
     cbn. apply PullbackArrowUnique.
     + cbn. apply (PullbackArrow_PullbackPr1 (make_Pullback _ _)).
-    + cbn. cbn in FZ. 
+    + cbn. cbn in FZ.
       etrans. apply maponpaths, @pathsinv0, FZ.
-      apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)). 
+      apply (PullbackArrow_PullbackPr2 (make_Pullback _ _)).
 Qed.
 
 End Rename_me.
 
-Definition term_from_qq_mor_TM 
+Definition term_from_qq_mor_TM
     {Z : qq_structure_precategory} {Z'} (FZ : Z --> Z')
     {Y : term_fun_precategory} {Y'}
     (W : iscompatible_term_qq Y Z)
@@ -471,7 +471,7 @@ Proof.
     apply (canonical_TM_to_given_te _ _ (_,,_)).
 Qed.
 
-Lemma term_from_qq_mor_unique 
+Lemma term_from_qq_mor_unique
   {Z : qq_structure_precategory} {Z'} (FZ : Z --> Z')
   {Y : term_fun_precategory} {Y'}
   (W : iscompatible_term_qq Y Z)
@@ -506,7 +506,7 @@ Proof.
   - intros. cbn. destruct x as [f q]. cbn.
     apply maponpaths.
     apply proofirrelevance.
-    use (qq_from_term_mor_unique f); assumption. 
+    use (qq_from_term_mor_unique f); assumption.
   - intros y. cbn. apply idpath.
 Qed.
 
@@ -543,7 +543,7 @@ Section Is_Univalent_Families_Strucs.
 
 Definition iso_to_TM_eq
   (Y Y' : term_fun_precategory)
-  : z_iso Y Y' 
+  : z_iso Y Y'
   -> TM (Y : term_fun_structure _ X) = TM (Y' : term_fun_structure _ X).
 Proof.
   intro i.
@@ -556,7 +556,7 @@ Proof.
     + exact (maponpaths term_fun_mor_TM (z_iso_after_z_iso_inv i)).
 Defined.
 
-Lemma prewhisker_iso_to_TM_eq 
+Lemma prewhisker_iso_to_TM_eq
   {Y Y' : term_fun_precategory}
   (FG : z_iso Y Y')
   {P : preShv C} (α : TM (Y : term_fun_structure _ X) --> P)
@@ -568,7 +568,7 @@ Proof.
   apply inv_from_z_iso_from_is_z_iso.
 Qed.
 
-Lemma postwhisker_iso_to_TM_eq 
+Lemma postwhisker_iso_to_TM_eq
   {Y Y' : term_fun_precategory}
   (FG : z_iso Y Y')
   {P : preShv C} (α : P --> TM (Y : term_fun_structure _ X))
@@ -578,7 +578,7 @@ Proof.
   use postwhisker_isotoid.
 Qed.
 
-Lemma idtoiso_iso_to_TM_eq 
+Lemma idtoiso_iso_to_TM_eq
   {Y Y' : term_fun_precategory}
   (FG : z_iso Y Y')
 : (idtoiso (iso_to_TM_eq _ _ FG) : _ --> _)
@@ -597,7 +597,7 @@ Proof.
   rewrite transportf_dirprod.
   apply dirprodeq.
   - etrans. apply prewhisker_iso_to_TM_eq.
-    apply term_fun_mor_pp. 
+    apply term_fun_mor_pp.
   - etrans. use transportf_forall.
     apply funextsec; intros Γ.
     etrans. use transportf_forall.
@@ -636,7 +636,7 @@ End Is_Univalent_Families_Strucs.
 
 Section Is_Univalent_qq_Strucs.
 
-Lemma isaset_qq_morphism_structure (x : obj_ext_structure C) 
+Lemma isaset_qq_morphism_structure (x : obj_ext_structure C)
   : isaset (qq_morphism_structure x).
 Proof.
   apply (isofhleveltotal2 2).
@@ -648,7 +648,7 @@ Proof.
       * apply hlevelntosn.
         apply homset_property.
       * intro. apply hlevelntosn.
-        apply pullbacks.isaprop_isPullback.
+        apply Pullbacks.isaprop_isPullback.
   - intro d. unfold qq_morphism_axioms.
     apply isofhleveldirprod.
     + do 2 (apply impred; intro).
@@ -669,7 +669,7 @@ Definition qq_structure_category : category
   := make_category _ has_homsets_qq_structure_precategory.
 
 
-Lemma isaprop_iso_qq_morphism_structure 
+Lemma isaprop_iso_qq_morphism_structure
   (d d' : qq_structure_category)
   : isaprop (z_iso d d').
 Proof.
@@ -679,21 +679,21 @@ Proof.
   - intro. apply isaprop_is_z_isomorphism.
 Qed.
 
-Lemma qq_structure_eq 
+Lemma qq_structure_eq
   (x : obj_ext_structure C)
   (d d' : qq_morphism_structure x)
-  (H : ∏ (Γ Γ' : C) (f : Γ' --> Γ) (A : Ty x Γ), 
+  (H : ∏ (Γ Γ' : C) (f : Γ' --> Γ) (A : Ty x Γ),
            qq d f A = qq d' f A)
   : d = d'.
 Proof.
   apply subtypePath.
   { intro. apply isaprop_qq_morphism_axioms. }
   apply subtypePath.
-  { intro. do 4 (apply impred; intro). 
+  { intro. do 4 (apply impred; intro).
            apply isofhleveltotal2.
      + apply homset_property.
-     + intro. apply pullbacks.isaprop_isPullback.
-  } 
+     + intro. apply Pullbacks.isaprop_isPullback.
+  }
   do 4 (apply funextsec; intro).
   apply H.
 Defined.
@@ -702,17 +702,17 @@ Definition qq_structure_iso_to_id
   (d d' : qq_structure_precategory)
   : z_iso d d' → d = d'.
 Proof.
-  intro H. 
+  intro H.
   apply qq_structure_eq.
   intros Γ Γ' f A.
   use (pr1 H).
-Defined.  
+Defined.
 
 Theorem is_univalent_qq_morphism
   : is_univalent qq_structure_category.
 Proof.
-  intros d d'. 
-  use isweqimplimpl. 
+  intros d d'.
+  use isweqimplimpl.
   + apply qq_structure_iso_to_id.
   + apply isaset_qq_morphism_structure.
   + apply isaprop_iso_qq_morphism_structure.
@@ -720,13 +720,13 @@ Qed.
 
 End Is_Univalent_qq_Strucs.
 
-Lemma has_homsets_compat_structures_precategory  
+Lemma has_homsets_compat_structures_precategory
   : has_homsets compat_structures_precategory.
 Proof.
-  intros a b.  
-  apply isasetdirprod. 
+  intros a b.
+  apply isasetdirprod.
   - apply has_homsets_term_fun_precategory.
-  - apply has_homsets_qq_structure_precategory. 
+  - apply has_homsets_qq_structure_precategory.
 Qed.
 
 Definition compat_structures_category : category
@@ -757,11 +757,11 @@ Proof.
   use adj_equivalence_of_cats_inv.
 Defined.
 
-Definition equiv_of_structures : adj_equivalence_of_cats _ 
-  := @comp_adj_equivalence_of_cats _ _ _ _ _ 
+Definition equiv_of_structures : adj_equivalence_of_cats _
+  := @comp_adj_equivalence_of_cats _ _ _ _ _
                                       pr1_equiv_inv pr2_equiv.
 
-Definition equiv_of_types_of_structures 
+Definition equiv_of_types_of_structures
   : term_fun_precategory ≃ qq_structure_precategory.
 Proof.
   use (weq_on_objects_from_adj_equiv_of_cats _ _
@@ -772,7 +772,7 @@ Proof.
 Defined.
 
 
-Lemma equiv_of_types_equal_direct_constr 
+Lemma equiv_of_types_equal_direct_constr
   : equiv_of_types_of_structures ~ weq_term_qq X.
 Proof.
   intro Y.

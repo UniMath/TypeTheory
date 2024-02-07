@@ -8,9 +8,9 @@ Require Import UniMath.CategoryTheory.DisplayedCats.ComprehensionC.
 (* a few libraries need to be reloaded after “All”,
    to claim precedence on overloaded names *)
 
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.terminal.
-Require Import UniMath.CategoryTheory.limits.graphs.initial.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Initial.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 
@@ -37,7 +37,7 @@ Open Scope cat.
 (* TODO: check more thoroughly if this is provided in the library; if so, use the library version, otherwise move this upstream.  Cf. also https://github.com/UniMath/UniMath/issues/279 *)
 Lemma inv_from_z_iso_from_is_z_iso {D: precategory} {a b : D}
   (f: a --> b) (g : b --> a) (H : is_inverse_in_precat f g)
-: inv_from_z_iso (f ,,  (g ,, H)) 
+: inv_from_z_iso (f ,,  (g ,, H))
   = g.
 Proof.
   apply idpath.
@@ -57,7 +57,7 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma forall_isotid (A : category) (a_is : is_univalent A) 
+Lemma forall_isotid (A : category) (a_is : is_univalent A)
       (a a' : A) (P : z_iso a a' -> UU) :
   (∏ e, P (idtoiso e)) → ∏ i, P i.
 Proof.
@@ -66,7 +66,7 @@ Proof.
   apply H.
 Defined.
 
-Lemma transportf_isotoid_functor 
+Lemma transportf_isotoid_functor
   (A X : category) (H : is_univalent A)
   (K : functor A X)
    (a a' : A) (p : z_iso a a') (b : X) (f : K a --> b) :
@@ -89,8 +89,8 @@ Lemma idtoiso_transportf_family_of_morphisms (D : precategory)
       (F : ∏ a, B a -> D)
       (d d' : D) (deq : d = d')
       (R : ∏ a (b : B a), D⟦ F a b, d⟧)
-     
-: transportf (λ x, ∏ a b, D⟦ F a b, x⟧) deq R 
+
+: transportf (λ x, ∏ a b, D⟦ F a b, x⟧) deq R
   =
   λ a b, R a b ;; idtoiso deq.
 Proof.
@@ -127,9 +127,9 @@ Proof.
   intros; induction p. apply pathsinv0, id_left.
 Defined.
 
-Lemma idtoiso_postcompose_idtoiso_pre {C : precategory} {a b c : C} 
+Lemma idtoiso_postcompose_idtoiso_pre {C : precategory} {a b c : C}
       (g : a --> b) (f : a --> c)
-      (p : b = c) 
+      (p : b = c)
   : g = f ;; idtoiso (!p) -> g ;; idtoiso p = f.
 Proof.
   induction p. simpl.
@@ -199,7 +199,7 @@ Coercion nat_trans_from_nat_z_iso : nat_z_iso >-> nat_trans.
 (** * Properties of functors *)
 
 Definition split_ess_surj {A B : precategory}
-  (F : functor A B) 
+  (F : functor A B)
   := ∏ b : B, ∑ a : A, z_iso (F a) b.
 
 Definition split_full {C D : precategory} (F : functor C D) : UU
@@ -238,7 +238,7 @@ Qed.
 Definition ff_on_z_isos {C D : precategory} (F : functor C D) : UU
   := ∏ c c', isweq (@functor_on_z_iso _ _ F c c').
 
-Lemma fully_faithful_impl_ff_on_isos {C D : category} (F : functor C D) 
+Lemma fully_faithful_impl_ff_on_isos {C D : category} (F : functor C D)
       : fully_faithful F -> ff_on_z_isos F.
 Proof.
   intros Fff c c'.
@@ -357,13 +357,13 @@ Qed.
 Definition G_ff_split : functor _ _ := ( _ ,, G_ff_split_ax).
 
 
-Definition is_nat_trans_ε_ff_split : 
+Definition is_nat_trans_ε_ff_split :
  is_nat_trans (functor_composite_data G_ff_split_data F)
     (functor_identity_data B) (λ b : B, pr2 (Fses b)).
 Proof.
   intros b b' g;
   etrans; [ apply maponpaths_2 ; use homotweqinvweq |];
-  repeat rewrite <- assoc; 
+  repeat rewrite <- assoc;
   apply maponpaths;
   rewrite z_iso_after_z_iso_inv;
   apply id_right.
@@ -378,7 +378,7 @@ Proof.
   - apply is_nat_trans_ε_ff_split.
 Defined.
 
-Lemma is_nat_trans_η_ff_split : 
+Lemma is_nat_trans_η_ff_split :
  is_nat_trans (functor_identity_data A)
     (functor_composite_data F G_ff_split_data)
     (λ a : A, Finv (inv_from_z_iso (pr2 (Fses (F ((functor_identity A) a)))))).
@@ -406,18 +406,18 @@ Proof.
   -  intro a.
      apply Finv.
      apply (inv_from_z_iso (pr2 (Fses _ ))).
-  - apply is_nat_trans_η_ff_split. 
+  - apply is_nat_trans_η_ff_split.
 Defined.
-    
-Lemma form_adjunction_ff_split 
+
+Lemma form_adjunction_ff_split
   : form_adjunction F G_ff_split η_ff_split ε_ff_split.
   simpl. split.
   * intro a.
-    cbn. 
-    etrans. apply maponpaths_2. use homotweqinvweq. 
+    cbn.
+    etrans. apply maponpaths_2. use homotweqinvweq.
     apply z_iso_after_z_iso_inv.
   * intro b.
-    cbn. 
+    cbn.
     apply (invmaponpathsweq (make_weq _ (Fff _ _ ))).
     cbn.
     rewrite functor_comp.
@@ -435,13 +435,13 @@ Proof.
   use tpair.
   - exists G_ff_split.
     use tpair.
-    + exists η_ff_split. 
-      exact ε_ff_split. 
-    + apply form_adjunction_ff_split. 
+    + exists η_ff_split.
+      exact ε_ff_split.
+    + apply form_adjunction_ff_split.
   - split; cbn.
-    + intro a. 
+    + intro a.
       use (fully_faithful_reflects_iso_proof _ _ _ Fff _ _ (make_z_iso' _ _ )).
-      apply is_z_iso_inv_from_z_iso. 
+      apply is_z_iso_inv_from_z_iso.
     + intro b. apply pr2.
 Defined.
 
@@ -498,7 +498,7 @@ Defined.
 Lemma inv_from_z_iso_z_iso_from_fully_faithful_reflection {C D : precategory}
       (F : functor C D) (HF : fully_faithful F) (a b : C) (i : z_iso (F a) (F b))
       : inv_from_z_iso
-       (iso_from_fully_faithful_reflection HF i) = 
+       (iso_from_fully_faithful_reflection HF i) =
  iso_from_fully_faithful_reflection HF (z_iso_inv_from_z_iso i).
 Proof.
   apply idpath.
@@ -520,7 +520,7 @@ Defined.
 
 Lemma z_iso_from_z_iso_with_postcomp (D E E' : category)
   (F G : functor D E) (H : functor E E')
-  (Hff : fully_faithful H) : 
+  (Hff : fully_faithful H) :
   z_iso (C:=[D, E']) (functor_composite F H) (functor_composite G H)
   ->
   z_iso (C:=[D, E]) F G.
@@ -610,7 +610,7 @@ End Limits.
 
 (** * Sections of maps *)
 
-(* TODO: currently, sections are independently developed in many places in [TypeTheory].  Try to unify the treatments of them here?  Also unify with ad hoc material on sections in [UniMath.CategoryTheory.limits.pullbacks]: [pb_of_section], [section_from_diagonal], etc.*)
+(* TODO: currently, sections are independently developed in many places in [TypeTheory].  Try to unify the treatments of them here?  Also unify with ad hoc material on sections in [UniMath.CategoryTheory.Limits.Pullbacks]: [pb_of_section], [section_from_diagonal], etc.*)
 Section Sections.
 
   Definition section {C : precategory} {X Y : C} (f : X --> Y)
@@ -657,7 +657,7 @@ Coercion structure_of_comprehension_cat (C : comprehension_cat) := pr2 C.
 
 (** * Unorganised lemmas *)
 
-(* Lemmas that probably belong in one of the sections above, but haven’t been sorted into them yet.  Mainly a temporary holding pen for lemmas being upstreamed from other files. TODO: empty this bin frequently (but keep it here for re-use). *) 
+(* Lemmas that probably belong in one of the sections above, but haven’t been sorted into them yet.  Mainly a temporary holding pen for lemmas being upstreamed from other files. TODO: empty this bin frequently (but keep it here for re-use). *)
 Section Unorganised.
 
 End Unorganised.
@@ -677,7 +677,7 @@ End Unorganised.
   - [adj_equivalence_of_cats]
     changes to either
     [is_adj_equiv] or [adj_equiv_structure]
-    (possible also [_of_cats], but this seems reasonably implicit since it’s on a functor) 
+    (possible also [_of_cats], but this seems reasonably implicit since it’s on a functor)
   - [equivalence_of_cats]
     changes to [adj_equiv_of_cats]
   - lemmas about them are renamed as consistently as possible, following these.

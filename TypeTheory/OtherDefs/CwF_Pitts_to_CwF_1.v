@@ -9,13 +9,13 @@
     - Proof that reindexing forms a pullback
 
   The definition is based on Pitts, *Nominal Presentations of the Cubical Sets
-  Model of Type Theory*, Def. 3.1: 
+  Model of Type Theory*, Def. 3.1:
   http://www.cl.cam.ac.uk/~amp12/papers/nompcs/nompcs.pdf (page=9)
 *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -27,11 +27,11 @@ Require Import TypeTheory.OtherDefs.CwF_1.
 Local Open Scope precat.
 
 Section fix_a_precategory.
-  
+
   Variable C : category.
 
   Section CwF_1_from_CwF.
-  
+
   Variable CC : CwF_Pitts.cwf_struct C.
 
   Definition type_functor : functor C^op HSET.
@@ -55,7 +55,7 @@ Section fix_a_precategory.
   Defined.
 
   Definition CwF_1_data_from_CwF : CwF_1.tt_reindx_type_struct C.
-  Proof.    
+  Proof.
     use tpair; [use tpair; [use tpair; [use tpair|]|]|].
     - apply type_functor.
     - simpl. intros Γ A. apply (CwF_Pitts.term CC Γ A).
@@ -116,7 +116,7 @@ Section fix_a_precategory.
         simpl in *.
         apply CwF_Pitts.cwf_law_4.
   Defined.
-     
+
   Definition CwF_1_from_CwF : CwF_1.cwf_struct C.
   Proof.
     exists CwF_1_data_from_CwF.
@@ -188,7 +188,7 @@ Section fix_a_precategory.
           simpl in A.
           apply CwF_1.cwf_law_4.
     Defined.
-    
+
     Definition CwF_from_CwF_1 : CwF_Pitts.cwf_struct C.
     Proof.
       exists CwF_data_from_CwF_1.
@@ -197,7 +197,7 @@ Section fix_a_precategory.
 
   End CwF_from_CwF_1.
 
-  
+
   Lemma CwF_1_to_CwF_to_CwF_1 (CC : CwF_1.cwf_struct C)
     : CwF_1_from_CwF (CwF_from_CwF_1 CC) = CC.
   Proof.

@@ -105,7 +105,7 @@ Require Import UniMath.MoreFoundations.All.
 
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 Require Import UniMath.CategoryTheory.RightKanExtension.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.Categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.ElementsOp.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
@@ -692,8 +692,8 @@ Proof.
   apply total2_neg_to_neg_forall. exists (constant_functor _ SET unitset).
   apply total2_neg_to_neg_forall. exists (constant_functor _ SET boolset).
   apply total2_neg_to_neg_forall. exists (constant_functor _ SET boolset).
-  eapply negf. { 
-    eapply (isofhlevelweqf 1). 
+  eapply negf. {
+    eapply (isofhlevelweqf 1).
     exists idtoiso.
     apply is_univalent_functor_category, is_univalent_HSET.
   }
@@ -701,11 +701,11 @@ Proof.
   apply total2_neg_to_neg_forall. exists (identity_z_iso _).
   apply total2_neg_to_neg_forall. use tpair.
   { use constant_nat_z_iso. exists negb.
-    refine (MonoEpiIso.hset_equiv_is_z_iso boolset boolset negb_weq). } 
+    refine (MonoEpiIso.hset_equiv_is_z_iso boolset boolset negb_weq). }
   simpl. eapply negf. { apply (maponpaths pr1). }
   simpl. eapply negf.
   { refine (maponpaths _).
-    refine (fun (α : nat_trans _ _) => α _). 
+    refine (fun (α : nat_trans _ _) => α _).
     exists c. apply tt. }
   simpl. eapply negf. { apply (maponpaths (fun f => f true)). }
   simpl. exact nopathstruetofalse.

@@ -1,6 +1,6 @@
 
-(** 
-  
+(**
+
  Ahrens, Lumsdaine, Voevodsky, 2015
 
 Contents:
@@ -13,7 +13,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
 
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 
 Require Import TypeTheory.TypeCat.TypeCat.
 Require Import TypeTheory.OtherDefs.CwF_Pitts.
@@ -38,5 +38,5 @@ Section compare_maps.
       apply X.
     - intros. apply X.
   Defined.
-      
+
 End compare_maps.

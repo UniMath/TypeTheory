@@ -10,7 +10,7 @@
 *)
 
 Require Import UniMath.Foundations.Sets.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -46,7 +46,7 @@ Record precwf_record : Type := {
         iscontr (∑ (θ : Δ --> Γ ∙ A),
                  ∑ (e : θ ;; π A = γ),
                  pr2 (# T θ) _ (q _ A)
-                 = 
+                 =
                   transportf (fun f => pr1 ((T Δ)₂ (pr1 f A)))
                              (functor_comp T _ _ )
                   (transportb (fun f => pr1 ((T Δ)₂ (pr1 (# T f) A))) e

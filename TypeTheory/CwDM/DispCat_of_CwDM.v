@@ -3,7 +3,7 @@
 
 Definition of the displayed category of display maps over a category [C]
 
-Given a category with display maps [C], we define a displayed 
+Given a category with display maps [C], we define a displayed
 category over [C]. Objects over [c:C] are display maps into [c].
 
 *)
@@ -11,7 +11,7 @@ category over [C]. Objects over [c:C] are display maps into [c].
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -25,12 +25,12 @@ Require Import TypeTheory.OtherDefs.DM.
 (** ** Displayed category induced by a display map category
 
 The total category associated to this displayed category is going to be isomorphic to
-the subcategory of the arrow category where objects are display maps 
-(instead of all morphisms) 
+the subcategory of the arrow category where objects are display maps
+(instead of all morphisms)
 
 *)
 
-(* TODO: we could define the concept of a full displayed subcategory 
+(* TODO: we could define the concept of a full displayed subcategory
    The predicate on objects here would be induced by the predicate [H : DM]
    on arrows of [C].
 *)
@@ -47,7 +47,7 @@ Context  (D : dm_sub_struct CC).
 Definition DM_disp_ob_mor : disp_cat_ob_mor CC.
 Proof.
   exists (fun Γ => DM_over D Γ).
-  simpl; intros Γ Δ p q f. 
+  simpl; intros Γ Δ p q f.
   exact (∑ ff : ob_from_DM_over p --> ob_from_DM_over q,
            ff ;; q = p ;; f).
 Defined.
@@ -77,21 +77,21 @@ Definition DM_disp_data : disp_cat_data CC
 Lemma DM_disp_axioms : disp_cat_axioms CC DM_disp_data.
 Proof.
   repeat apply tpair; intros; try apply homset_property.
-  - (* id_left_disp *) 
+  - (* id_left_disp *)
     apply subtypePath.
     { intro. apply homset_property. }
     etrans. apply id_left.
     apply pathsinv0.
     etrans. use (pr1_transportf (CC⟦_,_⟧)).
     use transportf_const'.
-  - (* id_right_disp *) 
+  - (* id_right_disp *)
     apply subtypePath.
     { intro. apply homset_property. }
     etrans. apply id_right.
     apply pathsinv0.
     etrans. use (pr1_transportf (CC⟦_,_⟧)).
     use transportf_const'.
-  - (* assoc_disp *) 
+  - (* assoc_disp *)
     apply subtypePath.
     { intro. apply homset_property. }
     etrans. apply assoc.
@@ -116,7 +116,7 @@ Definition pullback_is_cartesian
 Proof.
   intros Hpb Δ g q hh.
   eapply iscontrweqf.
-  2: { 
+  2: {
     use Hpb.
     + exact (ob_from_DM_over q).
     + exact (pr1 hh).
@@ -127,7 +127,7 @@ Proof.
   2: { apply weqtotal2asstol. }
   apply weq_subtypes_iff.
   - intro. apply isapropdirprod; apply homset_property.
-  - intro. apply (isofhleveltotal2 1). 
+  - intro. apply (isofhleveltotal2 1).
     + apply homset_property.
     + intros. apply homsets_disp.
   - intros gg; split; intros H.
@@ -142,7 +142,7 @@ Qed.
 
 End Displayed_Cat_of_Class_of_Maps.
 
-(* Even for a fibration, we don’t need a full displayed cat structure: just that we have pullbacks, not the closure under iso or the fact that the [DM] predicate is a prop. 
+(* Even for a fibration, we don’t need a full displayed cat structure: just that we have pullbacks, not the closure under iso or the fact that the [DM] predicate is a prop.
 
 TODO: maybe factor out this dependency — name the separate conditions on classes of maps, and state just the hypotheses as needed. *)
 

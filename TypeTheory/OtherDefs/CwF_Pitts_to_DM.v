@@ -1,5 +1,5 @@
 
-(** 
+(**
 
  Ahrens, Lumsdaine, Voevodsky, 2015
 
@@ -13,7 +13,7 @@
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
@@ -26,7 +26,7 @@ Require Import TypeTheory.OtherDefs.CwF_Pitts.
 Require Import TypeTheory.OtherDefs.DM.
 
 (* Locally override the notation [ γ ♯ a ], at a higher level,
-  to get more informative bracketing when pairing meets composition. *) 
+  to get more informative bracketing when pairing meets composition. *)
 Local Notation "γ ## a" := (pairing γ a) (at level 75).
 
 (** * Category with DM from Category with families
@@ -97,7 +97,7 @@ Proof.
   - unshelve refine (make_Pullback _ _).
     5: use postcomp_pb_with_z_iso.
     7: eapply is_pullback_reindx_cwf.
-    + eassumption. 
+    + eassumption.
     + sym. assumption.
   - simpl.
     apply hinhpr.
