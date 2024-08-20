@@ -3,5 +3,5 @@
 
 (coq.theory
   (name TypeTheory)
-  (flags -noinit -indices-matter -w none)
+  (flags -noinit -indices-matter -type-in-type -w none)
   (theories UniMath))
