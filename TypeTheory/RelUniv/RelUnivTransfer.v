@@ -21,7 +21,7 @@ TODO:
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
-Require Import UniMath.CategoryTheory.rezk_completion.
+Require Import UniMath.CategoryTheory.RezkCompletions.Construction.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -494,7 +494,7 @@ Section RelUniv_Transfer.
         etrans. apply maponpaths_2, id_right.
         etrans. apply pathsinv0, functor_comp.
         apply maponpaths.
-        
+
         etrans. apply assoc.
         etrans. apply maponpaths_2, z_iso_after_z_iso_inv.
         apply id_left.
@@ -813,7 +813,7 @@ Section WeakRelUniv_Transfer.
     apply is_z_iso_from_is_iso.
     apply weak_relu_square_nat_trans_is_nat_iso.
   Defined.
-    
+
   Definition weak_relu_square_commutes
         (C'_univ : is_univalent C')
     : nat_z_iso
@@ -838,27 +838,27 @@ Section WeakRelUniv_Transfer.
   Defined.
 
   Definition reluniv_functor_with_ess_surj_issurjective_AC
-              (C'_univ : is_univalent C')		
-              (AC : AxiomOfChoice.AxiomOfChoice)		
-              (obC_isaset : isaset C)		
-     : issurjective (reluniv_functor_with_ess_surj		
-                       _ _ _ _ J J'		
-                       R S α α_is_iso		
-                       S_pb C'_univ ff_J' S_full R_es		
-                    ).		
-   Proof.		
-     set (W := (weak_from_reluniv_functor J'		
-             ,, weak_from_reluniv_functor_is_catiso J' C'_univ ff_J')		
-         : catiso _ _).		
-     use (Core.issurjective_postcomp_with_weq _ (catiso_ob_weq W)).		
-     use (transportf (λ F, issurjective (pr11 F))		
-                     (! weak_relu_square_commutes_identity C'_univ)).		
-     use issurjcomp.		
-     - apply weak_from_reluniv_functor_issurjective.		
-       apply AC.		
-       apply obC_isaset.		
-     - apply issurjectiveweq.		
-       apply (catiso_ob_weq (_,,weak_reluniv_functor_is_catiso)).		
+              (C'_univ : is_univalent C')
+              (AC : AxiomOfChoice.AxiomOfChoice)
+              (obC_isaset : isaset C)
+     : issurjective (reluniv_functor_with_ess_surj
+                       _ _ _ _ J J'
+                       R S α α_is_iso
+                       S_pb C'_univ ff_J' S_full R_es
+                    ).
+   Proof.
+     set (W := (weak_from_reluniv_functor J'
+             ,, weak_from_reluniv_functor_is_catiso J' C'_univ ff_J')
+         : catiso _ _).
+     use (Core.issurjective_postcomp_with_weq _ (catiso_ob_weq W)).
+     use (transportf (λ F, issurjective (pr11 F))
+                     (! weak_relu_square_commutes_identity C'_univ)).
+     use issurjcomp.
+     - apply weak_from_reluniv_functor_issurjective.
+       apply AC.
+       apply obC_isaset.
+     - apply issurjectiveweq.
+       apply (catiso_ob_weq (_,,weak_reluniv_functor_is_catiso)).
    Defined.
 
 End WeakRelUniv_Transfer.

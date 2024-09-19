@@ -14,7 +14,7 @@ Require Export UniMath.CategoryTheory.whiskering.
 Require Export UniMath.CategoryTheory.Adjunctions.Core.
 Require Export UniMath.CategoryTheory.Equivalences.Core.
 Require Export UniMath.CategoryTheory.precomp_fully_faithful.
-(* Require Export UniMath.CategoryTheory.rezk_completion. *)
+(* Require Export UniMath.CategoryTheory.RezkCompletions.Construction. *)
 Require Export UniMath.CategoryTheory.yoneda.
 Require Export UniMath.CategoryTheory.Categories.HSET.Core.
 Require Export UniMath.CategoryTheory.Categories.HSET.Univalence.
