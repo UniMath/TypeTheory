@@ -6,7 +6,7 @@
 
 (**
 
-This file accompanies the article _Categorical structures for type theory in univalent foundations_, Ahrens, Lumsdaine, Voevodsky, 2017, Logical Methods in Computer Science 14(3), https://arxiv.org/abs/1705.04310, 
+This file accompanies the article _Categorical structures for type theory in univalent foundations_, Ahrens, Lumsdaine, Voevodsky, 2017, Logical Methods in Computer Science 14(3), https://arxiv.org/abs/1705.04310,
 https://doi.org/10.23638/LMCS-14(3:18)2018
 
 This file should contain _no substantial formalisation_, and should not be imported.  Its aim is to provide an index from the results of the article ALV 2017 to their locations in the actual formalisation, so that they remain easily available and checkable for readers of the article, even as the library continues to evolve.
@@ -15,7 +15,7 @@ This file should contain _no substantial formalisation_, and should not be impor
 
 Require Import UniMath.Foundations.Sets.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
-Require Import UniMath.CategoryTheory.rezk_completion.
+Require Import UniMath.CategoryTheory.RezkCompletions.Construction.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
 
@@ -53,14 +53,14 @@ Defined.
 
 (** ** Compatible [qq] from term structure and vice versa *)
 
-Definition compatible_qq_from_term {C : category} 
+Definition compatible_qq_from_term {C : category}
            {X : obj_ext_structure C} (Y : term_fun_structure C X)
   : compatible_qq_morphism_structure Y.
 Proof.
   apply compatible_qq_from_term.
 Defined.
 
-Definition compatible_term_from_qq {C : category} 
+Definition compatible_term_from_qq {C : category}
            {X : obj_ext_structure C} (Z : qq_morphism_structure X)
   : compatible_term_structure Z.
 Proof.
@@ -90,11 +90,11 @@ Defined.
 
 
 (** * Map from [cwf_structure C] to [rep_map C] *)
-(** and proof that the map is an equivalence when [C] is univalent *)  
+(** and proof that the map is an equivalence when [C] is univalent *)
 
 Definition from_cwf_to_rep (C : category)
-  : cwf_structure C → rep_map C. 
-Proof. 
+  : cwf_structure C → rep_map C.
+Proof.
   exact (from_cwf_to_rep_map C).
 Defined.
 
@@ -111,7 +111,7 @@ Defined.
 
 Definition transfer_cwf_weak_equivalence {C D : category} (F : C ⟶ D)
   : fully_faithful F → essentially_surjective F
-    → is_univalent D → 
+    → is_univalent D →
     cwf_structure C → cwf_structure D.
 Proof.
   apply transfer_cwf_weak_equiv.
@@ -119,8 +119,8 @@ Defined.
 
 (** * Transfer of [rep_map]s along weak equivalences *)
 
-Definition transfer_rep_map_weak_equivalence {C D : category} 
-           (F : C ⟶ D) 
+Definition transfer_rep_map_weak_equivalence {C D : category}
+           (F : C ⟶ D)
   : fully_faithful F → essentially_surjective F → rep_map C ≃ rep_map D.
 Proof.
   apply transfer_rep_map_weak_equiv.
