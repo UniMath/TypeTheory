@@ -230,20 +230,20 @@ Defined.
 Lemma isover_T_T_2 { BB : lBsystem_carrier }
       { T : T_ops_type BB } ( ax0 :  T_ax0_type T ) ( ax1a : T_ax1a_type T )
       { X1 X2 X2' : BB } ( inn : T_dom X1 X2 ) ( inn' : T_dom X1 X2' )
-      ( is : isover X2 X2' ) : isover ( T X1 X2 inn ) ( T X1 X2' inn' ) .
+      ( iso : isover X2 X2' ) : isover ( T X1 X2 inn ) ( T X1 X2' inn' ) .
 Proof .
   unfold isover in * .
   do 2 rewrite ax0 .
   simpl .
   assert ( isab : isabove ( ftn ( ll X2 - ll X2') X2 ) ( ft X1 ) ) .
-  rewrite <- is .
+  rewrite <- iso .
 
 (*  Set Printing All . *)
   
   exact ( T_dom_isabove inn' ) . 
 
   rewrite ( ftn_T ax1a _ isab inn ) .
-  exact ( T_equals_T _ is _ _ ) . 
+  exact ( T_equals_T _ iso _ _ ) . 
 
 Defined.
 
@@ -251,13 +251,13 @@ Defined.
 Lemma isabove_T_T_2 { BB : lBsystem_carrier }
       { T : T_ops_type BB } ( ax0 :  T_ax0_type T ) ( ax1a : T_ax1a_type T )
       { X1 X2 X2' : BB } ( inn : T_dom X1 X2 ) ( inn' : T_dom X1 X2' )
-      ( is : isabove X2 X2' ) : isabove ( T X1 X2 inn ) ( T X1 X2' inn' ) .
+      ( isa : isabove X2 X2' ) : isabove ( T X1 X2 inn ) ( T X1 X2' inn' ) .
 Proof .
   use isabove_constr.
   do 2 rewrite ax0 . 
-  exact ( isabove_gth is ) . 
+  exact ( isabove_gth isa ) . 
 
-  exact ( isover_T_T_2 ax0 ax1a _ _ is ) . 
+  exact ( isover_T_T_2 ax0 ax1a _ _ isa ) . 
   
 Defined.
 

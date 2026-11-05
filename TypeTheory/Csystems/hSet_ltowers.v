@@ -8,8 +8,8 @@ Require Export TypeTheory.Csystems.ltowers_over.
 
 Definition hSet_ltower := ∑ T : ltower, isaset T.
 
-Definition hSet_ltower_constr ( T : ltower ) ( is : isaset T ):
-  hSet_ltower := T ,, is. 
+Definition hSet_ltower_constr ( T : ltower ) ( isa : isaset T ):
+  hSet_ltower := T ,, isa. 
 
 Definition hSet_ltower_pr1: hSet_ltower -> ltower := pr1. 
 Coercion hSet_ltower_pr1: hSet_ltower >-> ltower.
@@ -30,8 +30,8 @@ Defined.
 
 Definition hSet_pltower := ∑ T : hSet_ltower, ispointed_type T.
 
-Definition hSet_pltower_constr ( T : hSet_ltower ) ( is : ispointed_type T ):
-  hSet_pltower := T ,, is. 
+Definition hSet_pltower_constr ( T : hSet_ltower ) ( isp : ispointed_type T ):
+  hSet_pltower := T ,, isp. 
 
 
 Definition hSet_pltowers_to_pltowers: hSet_pltower -> pltower :=

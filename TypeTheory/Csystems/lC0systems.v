@@ -179,18 +179,18 @@ Proof.
 Defined.
 
 (* not needed later! *)
-Lemma eq_parameterized_equation {S T: UU}(is: isaset S)
+Lemma eq_parameterized_equation {S T: UU}(iss: isaset S)
       (l r: T -> S)(pequ: forall h: T, l h = r h)(chk: T -> T -> UU)
       (l_ok: forall {g g'}, chk g g' -> l g = l g')
       (r_ok: forall {g g'}, chk g g' -> r g = r g')
       { g g': T }(H: chk g g'):
   pequ g = l_ok H @ pequ g' @ (! r_ok H).
 Proof.
-  apply is.
+  apply iss.
 Qed.
 
 
-Lemma cancelidtoiso_left {CC: precategory}(is: isaset (ob CC)) {a b c: CC}
+Lemma cancelidtoiso_left {CC: precategory}(iss: isaset (ob CC)) {a b c: CC}
       (p1 p2: a = b)(m1 m2: b --> c):
   m1 = m2 -> idtoiso p1 · m1  = idtoiso p2 · m2.
 Proof.
@@ -199,7 +199,7 @@ Proof.
               morphism_from_z_iso _ _ (idtoiso p2)).
   apply maponpaths.
   apply maponpaths.
-  apply is.
+  apply iss.
   cbn.
   etrans.
   { apply maponpaths. exact Hyp. }
@@ -207,7 +207,7 @@ Proof.
   assumption.
 Qed.
 
-Lemma cancelidtoiso_left_cor {CC: precategory}(is: isaset (ob CC)) {a b: CC}
+Lemma cancelidtoiso_left_cor {CC: precategory}(iss: isaset (ob CC)) {a b: CC}
       (p: a = a)(m1 m2: a --> b):
   m1 = m2 -> m1  = idtoiso p · m2.
 Proof.
@@ -218,7 +218,7 @@ Proof.
 Qed.
 
 
-Lemma cancelidtoiso_right {CC: precategory}(is: isaset (ob CC)) {a b c: CC}
+Lemma cancelidtoiso_right {CC: precategory}(iss: isaset (ob CC)) {a b c: CC}
       (m1 m2: a --> b)(q1 q2: b = c):
   m1 = m2 -> m1 · idtoiso q1  =  m2 · idtoiso q2.
 Proof.
@@ -227,14 +227,14 @@ Proof.
               morphism_from_z_iso _ _ (idtoiso q2)).
   apply maponpaths.
   apply maponpaths.
-  apply is.
+  apply iss.
   etrans.
   { apply maponpaths. exact H1. }
   apply cancel_postcomposition.
   assumption.
 Qed.
 
-Lemma cancelidtoiso_right_cor {CC: precategory}(is: isaset (ob CC)) {a b: CC}
+Lemma cancelidtoiso_right_cor {CC: precategory}(iss: isaset (ob CC)) {a b: CC}
       (m1 m2: a --> b)(q: b = b):
   m1 = m2 -> m1 =  m2 · idtoiso q.
 Proof.
@@ -244,7 +244,7 @@ Proof.
   apply cancelidtoiso_right; assumption.
 Qed.
 
-Corollary eq_par_arrow_cor_objirr {CC: precategory}(is: isaset (ob CC)){T: UU}
+Corollary eq_par_arrow_cor_objirr {CC: precategory}(iss: isaset (ob CC)){T: UU}
       ( s t: T -> ob CC )
       ( par: forall h: T, CC ⟦ s h , t h ⟧)
       { g g': T}(e : g = g')(p: s g = s g')(q: t g' = t g):
@@ -253,14 +253,14 @@ Proof.
   rewrite (eq_par_arrow_cor _ _ _ e).
   do 2 rewrite <- assoc.
   apply cancelidtoiso_left.
-  { apply is. }
+  { apply iss. }
   etrans.
   { apply cancel_precomposition.
     apply pathsinv0.
     apply idtoiso_inv0.
   }
   apply cancelidtoiso_right.
-  { apply is. }
+  { apply iss. }
   apply idpath.
 Qed.
 

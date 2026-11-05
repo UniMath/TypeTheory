@@ -12,7 +12,7 @@ This file is intended to accompany a sequel article to ALV-2017, currently in (d
 
 Require Import UniMath.Foundations.Sets.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
-Require Import UniMath.CategoryTheory.rezk_completion.
+Require Import UniMath.CategoryTheory.RezkCompletions.Construction.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -82,10 +82,10 @@ Admitted.
 
 
 (** * Map from [cwf_structure C] to [rep_map C] *)
-(** and proof that the map is an equivalence when [C] is univalent *)  
+(** and proof that the map is an equivalence when [C] is univalent *)
 
 Definition functor_cwf_to_rep (C : category)
-  : cwf_structure_cat C ⟶ rep_map_cat C. 
+  : cwf_structure_cat C ⟶ rep_map_cat C.
 Admitted.
 
 Proposition fully_faithful_cwf_to_rep (C : category)
@@ -100,7 +100,7 @@ Admitted.
 
 Definition transfer_cwf_weak_equivalence {C D : category} (F : C ⟶ D)
   : fully_faithful F → essentially_surjective F
-    → is_univalent D → 
+    → is_univalent D →
     cwf_structure_cat C ⟶ cwf_structure_cat D.
 Admitted.
 (* TODO: perhaps show functorial in F also. *)
@@ -108,7 +108,7 @@ Admitted.
 (** * Transfer of [rep_map]s along weak equivalences *)
 
 Definition transfer_rep_map_weak_equivalence
-  {C D : category} (F : C ⟶ D) 
+  {C D : category} (F : C ⟶ D)
   : fully_faithful F → essentially_surjective F
   → equivalence_of_cats (rep_map_cat C) (rep_map_cat D).
 Admitted.

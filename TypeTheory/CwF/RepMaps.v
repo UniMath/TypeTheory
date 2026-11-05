@@ -17,7 +17,7 @@ Contents:
 
 Require Import UniMath.Foundations.Sets.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
-Require Import UniMath.CategoryTheory.rezk_completion.
+Require Import UniMath.CategoryTheory.RezkCompletions.Construction.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -31,7 +31,7 @@ Require Import TypeTheory.RelUniv.Transport_along_Equivs.
 
 (** * Definition of a representable map of presheaves
 
-A representable map of presheaves consists of 
+A representable map of presheaves consists of
 
 - a base category C;
 - a morphism Tm —p—> Ty of presheaves on C;
@@ -41,10 +41,10 @@ A representable map of presheaves consists of
 
 Section Fix_Category.
 
-(**  Representations of maps of presheaves 
+(**  Representations of maps of presheaves
 
-A *representation* of a map Tm —p—> Ty of presheaves consists of data exhibiting, 
-  for each (A : Ty Γ), the fiber of p over A as represented by some object Γ.A over Γ. 
+A *representation* of a map Tm —p—> Ty of presheaves consists of data exhibiting,
+  for each (A : Ty Γ), the fiber of p over A as represented by some object Γ.A over Γ.
 
 *)
 
@@ -68,7 +68,7 @@ Proof.
   apply propproperty.
 Qed.
 
-Definition rep_map : UU 
+Definition rep_map : UU
   := ∑ pp : mor_total (preShv C), is_representable pp.
 
 (** * Map from cwfs to representable maps of presheaves *)
@@ -95,7 +95,7 @@ Defined.
     an equivalence if [C] is univalent.
 *)
 
-Definition weq_cwf_rep_map : 
+Definition weq_cwf_rep_map :
   is_univalent C -> cwf_structure C ≃ rep_map.
 Proof.
   intro H.
@@ -108,8 +108,8 @@ Proof.
   apply H.
 Defined.
 
-(** Perhaps not obviously, the equivalence [weq_cwf_rep_map] is 
-    pointwise definitionally equal to the map [from_cwf_to_rep_map] 
+(** Perhaps not obviously, the equivalence [weq_cwf_rep_map] is
+    pointwise definitionally equal to the map [from_cwf_to_rep_map]
     defined by hand.
 *)
 
@@ -187,9 +187,9 @@ Defined.
 >>>
 *)
 
-Lemma cwf_repmap_diagram (C : category) (X : cwf_structure C) 
+Lemma cwf_repmap_diagram (C : category) (X : cwf_structure C)
   : from_cwf_to_rep_map _ (Rezk_on_cwf_structures X)
-    = 
+    =
     Rezk_on_rep_map _ (from_cwf_to_rep_map _ X).
 Proof.
   apply subtypePath.

@@ -27,7 +27,7 @@ Bind Scope mor_scope with precategory_morphisms.
 Open Scope mor_scope.
 
 Declare Scope precat.
-Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op") : precat.
+Notation "C '^op'" := (opp_precat C) (format "C ^op") : precat.
 Delimit Scope precat with precat.
 
 Open Scope cat.

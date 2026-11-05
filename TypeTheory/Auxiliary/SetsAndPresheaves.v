@@ -262,7 +262,7 @@ Proof.
   transparent assert
        (XH : (∏ a : C^op,
         LimCone
-          (@Colimits.diagram_pointwise C^op HSET
+          (@Diagrams.diagram_pointwise C^op HSET
              pullback_graph XT1 a))).
     { intro. apply LimConeHSET.  }
     specialize (XR XH).
@@ -278,7 +278,7 @@ Proof.
     specialize (XR S).
     simpl in XR.
     transparent assert (HC
-      :  (cone (@Colimits.diagram_pointwise C^op HSET
+      :  (cone (@Diagrams.diagram_pointwise C^op HSET
                     pullback_graph (pullback_diagram (preShv C) f g) c) S)).
     { use make_cone.
       apply three_rec_dep; cbn.

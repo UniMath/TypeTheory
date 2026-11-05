@@ -63,17 +63,17 @@ Defined.
 Lemma isover_T_ext_T_ext_2 { BB : lBsystem_carrier }
       { T : T_ops_type BB } ( ax0 :  T_ax0_type T ) ( ax1a : T_ax1a_type T ) ( ax1b : T_ax1b_type T )
       { X1 X2 X2' : BB } ( inn : T_ext_dom X1 X2 ) ( inn' : T_ext_dom X1 X2' )
-      ( is : isover X2 X2' ) : isover ( T_ext T inn ) ( T_ext T inn' ) .
+      ( iso : isover X2 X2' ) : isover ( T_ext T inn ) ( T_ext T inn' ) .
 Proof .
   unfold T_ext .
   destruct ( ovab_choice (pr2 inn) ) as [ isab | eq ] .
   + destruct ( ovab_choice (pr2 inn') ) as [ isab' | eq' ] .
-    * apply ( isover_T_T_2 ax0 ax1a _ _ is ) . 
+    * apply ( isover_T_T_2 ax0 ax1a _ _ iso ) . 
     * exact ( ax1b _ _ _ ) . 
   + destruct ( ovab_choice (pr2 inn') ) as [ isab' | eq' ] .
     * apply fromempty. 
-      rewrite eq in is . 
-      assert ( ge := isover_geh is ) .  
+      rewrite eq in iso . 
+      assert ( ge := isover_geh iso ) .  
       assert ( gt := isabove_gth isab' ) . 
       exact ( natgthnegleh gt ge ) . 
     * exact ( isover_XX _ ) . 
