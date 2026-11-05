@@ -5,6 +5,11 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+    types:
+      - ready_for_review
+      - opened
+      - reopened
+      - synchronize
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
   schedule:
@@ -20,7 +25,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        coq-version: [dev, latest, 8.16]
+        coq-version: [dev, latest]
+        # '8.20' does not work since Corelib is not known (the apostrophes are needed to interpret it as version 20 instead of 2)
         ocaml-version: [4.14-flambda]
     name: Build with ${{ matrix.coq-version }}
     runs-on: ubuntu-22.04
@@ -58,7 +64,11 @@ jobs:
           ocaml_version: ${{ matrix.ocaml-version }}
           custom_script: |
             startGroup "Workaround permission issue"
-            sudo chown -R coq:coq .
+            sudo chown -R 1000:1000 .
+            endGroup
+
+            startGroup "Install the coq shim if need be"
+            command -v coqc || opam install --confirm-level=unsafe-yes -j 2 coq-core
             endGroup
 
             startGroup "Print versions"

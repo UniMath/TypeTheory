@@ -24,13 +24,13 @@ hold. *)
 
 
 Definition lBsystem_carrier_constr { B : hSet_pltower } { TildeB : hSet }
-           ( dd : TildeB -> B ) ( is : forall r : TildeB, ll ( dd r ) > 0 ) : lBsystem_carrier .
+           ( dd : TildeB -> B ) ( hyp : forall r : TildeB, ll ( dd r ) > 0 ) : lBsystem_carrier .
 Proof .
   split with B . 
 
   split with TildeB . 
 
-  exact ( tpair _ dd is ) .
+  exact ( tpair _ dd hyp ) .
 
 Defined.
 

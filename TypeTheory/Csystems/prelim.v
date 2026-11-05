@@ -235,10 +235,10 @@ Definition nateqandplusl ( n m k : nat ): n = m -> k + n = k + m :=
 
 (** **** Cancellation properties of minus on nat *)
 
-Lemma natminusrcan { n m k : nat } ( ge1 : n >= k ) ( ge2 : m >= k ) ( is : n - k = m - k ):
+Lemma natminusrcan { n m k : nat } ( ge1 : n >= k ) ( ge2 : m >= k ) ( ise : n - k = m - k ):
   n = m.
 Proof.
-  assert ( is' := nateqandplusr _ _ k is ).
+  assert ( is' := nateqandplusr _ _ k ise ).
   rewrite ( minusplusnmm _ _ ge1 ) in is'.
   rewrite ( minusplusnmm _ _ ge2 ) in is'.
   exact is'.
@@ -351,20 +351,20 @@ Defined.
 
 (* Two-sided minus and greater *)
 
-Definition natgthandminusinvr { n m k : nat } ( is : n > m ) ( is' : m >= k ):
+Definition natgthandminusinvr { n m k : nat } ( isgt : n > m ) ( is' : m >= k ):
   n - k > m - k.
 Proof.
-  revert m k is is'.
+  revert m k isgt is'.
   induction n as [ | n IHn ].
   - intros.
-    destruct ( negnatgth0n _ is ).
+    destruct ( negnatgth0n _ isgt ).
   - intro m.
     induction k as [ | k ]; intros.
     + do 2 rewrite natminuseqn.
-      exact is.
+      exact isgt.
     + induction m as [ | m ].
       * destruct ( negnatgeh0sn _ is' ).
-      * exact ( IHn m k is is' ).
+      * exact ( IHn m k isgt is' ).
 Defined.
 
 
@@ -382,10 +382,10 @@ Proof.
       induction k as [ | k ].
       * apply natminuslehn.
       * apply natminuslehn.
-    + induction k as [ | k ]; intro is.
+    + induction k as [ | k ]; intro isge.
       * apply isreflnatleh.
       * apply ( IHn m k ).
-        apply is.
+        apply isge.
 Defined.
 
 

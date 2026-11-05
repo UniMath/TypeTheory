@@ -394,14 +394,27 @@ Section Context_Maps.
     intros H Γ Δ.
     unsquash H as [Γ' [Δ' d_fg]].
     unsquash from Γ Γ' Δ Δ' d_fg
-             (cxteq_context_representatives Γ Γ')
-             (cxteq_context_representatives Δ Δ')
-      as ? d_Γ' ? d_Δ' [? [? ?]] ? ?. apply hinhpr.
+      (cxteq_context_representatives Γ Γ')
+      (cxteq_context_representatives Δ Δ')
+      as X d_Γ' X0 d_Δ' [pr1 [pr0 pr2]] X1 X2. (* names Xi and pri assigned for later exact command *) apply hinhpr.
+    exact (derive_mapeq_conv_cxteq_dom d_Γ' X (derive_flat_cxteq_sym X d_Γ' X1) X0
+             (derive_map_conv_cxteq_cod d_Γ' d_Δ' X0 (derive_flat_cxteq_sym X0 d_Δ' X2) pr1)
+             (derive_map_conv_cxteq_cod d_Γ' d_Δ' X0 (derive_flat_cxteq_sym X0 d_Δ' X2) pr0)
+             (derive_mapeq_conv_cxteq_cod d_Γ' d_Δ' X0 (derive_flat_cxteq_sym X0 d_Δ' X2) pr1 pr0 pr2)).
+  (* a less monolithic try to prove the goal:
+    unsquash from Γ Γ' Δ Δ' d_fg
+      (cxteq_context_representatives Γ Γ')
+      (cxteq_context_representatives Δ Δ')
+      as ? d_Γ' X0 d_Δ' [pr1 [pr0 pr2]] ? X2. (* names Xi and pri assigned for later exact command *) apply hinhpr.
     apply (derive_mapeq_conv_cxteq_dom d_Γ');
       auto using derive_flat_cxt_from_strat, derive_flat_cxteq_sym,
-         (derive_map_conv_cxteq_cod d_Γ' d_Δ').
-    use (derive_mapeq_conv_cxteq_cod _ d_Δ');
-      auto using derive_flat_cxt_from_strat, derive_flat_cxteq_sym.
+      (derive_map_conv_cxteq_cod d_Γ' d_Δ').
+    exact (derive_mapeq_conv_cxteq_cod d_Γ' d_Δ' X0 (derive_flat_cxteq_sym X0 d_Δ' X2) pr1 pr0 pr2).
+    Rocq 9.4alpha complains that the type of this expression does not match the goal
+   *)
+  (* prior to Rocq 9.4alpha the latter exact replaced with tactics:
+       use (derive_mapeq_conv_cxteq_cod _ d_Δ');
+       auto using derive_flat_cxt_from_strat, derive_flat_cxteq_sym. *)
   Qed.
 
   Lemma mapeq_for_some_rep
@@ -453,13 +466,13 @@ Section Context_Map_Operations.
     revert ff gg. use setquotfun2'; [ | split].
     - (* construction of the composite *)
       intros f g. exists (comp_raw_context f g).
-      abstract (intros Γ Θ;
+      abstract ( intros Γ Θ;
         apply (take_context_representative ΔΔ);
         [ apply isapropishinh |
           intros Δ;
           unsquash from Δ (map_derivable f Γ Δ) (map_derivable g Δ Θ)
             as d_Δ d_f d_g; apply hinhpr;
-          eauto using (derive_comp d_f) ]).
+          exact (derive_comp d_f d_g) ]).
     - (* respecting equality in [f] *)
       abstract ( intros f f' g e_f Γ Θ; cbn;
         apply (take_context_representative ΔΔ);
@@ -794,7 +807,8 @@ Section Split_Typecat.
         try apply derive_extend_flat_cxteq, (substeq_derivation [! Γ |- A !]);
         try refine (derive_flat_extend_context _ d_A);
         try refine (derive_weaken_raw_context_map _ _ _ d_f);
-        auto using derive_flat_cxt_from_strat, (@derive_flat_cxteq_refl Γ').
+        auto using derive_flat_cxt_from_strat, (@derive_flat_cxteq_refl Γ');
+        try exact (derive_flat_cxteq_refl d_Γ').
     + refine (derive_weaken_raw_context_map _ _ _ d_g);
         auto using derive_flat_cxt_from_strat.
     + refine (derive_weaken_raw_context_mapeq _ _ _ _ _ d_fg);

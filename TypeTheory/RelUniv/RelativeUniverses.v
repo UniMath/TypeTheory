@@ -731,7 +731,7 @@ Variables (U tU : D) (pp : tU --> U).
 
 Section map_on_is_universe_relativ_to.
 
-Hypothesis is : is_universe_relative_to J pp.
+Hypothesis isu : is_universe_relative_to J pp.
 
 
 Lemma mere_fpullback_transfer {X' : C'} (g : D' ⟦ J' X', S U ⟧)
@@ -741,7 +741,7 @@ Proof.
   unsquash from (R_es X') as [X i]; clear R_es.
   set (f' := (α X ;; #J' i ;; g) : D' ⟦ S (J X), S U ⟧).
   unsquash from (S_full _ _ f') as [f e_Sf_f']; clear S_full.
-  unsquash from (is _ f) as [[Xf [p q]] [e isPb]].
+  unsquash from (isu _ f) as [[Xf [p q]] [e isPb]].
   assert (Sfp := S_pb _ _ _ _ _ _ _ _ _ isPb); clear S_pb.
   set (HSfp := functor_on_square D D' S e) in *; clearbody HSfp.
   apply hinhpr.

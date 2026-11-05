@@ -17,7 +17,7 @@ Contents:
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import TypeTheory.Auxiliary.CategoryTheoryImports.
-Require Import UniMath.CategoryTheory.rezk_completion.
+Require Import UniMath.CategoryTheory.RezkCompletions.Construction.
 
 Require Import TypeTheory.Auxiliary.Auxiliary.
 Require Import TypeTheory.Auxiliary.CategoryTheory.
@@ -28,7 +28,7 @@ Require Import TypeTheory.RelUniv.RelativeUniverses.
 Require Import TypeTheory.RelUniv.Transport_along_Equivs.
 Require Import TypeTheory.RelUniv.RelUnivYonedaCompletion.
 
-(** * Definition of a CwF 
+(** * Definition of a CwF
 
 A (Fiore-style) CwF consists of:
 
@@ -50,7 +50,7 @@ Section Fix_Category.
 
 Context {C : category}.
 
-(** ** Representations of maps of presheaves 
+(** ** Representations of maps of presheaves
 
 A *representation* of a map Tm —p—> Ty of presheaves consists of data illustrating that “every fibre of _p_ is representable”; that is, giving for each (A : Ty Γ), some object and map (π A) : Γ.A Γ, along with a term (te A) over A which is “universal”, in that it represents the fiber of p over A. *)
 
@@ -81,11 +81,11 @@ Proof.
 Qed.
 
 Definition cwf_fiber_representation {Γ : C} (A : Ty Γ : hSet) : UU
-  := ∑ (ΓAπ : map_into Γ) (te : cwf_tm_of_ty (# Ty (pr2 ΓAπ) A)), 
+  := ∑ (ΓAπ : map_into Γ) (te : cwf_tm_of_ty (# Ty (pr2 ΓAπ) A)),
      isPullback (cwf_square_comm (pr2 te)).
 (* See below for an alternative version [cwf_fiber_representation'], separated into data + axioms *)
 
-Definition cwf_representation : UU 
+Definition cwf_representation : UU
   := ∏ Γ (A : Ty Γ : hSet), cwf_fiber_representation A.
 
 End Representation.
@@ -141,7 +141,7 @@ Definition cwf_fiber_rep_data {Γ:C} (A : Ty pp Γ : hSet) : UU
   := ∑ (ΓA : C), C ⟦ΓA, Γ⟧ × (Tm pp ΓA : hSet).
 
 Definition cwf_fiber_rep_ax {Γ:C} {A : Ty pp Γ : hSet}
-    (ΓAπt : cwf_fiber_rep_data A) : UU 
+    (ΓAπt : cwf_fiber_rep_data A) : UU
   := ∑ (H : pp $nt (pr2 (pr2 ΓAπt))
             = #(Ty pp) (pr1 (pr2 ΓAπt)) A),
     isPullback (cwf_square_comm H).
@@ -149,20 +149,20 @@ Definition cwf_fiber_rep_ax {Γ:C} {A : Ty pp Γ : hSet}
 Definition cwf_fiber_representation' {Γ:C} (A : Ty pp Γ : hSet) : UU
   := ∑ ΓAπt : cwf_fiber_rep_data A, cwf_fiber_rep_ax ΓAπt.
 
-Definition cwf_fiber_representation_weq {Γ:C} (A : Ty pp Γ : hSet) 
+Definition cwf_fiber_representation_weq {Γ:C} (A : Ty pp Γ : hSet)
   : cwf_fiber_representation pp A ≃ cwf_fiber_representation' A.
 Proof.
   unfold cwf_fiber_representation, cwf_fiber_representation'.
   eapply weqcomp.   (* (ΓA,π), ((v,e),P) *)
   eapply weqfibtototal. intro x.
     apply weqtotal2asstor. simpl. (*  (ΓA,π), (v, (e,P)) *)
-  eapply weqcomp; [eapply invweq; apply weqtotal2asstol |]; simpl.  
+  eapply weqcomp; [eapply invweq; apply weqtotal2asstol |]; simpl.
   apply invweq.
   eapply weqcomp.
   apply weqtotal2asstor. cbn.
   apply weqfibtototal. intro ΓA.
   apply weqtotal2asstor.
-Defined.  
+Defined.
 
 End Representation_Regrouping.
 
@@ -175,8 +175,8 @@ Proof.
   intros isC.
   apply invproofirrelevance.
   intros x x'. apply subtypePath.
-  { intro t. 
-    apply isofhleveltotal2. 
+  { intro t.
+    apply isofhleveltotal2.
     - apply setproperty.
     - intro. apply isaprop_isPullback.
   }
@@ -194,8 +194,8 @@ Proof.
     cbn.
     etrans. { apply yoneda_postcompose. }
     etrans. {
-      refine (toforallpaths _ (identity _)). 
-      refine (toforallpaths _ _). 
+      refine (toforallpaths _ (identity _)).
+      refine (toforallpaths _ _).
       apply maponpaths,
         (PullbackArrow_PullbackPr1 (make_Pullback _ (pr22 x))).
     }
@@ -283,7 +283,7 @@ Lemma weq_cwf_representation_rel_universe_structure
   : cwf_representation pp ≃ rel_universe_structure Yo pp.
 Proof.
   apply weqonsecfibers. intro Γ.
-  (* convert the type argument under [yy] *) 
+  (* convert the type argument under [yy] *)
   eapply weqcomp.
   2: { eapply invweq.
     refine (weqonsecbase _ _). apply yy.
@@ -294,7 +294,7 @@ Defined.
 
 End Representation_FComprehension.
 
-Definition weq_cwf_structure_RelUnivYo 
+Definition weq_cwf_structure_RelUnivYo
   : cwf_structure C ≃ @relative_universe C _ Yo.
 Proof.
   apply weqfibtototal.
@@ -337,7 +337,7 @@ Qed.
 
 Definition transfer_cwf_weak_equiv {C D : category} (F : C ⟶ D)
            (F_ff : fully_faithful F) (F_es : essentially_surjective F)
-           (Dcat : is_univalent D) 
+           (Dcat : is_univalent D)
   : cwf_structure C → cwf_structure D.
 Proof.
   intro CC.
@@ -351,11 +351,11 @@ Defined.
 
 Section CwF_Ftransport_recover.
 
-Context {C D : category} 
+Context {C D : category}
         (F : C ⟶ D)
-        (F_ff : fully_faithful F) 
+        (F_ff : fully_faithful F)
         (F_es : essentially_surjective F)
-        (Dcat : is_univalent D) 
+        (Dcat : is_univalent D)
         (T : cwf_structure C).
 
 Let DD : univalent_category := (D,,Dcat).
@@ -371,34 +371,34 @@ Let pp' : _ ⟦ TM' , TY' ⟧ := pr1 T'.
 Let ηη : functor (preShv D) (preShv C) :=
   pre_composition_functor C^op D^op _ (functor_opp F).
 
-Let isweq_Fcomp : isweq (pr1 (pr1 (Fop_precomp F))) := 
-adj_equiv_of_cats_is_weq_of_objects 
-               _ _ 
+Let isweq_Fcomp : isweq (pr1 (pr1 (Fop_precomp F))) :=
+adj_equiv_of_cats_is_weq_of_objects
+               _ _
                (is_univalent_functor_category _ _ is_univalent_HSET )
                (is_univalent_functor_category _ _ is_univalent_HSET )
-               _ 
+               _
                (equiv_Fcomp F F_ff F_es).
 
-Lemma Tm_transfer_recover : 
+Lemma Tm_transfer_recover :
       TM = ηη TM'.
 Proof.
   assert (XT := homotweqinvweq (make_weq _ isweq_Fcomp) TM).
   apply pathsinv0.
   apply XT.
-Defined.  
+Defined.
 
-Lemma Ty_transfer_recover : 
+Lemma Ty_transfer_recover :
    TY = ηη TY'.
 Proof.
   assert (XT := homotweqinvweq (make_weq _ isweq_Fcomp) TY).
   apply pathsinv0.
   apply XT.
-Defined.  
+Defined.
 
 Let Fopequiv : adj_equivalence_of_cats _  := equiv_Fcomp F F_ff F_es.
 
 
-Definition pp'_eta : 
+Definition pp'_eta :
   preShv C ⟦ ηη TM' , ηη TY' ⟧.
 Proof.
   apply (# ηη pp').
@@ -452,7 +452,7 @@ Let pp' : _ ⟦ TM' , TY' ⟧ := pr1 T'.
 Let ηη : functor (preShv RC) (preShv C) :=
   pre_composition_functor C^op RC^op _ (functor_opp (Rezk_eta C)).
 
-Lemma Tm_Rezk_completion_recover : 
+Lemma Tm_Rezk_completion_recover :
  (*  Tm = functor_composite (functor_opp (Rezk_eta C _ )) Tm'.*)
       TM = ηη TM'.
 Proof.
@@ -460,9 +460,9 @@ Proof.
   assert (XT := homotweqinvweq XR TM).
   apply pathsinv0.
   apply XT.
-Defined.  
+Defined.
 
-Lemma Ty_Rezk_completion_recover : 
+Lemma Ty_Rezk_completion_recover :
 (*   Ty = functor_composite (functor_opp (Rezk_eta C _ )) Ty'. *)
    TY = ηη TY'.
 Proof.
@@ -470,7 +470,7 @@ Proof.
   assert (XT := homotweqinvweq XR TY).
   apply pathsinv0.
   apply XT.
-Defined.  
+Defined.
 
 
 Let RCequiv : adj_equivalence_of_cats _  := Rezk_op_adj_equiv C
@@ -481,7 +481,7 @@ Proof.
   apply functor_category_has_homsets.
 Defined.
 
-Definition RC_pp'_eta : 
+Definition RC_pp'_eta :
   preShv C ⟦ ηη TM' , ηη TY' ⟧.
 Proof.
   apply (# ηη pp').

@@ -1,7 +1,11 @@
 
 (include_subdirs qualified)
 
-(coq.theory
-  (name TypeTheory)
-  (flags -noinit -indices-matter -w none)
-  (theories UniMath))
+(rocq.theory
+ (name TypeTheory)
+ (flags :standard
+        -noinit
+        -indices-matter
+ ;;       -type-in-type
+	-w none)
+ (theories UniMath))

@@ -608,12 +608,12 @@ Proof.
   - intros bp. use total2_paths_f. apply idpath. apply wv.
 Qed.
 
-Definition truncation_weq (A : UU) (is : isaprop A) : A ≃ ∥ A ∥.
+Definition truncation_weq (A : UU) (isa : isaprop A) : A ≃ ∥ A ∥.
 Proof.
   apply weqimplimpl.
   - apply hinhpr.
   - intro a. unsquash a; assumption.
-  - apply is.
+  - apply isa.
   - apply propproperty. 
 Defined.
 

@@ -56,17 +56,17 @@ Defined.
 Lemma isover_S_ext_S_ext_2 { BB : lBsystem_carrier }
       { S : S_ops_type BB } ( ax0 :  S_ax0_type S ) ( ax1a : S_ax1a_type S ) ( ax1b : S_ax1b_type S )
       { r : Tilde BB } { X2 X2' : BB } ( inn : S_ext_dom r X2 ) ( inn' : S_ext_dom r X2' )
-      ( is : isover X2 X2' ) : isover ( S_ext S inn ) ( S_ext S inn' ) .
+      ( iso : isover X2 X2' ) : isover ( S_ext S inn ) ( S_ext S inn' ) .
 Proof .
   unfold S_ext .
   destruct ( ovab_choice inn ) as [ isab | eq ] .
   + destruct ( ovab_choice inn' ) as [ isab' | eq' ] .
-    * apply ( isover_S_S_2 ax0 ax1a _ _ is ) . 
+    * apply ( isover_S_S_2 ax0 ax1a _ _ iso ) . 
     * exact ( ax1b _ _ _ ) . 
   + destruct ( ovab_choice inn' ) as [ isab' | eq' ] .
     * assert ( absd : empty ) .
-      rewrite eq in is . 
-      assert ( ge := isover_geh is ) .  
+      rewrite eq in iso . 
+      assert ( ge := isover_geh iso ) .  
       assert ( gt := isabove_gth isab' ) . 
       exact ( natgthnegleh gt ge ) . 
 

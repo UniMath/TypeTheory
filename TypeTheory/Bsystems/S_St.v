@@ -184,18 +184,18 @@ Defined.
 Lemma isover_S_S_2 { BB : lBsystem_carrier }
       { S : S_ops_type BB } ( ax0 :  S_ax0_type S ) ( ax1a : S_ax1a_type S )
       { r : Tilde BB } { Y Y' : BB } ( inn : S_dom r Y ) ( inn' : S_dom r Y' )
-      ( is : isover Y Y' ) : isover ( S r Y inn ) ( S r Y' inn' ) .
+      ( iso : isover Y Y' ) : isover ( S r Y inn ) ( S r Y' inn' ) .
 Proof .
   unfold isover in * .
   do 2 rewrite ax0 .
   simpl .
   assert ( isab : isabove ( ftn ( ll Y - ll Y') Y ) ( dd r ) ) .
-  rewrite <- is . 
+  rewrite <- iso . 
   exact inn' . 
 
   rewrite ( natmiusmius1mminus1 ( S_dom_gt0 inn ) ( S_dom_gt0 inn' ) ) . 
   rewrite ( ftn_S ax1a _ isab inn ) .
-  exact ( S_equals_2 _ is _ _ ) . 
+  exact ( S_equals_2 _ iso _ _ ) . 
 
 Defined.
 
@@ -203,16 +203,16 @@ Defined.
 Lemma isabove_S_S_2 { BB : lBsystem_carrier }
       { S : S_ops_type BB } ( ax0 :  S_ax0_type S ) ( ax1a : S_ax1a_type S )
       { r : Tilde BB } { Y Y' : BB } ( inn : S_dom r Y ) ( inn' : S_dom r Y' )
-      ( is : isabove Y Y' ) : isabove ( S r Y inn ) ( S r Y' inn' ) .
+      ( isa : isabove Y Y' ) : isabove ( S r Y inn ) ( S r Y' inn' ) .
 Proof .
   use isabove_constr.
   do 2 rewrite ax0 .
   use natgthandminusinvr.
-  exact ( isabove_gth is ) .
+  exact ( isabove_gth isa ) .
 
   exact ( S_dom_ge1 inn' ) . 
 
-  exact ( isover_S_S_2 ax0 ax1a _ _ is ) . 
+  exact ( isover_S_S_2 ax0 ax1a _ _ isa ) . 
 
 Defined.
 
