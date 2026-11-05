@@ -193,7 +193,7 @@ Coercion tt_reindx_from_tt_reindx_comp_1 (CC : category) (C : tt_reindx_comp_1_s
 Definition comp_obj {CC : category} {C : tt_reindx_comp_1_struct CC} (Γ : CC) (A : C⟨Γ⟩)
   : CC
 :=  (pr1 (pr2 C Γ A)).
-Notation "Γ ∙ A" := (comp_obj Γ A) (at level 35).
+Notation "Γ ∙ A" := (comp_obj Γ A).
   (* \. in Adga mode *)
 
 Definition proj_mor {CC : category} {C : tt_reindx_comp_1_struct CC}
