@@ -34,7 +34,7 @@ Reserved Notation "C ⟨ Γ ⟩" (at level 60).
 Reserved Notation "C ⟨ Γ ⊢ A ⟩" (at level 60).
 Reserved Notation "A [[ γ ]]" (at level 40).
 Reserved Notation "a ⟦ γ ⟧" (at level 40).
-Reserved Notation "Γ ∙ A" (at level 35).
+Reserved Notation "Γ ∙ A" (at level 34, left associativity).
 Reserved Notation "'π' A" (at level 20).
 Reserved Notation "'ν' A" (at level 15).
 Reserved Notation "γ ♯ a" (at level 25).
@@ -215,7 +215,7 @@ Coercion tt_reindx_from_tt_reindx_comp_1 (CC : precategory) (C : tt_reindx_comp_
 Definition comp_obj {CC : precategory} {C : tt_reindx_comp_1_struct CC} (Γ : CC) (A : C⟨Γ⟩)
   : CC
 :=  (pr1 (pr2 C Γ A)).
-Notation "Γ ∙ A" := (comp_obj Γ A) (at level 35).
+Notation "Γ ∙ A" := (comp_obj Γ A).
   (* \. in Adga mode *)
 
 Definition proj_mor {CC : precategory} {C : tt_reindx_comp_1_struct CC}
